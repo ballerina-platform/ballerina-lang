@@ -58,10 +58,6 @@ public class CellTypeTest {
         return CellSubtype.cellContaining(ctx.env, ty, mut);
     }
 
-    private SemType tuple(SemType ty) {
-        return SemTypes.tuple(ctx.env, new SemType[]{ty});
-    }
-
     private void assertSemTypeRelation(SemType t1, SemType t2, Relation relation) {
         Relation actual = getSemTypeRelation(t1, t2);
         Assert.assertEquals(actual, relation);
@@ -217,27 +213,30 @@ public class CellTypeTest {
                 // Set 3
                 {
                         SemTypes.union(
-                                cell(tuple(PredefinedType.INT), CELL_MUT_NONE),
-                                cell(tuple(PredefinedType.BOOLEAN), CELL_MUT_NONE)
+                                cell(TypeTestUtils.roTuple(ctx.env, PredefinedType.INT), CELL_MUT_NONE),
+                                cell(TypeTestUtils.roTuple(ctx.env, PredefinedType.BOOLEAN), CELL_MUT_NONE)
                         ),
-                        cell(tuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_NONE),
+                        cell(TypeTestUtils.roTuple(ctx.env, SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)),
+                                CELL_MUT_NONE),
                         Relation.EQUAL
                 },
                 {
                         SemTypes.union(
-                                cell(tuple(PredefinedType.INT), CELL_MUT_LIMITED),
-                                cell(tuple(PredefinedType.BOOLEAN), CELL_MUT_LIMITED)
+                                cell(TypeTestUtils.tuple(ctx.env, PredefinedType.INT), CELL_MUT_LIMITED),
+                                cell(TypeTestUtils.tuple(ctx.env, PredefinedType.BOOLEAN), CELL_MUT_LIMITED)
                         ),
-                        cell(tuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_LIMITED),
+                        cell(TypeTestUtils.tuple(ctx.env, SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)),
+                                CELL_MUT_LIMITED),
                         Relation.SUBTYPE
                 },
                 {
                         SemTypes.union(
-                                cell(tuple(PredefinedType.INT), CELL_MUT_UNLIMITED),
-                                cell(tuple(PredefinedType.BOOLEAN), CELL_MUT_UNLIMITED)
+                                cell(TypeTestUtils.tuple(ctx.env, PredefinedType.INT), CELL_MUT_UNLIMITED),
+                                cell(TypeTestUtils.tuple(ctx.env, PredefinedType.BOOLEAN), CELL_MUT_UNLIMITED)
                         ),
-                        cell(tuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_UNLIMITED),
-                        Relation.EQUAL
+                        cell(TypeTestUtils.tuple(ctx.env, SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)),
+                                CELL_MUT_UNLIMITED),
+                        Relation.SUBTYPE
                 },
         };
     }

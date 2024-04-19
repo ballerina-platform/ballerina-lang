@@ -95,7 +95,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public final Env semtypeEnv;
 
-    public BLangPackage() {
+    public BLangPackage(Env env) {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
@@ -113,7 +113,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.diagnostics = new TreeSet<>(new DiagnosticComparator());
-        this.semtypeEnv = new Env();
+        this.semtypeEnv = env;
     }
 
     @Override

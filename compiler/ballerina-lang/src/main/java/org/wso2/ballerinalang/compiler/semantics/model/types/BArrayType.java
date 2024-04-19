@@ -17,6 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -26,40 +30,55 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.List;
+
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.PredefinedType.ANY;
+import static io.ballerina.types.PredefinedType.NEVER;
+
 /**
  * @since 0.94
  */
 public class BArrayType extends BType implements ArrayType {
+
+    private static final int NO_FIXED_SIZE = -1;
     public BType eType;
 
-    public int size = -1;
+    public int size = NO_FIXED_SIZE;
 
     public BArrayState state = BArrayState.OPEN;
 
     public BArrayType mutableType;
+    public final Env env;
+    private ListDefinition ld = null;
 
-    public BArrayType(BType elementType) {
+    public BArrayType(Env env, BType elementType) {
         super(TypeTags.ARRAY, null);
         this.eType = elementType;
+        this.env = env;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
+        this.env = env;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
         this.size = size;
         this.state = state;
+        this.env = env;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
         super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;
         this.state = state;
+        this.env = env;
     }
 
     @Override
@@ -105,5 +124,45 @@ public class BArrayType extends BType implements ArrayType {
             }
         }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
+    }
+
+    private boolean hasTypeHoles() {
+        return eType instanceof BNoType;
+    }
+
+    // If the element type has a semtype component then it will be represented by that component otherwise with never.
+    // This means we depend on properly partitioning types to semtype components. Also, we need to ensure member types
+    // are "ready" when we call this
+    @Override
+    public SemType semType() {
+        if (ld != null) {
+            return ld.getSemType(env);
+        }
+        ld = new ListDefinition();
+        if (hasTypeHoles()) {
+            return ld.defineListTypeWrapped(env, ANY);
+        }
+        SemType elementTypeSemType = eType.semType();
+        if (elementTypeSemType == null) {
+            elementTypeSemType = NEVER;
+        }
+        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
+        // Not entirely sure if I understand this correctly,
+        //   if size == -1 it means T[]
+        //   if size < 0 && not -1 it means T[abs(size)] (and size was inferred)
+        //   else it is the fixed size
+        if (size != NO_FIXED_SIZE) {
+            return ld.defineListTypeWrapped(env, List.of(elementTypeSemType), Math.abs(size), NEVER, mut);
+        } else {
+            return ld.defineListTypeWrapped(env, List.of(), 0, elementTypeSemType, mut);
+        }
+    }
+
+    // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
+    // this will have an invalid list type since parent union type call this while it is filling its members
+    @Override
+    public boolean isNullable() {
+        return false;
     }
 }

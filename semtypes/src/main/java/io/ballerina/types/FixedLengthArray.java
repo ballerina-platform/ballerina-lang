@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,19 +28,26 @@ import java.util.List;
  * { initial: [string, int], fixedLength: 100 } means `int` is repeated 99 times to get a list of 100 members.
  * `fixedLength` must be `0` when `inital` is empty and the `fixedLength` must be at least `initial.length()`
  *
+ * @param initial     List of semtypes of the members of the fixes length array. If last member is repeated multiple
+ *                    times it is included only once. For example for {@code [string, string, int, int]} initial would
+ *                    be {@code [string, string, int]}
+ * @param fixedLength Actual length of the array. For example for {@code [string, string, int, int]} fixedLength would
+ *                    be {@code 4}
  * @since 2201.8.0
  */
-public class FixedLengthArray {
-    public List<SemType> initial;
-    public int fixedLength;
+public record FixedLengthArray(List<CellSemType> initial, int fixedLength) {
 
-    private FixedLengthArray(List<SemType> initial, int fixedLength) {
-        this.initial = initial;
-        this.fixedLength = fixedLength;
+    public FixedLengthArray {
+        initial = List.copyOf(initial);
+        assert fixedLength >= 0;
     }
 
-    public static FixedLengthArray from(List<SemType> initial, int fixedLength) {
+    public static FixedLengthArray from(List<CellSemType> initial, int fixedLength) {
         return new FixedLengthArray(initial, fixedLength);
+    }
+
+    public List<CellSemType> initial() {
+        return Collections.unmodifiableList(initial);
     }
 
     public static FixedLengthArray empty() {

@@ -23,20 +23,24 @@ import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import static io.ballerina.types.PredefinedType.IMPLEMENTED_ANY_TYPE;
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
+
 /**
  * @since 0.94
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
+    private boolean isNilLifted = false;
+
     public BAnyType(BTypeSymbol tsymbol) {
-        this(tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        this(tsymbol, IMPLEMENTED_ANY_TYPE);
     }
 
     private BAnyType(BTypeSymbol tsymbol, SemType semType) {
@@ -44,17 +48,19 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
-        this(tsymbol, name, flag, SemTypeHelper.READONLY_SEMTYPE);
+        this(tsymbol, name, flag, IMPLEMENTED_ANY_TYPE);
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        super(TypeTags.ANY, tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        super(TypeTags.ANY, tsymbol, semType);
         this.name = name;
         this.flags = flags;
     }
 
     public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
-        return new BAnyType(tsymbol, Core.diff(SemTypeHelper.READONLY_SEMTYPE, PredefinedType.NIL));
+        BAnyType result = new BAnyType(tsymbol, Core.diff(IMPLEMENTED_ANY_TYPE, PredefinedType.NIL));
+        result.isNilLifted = true;
+        return result;
     }
 
     @Override
@@ -76,5 +82,19 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public SemType semType() {
+        SemType semType;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            semType = Core.intersect(IMPLEMENTED_ANY_TYPE, VAL_READONLY);
+        } else {
+            semType = IMPLEMENTED_ANY_TYPE;
+        }
+        if (isNilLifted) {
+            semType = Core.diff(semType, PredefinedType.NIL);
+        }
+        return semType;
     }
 }

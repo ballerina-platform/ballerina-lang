@@ -19,19 +19,28 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeCode;
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.Core.isNever;
+import static io.ballerina.types.Core.union;
+import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.UNDEF;
+import static io.ballerina.types.PredefinedType.basicSubtype;
+import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
 /**
  * Represent list/tuple type desc.
@@ -55,37 +64,42 @@ public class ListDefinition implements Definition {
         }
     }
 
-    // Overload define method for commonly used default parameter values
-
-    /***
-     * Define a tuple type without a rest type.
-     */
-    public ComplexSemType define(Env env, List<SemType> initial) {
-        return define(env, initial, initial.size(), PredefinedType.NEVER);
+    public SemType tupleTypeWrapped(Env env, SemType... members) {
+        return defineListTypeWrapped(env, List.of(members), members.length);
     }
 
-    /***
-     * Define a fixed length array type.
-     */
-    public ComplexSemType define(Env env, List<SemType> initial, int size) {
-        return define(env, initial, size, PredefinedType.NEVER);
+    public SemType tupleTypeWrappedRo(Env env, SemType... members) {
+        return defineListTypeWrapped(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
     }
 
-    /***
-     * define an array type.
-     */
-    public ComplexSemType define(Env env, SemType rest) {
-        return define(env, new ArrayList<>(), 0, rest);
+
+    public SemType defineListTypeWrapped(Env env, List<SemType> initial, int fixedLength, SemType rest,
+                                         CellAtomicType.CellMutability mut) {
+        assert rest != null;
+        List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut)).toList();
+        CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
+        return define(env, initialCells, fixedLength, restCell);
     }
 
-    /***
-     * Define a tuple type with a rest type.
-     */
-    public ComplexSemType define(Env env, List<SemType> initial, SemType rest) {
-        return define(env, initial, initial.size(), rest);
+    // Overload defineListTypeWrapped method for commonly used default parameter values
+    public SemType defineListTypeWrapped(Env env, List<SemType> initial, int size) {
+        return defineListTypeWrapped(env, initial, size, NEVER, CELL_MUT_LIMITED);
     }
 
-    public ComplexSemType define(Env env, List<SemType> initial, int fixedLength, SemType rest) {
+    public SemType defineListTypeWrapped(Env env, List<SemType> initial, int fixedLength, SemType rest) {
+        return defineListTypeWrapped(env, initial, fixedLength, rest, CELL_MUT_LIMITED);
+    }
+
+    public SemType defineListTypeWrapped(Env env, SemType rest) {
+        return defineListTypeWrapped(env, List.of(), 0, rest);
+    }
+
+    public SemType defineListTypeWrapped(Env env, List<SemType> initial, SemType rest) {
+        return defineListTypeWrapped(env, initial, initial.size(), rest, CELL_MUT_LIMITED);
+    }
+
+    private ComplexSemType define(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
+        assert rest != null;
         FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
         ListAtomicType atomicType = ListAtomicType.from(members, rest);
         Atom atom;
@@ -100,7 +114,7 @@ public class ListDefinition implements Definition {
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
-        List<SemType> initial = array.initial;
+        List<CellSemType> initial = array.initial();
         int i = initial.size() - 1;
         if (i <= 0) {
             return array;
@@ -113,19 +127,14 @@ public class ListDefinition implements Definition {
             }
             i -= 1;
         }
-        return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength);
+        return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength());
     }
 
     private ComplexSemType createSemType(Env env, Atom atom) {
         BddNode bdd = BddCommonOps.bddAtom(atom);
-        ComplexSemType s = PredefinedType.basicSubtype(BasicTypeCode.BT_LIST, bdd);
-        this.semType = s;
-        return s;
-    }
-
-    public static SemType tuple(Env env, SemType... members) {
-        ListDefinition def = new ListDefinition();
-        return def.define(env, List.of(members));
+        ComplexSemType complexSemType = basicSubtype(BasicTypeCode.BT_LIST, bdd);
+        this.semType = complexSemType;
+        return complexSemType;
     }
 
 }

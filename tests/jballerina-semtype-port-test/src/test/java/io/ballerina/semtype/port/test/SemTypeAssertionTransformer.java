@@ -188,28 +188,24 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
     /**
      * Subtype test.
      *
+     * @param context  Type context under which {@code SemTypes} were defined.
+     * @param fileName Name of the file in which types were defined in.
+     * @param lhs      Resolved {@code SemType} for the Left-hand side of the subtype test.
+     * @param rhs      Resolved {@code SemType} for the Right-hand side of the subtype test.
+     * @param kind     Relationship between the two types.
+     * @param text     Text that will be shown in case of assertion failure.
      * @since 3.0.0
      */
-    public static class TypeAssertion {
-        final String file;
-        final SemType lhs;
-        final SemType rhs;
-        final RelKind kind;
-        final String text;
-        final Context context;
+    record TypeAssertion(Context context, String fileName, SemType lhs, SemType rhs, RelKind kind, String text) {
 
-        public TypeAssertion(Context context, String fileName, SemType lhs, SemType rhs, RelKind kind, String text) {
-            this.context = context;
-            this.file = fileName;
-            this.lhs = lhs;
-            this.rhs = rhs;
-            this.kind = kind;
-            this.text = text;
+        TypeAssertion {
+            assert lhs != null;
+            assert rhs != null;
         }
 
         @Override
         public String toString() {
-            return Paths.get(file).getFileName().toString() + ": " + text;
+            return Paths.get(fileName).getFileName().toString() + ": " + text;
         }
     }
 

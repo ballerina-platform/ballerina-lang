@@ -48,14 +48,14 @@ public class MappingPairIterator implements Iterator<FieldPair> {
     private FieldPair cache = null;
 
     public MappingPairIterator(MappingAtomicType m1, MappingAtomicType m2) {
-        this.names1 = m1.names;
+        this.names1 = m1.names();
         this.len1 = this.names1.length;
-        this.types1 = m1.types;
-        this.rest1 = m1.rest;
-        this.names2 = m2.names;
+        this.types1 = m1.types();
+        this.rest1 = m1.rest();
+        this.names2 = m2.names();
         this.len2 = this.names2.length;
-        this.types2 = m2.types;
-        this.rest2 = m2.rest;
+        this.types2 = m2.types();
+        this.rest2 = m2.rest();
     }
 
     @Override

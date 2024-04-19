@@ -80,12 +80,12 @@ public class MappingDefinition implements Definition {
         return this.createSemType(env, atom);
     }
 
-    public static SemType defineMappingTypeWrapped(MappingDefinition md, Env env, List<Field> fields, SemType rest) {
-        return defineMappingTypeWrapped(md, env, fields, rest, CELL_MUT_LIMITED);
+    public SemType defineMappingTypeWrapped(Env env, List<Field> fields, SemType rest) {
+        return defineMappingTypeWrapped(env, fields, rest, CELL_MUT_LIMITED);
     }
 
-    public static SemType defineMappingTypeWrapped(MappingDefinition md, Env env, List<Field> fields, SemType rest,
-                                                   CellAtomicType.CellMutability mut) {
+    public SemType defineMappingTypeWrapped(Env env, List<Field> fields, SemType rest,
+                                            CellAtomicType.CellMutability mut) {
         List<CellField> cellFields = new ArrayList<>(fields.size());
         for (Field field : fields) {
             SemType ty = field.ty();
@@ -102,7 +102,7 @@ public class MappingDefinition implements Definition {
                 union(rest, UNDEF),
                 Core.isNever(rest) ? CELL_MUT_NONE : mut
         );
-        return md.define(env, cellFields, restCell);
+        return define(env, cellFields, restCell);
     }
 
     private SemType createSemType(Env env, Atom atom) {

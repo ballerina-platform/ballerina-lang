@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_RO;
+
 /**
  * Env node.
  *
@@ -39,9 +41,22 @@ public class Env {
     public Env() {
         this.atomTable = new HashMap<>();
         this.recListAtoms = new ArrayList<>();
+        recListAtoms.add(LIST_ATOMIC_RO);
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
+    }
+
+    public int recListAtomCount() {
+        return this.recListAtoms.size();
+    }
+
+    public int recMappingAtomCount() {
+        return this.recMappingAtoms.size();
+    }
+
+    public int recFunctionAtomCount() {
+        return this.recFunctionAtoms.size();
     }
 
     public RecAtom recFunctionAtom() {
@@ -55,6 +70,7 @@ public class Env {
 
     public void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
         synchronized (this.recFunctionAtoms) {
+            ra.setTargetKind(RecAtom.TargetKind.FUNCTION_ATOM);
             this.recFunctionAtoms.set(ra.index, atomicType);
         }
     }
@@ -84,9 +100,34 @@ public class Env {
                 return ta;
             } else {
                 TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-                this.atomTable.put(result.atomicType, result);
+                this.atomTable.put(result.atomicType(), result);
                 return result;
             }
+        }
+    }
+
+    public void insertAtomAtIndex(int index, AtomicType atomicType) {
+        if (atomicType instanceof MappingAtomicType mappingAtomicType) {
+            insertAtomAtIndexInner(index, this.recMappingAtoms, mappingAtomicType);
+        } else if (atomicType instanceof ListAtomicType listAtomicType) {
+            insertAtomAtIndexInner(index, this.recListAtoms, listAtomicType);
+        } else if (atomicType instanceof FunctionAtomicType functionAtomicType) {
+            insertAtomAtIndexInner(index, this.recFunctionAtoms, functionAtomicType);
+        } else {
+            throw new UnsupportedOperationException("Unknown atomic type " + atomicType);
+        }
+    }
+
+    private <E extends AtomicType> void insertAtomAtIndexInner(int index, List<E> atoms, E atomicType) {
+        // atoms are always private final fields therefore synchronizing on them should be safe.
+        synchronized (atoms) {
+            if (atoms.size() > index && atoms.get(index) != null) {
+                return;
+            }
+            while (atoms.size() < index + 1) {
+                atoms.add(null);
+            }
+            atoms.set(index, atomicType);
         }
     }
 
@@ -94,7 +135,15 @@ public class Env {
         if (atom instanceof RecAtom recAtom) {
             return getRecListAtomType(recAtom);
         } else {
-            return (ListAtomicType) ((TypeAtom) atom).atomicType;
+            return (ListAtomicType) ((TypeAtom) atom).atomicType();
+        }
+    }
+
+    public FunctionAtomicType functionAtomType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return getRecFunctionAtomType(recAtom);
+        } else {
+            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -102,7 +151,7 @@ public class Env {
         if (atom instanceof RecAtom recAtom) {
             return getRecMappingAtomType(recAtom);
         } else {
-            return (MappingAtomicType) ((TypeAtom) atom).atomicType;
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -124,26 +173,32 @@ public class Env {
 
     public void setRecListAtomType(RecAtom ra, ListAtomicType atomicType) {
         synchronized (this.recListAtoms) {
+            ra.setTargetKind(RecAtom.TargetKind.LIST_ATOM);
             this.recListAtoms.set(ra.index, atomicType);
         }
     }
 
     public void setRecMappingAtomType(RecAtom ra, MappingAtomicType atomicType) {
         synchronized (this.recListAtoms) {
+            ra.setTargetKind(RecAtom.TargetKind.MAPPING_ATOM);
             this.recMappingAtoms.set(ra.index, atomicType);
         }
     }
 
     public ListAtomicType getRecListAtomType(RecAtom ra) {
         synchronized (this.recListAtoms) {
-            return (ListAtomicType) this.recListAtoms.get(ra.index);
+            return this.recListAtoms.get(ra.index);
         }
     }
 
     public MappingAtomicType getRecMappingAtomType(RecAtom ra) {
         synchronized (this.recMappingAtoms) {
-            return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
+            return this.recMappingAtoms.get(ra.index);
         }
+    }
+
+    public static CellAtomicType cellAtomType(Atom atom) {
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
     public void addTypeDef(String typeName, SemType semType) {

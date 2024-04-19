@@ -17,31 +17,22 @@
  */
 package io.ballerina.types;
 
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER_MAPPING;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_NEVER;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
-
 /**
  * Represent a TypeAtom.
  *
+ * @param index      index of the type atom. This is unique within a given {@code Env}. {@code RecAtom}'s that refer to
+ *                   this type atom will also have the same index.
+ * @param atomicType atomic type representing the actual type represented by this atom.
  * @since 2201.8.0
  */
-public class TypeAtom implements Atom {
-    public final long index;
-    public final AtomicType atomicType;
+public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
-    public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
-    public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(1, CELL_ATOMIC_NEVER);
-    public static final TypeAtom ATOM_CELL_INNER = createTypeAtom(2, CELL_ATOMIC_INNER);
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING);
-
-    private TypeAtom(long index, AtomicType atomicType) {
-        this.index = index;
-        this.atomicType = atomicType;
+    public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
+        return new TypeAtom(index, atomicType);
     }
 
-    public static TypeAtom createTypeAtom(long index, AtomicType atomicType) {
-        return new TypeAtom(index, atomicType);
+    @Override
+    public int hashCode() {
+        return index;
     }
 }

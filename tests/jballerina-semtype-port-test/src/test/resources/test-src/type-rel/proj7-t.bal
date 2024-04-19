@@ -16,10 +16,10 @@ type C12 1|2;
 
 type T1 [int?, string?, float|boolean...];
 type T2 [int, (string|float)...];
-// -@type T3[0] = INTOPT
-// -@type T3[1] = STROPT
-// -@type T3[C01] = INTSTROPT
-// -@type T3[C02] = INT_FLOAT_BOOL_OPT
-// -@type T3[C12] = STR_FLOAT_BOOL_OPT
-// -@type T3[INT] = INT_STR_FLOAT_BOOL_OPT
+// @type T3[0] = INTOPT
+// @type T3[1] = STROPT
+// @type T3[C01] = INTSTROPT
+// @type T3[C02] = INT_FLOAT_BOOL_OPT
+// @type T3[C12] = STR_FLOAT_BOOL_OPT
+// @type T3[INT] = INT_STR_FLOAT_BOOL_OPT
 type T3 T1 & !T2;

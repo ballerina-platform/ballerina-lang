@@ -18,20 +18,23 @@
 package io.ballerina.types.typeops;
 
 /**
- * Used to return [int[], int[]].
+ * Used to return two values from a method.
  *
+ * @param <E1> Type of first item
+ * @param <E2> Type of second item
  * @since 2201.8.0
  */
-public class TwoTuple {
-    Object item1;
-    Object item2;
+public final class TwoTuple<E1, E2> {
 
-    private TwoTuple(Object tuple1, Object tuple2) {
-        this.item1 = tuple1;
-        this.item2 = tuple2;
+    E1 item1;
+    E2 item2;
+
+    private TwoTuple(E1 item1, E2 item2) {
+        this.item1 = item1;
+        this.item2 = item2;
     }
 
-    public static TwoTuple from(Object item1, Object item2) {
-        return new TwoTuple(item1, item2);
+    public static <E1, E2> TwoTuple<E1, E2> from(E1 item1, E2 item2) {
+        return new TwoTuple<>(item1, item2);
     }
 }

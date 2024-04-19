@@ -17,7 +17,6 @@
  */
 package io.ballerina.types;
 
-import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -95,10 +94,6 @@ public class SemTypes {
         return i;
     }
 
-    public static SemType tuple(Env env, SemType[] members) {
-        return ListDefinition.tuple(env, members);
-    }
-
     public static boolean isSubtype(Context context, SemType t1, SemType t2) {
         return Core.isSubtype(context, t1, t2);
     }
@@ -124,11 +119,11 @@ public class SemTypes {
     }
 
     public static SemType listProj(Context context, SemType t, SemType key) {
-        return ListProj.listProj(context, t, key);
+        return ListProj.listProjInnerVal(context, t, key);
     }
 
     public static SemType listMemberType(Context context, SemType t, SemType key) {
-        return Core.listMemberType(context, t, key);
+        return Core.listMemberTypeInnerVal(context, t, key);
     }
 
     public static SemType xmlSequence(SemType t) {

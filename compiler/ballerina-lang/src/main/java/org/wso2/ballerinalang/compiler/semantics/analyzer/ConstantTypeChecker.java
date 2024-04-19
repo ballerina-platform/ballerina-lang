@@ -1372,7 +1372,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         List<BTupleMember> members = new ArrayList<>();
         memberTypes.forEach(m ->
                 members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, members);
+        BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, members);
         tupleType.tsymbol.type = tupleType;
         return tupleType;
     }
@@ -1803,7 +1803,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
 
-                BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(broadTypes), false, false);
+                BUnionType unionType =
+                        new BUnionType(types.typeEnv(), null, new LinkedHashSet<>(broadTypes), false, false);
                 return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
@@ -2030,7 +2031,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             lhsType.remove(memberTypeLhs);
         }
         if (memberTypes.size() != 1) {
-            data.resultType = BUnionType.create(null, memberTypes);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, memberTypes);
         } else {
             data.resultType = memberTypes.iterator().next();
         }
@@ -2066,7 +2067,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             lhsType.remove(memberTypeLhs);
         }
         if (memberTypes.size() != 1) {
-            data.resultType = BUnionType.create(null, memberTypes);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, memberTypes);
         } else {
             data.resultType = memberTypes.iterator().next();
         }
@@ -2213,7 +2214,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                     data.env.scope.owner, null, SOURCE);
             if (arrayType.state == BArrayState.OPEN) {
-                BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, new ArrayList<>());
+                BTupleType resultTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, new ArrayList<>());
                 tupleTypeSymbol.type = resultTupleType;
                 data.resultType = resultTupleType;
                 return;
@@ -2233,7 +2234,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             List<BTupleMember> members = new ArrayList<>();
             tupleTypes.forEach(m ->
                     members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
-            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, members);
+            BTupleType resultTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, members);
             tupleTypeSymbol.type = resultTupleType;
             data.resultType = resultTupleType;
         }
@@ -2365,7 +2366,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             List<BTupleMember> members = new ArrayList<>();
             tupleTypes.forEach(m ->
                     members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
-            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, members);
+            BTupleType resultTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, members);
             tupleTypeSymbol.type = resultTupleType;
             data.resultType = resultTupleType;
         }

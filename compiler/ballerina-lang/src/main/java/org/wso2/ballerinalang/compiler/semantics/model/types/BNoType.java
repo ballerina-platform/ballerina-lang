@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.NoType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 
@@ -32,5 +34,10 @@ public class BNoType extends BType implements NoType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        return PredefinedType.UNDEF;
     }
 }

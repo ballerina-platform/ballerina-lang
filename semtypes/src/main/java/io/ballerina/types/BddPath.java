@@ -56,13 +56,13 @@ public class BddPath {
             BddPath left = bddPathClone(accum);
             BddPath right = bddPathClone(accum);
             BddNode bn = (BddNode) b;
-            left.pos.add(bn.atom);
-            left.bdd = BddCommonOps.bddIntersect(left.bdd, BddCommonOps.bddAtom(bn.atom));
-            bddPaths(bn.left, paths, left);
-            bddPaths(bn.middle, paths, accum);
-            right.neg.add(bn.atom);
-            right.bdd = BddCommonOps.bddDiff(right.bdd, BddCommonOps.bddAtom(bn.atom));
-            bddPaths(bn.right, paths, right);
+            left.pos.add(bn.atom());
+            left.bdd = BddCommonOps.bddIntersect(left.bdd, BddCommonOps.bddAtom(bn.atom()));
+            bddPaths(bn.left(), paths, left);
+            bddPaths(bn.middle(), paths, accum);
+            right.neg.add(bn.atom());
+            right.bdd = BddCommonOps.bddDiff(right.bdd, BddCommonOps.bddAtom(bn.atom()));
+            bddPaths(bn.right(), paths, right);
         }
     }
 

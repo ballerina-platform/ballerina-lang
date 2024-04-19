@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -11,22 +11,25 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied. See the License for the
+ *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.types;
 
-/**
- * FunctionAtomicType node.
- *
- * @param paramType semtype of parameters represented as a tuple
- * @param retType   semtype of the return value
- * @since 2201.8.0
- */
-public record FunctionAtomicType(SemType paramType, SemType retType) implements AtomicType {
+import io.ballerina.types.definition.ListDefinition;
 
-    public static FunctionAtomicType from(SemType paramType, SemType rest) {
-        return new FunctionAtomicType(paramType, rest);
+enum TypeTestUtils {
+    ;
+
+    static SemType tuple(Env env, SemType... ty) {
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrapped(env, ty);
+    }
+
+    static SemType roTuple(Env env, SemType... ty) {
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrappedRo(env, ty);
     }
 }

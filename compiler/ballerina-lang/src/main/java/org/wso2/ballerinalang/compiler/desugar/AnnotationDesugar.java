@@ -764,7 +764,7 @@ public class AnnotationDesugar {
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
-        valueLiteral.setBType(new BArrayType(symTable.stringType));
+        valueLiteral.setBType(new BArrayType(symTable.typeEnv(), symTable.stringType));
         valueLiteral.typeChecked = true;
         valueLiteral.pos = pos;
 

@@ -69,7 +69,7 @@ public class SemTypeTest {
                 "test-src/simple-type/float-altered.bal",
                 // "test-src/simple-type/function-altered.bal", // func type not supported yet
                 "test-src/simple-type/int-singleton-altered.bal",
-                // "test-src/simple-type/list-type-test.bal", // list type not supported yet
+                "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal",
                 "test-src/simple-type/type-test.bal"
         );
@@ -85,19 +85,12 @@ public class SemTypeTest {
         hashSet.add("error1.bal");
         hashSet.add("error2.bal");
 
-        // list type not supported yet
-        hashSet.add("bdddiff1.bal");
+        // readonly type not supported yet
         hashSet.add("fixed-length-array.bal");
-        hashSet.add("fixed-length-array-2.bal");
-        hashSet.add("fixed-length-array-2-2-e.bal");
-        hashSet.add("fixed-length-array-2-3-e.bal");
-        hashSet.add("fixed-length-array-2-4-e.bal");
         hashSet.add("fixed-length-array-tuple.bal");
-        hashSet.add("hard.bal");
-        hashSet.add("list-fixed.bal");
-        hashSet.add("tuple1.bal");
-        hashSet.add("tuple4.bal");
 
+        // causes a stack overflow with mappingSubtypeIsEmpty
+        hashSet.add("hard.bal");
         // func type not supported yet
         hashSet.add("function.bal"); // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
         hashSet.add("never.bal");
@@ -179,28 +172,16 @@ public class SemTypeTest {
 
     public final HashSet<String> typeRelDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // list type not supported yet
-        hashSet.add("bdddiff1-tv.bal");
-        hashSet.add("fixed-length-array2-t.bal");
-        hashSet.add("fixed-length-array-t.bal");
-        hashSet.add("fixed-length-array-tuple-t.bal");
-        hashSet.add("proj1-tv.bal");
-        hashSet.add("proj2-tv.bal");
-        hashSet.add("proj3-t.bal");
-        hashSet.add("proj4-t.bal");
-        hashSet.add("proj5-t.bal");
-        hashSet.add("proj6-t.bal");
+        // intersection with negative (!) atom
         hashSet.add("proj7-t.bal");
         hashSet.add("proj8-t.bal");
         hashSet.add("proj9-t.bal");
         hashSet.add("proj10-t.bal");
-        hashSet.add("tuple1-tv.bal");
-        hashSet.add("tuple2-tv.bal");
-        hashSet.add("tuple3-tv.bal");
-        hashSet.add("tuple4-tv.bal");
-        hashSet.add("test_test.bal");
 
         // readonly type not supported yet
+        hashSet.add("fixed-length-array-t.bal");
+        hashSet.add("fixed-length-array-tuple-t.bal");
+
         hashSet.add("xml-complex-ro-tv.bal");
         hashSet.add("xml-readonly-tv.bal");
         hashSet.add("xml-te.bal");
@@ -261,34 +242,38 @@ public class SemTypeTest {
 
     @Test(dataProvider = "type-rel-provider")
     public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
-        if (typeAssertion.kind == null) {
-            Assert.fail("Exception thrown in " + typeAssertion.file + System.lineSeparator() + typeAssertion.text);
+        if (typeAssertion.kind() == null) {
+            Assert.fail(
+                    "Exception thrown in " + typeAssertion.fileName() + System.lineSeparator() + typeAssertion.text());
         }
 
-        switch (typeAssertion.kind) {
+        switch (typeAssertion.kind()) {
             case NON:
-                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                Assert.assertFalse(
+                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
                                    formatFailingAssertionDescription(typeAssertion));
-                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                Assert.assertFalse(
+                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
                                    formatFailingAssertionDescription(typeAssertion));
                 break;
             case SUB:
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
                                   formatFailingAssertionDescription(typeAssertion));
-                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                Assert.assertFalse(
+                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
                         formatFailingAssertionDescription(typeAssertion));
                 break;
             case SAME:
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
                                   formatFailingAssertionDescription(typeAssertion));
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
                                   formatFailingAssertionDescription(typeAssertion));
         }
     }
 
     @NotNull
     private String formatFailingAssertionDescription(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
-        return typeAssertion.text + "\n in: " + typeAssertion.file;
+        return typeAssertion.text() + "\n in: " + typeAssertion.fileName();
     }
 
 

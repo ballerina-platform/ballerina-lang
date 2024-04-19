@@ -20,31 +20,20 @@ package io.ballerina.types;
 /**
  * CellAtomicType node.
  *
+ * @param ty  Type "wrapped" by this cell
+ * @param mut Mutability of the cell
  * @since 2201.10.0
  */
-public final class CellAtomicType implements AtomicType {
-    public final SemType ty;
-    public final CellMutability mut;
-
-    public static final CellAtomicType CELL_ATOMIC_VAL = from(PredefinedType.VAL, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_INNER = from(PredefinedType.INNER, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_NEVER = from(PredefinedType.NEVER, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = from(
-            Core.union(PredefinedType.MAPPING, PredefinedType.UNDEF), CellMutability.CELL_MUT_LIMITED
-    );
-
-    private CellAtomicType(SemType ty, CellMutability mut) {
-        this.ty = ty;
-        this.mut = mut;
-    }
+public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
+        // TODO: return final fields where applicable
         return new CellAtomicType(ty, mut);
     }
 
     public enum CellMutability {
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
-        CELL_MUT_UNLIMITED;
+        CELL_MUT_UNLIMITED
     }
 }

@@ -28,7 +28,6 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
-import io.ballerina.types.typeops.CellOps;
 import io.ballerina.types.typeops.SubtypePair;
 import io.ballerina.types.typeops.SubtypePairs;
 
@@ -37,29 +36,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.types.BasicTypeCode.BT_CELL;
-import static io.ballerina.types.BasicTypeCode.BT_TABLE;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
-import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.Common.isNothingSubtype;
-import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
-import static io.ballerina.types.PredefinedType.INNER;
-import static io.ballerina.types.PredefinedType.LIST;
-import static io.ballerina.types.PredefinedType.MAPPING;
-import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_CELL;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
+import static io.ballerina.types.BasicTypeCode.BT_NIL;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_TABLE;
+import static io.ballerina.types.BasicTypeCode.VT_MASK;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.Common.isNothingSubtype;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
+import static io.ballerina.types.PredefinedType.INNER;
+import static io.ballerina.types.PredefinedType.LIST;
+import static io.ballerina.types.PredefinedType.MAPPING;
+import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_INNER;
+import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.PredefinedType.XML;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
-import static io.ballerina.types.typeops.ListOps.bddListMemberType;
+import static io.ballerina.types.typeops.CellOps.intersectCellAtomicType;
+import static io.ballerina.types.typeops.ListOps.bddListMemberTypeInnerVal;
 import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
 
 /**
@@ -70,7 +72,74 @@ import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
 public final class Core {
 
     public static CellAtomicType cellAtomType(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType;
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
+    }
+
+    public static SemType diff(SemType t1, SemType t2) {
+        BasicTypeBitSet all1, all2, some1, some2;
+        if (t1 instanceof BasicTypeBitSet b1) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                return BasicTypeBitSet.from(b1.bitset & ~b2.bitset);
+            } else {
+                if (b1.bitset == 0) {
+                    return t1;
+                }
+                ComplexSemType c2 = (ComplexSemType) t2;
+                all2 = c2.all;
+                some2 = c2.some;
+            }
+            all1 = b1;
+            some1 = BasicTypeBitSet.from(0);
+        } else {
+            ComplexSemType c1 = (ComplexSemType) t1;
+            all1 = c1.all;
+            some1 = c1.some;
+            if (t2 instanceof BasicTypeBitSet b2) {
+                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                    return BasicTypeBitSet.from(0);
+                }
+                all2 = b2;
+                some2 = BasicTypeBitSet.from(0);
+            } else {
+                ComplexSemType c2 = (ComplexSemType) t2;
+                all2 = c2.all;
+                some2 = c2.some;
+            }
+        }
+        BasicTypeBitSet all = BasicTypeBitSet.from(all1.bitset & ~(all2.bitset | some2.bitset));
+
+        int someBitset = (all1.bitset | some1.bitset) & ~all2.bitset;
+        someBitset = someBitset & ~all.bitset;
+        BasicTypeBitSet some = BasicTypeBitSet.from(someBitset);
+
+        if (some.bitset == 0) {
+            return PredefinedType.basicTypeUnion(all.bitset);
+        }
+        List<BasicSubtype> subtypes = new ArrayList<>();
+
+        for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
+            BasicTypeCode code = pair.basicTypeCode;
+            SubtypeData data1 = pair.subtypeData1;
+            SubtypeData data2 = pair.subtypeData2;
+            SubtypeData data;
+            if (data1 == null) {
+                data = OpsTable.OPS[code.code].complement(data2);
+            } else if (data2 == null) {
+                data = data1;
+            } else {
+                data = OpsTable.OPS[code.code].diff(data1, data2);
+            }
+            if (!(data instanceof AllOrNothingSubtype allOrNothingSubtype)) {
+                subtypes.add(BasicSubtype.from(code, (ProperSubtypeData) data));
+            } else if (allOrNothingSubtype.isAllSubtype()) {
+                int c = code.code;
+                all = BasicTypeBitSet.from(all.bitset | (1 << c));
+            }
+        }
+        if (subtypes.isEmpty()) {
+            return all;
+        }
+        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
     public static List<BasicSubtype> unpackComplexSemType(ComplexSemType t) {
@@ -178,7 +247,7 @@ public final class Core {
                 if (b1.bitset == 0) {
                     return t1;
                 }
-                if (b1.bitset == BasicTypeCode.VT_MASK) {
+                if (b1.bitset == VT_MASK) {
                     return t2;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
@@ -195,7 +264,7 @@ public final class Core {
                 if (b2.bitset == 0) {
                     return t2;
                 }
-                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                if (b2.bitset == VT_MASK) {
                     return t1;
                 }
                 all2 = b2;
@@ -243,17 +312,14 @@ public final class Core {
         CellAtomicType c1 = cellAtomicType(t1);
         CellAtomicType c2 = cellAtomicType(t2);
         assert c1 != null && c2 != null;
-        CellAtomicType atomicType = CellOps.intersectCellAtomicType(c1, c2);
-        return cellContaining(env, atomicType.ty, UNDEF.equals(atomicType.ty) ? CELL_MUT_NONE : atomicType.mut);
+        CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
+        return cellContaining(env, atomicType.ty(), UNDEF.equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
     }
 
     public static SemType roDiff(Context cx, SemType t1, SemType t2) {
         return maybeRoDiff(t1, t2, cx);
     }
 
-    public static SemType diff(SemType t1, SemType t2) {
-        return maybeRoDiff(t1, t2, null);
-    }
 
     public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {
         BasicTypeBitSet all1;
@@ -279,7 +345,7 @@ public final class Core {
             all1 = complexT1.all;
             some1 = complexT1.some;
             if (t2 instanceof BasicTypeBitSet b2) {
-                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                if (b2.bitset == VT_MASK) {
                     return BasicTypeBitSet.from(0);
                 }
                 all2 = (BasicTypeBitSet) t2;
@@ -443,7 +509,7 @@ public final class Core {
     // This is what Castagna calls projection.
     // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
     // If `t` is not a list, NEVER is returned
-    public static SemType listMemberType(Context cx, SemType t, SemType k) {
+    public static SemType listMemberTypeInnerVal(Context cx, SemType t, SemType k) {
         if (t instanceof BasicTypeBitSet b) {
             return (b.bitset & LIST.bitset) != 0 ? VAL : NEVER;
         } else {
@@ -451,7 +517,8 @@ public final class Core {
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return bddListMemberType(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData, VAL);
+            return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData,
+                    VAL);
         }
     }
 
@@ -478,10 +545,10 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left.equals(BddAllOrNothing.bddAll())
-                && bddNode.middle.equals(BddAllOrNothing.bddNothing())
-                && bddNode.right.equals(BddAllOrNothing.bddNothing())) {
-            return env.mappingAtomType(bddNode.atom);
+        if (bddNode.left().equals(BddAllOrNothing.bddAll())
+                && bddNode.middle().equals(BddAllOrNothing.bddNothing())
+                && bddNode.right().equals(BddAllOrNothing.bddNothing())) {
+            return env.mappingAtomType(bddNode.atom());
         }
         return null;
     }
@@ -513,13 +580,13 @@ public final class Core {
     public static SemType cellInner(CellSemType t) {
         CellAtomicType cat = cellAtomicType(t);
         assert cat != null;
-        return cat.ty;
+        return cat.ty();
     }
 
     public static CellSemType cellContainingInnerVal(Env env, CellSemType t) {
         CellAtomicType cat = cellAtomicType(t);
         assert cat != null;
-        return cellContaining(env, diff(cat.ty, UNDEF), cat.mut);
+        return cellContaining(env, diff(cat.ty(), UNDEF), cat.mut());
     }
 
     public static CellAtomicType cellAtomicType(SemType t) {
@@ -533,7 +600,7 @@ public final class Core {
         }
     }
 
-    private static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
+    static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
         if (bdd instanceof BddAllOrNothing allOrNothing) {
             if (allOrNothing.isAll()) {
                 return top;
@@ -541,10 +608,10 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left.equals(BddAllOrNothing.bddAll()) &&
-                bddNode.middle.equals(BddAllOrNothing.bddNothing()) &&
-                bddNode.right.equals(BddAllOrNothing.bddNothing())) {
-            return cellAtomType(bddNode.atom);
+        if (bddNode.left().equals(BddAllOrNothing.bddAll()) &&
+                bddNode.middle().equals(BddAllOrNothing.bddNothing()) &&
+                bddNode.right().equals(BddAllOrNothing.bddNothing())) {
+            return cellAtomType(bddNode.atom());
         }
         return null;
     }
@@ -614,11 +681,11 @@ public final class Core {
 
     public static boolean containsNil(SemType t) {
         if (t instanceof BasicTypeBitSet b) {
-            return (b.bitset & (1 << BasicTypeCode.BT_NIL.code)) != 0;
+            return (b.bitset & (1 << BT_NIL.code)) != 0;
         } else {
             // todo: Need to verify this behavior
             AllOrNothingSubtype complexSubtypeData =
-                    (AllOrNothingSubtype) getComplexSubtypeData((ComplexSemType) t, BasicTypeCode.BT_NIL);
+                    (AllOrNothingSubtype) getComplexSubtypeData((ComplexSemType) t, BT_NIL);
             return complexSubtypeData.isAllSubtype();
         }
     }
@@ -713,8 +780,8 @@ public final class Core {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.define(env, new ArrayList<>(), 0,  j);
-        MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
+        listDef.defineListTypeWrapped(env, j);
+        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), j);
         return j;
     }
 
@@ -730,8 +797,8 @@ public final class Core {
         SemType tableTy = TableSubtype.tableContaining(mapDef.getSemType(env));
         SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
                 union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.define(env, ad);
-        MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), ad);
+        listDef.defineListTypeWrapped(env, ad);
+        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
         context.anydataMemo = ad;
         return ad;
     }

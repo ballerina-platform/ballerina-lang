@@ -17,12 +17,14 @@
  */
 package io.ballerina.semtype.port.test;
 
+import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.Field;
+import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import org.ballerinalang.model.elements.Flag;
@@ -34,11 +36,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -51,7 +56,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.types.definition.MappingDefinition.defineMappingTypeWrapped;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
 /**
@@ -150,9 +154,79 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, (BLangUserDefinedType) td, mod, depth);
             case FINITE_TYPE_NODE:
                 return resolveSingletonType((BLangFiniteTypeNode) td);
+            case ARRAY_TYPE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangArrayType) td);
+            case TUPLE_TYPE_NODE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangArrayType td) {
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+        ListDefinition ld = new ListDefinition();
+        td.defn = ld;
+
+        int dimensions = td.dimensions;
+        SemType eType = null;
+        SemType memberTy = resolveTypeDesc(cx, mod, defn, depth + 1, td.elemtype);
+        if (dimensions > 1) {
+            for (int i = 0; i < dimensions - 1; i++) {
+                int size = from(mod, td.sizes.get(i));
+                eType = resolveListInner(cx, size, memberTy);
+            }
+        } else {
+            eType = memberTy;
+        }
+        int size = from(mod, td.sizes.get(dimensions - 1));
+        if (size == -1) {
+            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType);
+        } else {
+            return ld.defineListTypeWrapped(cx.env, List.of(eType), size, PredefinedType.NEVER);
+        }
+    }
+
+    private static int from(Map<String, BLangNode> mod, BLangNode expr) {
+        if (expr instanceof BLangLiteral literal) {
+            return (int) literal.value;
+        } else if (expr instanceof BLangSimpleVarRef varRef) {
+            String varName = varRef.variableName.value;
+            return from(mod, mod.get(varName));
+        } else if (expr instanceof BLangConstant constant) {
+            Number val = (Number) constant.symbol.value.value;
+            return val.intValue();
+        }
+        throw new UnsupportedOperationException("Unsupported expr kind " + expr.getKind());
+    }
+
+    private SemType resolveListInner(Context cx, int size, SemType eType) {
+        ListDefinition ld = new ListDefinition();
+        if (size != -1) {
+            return ld.defineListTypeWrapped(cx.env, List.of(eType), 1, PredefinedType.NEVER,
+                    CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+        } else {
+            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType,
+                    CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+        }
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangTupleTypeNode td) {
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+        ListDefinition ld = new ListDefinition();
+        td.defn = ld;
+        List<SemType> memberSemTypes =
+                td.members.stream().map(member -> resolveTypeDesc(cx, mod, defn, depth + 1, member.typeNode))
+                        .toList();
+        SemType rest = td.restParamType != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.restParamType) :
+                PredefinedType.NEVER;
+        return ld.defineListTypeWrapped(cx.env, memberSemTypes, memberSemTypes.size(), rest);
     }
 
     private SemType resolveTypeDesc(Context cx, BLangValueType td) {
@@ -219,7 +293,7 @@ public class SemTypeResolver {
         td.defn = d;
 
         SemType rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.constraint);
-        return defineMappingTypeWrapped(d, cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped(cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
     }
 
     private SemType resolveXmlTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
@@ -255,7 +329,7 @@ public class SemTypeResolver {
             rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.restFieldType);
         }
 
-        return defineMappingTypeWrapped(d, cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped(cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
     }
 
     private SemType resolveTypeDesc(Context cx, BLangUnionTypeNode td, Map<String, BLangNode> mod, int depth,
