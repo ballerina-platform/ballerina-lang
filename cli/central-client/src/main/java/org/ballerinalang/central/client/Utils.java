@@ -40,12 +40,12 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
@@ -54,6 +54,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -468,13 +469,36 @@ public class Utils {
     }
 
     public static String checkHash(String filePath, String algorithm) throws CentralClientException {
+        MessageDigest md;
         try {
-            byte[] data = Files.readAllBytes(Paths.get(filePath));
-            byte[] hash = MessageDigest.getInstance(algorithm).digest(data);
-            return new BigInteger(1, hash).toString(16);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new CentralClientException("Unable to calculate the hash value of the file: " + filePath);
+            md = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
         }
+
+        try (InputStream is = new FileInputStream(filePath);
+             DigestInputStream dis = new DigestInputStream(is, md)) {
+            while (dis.read() != -1) {
+            }
+            md = dis.getMessageDigest();
+            return bytesToHex(md.digest());
+        } catch (RuntimeException | IOException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     static String getBearerToken(String accessToken) {
