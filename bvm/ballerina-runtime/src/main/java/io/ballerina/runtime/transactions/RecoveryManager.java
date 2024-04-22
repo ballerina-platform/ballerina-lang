@@ -247,32 +247,32 @@ public class RecoveryManager {
      * mixed, or is in hazard state, it needs to be handled manually.
      */
     private boolean handleHeuristicTermination(Xid xid, XAResource xaResource, XAException e, boolean decisionCommit) {
+        boolean shouldForgetXid = true;
+
         switch (e.errorCode) {
-            case XAException.XA_HEURCOM -> {
+            case XAException.XA_HEURCOM:
                 if (!decisionCommit) {
                     reportUserOfHeuristics(e, xid, decisionCommit);
                 }
-                forgetXidInXaResource(xid, xaResource);
-                return true;
-            }
-            case XAException.XA_HEURRB -> {
+                break;
+            case XAException.XA_HEURRB:
                 if (decisionCommit) {
                     reportUserOfHeuristics(e, xid, decisionCommit);
                 }
-                forgetXidInXaResource(xid, xaResource);
-                return true;
-            }
-            case XAException.XA_HEURMIX -> {
+                break;
+            case XAException.XA_HEURMIX:
                 reportUserOfHeuristics(e, xid, decisionCommit);
-                forgetXidInXaResource(xid, xaResource);
-                return true; // we report it to user, forget about the txn and move on (for now)
-            }
-            case XAException.XA_HEURHAZ -> {
+                break;
+            case XAException.XA_HEURHAZ:
                 reportUserOfHeuristics(e, xid, decisionCommit);
-                return false;
-            }
+                shouldForgetXid = false;
+                break;
         }
-        return true;
+
+        if (shouldForgetXid) {
+            forgetXidInXaResource(xid, xaResource);
+        }
+        return shouldForgetXid;
     }
 
     /**
