@@ -18,11 +18,6 @@
 
 package io.ballerina.runtime.transactions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,7 +30,6 @@ import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_C
  */
 public class InMemoryRecoveryLog implements RecoveryLog {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
     private final Map<String, TransactionLogRecord> transactionLogs;
     private int numOfPutsSinceLastCheckpoint;
 
@@ -56,7 +50,7 @@ public class InMemoryRecoveryLog implements RecoveryLog {
     private void writeCheckpointIfNeeded() {
         if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL) {
             Map<String, TransactionLogRecord> pendingTransactions = getFailedTransactions();
-            transactionLogs.clear();
+            clearAllLogs();
             transactionLogs.putAll(pendingTransactions);
         }
     }
@@ -67,18 +61,15 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      * @return Map of pending transactions
      */
     public Map<String, TransactionLogRecord> getFailedTransactions() {
-        Map<String, TransactionLogRecord> failedTransactions = new HashMap<>();
-        Iterator<Map.Entry<String, TransactionLogRecord>> iterator = transactionLogs.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, TransactionLogRecord> entry = iterator.next();
-            String trxId = entry.getKey();
-            TransactionLogRecord trxRecord = entry.getValue();
-            if (trxRecord.isCompleted()) {
-                iterator.remove();
-                continue;
+        Map<String, TransactionLogRecord> failedTransactions = new ConcurrentHashMap<>();
+        synchronized (transactionLogs) {
+            for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
+                String trxId = entry.getKey();
+                TransactionLogRecord trxRecord = entry.getValue();
+                if (!trxRecord.isCompleted()) {
+                    failedTransactions.put(trxId, trxRecord);
+                }
             }
-            failedTransactions.put(trxId, trxRecord);
-            iterator.remove();
         }
         return failedTransactions;
     }
