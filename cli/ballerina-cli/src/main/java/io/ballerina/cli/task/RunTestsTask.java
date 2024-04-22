@@ -547,7 +547,12 @@ public class RunTestsTask implements Task {
                         jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
-
+        List<Path> ballerinaPlatformLibs = jBallerinaBackend.jarResolver()
+                .getBallerinaPlatformLibraries().stream().map(JarLibrary::path).toList();
+        moduleJarPaths.addAll(ballerinaPlatformLibs);
+        List<Path> testSpecificPlatformLibs = jBallerinaBackend.jarResolver()
+                .getTestSpecificPlatformLibraries().stream().map(JarLibrary::path).toList();
+        moduleJarPaths.addAll(testSpecificPlatformLibs);
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 

@@ -138,12 +138,27 @@ public class JarResolver {
      * Returns all the platform libraries used in the project.
      * @return set of platform libraries
      */
-    public HashSet<JarLibrary> getAllPlatformLibraries() {
+    public HashSet<JarLibrary> getTestSpecificPlatformLibraries() {
+        HashSet<JarLibrary> allPlatformLibraries = new HashSet<>();
+        addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.TEST_ONLY, allPlatformLibraries);
+        return allPlatformLibraries;
+    }
+
+    /**
+     * Returns all the platform libraries named with "ballerina" used in the project.
+     * @return  set of platform libraries
+     */
+    public HashSet<JarLibrary> getBallerinaPlatformLibraries() {
         HashSet<JarLibrary> allPlatformLibraries = new HashSet<>();
         //go through all platform library scopes
         for (PlatformLibraryScope scope : PlatformLibraryScope.values()) {
             addPlatformLibraryPaths(rootPackageContext, scope, allPlatformLibraries);
         }
+
+        allPlatformLibraries = allPlatformLibraries.stream().filter(jarLibrary -> jarLibrary.groupId().isPresent() &&
+                jarLibrary.groupId().get().contains("ballerina")).collect(
+                HashSet::new, HashSet::add, HashSet::addAll);
+
         return allPlatformLibraries;
     }
 
