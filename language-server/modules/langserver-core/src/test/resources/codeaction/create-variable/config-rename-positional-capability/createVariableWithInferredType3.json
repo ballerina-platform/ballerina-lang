@@ -6,7 +6,7 @@
   "source": "createVariableWithInferredType.bal",
   "expected": [
     {
-      "title": "Create variable",
+      "title": "Create variable with 'anydata|module1:ClientError'",
       "kind": "quickfix",
       "edits": [
         {

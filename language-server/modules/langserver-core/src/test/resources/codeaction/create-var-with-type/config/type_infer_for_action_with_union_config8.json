@@ -1,66 +1,66 @@
 {
   "position": {
-    "line": 11,
-    "character": 13
+    "line": 57,
+    "character": 12
   },
-  "source": "source1.bal",
+  "source": "source2.bal",
   "expected": [
     {
-      "title": "Create variable with 'module1:Response|anydata'",
+      "title": "Create variable with 'Rec2|Rec3|error'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 57,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 57,
               "character": 4
             }
           },
-          "newText": "module1:Response|anydata forward = "
+          "newText": "Rec2|Rec3|error put = "
         }
       ],
       "resolvable": false
     },
     {
-      "title": "Create variable with 'anydata'",
+      "title": "Create variable with 'Rec2|error'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 57,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 57,
               "character": 4
             }
           },
-          "newText": "anydata forward = "
+          "newText": "Rec2|error put = "
         }
       ],
       "resolvable": false
     },
     {
-      "title": "Create variable with 'module1:Response'",
+      "title": "Create variable with 'Rec3|error'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 57,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 57,
               "character": 4
             }
           },
-          "newText": "module1:Response forward = "
+          "newText": "Rec3|error put = "
         }
       ],
       "resolvable": false
