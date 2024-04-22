@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public class BuildOptions {
 
+    private final Boolean showAllwarnings;
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
@@ -37,7 +38,8 @@ public class BuildOptions {
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions) {
+                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
+                 Boolean showAllWarnings) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -48,7 +50,7 @@ public class BuildOptions {
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
-
+        this.showAllwarnings = showAllWarnings;
     }
 
     public boolean testReport() {
@@ -131,6 +133,10 @@ public class BuildOptions {
         return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
     }
 
+    public boolean showAllWarnings() {
+        return toBooleanDefaultIfNull(this.showAllwarnings);
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -183,6 +189,11 @@ public class BuildOptions {
             buildOptionsBuilder.setGraalVMBuildOptions(theirOptions.graalVMBuildOptions);
         } else {
             buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
+        }
+        if (theirOptions.showAllwarnings != null) {
+            buildOptionsBuilder.setShowAllWarnings(theirOptions.showAllwarnings);
+        } else {
+            buildOptionsBuilder.setShowAllWarnings(this.showAllwarnings);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -237,7 +248,8 @@ public class BuildOptions {
         TARGET_DIR("targetDir"),
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
-        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions");
+        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
+        SHOW_ALL_WARNINGS("showAllWarnings");
 
         private final String name;
 
@@ -268,6 +280,7 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
+        private Boolean showAllWarnings;
 
 
         private BuildOptionsBuilder() {
@@ -397,10 +410,15 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setShowAllWarnings(Boolean value) {
+            showAllWarnings = value;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions);
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions, showAllWarnings);
         }
     }
 }
