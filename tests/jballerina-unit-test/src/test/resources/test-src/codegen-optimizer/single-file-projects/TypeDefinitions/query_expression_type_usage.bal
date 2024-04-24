@@ -14,22 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type RecA record {
-    B fieldB;
-    C fieldC;
-};
+type A int|string;
 
-type B boolean|int;
+type B boolean;
 
-type C string;
-
-type D decimal;
-
-type RecE record {
-    *RecA;
-    int fieldInt;
-};
+type C float;
 
 public function main() {
-    RecE recE = {fieldB: true, fieldC: "hello", fieldInt: 5};
+    int[] nums = [1, 2, 3, 4];
+
+    int[] queryResult = from A i in nums
+        let B j = true
+        select i * 2;
 }
