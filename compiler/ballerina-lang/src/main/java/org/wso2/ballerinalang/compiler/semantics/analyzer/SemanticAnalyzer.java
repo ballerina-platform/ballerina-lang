@@ -2387,11 +2387,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         typeChecker.checkExpr(recordDeStmt.varRef, currentEnv, symTable.noType, data.prevEnvs,
                 data.commonAnalyzerData);
 
-        if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
-            // TODO: 10/18/18 Need to support record literals as well
-            dlog.error(recordDeStmt.expr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
-            return;
-        }
         typeChecker.checkExpr(recordDeStmt.expr, currentEnv, symTable.noType, data.prevEnvs,
                 data.commonAnalyzerData);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
