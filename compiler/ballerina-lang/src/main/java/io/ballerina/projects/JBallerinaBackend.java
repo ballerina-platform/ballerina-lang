@@ -173,9 +173,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                if (this.packageContext.project().buildOptions().showAllWarnings() ||
+                if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
                         !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
-                        !(diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.WARNING)) {
+                        (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
                     moduleDiagnostics.add(
                             new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
                 }

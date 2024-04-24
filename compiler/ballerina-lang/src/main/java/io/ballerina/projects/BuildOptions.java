@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public class BuildOptions {
 
-    private final Boolean showAllwarnings;
+    private final Boolean showDependencyDiagnostics;
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
@@ -39,7 +39,7 @@ public class BuildOptions {
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
-                 Boolean showAllWarnings) {
+                 Boolean showDependencyDiagnostics) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -50,7 +50,7 @@ public class BuildOptions {
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
-        this.showAllwarnings = showAllWarnings;
+        this.showDependencyDiagnostics = showDependencyDiagnostics;
     }
 
     public boolean testReport() {
@@ -133,8 +133,8 @@ public class BuildOptions {
         return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
     }
 
-    public boolean showAllWarnings() {
-        return toBooleanDefaultIfNull(this.showAllwarnings);
+    public boolean showDependencyDiagnostics() {
+        return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
     /**
@@ -190,10 +190,10 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
         }
-        if (theirOptions.showAllwarnings != null) {
-            buildOptionsBuilder.setShowAllWarnings(theirOptions.showAllwarnings);
+        if (theirOptions.showDependencyDiagnostics != null) {
+            buildOptionsBuilder.setShowDependencyDiagnostics(theirOptions.showDependencyDiagnostics);
         } else {
-            buildOptionsBuilder.setShowAllWarnings(this.showAllwarnings);
+            buildOptionsBuilder.setShowDependencyDiagnostics(this.showDependencyDiagnostics);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -249,7 +249,7 @@ public class BuildOptions {
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
-        SHOW_ALL_WARNINGS("showAllWarnings");
+        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics");
 
         private final String name;
 
@@ -280,7 +280,7 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
-        private Boolean showAllWarnings;
+        private Boolean showDependencyDiagnostics;
 
 
         private BuildOptionsBuilder() {
@@ -410,15 +410,16 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setShowAllWarnings(Boolean value) {
-            showAllWarnings = value;
+        public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
+            showDependencyDiagnostics = value;
             return this;
         }
 
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions, showAllWarnings);
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
+                    showDependencyDiagnostics);
         }
     }
 }

@@ -211,7 +211,7 @@ public class PackageCompilation {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                     if (!ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
-                            !(diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.WARNING)) {
+                            (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
                         diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
                                 moduleContext.project()));
                     }

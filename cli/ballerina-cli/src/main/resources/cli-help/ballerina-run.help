@@ -56,6 +56,10 @@ OPTIONS
            Target directory path. The directory path can be absolute or relative
            to the current package.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
 
 ARGUMENTS
        --
