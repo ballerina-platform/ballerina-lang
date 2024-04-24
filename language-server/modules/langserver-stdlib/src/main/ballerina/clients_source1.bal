@@ -59,7 +59,8 @@ public client class Client {
     # + path - Resource path
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - The Response or the ClientError
-    remote function pull(string path, typedesc<anydata> targetType = <>) returns targetType|mod2:ClientError2 = @java:Method {
+    remote function pull(string path, typedesc<anydata> targetType = <>) 
+        returns targetType|mod2:ClientError2 = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
     } external;
@@ -69,7 +70,8 @@ public client class Client {
     # + path - Resource path
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - The Response or the ClientError
-    remote function clear(string path, typedesc<anydata> targetType = <>) returns targetType|ClientError = @java:Method {
+    remote function clear(string path, typedesc<anydata> targetType = <>)
+        returns targetType|ClientError = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
     } external;
@@ -80,7 +82,8 @@ public client class Client {
     # + request - Request need to be forward
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - Response
-    remote function forward(string path, handle request, TargetType targetType = <>) returns targetType = @java:Method {
+    remote function forward(string path, handle request, TargetType targetType = <>)
+        returns targetType = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction"
     } external;
     
@@ -105,7 +108,8 @@ public client class Client {
     #
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - The Response or the ClientError
-    resource function get path4/[string pathParam](TargetType targetType = <>) returns targetType|ClientError|error = @java:Method {
+    resource function get path4/[string pathParam](TargetType targetType = <>)
+        returns targetType|ClientError|error = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
     } external;
@@ -119,8 +123,8 @@ public client class Client {
     # + targetType - HTTP response or `anydata`, which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
     # establish the communication with the upstream server or a data binding failure
-    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (), string?
-            mediaType = (), TargetType targetType = <>) returns targetType|ClientError = @java:Method {
+    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (),
+        string? mediaType = (), TargetType targetType = <>) returns targetType|ClientError = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "postResource"
     } external;
@@ -130,7 +134,8 @@ public client class Client {
     # 
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - A stream of targetType and/or ClientError
-    isolated resource function get responses(TargetType2 targetType = <>) returns stream<targetType, ClientError?> = @java:Method {
+    isolated resource function get responses(TargetType2 targetType = <>)
+        returns stream<targetType, ClientError?> = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "responses"
     } external;
@@ -139,7 +144,8 @@ public client class Client {
     # 
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - A stream of targetType and/or ClientError
-    isolated resource function delete responses(TargetType2 targetType = <>) returns stream<targetType, mod2:ClientError2?> = @java:Method {
+    isolated resource function delete responses(TargetType2 targetType = <>)
+        returns stream<targetType, mod2:ClientError2?> = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "responses"
     } external;
