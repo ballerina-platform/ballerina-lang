@@ -35,7 +35,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -115,12 +114,6 @@ public class ProfileCommand implements BLauncherCmd {
         BuildOptions buildOptions = constructBuildOptions();
         Project project = loadProject(buildOptions);
         if (project == null) {
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.",
-                    null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
