@@ -101,6 +101,10 @@ OPTIONS
             Parallel test execution is an experimental feature and therefore, supports only a limited
             set of functionalities.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
 
 ARGUMENTS
        (-Ckey=value)...
