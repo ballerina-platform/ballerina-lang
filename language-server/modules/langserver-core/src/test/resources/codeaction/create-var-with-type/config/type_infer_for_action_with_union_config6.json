@@ -1,66 +1,66 @@
 {
   "position": {
-    "line": 11,
-    "character": 13
+    "line": 55,
+    "character": 18
   },
-  "source": "source1.bal",
+  "source": "source2.bal",
   "expected": [
     {
-      "title": "Create variable with 'module1:Response|anydata'",
+      "title": "Create variable with 'Rec1|Rec2|Error1'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 55,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 55,
               "character": 4
             }
           },
-          "newText": "module1:Response|anydata forward = "
+          "newText": "Rec1|Rec2|Error1 targetType = "
         }
       ],
       "resolvable": false
     },
     {
-      "title": "Create variable with 'anydata'",
+      "title": "Create variable with 'Rec1|Error1'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 55,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 55,
               "character": 4
             }
           },
-          "newText": "anydata forward = "
+          "newText": "Rec1|Error1 targetType = "
         }
       ],
       "resolvable": false
     },
     {
-      "title": "Create variable with 'module1:Response'",
+      "title": "Create variable with 'Rec2|Error1'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 11,
+              "line": 55,
               "character": 4
             },
             "end": {
-              "line": 11,
+              "line": 55,
               "character": 4
             }
           },
-          "newText": "module1:Response forward = "
+          "newText": "Rec2|Error1 targetType = "
         }
       ],
       "resolvable": false

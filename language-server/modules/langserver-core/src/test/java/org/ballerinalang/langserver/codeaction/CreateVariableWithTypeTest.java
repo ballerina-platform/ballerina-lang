@@ -54,7 +54,15 @@ public class CreateVariableWithTypeTest extends AbstractCodeActionTest {
                 {"type_infer_for_resource_action_config.json"},
                 {"type_infer_for_resource_action_config2.json"},
                 {"type_infer_for_resource_action_with_check1.json"},
-                {"type_infer_for_resource_action_with_check2.json"}
+                {"type_infer_for_resource_action_with_check2.json"},
+                {"type_infer_for_action_with_union_config1.json"},
+                {"type_infer_for_action_with_union_config2.json"},
+                {"type_infer_for_action_with_union_config3.json"},
+                {"type_infer_for_action_with_union_config4.json"},
+                {"type_infer_for_action_with_union_config5.json"},
+                {"type_infer_for_action_with_union_config6.json"},
+                {"type_infer_for_action_with_union_config7.json"},
+                {"type_infer_for_action_with_union_config8.json"}
         };
     }
 
