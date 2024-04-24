@@ -49,9 +49,39 @@ function test() {
     Baz z;
 }
 
+function test2() {
+    readonly & Person|int person = {name: "A", age: 0};
+    if person is int {
+        return;
+    }
+    _ = person.entries();
+}
+
+function test3() {
+    readonly & Person|int person = {name: "A", age: 0};
+    if person is readonly & Person {
+        _ = person.entries();
+    }
+}
+
+function test4() returns error? {
+    var person = check fn();
+    _ = person.entries();
+}
+
+function test5() {
+    Person & readonly|xml & readonly|error val = error("");
+    if val is xml & readonly|error {
+        return;
+    }
+    _ = val.entries();
+}
+
 // utils
 type Foo Person;
 
 type Bar Foo;
 
 type Baz decimal;
+
+function fn() returns readonly & Person|error => error("");
