@@ -95,11 +95,12 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public void setSize(int size) {
-        // TODO: if sizes are the same there is no effect on the semtype. However it is better if we remove this
-        //   relaxation as well.
-        if (ld != null && Math.abs(this.size) != size) {
-            // This is dangerous since someone have already captured the SemType and using it.
-            throw new IllegalStateException("Size cannot be set after SemType is calculated");
+        if (ld != null) {
+            // This is dangerous since someone have already captured the SemType may use it in the future. But we have
+            // cases where we actually do "proper" (i.e not accidental type checks like `isNullable`) type checks and
+            // then update the size. One option for this may be to poison the semtype, so that using it after this
+            // point trigger an exception.
+            ld = null;
         }
         this.size = size;
     }
