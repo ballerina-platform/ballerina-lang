@@ -38,7 +38,7 @@ function testVariableAssignment() returns [string, boolean, int, string] {
 }
 
 function getPerson() returns Person {
-    return {name: "Peter", married: true, age: {age:12, format: "Y"}, extra:  ["ds", 4]};
+    return {name: "Peter", married: true, age: {age: 12, format: "Y"}, extra: ["ds", 4]};
 }
 
 type Foo record {
@@ -191,8 +191,8 @@ function testRestParameterType() returns boolean {
     map<anydata|error> other1 = {};
     map<any> other2 = {};
 
-    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
-    { name, ...other1 } = rec1;
+    IntRestRecord rec1 = {name: "A", married: true, "age": 19, "token": 200};
+    {name, ...other1} = rec1;
 
     any a1 = other1;
 
@@ -425,7 +425,7 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     string y;
 
     {x, y} = f1;
-    assertEquality(<int[]> [1, 2], x);
+    assertEquality(<int[]>[1, 2], x);
     assertEquality("s1", y);
 
     readonly & record {
@@ -436,15 +436,15 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     int[] & readonly x2;
     string y2;
     {a, b: {x: x2, y: y2}} = r;
-    assertEquality(<int[]> [12, 34, 56], a);
-    assertEquality(<int[]> [1, 2], x2);
+    assertEquality(<int[]>[12, 34, 56], a);
+    assertEquality(<int[]>[1, 2], x2);
     assertEquality("s1", y2);
 
     int[] c;
     int[] d;
     {a: c, b: {x: d, y: y2}} = r;
-    assertEquality(<int[]> [12, 34, 56], c);
-    assertEquality(<int[]> [1, 2], d);
+    assertEquality(<int[]>[12, 34, 56], c);
+    assertEquality(<int[]>[1, 2], d);
     assertEquality("s1", y2);
 }
 
@@ -554,12 +554,12 @@ function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     assertEquality(14, p4);
     assertEquality(15, p5);
 
-    [record {| int a; int b; anydata...; |}] r7 = [{a: 1, b: 2}];
+    [record {|int a; int b; anydata...;|}] r7 = [{a: 1, b: 2}];
     [{a, b}] = r7;
     assertEquality(1, a);
     assertEquality(2, b);
 
-    [record {| int a; int b; anydata...; |}] r8 = [{a: 10, b: 12}];
+    [record {|int a; int b; anydata...;|}] r8 = [{a: 10, b: 12}];
     [{a, b}] = [...r8];
     assertEquality(10, a);
     assertEquality(12, b);
