@@ -299,6 +299,11 @@ public class MethodsTestResource extends RestrictedTestResource implements Inter
     }
 
     @Override
+    public String testMethodWithException(Object obj) throws IOException {
+        throw new IOException();
+    }
+
+    @Override
     public String[] returnStringArray() {
         return new String[0];
     }
