@@ -199,48 +199,180 @@ function testRestParameterType() returns boolean {
     return a1 is map<anydata|error>;
 }
 
-// TODO: Uncomment below tests once record literal is supported with var ref
+function testVarAssignmentOfRecordLiteral1() {
+    string fName;
+    boolean married;
+    int theAge;
+    string format;
 
-//function testVarAssignmentOfRecordLiteral() returns (string, boolean, int, string) {
-//    string fName;
-//    boolean married;
-//    int theAge;
-//    string format;
-//    map theMap;
-//
-//    {name: fName, age: {age: theAge, format}, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-//    return (fName, married, theAge, format);
-//}
-//
-//function testVarAssignmentOfRecordLiteral2() returns (string, boolean, Age) {
-//    string fName;
-//    boolean married;
-//    Age age;
-//    map theMap;
-//
-//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-//    return (fName, married, age);
-//}
-//
-//function testVarAssignmentOfRecordLiteral3() returns (string, boolean, map) {
-//    string fName;
-//    boolean married;
-//    map age;
-//    map theMap;
-//
-//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-//    return (fName, married, age);
-//}
-//
-//function testVarAssignmentOfRecordLiteral4() returns (string, boolean, json) {
-//    string fName;
-//    boolean married;
-//    json age;
-//    map theMap;
-//
-//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-//    return (fName, married, age);
-//}
+    {
+        name: fName,
+        age: {
+            age: theAge,
+            format
+        },
+        married
+    } = {
+        name: "Peter",
+        married: true,
+        age: {age: 12, format: "Y"}
+    };
+
+    assertEquality("Peter", fName);
+    assertEquality(true, married);
+    assertEquality(12, theAge);
+    assertEquality("Y", format);
+}
+
+function testVarAssignmentOfRecordLiteral2() {
+    string fName;
+    boolean married;
+    Age age;
+    map<anydata> theMap;
+
+    {
+        name: fName,
+        age,
+        married,
+        ...theMap
+    } = {
+        name: "Peter",
+        married: true,
+        age: {age: 12, format: "Y"}
+    };
+    assertEquality("Peter", fName);
+    assertEquality(true, married);
+    assertEquality(12, age.age);
+    assertEquality("Y", age.format);
+}
+
+function testVarAssignmentOfRecordLiteral3() {
+    string fName;
+    boolean married;
+    map<string|int> age;
+    map<anydata> theMap;
+
+    {
+        name: fName,
+        age,
+        married,
+        ...theMap
+    } = {
+        name: "Peter",
+        married: true,
+        age: {age: 12, format: "Y"}
+    };
+    assertEquality("Peter", fName);
+    assertEquality(true, married);
+    assertEquality(12, age.get("age"));
+    assertEquality("Y", age.get("format"));
+}
+
+function testVarAssignmentOfRecordLiteral4() returns error? {
+    string fName;
+    boolean married;
+    json age;
+    map<anydata> theMap;
+
+    {
+        name: fName,
+        age,
+        married,
+        ...theMap
+    } = {
+        name: "Peter",
+        married: true,
+        age: {age: 12, format: "Y"}
+    };
+    assertEquality("Peter", fName);
+    assertEquality(true, married);
+    assertEquality(12, check age.age);
+    assertEquality("Y", check age.format);
+}
+
+function testVarAssignmentOfRecordLiteral5() {
+    string fName;
+    map<anydata> theMap;
+
+    {
+        name: fName,
+        ...theMap
+    } = {
+        name: "Peter",
+        married: true,
+        age: {age: 12, format: "Y"},
+        city: "New York",
+        state: "New"
+    };
+    assertEquality("Peter", fName);
+    assertEquality("New York", theMap.get("city"));
+}
+
+function testVarAssignmentOfRecordLiteral6() {
+    int departmentId;
+    string departmentName;
+    int floorId;
+
+    {
+        department: {
+            id: departmentId,
+            name: departmentName,
+            location: {floorId}
+        }
+    } = {
+        name: "John Doe",
+        department: {
+            id: 123,
+            name: "Marketing",
+            location: {floorId: 2, area: "B"}
+        }
+    };
+    assertEquality(123, departmentId);
+    assertEquality("Marketing", departmentName);
+    assertEquality(2, floorId);
+}
+
+function testVarAssignmentOfRecordLiteral7() {
+    int empId;
+    map<anydata> otherEmpDetails;
+    map<anydata> otherDepDetails;
+
+    {id: empId, department: {...otherDepDetails}, ...otherEmpDetails} = {
+        id: 1,
+        name: "John Doe",
+        age: 30,
+        department: {
+            id: 123,
+            name: "Marketing",
+            location: {floor: 2, area: "B"}
+        }
+    };
+    assertEquality(1, empId);
+    assertEquality(30, otherEmpDetails.get("age"));
+    assertEquality(2, (<map<anydata>>otherDepDetails.get("location")).get("floor"));
+}
+
+function testVarAssignmentOfRecordLiteral8() {
+    int id;
+    string name;
+    map<anydata> otherDetails;
+
+    {id, name, ...otherDetails} = {
+        id: 1,
+        name: "John Doe",
+        age: 30,
+        ...{
+            department: {
+                id: 123,
+                name: "Marketing",
+                location: {floor: 2, area: "B"}
+            }
+        }
+    };
+    assertEquality(1, id);
+    assertEquality("John Doe", name);
+    assertEquality(2, (<map<anydata>>(<map<anydata>>otherDetails.get("department")).get("location")).get("floor"));
+}
 
 type EmployeeDetails record {|
     string emp\:name;

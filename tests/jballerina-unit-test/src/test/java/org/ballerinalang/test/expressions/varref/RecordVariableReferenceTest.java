@@ -136,43 +136,17 @@ public class RecordVariableReferenceTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    // TODO: Uncomment below tests once record literal is supported with var ref
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(returns[2], 12);
-//        Assert.assertEquals(returns[3].toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral2() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral2");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral3() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral3");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral4() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral4");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
+    @Test(description = "Test variable assignment with record literal")
+    public void testVarAssignmentOfRecordLiteral() {
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral1");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral2");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral3");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral4");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral5");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral6");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral7");
+        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral8");
+    }
 
     @Test
     public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
