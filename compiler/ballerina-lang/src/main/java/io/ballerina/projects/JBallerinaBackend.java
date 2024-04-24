@@ -351,9 +351,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void updateUnusedPkgMaps(ModuleContext ususedModuleContext) {
-        unusedPackageIds.add(ususedModuleContext.moduleId().packageId());
         unusedModuleIds.add(ususedModuleContext.moduleId());
         unusedPackageIDs.add(ususedModuleContext.bLangPackage().symbol.pkgID);
+        if (ususedModuleContext.isDefaultModule()) {
+            unusedPackageIds.add(ususedModuleContext.moduleId().packageId());
+        }
     }
 
     private void updateNativeDependencyMap(ModuleContext moduleContext) {
@@ -660,7 +662,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
-        birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
+        birPackage.importModules.removeIf(module -> isUnusedPkgID(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
         birPackage.typeDefs.removeIf(typeDef -> typeDef.getUsedState() == UsedState.UNUSED);
         optimizeImmutableTypeDefs(invocationData, bPackageSymbol.pkgID);
@@ -670,6 +672,10 @@ public class JBallerinaBackend extends CompilerBackend {
         invocationData.getFpDataPool().forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
 
         // TODO Attached function optimization with polymorphism handling
+    }
+
+    private boolean isUnusedPkgID(PackageID packageID) {
+        return unusedPackageIDs.stream().anyMatch(unusedPkgID -> unusedPkgID.nameComps.equals(packageID.nameComps));
     }
 
     private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData, PackageID pkgID) {
