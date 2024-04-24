@@ -182,6 +182,11 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     @Override
+    public boolean isNullable() {
+        return false;
+    }
+
+    @Override
     public SemType semType() {
         if (isFunctionTop()) {
             return PredefinedType.FUNCTION;
