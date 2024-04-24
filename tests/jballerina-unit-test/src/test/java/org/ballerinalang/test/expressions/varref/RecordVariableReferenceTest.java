@@ -215,7 +215,10 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'record type', found 'int'", 96, 38);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "record literal is not supported for record binding pattern", 97, 38);
+                "incompatible types: expected 'Bar', found 'string'", 97, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'string', found 'record {| int var1; [string,int,boolean] var2; |}'",
+                97, 27);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'Person', found 'Age'", 106, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
