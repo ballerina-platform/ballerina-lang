@@ -138,8 +138,8 @@ public class ValueUtils {
             BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            Strand parent = Scheduler.getDaemonStrand();
-            strand = new Strand(null, null, parent.scheduler, parent, null);
+            // Create a dummy strand only for keep frames.
+            strand = new Strand();
         }
         for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
             recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
