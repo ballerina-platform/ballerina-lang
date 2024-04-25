@@ -18,11 +18,9 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -34,12 +32,10 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.AsyncFunctionCallback;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
@@ -51,11 +47,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
