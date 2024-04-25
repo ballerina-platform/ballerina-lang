@@ -1430,16 +1430,17 @@ public class JvmTerminatorGen {
     private void genResourcePathArgs(List<BIROperand> pathArgs) {
         int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
         int bundledArrayIndex = this.indexMap.addIfNotExists("$pathArrayArgs", symbolTable.anyType);
-        genBundledArgs(pathArgs, pathVarArrayIndex, bundledArrayIndex, TYPE_ANYDATA_ARRAY);
+        genBundledArgs(pathArgs, pathVarArrayIndex, bundledArrayIndex, TYPE_ANYDATA_ARRAY, true);
     }
 
     private void genBundledFunctionArgs(List<BIROperand> args) {
         int functionArgArrayIndex = this.indexMap.addIfNotExists("$functionArgArray", symbolTable.anyType);
         int bundledArrayIndex = this.indexMap.addIfNotExists("$functionArrayArgs", symbolTable.anyType);
-        genBundledArgs(args, functionArgArrayIndex, bundledArrayIndex, TYPE_ANY_ARRAY);
+        genBundledArgs(args, functionArgArrayIndex, bundledArrayIndex, TYPE_ANY_ARRAY, false);
     }
 
-    private void genBundledArgs(List<BIROperand> args, int argsArrayIndex, int bundledArrayIndex, String fieldName) {
+    private void genBundledArgs(List<BIROperand> args, int argsArrayIndex, int bundledArrayIndex, String fieldName,
+                                boolean isFromPathArgs) {
         mv.visitLdcInsn((long) args.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -1451,7 +1452,13 @@ public class JvmTerminatorGen {
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
             this.loadVar(arg.variableDcl);
-            jvmCastGen.generateCheckCastToAnyData(mv, arg.variableDcl.type);
+            if (isFromPathArgs) {
+                // Add CheckCast instruction for path args.
+                jvmCastGen.generateCheckCastToAnyData(mv, arg.variableDcl.type);
+            } else {
+                // Add Box instruction if the type is a value type.
+                jvmCastGen.addBoxInsn(mv, arg.variableDcl.type);
+            }
             mv.visitInsn(AASTORE);
             i++;
         }
