@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,8 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ValueUtils {
+
+    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -135,7 +138,8 @@ public class ValueUtils {
             BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            strand = Scheduler.getDaemonStrand();
+            Strand parent = Scheduler.getDaemonStrand();
+            strand = new Strand(null, null, parent.scheduler, parent, null);
         }
         for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
             recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
