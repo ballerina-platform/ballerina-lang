@@ -73,7 +73,8 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
                 {"add_check_on_call_statement4.json"},
                 {"add_check_on_call_statement5.json"},
                 {"add_check_on_call_statement6.json"},
-                {"add_check_on_call_statement7.json"}
+                {"add_check_on_call_statement7.json"},
+                {"add_check_on_call_statement8.json"}
         };
     }
 

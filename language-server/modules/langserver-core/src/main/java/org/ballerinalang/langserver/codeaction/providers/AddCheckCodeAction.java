@@ -103,7 +103,8 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
                     CodeActionUtil.getDiagPropertyFilterFunction(
                             DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
             case DIAGNOSTIC_CODE_2526 -> positionDetails.diagnosticProperty(
-                    DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
             case DIAGNOSTIC_CODE_2800 -> positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOR_ITERABLE_FOUND_SYMBOL_INDEX);
             case DIAGNOSTIC_CODE_3998 -> context.currentSemanticModel()

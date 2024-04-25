@@ -31,6 +31,10 @@ function test5() {
     myCl->/path.accessor();
 }
 
+function test6() {
+    error:cause(error("error"));
+}
+
 client class MyClass {
     remote function fn1() returns error? {
 
