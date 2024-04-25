@@ -22,12 +22,31 @@ import io.ballerina.types.Bdd;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
 
+import static io.ballerina.types.Common.bddPosMaybeEmpty;
+import static io.ballerina.types.Common.bddSubtypeDiff;
+import static io.ballerina.types.PredefinedType.LIST_SUBTYPE_MAPPING;
+import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
+import static io.ballerina.types.typeops.ListOps.listSubtypeIsEmpty;
+
 /**
  * Basic type ops for table type.
  *
  * @since 2201.8.0
  */
 public class TableOps implements BasicTypeOps {
+
+    private SubtypeData tableSubtypeComplement(SubtypeData t) {
+        return bddSubtypeDiff(LIST_SUBTYPE_MAPPING, t);
+    }
+
+    private boolean tableSubtypeIsEmpty(Context cx, SubtypeData t) {
+        Bdd b = (Bdd) t;
+        // The goal of this is to ensure that listSubtypeIsEmpty call beneath does
+        // not get an empty posList, because it will interpret that
+        // as `(any|error)[]` rather than `(map<any|error>)[]`.
+        b = bddPosMaybeEmpty(b) ? bddIntersect(b, LIST_SUBTYPE_MAPPING) : b;
+        return listSubtypeIsEmpty(cx, b);
+    }
 
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
@@ -46,11 +65,11 @@ public class TableOps implements BasicTypeOps {
 
     @Override
     public SubtypeData complement(SubtypeData d) {
-        return BddCommonOps.bddComplement((Bdd) d);
+        return tableSubtypeComplement(d);
     }
 
     @Override
     public boolean isEmpty(Context cx, SubtypeData d) {
-        return MappingOps.mappingSubtypeIsEmpty(cx, d);
+        return tableSubtypeIsEmpty(cx, d);
     }
 }

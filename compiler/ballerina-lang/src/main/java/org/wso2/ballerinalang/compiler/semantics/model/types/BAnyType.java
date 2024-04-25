@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static io.ballerina.types.PredefinedType.IMPLEMENTED_ANY_TYPE;
-import static io.ballerina.types.PredefinedType.VAL_READONLY;
+import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
 
 /**
  * @since 0.94
@@ -88,7 +88,7 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public SemType semType() {
         SemType semType;
         if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            semType = Core.intersect(IMPLEMENTED_ANY_TYPE, VAL_READONLY);
+            semType = Core.intersect(IMPLEMENTED_ANY_TYPE, IMPLEMENTED_VAL_READONLY);
         } else {
             semType = IMPLEMENTED_ANY_TYPE;
         }

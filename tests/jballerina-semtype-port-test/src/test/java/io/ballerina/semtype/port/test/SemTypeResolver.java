@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -162,6 +163,8 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
             case FUNCTION_TYPE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
+            case TABLE_TYPE:
+                return resolveTypeDesc(cx, mod, depth, (BLangTableTypeNode) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
@@ -288,9 +291,10 @@ public class SemTypeResolver {
                 return PredefinedType.XML;
             case ANY:
                 return PredefinedType.ANY;
+            case READONLY:
+                return PredefinedType.VAL_READONLY;
             case ANYDATA:
                 return Core.createAnydata(cx);
-            // case READONLY: TODO: fix with readonly type port
             case JSON:
                 return Core.createJson(cx);
             default:
@@ -489,5 +493,11 @@ public class SemTypeResolver {
             case STRING -> SemTypes.stringConst((String) value);
             default -> throw new UnsupportedOperationException("Finite type not implemented for: " + targetTypeKind);
         };
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, int depth, BLangTableTypeNode td) {
+        SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth,
+                td.constraint);
+        return SemTypes.tableContaining(cx.env, memberType);
     }
 }

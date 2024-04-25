@@ -45,7 +45,6 @@ import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.types.BasicTypeCode.BT_NIL;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
-import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.BasicTypeCode.VT_MASK;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.Common.isNothingSubtype;
@@ -135,6 +134,7 @@ public final class Core {
                 int c = code.code;
                 all = BasicTypeBitSet.from(all.bitset | (1 << c));
             }
+            // No need to consider `data == false` case. The `some` variable above is not used to create the SemType
         }
         if (subtypes.isEmpty()) {
             return all;
@@ -314,100 +314,6 @@ public final class Core {
         assert c1 != null && c2 != null;
         CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
         return cellContaining(env, atomicType.ty(), UNDEF.equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
-    }
-
-    public static SemType roDiff(Context cx, SemType t1, SemType t2) {
-        return maybeRoDiff(t1, t2, cx);
-    }
-
-
-    public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {
-        BasicTypeBitSet all1;
-        BasicTypeBitSet all2;
-        BasicTypeBitSet some1;
-        BasicTypeBitSet some2;
-
-        if (t1 instanceof BasicTypeBitSet b1) {
-            if (t2 instanceof BasicTypeBitSet b2) {
-                return BasicTypeBitSet.from(b1.bitset & ~b2.bitset);
-            } else {
-                if (b1.bitset == 0) {
-                    return t1;
-                }
-                ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
-            }
-            all1 = b1;
-            some1 = BasicTypeBitSet.from(0);
-        } else {
-            ComplexSemType complexT1 = (ComplexSemType) t1;
-            all1 = complexT1.all;
-            some1 = complexT1.some;
-            if (t2 instanceof BasicTypeBitSet b2) {
-                if (b2.bitset == VT_MASK) {
-                    return BasicTypeBitSet.from(0);
-                }
-                all2 = (BasicTypeBitSet) t2;
-                some2 = BasicTypeBitSet.from(0);
-            } else {
-                ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
-            }
-        }
-
-        BasicTypeBitSet all = BasicTypeBitSet.from(all1.bitset & ~(all2.bitset | some2.bitset));
-        BasicTypeBitSet some = BasicTypeBitSet.from((all1.bitset | some1.bitset) & ~all2.bitset);
-        some = BasicTypeBitSet.from(some.bitset & ~all.bitset);
-        if (some.bitset == 0) {
-            return PredefinedType.basicTypeUnion(all.bitset);
-        }
-        List<BasicSubtype> subtypes = new ArrayList<>();
-        for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
-            BasicTypeCode code = pair.basicTypeCode;
-            SubtypeData data1 = pair.subtypeData1;
-            SubtypeData data2 = pair.subtypeData2;
-
-            SubtypeData data;
-            if (cx != null && (code.code == BT_LIST.code || code.code == BT_TABLE.code)) {
-                // read-only diff for mutable basic type
-                if (data1 == null) {
-                    // data1 was all
-                    data = AllOrNothingSubtype.createAll();
-                } else if (data2 == null) {
-                    // data was none
-                    data = data1;
-                } else {
-                    if (OpsTable.OPS[code.code].isEmpty(cx, OpsTable.OPS[code.code].diff(data1, data2))) {
-                        data = AllOrNothingSubtype.createNothing();
-                    } else {
-                        data = data1;
-                    }
-                }
-            } else {
-                // normal diff or read-only basic type
-                if (data1 == null) {
-                    data = OpsTable.OPS[code.code].complement(data2);
-                } else if (data2 == null) {
-                    data = data1;
-                } else {
-                    data = OpsTable.OPS[code.code].diff(data1, data2);
-                }
-            }
-            // JBUG [in nballerina] `data` is not narrowed properly if you swap the order by doing
-            // `if data == true {} else if data != false {}`
-            if (!(data instanceof AllOrNothingSubtype)) {
-                subtypes.add(BasicSubtype.from(code, (ProperSubtypeData) data));
-            } else if (((AllOrNothingSubtype) data).isAllSubtype()) {
-                int c = code.code;
-                all = BasicTypeBitSet.from(all.bitset | (1 << c));
-            }
-        }
-        if (subtypes.isEmpty()) {
-            return all;
-        }
-        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
     public static SemType complement(SemType t) {
@@ -794,7 +700,7 @@ public final class Core {
         }
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
-        SemType tableTy = TableSubtype.tableContaining(mapDef.getSemType(env));
+        SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
         SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
                 union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.defineListTypeWrapped(env, ad);

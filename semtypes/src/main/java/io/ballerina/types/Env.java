@@ -24,6 +24,15 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_RO;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER_MAPPING;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER_RO;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_NEVER;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING_RO;
+import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_RO;
 
 /**
  * Env node.
@@ -43,8 +52,29 @@ public class Env {
         this.recListAtoms = new ArrayList<>();
         recListAtoms.add(LIST_ATOMIC_RO);
         this.recMappingAtoms = new ArrayList<>();
+        recMappingAtoms.add(MAPPING_ATOMIC_RO);
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
+
+        // Reserving the first two indexes of atomTable to represent cell VAL and cell NEVER typeAtoms.
+        // This is to avoid passing down env argument when doing cell type operations.
+        // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
+        this.cellAtom(CELL_ATOMIC_VAL);
+        this.cellAtom(CELL_ATOMIC_NEVER);
+        // Reserving the next index of atomTable to represent the typeAtom required to construct
+        // equivalent subtypes of map<any|error> and (any|error)[].
+        this.cellAtom(CELL_ATOMIC_INNER);
+        // Reserving the next two indexes of atomTable to represent typeAtoms related to (map<any|error>)[].
+        // This is to avoid passing down env argument when doing tableSubtypeComplement operation.
+        this.cellAtom(CELL_ATOMIC_INNER_MAPPING);
+        this.listAtom(LIST_ATOMIC_MAPPING);
+        // Reserving the next three indexes of atomTable to represent typeAtoms related to readonly type.
+        // This is to avoid requiring context when referring to readonly type.
+        // CELL_ATOMIC_INNER_MAPPING_RO & LIST_ATOMIC_MAPPING_RO are typeAtoms required to construct
+        // readonly & (map<readonly>)[] which is then used for readonly table type when constructing VAL_READONLY.
+        this.cellAtom(CELL_ATOMIC_INNER_MAPPING_RO);
+        this.listAtom(LIST_ATOMIC_MAPPING_RO);
+        this.cellAtom(CELL_ATOMIC_INNER_RO);
     }
 
     public int recListAtomCount() {
