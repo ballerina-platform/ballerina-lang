@@ -41,7 +41,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,8 +53,6 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ValueUtils {
-
-    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
