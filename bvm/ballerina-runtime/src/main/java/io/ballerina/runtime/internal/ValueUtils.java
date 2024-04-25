@@ -147,19 +147,11 @@ public class ValueUtils {
             BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            try {
-                final CountDownLatch latch = new CountDownLatch(defaultValues.size());
-                populateInitialValuesWithNoStrand(recordValue, latch, defaultValues);
-                latch.await();
-            } catch (InterruptedException e) {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("error occurred when populating default values"), e);
-            }
-        } else {
-            for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
-                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
-                        field.getValue().call(new Object[]{strand}));
-            }
+            strand = Scheduler.getDaemonStrand();
+        }
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[]{strand}));
         }
         return recordValue;
     }
@@ -182,50 +174,6 @@ public class ValueUtils {
             result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
         }
         return result;
-    }
-
-    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
-                                                          Map<String, BFunctionPointer<Object, ?>> defaultValues) {
-        String[] fields = defaultValues.keySet().toArray(new String[0]);
-        int noOfIterations = defaultValues.size();
-        if (noOfIterations <= 0) {
-            return;
-        }
-        AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(recordValue, defaultValues, fields, "default", noOfIterations, callCount,
-                o -> { }, latch, Scheduler.getDaemonStrand());
-    }
-
-    private static void scheduleNextFunction(BMap<BString, Object> recordValue,
-                                             Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
-                                             String strandName, int noOfIterations, AtomicInteger callCount,
-                                             Consumer<Object> futureResultConsumer, CountDownLatch latch,
-                                             Strand parent) {
-        BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
-        Type retType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
-        FutureValue future = parent.scheduler.createFuture(Scheduler.getDaemonStrand(), null, null, retType,
-                strandName, parent.getMetadata());
-        AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
-            @Override
-            public void notifySuccess(Object result) {
-                futureResultConsumer.accept(getFutureResult());
-                recordValue.populateInitialValue(StringUtils.fromString(fields[callCount.get()]), result);
-                int i = callCount.incrementAndGet();
-                latch.countDown();
-                if (i != noOfIterations) {
-                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, noOfIterations,
-                            callCount, futureResultConsumer, latch, parent);
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                errStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
-            }
-        };
-        future.callback = callback;
-        callback.setFuture(future);
-        parent.scheduler.schedule(new Object[1], func.getFunction(), future);
     }
 
     /**
