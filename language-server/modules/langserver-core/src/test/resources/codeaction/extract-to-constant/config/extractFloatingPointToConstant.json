@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const float CONST = 3.14;\n"
+          "newText": "const CONST = 3.14;\n"
         },
         {
           "range": {
