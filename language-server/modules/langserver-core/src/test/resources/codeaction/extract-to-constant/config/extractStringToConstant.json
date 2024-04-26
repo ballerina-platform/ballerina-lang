@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const string CONST = \"abc\";\n"
+          "newText": "const CONST = \"abc\";\n"
         },
         {
           "range": {
