@@ -198,11 +198,6 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
      */
     record TypeAssertion(Context context, String fileName, SemType lhs, SemType rhs, RelKind kind, String text) {
 
-        TypeAssertion {
-            assert lhs != null;
-            assert rhs != null;
-        }
-
         @Override
         public String toString() {
             return Paths.get(fileName).getFileName().toString() + ": " + text;

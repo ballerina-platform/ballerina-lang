@@ -89,6 +89,10 @@ public class Env {
         return this.typeAtom(atomicType);
     }
 
+    public TypeAtom functionAtom(FunctionAtomicType atomicType) {
+        return this.typeAtom(atomicType);
+    }
+
     public TypeAtom cellAtom(CellAtomicType atomicType) {
         return this.typeAtom(atomicType);
     }

@@ -24,6 +24,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.Field;
+import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -158,9 +160,42 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangArrayType) td);
             case TUPLE_TYPE_NODE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
+            case FUNCTION_TYPE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangFunctionTypeNode td) {
+        if (isFunctionTop(td)) {
+            return PredefinedType.FUNCTION;
+        }
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        td.defn = fd;
+        List<SemType> params =
+                td.params.stream().map(param -> resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode))
+                        .toList();
+        SemType rest;
+        if (td.restParam == null) {
+            rest = PredefinedType.NEVER;
+        } else {
+            BLangArrayType restArrayType = (BLangArrayType) td.restParam.typeNode;
+            rest = resolveTypeDesc(cx, mod, defn, depth + 1, restArrayType.elemtype);
+        }
+        SemType returnType = td.returnTypeNode != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.returnTypeNode) :
+                PredefinedType.NIL;
+        ListDefinition paramListDefinition = new ListDefinition();
+        return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
+    }
+
+    private boolean isFunctionTop(BLangFunctionTypeNode td) {
+        return td.params.isEmpty() && td.restParam == null && td.returnTypeNode == null;
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,

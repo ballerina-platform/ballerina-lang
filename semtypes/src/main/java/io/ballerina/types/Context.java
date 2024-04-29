@@ -79,6 +79,10 @@ public final class Context {
     }
 
     public FunctionAtomicType functionAtomType(Atom atom) {
-        return this.env.getRecFunctionAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return this.env.getRecFunctionAtomType(recAtom);
+        } else {
+            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
+        }
     }
 }
