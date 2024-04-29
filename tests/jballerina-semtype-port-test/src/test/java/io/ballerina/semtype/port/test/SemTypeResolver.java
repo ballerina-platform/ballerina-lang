@@ -207,22 +207,16 @@ public class SemTypeResolver {
         td.defn = ld;
 
         int dimensions = td.dimensions;
-        SemType eType = null;
-        SemType memberTy = resolveTypeDesc(cx, mod, defn, depth + 1, td.elemtype);
-        if (dimensions > 1) {
-            for (int i = 0; i < dimensions - 1; i++) {
-                int size = from(mod, td.sizes.get(i));
-                eType = resolveListInner(cx, size, memberTy);
+        SemType accum = resolveTypeDesc(cx, mod, defn, depth + 1, td.elemtype);
+        for (int i = 0; i < dimensions; i++) {
+            int size = from(mod, td.sizes.get(i));
+            if (i == dimensions - 1) {
+                accum = resolveListInner(cx, ld, size, accum);
+            } else {
+                accum = resolveListInner(cx, size, accum);
             }
-        } else {
-            eType = memberTy;
         }
-        int size = from(mod, td.sizes.get(dimensions - 1));
-        if (size == -1) {
-            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType);
-        } else {
-            return ld.defineListTypeWrapped(cx.env, List.of(eType), size, PredefinedType.NEVER);
-        }
+        return accum;
     }
 
     private static int from(Map<String, BLangNode> mod, BLangNode expr) {
@@ -240,8 +234,12 @@ public class SemTypeResolver {
 
     private SemType resolveListInner(Context cx, int size, SemType eType) {
         ListDefinition ld = new ListDefinition();
+        return resolveListInner(cx, ld, size, eType);
+    }
+
+    private static SemType resolveListInner(Context cx, ListDefinition ld, int size, SemType eType) {
         if (size != -1) {
-            return ld.defineListTypeWrapped(cx.env, List.of(eType), 1, PredefinedType.NEVER,
+            return ld.defineListTypeWrapped(cx.env, List.of(eType), Math.abs(size), PredefinedType.NEVER,
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         } else {
             return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType,
