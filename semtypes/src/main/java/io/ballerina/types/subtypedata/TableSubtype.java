@@ -36,7 +36,10 @@ import static io.ballerina.types.PredefinedType.TABLE;
  *
  * @since 2201.8.0
  */
-public class TableSubtype {
+public final class TableSubtype {
+
+    private TableSubtype() {
+    }
 
     public static SemType tableContaining(Env env, SemType mappingType, CellAtomicType.CellMutability mut) {
         ListDefinition listDef = new ListDefinition();

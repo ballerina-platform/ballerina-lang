@@ -496,8 +496,11 @@ public class SemTypeResolver {
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, int depth, BLangTableTypeNode td) {
-        SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth,
-                td.constraint);
+        if (td.tableKeySpecifier != null || td.tableKeyTypeConstraint != null) {
+            throw new UnsupportedOperationException("table key constraint not supported yet");
+        }
+
+        SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
         return SemTypes.tableContaining(cx.env, memberType);
     }
 }
