@@ -318,6 +318,7 @@ public class JvmConstants {
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
+    public static final String MODULE_GENERATED_FUNCTIONS_CLASS_NAME = "functions/$_generated_$";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
@@ -475,6 +476,7 @@ public class JvmConstants {
     public static final int MAX_STRINGS_PER_METHOD = 5000;
     public static final int VISIT_MAX_SAFE_MARGIN = 10;
     public static final int OVERFLOW_LINE_NUMBER = 0x80000000;
+    public static final int MAX_GENERATED_METHODS_PER_CLASS = 100;
 
     private JvmConstants() {
     }

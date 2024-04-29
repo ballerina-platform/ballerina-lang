@@ -79,7 +79,7 @@ public class LargeMethodOptimizer {
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 25;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 125;
     // total least no. of terminators and non-terminators that should be there to make the periodic split
@@ -807,7 +807,7 @@ public class LargeMethodOptimizer {
         splitFuncNum += 1;
         String splitFuncName = SPLIT_METHOD + splitFuncNum;
         Name newFuncName = new Name(splitFuncName);
-        BIRFunction splitBirFunc = new BIRFunction(parentFunc.pos, newFuncName, newFuncName, 0, type,
+        BIRFunction splitBirFunc = new BIRFunction(null, newFuncName, newFuncName, 0, type,
                 DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         populateSplitFuncLocalVarsAndErrorTable(parentFunc, splitFuncEnv, parentFuncEnv, bb, bbIns, funcRetType,
@@ -1669,7 +1669,7 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+        BIRFunction birFunc = new BIRFunction(null, funcName, funcName, 0, type,
                 DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
@@ -1793,7 +1793,7 @@ public class LargeMethodOptimizer {
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
-            BIRFunction newBIRFunc = createNewBIRFuncForSplitInBB(function, newFuncName,
+            BIRFunction newBIRFunc = createNewBIRFuncForSplitInBB(newFuncName,
                     instructionList.get(possibleSplits.get(splitNum).lastIns),
                     instructionList.subList(possibleSplits.get(splitNum).firstIns,
                             possibleSplits.get(splitNum).lastIns),
@@ -1856,7 +1856,6 @@ public class LargeMethodOptimizer {
     /**
      * Create a new BIR function for a split which starts and ends in the same BB.
      *
-     * @param parentFunc parent BIR function
      * @param funcName Name of the function to be created
      * @param currentIns last instruction in the split
      * @param collectedIns other instructions in the split
@@ -1865,7 +1864,7 @@ public class LargeMethodOptimizer {
      * @param fromAttachedFunction flag which indicates an original attached function is being split
      * @return newly created BIR function
      */
-    private BIRFunction createNewBIRFuncForSplitInBB(BIRFunction parentFunc, Name funcName, BIRNonTerminator currentIns,
+    private BIRFunction createNewBIRFuncForSplitInBB(Name funcName, BIRNonTerminator currentIns,
                                                      List<BIRNonTerminator> collectedIns,
                                                      Set<BIRVariableDcl> lhsOperandList, List<BIRVariableDcl> funcArgs,
                                                      boolean fromAttachedFunction) {
@@ -1876,7 +1875,7 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+        BIRFunction birFunc = new BIRFunction(null, funcName, funcName, 0, type,
                 DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();

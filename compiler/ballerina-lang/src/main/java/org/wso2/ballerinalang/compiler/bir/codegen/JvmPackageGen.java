@@ -111,7 +111,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GENERATED_FUNCTIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -563,6 +565,8 @@ public class JvmPackageGen {
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
+        int genMethodsCount = 0;
+        int genClassNum = 0;
 
         // Generate classes for other functions.
         while (count < funcSize) {
@@ -571,8 +575,16 @@ public class JvmPackageGen {
             // link the bir function for lookup
             String birFuncName = birFunc.name.value;
             String balFileName;
-            if (birFunc.pos == null || birFunc.pos == symbolTable.builtinPos) {
+            if (birFunc.pos == symbolTable.builtinPos) {
                 balFileName = MODULE_INIT_CLASS_NAME;
+            }  else if (birFunc.pos == null) {
+                balFileName = MODULE_GENERATED_FUNCTIONS_CLASS_NAME + genClassNum;
+                if (genMethodsCount > MAX_GENERATED_METHODS_PER_CLASS) {
+                    genMethodsCount = 0;
+                    genClassNum++;
+                } else {
+                    genMethodsCount++;
+                }
             } else {
                 balFileName = birFunc.pos.lineRange().fileName();
             }
