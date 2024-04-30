@@ -318,7 +318,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, ModuleName moduleName) {
         return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
-                "-resources" + JAR_FILE_NAME_SUFFIX);
+                TEST_JAR_FILE_NAME_SUFFIX + "-resources" + JAR_FILE_NAME_SUFFIX);
     }
 
     @Override
@@ -345,15 +345,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, new HashMap<>());
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
-
-            // create the resources jar
-            Map<String, byte[]> resources = getResources(moduleContext);
-            String resourcesJarFileName = jarFileName + "-resources";
-            CompiledJarFile resourcesJar = new CompiledJarFile("", new HashMap<>());
-            ByteArrayOutputStream resourcesByteStream = JarWriter.write(resourcesJar, resources);
-            compilationCache.cachePlatformSpecificLibrary(this, resourcesJarFileName, resourcesByteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
@@ -374,7 +367,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             // create the resources jar
             Map<String, byte[]> resources = getAllResources(moduleContext);
-            String resourcesJarFileName = jarFileName + "-resources";
+            String resourcesJarFileName = testJarFileName + "-resources";
             CompiledJarFile resourcesJar = new CompiledJarFile("", new HashMap<>());
             ByteArrayOutputStream resourcesByteStream = JarWriter.write(resourcesJar, resources);
             compilationCache.cachePlatformSpecificLibrary(this, resourcesJarFileName, resourcesByteStream);
