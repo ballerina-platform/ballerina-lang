@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -43,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -124,8 +122,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmValueGen {
 
-    static final String ENCODED_RECORD_INIT =
-            Utils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
@@ -147,21 +143,19 @@ public class JvmValueGen {
         this.types = types;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
-                                                       JvmPackageGen jvmPackageGen) {
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen,
-                                     jvmPackageGen);
+                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen
+                );
             }
         }
     }
 
-    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
-                                             JvmPackageGen jvmPackageGen) {
+    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 if (birFunc instanceof JMethodBIRFunction) {
@@ -209,8 +203,8 @@ public class JvmValueGen {
                         asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector, jvmTypeGen);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
+                        asyncDataCollector, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
@@ -277,18 +271,15 @@ public class JvmValueGen {
         mv.visitInsn(POP);
 
         // Invoke the init-function of this type.
-        String initFuncName;
         String valueClassName;
         List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
         // Attached functions are empty for type-labeling. In such cases, call the init() of the original type value
         if (!attachedFuncs.isEmpty()) {
-            initFuncName = attachedFuncs.get(0).name.value;
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitInsn(DUP);
@@ -308,8 +299,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          JvmTypeGen jvmTypeGen) {
+                                          AsyncDataCollector asyncDataCollector, JvmTypeGen jvmTypeGen) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -317,7 +307,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
+        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen, module);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
                 new String[]{MAP_VALUE});
 
@@ -334,8 +324,8 @@ public class JvmValueGen {
         jvmRecordGen.createAndSplitGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw, className);
 
-        this.createRecordConstructor(cw, INIT_TYPEDESC, className, typeDef, recordType);
-        this.createRecordConstructor(cw, TYPE_PARAMETER, className, typeDef, recordType);
+        this.createRecordConstructor(cw, INIT_TYPEDESC, className);
+        this.createRecordConstructor(cw, TYPE_PARAMETER, className);
         this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
@@ -365,8 +355,8 @@ public class JvmValueGen {
     }
 
     private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
-        String descriptor = TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS, null,
+                null);
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
@@ -389,8 +379,7 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className,
-                                         BIRNode.BIRTypeDefinition typedef, BRecordType recordType) {
+    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, argumentClass, null, null);
         mv.visitCode();
 
@@ -479,7 +468,7 @@ public class JvmValueGen {
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
+        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen, module);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
