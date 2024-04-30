@@ -209,8 +209,8 @@ public class JvmValueGen {
                         asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector, jvmTypeGen);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
+                        asyncDataCollector, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
@@ -308,8 +308,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          JvmTypeGen jvmTypeGen) {
+                                          AsyncDataCollector asyncDataCollector, JvmTypeGen jvmTypeGen) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -317,7 +316,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
+        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen, module);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
                 new String[]{MAP_VALUE});
 
@@ -479,7 +478,7 @@ public class JvmValueGen {
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
+        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen, module);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;

@@ -379,7 +379,7 @@ public class JvmPackageGen {
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
-            LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
+            LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
             if (isInitClass) {
                 cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
