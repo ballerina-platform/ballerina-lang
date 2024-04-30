@@ -52,6 +52,7 @@
 // ROInt5<:IntArray
 // ROInt5<:ROIntArray
 // ROIntArray<:IntArray
+// EmptyIntArray<:ROIntArray
 
 type IntArray int[];
 
@@ -64,7 +65,6 @@ type ArrayOfInt5 int[][5];
 type Array5OfInt5 int[5][5];
 
 type INT int;
-
 
 type Array5OfIntArray int[5][];
 

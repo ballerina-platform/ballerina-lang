@@ -20,7 +20,7 @@ type ReadOnlyFlat T|E|P|C;
 // -@type C < NonEmptyRoSingletons
 type NonEmptyRoSingletons ReadOnlyFlat & !N;
 
-// @type NonEmptyRoSingletons < UX
+// -@type NonEmptyRoSingletons < UX
 type UX XE|XP|XC|T;
 
 // -@type XNonEmptyRoSingletons = RX

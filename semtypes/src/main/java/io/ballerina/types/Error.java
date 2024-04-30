@@ -19,7 +19,16 @@ package io.ballerina.types;
 
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddNode;
-import io.ballerina.types.typeops.BddCommonOps;
+
+import static io.ballerina.types.BasicTypeCode.BT_ERROR;
+import static io.ballerina.types.Core.subtypeData;
+import static io.ballerina.types.PredefinedType.BDD_SUBTYPE_RO;
+import static io.ballerina.types.PredefinedType.ERROR;
+import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.basicSubtype;
+import static io.ballerina.types.RecAtom.createRecAtom;
+import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
+import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
 
 /**
  * Contain functions found in error.bal file.
@@ -28,22 +37,24 @@ import io.ballerina.types.typeops.BddCommonOps;
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {
-        SubtypeData sd = Core.subtypeData(detail, BasicTypeCode.BT_MAPPING); // TODO: type should be MAPPING_RO
+        SubtypeData sd = bddIntersect((Bdd) subtypeData(detail, BasicTypeCode.BT_MAPPING), BDD_SUBTYPE_RO);
         if (sd instanceof AllOrNothingSubtype allOrNothingSubtype) {
             if (allOrNothingSubtype.isAllSubtype()) {
-                return PredefinedType.ERROR;
+                return ERROR;
             } else {
                 // XXX This should be reported as an error
-                return PredefinedType.NEVER;
+                return NEVER;
             }
-        } else {
-            return PredefinedType.basicSubtype(BasicTypeCode.BT_ERROR, (ProperSubtypeData) sd);
         }
+        if (sd == BDD_SUBTYPE_RO) {
+            return ERROR;
+        }
+        return basicSubtype(BT_ERROR, (ProperSubtypeData) sd);
     }
 
     // distinctId must be >= 0
     public SemType errorDistinct(int distinctId) {
-        BddNode bdd = BddCommonOps.bddAtom(RecAtom.createRecAtom(-distinctId - 1));
-        return PredefinedType.basicSubtype(BasicTypeCode.BT_ERROR, bdd);
+        BddNode bdd = bddAtom(createRecAtom(-distinctId - 1));
+        return basicSubtype(BT_ERROR, bdd);
     }
 }

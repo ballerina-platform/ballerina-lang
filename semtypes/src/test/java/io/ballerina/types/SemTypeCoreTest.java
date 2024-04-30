@@ -273,9 +273,9 @@ public class SemTypeCoreTest {
         Assert.assertEquals(result.get(1).value, "d");
     }
 
-    @Test(enabled = false)
-    public void roTest() {
-        SemType t1 = PredefinedType.basicType(BasicTypeCode.BT_LIST); // TODO: type should be LIST_RO
+    @Test
+    public void roListTest() {
+        SemType t1 = Core.intersect(PredefinedType.LIST, PredefinedType.VAL_READONLY);
         Env env = new Env();
         ListDefinition ld = new ListDefinition();
         SemType t2 = ld.defineListTypeWrapped(env, new ArrayList<>(), 0, PredefinedType.VAL);
