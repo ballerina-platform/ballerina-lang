@@ -121,9 +121,6 @@ public class LSPackageLoader {
                 if (languageClient == null) {
                     return;
                 }
-                this.languageClient.showMessage(
-                        new MessageParams(MessageType.Info, "Indexing Ballerina packages: " +
-                                "some completions may not be available until indexing is complete."));
                 // Initialize progress notification
                 WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                 workDoneProgressCreateParams.setToken(taskId);
@@ -195,7 +192,6 @@ public class LSPackageLoader {
                 endNotification.setMessage("Initialized Successfully!");
                 languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                         Either.forLeft(endNotification)));
-                languageClient.showMessage(new MessageParams(MessageType.Info, "Indexing completed successfully."));
             }).exceptionally(e -> {
                 WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
                 endNotification.setMessage("Initialization Failed!");
