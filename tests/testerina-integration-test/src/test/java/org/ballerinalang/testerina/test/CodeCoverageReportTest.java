@@ -148,7 +148,8 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo&0046math/0",
                 "testerina_report/foo&0046bar/0/constants",
                 "test-report-tests/modules/bar",
-                "testerina_report/foo$test/0/creators"
+                "testerina_report/foo$test/0/creators",
+                "testerina_report/foo/0/functions"
         );
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
