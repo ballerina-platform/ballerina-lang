@@ -316,6 +316,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
     }
 
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, ModuleName moduleName) {
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
+                "-resources" + JAR_FILE_NAME_SUFFIX);
+    }
+
     @Override
     public PlatformLibrary runtimeLibrary() {
         return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
@@ -340,8 +345,15 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, new HashMap<>());
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+
+            // create the resources jar
+            Map<String, byte[]> resources = getResources(moduleContext);
+            String resourcesJarFileName = jarFileName + "-resources";
+            CompiledJarFile resourcesJar = new CompiledJarFile("", new HashMap<>());
+            ByteArrayOutputStream resourcesByteStream = JarWriter.write(resourcesJar, resources);
+            compilationCache.cachePlatformSpecificLibrary(this, resourcesJarFileName, resourcesByteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
@@ -357,8 +369,15 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, new HashMap<>());
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
+
+            // create the resources jar
+            Map<String, byte[]> resources = getAllResources(moduleContext);
+            String resourcesJarFileName = jarFileName + "-resources";
+            CompiledJarFile resourcesJar = new CompiledJarFile("", new HashMap<>());
+            ByteArrayOutputStream resourcesByteStream = JarWriter.write(resourcesJar, resources);
+            compilationCache.cachePlatformSpecificLibrary(this, resourcesJarFileName, resourcesByteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }

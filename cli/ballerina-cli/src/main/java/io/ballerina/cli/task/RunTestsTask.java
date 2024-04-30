@@ -515,7 +515,7 @@ public class RunTestsTask implements Task {
 
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
-        dependencies = dependencies.stream().filter(dep -> !dep.toString().contains("-native")).toList();
+        //dependencies = dependencies.stream().filter(dep -> !dep.toString().contains("-native")).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().map(Path::toString).forEach(classPath::add);
@@ -547,12 +547,12 @@ public class RunTestsTask implements Task {
                         jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
-        List<Path> ballerinaPlatformLibs = jBallerinaBackend.jarResolver()
-                .getBallerinaPlatformLibraries().stream().map(JarLibrary::path).toList();
-        moduleJarPaths.addAll(ballerinaPlatformLibs);
-        List<Path> testSpecificPlatformLibs = jBallerinaBackend.jarResolver()
-                .getTestSpecificPlatformLibraries().stream().map(JarLibrary::path).toList();
-        moduleJarPaths.addAll(testSpecificPlatformLibs);
+//        List<Path> ballerinaPlatformLibs = jBallerinaBackend.jarResolver()
+//                .getBallerinaPlatformLibraries().stream().map(JarLibrary::path).toList();
+//        moduleJarPaths.addAll(ballerinaPlatformLibs);
+//        List<Path> testSpecificPlatformLibs = jBallerinaBackend.jarResolver()
+//                .getTestSpecificPlatformLibraries().stream().map(JarLibrary::path).toList();
+//        moduleJarPaths.addAll(testSpecificPlatformLibs);
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 
