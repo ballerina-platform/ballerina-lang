@@ -40,8 +40,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
