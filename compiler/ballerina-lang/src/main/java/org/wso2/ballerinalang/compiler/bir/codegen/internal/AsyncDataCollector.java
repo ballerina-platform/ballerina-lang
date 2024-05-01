@@ -34,6 +34,7 @@ public class AsyncDataCollector {
     private final String enclosingClass;
     private int lambdaIndex = 0;
     private final RecordDefaultValueDataCollector defaultValueDataCollector;
+    private static final String RECORD_LAMBDA_PREFIX = "$rec";
 
     public AsyncDataCollector(String enclosingClass, RecordDefaultValueDataCollector defaultValueDataCollector) {
         this.enclosingClass = enclosingClass;
@@ -42,7 +43,10 @@ public class AsyncDataCollector {
         this.defaultValueDataCollector = defaultValueDataCollector;
     }
 
-    public int getLambdaIndex() {
+    public int getLambdaIndex(String funcName) {
+        if (funcName.contains(RECORD_LAMBDA_PREFIX)) {
+            return defaultValueDataCollector.getLambdaIndex();
+        }
         return lambdaIndex;
     }
 
@@ -50,7 +54,7 @@ public class AsyncDataCollector {
         if (lambdas.containsKey(lambdaName)) {
             return;
         }
-        if (lambdaName.contains("$rec")) {
+        if (lambdaName.contains(RECORD_LAMBDA_PREFIX)) {
             defaultValueDataCollector.add(lambdaName, callInstruction);
         } else {
             lambdas.put(lambdaName, callInstruction);
@@ -59,7 +63,7 @@ public class AsyncDataCollector {
     }
 
     public String getEnclosingClass(String lambdaName) {
-        if (lambdaName.contains("$rec")) {
+        if (lambdaName.contains(RECORD_LAMBDA_PREFIX)) {
             return defaultValueDataCollector.getEnclosingClass(lambdaName);
         }
         return enclosingClass;

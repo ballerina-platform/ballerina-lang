@@ -38,6 +38,7 @@ public class RecordDefaultValueDataCollector {
 
     private final String moduleLambdaClassPrefix;
     private static int classIndex = 0;
+    private int lambdaIndex = 0;
     private final Map<String, List<RecordDefaultValueLambda>> recordDefaultValuesLambdas;
     private final Map<String, String> recordDefaultValuesLambdasClassMap;
 
@@ -45,6 +46,10 @@ public class RecordDefaultValueDataCollector {
         this.recordDefaultValuesLambdasClassMap = new HashMap<>();
         this.recordDefaultValuesLambdas = new HashMap<>();
         this.moduleLambdaClassPrefix = getModuleLevelClassName(module.packageID, MODULE_LAMBDAS_CLASS_NAME);
+    }
+
+    public int getLambdaIndex() {
+        return lambdaIndex;
     }
 
     public void add(String lambdaName, BIRInstruction callInstruction) {
@@ -64,6 +69,7 @@ public class RecordDefaultValueDataCollector {
         }
         defaultValueLambdas.add(new RecordDefaultValueLambda(lambdaName, callInstruction));
         recordDefaultValuesLambdasClassMap.put(lambdaName, enclosingClass);
+        lambdaIndex++;
     }
 
     public String getEnclosingClass(String lambdaName) {
