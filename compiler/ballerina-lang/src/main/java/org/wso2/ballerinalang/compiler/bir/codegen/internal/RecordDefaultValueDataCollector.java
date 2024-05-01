@@ -32,7 +32,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LA
 /**
  * A data holder to record default values related lambda information.
  *
- * @since 2202.9.0
+ * @since 2201.9.0
  */
 public class RecordDefaultValueDataCollector {
 
