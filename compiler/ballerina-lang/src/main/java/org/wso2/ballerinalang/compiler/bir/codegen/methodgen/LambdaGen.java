@@ -111,6 +111,7 @@ public class LambdaGen {
     }
 
     public void generateLambdaClassesForRecords(Map<String, byte[]> jarEntries) {
+        String sourceFileName = module.functions.get(0).pos.lineRange().fileName();
         Map<String, List<AsyncDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
                 AsyncDataCollector.recordDefaultValuesLambdas;
         if (recordDefaultValuesLambdas.isEmpty()) {
@@ -120,6 +121,7 @@ public class LambdaGen {
                 recordDefaultValuesLambdas.entrySet()) {
             String lambdaClass = entry.getKey();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            cw.visitSource(sourceFileName, null);
             generateConstantsClassInit(cw, lambdaClass);
             List<AsyncDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
             for (AsyncDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
