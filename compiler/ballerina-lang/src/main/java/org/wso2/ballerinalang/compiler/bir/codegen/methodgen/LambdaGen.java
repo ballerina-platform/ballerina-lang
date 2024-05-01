@@ -25,10 +25,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -48,7 +50,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -74,6 +78,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
@@ -84,6 +89,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+
 /**
  * Generates Jvm byte code for the lambda method.
  *
@@ -101,6 +108,27 @@ public class LambdaGen {
         this.symbolTable = jvmPackageGen.symbolTable;
         this.jvmCastGen = jvmCastGen;
         this.module = module;
+    }
+
+    public void generateLambdaClassesForRecords(Map<String, byte[]> jarEntries) {
+        Map<String, List<AsyncDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
+                AsyncDataCollector.recordDefaultValuesLambdas;
+        if (recordDefaultValuesLambdas.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<AsyncDataCollector.RecordDefaultValueLambda>> entry :
+                recordDefaultValuesLambdas.entrySet()) {
+            String lambdaClass = entry.getKey();
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            generateConstantsClassInit(cw, lambdaClass);
+            List<AsyncDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
+            for (AsyncDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
+                generateLambdaMethod(recordDefaultValueLambda.callInstruction, cw,
+                        recordDefaultValueLambda.lambdaName, lambdaClass);
+            }
+            cw.visitEnd();
+            jarEntries.put(lambdaClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        }
     }
 
     public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {

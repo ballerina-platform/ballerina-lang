@@ -369,17 +369,16 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
-                                       String moduleInitClass, String typesClass,
-                                       JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
+    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+                                       String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                       JvmConstantsGen jvmConstantsGen, LambdaGen lambdaGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
         jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module, moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
-            LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
             if (isInitClass) {
                 cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -775,6 +774,7 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
+        LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
 
         // generate frame classes
@@ -782,12 +782,13 @@ public class JvmPackageGen {
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                lambdaGen, jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
         jvmConstantsGen.generateConstants(jarEntries);
+        lambdaGen.generateLambdaClassesForRecords(jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();
