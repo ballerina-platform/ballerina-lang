@@ -303,8 +303,8 @@ public class LambdaGen {
         }
     }
 
-    private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
-                                                       LambdaDetails lambdaDetails, BIRInstruction ins, boolean isSamePkg) {
+    private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName, LambdaDetails lambdaDetails,
+                                                       BIRInstruction ins, boolean isSamePkg) {
         String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName,
                 "(" + closureMapsDesc + "[L" + OBJECT + ";)L" + OBJECT + ";", null, null);
