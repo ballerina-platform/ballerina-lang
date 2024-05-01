@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.RecordDefaultValueDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
@@ -373,10 +374,11 @@ public class JvmPackageGen {
                                        String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                        JvmConstantsGen jvmConstantsGen, LambdaGen lambdaGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
-                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
+                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
+                                       RecordDefaultValueDataCollector defaultValueDataCollector) {
         jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module, moduleClass);
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass, defaultValueDataCollector);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
             if (isInitClass) {
@@ -775,20 +777,22 @@ public class JvmPackageGen {
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
-        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
+        RecordDefaultValueDataCollector defaultValueDataCollector = new RecordDefaultValueDataCollector(module);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, defaultValueDataCollector);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                lambdaGen, jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                lambdaGen, jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc,
+                defaultValueDataCollector);
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
         jvmConstantsGen.generateConstants(jarEntries);
-        lambdaGen.generateLambdaClassesForRecords(jarEntries);
+        lambdaGen.generateLambdaClassesForRecords(defaultValueDataCollector, jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();

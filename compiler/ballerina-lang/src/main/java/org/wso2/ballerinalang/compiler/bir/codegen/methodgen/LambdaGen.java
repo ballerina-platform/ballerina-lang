@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.RecordDefaultValueDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -110,21 +110,22 @@ public class LambdaGen {
         this.module = module;
     }
 
-    public void generateLambdaClassesForRecords(Map<String, byte[]> jarEntries) {
+    public void generateLambdaClassesForRecords(RecordDefaultValueDataCollector defaultValueDataCollector,
+                                                Map<String, byte[]> jarEntries) {
         String sourceFileName = module.functions.get(0).pos.lineRange().fileName();
-        Map<String, List<AsyncDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
-                AsyncDataCollector.recordDefaultValuesLambdas;
+        Map<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
+                defaultValueDataCollector.getRecordDefaultValuesLambdas();
         if (recordDefaultValuesLambdas.isEmpty()) {
             return;
         }
-        for (Map.Entry<String, List<AsyncDataCollector.RecordDefaultValueLambda>> entry :
+        for (Map.Entry<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> entry :
                 recordDefaultValuesLambdas.entrySet()) {
             String lambdaClass = entry.getKey();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             cw.visitSource(sourceFileName, null);
             generateConstantsClassInit(cw, lambdaClass);
-            List<AsyncDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
-            for (AsyncDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
+            List<RecordDefaultValueDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
+            for (RecordDefaultValueDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
                 generateLambdaMethod(recordDefaultValueLambda.callInstruction, cw,
                         recordDefaultValueLambda.lambdaName, lambdaClass);
             }

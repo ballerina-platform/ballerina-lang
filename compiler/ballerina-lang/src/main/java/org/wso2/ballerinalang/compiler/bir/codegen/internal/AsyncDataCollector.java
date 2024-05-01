@@ -18,16 +18,9 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_LAMBDAS_PER_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LAMBDAS_CLASS_NAME;
 
 /**
  * A data holder to keep async invocation related data which will be used by class generation.
@@ -39,17 +32,14 @@ public class AsyncDataCollector {
     private final Map<String, BIRInstruction> lambdas;
     private final Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private final String enclosingClass;
-    private final String moduleLambdaClassPrefix;
-    private static int classIndex = 0;
-    private static int lambdaIndex = 0;
-    private final Map<String, String> recordDefaultValuesLambdasClassMap = new HashMap<>();
-    public static Map<String, List<RecordDefaultValueLambda>> recordDefaultValuesLambdas = new HashMap<>();
+    private int lambdaIndex = 0;
+    private final RecordDefaultValueDataCollector defaultValueDataCollector;
 
-    public AsyncDataCollector(BIRNode.BIRPackage module, String enclosingClass) {
+    public AsyncDataCollector(String enclosingClass, RecordDefaultValueDataCollector defaultValueDataCollector) {
         this.enclosingClass = enclosingClass;
         this.lambdas = new HashMap<>();
         this.strandMetaDataMap = new HashMap<>();
-        moduleLambdaClassPrefix = getModuleLevelClassName(module.packageID, MODULE_LAMBDAS_CLASS_NAME);
+        this.defaultValueDataCollector = defaultValueDataCollector;
     }
 
     public int getLambdaIndex() {
@@ -61,22 +51,7 @@ public class AsyncDataCollector {
             return;
         }
         if (lambdaName.contains("$rec")) {
-            if (recordDefaultValuesLambdasClassMap.containsKey(lambdaName)) {
-                return;
-            }
-            String enclosingClass = moduleLambdaClassPrefix + classIndex;
-            List<RecordDefaultValueLambda> defaultValueLambdas =
-                    recordDefaultValuesLambdas.get(enclosingClass);
-            if (defaultValueLambdas == null) {
-                defaultValueLambdas = new ArrayList<>();
-                recordDefaultValuesLambdas.put(enclosingClass, defaultValueLambdas);
-            } else if (defaultValueLambdas.size() > MAX_GENERATED_LAMBDAS_PER_CLASS) {
-                enclosingClass = moduleLambdaClassPrefix + ++classIndex;
-                defaultValueLambdas = new ArrayList<>();
-                recordDefaultValuesLambdas.put(enclosingClass, defaultValueLambdas);
-            }
-            defaultValueLambdas.add(new RecordDefaultValueLambda(lambdaName, callInstruction));
-            recordDefaultValuesLambdasClassMap.put(lambdaName, enclosingClass);
+            defaultValueDataCollector.add(lambdaName, callInstruction);
         } else {
             lambdas.put(lambdaName, callInstruction);
         }
@@ -85,7 +60,7 @@ public class AsyncDataCollector {
 
     public String getEnclosingClass(String lambdaName) {
         if (lambdaName.contains("$rec")) {
-            return recordDefaultValuesLambdasClassMap.get(lambdaName);
+            return defaultValueDataCollector.getEnclosingClass(lambdaName);
         }
         return enclosingClass;
     }
@@ -96,22 +71,5 @@ public class AsyncDataCollector {
 
     public Map<String, ScheduleFunctionInfo> getStrandMetadata() {
         return strandMetaDataMap;
-    }
-
-    /**
-     * A data holder to information of lambdas created for record default values.
-     *
-     * @since 2201.9.0
-     */
-    public static class RecordDefaultValueLambda {
-
-        public String lambdaName;
-
-        public BIRInstruction callInstruction;
-
-        public RecordDefaultValueLambda(String lambdaName, BIRInstruction callInstruction) {
-            this.lambdaName = lambdaName;
-            this.callInstruction = callInstruction;
-        }
     }
 }
