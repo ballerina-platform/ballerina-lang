@@ -1843,8 +1843,6 @@ public class JvmInstructionGen {
             functions.put(funcKey, lambdaName);
         }
 
-        asyncDataCollector.incrementLambdaIndex();
-
         BType type = JvmCodeGenUtil.getImpliedType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + type);
@@ -1855,8 +1853,8 @@ public class JvmInstructionGen {
                 this.loadVar(operand.variableDcl);
             }
         }
-
-        JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
+        asyncDataCollector.add(lambdaName, inst);
+        JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(lambdaName), lambdaName,
                                           inst.closureMaps.size());
         // Need to remove once we fix #37875
         type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
@@ -1891,7 +1889,6 @@ public class JvmInstructionGen {
                 PROCESS_FP_ANNOTATIONS, false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
-        asyncDataCollector.add(lambdaName, inst);
     }
 
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {

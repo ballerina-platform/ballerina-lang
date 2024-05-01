@@ -195,7 +195,7 @@ public class JvmValueGen {
             }
             BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
-            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module, className);
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
