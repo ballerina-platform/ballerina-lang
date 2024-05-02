@@ -50,6 +50,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -291,7 +292,8 @@ class JMethodResolver {
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
-                jMethodRequest.kind, jMethodRequest.paramTypeConstraints, jMethodRequest.receiverType);
+                jMethodRequest.kind, jMethodRequest.paramTypeConstraints, jMethodRequest.receiverType,
+                jMethodRequest.bFuncParamCount);
         if (jMethod == JMethod.NO_SUCH_METHOD) {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
@@ -858,12 +860,11 @@ class JMethodResolver {
         return this.classLoader.loadClass(targetType.getCanonicalName()).isAssignableFrom(jType);
     }
 
-    private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
-                                       ParamTypeConstraint[] constraints,
-                                       BType receiverType) {
-
-        Class<?>[] paramTypes = new Class<?>[constraints.length];
-        for (int constraintIndex = 0; constraintIndex < constraints.length; constraintIndex++) {
+    private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind, ParamTypeConstraint[] constraints,
+                                       BType receiverType, int bParamCount) {
+        int constraintCount = constraints.length;
+        Class<?>[] paramTypes = new Class<?>[constraintCount];
+        for (int constraintIndex = 0; constraintIndex < constraintCount; constraintIndex++) {
             paramTypes[constraintIndex] = constraints[constraintIndex].get();
         }
 
@@ -873,10 +874,7 @@ class JMethodResolver {
             executable = tryResolveExactWithBalEnv(paramTypes, clazz, name);
         }
         if (executable != null) {
-            if (kind == JMethodKind.CONSTRUCTOR) {
-                return JMethod.build(kind, executable, null);
-            }
-            return JMethod.build(kind, executable, receiverType);
+            return buildJMethod(kind, executable, receiverType, bParamCount);
         } else {
             return JMethod.NO_SUCH_METHOD;
         }
@@ -893,20 +891,18 @@ class JMethodResolver {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         String paramTypesSig = getParamTypesAsString(constraints);
-        int constraintsSize;
-        int paramTypesInitialIndex;
-        if (jMethodRequest.receiverType != null) {
-            constraintsSize = constraints.length + 1;
-            paramTypesInitialIndex = 1;
-        } else {
-            constraintsSize = constraints.length;
-            paramTypesInitialIndex = 0;
-        }
+        int constraintsSize = constraints.length;
+        int paramTypesInitialIndex = 0;
         List<JMethod> resolvedJMethods = new ArrayList<>();
         if (constraints.length > 0) {
             for (JMethod jMethod : jMethods) {
                 boolean resolved = true;
                 Class<?>[] formalParamTypes = jMethod.getParamTypes();
+                if (jMethod.getReceiverType() != null && isMethodAcceptingReceiverTypeParameter(jMethod.getMethod(),
+                        jMethodRequest.bFuncParamCount, jMethod.getKind())) {
+                    constraintsSize = constraints.length + 1;
+                    paramTypesInitialIndex = 1;
+                }
 
                 // skip if the given constraint params are not of the same size as method's params
                 if (constraintsSize != formalParamTypes.length) {
@@ -953,6 +949,27 @@ class JMethodResolver {
         } else {
             return resolvedJMethods.get(0);
         }
+    }
+
+    private JMethod buildJMethod(JMethodKind kind, Executable executable, BType receiverType, int bParamCount) {
+        if (isMethodAcceptingReceiverTypeParameter(executable, bParamCount, kind)) {
+            return JMethod.build(kind, executable, receiverType);
+        }
+        return JMethod.build(kind, executable, null);
+    }
+
+    private boolean isMethodAcceptingReceiverTypeParameter(Executable executable, int bParamCount, JMethodKind kind) {
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return false;
+        }
+        int expectedParamCount = Modifier.isStatic(executable.getModifiers()) ? bParamCount : bParamCount - 1;
+        int paramCount = executable.getParameterCount();
+        Parameter[] parameters = executable.getParameters();
+        return (paramCount == expectedParamCount + 1
+                && parameters[0].getType().getCanonicalName().equals(BObject.class.getCanonicalName()))
+                || (paramCount == expectedParamCount + 2
+                && parameters[0].getType().getCanonicalName().equals(Environment.class.getCanonicalName())
+                && parameters[1].getType().getCanonicalName().equals(BObject.class.getCanonicalName()));
     }
 
     private Executable resolveConstructor(Class<?> clazz, Class<?>... paramTypes) {

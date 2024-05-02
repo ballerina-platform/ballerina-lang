@@ -121,7 +121,7 @@ public class VariableReturnType {
         return getValue(td.getDescribingType());
     }
 
-    public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
+    public static Object getObjectValue(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
         if (describingType.getTag() == STRING_TAG) {
             BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))
@@ -151,7 +151,7 @@ public class VariableReturnType {
         return map;
     }
 
-    public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
+    public static BStream getStreamOfRecords(BObject objectValue, BStream strm, BTypedesc typedesc) {
         RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
         Assert.assertSame(streamConstraint, TypeUtils.getImpliedType(strm.getConstraintType()));
         return strm;
@@ -292,7 +292,7 @@ public class VariableReturnType {
         return null;
     }
 
-    public static Object get(ObjectValue objectValue, BTypedesc td) {
+    public static Object get(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
         switch (describingType.getTag()) {
@@ -304,7 +304,7 @@ public class VariableReturnType {
         return objectValue.get(StringUtils.fromString("c"));
     }
 
-    public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {
+    public static Object getIntFieldOrDefault(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
         if (describingType.getTag() == INT_TAG) {
@@ -314,7 +314,7 @@ public class VariableReturnType {
         return getValue(describingType);
     }
 
-    public static Object getValueForParamOne(ObjectValue objectValue, BTypedesc td1, BTypedesc td2) {
+    public static Object getValueForParamOne(BObject objectValue, BTypedesc td1, BTypedesc td2) {
         return getIntFieldOrDefault(objectValue, td1);
     }
 
