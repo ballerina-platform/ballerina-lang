@@ -23,7 +23,7 @@ type Genre_Genre record {
 };
 
 type Currency_Price record {
-    string \#content;
+    decimal \#content;
     @xmldata:Attribute
     string currency;
     @xmldata:Attribute
