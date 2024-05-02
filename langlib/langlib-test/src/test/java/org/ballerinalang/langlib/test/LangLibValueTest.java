@@ -371,6 +371,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
                 "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
                 "testCloneWithTypeToUnion",
+                "testCloneWithTypeWithUnionOfRecordsWithTypeInclusion",
                 "testCloneWithTypeTable",
                 "testCloneWithTypeOnRegExp",
                 "testCloneWithTypeOnRegExpNegative",
