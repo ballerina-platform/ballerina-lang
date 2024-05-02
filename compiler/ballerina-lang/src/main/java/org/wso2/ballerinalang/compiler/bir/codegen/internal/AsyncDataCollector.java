@@ -29,40 +29,47 @@ import java.util.Map;
  */
 public class AsyncDataCollector {
 
-    private Map<String, BIRInstruction> lambdas;
-    private Map<String, ScheduleFunctionInfo> strandMetaDataMap;
+    private final Map<String, BIRInstruction> lambdas;
+    private final Map<String, ScheduleFunctionInfo> strandMetaDataMap;
+    private final String enclosingClass;
     private int lambdaIndex = 0;
-    private String enclosingClass;
+    private final RecordDefaultValueDataCollector defaultValueDataCollector;
+    private static final String RECORD_LAMBDA_PREFIX = "$rec";
 
-    public AsyncDataCollector(String enclosingClass) {
-
+    public AsyncDataCollector(String enclosingClass, RecordDefaultValueDataCollector defaultValueDataCollector) {
         this.enclosingClass = enclosingClass;
-        lambdas = new HashMap<>();
-        strandMetaDataMap = new HashMap<>();
+        this.lambdas = new HashMap<>();
+        this.strandMetaDataMap = new HashMap<>();
+        this.defaultValueDataCollector = defaultValueDataCollector;
     }
 
-    public void incrementLambdaIndex() {
-
-        lambdaIndex++;
-    }
-
-    public int getLambdaIndex() {
-
+    public int getLambdaIndex(String funcName) {
+        if (funcName.contains(RECORD_LAMBDA_PREFIX)) {
+            return defaultValueDataCollector.getLambdaIndex();
+        }
         return lambdaIndex;
     }
 
     public void add(String lambdaName, BIRInstruction callInstruction) {
-
-        lambdas.put(lambdaName, callInstruction);
+        if (lambdas.containsKey(lambdaName)) {
+            return;
+        }
+        if (lambdaName.contains(RECORD_LAMBDA_PREFIX)) {
+            defaultValueDataCollector.add(lambdaName, callInstruction);
+        } else {
+            lambdas.put(lambdaName, callInstruction);
+        }
+        lambdaIndex++;
     }
 
-    public String getEnclosingClass() {
-
+    public String getEnclosingClass(String lambdaName) {
+        if (lambdaName.contains(RECORD_LAMBDA_PREFIX)) {
+            return defaultValueDataCollector.getEnclosingClass(lambdaName);
+        }
         return enclosingClass;
     }
 
     public Map<String, BIRInstruction> getLambdas() {
-
         return lambdas;
     }
 

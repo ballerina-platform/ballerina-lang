@@ -25,10 +25,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.RecordDefaultValueDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -48,7 +50,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -73,14 +77,20 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+
 /**
  * Generates Jvm byte code for the lambda method.
  *
@@ -91,52 +101,82 @@ public class LambdaGen {
     private final SymbolTable symbolTable;
     private final JvmPackageGen jvmPackageGen;
     private final JvmCastGen jvmCastGen;
+    private final BIRNode.BIRPackage module;
 
-    public LambdaGen(JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen) {
+    public LambdaGen(JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen, BIRNode.BIRPackage module) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.jvmCastGen = jvmCastGen;
+        this.module = module;
+    }
+
+    public void generateLambdaClassesForRecords(RecordDefaultValueDataCollector defaultValueDataCollector,
+                                                Map<String, byte[]> jarEntries) {
+        String sourceFileName = module.functions.get(0).pos.lineRange().fileName();
+        Map<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
+                defaultValueDataCollector.getRecordDefaultValuesLambdas();
+        if (recordDefaultValuesLambdas.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> entry :
+                recordDefaultValuesLambdas.entrySet()) {
+            String lambdaClass = entry.getKey();
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            cw.visitSource(sourceFileName, null);
+            generateConstantsClassInit(cw, lambdaClass);
+            List<RecordDefaultValueDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
+            for (RecordDefaultValueDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
+                generateLambdaMethod(recordDefaultValueLambda.callInstruction, cw,
+                        recordDefaultValueLambda.lambdaName, lambdaClass);
+            }
+            cw.visitEnd();
+            jarEntries.put(lambdaClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        }
     }
 
     public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {
         LambdaDetails lambdaDetails = getLambdaDetails(ins);
-        MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins);
+        boolean isSamePkg = JvmCodeGenUtil.isSameModule(module.packageID, lambdaDetails.packageID);
+        MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins, isSamePkg);
 
         List<BType> paramBTypes = new ArrayList<>();
         if (ins.getKind() == InstructionKind.ASYNC_CALL) {
-            handleAsyncCallLambda((BIRTerminator.AsyncCall) ins, lambdaDetails, mv, paramBTypes);
+            handleAsyncCallLambda((BIRTerminator.AsyncCall) ins, lambdaDetails, mv, paramBTypes, isSamePkg);
         } else {
-            handleFpLambda((BIRNonTerminator.FPLoad) ins, lambdaDetails, mv, paramBTypes);
+            handleFpLambda((BIRNonTerminator.FPLoad) ins, lambdaDetails, mv, paramBTypes, isSamePkg);
         }
         MethodGenUtils.visitReturn(mv, lambdaName, className);
     }
 
     private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
-                               boolean isWorker) {
-        String jvmClass;
-        String methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
-                isWorker);
+                               boolean isWorker, boolean isSamePkg) {
+        String jvmClass, funcName, methodDesc;
+        if (!isSamePkg) {
+            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
+                    MODULE_FUNCTION_CALLS_CLASS_NAME);
+            funcName = CALL_FUNCTION;
+            methodDesc = FUNCTION_CALL;
+            mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
+            return;
+        }
         if (lambdaDetails.functionWrapper != null) {
             jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName;
         } else {
-            String balFileName = lambdaDetails.funcSymbol.source;
-
-            if (balFileName == null || !balFileName.endsWith(JvmConstants.BAL_EXTENSION)) {
-                balFileName = JvmConstants.MODULE_INIT_CLASS_NAME;
-            }
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID, JvmCodeGenUtil
-                    .cleanupPathSeparators(balFileName));
+            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
+                    MODULE_FUNCTION_CALLS_CLASS_NAME);
         }
+        methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
+                isWorker);
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
     }
 
     private void handleAsyncCallLambda(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv,
-                                       List<BType> paramBTypes) {
+                                       List<BType> paramBTypes, boolean isSamePkg) {
         if (ins.isVirtual) {
             handleLambdaVirtual(ins, lambdaDetails, mv);
         } else {
-            handleAsyncNonVirtual(lambdaDetails, mv, paramBTypes);
+            handleAsyncNonVirtual(lambdaDetails, mv, paramBTypes, isSamePkg);
         }
     }
 
@@ -149,10 +189,9 @@ public class LambdaGen {
         int paramIndex = 1;
         for (int paramTypeIndex = 1; paramTypeIndex < paramTypes.size(); paramTypeIndex++) {
             generateObjectArgs(mv, paramIndex);
-            paramIndex += 1;
+            paramIndex++;
         }
-        String methodDesc = BOBJECT_CALL;
-        mv.visitMethodInsn(INVOKEINTERFACE , B_OBJECT, "call", methodDesc, true);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, CALL_FUNCTION, BOBJECT_CALL, true);
     }
 
     private void genLoadDataForObjectAttachedLambdas(BIRTerminator.AsyncCall ins, MethodVisitor mv,
@@ -185,21 +224,37 @@ public class LambdaGen {
         mv.visitInsn(AASTORE);
     }
 
-    private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
-                                                                          lambdaDetails.packageID.name.getValue());
+    private void generateFpCallArgs(MethodVisitor mv, int paramIndex) {
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, paramIndex);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, paramIndex + 1);
+        mv.visitInsn(AALOAD);
+        mv.visitInsn(AASTORE);
+    }
+
+    private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
+                                       boolean isSamePkg) {
         List<BType> paramTypes = getFpParamTypes(lambdaDetails);
         // load and cast param values= asyncIns.args;
-        int argIndex = 1;
-        for (BType paramType : paramTypes) {
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, argIndex);
-            mv.visitInsn(AALOAD);
-            jvmCastGen.addUnboxInsn(mv, paramType);
-            paramBTypes.add(argIndex - 1, paramType);
-            argIndex += 1;
+        if (isSamePkg) {
+            int argIndex = 1;
+            for (BType paramType : paramTypes) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitIntInsn(BIPUSH, argIndex);
+                mv.visitInsn(AALOAD);
+                jvmCastGen.addUnboxInsn(mv, paramType);
+                paramBTypes.add(argIndex - 1, paramType);
+                argIndex++;
+            }
+        } else {
+            mv.visitIntInsn(BIPUSH, paramTypes.size());
+            mv.visitTypeInsn(ANEWARRAY, OBJECT);
+            for (int paramIndex = 0; paramIndex < paramTypes.size(); paramIndex++) {
+                generateFpCallArgs(mv, paramIndex);
+            }
         }
-        genNonVirtual(lambdaDetails, mv, paramBTypes, false);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, false, isSamePkg);
     }
 
     private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -226,23 +281,31 @@ public class LambdaGen {
     }
 
     private void handleFpLambda(BIRNonTerminator.FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
-                                List<BType> paramBTypes) {
+                                List<BType> paramBTypes, boolean isSamePkg) {
         loadClosureMaps(lambdaDetails, mv);
         // load and cast param values
-        loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes);
-        genNonVirtual(lambdaDetails, mv, paramBTypes, ins.isWorker);
+        loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes, isSamePkg);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, ins.isWorker, isSamePkg);
     }
 
     private void loadAndCastParamValues(BIRNonTerminator.FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
-                                        List<BType> paramBTypes) {
-        int argIndex = 1;
-        for (BIRNode.BIRVariableDcl dcl : ins.params) {
-            mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
-            mv.visitIntInsn(BIPUSH, argIndex);
-            mv.visitInsn(AALOAD);
-            jvmCastGen.addUnboxInsn(mv, dcl.type);
-            paramBTypes.add(argIndex - 1, dcl.type);
-            argIndex += 1;
+                                        List<BType> paramBTypes, boolean isSamePkg) {
+        if (isSamePkg) {
+            int argIndex = 1;
+            for (BIRNode.BIRVariableDcl dcl : ins.params) {
+                mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
+                mv.visitIntInsn(BIPUSH, argIndex);
+                mv.visitInsn(AALOAD);
+                jvmCastGen.addUnboxInsn(mv, dcl.type);
+                paramBTypes.add(argIndex - 1, dcl.type);
+                argIndex++;
+            }
+        } else {
+            mv.visitIntInsn(BIPUSH, ins.params.size());
+            mv.visitTypeInsn(ANEWARRAY, OBJECT);
+            for (int paramIndex = 0; paramIndex < ins.params.size(); paramIndex++) {
+                generateFpCallArgs(mv, paramIndex);
+            }
         }
     }
 
@@ -252,8 +315,8 @@ public class LambdaGen {
         }
     }
 
-    private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
-                                                       LambdaDetails lambdaDetails, BIRInstruction ins) {
+    private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName, LambdaDetails lambdaDetails
+            , BIRInstruction ins, boolean isSamePkg) {
         String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName,
                 "(" + closureMapsDesc + "[L" + OBJECT + ";)L" + OBJECT + ";", null, null);
@@ -268,6 +331,10 @@ public class LambdaGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+
+        if (!isSamePkg) {
+            mv.visitLdcInsn(lambdaDetails.encodedFuncName);
+        }
 
         if ((ins.getKind() == InstructionKind.FP_LOAD) && ((BIRNonTerminator.FPLoad) ins).isWorker) {
             mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
@@ -348,6 +415,7 @@ public class LambdaGen {
         lambdaDetails.lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
         lambdaDetails.packageID = asyncIns.calleePkg;
         lambdaDetails.funcName = asyncIns.name.getValue();
+        lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
         if (!asyncIns.isVirtual) {
             populateLambdaFunctionDetails(lambdaDetails);
         }
@@ -359,13 +427,13 @@ public class LambdaGen {
         lambdaDetails.lhsType = fpIns.lhsOp.variableDcl.type;
         lambdaDetails.packageID = fpIns.pkgId;
         lambdaDetails.funcName = fpIns.funcName.getValue();
+        lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
         lambdaDetails.closureMapsCount = fpIns.closureMaps.size();
         populateLambdaFunctionDetails(lambdaDetails);
         return lambdaDetails;
     }
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
         lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(lambdaDetails.packageID) +
                 lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
