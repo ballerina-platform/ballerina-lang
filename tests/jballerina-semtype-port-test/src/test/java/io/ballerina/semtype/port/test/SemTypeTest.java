@@ -80,10 +80,6 @@ public class SemTypeTest {
 
     public final HashSet<String> dataDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // causes a stack overflow with mappingSubtypeIsEmpty
-        // https://github.com/ballerina-platform/ballerina-lang/issues/42662
-        hashSet.add("error1.bal");
-        hashSet.add("hard.bal");
         return hashSet;
     }
 

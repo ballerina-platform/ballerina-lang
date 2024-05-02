@@ -197,7 +197,7 @@ public class Common {
             }
         } else {
             m = new BddMemo();
-            cx.listMemo.put(b, m);
+            memoTable.put(b, m);
         }
         m.isEmpty = BddMemo.MemoStatus.PROVISIONAL;
         int initStackDepth = cx.memoStack.size();
