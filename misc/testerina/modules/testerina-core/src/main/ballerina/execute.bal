@@ -293,13 +293,10 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
     if (!suffixMatch) {
         string[] subTests = filterSubTests.get(functionKey);
         foreach string subFilter in subTests {
-
             string updatedSubFilter = subFilter;
             if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
                 if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
                     updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
-                } else {
-                    continue;
                 }
             }
             string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
