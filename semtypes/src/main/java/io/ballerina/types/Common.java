@@ -80,6 +80,15 @@ public class Common {
         return and(atom, next);
     }
 
+    public static boolean bddPosMaybeEmpty(Bdd b) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll();
+        } else {
+            BddNode bddNode = (BddNode) b;
+            return bddPosMaybeEmpty(bddNode.middle()) || bddPosMaybeEmpty(bddNode.right());
+        }
+    }
+
     public static SubtypeData bddSubtypeUnion(SubtypeData t1, SubtypeData t2) {
         return bddUnion((Bdd) t1, (Bdd) t2);
     }

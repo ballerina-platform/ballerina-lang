@@ -110,8 +110,8 @@ public class SemTypes {
         return Error.errorDetail(detail);
     }
 
-    public static SemType tableContaining(SemType memberType) {
-        return TableSubtype.tableContaining(memberType);
+    public static SemType tableContaining(Env env, SemType mappingType) {
+        return TableSubtype.tableContaining(env, mappingType);
     }
 
     public static SemType mappingMemberTypeInnerVal(Context context, SemType t, SemType m) {

@@ -17,20 +17,41 @@
  */
 package io.ballerina.types.subtypedata;
 
-import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Bdd;
-import io.ballerina.types.Core;
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
+import io.ballerina.types.definition.ListDefinition;
+
+import static io.ballerina.types.BasicTypeCode.BT_LIST;
+import static io.ballerina.types.BasicTypeCode.BT_TABLE;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.types.Core.createBasicSemType;
+import static io.ballerina.types.Core.subtypeData;
+import static io.ballerina.types.PredefinedType.LIST_SUBTYPE_MAPPING;
+import static io.ballerina.types.PredefinedType.TABLE;
 
 /**
  * TableSubtype.
  *
  * @since 2201.8.0
  */
-public class TableSubtype {
+public final class TableSubtype {
 
-    public static SemType tableContaining(SemType memberType) {
-        Bdd bdd = (Bdd) Core.subtypeData(memberType, BasicTypeCode.BT_MAPPING);
-        return Core.createBasicSemType(BasicTypeCode.BT_TABLE, bdd);
+    private TableSubtype() {
+    }
+
+    public static SemType tableContaining(Env env, SemType mappingType, CellAtomicType.CellMutability mut) {
+        ListDefinition listDef = new ListDefinition();
+        SemType listType = listDef.defineListTypeWrapped(env, mappingType, mut);
+        Bdd bdd = (Bdd) subtypeData(listType, BT_LIST);
+        if (bdd.equals(LIST_SUBTYPE_MAPPING)) {
+            return TABLE;
+        }
+        return createBasicSemType(BT_TABLE, bdd);
+    }
+
+    public static SemType tableContaining(Env env, SemType mappingType) {
+        return tableContaining(env, mappingType, CELL_MUT_LIMITED);
     }
 }

@@ -64,7 +64,7 @@ import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
  */
 public class ListOps extends CommonOps implements BasicTypeOps {
 
-    private static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
+    static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
         return memoSubtypeIsEmpty(cx, cx.listMemo,
                 (context, bdd) -> Common.bddEvery(context, bdd, null, null, ListOps::listFormulaIsEmpty),
                 (Bdd) t);

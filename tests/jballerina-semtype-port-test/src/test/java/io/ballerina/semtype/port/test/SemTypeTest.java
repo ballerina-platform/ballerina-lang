@@ -98,9 +98,6 @@ public class SemTypeTest {
         // readonly type not supported yet
         hashSet.add("readonly1.bal");
         hashSet.add("readonly2.bal");
-
-        // table type not supported yet
-        hashSet.add("table.bal");
         return hashSet;
     }
 

@@ -94,6 +94,10 @@ public class ListDefinition implements Definition {
         return defineListTypeWrapped(env, List.of(), 0, rest);
     }
 
+    public SemType defineListTypeWrapped(Env env, SemType rest, CellAtomicType.CellMutability mut) {
+        return defineListTypeWrapped(env, List.of(), 0, rest, mut);
+    }
+
     public SemType defineListTypeWrapped(Env env, List<SemType> initial, SemType rest) {
         return defineListTypeWrapped(env, initial, initial.size(), rest, CELL_MUT_LIMITED);
     }
