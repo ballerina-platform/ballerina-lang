@@ -693,6 +693,8 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
                 CompilerOptionName.REMOTE_MANAGEMENT.toString());
+        Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -707,7 +709,8 @@ public class ManifestBuilder {
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setRemoteManagement(remoteManagement);
+                .setRemoteManagement(remoteManagement)
+                .setShowDependencyDiagnostics(showDependencyDiagnostics);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
