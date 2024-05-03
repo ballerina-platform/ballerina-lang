@@ -53,9 +53,13 @@ public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
+    private Target target;
+    private final boolean isHideTaskOutput;
 
-    public CreateExecutableTask(PrintStream out, String output) {
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
         this.out = out;
+        this.target = target;
+        this.isHideTaskOutput = isHideTaskOutput;
         if (output != null) {
             this.output = Paths.get(output);
         }
@@ -63,19 +67,17 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
-
-        if (!project.buildOptions().nativeImage()) {
-            this.out.println("Generating executable");
+        if (!isHideTaskOutput) {
+            this.out.println();
+            if (!project.buildOptions().nativeImage()) {
+                this.out.println("Generating executable");
+            }
         }
-
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
-        Target target;
-
         try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT) && target == null) {
                 target = new Target(project.targetDir());
-            } else {
+            } else if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && target == null) {
                 target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
                 target.setOutputPath(getExecutablePath(project));
             }
@@ -132,7 +134,7 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage()) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {

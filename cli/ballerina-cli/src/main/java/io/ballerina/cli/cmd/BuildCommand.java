@@ -289,7 +289,7 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
