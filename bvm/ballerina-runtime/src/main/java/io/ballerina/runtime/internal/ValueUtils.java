@@ -18,11 +18,9 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -34,28 +32,20 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.AsyncFunctionCallback;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
@@ -63,8 +53,6 @@ import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
  * @since 2.0.0
  */
 public class ValueUtils {
-
-    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -147,19 +135,12 @@ public class ValueUtils {
             BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            try {
-                final CountDownLatch latch = new CountDownLatch(defaultValues.size());
-                populateInitialValuesWithNoStrand(recordValue, latch, defaultValues);
-                latch.await();
-            } catch (InterruptedException e) {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("error occurred when populating default values"), e);
-            }
-        } else {
-            for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
-                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
-                        field.getValue().call(new Object[]{strand}));
-            }
+            // Create a dummy strand only for keep frames.
+            strand = new Strand();
+        }
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[]{strand}));
         }
         return recordValue;
     }
@@ -182,50 +163,6 @@ public class ValueUtils {
             result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
         }
         return result;
-    }
-
-    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
-                                                          Map<String, BFunctionPointer<Object, ?>> defaultValues) {
-        String[] fields = defaultValues.keySet().toArray(new String[0]);
-        int noOfIterations = defaultValues.size();
-        if (noOfIterations <= 0) {
-            return;
-        }
-        AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(recordValue, defaultValues, fields, "default", noOfIterations, callCount,
-                o -> { }, latch, Scheduler.getDaemonStrand());
-    }
-
-    private static void scheduleNextFunction(BMap<BString, Object> recordValue,
-                                             Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
-                                             String strandName, int noOfIterations, AtomicInteger callCount,
-                                             Consumer<Object> futureResultConsumer, CountDownLatch latch,
-                                             Strand parent) {
-        BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
-        Type retType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
-        FutureValue future = parent.scheduler.createFuture(Scheduler.getDaemonStrand(), null, null, retType,
-                strandName, parent.getMetadata());
-        AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
-            @Override
-            public void notifySuccess(Object result) {
-                futureResultConsumer.accept(getFutureResult());
-                recordValue.populateInitialValue(StringUtils.fromString(fields[callCount.get()]), result);
-                int i = callCount.incrementAndGet();
-                latch.countDown();
-                if (i != noOfIterations) {
-                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, noOfIterations,
-                            callCount, futureResultConsumer, latch, parent);
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                errStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
-            }
-        };
-        future.callback = callback;
-        callback.setFuture(future);
-        parent.scheduler.schedule(new Object[1], func.getFunction(), future);
     }
 
     /**

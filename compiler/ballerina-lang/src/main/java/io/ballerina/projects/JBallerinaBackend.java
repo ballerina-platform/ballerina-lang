@@ -173,8 +173,12 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
+                        !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                        (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+                    moduleDiagnostics.add(
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                }
             }
 
             if (shrink) {

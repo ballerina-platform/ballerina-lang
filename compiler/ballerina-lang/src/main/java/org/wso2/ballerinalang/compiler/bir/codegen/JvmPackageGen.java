@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.RecordDefaultValueDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
@@ -111,7 +112,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GENERATED_FUNCTIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -367,17 +370,17 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
-                                       String moduleInitClass, String typesClass,
-                                       JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
+    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+                                       String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                       JvmConstantsGen jvmConstantsGen, LambdaGen lambdaGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
-                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
+                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
+                                       RecordDefaultValueDataCollector defaultValueDataCollector) {
         jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass, defaultValueDataCollector);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
-            LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
                 cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -563,6 +566,8 @@ public class JvmPackageGen {
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
+        int genMethodsCount = 0;
+        int genClassNum = 0;
 
         // Generate classes for other functions.
         while (count < funcSize) {
@@ -571,8 +576,16 @@ public class JvmPackageGen {
             // link the bir function for lookup
             String birFuncName = birFunc.name.value;
             String balFileName;
-            if (birFunc.pos == null || birFunc.pos == symbolTable.builtinPos) {
+            if (birFunc.pos == symbolTable.builtinPos) {
                 balFileName = MODULE_INIT_CLASS_NAME;
+            }  else if (birFunc.pos == null) {
+                balFileName = MODULE_GENERATED_FUNCTIONS_CLASS_NAME + genClassNum;
+                if (genMethodsCount > MAX_GENERATED_METHODS_PER_CLASS) {
+                    genMethodsCount = 0;
+                    genClassNum++;
+                } else {
+                    genMethodsCount++;
+                }
             } else {
                 balFileName = birFunc.pos.lineRange().fileName();
             }
@@ -763,19 +776,23 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
+        LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
+        RecordDefaultValueDataCollector defaultValueDataCollector = new RecordDefaultValueDataCollector(module);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, defaultValueDataCollector);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                lambdaGen, jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc,
+                defaultValueDataCollector);
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
         jvmConstantsGen.generateConstants(jarEntries);
+        lambdaGen.generateLambdaClassesForRecords(defaultValueDataCollector, jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();

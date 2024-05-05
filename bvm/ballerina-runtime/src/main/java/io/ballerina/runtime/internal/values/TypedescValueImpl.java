@@ -57,13 +57,11 @@ public class TypedescValueImpl implements TypedescValue {
     public MapValue annotations;
     private BTypedesc typedesc;
 
-    @Deprecated
     public TypedescValueImpl(Type describingType) {
         this.type = new BTypedescType(describingType);
         this.describingType = describingType;
     }
 
-    @Deprecated
     public TypedescValueImpl(Type describingType, MapValue[] closures) {
         this.type = new BTypedescType(describingType);
         this.describingType = describingType;

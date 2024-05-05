@@ -985,11 +985,10 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
         String funcName = Utils.encodeFunctionIdentifier(callIns.name.value);
-        String lambdaName = "$" + funcName + LAMBDA_PREFIX + "_" + asyncDataCollector.getLambdaIndex() + "$";
+        String lambdaName = "$" + funcName + LAMBDA_PREFIX + "_" + asyncDataCollector.getLambdaIndex(funcName) + "$";
 
-        JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);
         asyncDataCollector.add(lambdaName, callIns);
-        asyncDataCollector.incrementLambdaIndex();
+        JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(lambdaName), lambdaName);
 
         boolean concurrent = false;
         String strandName = null;
