@@ -108,6 +108,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+    private final Map<String, byte[]> testResources = new HashMap<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -182,6 +183,20 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
+            }
+        }
+
+        //once all the modules are processed, we need to add the test resources to the project
+        if (!testResources.isEmpty()) {
+            CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+            try {
+                String resourceJarName = "resources" + JAR_FILE_NAME_SUFFIX;
+                ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, testResources);
+                packageContext.defaultModuleContext().compilationCache().cachePlatformSpecificLibrary(this,
+                        resourceJarName, byteStream);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache generated test resources jar, module: " +
+                        packageContext.defaultModuleContext().moduleName());
             }
         }
         // add compilation diagnostics
@@ -316,9 +331,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
     }
 
-    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
-                TEST_JAR_FILE_NAME_SUFFIX + "-resources" + JAR_FILE_NAME_SUFFIX);
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return codeGeneratedResourceLibrary(packageId);
     }
 
     @Override
@@ -362,15 +376,11 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
+            // get all resources of the module
+            Map<String, byte[]> resources = getAllResources(moduleContext);
+            testResources.putAll(resources);
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, new HashMap<>());
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
-
-            // create the resources jar
-            Map<String, byte[]> resources = getAllResources(moduleContext);
-            String resourcesJarFileName = testJarFileName + "-resources";
-            CompiledJarFile resourcesJar = new CompiledJarFile("", new HashMap<>());
-            ByteArrayOutputStream resourcesByteStream = JarWriter.write(resourcesJar, resources);
-            compilationCache.cachePlatformSpecificLibrary(this, resourcesJarFileName, resourcesByteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
@@ -553,6 +563,18 @@ public class JBallerinaBackend extends CompilerBackend {
         return new JarLibrary(platformSpecificLibrary.orElseThrow(
                 () -> new IllegalStateException("Cannot find the generated jar library for module: " + moduleName)),
                 scope);
+    }
+
+    private PlatformLibrary codeGeneratedResourceLibrary(PackageId packageId) {
+        Package pkg = packageCache.getPackageOrThrow(packageId);
+        ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
+        CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
+        String jarFileName = "resources" + JAR_FILE_NAME_SUFFIX;
+        Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
+                this, jarFileName);
+        return new JarLibrary(platformSpecificLibrary.orElseThrow(
+                () -> new IllegalStateException("Cannot find the generated jar library for resources")),
+                PlatformLibraryScope.DEFAULT);
     }
 
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {

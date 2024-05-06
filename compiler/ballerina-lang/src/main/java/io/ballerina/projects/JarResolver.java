@@ -239,7 +239,7 @@ public class JarResolver {
                     getPackageName(rootPackageContext)));
 
             // resource jar
-            PlatformLibrary resourceJarLibrary = jBalBackend.codeGeneratedResourcesLibrary(rootPackageId, moduleName);
+            PlatformLibrary resourceJarLibrary = jBalBackend.codeGeneratedResourcesLibrary(rootPackageId);
             allJarFileForTestExec.add(new JarLibrary(resourceJarLibrary.path(),
                     PlatformLibraryScope.DEFAULT,
                     getPackageName(rootPackageContext)));

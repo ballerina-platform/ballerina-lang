@@ -253,6 +253,10 @@ class ModuleContext {
         return moduleCompState;
     }
 
+    CompilationCache compilationCache() {
+        return compilationCache;
+    }
+
     private BLangPackage getBLangPackageOrThrow() {
         if (bLangPackage == null) {
             throw new IllegalStateException("Compile the module first!");
