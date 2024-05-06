@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Test cases for DiagnosticAnnotation class.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class DiagnosticAnnotationTest {
 

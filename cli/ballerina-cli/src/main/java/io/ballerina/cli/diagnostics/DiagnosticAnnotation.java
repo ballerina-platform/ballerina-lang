@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Represents a diagnostic annotation that is used to annotate the source code with diagnostics.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public final class DiagnosticAnnotation {
 
@@ -39,7 +39,7 @@ public final class DiagnosticAnnotation {
     private static final int PIPE_AND_PADDING_LENGTH = " | ".length();
     private static final int MAX_LINES_BEFORE_HIDING = 2;
     private static final String INTERNAL_COLOR = "blue";
-    private static final String HINT_COLOR = "blue"; // TODO: Color of hints should be different from INFO
+    private static final String HINT_COLOR = "green";
     private static final String INFO_COLOR = "blue";
     private static final String WARNING_COLOR = "yellow";
     private static final String ERROR_COLOR = "red";

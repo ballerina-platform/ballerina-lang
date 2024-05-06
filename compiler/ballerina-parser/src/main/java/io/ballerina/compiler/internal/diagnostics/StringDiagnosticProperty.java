@@ -26,7 +26,7 @@ import java.util.Arrays;
 /**
  * Represents a string diagnostic property.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class StringDiagnosticProperty implements DiagnosticProperty<String> {
 

@@ -44,7 +44,7 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
 /**
  * Test cases for AnnotateDiagnostics class.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class AnnotateDiagnosticsTest {
 

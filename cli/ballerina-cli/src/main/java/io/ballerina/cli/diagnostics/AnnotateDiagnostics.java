@@ -49,7 +49,7 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
 /**
  * This class is used to generate diagnostic annotated messages from diagnostics.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public final class AnnotateDiagnostics {
 
@@ -178,8 +178,7 @@ public final class AnnotateDiagnostics {
                 terminalWidth, isColorEnabled);
     }
 
-    private DiagnosticAnnotation getSyntaxDiagnosticAnnotation(Document document,
-                                                               PackageDiagnostic packageDiagnostic,
+    private DiagnosticAnnotation getSyntaxDiagnosticAnnotation(Document document, PackageDiagnostic packageDiagnostic,
                                                                int diagnosticCode) {
         TextDocument textDocument = document.textDocument();
         Location location = packageDiagnostic.location();
@@ -227,8 +226,8 @@ public final class AnnotateDiagnostics {
                 terminalWidth, isColorEnabled);
     }
 
-    private DiagnosticAnnotation getInvalidTokenAnnotation(TextDocument textDocument,
-                                                           LocationDetails locationDetails, String color) {
+    private DiagnosticAnnotation getInvalidTokenAnnotation(TextDocument textDocument, LocationDetails locationDetails,
+                                                           String color) {
         List<String> lines = getLines(textDocument, locationDetails); // TODO: Remove reusable code to separate methods
         String line = lines.get(0);
         String annotatedLine = line.substring(0, locationDetails.startOffset) +

@@ -1,5 +1,5 @@
 [package]
-org = "radith"
+org = "testdig"
 name = "project2"
 version = "0.1.0"
 distribution = "2201.8.4"

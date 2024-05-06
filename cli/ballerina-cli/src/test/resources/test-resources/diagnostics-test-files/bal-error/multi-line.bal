@@ -15,44 +15,43 @@
 // under the License.
 
 type Person record {|
-   string firstName;
-   string lastName;
-   int age;
+    string firstName;
+    string lastName;
+    int age;
 |};
 
 type Teacher record {|
-   string firstName;
+    string firstName;
 |};
 
 type Department record {|
-   string name;
+    string name;
 |};
 
-type Student record{|
+type Student record {|
     string firstName;
     string lastName;
     float score;
 |};
 
-type FullName record{|
-	string firstName;
-	string lastName;
+type FullName record {|
+    string firstName;
+    string lastName;
 |};
 
 type Person1 record {|
-   string firstName;
-   string lastName;
-   string deptAccess;
-   Address address;
+    string firstName;
+    string lastName;
+    string deptAccess;
+    Address address;
 |};
 
-type Address record{|
+type Address record {|
     string city;
     string country;
 |};
 
-
-function testFromClauseWithInvalidType() returns Person[]{
+function testFromClauseWithInvalidType() returns Person[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
@@ -61,16 +60,16 @@ function testFromClauseWithInvalidType() returns Person[]{
     Person[] personList = [p1, p2, p3];
 
     Person[] outputPersonList = from Teacher person in personList
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: person.age
-            };
+        select {
+            firstName: person.firstName,
+            lastName: person.lastName,
+            age: person.age
+        };
 
-    return  outputPersonList;
+    return outputPersonList;
 }
 
-function testFromClauseWithUnDefinedType() returns Person[]{
+function testFromClauseWithUnDefinedType() returns Person[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
@@ -80,13 +79,13 @@ function testFromClauseWithUnDefinedType() returns Person[]{
 
     Person[] outputPersonList =
             from XYZ person in personList
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: person.age
-            };
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: person.age
+    };
 
-    return  outputPersonList;
+    return outputPersonList;
 }
 
 function testSelectTypeMismatch() {
@@ -97,13 +96,13 @@ function testSelectTypeMismatch() {
 
     Teacher[] outputPersonList =
             from Person person in personList
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName
-            };
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName
+    };
 }
 
-function testQueryWithInvalidExpressions() returns Person[]{
+function testQueryWithInvalidExpressions() returns Person[] {
 
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
@@ -113,156 +112,156 @@ function testQueryWithInvalidExpressions() returns Person[]{
 
     Person[] outputPersonList =
             from var person in 10
-            where 20
-            select 30;
+    where 20
+    select 30;
 
-    return  outputPersonList;
+    return outputPersonList;
 }
 
-function testMissingRequiredRecordField() returns Student[]{
+function testMissingRequiredRecordField() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
 
-	Student[] outputStudentList=
-		from var student in studentList
-		select {
-			firstName: student.firstName,
-			score:student.score
-		};
-    
-    return  outputStudentList;
+    Student[] outputStudentList =
+from var student in studentList
+    select {
+        firstName: student.firstName,
+        score: student.score
+    };
+
+    return outputStudentList;
 }
 
-function testInvalidFieldValueInSelect() returns Student[]{
+function testInvalidFieldValueInSelect() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
 
-	Student[] outputStudentList=
-    	from var student in studentList
-    	let int invalidScore=90
-    	select {
-    		firstName: student.firstName,
-    		lastName:student.lastName,
-    		score:invalidScore
-    	};
+    Student[] outputStudentList =
+    from var student in studentList
+    let int invalidScore = 90
+    select {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        score: invalidScore
+    };
 
-    return  outputStudentList;
+    return outputStudentList;
 }
 
-function testUndefinedFunctionInLet() returns Student[]{
+function testUndefinedFunctionInLet() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
 
-    Student[] outputStudentList=
-		from var student in studentList
-		let float avgScore=calculateScore()
-		select {
-			firstName: student.firstName,
-			lastName:student.lastName,
-			score:avgScore
-		};
+    Student[] outputStudentList =
+from var student in studentList
+    let float avgScore = calculateScore()
+    select {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        score: avgScore
+    };
 
-    return  outputStudentList;
+    return outputStudentList;
 }
 
-function testDuplicateKeyInSelect() returns Student[]{
+function testDuplicateKeyInSelect() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
 
-	Student[] outputStudentList=
-		from var student in studentList
-		select {
-		    firstName: student.firstName,
-        	lastName:student.lastName,
-        	score:student.score,
-        	lastName:student.lastName
-		};
+    Student[] outputStudentList =
+from var student in studentList
+    select {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        score: student.score,
+        lastName: student.lastName
+    };
 
-    return  outputStudentList;
+    return outputStudentList;
 }
 
-function testInvalidRecordBindingPattern() returns Student[]{
+function testInvalidRecordBindingPattern() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
 
-    Student[] outputStudentList=
-		from var {fname,lastName,score} in studentList
-		select {
-			firstName: fname,
-			lastName: lastName,
-			score: score
-		};
+    Student[] outputStudentList =
+from var {fname, lastName, score} in studentList
+    select {
+        firstName: fname,
+        lastName: lastName,
+        score: score
+    };
 
-    return  outputStudentList;
+    return outputStudentList;
 }
 
-function testIncompatibleTypesInFrom() returns Student[]{
+function testIncompatibleTypesInFrom() returns Student[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
-	Student[] outputStudentList=
-		from var student in s1
-		select student;
+    Student[] outputStudentList =
+from var student in s1
+    select student;
 
-    return  outputStudentList;
+    return outputStudentList;
 }
 
-function testMapAssignmetToRecordTypesWithRequiredFields() returns Person1[]{
+function testMapAssignmetToRecordTypesWithRequiredFields() returns Person1[] {
 
-    Person1 p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
-    Person1 p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
+    Person1 p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ", address: {city: "NY", country: "America"}};
+    Person1 p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ", address: {city: "NY", country: "America"}};
 
     Person1[] personList = [p1, p2];
-	map<string> addr1 = {city:"Manchester",country:"UK"};
+    map<string> addr1 = {city: "Manchester", country: "UK"};
 
-    Person1[] outputPersonList=
-		from var person in personList
-		select {
-			firstName: person.firstName,
-			lastName: person.lastName,
-			deptAccess: person.deptAccess,
-			address: addr1
-		};
+    Person1[] outputPersonList =
+from var person in personList
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        deptAccess: person.deptAccess,
+        address: addr1
+    };
 
-    return  outputPersonList;
+    return outputPersonList;
 }
 
-function testReassignValueInLet() returns FullName[]{
+function testReassignValueInLet() returns FullName[] {
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
 
     Student[] studentList = [s1, s2];
-	FullName[] nameList = [];
+    FullName[] nameList = [];
 
-	var outputNameList =
-	    from var student in studentList
-	    let float twiceScore = (student.score * 2.0)
-	    do {
-	        twiceScore = 1000;
-	        if(twiceScore < 50.00){
-	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
-	            nameList.push(fullname);
-	        }
-	    };
+    var outputNameList =
+    from var student in studentList
+    let float twiceScore = (student.score * 2.0)
+    do {
+        twiceScore = 1000;
+        if (twiceScore < 50.00) {
+            FullName fullname = {firstName: student.firstName, lastName: student.lastName};
+            nameList.push(fullname);
+        }
+    };
 
-    return  outputNameList;
+    return outputNameList;
 }
 
 function testQueryExprForString() returns string {
@@ -274,7 +273,7 @@ function testQueryExprForString() returns string {
 
     string outputNameString =
                 from var person in personList
-                select person.age;
+    select person.age;
 
     return outputNameString;
 }
@@ -288,10 +287,10 @@ function testQueryExprForString2() returns string {
 
     string outputNameString =
                 from var person in personList
-                select {
-                    firstName: person.firstName,
-                    lastName: person.lastName
-                };
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName
+    };
 
     return outputNameString;
 }
@@ -310,7 +309,7 @@ function testQueryExprWithAmbigousTypeForXML() {
     xml book = book1 + book2;
 
     xml|xml[] books = from var x in book/<name>
-                select <xml> x;
+        select <xml>x;
 
 }
 
@@ -323,7 +322,7 @@ function testQueryExprWithAmbigousTypeForString() {
 
     string|string[] outputNameString =
                 from var person in personList
-                select person.firstName;
+    select person.firstName;
 }
 
 type EmployeeEntity record {
@@ -342,12 +341,13 @@ type Employee record {|
 function testVariableShadowingWithQueryExpressions() {
     string fname = "";
     EmployeeEntity[] entities = [
-            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
-            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
-            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
-        ];
+        {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+        {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+        {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+    ];
 
-    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    Employee[] records = from var {fname, lname, age} in entities
+        select {fname, lname, age};
 }
 
 public function testMethodParamWithLet(int age) {
@@ -360,12 +360,12 @@ public function testMethodParamWithLet(int age) {
 
     Person[] outputPersonList =
             from var person in personList
-            let int age = 35
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: age
-             };
+    let int age = 35
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: age
+    };
 }
 
 public function testMethodParamInQuery(int age) {
@@ -378,11 +378,11 @@ public function testMethodParamInQuery(int age) {
 
     Person[] outputPersonList =
             from var {firstName, lastName, age} in personList
-            select {
-                   firstName: firstName,
-                   lastName: lastName,
-                   age: age
-             };
+    select {
+        firstName: firstName,
+        lastName: lastName,
+        age: age
+    };
 }
 
 type TableRecord record {
@@ -393,43 +393,46 @@ type TableRecord record {
 function testTableWithNonMappingType() {
 
     table<TableRecord> key(name) t = table [
-            {name: "Amy", id: 1234},
-            {name: "John", id: 4567}
-        ];
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
 
-    table<int> ids = from var x in t select x.id;
+    table<int> ids = from var x in t
+        select x.id;
 }
 
 function testTableWithNonMappingTypeWithBindingPatterns() {
 
     table<TableRecord> key(name) t = table [
-            {name: "Amy", id: 1234},
-            {name: "John", id: 4567}
-        ];
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
 
-    table<int> ids = from var {id} in t select id;
+    table<int> ids = from var {id} in t
+        select id;
 }
 
 public function testInvalidInputType() {
     int x = 1;
     int[] w = from var a in x
-                select 1;
+        select 1;
 }
 
 function testIncompatibleSelectType(stream<string, error?> clientStream) returns error? {
-    return stream from string num in clientStream select {a: 1};
+    return stream from string num in clientStream
+        select {a: 1};
 }
 
 function testMapBindingPatternsAnydataType() {
-    map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
+    map<anydata> keyValsMap = {foo: "sss", bar: "ffff"};
     var x = map from var {k} in keyValsMap
-                 select k;
+        select k;
 }
 
 function testMapBindingPatternsAnyType() {
-    map<any> keyValsMap = {foo:"sss", bar:"ffff"};
+    map<any> keyValsMap = {foo: "sss", bar: "ffff"};
     var x = map from var {k} in keyValsMap
-                 select k;
+        select k;
 }
 
 type User record {
@@ -448,13 +451,13 @@ function testInvalidTypeInSelectWithQueryConstructingTable() {
     users.add(u2);
 
     var result = table key(id) from var user in users
-                 where user.age > 21 && user.age < 60
-                 select {user};
+        where user.age > 21 && user.age < 60
+        select {user};
 
     User[] userList = [u1, u2];
     result = table key(id) from var user in userList
-             where user.age > 21 && user.age < 60
-             select {user};
+        where user.age > 21 && user.age < 60
+        select {user};
 }
 
 function testInvalidTypeInSelectWithQueryConstructingTable2() {
@@ -466,13 +469,13 @@ function testInvalidTypeInSelectWithQueryConstructingTable2() {
     users.add(u2);
 
     var result = table key(id, firstName) from var user in users
-                 where user.age > 21 && user.age < 60
-                 select {user};
+        where user.age > 21 && user.age < 60
+        select {user};
 
     User[] userList = [u1, u2];
     result = table key(id, firstName) from var user in userList
-             where user.age > 21 && user.age < 60
-             select {user};
+        where user.age > 21 && user.age < 60
+        select {user};
 }
 
 type ScoreEvent readonly & record {|
@@ -494,7 +497,7 @@ UndefinedType[] undefinedTypeList = [];
 
 public function testVariableOfUndefinedTypeUsedInFromClause() {
     int[] _ = from var item in undefinedTypeList
-            select 1;
+        select 1;
 }
 
 int[] customerList = [];
@@ -511,12 +514,14 @@ function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
     error|int msg = error("Error");
 
     var result1 = table key(id) from var user in users
-                    where user.age > 21 && user.age < 60
-                    select {user} on conflict 1;
+        where user.age > 21 && user.age < 60
+        select {user}
+        on conflict 1;
 
     var result2 = table key(id) from var user in users
-                    where user.age > 21 && user.age < 60
-                    select {user} on conflict msg;
+        where user.age > 21 && user.age < 60
+        select {user}
+        on conflict msg;
 }
 
 function testQueryUsedAsFuncArg() {
@@ -571,7 +576,7 @@ function testInvalidContextuallyExpectedTypes() {
     PersonA[] personList = [];
     int outputPersonList =
             from var person in
-             personList
+            personList
     let int newAge = 20
     where person.age == 33
     select person.firstName;
@@ -583,7 +588,7 @@ function testInvalidContextuallyExpectedTypes() {
     select person.firstName;
 
     PersonA outputPerson = from var person in personList
-    let int newAge = 20
-    where person.age == 33
-    select person.firstName;
+        let int newAge = 20
+        where person.age == 33
+        select person.firstName;
 }
