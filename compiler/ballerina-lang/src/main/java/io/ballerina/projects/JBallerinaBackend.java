@@ -332,6 +332,9 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        if (testResources.isEmpty()) {
+            return null;
+        }
         return codeGeneratedResourceLibrary(packageId);
     }
 

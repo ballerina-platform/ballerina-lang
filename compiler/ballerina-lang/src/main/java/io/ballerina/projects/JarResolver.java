@@ -240,9 +240,12 @@ public class JarResolver {
 
             // resource jar
             PlatformLibrary resourceJarLibrary = jBalBackend.codeGeneratedResourcesLibrary(rootPackageId);
-            allJarFileForTestExec.add(new JarLibrary(resourceJarLibrary.path(),
-                    PlatformLibraryScope.DEFAULT,
-                    getPackageName(rootPackageContext)));
+            // if there's a resource jar, add it to the dependencies
+            if (resourceJarLibrary != null) {
+                allJarFileForTestExec.add(new JarLibrary(resourceJarLibrary.path(),
+                        PlatformLibraryScope.DEFAULT,
+                        getPackageName(rootPackageContext)));
+            }
         }
 
         // 3) Add platform-specific libraries with test scope defined in the root package's Ballerina.toml
