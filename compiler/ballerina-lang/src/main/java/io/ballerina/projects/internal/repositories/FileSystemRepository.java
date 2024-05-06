@@ -52,7 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -138,6 +137,9 @@ public class FileSystemRepository extends AbstractPackageRepository {
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
                                    PackageVersion version) {
+        if (org.value() == null || name.value() == null) {
+            return false;
+        }
         Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
         return Files.exists(balaPath);
     }
@@ -209,7 +211,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
             Path balaPackagePath = bala.resolve(org.value()).resolve(name.value());
             if (Files.exists(balaPackagePath)) {
                 try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
+                    versions.addAll(collect.toList());
                 }
             }
         } catch (IOException e) {
