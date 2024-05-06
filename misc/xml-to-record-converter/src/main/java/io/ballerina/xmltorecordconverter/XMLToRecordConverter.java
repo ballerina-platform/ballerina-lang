@@ -51,6 +51,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.javatuples.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -238,8 +239,6 @@ public class XMLToRecordConverter {
                                                            List<DiagnosticMessage> diagnosticMessages,
                                                            String textFieldName, boolean withNameSpace) {
         List<Node> recordFields = new ArrayList<>();
-        Map<String, String> prefixMap = new HashMap<>();
-        int suffix = 1;
 
         String xmlNodeName = xmlElement.getNodeName();
         org.w3c.dom.NodeList xmlNodeList = xmlElement.getChildNodes();
@@ -253,35 +252,44 @@ public class XMLToRecordConverter {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
                             recordToElementNodes, diagnosticMessages, textFieldName, withNameSpace);
                 }
-                RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace);
-                if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
-                        .equals(recordField.fieldName().text()))) {
+                Map<String, Boolean> prefixMap = hasMultipleFieldsWithSameName(xmlNodeList,
+                        xmlElementNode.getLocalName());
+                RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace,
+                        prefixMap.size() > 1);
+
+                if (withNameSpace && xmlElementNode.getPrefix() != null) {
+                    int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
+                            .filter(j -> ((RecordFieldNode) recordFields.get(j)).fieldName().text()
+                                    .equals(recordField.fieldName().text())
+                                    && prefixMap.get(xmlElementNode.getPrefix())).findFirst().orElse(-1);
+                    if (indexOfRecordFieldNode == -1) {
+                        if (prefixMap.size() > 1) {
+                            addRecordField(recordFields, xmlElementNode, recordField);
+                        } else {
+                            recordFields.add(recordField);
+                        }
+                    } else {
+                        RecordFieldNode existingRecordField =
+                                (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
+                        RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
+                        if (prefixMap.size() > 1) {
+                            addRecordField(recordFields, xmlElementNode, updatedRecordField);
+                        } else {
+                            recordFields.add(indexOfRecordFieldNode, updatedRecordField);
+                        }
+                    }
+                } else {
                     int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
                             .filter(j -> ((RecordFieldNode) recordFields.get(j)).fieldName().text()
                                     .equals(recordField.fieldName().text())).findFirst().orElse(-1);
                     if (indexOfRecordFieldNode == -1) {
                         recordFields.add(recordField);
                     } else {
-                        boolean isSameField = prefixMap.entrySet().stream().anyMatch(entry ->
-                                entry.getKey().equals(xmlElementNode.getPrefix()) &&
-                                        entry.getValue().equals(xmlElementNode.getLocalName()));
-                        if (withNameSpace && !isSameField && prefixMap.containsValue(xmlElementNode.getLocalName())) {
-                            recordFields.add(recordField.modify().withFieldName(
-                                    AbstractNodeFactory.createIdentifierToken(xmlElementNode.getLocalName()
-                                            + suffix)).apply());
-                            suffix++;
-                        } else {
-                            RecordFieldNode existingRecordField =
-                                    (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
-                            RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
-                            recordFields.add(indexOfRecordFieldNode, updatedRecordField);
-                        }
+                        RecordFieldNode existingRecordField =
+                                (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
+                        RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
+                        recordFields.add(indexOfRecordFieldNode, updatedRecordField);
                     }
-                } else {
-                    recordFields.add(recordField);
-                }
-                if (xmlElementNode.getPrefix() != null) {
-                    prefixMap.put(xmlElementNode.getPrefix(), xmlElementNode.getLocalName());
                 }
             }
         }
@@ -329,6 +337,43 @@ public class XMLToRecordConverter {
         }
 
         return recordFields;
+    }
+
+    private static void addRecordField(List<Node> recordFields, Element xmlElementNode, RecordFieldNode recordField) {
+        recordFields.add(recordField.modify().withFieldName(
+                AbstractNodeFactory.createIdentifierToken(
+                        xmlElementNode.getPrefix() +
+                                xmlElementNode.getLocalName().substring(0, 1).toUpperCase() +
+                                xmlElementNode.getLocalName().substring(1))).apply());
+    }
+
+    /**
+     * This method checks whether there are multiple fields with the same name in the provided NodeList.
+     *
+     * @param xmlNodeList NodeList of XML nodes
+     * @param fieldName   Field name to be checked
+     * @return {@link Pair} of List of prefixes and a boolean value indicating whether multiple fields with the same
+     * name exist
+     */
+    private static Map<String, Boolean> hasMultipleFieldsWithSameName(org.w3c.dom.NodeList xmlNodeList,
+                                                                      String fieldName) {
+        String defaultNamespace = "";
+        Map<String, Boolean> prefixMap = new HashMap<>();
+        for (int i = 0; i < xmlNodeList.getLength(); i++) {
+            org.w3c.dom.Node xmlNode = xmlNodeList.item(i);
+            if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element xmlElementNode = (Element) xmlNode;
+                if (xmlElementNode.getLocalName().equals(fieldName)) {
+                    String prefix = xmlElementNode.getPrefix() == null ? defaultNamespace : xmlElementNode.getPrefix();
+                    if (prefixMap.keySet().contains(prefix)) {
+                        prefixMap.put(prefix, true);
+                    } else {
+                        prefixMap.put(prefix, false);
+                    }
+                }
+            }
+        }
+        return prefixMap;
     }
 
     /**
@@ -409,7 +454,7 @@ public class XMLToRecordConverter {
     }
 
     private static RecordFieldNode getRecordField(Element xmlElementNode, boolean isOptionalField,
-                                                  boolean withNameSpace) {
+                                                  boolean withNameSpace, boolean sameFieldExists) {
         Token typeName;
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         IdentifierToken fieldName =
@@ -425,8 +470,14 @@ public class XMLToRecordConverter {
             String type = getRecordName(elementKey);
             typeName = AbstractNodeFactory.createIdentifierToken(type);
         }
-        List<AnnotationNode> xmlNameNode = List.of(getXMLNamespaceNode(xmlElementNode.getPrefix(),
-                xmlElementNode.getNamespaceURI()));
+        List<AnnotationNode> xmlNameNode = new ArrayList<>();
+        if (sameFieldExists) {
+            xmlNameNode.add(getXMLNameNode(xmlElementNode.getLocalName()));
+            xmlNameNode.add(getXMLNamespaceNode(xmlElementNode.getPrefix(), xmlElementNode.getNamespaceURI()));
+        } else {
+            xmlNameNode.add(getXMLNamespaceNode(xmlElementNode.getPrefix(), xmlElementNode.getNamespaceURI()));
+        }
+
         NodeList<AnnotationNode> annotationNodes = NodeFactory.createNodeList(xmlNameNode);
         MetadataNode metadataNode = NodeFactory.createMetadataNode(null, annotationNodes);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
