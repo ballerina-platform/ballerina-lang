@@ -138,6 +138,9 @@ public class FileSystemRepository extends AbstractPackageRepository {
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
                                    PackageVersion version) {
+        if (org.value() == null || name.value() == null) {
+            return false;
+        }
         Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
         return Files.exists(balaPath);
     }
