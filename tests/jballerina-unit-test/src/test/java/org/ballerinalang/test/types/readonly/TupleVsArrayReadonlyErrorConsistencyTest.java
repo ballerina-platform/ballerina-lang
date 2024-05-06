@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Tests for the readonly violation error consistency between BTuple type and BRecord type.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class TupleVsArrayReadonlyErrorConsistencyTest {
     private CompileResult resultWithTupleUpdateMethod;
