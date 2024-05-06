@@ -353,8 +353,7 @@ public class XMLToRecordConverter {
      *
      * @param xmlNodeList NodeList of XML nodes
      * @param fieldName   Field name to be checked
-     * @return {@link Pair} of List of prefixes and a boolean value indicating whether multiple fields with the same
-     * name exist
+     * @return {@link Map<String, Boolean>} Map of prefixes and whether there are multiple fields with the same name
      */
     private static Map<String, Boolean> hasMultipleFieldsWithSameName(org.w3c.dom.NodeList xmlNodeList,
                                                                       String fieldName) {
