@@ -49,7 +49,7 @@ public class DiagnosticAnnotationTest {
         Assert.assertEquals(warningMessage, expected);
 
         String hintMessage = DiagnosticAnnotation.getColoredString(message, hintColor, true);
-        expected = DiagnosticAnnotation.JANSI_ANNOTATOR + "blue" + " " + message + DiagnosticAnnotation.JANSI_RESET;
+        expected = DiagnosticAnnotation.JANSI_ANNOTATOR + "green" + " " + message + DiagnosticAnnotation.JANSI_RESET;
         Assert.assertEquals(hintMessage, expected);
     }
 
