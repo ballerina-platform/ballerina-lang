@@ -66,6 +66,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -343,7 +344,7 @@ public class XMLToRecordConverter {
         recordFields.add(recordField.modify().withFieldName(
                 AbstractNodeFactory.createIdentifierToken(
                         xmlElementNode.getPrefix() +
-                                xmlElementNode.getLocalName().substring(0, 1).toUpperCase() +
+                                xmlElementNode.getLocalName().substring(0, 1).toUpperCase(Locale.ENGLISH)+
                                 xmlElementNode.getLocalName().substring(1))).apply());
     }
 
