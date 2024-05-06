@@ -1,0 +1,35 @@
+{
+  "thushara_piyasekara/query_expression_type_usage:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$streamLambda$_0",
+        "$streamLambda$_1",
+        "$streamLambda$_2"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "B"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "A",
+        "C"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

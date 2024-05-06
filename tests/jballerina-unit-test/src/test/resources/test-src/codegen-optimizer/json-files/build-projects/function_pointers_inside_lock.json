@@ -1,0 +1,33 @@
+{
+  "thushara_piyasekara/function_pointers_inside_lock:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "thushara_piyasekara/function_pointers_inside_lock:0.1.0:className.foo",
+        "thushara_piyasekara/function_pointers_inside_lock:0.1.0:className.execute2"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "thushara_piyasekara/function_pointers_inside_lock:0.1.0:className.$init$",
+        "$anon$method$delegate$className.foo$0"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "className"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

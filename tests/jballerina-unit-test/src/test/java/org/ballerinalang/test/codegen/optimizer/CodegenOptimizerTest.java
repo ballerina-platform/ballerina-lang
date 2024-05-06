@@ -40,44 +40,88 @@ public class CodegenOptimizerTest {
     private static final Path EXPECTED_JSON_DIR_PATH =
             Path.of("src/test/resources/test-src/codegen-optimizer/json-files").toAbsolutePath().normalize();
     private static final Path SINGLE_FILE_FUNCTION_TESTS_PATH =
-            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/single-file-projects/FunctionTests");
+            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/single-file-projects/Functions");
     private static final Path SINGLE_FILE_TYPE_DEFINITION_TESTS_PATH =
             Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/single-file-projects/TypeDefinitions");
+    private static final Path BUILD_PROJECT_FUNCTION_TESTS_PATH =
+            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/build-projects/Functions");
+    private static final Path BUILD_PROJECT_TYPE_DEFINITION_TESTS_PATH =
+            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/build-projects/Functions");
     private static final String OPTIMIZATION_REPORT_JSON = "codegen_optimization_report.json";
+    private static final String TARGET = "target";
+    private static final String SINGLE_FILE_PROJECTS = "single-file-projects";
+    private static final String BUILD_PROJECTS = "build-projects";
 
-    @Test(dataProvider = "FunctionProjectPaths")
+    @Test(dataProvider = "SingleFileFunctionProjectPaths")
     public void testSingleProjectFunctionCasesWithDataProvider(Path singleFileProjectPath) {
         BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(singleFileProjectPath));
-        assertJsonReportsAreSimilar(singleFileProjectPath);
+        assertSingleFileJsonReportsAreSimilar(singleFileProjectPath);
     }
 
-    @DataProvider(name = "FunctionProjectPaths")
-    public Object[] getSingleFileProjectPaths() {
+    @Test(dataProvider = "SingleFileTypeDefinitionProjectPaths")
+    public void testSingleProjectTypeDefinitionCasesWithDataProvider(Path singleFileProjectPath) {
+        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(singleFileProjectPath));
+        assertSingleFileJsonReportsAreSimilar(singleFileProjectPath);
+    }
+
+    @Test(dataProvider = "BuildProjectFunctionPaths")
+    public void testBuildProjectFunctionCasesWithDataProvider(Path buildProjectPath) {
+        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(buildProjectPath));
+        assertBuildProjectJsonReportsAreSimilar(buildProjectPath);
+    }
+
+    @Test(dataProvider = "BuildProjectTypeDefinitionPaths")
+    public void testBuildProjectTypeDefinitionCasesWithDataProvider(Path buildProjectPath) {
+        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(buildProjectPath));
+        assertBuildProjectJsonReportsAreSimilar(buildProjectPath);
+    }
+
+    @DataProvider(name = "SingleFileFunctionProjectPaths")
+    public Object[] getSingleFileFunctionProjectPaths() {
         File[] functionFiles = SINGLE_FILE_FUNCTION_TESTS_PATH.toFile().listFiles();
         Assert.assertNotNull(functionFiles);
         return Arrays.stream(functionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
     }
 
-    @Test(dataProvider = "TypeDefProjectPaths")
-    public void testSingleProjectTypeDefinitionCasesWithDataProvider(Path singleFileProjectPath) {
-        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(singleFileProjectPath));
-        assertJsonReportsAreSimilar(singleFileProjectPath);
-    }
-
-    @DataProvider(name = "TypeDefProjectPaths")
-    public Object[] getTypeDefProjectPaths() {
+    @DataProvider(name = "SingleFileTypeDefinitionProjectPaths")
+    public Object[] getSingleFileTypeDefinitionProjectPaths() {
         File[] typeDefinitionFiles = SINGLE_FILE_TYPE_DEFINITION_TESTS_PATH.toFile().listFiles();
         Assert.assertNotNull(typeDefinitionFiles);
         return Arrays.stream(typeDefinitionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize())
                 .toArray();
     }
 
+    @DataProvider(name = "BuildProjectFunctionPaths")
+    public Object[] getBuildProjectFunctionPaths() {
+        File[] functionFiles = BUILD_PROJECT_FUNCTION_TESTS_PATH.toFile().listFiles();
+        Assert.assertNotNull(functionFiles);
+        return Arrays.stream(functionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
+    }
 
-    private void assertJsonReportsAreSimilar(Path singleFileProjectPath) {
+    @DataProvider(name = "BuildProjectTypeDefinitionPaths")
+    public Object[] getBuildProjectTypeDefinitionPaths() {
+        File[] functionFiles = BUILD_PROJECT_TYPE_DEFINITION_TESTS_PATH.toFile().listFiles();
+        Assert.assertNotNull(functionFiles);
+        return Arrays.stream(functionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
+    }
+
+    private void assertSingleFileJsonReportsAreSimilar(Path singleFileProjectPath) {
         String jsonFileName = singleFileProjectPath.getFileName().toString().replace(".bal", ".json");
         Path actualJsonPath = singleFileProjectPath.getParent().resolve(OPTIMIZATION_REPORT_JSON);
 
-        JsonObject expectedJsonObject = fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(jsonFileName));
+        JsonObject expectedJsonObject =
+                fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(SINGLE_FILE_PROJECTS).resolve(jsonFileName));
+        JsonObject actualJsonObject = fileContentAsObject(actualJsonPath);
+        Assert.assertEquals(actualJsonObject, expectedJsonObject);
+        actualJsonPath.toFile().delete();
+    }
+
+    private void assertBuildProjectJsonReportsAreSimilar(Path buildProjectPath) {
+        String jsonFileName = buildProjectPath.getFileName().toString() + ".json";
+        Path actualJsonPath = buildProjectPath.resolve(TARGET).resolve(OPTIMIZATION_REPORT_JSON);
+
+        JsonObject expectedJsonObject =
+                fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(BUILD_PROJECTS).resolve(jsonFileName));
         JsonObject actualJsonObject = fileContentAsObject(actualJsonPath);
         Assert.assertEquals(actualJsonObject, expectedJsonObject);
         actualJsonPath.toFile().delete();

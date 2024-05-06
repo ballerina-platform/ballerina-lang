@@ -1,0 +1,6 @@
+[package]
+org = "thushara_piyasekara"
+name = "function_pointer_invocation_inisde_different_bb"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
+

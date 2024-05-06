@@ -1,0 +1,34 @@
+{
+  "thushara_piyasekara/vanilla_classes:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "thushara_piyasekara/vanilla_classes:0.1.0:CKlass.init"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "thushara_piyasekara/vanilla_classes:0.1.0:CKlass.$init$"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "CKlass",
+        "A",
+        "B",
+        "C"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
