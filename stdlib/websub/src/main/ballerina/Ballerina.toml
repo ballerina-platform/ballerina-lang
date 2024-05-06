@@ -63,8 +63,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-codec-http"
-    version = "4.1.100.Final"
-    path = "./lib/netty-codec-http-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-codec-http-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
@@ -84,8 +84,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-codec-http2"
-    version = "4.1.100.Final"
-    path = "./lib/netty-codec-http2-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-codec-http2-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
