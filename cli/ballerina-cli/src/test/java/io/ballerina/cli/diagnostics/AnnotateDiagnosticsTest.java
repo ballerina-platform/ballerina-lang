@@ -170,7 +170,27 @@ public class AnnotateDiagnosticsTest {
             output.append(annotateDiagnostics.renderDiagnostic(diagnostic).toString());
             output.append(System.lineSeparator());
         }
-        String expectedOutput = getExpectedOutput(testResources.resolve("bal-project-error"), "project2-expected.txt");
+        String expectedOutput =
+                getExpectedOutput(testResources.resolve("bal-project-error"), "project2-expected-warnings.txt");
+        Assert.assertEquals(output.toString(), expectedOutput);
+    }
+
+    @Test(description = "Test hint annotations in a ballerina project")
+    void testProjectHintAnnotation() throws IOException {
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-resources/diagnostics-test-files/bal-project-error/project2");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
+        StringBuilder output = new StringBuilder();
+        for (Diagnostic diagnostic : diagnostics) {
+            if (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.HINT) {
+                continue;
+            }
+            output.append(annotateDiagnostics.renderDiagnostic(diagnostic).toString());
+            output.append(System.lineSeparator());
+        }
+        String expectedOutput =
+                getExpectedOutput(testResources.resolve("bal-project-error"), "project2-expected-hints.txt");
         Assert.assertEquals(output.toString(), expectedOutput);
     }
 
