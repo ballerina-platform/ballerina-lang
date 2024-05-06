@@ -1,0 +1,6 @@
+[package]
+org = "thushara_piyasekara"
+name = "parameters_via_record_field_mapping"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
+

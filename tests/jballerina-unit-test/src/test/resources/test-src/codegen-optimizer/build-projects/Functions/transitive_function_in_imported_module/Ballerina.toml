@@ -1,0 +1,5 @@
+[package]
+org = "thushara_piyasekara"
+name = "transitive_function_in_imported_module"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
