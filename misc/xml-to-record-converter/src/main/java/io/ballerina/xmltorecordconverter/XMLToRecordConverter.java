@@ -51,7 +51,6 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
-import org.javatuples.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -344,7 +343,7 @@ public class XMLToRecordConverter {
         recordFields.add(recordField.modify().withFieldName(
                 AbstractNodeFactory.createIdentifierToken(
                         xmlElementNode.getPrefix() +
-                                xmlElementNode.getLocalName().substring(0, 1).toUpperCase(Locale.ENGLISH)+
+                                xmlElementNode.getLocalName().substring(0, 1).toUpperCase(Locale.ENGLISH) +
                                 xmlElementNode.getLocalName().substring(1))).apply());
     }
 
