@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -111,9 +112,22 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
-    @Test(description = "Test annotations when erroneous line is longer than the terminal width. Tests truncation")
-    void testLongLineAnnotation() throws IOException, NoSuchFieldException, IllegalAccessException {
-        int[] terminalWidth = {999, 200, 150, 100, 50, 40, 38};
+    @DataProvider(name = "terminalWidthProvider")
+    public Object[][] terminalWidthProvider() {
+        return new Object[][]{
+                {999},
+                {200},
+                {150},
+                {100},
+                {50},
+                {40},
+                {38}
+        };
+    }
+
+    @Test(description = "Test annotations when erroneous line is longer than the terminal width. Tests truncation",
+            dataProvider = "terminalWidthProvider")
+    void testLongLineAnnotation(int terminalWidth) throws IOException, NoSuchFieldException, IllegalAccessException {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-error/long-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
@@ -122,13 +136,12 @@ public class AnnotateDiagnosticsTest {
         Diagnostic diagnostic = diagnostics[0];
         Field terminalWidthField = AnnotateDiagnostics.class.getDeclaredField("terminalWidth");
         terminalWidthField.setAccessible(true);
-        for (int i = 0; i < terminalWidth.length; i++) {
-            terminalWidthField.setInt(annotateDiagnostics, terminalWidth[i]);
-            String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
-            String expectedOutput =
-                    Files.readString(testResources.resolve("bal-error").resolve("long-line-expected" + i + ".txt"));
-            Assert.assertEquals(output, expectedOutput);
-        }
+        terminalWidthField.setInt(annotateDiagnostics, terminalWidth);
+        String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
+        String expectedOutput =
+                Files.readString(
+                        testResources.resolve("bal-error").resolve("long-line-expected" + terminalWidth + ".txt"));
+        Assert.assertEquals(output, expectedOutput);
     }
 
     @Test(description = "Test annotations when a ballerina project contains errors in multiple files")
