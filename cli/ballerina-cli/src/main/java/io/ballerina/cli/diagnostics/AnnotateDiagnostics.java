@@ -98,7 +98,6 @@ public final class AnnotateDiagnostics {
         DiagnosticAnnotation diagnosticAnnotation =
                 getDiagnosticAnnotation(document, diagnosticLocation, diagnosticInfo.severity());
         return renderAnsi(diagnosticToString(diagnostic, isColorEnabled) + NEW_LINE + diagnosticAnnotation);
-
     }
 
     private static int getTerminalWidth() {

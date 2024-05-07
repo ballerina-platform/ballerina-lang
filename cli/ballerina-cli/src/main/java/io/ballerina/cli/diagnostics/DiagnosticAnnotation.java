@@ -32,7 +32,7 @@ public final class DiagnosticAnnotation {
 
     public static final String NEW_LINE = System.lineSeparator();
     public static final String JANSI_ANNOTATOR = "@|";
-    public static final String JANSI_RESET = "|@"; // @|red , TEXT |@
+    public static final String JANSI_RESET = "|@";
     private static final String PIPE = "|";
     private static final String COLON = ":";
     private static final String ELLIPSIS = "...";
@@ -97,10 +97,8 @@ public final class DiagnosticAnnotation {
                     .append(getLineNumberString(digitsNum, startLineNumber)).append(PIPE).append(" ")
                     .append(result.line).append(NEW_LINE)
                     .append(padding).append(PIPE).append(" ")
-                    .append(getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type,
-                            isColorEnabled)).append(NEW_LINE);
+                    .append(getUnderline(result.diagnosticStart, result.diagnosticLength)).append(NEW_LINE);
             return outputBuilder.toString();
-
         }
         String startLine = lines.get(0);
         String endLine = lines.get(lines.size() - 1);
@@ -127,33 +125,30 @@ public final class DiagnosticAnnotation {
 
         if (lines.size() <= MAX_LINES_BEFORE_HIDING) {
             outputBuilder.append(padding).append(PIPE).append(" ")
-                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength,
-                            this.severity,
-                            this.type, isColorEnabled)).append(NEW_LINE);
+                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
+                    .append(NEW_LINE);
             for (int i = 1; i < lines.size() - 1; i++) {
                 String line = replaceTabs(lines.get(i), 0);
                 TruncateResult lineResult = truncate(line, maxLength, 0, line.length());
                 outputBuilder.append(getLineNumberString(endDigitsNum, startLineNumber + i)).append(PIPE).append(" ")
                         .append(lineResult.line).append(NEW_LINE)
                         .append(padding).append(PIPE).append(" ")
-                        .append(getUnderline(lineResult.diagnosticStart, lineResult.diagnosticLength, this.severity,
-                                this.type, isColorEnabled)).append(NEW_LINE);
+                        .append(getUnderline(lineResult.diagnosticStart, lineResult.diagnosticLength)).append(NEW_LINE);
             }
 
         } else {
             String paddingToMiddleColon = " ".repeat(Math.min(terminalWidth, maxLineLength) / 2);
             String hiddenLinesPlaceholder = paddingWithColon + PIPE + " " + paddingToMiddleColon + COLON + NEW_LINE;
             outputBuilder.append(paddingWithColon).append(PIPE).append(" ")
-                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength,
-                            this.severity,
-                            this.type, isColorEnabled)).append(NEW_LINE)
+                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
+                    .append(NEW_LINE)
                     .append(hiddenLinesPlaceholder).append(hiddenLinesPlaceholder);
 
         }
         return outputBuilder.append(getLineNumberString(endDigitsNum, startLineNumber + lines.size() - 1))
                 .append(PIPE).append(" ").append(endLineResult.line).append(NEW_LINE)
                 .append(padding).append(PIPE).append(" ")
-                .append(getUnderline(0, endLineResult.diagnosticLength, this.severity, this.type, isColorEnabled))
+                .append(getUnderline(0, endLineResult.diagnosticLength))
                 .append(NEW_LINE).toString();
     }
 
@@ -169,14 +164,13 @@ public final class DiagnosticAnnotation {
         return start + 3 * countTabChars(lines.get(0), start);
     }
 
-    private static String getUnderline(int offset, int length, DiagnosticSeverity severity,
-                                       DiagnosticAnnotationType type, boolean isColorEnabled) {
+    private String getUnderline(int offset, int length) {
         String symbol = "^";
-        if (type == DiagnosticAnnotationType.MISSING) {
+        if (this.type == DiagnosticAnnotationType.MISSING) {
             symbol = "+";
         }
         return " ".repeat(offset) +
-                getColoredString(symbol.repeat(length), SEVERITY_COLORS.get(severity), isColorEnabled);
+                getColoredString(symbol.repeat(length), SEVERITY_COLORS.get(this.severity), this.isColorEnabled);
     }
 
     private static int countTabChars(String line, int end) {
