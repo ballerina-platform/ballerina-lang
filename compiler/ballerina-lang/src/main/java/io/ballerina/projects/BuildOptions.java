@@ -135,6 +135,10 @@ public class BuildOptions {
         return this.compilationOptions.optimizeCodegen();
     }
 
+    public boolean verbose(){
+        return this.compilationOptions.verbose();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -204,6 +208,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
+        buildOptionsBuilder.setVerbose(compilationOptions.verbose);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
 
         return buildOptionsBuilder.build();
@@ -405,6 +410,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setRemoteManagement(Boolean value) {
             compilationOptionsBuilder.setRemoteManagement(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setVerbose(Boolean value) {
+            compilationOptionsBuilder.setVerbose(value);
             return this;
         }
 
