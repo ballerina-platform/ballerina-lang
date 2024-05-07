@@ -21,11 +21,15 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SemType.Builder;
+import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -37,13 +41,14 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
+    private SemType cachedSemType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -211,5 +216,13 @@ public abstract class BType implements Type {
 
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
+    }
+
+    @Override
+    public SemType get() {
+        if (cachedSemType == null) {
+            cachedSemType = Builder.from(this);
+        }
+        return cachedSemType;
     }
 }
