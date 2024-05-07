@@ -222,68 +222,36 @@ public class PredefinedType {
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
-    static String toString(BasicTypeBitSet ut) {
-        StringJoiner sb = new StringJoiner("|", Integer.toBinaryString(ut.bitset) + "[", "]");
-        if ((ut.bitset & NEVER.bitset) != 0) {
-            sb.add("never");
+    static String toString(BasicTypeBitSet bt) {
+        int bitset = bt.bitset;
+        StringJoiner sj = new StringJoiner("|", Integer.toBinaryString(bitset) + "[", "]");
+
+        addIfBitSet(sj, bitset, NEVER.bitset, "never");
+        addIfBitSet(sj, bitset, NIL.bitset, "nil");
+        addIfBitSet(sj, bitset, BOOLEAN.bitset, "boolean");
+        addIfBitSet(sj, bitset, INT.bitset, "int");
+        addIfBitSet(sj, bitset, FLOAT.bitset, "float");
+        addIfBitSet(sj, bitset, DECIMAL.bitset, "decimal");
+        addIfBitSet(sj, bitset, STRING.bitset, "string");
+        addIfBitSet(sj, bitset, ERROR.bitset, "error");
+        addIfBitSet(sj, bitset, TYPEDESC.bitset, "typedesc");
+        addIfBitSet(sj, bitset, HANDLE.bitset, "handle");
+        addIfBitSet(sj, bitset, FUNCTION.bitset, "function");
+        addIfBitSet(sj, bitset, FUTURE.bitset, "future");
+        addIfBitSet(sj, bitset, STREAM.bitset, "stream");
+        addIfBitSet(sj, bitset, LIST.bitset, "list");
+        addIfBitSet(sj, bitset, MAPPING.bitset, "map");
+        addIfBitSet(sj, bitset, TABLE.bitset, "table");
+        addIfBitSet(sj, bitset, XML.bitset, "xml");
+        addIfBitSet(sj, bitset, OBJECT.bitset, "object");
+        addIfBitSet(sj, bitset, CELL.bitset, "cell");
+        addIfBitSet(sj, bitset, UNDEF.bitset, "undef");
+        return sj.toString();
+    }
+
+    private static void addIfBitSet(StringJoiner sj, int bitset, int bitToBeCheck, String strToBeAdded) {
+        if ((bitset & bitToBeCheck) != 0) {
+            sj.add(strToBeAdded);
         }
-        if ((ut.bitset & NIL.bitset) != 0) {
-            sb.add("nil");
-        }
-        if ((ut.bitset & BOOLEAN.bitset) != 0) {
-            sb.add("boolean");
-        }
-        if ((ut.bitset & INT.bitset) != 0) {
-            sb.add("int");
-        }
-        if ((ut.bitset & FLOAT.bitset) != 0) {
-            sb.add("float");
-        }
-        if ((ut.bitset & DECIMAL.bitset) != 0) {
-            sb.add("decimal");
-        }
-        if ((ut.bitset & STRING.bitset) != 0) {
-            sb.add("string");
-        }
-        if ((ut.bitset & ERROR.bitset) != 0) {
-            sb.add("error");
-        }
-        if ((ut.bitset & TYPEDESC.bitset) != 0) {
-            sb.add("typedesc");
-        }
-        if ((ut.bitset & HANDLE.bitset) != 0) {
-            sb.add("handle");
-        }
-        if ((ut.bitset & FUNCTION.bitset) != 0) {
-            sb.add("function");
-        }
-        if ((ut.bitset & FUTURE.bitset) != 0) {
-            sb.add("future");
-        }
-        if ((ut.bitset & STREAM.bitset) != 0) {
-            sb.add("stream");
-        }
-        if ((ut.bitset & LIST.bitset) != 0) {
-            sb.add("list");
-        }
-        if ((ut.bitset & MAPPING.bitset) != 0) {
-            sb.add("map");
-        }
-        if ((ut.bitset & TABLE.bitset) != 0) {
-            sb.add("table");
-        }
-        if ((ut.bitset & XML.bitset) != 0) {
-            sb.add("xml");
-        }
-        if ((ut.bitset & OBJECT.bitset) != 0) {
-            sb.add("object");
-        }
-        if ((ut.bitset & CELL.bitset) != 0) {
-            sb.add("cell");
-        }
-        if ((ut.bitset & UNDEF.bitset) != 0) {
-            sb.add("undef");
-        }
-        return sb.toString();
     }
 }
