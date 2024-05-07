@@ -227,15 +227,21 @@ public class SemTypeResolver {
 
     private static int from(Map<String, BLangNode> mod, BLangNode expr) {
         if (expr instanceof BLangLiteral literal) {
-            return (int) literal.value;
+            return listSize((Number) literal.value);
         } else if (expr instanceof BLangSimpleVarRef varRef) {
             String varName = varRef.variableName.value;
             return from(mod, mod.get(varName));
         } else if (expr instanceof BLangConstant constant) {
-            Number val = (Number) constant.symbol.value.value;
-            return val.intValue();
+            return listSize((Number) constant.symbol.value.value);
         }
         throw new UnsupportedOperationException("Unsupported expr kind " + expr.getKind());
+    }
+
+    private static int listSize(Number size) {
+        if (size.longValue() > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("list sizes greater than " + Integer.MAX_VALUE + " not yet supported");
+        }
+        return size.intValue();
     }
 
     private SemType resolveListInner(Context cx, int size, SemType eType) {

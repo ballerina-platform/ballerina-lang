@@ -90,7 +90,11 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         int leftBracketPos = typeExpr.indexOf('[');
         final Map<String, SemType> typeNameSemTypeMap = semtypeEnv.getTypeNameSemTypeMap();
         if (leftBracketPos == -1) {
-            return typeNameSemTypeMap.get(typeExpr);
+            SemType referredType = typeNameSemTypeMap.get(typeExpr);
+            if (referredType == null) {
+                throw new IllegalArgumentException("No such type: " + typeExpr);
+            }
+            return referredType;
         }
         int rightBracketPos = typeExpr.indexOf(']');
         String typeRef = typeExpr.substring(0, leftBracketPos);
@@ -197,6 +201,13 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
      * @since 3.0.0
      */
     record TypeAssertion(Context context, String fileName, SemType lhs, SemType rhs, RelKind kind, String text) {
+
+        TypeAssertion {
+            if (kind != null) {
+                assert lhs != null;
+                assert rhs != null;
+            }
+        }
 
         @Override
         public String toString() {

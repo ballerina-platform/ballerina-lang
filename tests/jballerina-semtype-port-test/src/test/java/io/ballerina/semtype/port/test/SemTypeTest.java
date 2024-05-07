@@ -209,6 +209,13 @@ public class SemTypeTest {
         testSemTypeAssertions(typeAssertions.get(0));
     }
 
+    @Test(expectedExceptions = AssertionError.class)
+    public void shouldFailForTooLargeLists() {
+        File wrongAssertionFile = resolvePath("test-src/fixed-length-array-too-large-te.bal").toFile();
+        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile);
+        testSemTypeAssertions(typeAssertions.get(0));
+    }
+
     @Test(dataProvider = "type-rel-provider")
     public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
         if (typeAssertion.kind() == null) {
