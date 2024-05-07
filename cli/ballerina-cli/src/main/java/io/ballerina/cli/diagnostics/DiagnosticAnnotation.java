@@ -195,19 +195,22 @@ public final class DiagnosticAnnotation {
         }
 
         StringBuilder truncatedLineBuilder = new StringBuilder();
-        if (diagnosticStart + diagnosticLength <= maxLength - 3) {
-            truncatedLineBuilder.append(line, 0, maxLength - 3).append(ELLIPSIS);
+        if (diagnosticStart + diagnosticLength <= maxLength - ELLIPSIS.length()) {
+            truncatedLineBuilder.append(line, 0, maxLength - ELLIPSIS.length()).append(ELLIPSIS);
             return new TruncateResult(truncatedLineBuilder.toString(), diagnosticStart, diagnosticLength);
         }
 
         int diagnosticMid = diagnosticStart + (diagnosticLength / 2);
         int stepsToMoveWindow = Math.max(0, diagnosticMid - (maxLength / 2));
-        int border = Math.min(line.length() - 1, stepsToMoveWindow + maxLength - 3);
-        int newDiagnosticStart = Math.max(3, diagnosticStart - stepsToMoveWindow);
-        int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - 3);
-        int stringStart = Math.min(stepsToMoveWindow + 3, border);
+        int border = Math.min(line.length(), stepsToMoveWindow + maxLength - ELLIPSIS.length());
+        int newDiagnosticStart = Math.max(ELLIPSIS.length(), diagnosticStart - stepsToMoveWindow);
+        int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - ELLIPSIS.length());
+        int stringStart = Math.min(stepsToMoveWindow + ELLIPSIS.length(), border);
 
-        truncatedLineBuilder.append(ELLIPSIS).append(line, stringStart, border).append(ELLIPSIS);
+        truncatedLineBuilder.append(ELLIPSIS).append(line, stringStart, border);
+        if (border < line.length()) {
+            truncatedLineBuilder.append(ELLIPSIS);
+        }
         return new TruncateResult(truncatedLineBuilder.toString(), newDiagnosticStart,
                 Math.max(0, newDiagnosticLength));
     }
