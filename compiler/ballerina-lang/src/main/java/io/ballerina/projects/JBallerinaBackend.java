@@ -260,8 +260,11 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         CodeGenOptimizationReportEmitter.emitBirOptimizationDuration();
-        CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(usedBIRNodeAnalyzer.pkgWiseInvocationData,
-                getOptimizationReportPath(), packageContext.project().kind());
+
+        if (this.packageContext.project().buildOptions().verbose()) {
+            CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(usedBIRNodeAnalyzer.pkgWiseInvocationData,
+                    getOptimizationReportPath(), packageContext.project().kind());
+        }
     }
 
     private Path getOptimizationReportPath() {
