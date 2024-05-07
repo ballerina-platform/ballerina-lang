@@ -224,6 +224,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+    @CommandLine.Option(names = "--verbose", description = "generate codegen optimization reports",
+            defaultValue = "false")
+    private Boolean verbose;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -433,6 +436,7 @@ public class TestCommand implements BLauncherCmd {
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
                 .setOptimizeCodegen(optimizeCodegen);
+                .setVerbose(verbose);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

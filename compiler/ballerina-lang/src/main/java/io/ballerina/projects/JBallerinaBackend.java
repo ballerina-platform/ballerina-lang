@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizationReportEmitter;
 import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -79,6 +80,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -131,7 +134,7 @@ public class JBallerinaBackend extends CompilerBackend {
     protected final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
     protected final HashSet<PackageId> unusedPackageIds = new HashSet<>();
     protected final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
-    protected final HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths = new HashMap<>();
+    protected final HashMap<PackageId, Set<String>> pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -883,7 +886,7 @@ public class JBallerinaBackend extends CompilerBackend {
             CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
             ZipFile birOptimizedFatJar = new ZipFile(birOptimizedJarPath);
 
-            HashSet<String> startPoints = new HashSet<>();
+            Set<String> startPoints = new LinkedHashSet<>();
             startPoints.add(getMainClassFileName(this.packageContext()));
             ZipArchiveOutputStream optimizedJarStream = new ZipArchiveOutputStream(
                     new FileOutputStream(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar")));
@@ -899,6 +902,12 @@ public class JBallerinaBackend extends CompilerBackend {
             CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
             CodeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
             CodeGenOptimizationReportEmitter.emitOptimizedExecutableSize(executableFilePath);
+
+            if (this.packageContext.project().buildOptions().verbose()) {
+                NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
+                        nativeDependencyOptimizer.getNativeDependencyOptimizationReport(), getOptimizationReportPath(),
+                        packageContext.project().kind());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

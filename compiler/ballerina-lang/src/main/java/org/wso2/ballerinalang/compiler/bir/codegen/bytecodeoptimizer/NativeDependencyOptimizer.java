@@ -34,8 +34,8 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -57,14 +57,14 @@ public class NativeDependencyOptimizer {
     // These directories are whitelisted due to usages of "sun.misc.Unsafe" class
     // TODO Find a way to whitelist only the necessary class files
     // TODO Check whether we need "com/mysql" for sure
-    private static final HashSet<String> WHITELISTED_DIRECTORIES = new HashSet<>(Arrays.asList("io/netty/util"));
+    private static final Set<String> WHITELISTED_DIRECTORIES = new LinkedHashSet<>(Arrays.asList("io/netty/util"));
 
     /**
      * These classes are used by GraalVM when building the native-image. Since they are not connected to the root class,
      * they will be removed by the NativeDependencyOptimizer if they are not whitelisted.
      */
-    private static final HashSet<String> GRAALVM_FEATURE_CLASSES =
-            new HashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
+    private static final Set<String> GRAALVM_FEATURE_CLASSES =
+            new LinkedHashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
 
     /**
      * key = implementation class name value = interface class name Since one interface can be implemented by more than
@@ -72,23 +72,23 @@ public class NativeDependencyOptimizer {
      * <p>
      * TODO modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
      */
-    private static final Map<String, String> implementationWiseAllServiceProviders = new HashMap<>();
+    private static final Map<String, String> implementationWiseAllServiceProviders = new LinkedHashMap<>();
 
     /**
      * key = used interface value = used implementation.
      */
-    private static final Map<String, HashSet<String>> interfaceWiseAllServiceProviders = new HashMap<>();
-    private static final Set<String> usedSpInterfaces = new HashSet<>();
+    private static final Map<String, Set<String>> interfaceWiseAllServiceProviders = new LinkedHashMap<>();
+    private static final Set<String> usedSpInterfaces = new LinkedHashSet<>();
     private static final Gson gson = new Gson();
     private final Set<String> startPointClasses;
     private final Stack<String> usedClassesStack;
     // TODO use externalClasses field when modularizing the NativeDependencyOptimizer
-    private final Set<String> externalClasses = new HashSet<>();
-    private final Set<String> visitedClasses = new HashSet<>();
+    private final Set<String> externalClasses = new LinkedHashSet<>();
+    private final Set<String> visitedClasses = new LinkedHashSet<>();
     private final ZipFile originalJarFile;
     private final ZipArchiveOutputStream optimizedJarStream;
 
-    public NativeDependencyOptimizer(HashSet<String> startPointClasses, ZipFile originalJarFile,
+    public NativeDependencyOptimizer(Set<String> startPointClasses, ZipFile originalJarFile,
                                      ZipArchiveOutputStream optimizedJarStream) {
 
         this.startPointClasses = startPointClasses;
@@ -110,11 +110,11 @@ public class NativeDependencyOptimizer {
         return false;
     }
 
-    private static HashSet<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry)
+    private static LinkedHashSet<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry)
             throws IOException {
         String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
         String[] serviceImplClassesArr = allImplString.split("\n");
-        HashSet<String> serviceProviderDependencies = new HashSet<>();
+        LinkedHashSet<String> serviceProviderDependencies = new LinkedHashSet<>();
 
         for (String serviceClass : serviceImplClassesArr) {
             // Skipping the licencing comments
@@ -180,7 +180,7 @@ public class NativeDependencyOptimizer {
                 for (String spImplementationClassName : getServiceProviderImplementations(originalJarFile,
                         currentEntry)) {
                     implementationWiseAllServiceProviders.put(spImplementationClassName, spInterfaceClassName);
-                    interfaceWiseAllServiceProviders.putIfAbsent(spInterfaceClassName, new HashSet<>());
+                    interfaceWiseAllServiceProviders.putIfAbsent(spInterfaceClassName, new LinkedHashSet<>());
                     interfaceWiseAllServiceProviders.get(spInterfaceClassName).add(spImplementationClassName);
                 }
             }
@@ -230,6 +230,25 @@ public class NativeDependencyOptimizer {
         };
 
         originalJarFile.copyRawEntries(optimizedJarStream, usedClassPredicate);
+    }
+
+    public NativeDependencyOptimizationReport getNativeDependencyOptimizationReport() {
+        return new NativeDependencyOptimizationReport(this.startPointClasses, this.externalClasses, this.visitedClasses,
+                getUnusedClasses());
+    }
+
+    private LinkedHashSet<String> getUnusedClasses() {
+        LinkedHashSet<String> unusedClasses = new LinkedHashSet<>();
+        Enumeration<ZipArchiveEntry> entries = this.originalJarFile.getEntries();
+        while (entries.hasMoreElements()) {
+            ZipArchiveEntry entry = entries.nextElement();
+            String className = entry.getName();
+            if (!entry.isDirectory() && className.endsWith(CLASS) && !visitedClasses.contains(className) &&
+                    !className.equals(MODULE_INFO + CLASS)) {
+                unusedClasses.add(className);
+            }
+        }
+        return unusedClasses;
     }
 
     public boolean jarContainsStartPoints() {
