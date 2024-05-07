@@ -24,7 +24,9 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.SemType.Builder;
+import io.ballerina.runtime.api.types.SemType.Context;
+import io.ballerina.runtime.api.types.SemType.Core;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
@@ -143,6 +145,7 @@ public final class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
+    private static final Context cx = new Context();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -281,7 +284,8 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        return checkIsType(null, sourceVal, getType(sourceVal), targetType);
+        return Core.isSubType(cx, Builder.from(getType(sourceVal)), Builder.from(targetType),
+                (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(null, sourceVal, sourceTy, targetTy));
     }
 
     /**
@@ -294,22 +298,8 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        if (checkIsType(sourceVal, sourceType, targetType, null)) {
-            return true;
-        }
-
-        if (getImpliedType(sourceType).getTag() == TypeTags.XML_TAG && !targetType.isReadOnly()) {
-            XmlValue val = (XmlValue) sourceVal;
-            if (val.getNodeType() == XmlNodeType.SEQUENCE) {
-                return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false, null);
-            }
-        }
-
-        if (isMutable(sourceVal, sourceType)) {
-            return false;
-        }
-
-        return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false, null);
+        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+                (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(errors, sourceVal, sourceTy, targetTy));
     }
 
     /**
@@ -332,8 +322,8 @@ public final class TypeChecker {
      * @return true if the value has the same shape as the given type; false otherwise
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
-        return checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(), allowNumericConversion,
-                null);
+        return checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(),
+                allowNumericConversion, null);
     }
 
     /**
@@ -562,147 +552,21 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return checkIsType(sourceType, targetType, null);
+        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType, null));
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        // First check whether both types are the same.
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
-        }
-
-        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
-            return true;
-        }
-
-        if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
-            return false;
-        }
-
-        int sourceTypeTag = sourceType.getTag();
-        int targetTypeTag = targetType.getTag();
-
-        switch (sourceTypeTag) {
-            case TypeTags.INTERSECTION_TAG:
-                return checkIsType(((BIntersectionType) sourceType).getEffectiveType(),
-                        targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
-                                ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return checkIsType(((BTypeReferenceType) sourceType).getReferredType(),
-                        targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType :
-                                ((BTypeReferenceType) targetType).getReferredType(), unresolvedTypes);
-            case TypeTags.PARAMETERIZED_TYPE_TAG:
-                if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
-                    return checkIsType(((BParameterizedType) sourceType).getParamValueType(), targetType,
-                            unresolvedTypes);
-                }
-                return checkIsType(((BParameterizedType) sourceType).getParamValueType(),
-                        ((BParameterizedType) targetType).getParamValueType(), unresolvedTypes);
-            case TypeTags.READONLY_TAG:
-                return checkIsType(PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE,
-                        targetType, unresolvedTypes);
-            case TypeTags.UNION_TAG:
-                return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
-            case TypeTags.FINITE_TYPE_TAG:
-                if ((targetTypeTag == TypeTags.FINITE_TYPE_TAG || targetTypeTag <= TypeTags.NULL_TAG ||
-                        targetTypeTag == TypeTags.XML_TEXT_TAG)) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
-                break;
-            default:
-                break;
-        }
-
-        return switch (targetTypeTag) {
-            case TypeTags.BYTE_TAG,
-                 TypeTags.SIGNED8_INT_TAG,
-                 TypeTags.FLOAT_TAG,
-                 TypeTags.DECIMAL_TAG,
-                 TypeTags.CHAR_STRING_TAG,
-                 TypeTags.BOOLEAN_TAG,
-                 TypeTags.NULL_TAG -> sourceTypeTag == targetTypeTag;
-            case TypeTags.STRING_TAG -> TypeTags.isStringTypeTag(sourceTypeTag);
-            case TypeTags.XML_TEXT_TAG -> {
-                if (sourceTypeTag == TypeTags.XML_TAG) {
-                    yield ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
-                }
-                yield sourceTypeTag == targetTypeTag;
-            }
-            case TypeTags.INT_TAG -> sourceTypeTag == TypeTags.INT_TAG || sourceTypeTag == TypeTags.BYTE_TAG ||
-                    (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.UNSIGNED32_INT_TAG);
-            case TypeTags.SIGNED16_INT_TAG -> sourceTypeTag == TypeTags.BYTE_TAG ||
-                    (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.SIGNED16_INT_TAG);
-            case TypeTags.SIGNED32_INT_TAG -> sourceTypeTag == TypeTags.BYTE_TAG ||
-                    (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.SIGNED32_INT_TAG);
-            case TypeTags.UNSIGNED8_INT_TAG ->
-                    sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG;
-            case TypeTags.UNSIGNED16_INT_TAG ->
-                    sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
-                            sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG;
-            case TypeTags.UNSIGNED32_INT_TAG ->
-                    sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
-                            sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG ||
-                            sourceTypeTag == TypeTags.UNSIGNED32_INT_TAG;
-            case TypeTags.ANY_TAG -> checkIsAnyType(sourceType);
-            case TypeTags.ANYDATA_TAG -> sourceType.isAnydata();
-            case TypeTags.SERVICE_TAG -> checkIsServiceType(sourceType, targetType,
-                    unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
-            case TypeTags.HANDLE_TAG -> sourceTypeTag == TypeTags.HANDLE_TAG;
-            case TypeTags.READONLY_TAG ->
-                    checkIsType(sourceType, PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE, unresolvedTypes);
-            case TypeTags.XML_ELEMENT_TAG,
-                 TypeTags.XML_COMMENT_TAG,
-                 TypeTags.XML_PI_TAG -> targetTypeTag == sourceTypeTag;
-            case TypeTags.INTERSECTION_TAG ->
-                    checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG ->
-                    checkIsType(sourceType, ((BTypeReferenceType) targetType).getReferredType(), unresolvedTypes);
-            default -> checkIsRecursiveType(sourceType, targetType,
-                    unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
-        };
+        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType,
+                        unresolvedTypes));
     }
 
-    private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                       List<TypePair> unresolvedTypes) {
-        sourceType = getImpliedType(sourceType);
-        targetType = getImpliedType(targetType);
-
-        int sourceTypeTag = sourceType.getTag();
-        int targetTypeTag = targetType.getTag();
-
-        // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
-        // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
-        // e.g.,
-        //      const HUNDRED = 100;
-        //
-        //      type Foo record {
-        //          HUNDRED i;
-        //      };
-        //
-        //      type Bar record {
-        //          readonly string|int i;
-        //      };
-        //
-        // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
-        if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
-            return checkIsType(sourceType, targetType);
-        }
-
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
-        }
-
-        if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
-            return false;
-        }
-
-        return switch (targetTypeTag) {
-            case TypeTags.ANY_TAG -> checkIsAnyType(sourceType);
-            case TypeTags.READONLY_TAG -> isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
-            default -> checkIsRecursiveTypeOnValue(sourceVal, sourceType, targetType, sourceTypeTag, targetTypeTag,
-                    unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
-        };
+    static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceVal, sourceBType, targetBType,
+                        unresolvedTypes));
     }
 
     // Private methods
@@ -717,7 +581,7 @@ public final class TypeChecker {
         return checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), unresolvedTypes);
     }
 
-    private static boolean checkIsRecursiveType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+    static boolean checkIsRecursiveType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         return switch (targetType.getTag()) {
             case TypeTags.MAP_TAG -> checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.STREAM_TAG -> checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
@@ -740,9 +604,9 @@ public final class TypeChecker {
         };
     }
 
-    private static boolean checkIsRecursiveTypeOnValue(Object sourceVal, Type sourceType, Type targetType,
-                                                       int sourceTypeTag, int targetTypeTag,
-                                                       List<TypePair> unresolvedTypes) {
+    static boolean checkIsRecursiveTypeOnValue(Object sourceVal, Type sourceType, Type targetType,
+                                               int sourceTypeTag, int targetTypeTag,
+                                               List<TypePair> unresolvedTypes) {
         return switch (targetTypeTag) {
             case TypeTags.ANYDATA_TAG -> {
                 if (sourceTypeTag == TypeTags.OBJECT_TYPE_TAG) {
@@ -770,7 +634,7 @@ public final class TypeChecker {
         };
     }
 
-    private static boolean isFiniteTypeMatch(BFiniteType sourceType, Type targetType) {
+    static boolean isFiniteTypeMatch(BFiniteType sourceType, Type targetType) {
         for (Object bValue : sourceType.valueSpace) {
             if (!checkIsType(bValue, targetType)) {
                 return false;
@@ -779,7 +643,7 @@ public final class TypeChecker {
         return true;
     }
 
-    private static boolean isUnionTypeMatch(BUnionType sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+    static boolean isUnionTypeMatch(BUnionType sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         for (Type type : sourceType.getMemberTypes()) {
             if (!checkIsType(type, targetType, unresolvedTypes)) {
                 return false;
@@ -1572,7 +1436,7 @@ public final class TypeChecker {
         return checkIsTupleType((BTupleType) sourceType, targetType, unresolvedTypes);
     }
 
-    private static boolean checkIsAnyType(Type sourceType) {
+    static boolean checkIsAnyType(Type sourceType) {
         sourceType = getImpliedType(sourceType);
         return switch (sourceType.getTag()) {
             case TypeTags.ERROR_TAG,
@@ -1887,7 +1751,7 @@ public final class TypeChecker {
                 .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
-    private static boolean checkIsServiceType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+    static boolean checkIsServiceType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
         if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
             return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
@@ -2034,7 +1898,7 @@ public final class TypeChecker {
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
     }
 
-    private static boolean isMutable(Object value, Type sourceType) {
+    static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
         sourceType = getImpliedType(sourceType);
         if (value == null || sourceType.getTag() < TypeTags.NULL_TAG ||
@@ -2045,7 +1909,7 @@ public final class TypeChecker {
         return !((BRefValue) value).isFrozen();
     }
 
-    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
+    static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
         Set<String> visitedTypeSet = new HashSet<>();
         return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
@@ -2113,15 +1977,15 @@ public final class TypeChecker {
      * @return True if the value confirms to the provided type. False, otherwise.
      */
     private static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
-                                           List<TypeValuePair> unresolvedValues,
-                                           boolean allowNumericConversion, String varName) {
-        Type sourceType = getType(sourceValue);
-        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
+                                           List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+                                           String varName) {
+        Type sourceType = TypeChecker.getType(sourceValue);
+        if (TypeChecker.checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
 
-        return checkIsLikeOnValue(errors, sourceValue, sourceType, targetType, unresolvedValues, allowNumericConversion,
-                varName);
+        return TypeChecker.checkIsLikeOnValue(errors, sourceValue, sourceType, targetType, unresolvedValues,
+                allowNumericConversion, varName);
     }
 
     /**
@@ -2137,9 +2001,9 @@ public final class TypeChecker {
      * @param varName variable name to identify the parent of a record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
-    private static boolean checkIsLikeOnValue(List<String> errors, Object sourceValue, Type sourceType, Type targetType,
-                                              List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
-                                              String varName) {
+    static boolean checkIsLikeOnValue(List<String> errors, Object sourceValue, Type sourceType, Type targetType,
+                                      List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+                                      String varName) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -3004,7 +2868,7 @@ public final class TypeChecker {
      *
      * @since 0.995.0
      */
-    private static class TypePair {
+    static class TypePair {
         Type sourceType;
         Type targetType;
 
