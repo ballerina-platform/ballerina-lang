@@ -21,43 +21,43 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-transport-native-unix-common"
-    version = "4.1.100.Final"
-    path = "./lib/netty-transport-native-unix-common-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-transport-native-unix-common-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-common"
-    version = "4.1.100.Final"
-    path = "./lib/netty-common-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-common-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-buffer"
-    version = "4.1.100.Final"
-    path = "./lib/netty-buffer-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-buffer-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-transport"
-    version = "4.1.100.Final"
-    path = "./lib/netty-transport-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-transport-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-resolver"
-    version = "4.1.100.Final"
-    path = "./lib/netty-resolver-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-resolver-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-handler"
-    version = "4.1.100.Final"
-    path = "./lib/netty-handler-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-handler-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
@@ -70,15 +70,15 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-codec"
-    version = "4.1.100.Final"
-    path = "./lib/netty-codec-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-codec-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-handler-proxy"
-    version = "4.1.100.Final"
-    path = "./lib/netty-handler-proxy-4.1.100.Final.jar"
+    version = "4.1.108.Final"
+    path = "./lib/netty-handler-proxy-4.1.108.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
@@ -119,50 +119,50 @@ target = "java8"
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-classes"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-classes-2.0.62.Final.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-classes-2.0.65.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::windows-x86_64"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final-windows-x86_64.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-windows-x86_64.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-aarch_64"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final-linux-aarch_64.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-linux-aarch_64.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-x86_64"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final-linux-x86_64.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-linux-x86_64.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-aarch_64"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final-osx-aarch_64.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-osx-aarch_64.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-x86_64"
-    version = "2.0.62.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.62.Final-osx-x86_64.jar"
+    version = "2.0.65.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-osx-x86_64.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
