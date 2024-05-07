@@ -212,6 +212,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
     private Boolean optimizeCodegen;
 
+    @CommandLine.Option(names = "--verbose", description = "generate codegen optimization reports",
+            defaultValue = "false")
+    private Boolean verbose;
+
     @Override
     public void execute() {
         long start = 0;
@@ -331,6 +335,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
                 .setShowDependencyDiagnostics(showDependencyDiagnostics);
                 .setOptimizeCodegen(optimizeCodegen);
+                .setVerbose(verbose);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
