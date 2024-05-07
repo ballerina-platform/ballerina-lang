@@ -176,7 +176,7 @@ public class JarResolver {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
-        HashSet<String> usedNativeClassPaths = jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId());
+        Set<String> usedNativeClassPaths = jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId());
         if (addProvidedJars) {
             providedPlatformLibs.addAll(otherJarDependencies);
         }
@@ -224,7 +224,7 @@ public class JarResolver {
         return entry.groupId().isEmpty() || entry.artifactId().isEmpty() || entry.version().isEmpty();
     }
 
-    private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths,
+    private boolean isUsedDependency(JarLibrary otherJarDependency, Set<String> usedNativeClassPaths,
                                      int totalJarDependencies) {
         String pkgName = otherJarDependency.packageName().get();
         if (totalJarDependencies != 1) {
