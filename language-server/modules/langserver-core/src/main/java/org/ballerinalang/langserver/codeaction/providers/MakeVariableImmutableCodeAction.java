@@ -95,12 +95,12 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
         // Check if the type is readonly
         boolean generateReadonly = !symbolInfo.skipReadonly() && !symbolInfo.typeSymbol().subtypeOf(readonlyType);
         boolean generateFinal = !symbolInfo.isFinal();
+        if (generateFinal) {
+            textEdits.add(getFinalTextEdit(symbolInfo.typeNode()));
+        }
         if (generateReadonly) {
             textEdits.addAll(getReadonlyTextEdits(symbolInfo.typeNode(),
                     symbolInfo.typeSymbol().typeKind() == TypeDescKind.UNION));
-        }
-        if (generateFinal) {
-            textEdits.add(getFinalTextEdit(symbolInfo.typeNode()));
         }
 
         // Generate and return the code action

@@ -14,19 +14,6 @@
           "range": {
             "start": {
               "line": 0,
-              "character": 5
-            },
-            "end": {
-              "line": 0,
-              "character": 5
-            }
-          },
-          "newText": " & readonly"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 0,
               "character": 0
             },
             "end": {
@@ -35,6 +22,19 @@
             }
           },
           "newText": "final "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 5
+            },
+            "end": {
+              "line": 0,
+              "character": 5
+            }
+          },
+          "newText": " & readonly"
         }
       ],
       "resolvable": false
