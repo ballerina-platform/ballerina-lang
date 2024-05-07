@@ -67,10 +67,11 @@ module io.ballerina.runtime {
             io.ballerina.lang.xml, org.ballerinalang.debugadapter.runtime, io.ballerina.lang.query,
             io.ballerina.lang.function, io.ballerina.lang.regexp, io.ballerina.lang.value, io.ballerina.lang.internal, io.ballerina.lang.array;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
-    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime,
-            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.lang.regexp, io.ballerina.testerina.core;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
     exports io.ballerina.runtime.internal.regexp;
     exports io.ballerina.runtime.internal.configurable.providers to org.ballerinalang.debugadapter.runtime;
+    exports io.ballerina.runtime.internal.types;
+    exports io.ballerina.runtime.internal.types.semtype;
+    exports io.ballerina.runtime.api.types.SemType;
 }
