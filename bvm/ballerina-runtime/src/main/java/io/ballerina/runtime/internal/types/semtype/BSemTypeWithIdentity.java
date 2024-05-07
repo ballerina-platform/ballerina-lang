@@ -1,0 +1,143 @@
+/*
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package io.ballerina.runtime.internal.types.semtype;
+
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.Type;
+
+import java.util.List;
+
+public final class BSemTypeWithIdentity implements SemType {
+
+    private final SemType ty;
+    final TypeMetadata metadata;
+    private final BTypeAdapter adapter;
+
+    private BSemTypeWithIdentity(SemType ty, TypeMetadata metadata) {
+        this.ty = ty;
+        this.metadata = metadata;
+        adapter = new BTypeAdapter(this);
+    }
+
+    public static BSemTypeWithIdentity from(int all, int some, List<SubType> subTypeData, TypeMetadata metadata) {
+        return new BSemTypeWithIdentity(BSemType.from(all, some, subTypeData), metadata);
+    }
+
+    public static BSemTypeWithIdentity from(int all, int some, List<SubType> subTypeData) {
+        return new BSemTypeWithIdentity(BSemType.from(all, some, subTypeData), TypeMetadata.empty());
+    }
+
+    @Override
+    public <V> V getZeroValue() {
+        return adapter.getZeroValue();
+    }
+
+    @Override
+    public <V> V getEmptyValue() {
+        return adapter.getEmptyValue();
+    }
+
+    @Override
+    public int getTag() {
+        return adapter.getTag();
+    }
+
+    @Override
+    public boolean isNilable() {
+        return adapter.isNilable();
+    }
+
+    @Override
+    public String getName() {
+        return adapter.getName();
+    }
+
+    @Override
+    public String getQualifiedName() {
+        return adapter.getQualifiedName();
+    }
+
+    @Override
+    public Module getPackage() {
+        return adapter.getPackage();
+    }
+
+    @Override
+    public boolean isPublic() {
+        return adapter.isPublic();
+    }
+
+    @Override
+    public boolean isNative() {
+        return adapter.isNative();
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return adapter.isAnydata();
+    }
+
+    @Override
+    public boolean isPureType() {
+        return adapter.isPureType();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return adapter.isReadOnly();
+    }
+
+    @Override
+    public long getFlags() {
+        return adapter.getFlags();
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return adapter.getImmutableType();
+    }
+
+    @Override
+    public void setImmutableType(IntersectionType immutableType) {
+        adapter.setImmutableType(immutableType);
+    }
+
+    @Override
+    public Module getPkg() {
+        return adapter.getPkg();
+    }
+
+    @Override
+    public int all() {
+        return ty.all();
+    }
+
+    @Override
+    public int some() {
+        return ty.some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return ty.subTypeData();
+    }
+}
