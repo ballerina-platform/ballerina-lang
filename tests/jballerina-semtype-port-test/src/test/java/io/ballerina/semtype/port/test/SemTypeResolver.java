@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
@@ -165,6 +166,8 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
             case TABLE_TYPE:
                 return resolveTypeDesc(cx, mod, depth, (BLangTableTypeNode) td);
+            case ERROR_TYPE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangErrorType) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
@@ -502,5 +505,15 @@ public class SemTypeResolver {
 
         SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
         return SemTypes.tableContaining(cx.env, memberType);
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangErrorType td) {
+        if (td.detailType == null) {
+            return PredefinedType.ERROR;
+        }
+
+        SemType detail = resolveTypeDesc(cx, mod, defn, depth, td.detailType);
+        return SemTypes.errorDetail(detail);
     }
 }

@@ -80,24 +80,10 @@ public class SemTypeTest {
 
     public final HashSet<String> dataDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // error type not supported yet
-        hashSet.add("basic.bal");
-        hashSet.add("error1.bal");
-        hashSet.add("error2.bal");
-
-        // readonly type not supported yet
-        hashSet.add("fixed-length-array.bal");
-        hashSet.add("fixed-length-array-tuple.bal");
-
         // causes a stack overflow with mappingSubtypeIsEmpty
+        // https://github.com/ballerina-platform/ballerina-lang/issues/42662
+        hashSet.add("error1.bal");
         hashSet.add("hard.bal");
-        // func type not supported yet
-        hashSet.add("function.bal"); // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
-        hashSet.add("never.bal");
-
-        // readonly type not supported yet
-        hashSet.add("readonly1.bal");
-        hashSet.add("readonly2.bal");
         return hashSet;
     }
 
@@ -175,18 +161,8 @@ public class SemTypeTest {
         hashSet.add("proj9-t.bal");
         hashSet.add("proj10-t.bal");
 
-        // readonly type not supported yet
-        hashSet.add("fixed-length-array-t.bal");
-        hashSet.add("fixed-length-array-tuple-t.bal");
-
-        hashSet.add("xml-complex-ro-tv.bal");
-        hashSet.add("xml-readonly-tv.bal");
+        // Not a type test. This is an error test
         hashSet.add("xml-te.bal");
-
-        // table type not supported yet
-        hashSet.add("anydata-tv.bal");
-        hashSet.add("table-t.bal");
-        hashSet.add("table2-t.bal");
         return hashSet;
     }
 

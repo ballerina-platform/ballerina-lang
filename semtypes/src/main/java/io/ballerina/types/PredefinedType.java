@@ -27,6 +27,8 @@ import static io.ballerina.types.BasicTypeCode.BT_CELL;
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.types.BasicTypeCode.BT_TABLE;
+import static io.ballerina.types.BasicTypeCode.BT_XML;
+import static io.ballerina.types.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.types.ComplexSemType.createComplexSemType;
 import static io.ballerina.types.Core.intersect;
 import static io.ballerina.types.Core.union;
@@ -41,6 +43,7 @@ import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_TEXT;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSequence;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSingleton;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
+import static io.ballerina.types.typeops.XmlOps.XML_SUBTYPE_RO;
 
 /**
  * Contain predefined types used for constructing other types.
@@ -148,7 +151,7 @@ public class PredefinedType {
 
     public static final int BDD_REC_ATOM_READONLY = 0;
     // represents both readonly & map<readonly> and readonly & readonly[]
-    private static final BddNode BDD_SUBTYPE_RO = bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));
+    public static final BddNode BDD_SUBTYPE_RO = bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));
     // represents (map<any|error>)[]
     public static final ComplexSemType MAPPING_RO = basicSubtype(BT_MAPPING, BDD_SUBTYPE_RO);
 
@@ -167,10 +170,11 @@ public class PredefinedType {
     // represents readonly & (map<readonly>)[]
     static final BddNode LIST_SUBTYPE_MAPPING_RO = bddAtom(ATOM_LIST_MAPPING_RO);
 
-    public static final SemType VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
+    public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
-            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_MAPPING_RO)
+            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_MAPPING_RO),
+            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO)
     );
     public static final SemType IMPLEMENTED_VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO)
@@ -218,59 +222,36 @@ public class PredefinedType {
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
-    static String toString(BasicTypeBitSet ut) {
-        StringJoiner sb = new StringJoiner("|", Integer.toBinaryString(ut.bitset) + "[", "]");
-        if ((ut.bitset & NEVER.bitset) != 0) {
-            sb.add("never");
+    static String toString(BasicTypeBitSet bt) {
+        int bitset = bt.bitset;
+        StringJoiner sj = new StringJoiner("|", Integer.toBinaryString(bitset) + "[", "]");
+
+        addIfBitSet(sj, bitset, NEVER.bitset, "never");
+        addIfBitSet(sj, bitset, NIL.bitset, "nil");
+        addIfBitSet(sj, bitset, BOOLEAN.bitset, "boolean");
+        addIfBitSet(sj, bitset, INT.bitset, "int");
+        addIfBitSet(sj, bitset, FLOAT.bitset, "float");
+        addIfBitSet(sj, bitset, DECIMAL.bitset, "decimal");
+        addIfBitSet(sj, bitset, STRING.bitset, "string");
+        addIfBitSet(sj, bitset, ERROR.bitset, "error");
+        addIfBitSet(sj, bitset, TYPEDESC.bitset, "typedesc");
+        addIfBitSet(sj, bitset, HANDLE.bitset, "handle");
+        addIfBitSet(sj, bitset, FUNCTION.bitset, "function");
+        addIfBitSet(sj, bitset, FUTURE.bitset, "future");
+        addIfBitSet(sj, bitset, STREAM.bitset, "stream");
+        addIfBitSet(sj, bitset, LIST.bitset, "list");
+        addIfBitSet(sj, bitset, MAPPING.bitset, "map");
+        addIfBitSet(sj, bitset, TABLE.bitset, "table");
+        addIfBitSet(sj, bitset, XML.bitset, "xml");
+        addIfBitSet(sj, bitset, OBJECT.bitset, "object");
+        addIfBitSet(sj, bitset, CELL.bitset, "cell");
+        addIfBitSet(sj, bitset, UNDEF.bitset, "undef");
+        return sj.toString();
+    }
+
+    private static void addIfBitSet(StringJoiner sj, int bitset, int bitToBeCheck, String strToBeAdded) {
+        if ((bitset & bitToBeCheck) != 0) {
+            sj.add(strToBeAdded);
         }
-        if ((ut.bitset & NIL.bitset) != 0) {
-            sb.add("nil");
-        }
-        if ((ut.bitset & BOOLEAN.bitset) != 0) {
-            sb.add("boolean");
-        }
-        if ((ut.bitset & INT.bitset) != 0) {
-            sb.add("int");
-        }
-        if ((ut.bitset & FLOAT.bitset) != 0) {
-            sb.add("float");
-        }
-        if ((ut.bitset & DECIMAL.bitset) != 0) {
-            sb.add("decimal");
-        }
-        if ((ut.bitset & STRING.bitset) != 0) {
-            sb.add("string");
-        }
-        if ((ut.bitset & ERROR.bitset) != 0) {
-            sb.add("error");
-        }
-        if ((ut.bitset & LIST.bitset) != 0) {
-            sb.add("list");
-        }
-        if ((ut.bitset & FUNCTION.bitset) != 0) {
-            sb.add("function");
-        }
-        if ((ut.bitset & TYPEDESC.bitset) != 0) {
-            sb.add("typedesc");
-        }
-        if ((ut.bitset & HANDLE.bitset) != 0) {
-            sb.add("handle");
-        }
-        if ((ut.bitset & BasicTypeCode.VT_INHERENTLY_IMMUTABLE) != 0) { // TODO: fix when porting readonly
-            sb.add("readonly");
-        }
-        if ((ut.bitset & MAPPING.bitset) != 0) {
-            sb.add("map");
-        }
-        if ((ut.bitset & XML.bitset) != 0) {
-            sb.add("xml");
-        }
-        if ((ut.bitset & CELL.bitset) != 0) {
-            sb.add("cell");
-        }
-        if ((ut.bitset & UNDEF.bitset) != 0) {
-            sb.add("undef");
-        }
-        return sb.toString();
     }
 }
