@@ -21,13 +21,11 @@ import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.Common;
-import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.MappingAtomicType;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
@@ -98,17 +96,15 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                 return true;
             }
             for (FieldPair fieldPair : pairing) {
-                SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
-                assert Core.isSubtypeSimple(d, PredefinedType.CELL);
-                CellSemType dCell = CellSemType.from(((ComplexSemType) d).subtypeDataList);
+                CellSemType d = (CellSemType) Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
                     if (fieldPair.index1() == null) {
                         // the posType came from the rest type
-                        mt = insertField(pos, fieldPair.name(), dCell);
+                        mt = insertField(pos, fieldPair.name(), d);
                     } else {
                         CellSemType[] posTypes = pos.types();
-                        posTypes[fieldPair.index1()] = dCell;
+                        posTypes[fieldPair.index1()] = d;
                         mt = MappingAtomicType.from(pos.names(), posTypes, pos.rest());
                     }
                     if (mappingInhabited(cx, mt, negList.next)) {
@@ -156,7 +152,6 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     public static boolean mappingSubtypeIsEmpty(Context cx, SubtypeData t) {
-        // TODO: this may have a bug (causes a stackoverflow for hard.bal in SemTypeTest)
         return memoSubtypeIsEmpty(cx, cx.mappingMemo,
                 (context, bdd) -> Common.bddEvery(context, bdd, null, null, MappingOps::mappingFormulaIsEmpty),
                 (Bdd) t);
