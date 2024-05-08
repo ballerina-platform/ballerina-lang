@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -61,7 +60,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
     private static final String DIAGNOSTIC_CODE_3961 = "BCE3961";
     private static final String ANONYMOUS_FUNCTION_EXPRESSION = "Anonymous function expression";
     private static final Set<String> DIAGNOSTIC_CODES =
-            Set.of("BCE3946", "BCE3947", "BCE3950", "BCE3943", DIAGNOSTIC_CODE_3961);
+            Set.of("BCE3943", "BCE3946", "BCE3947", "BCE3950", DIAGNOSTIC_CODE_3961);
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -93,40 +92,56 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
             return Collections.emptyList();
         }
 
+        // Obtain the symbol of the referred symbol
+        Optional<Symbol> optSymbol = getReferredSymbol(context, nonTerminalNode);
+        if (optSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Symbol symbol = optSymbol.get();
+        if (symbol.getModule().isEmpty()) {
+            return Collections.emptyList();
+        }
+
         // Obtain the current project
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // Obtain the symbol of the referred symbol
-        Optional<Symbol> symbol = getReferredSymbol(context, nonTerminalNode);
-        if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
+        // Obtain the file path of the referred symbol
+        Optional<Path> optFilePath = PathUtil.getFilePathForSymbol(symbol, project.get(), context);
+        if (optFilePath.isEmpty()) {
             return Collections.emptyList();
         }
-
-        // Obtain the file path of the referred symbol
-        Optional<Path> filePath = PathUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
-        if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
+        Path filePath = optFilePath.get();
+        if (context.workspace().syntaxTree(filePath).isEmpty()) {
             return Collections.emptyList();
         }
 
         // Obtain the node of the referred symbol
-        Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(),
-                context.workspace().syntaxTree(filePath.get()).get());
-        if (node.isEmpty() || isUnsupportedSyntaxKind(node.get().kind())) {
+        Optional<NonTerminalNode> optNode = CommonUtil.findNode(symbol, context.workspace().syntaxTree(filePath).get());
+        if (optNode.isEmpty()) {
             return Collections.emptyList();
         }
+        NonTerminalNode node = optNode.get();
+        String symbolName = symbol.getName().orElse("");
+        String filePathString = filePath.toUri().toString();
 
-        if (symbol.get().kind() == SymbolKind.VARIABLE) {
-            TypedBindingPatternNode typeNode = (TypedBindingPatternNode) node.get().parent();
-            return getCodeAction(typeNode.typeDescriptor().lineRange(), symbol.get().getName().orElse(""),
-                    filePath.get().toUri().toString());
-        }
-
-        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
-        return getCodeAction(functionDefinitionNode.functionKeyword().lineRange(), symbol.get().getName().orElse(""),
-                filePath.get().toUri().toString());
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION, OBJECT_METHOD_DEFINITION -> {
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
+                yield getCodeAction(functionDefinitionNode.functionKeyword().lineRange(), symbolName, filePathString);
+            }
+            case CAPTURE_BINDING_PATTERN -> {
+                NonTerminalNode parentNode = node.parent();
+                if (parentNode.kind() != SyntaxKind.TYPED_BINDING_PATTERN) {
+                    yield Collections.emptyList();
+                }
+                TypedBindingPatternNode typeNode = (TypedBindingPatternNode) parentNode;
+                yield getCodeAction(typeNode.typeDescriptor().lineRange(), symbolName, filePathString);
+            }
+            default -> Collections.emptyList();
+        };
     }
 
     private static Optional<Symbol> getReferredSymbol(CodeActionContext context, NonTerminalNode node) {
@@ -153,17 +168,6 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, expressionName);
         return Collections.singletonList(
                 CodeActionUtil.createCodeAction(commandTitle, List.of(textEdit), filePath, CodeActionKind.QuickFix));
-    }
-
-    private static boolean isUnsupportedSyntaxKind(SyntaxKind kind) {
-        switch (kind) {
-            case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
-            case CAPTURE_BINDING_PATTERN:
-                return false;
-            default:
-                return true;
-        }
     }
 
     private static boolean hasMultipleDiagnostics(NonTerminalNode node, Diagnostic currentDiagnostic,

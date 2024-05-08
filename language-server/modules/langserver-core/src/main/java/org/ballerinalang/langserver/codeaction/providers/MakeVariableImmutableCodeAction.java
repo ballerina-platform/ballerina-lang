@@ -40,6 +40,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -113,39 +114,36 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
 
     private static Optional<SymbolInfo> getSymbolInfo(Node cursorNode, SemanticModel semanticModel,
                                                       ModulePartNode rootNode) {
-        Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
-        switch (symbol.kind()) {
-            case CLASS_FIELD -> {
+        try {
+            Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
+            if (symbol.kind() == SymbolKind.CLASS_FIELD) {
                 ClassFieldSymbol classFieldSymbol = (ClassFieldSymbol) symbol;
                 return Optional.of(new SymbolInfo(classFieldSymbol.typeDescriptor(),
                         ((ObjectFieldNode) cursorNode).typeName(), classFieldSymbol, false));
             }
-            case VARIABLE -> {
-                VariableSymbol variableSymbol = (VariableSymbol) symbol;
-                TypedBindingPatternNode typeNode =
-                        (TypedBindingPatternNode) rootNode.findNode(symbol.getLocation().orElseThrow().textRange());
-                boolean skipReadonly = false;
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            TypedBindingPatternNode typeNode =
+                    (TypedBindingPatternNode) CommonUtil.findNode(symbol, rootNode.syntaxTree()).orElseThrow().parent();
 
-                TypeSymbol typeSymbol = variableSymbol.typeDescriptor();
-                if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                    Symbol definition = ((TypeReferenceTypeSymbol) typeSymbol).definition();
-                    if (definition.kind() == SymbolKind.CLASS) {
-                        boolean isSupportedClassType = ((ClassSymbol) definition).qualifiers().stream()
-                                .anyMatch(qualifier -> qualifier == Qualifier.READONLY ||
-                                        qualifier == Qualifier.ISOLATED);
-                        if (!isSupportedClassType) {
-                            return Optional.empty();
-                        }
-                        skipReadonly = true;
+            // Skip the readonly consideration for isolated and readonly classes.
+            boolean skipReadonly = false;
+            TypeSymbol typeSymbol = variableSymbol.typeDescriptor();
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                Symbol definition = ((TypeReferenceTypeSymbol) typeSymbol).definition();
+                if (definition.kind() == SymbolKind.CLASS) {
+                    boolean isSupportedClassType = ((ClassSymbol) definition).qualifiers().stream()
+                            .anyMatch(qualifier -> qualifier == Qualifier.READONLY ||
+                                    qualifier == Qualifier.ISOLATED);
+                    if (!isSupportedClassType) {
+                        return Optional.empty();
                     }
+                    skipReadonly = true;
                 }
-
-                return Optional.of(new SymbolInfo(typeSymbol, typeNode.typeDescriptor(), variableSymbol, skipReadonly));
             }
-            default -> {
-                assert false : "Unconsidered symbol type found: " + symbol.kind();
-                return Optional.empty();
-            }
+            return Optional.of(new SymbolInfo(typeSymbol, typeNode.typeDescriptor(), variableSymbol, skipReadonly));
+        } catch (RuntimeException e) {
+            assert false : "Unconsidered symbol type found";
+            return Optional.empty();
         }
     }
 
