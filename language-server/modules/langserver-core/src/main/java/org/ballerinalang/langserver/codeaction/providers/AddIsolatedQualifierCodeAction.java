@@ -17,14 +17,16 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -59,7 +61,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
     private static final String DIAGNOSTIC_CODE_3961 = "BCE3961";
     private static final String ANONYMOUS_FUNCTION_EXPRESSION = "Anonymous function expression";
     private static final Set<String> DIAGNOSTIC_CODES =
-            Set.of("BCE3946", "BCE3947", "BCE3950", DIAGNOSTIC_CODE_3961);
+            Set.of("BCE3946", "BCE3947", "BCE3950", "BCE3943", DIAGNOSTIC_CODE_3961);
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -81,7 +83,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
             ExplicitAnonymousFunctionExpressionNode functionExpressionNode =
                     (ExplicitAnonymousFunctionExpressionNode) nonTerminalNode;
-            return getCodeAction(functionExpressionNode.functionKeyword(), ANONYMOUS_FUNCTION_EXPRESSION,
+            return getCodeAction(functionExpressionNode.functionKeyword().lineRange(), ANONYMOUS_FUNCTION_EXPRESSION,
                     context.fileUri());
         }
 
@@ -91,15 +93,15 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
             return Collections.emptyList();
         }
 
-        // Obtain the symbol of the referred function
-        Optional<Symbol> symbol = getReferredSymbol(context, nonTerminalNode);
-        if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
-            return Collections.emptyList();
-        }
-
         // Obtain the current project
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Obtain the symbol of the referred symbol
+        Optional<Symbol> symbol = getReferredSymbol(context, nonTerminalNode);
+        if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -115,9 +117,15 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         if (node.isEmpty() || isUnsupportedSyntaxKind(node.get().kind())) {
             return Collections.emptyList();
         }
-        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
 
-        return getCodeAction(functionDefinitionNode.functionKeyword(), symbol.get().getName().orElse(""),
+        if (symbol.get().kind() == SymbolKind.VARIABLE) {
+            TypedBindingPatternNode typeNode = (TypedBindingPatternNode) node.get().parent();
+            return getCodeAction(typeNode.typeDescriptor().lineRange(), symbol.get().getName().orElse(""),
+                    filePath.get().toUri().toString());
+        }
+
+        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
+        return getCodeAction(functionDefinitionNode.functionKeyword().lineRange(), symbol.get().getName().orElse(""),
                 filePath.get().toUri().toString());
     }
 
@@ -138,8 +146,8 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         return context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node));
     }
 
-    private static List<CodeAction> getCodeAction(Token functionKeyword, String expressionName, String filePath) {
-        Position position = PositionUtil.toPosition(functionKeyword.lineRange().startLine());
+    private static List<CodeAction> getCodeAction(LineRange lineRange, String expressionName, String filePath) {
+        Position position = PositionUtil.toPosition(lineRange.startLine());
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(new Range(position, position), editText);
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, expressionName);
@@ -148,7 +156,14 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
     }
 
     private static boolean isUnsupportedSyntaxKind(SyntaxKind kind) {
-        return kind != SyntaxKind.FUNCTION_DEFINITION && kind != SyntaxKind.OBJECT_METHOD_DEFINITION;
+        switch (kind) {
+            case FUNCTION_DEFINITION:
+            case OBJECT_METHOD_DEFINITION:
+            case CAPTURE_BINDING_PATTERN:
+                return false;
+            default:
+                return true;
+        }
     }
 
     private static boolean hasMultipleDiagnostics(NonTerminalNode node, Diagnostic currentDiagnostic,
