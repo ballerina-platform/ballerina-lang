@@ -1,0 +1,79 @@
+{
+  "thushara_piyasekara/transitive_module_imports:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  },
+  "thushara_piyasekara/transitive_module_imports.subModule_1:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "subModuleFunction"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  },
+  "thushara_piyasekara/transitive_module_imports.subModule_2:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar"
+      ],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
