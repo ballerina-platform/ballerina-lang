@@ -4,7 +4,7 @@
     "character": 43
   },
   "source": "make_variable_immutable22.bal",
-  "description": "Make immutable of a variable",
+  "description": "Make immutable of a variable within an expression-bodied function",
   "expected": [
     {
       "title": "Add 'final' and 'readonly' to the variable",

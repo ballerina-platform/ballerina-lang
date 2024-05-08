@@ -4,7 +4,7 @@
     "character": 12
   },
   "source": "make_variable_immutable16.bal",
-  "description": "Make immutable of a variable",
+  "description": "Make immutable of an array variable",
   "expected": [
     {
       "title": "Add 'final' and 'readonly' to the variable",

@@ -4,7 +4,7 @@
     "character": 15
   },
   "source": "make_variable_immutable21.bal",
-  "description": "Make immutable of a variable",
+  "description": "Make immutable of a isolated class variable",
   "expected": [
     {
       "title": "Add 'final' to the variable",

@@ -4,7 +4,7 @@
     "character": 14
   },
   "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source6.bal",
-  "description": "Add isolated qualifier to a variable",
+  "description": "Add isolated qualifier to an array variable",
   "expected": [
     {
       "title": "Add isolated qualifier to 'intArr'",

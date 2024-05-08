@@ -197,34 +197,12 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
         return NAME;
     }
 
-    private static class SymbolInfo {
-
-        private final TypeSymbol typeSymbol;
-        private final Node typeNode;
-        private final boolean isFinal;
-        private final boolean skipReadonly;
+    private record SymbolInfo(TypeSymbol typeSymbol, Node typeNode, boolean isFinal, boolean skipReadonly) {
 
         public SymbolInfo(TypeSymbol typeSymbol, Node typeNode, Qualifiable qualifiable, boolean skipReadonly) {
-            this.typeSymbol = typeSymbol;
-            this.typeNode = typeNode;
-            this.isFinal = qualifiable.qualifiers().stream().anyMatch(qualifier -> qualifier.equals(Qualifier.FINAL));
-            this.skipReadonly = skipReadonly;
-        }
-
-        public TypeSymbol typeSymbol() {
-            return typeSymbol;
-        }
-
-        public Node typeNode() {
-            return typeNode;
-        }
-
-        public boolean isFinal() {
-            return isFinal;
-        }
-
-        public boolean skipReadonly() {
-            return skipReadonly;
+            this(typeSymbol, typeNode,
+                    qualifiable.qualifiers().stream().anyMatch(qualifier -> qualifier.equals(Qualifier.FINAL)),
+                    skipReadonly);
         }
     }
 }

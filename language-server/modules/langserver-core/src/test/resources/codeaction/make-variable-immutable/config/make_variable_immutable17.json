@@ -4,7 +4,7 @@
     "character": 12
   },
   "source": "make_variable_immutable17.bal",
-  "description": "Make immutable of a variable",
+  "description": "Make immutable of a map variable",
   "expected": [
     {
       "title": "Add 'readonly' to the variable",
