@@ -421,7 +421,7 @@ public class TestCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions);
+                .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics);
 
         if (targetDir != null) {
