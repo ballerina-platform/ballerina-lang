@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - xml_step_extension
 
 jobs:
   build-lang:
