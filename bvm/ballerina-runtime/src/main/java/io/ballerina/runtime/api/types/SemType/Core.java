@@ -38,6 +38,7 @@ import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.VT_MASK;
 public final class Core {
 
     private static final SemType SEMTYPE_TOP = BBasicTypeBitSet.from((1 << (CODE_UNDEF + 1)) - 1);
+    private static final BasicTypeBitSet B_TYPE_TOP = BBasicTypeBitSet.from(1 << BT_B_TYPE.code());
 
     private Core() {
     }
@@ -225,7 +226,7 @@ public final class Core {
     }
 
     public static boolean isNever(SemType t) {
-        throw new IllegalStateException("Unimplemented");
+        return t.all() == 0 && t.some() == 0;
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
@@ -242,9 +243,14 @@ public final class Core {
 
     private static boolean applyFallback(SemType t1, SemType t2,
                                          BiFunction<? super BType, ? super BType, Boolean> fallback) {
-        BType bType1 = (BType) subTypeData(t1, BT_B_TYPE);
-        BType bType2 = (BType) subTypeData(t2, BT_B_TYPE);
-        return fallback.apply(bType1, bType2);
+        boolean t1HasBType = containsBasicType(t1, B_TYPE_TOP);
+        boolean t2HasBType = containsBasicType(t2, B_TYPE_TOP);
+        if (t1HasBType && t2HasBType) {
+            BType bType1 = (BType) subTypeData(t1, BT_B_TYPE);
+            BType bType2 = (BType) subTypeData(t2, BT_B_TYPE);
+            return fallback.apply(bType1, bType2);
+        }
+        return !t1HasBType;
     }
 
     private static SubTypeData subTypeData(SemType s, BasicTypeCode code) {
@@ -257,8 +263,14 @@ public final class Core {
         return s.subTypeData().get(code.code()).data();
     }
 
+    private static boolean containsBasicType(SemType t1, BasicTypeBitSet t2) {
+        int bits = t1.all() | t1.some();
+        return (bits & t2.all()) != 0;
+    }
+
     public static boolean isSubTypeSimple(SemType t1, BasicTypeBitSet t2) {
-        throw new IllegalStateException("Unimplemented");
+        int bits = t1.all() | t1.some();
+        return (bits & ~t2.all()) == 0;
     }
 
     public static boolean isSameType(Context cx, SemType t1, SemType t2) {
