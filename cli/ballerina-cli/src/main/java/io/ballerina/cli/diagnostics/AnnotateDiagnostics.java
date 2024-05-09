@@ -199,20 +199,20 @@ public final class AnnotateDiagnostics {
                                                            String color) {
         StringDiagnosticProperty strProperty = (StringDiagnosticProperty) packageDiagnostic.properties().get(0);
         String lineString = textDocument.line(locationDetails.startLine).text();
-        String missingTokenString = getColoredString(strProperty.value(), color, isColorEnabled);
+        StringBuilder lineBuilder = new StringBuilder().append(lineString, 0, locationDetails.startOffset);
+        StringBuilder missingTokenBuilder =
+                new StringBuilder(getColoredString(strProperty.value(), color, isColorEnabled));
         int padding = 0;
         if (locationDetails.startOffset < lineString.length() &&
                 lineString.charAt(locationDetails.startOffset) != ' ') {
-            missingTokenString = missingTokenString + " ";
+            missingTokenBuilder.append(" ");
         }
         if (locationDetails.startOffset > 0 && lineString.charAt(locationDetails.startOffset - 1) != ' ') {
-            missingTokenString = " " + missingTokenString;
+            missingTokenBuilder.insert(0, " ");
             padding++;
         }
-
-        String lineWithMissingToken = lineString.substring(0, locationDetails.startOffset) + missingTokenString +
-                lineString.substring(locationDetails.startOffset); // TODO: Use a string builder instead
-        List<String> lines = new ArrayList<>(List.of(lineWithMissingToken));
+        lineBuilder.append(missingTokenBuilder).append(lineString, locationDetails.startOffset, lineString.length());
+        List<String> lines = new ArrayList<>(List.of(lineBuilder.toString()));
         return new DiagnosticAnnotation(
                 lines,
                 padding + locationDetails.startOffset,
@@ -231,8 +231,7 @@ public final class AnnotateDiagnostics {
         String line = lines.get(0);
         String annotatedLine = line.substring(0, locationDetails.startOffset) +
                 getColoredString(line.substring(locationDetails.startOffset, locationDetails.endOffset), color,
-                        isColorEnabled) +
-                line.substring(locationDetails.endOffset);
+                        isColorEnabled) + line.substring(locationDetails.endOffset);
         lines.set(0, annotatedLine);
         return new DiagnosticAnnotation(
                 lines,
