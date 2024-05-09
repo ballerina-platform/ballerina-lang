@@ -20,12 +20,12 @@ package io.ballerina.runtime.api.types.SemType;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.BTypeConverter;
 import io.ballerina.runtime.internal.types.semtype.BBasicTypeBitSet;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
-import io.ballerina.runtime.internal.types.semtype.BSubType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,11 @@ public final class Builder {
     }
 
     public static SemType from(BType innerType) {
-        return basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(innerType));
+        return BTypeConverter.from(innerType);
+    }
+
+    public static SemType neverType() {
+        return basicTypeUnion(0);
     }
 
     public static SemType basicTypeUnion(int bitset) {

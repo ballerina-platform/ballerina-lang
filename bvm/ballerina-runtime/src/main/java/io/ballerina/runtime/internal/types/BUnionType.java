@@ -135,6 +135,27 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.readonly = readonly;
     }
 
+    BUnionType cloneWithMembers(List<Type> newMembers) {
+        BUnionType newUnionType = new BUnionType(memberTypes, this.typeFlags, this.readonly, this.isCyclic);
+        newUnionType.isCyclic = isCyclic;
+        newUnionType.memberTypes = newMembers;
+        newUnionType.originalMemberTypes = newMembers;
+        newUnionType.nullable = nullable;
+        newUnionType.flags = flags;
+        newUnionType.typeFlags = typeFlags;
+        newUnionType.readonly = readonly;
+        newUnionType.immutableType = immutableType;
+        newUnionType.intersectionType = intersectionType;
+        newUnionType.cachedToString = cachedToString;
+        newUnionType.resolving = resolving;
+        newUnionType.resolvingReadonly = resolvingReadonly;
+
+        newUnionType.typeName = typeName;
+        newUnionType.pkg = pkg;
+
+        return newUnionType;
+    }
+
     /**
      * Constructor used when defining union type defs where cyclic reference is possible.
      *
