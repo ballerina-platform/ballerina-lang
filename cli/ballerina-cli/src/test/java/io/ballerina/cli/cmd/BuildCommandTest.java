@@ -872,6 +872,27 @@ public class BuildCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
+    @Test(description = "Build a package with corrupted Dependencies.toml file")
+    public void testBuildWithCorruptedDependenciesToml() throws IOException {
+        Path projectPath = this.testResources.resolve("corrupted-dependecies-toml-file");
+        cleanTarget(projectPath);
+        Path sourcePath = projectPath.resolve("Dependencies-corrupt.toml");
+        Path destinationPath = projectPath.resolve("Dependencies.toml");
+        Files.copy(sourcePath, destinationPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("WARNING [Dependencies.toml:(6:1,18:1)] " +
+                "Detected corrupted Dependencies.toml file. This will be updated to latest dependencies."));
+        String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
+                .replace("/r" , "");
+        String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
+                        Charset.defaultCharset()).replace("/r" , "");
+        Assert.assertEquals(depContent, corrcetDepContent);
+        Files.delete(destinationPath);
+    }
+
     @Test(description = "Test bir cached project build performance")
     public void testBirCachedProjectBuildPerformance() {
         Path projectPath = this.testResources.resolve("noClassDefProject");
