@@ -15,6 +15,7 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+      - xml_step_extension
 
 jobs:
   ubuntu_build:
