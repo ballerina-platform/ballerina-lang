@@ -20,7 +20,7 @@ Running Tests with Coverage
 		    [fail data provider for the function testDividingValuesNegative]
 			 error {ballerina/test:0}ExecutionError ("error("{ballerina}DivisionByZero",message=" / by zero")
 				callableName: testDividingValuesNegative moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 191
-				callableName: testDividingValuesNegative$lambda14$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 18
+				callableName: testDividingValuesNegative$lambda111$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 18
 			",functionName="testDividingValuesNegative")
 				callableName: handleTestFuncOutput moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 326
 				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 138

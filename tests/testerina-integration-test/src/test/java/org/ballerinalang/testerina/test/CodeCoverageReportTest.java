@@ -87,8 +87,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "report/codecov/0",
                 "report/codecov$test/0/annotations",
                 "report/codecov/0/annotations",
-                "report/codecov/0/constants",
-                "report/codecov$test/0/lambdas"
+                "report/codecov/0/constants"
         );
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
@@ -151,10 +150,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "test-report-tests/modules/bar",
                 "testerina_report/foo$test/0/creators",
                 "testerina_report/foo/0/functions",
-                "testerina_report/foo/0/lambdas",
-                "testerina_report/foo&0046bar&0046tests$test/0/lambdas",
-                "testerina_report/foo$test/0/lambdas",
-                "testerina_report/foo&0046math$test/0/lambdas"
+                "testerina_report/foo/0/lambdas"
         );
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
