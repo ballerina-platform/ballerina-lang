@@ -256,6 +256,7 @@ import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.XmlFactory;
@@ -2397,19 +2398,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             indexBasedAccess.indexExpr = listConstructorExpr;
         }
 
-        Node containerExpr = indexedExpressionNode.containerExpression();
-        BLangExpression expression = createExpression(containerExpr);
-        if (containerExpr.kind() == SyntaxKind.XML_STEP_EXPRESSION) {
-            // TODO : This check will be removed after changes are done for spec issue #536
-
-            // The original expression position is overwritten here since the modeling of BLangXMLNavigationAccess is
-            // different from the normal index based access.
-            expression.pos = indexBasedAccess.pos;
-            ((BLangXMLNavigationAccess) expression).childIndex = indexBasedAccess.indexExpr;
-            return expression;
-        }
-        indexBasedAccess.expr = expression;
-
+        indexBasedAccess.expr = createExpression(indexedExpressionNode.containerExpression());
         return indexBasedAccess;
     }
 
@@ -4466,10 +4455,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
+        BLangExpression childIndex = null;
+        for (Node extension : xmlStepExpressionNode.xmlStepExtend()) {
+            if (extension.kind() == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
+                childIndex = createExpression(((XMLStepIndexedExtendNode) extension).expression());
+                break;
+            }
+        }
         // TODO : implement the value for childIndex
         BLangXMLNavigationAccess xmlNavigationAccess =
                 new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
+                XMLNavigationAccess.NavAccessType.fromInt(starCount), childIndex);
         return xmlNavigationAccess;
     }
 

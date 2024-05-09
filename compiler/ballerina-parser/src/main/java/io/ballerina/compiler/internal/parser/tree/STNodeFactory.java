@@ -2059,11 +2059,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart) {
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
 
         return new STXMLStepExpressionNode(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     public static STNode createXMLNamePatternChainingNode(
@@ -2075,6 +2077,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public static STNode createXMLStepIndexedExtendNode(
+            STNode openBracket,
+            STNode expression,
+            STNode closeBracket) {
+
+        return new STXMLStepIndexedExtendNode(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    public static STNode createXMLStepMethodCallExtendNode(
+            STNode dotToken,
+            STNode functionCallExpression) {
+
+        return new STXMLStepMethodCallExtendNode(
+                dotToken,
+                functionCallExpression);
     }
 
     public static STNode createXMLAtomicNamePatternNode(

@@ -2796,9 +2796,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(xMLStepExpressionNode.expression());
         Node xmlStepStart =
                 modifyNode(xMLStepExpressionNode.xmlStepStart());
+        NodeList<Node> xmlStepExtend =
+                modifyNodeList(xMLStepExpressionNode.xmlStepExtend());
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -2814,6 +2817,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public XMLStepIndexedExtendNode transform(
+            XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        Token openBracket =
+                modifyToken(xMLStepIndexedExtendNode.openBracket());
+        Node expression =
+                modifyNode(xMLStepIndexedExtendNode.expression());
+        Token closeBracket =
+                modifyToken(xMLStepIndexedExtendNode.closeBracket());
+        return xMLStepIndexedExtendNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public XMLStepMethodCallExtendNode transform(
+            XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        Token dotToken =
+                modifyToken(xMLStepMethodCallExtendNode.dotToken());
+        FunctionCallExpressionNode functionCallExpression =
+                modifyNode(xMLStepMethodCallExtendNode.functionCallExpression());
+        return xMLStepMethodCallExtendNode.modify(
+                dotToken,
+                functionCallExpression);
     }
 
     @Override

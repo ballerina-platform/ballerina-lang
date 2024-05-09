@@ -1,141 +1,84 @@
 {
-  "kind": "XML_FILTER_EXPRESSION",
+  "kind": "XML_STEP_EXPRESSION",
   "children": [
     {
-      "kind": "XML_FILTER_EXPRESSION",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "children": [
         {
-          "kind": "METHOD_CALL",
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "children": [
+        {
+          "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
+        },
+        {
+          "kind": "LIST",
           "children": [
             {
-              "kind": "XML_STEP_EXPRESSION",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "XML_NAME_PATTERN_CHAIN",
-                  "children": [
-                    {
-                      "kind": "DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "ASTERISK_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "GT_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
+              "kind": "ASTERISK_TOKEN"
+            }
+          ]
+        },
+        {
+          "kind": "GT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "XML_STEP_METHOD_CALL_EXTEND",
+          "children": [
             {
               "kind": "DOT_TOKEN"
             },
             {
-              "kind": "SIMPLE_NAME_REFERENCE",
+              "kind": "FUNCTION_CALL",
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo"
-                }
-              ]
-            },
-            {
-              "kind": "OPEN_PAREN_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": [
+                },
                 {
-                  "kind": "POSITIONAL_ARG",
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
                   "children": [
                     {
-                      "kind": "NUMERIC_LITERAL",
+                      "kind": "POSITIONAL_ARG",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "value": "5"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "POSITIONAL_ARG",
-                  "children": [
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "NAMED_ARG",
-                  "children": [
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "age",
-                          "trailingMinutiae": [
+                          "kind": "NUMERIC_LITERAL",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                              "value": "5"
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "EQUAL_TOKEN",
+                      "kind": "COMMA_TOKEN",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -144,50 +87,102 @@
                       ]
                     },
                     {
-                      "kind": "NUMERIC_LITERAL",
+                      "kind": "POSITIONAL_ARG",
                       "children": [
                         {
-                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                          "value": "18"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "a"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "NAMED_ARG",
+                      "children": [
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "age",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "NUMERIC_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                              "value": "18"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "REST_ARG",
+                      "children": [
+                        {
+                          "kind": "ELLIPSIS_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "subjects"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "COMMA_TOKEN",
+                  "kind": "CLOSE_PAREN_TOKEN",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
                       "value": " "
                     }
                   ]
-                },
-                {
-                  "kind": "REST_ARG",
-                  "children": [
-                    {
-                      "kind": "ELLIPSIS_TOKEN"
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "subjects"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "CLOSE_PAREN_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
                 }
               ]
             }
@@ -230,37 +225,37 @@
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "kind": "XML_NAME_PATTERN_CHAIN",
-      "children": [
-        {
-          "kind": "DOT_LT_TOKEN"
         },
         {
-          "kind": "LIST",
+          "kind": "XML_NAME_PATTERN_CHAIN",
           "children": [
             {
-              "kind": "XML_ATOMIC_NAME_PATTERN",
+              "kind": "DOT_LT_TOKEN"
+            },
+            {
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
-                },
-                {
-                  "kind": "COLON_TOKEN"
-                },
-                {
-                  "kind": "ASTERISK_TOKEN"
+                  "kind": "XML_ATOMIC_NAME_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "d"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "ASTERISK_TOKEN"
+                    }
+                  ]
                 }
               ]
+            },
+            {
+              "kind": "GT_TOKEN"
             }
           ]
-        },
-        {
-          "kind": "GT_TOKEN"
         }
       ]
     }

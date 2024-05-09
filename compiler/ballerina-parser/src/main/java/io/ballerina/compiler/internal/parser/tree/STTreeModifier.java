@@ -2212,9 +2212,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STXMLStepExpressionNode xMLStepExpressionNode) {
         STNode expression = modifyNode(xMLStepExpressionNode.expression);
         STNode xmlStepStart = modifyNode(xMLStepExpressionNode.xmlStepStart);
+        STNode xmlStepExtend = modifyNode(xMLStepExpressionNode.xmlStepExtend);
         return xMLStepExpressionNode.modify(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -2227,6 +2229,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    @Override
+    public STXMLStepIndexedExtendNode transform(
+            STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        STNode openBracket = modifyNode(xMLStepIndexedExtendNode.openBracket);
+        STNode expression = modifyNode(xMLStepIndexedExtendNode.expression);
+        STNode closeBracket = modifyNode(xMLStepIndexedExtendNode.closeBracket);
+        return xMLStepIndexedExtendNode.modify(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    @Override
+    public STXMLStepMethodCallExtendNode transform(
+            STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        STNode dotToken = modifyNode(xMLStepMethodCallExtendNode.dotToken);
+        STNode functionCallExpression = modifyNode(xMLStepMethodCallExtendNode.functionCallExpression);
+        return xMLStepMethodCallExtendNode.modify(
+                dotToken,
+                functionCallExpression);
     }
 
     @Override
