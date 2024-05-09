@@ -318,8 +318,8 @@ public class JvmConstants {
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
-    public static final String MODULE_GENERATED_FUNCTIONS_CLASS_NAME = "functions/$_generated_$";
-    public static final String MODULE_LAMBDAS_CLASS_NAME = "lambdas/$_generated_$";
+    public static final String MODULE_GENERATED_FUNCTIONS_CLASS_NAME = "functions/$_generated";
+    public static final String MODULE_LAMBDAS_CLASS_NAME = "lambdas/$_generated";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
