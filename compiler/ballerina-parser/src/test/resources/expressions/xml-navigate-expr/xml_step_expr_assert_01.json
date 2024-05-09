@@ -12,6 +12,10 @@
     },
     {
       "kind": "SLASH_ASTERISK_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
     }
   ]
 }

@@ -5686,7 +5686,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode namePattern = parseXMLNamePatternChain(slashLT);
-        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern);
+        STNode xmlStepExtend = parseXMLStepExtend();
+        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern, xmlStepExtend);
         return newLhsExpr;
     }
 
@@ -14573,6 +14574,45 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse xml step extend chain.
+     * <p>
+     * <code>
+     * xml-step-extend := .< xml-name-pattern > | [ expression ] | .method-name ( arg-list )
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExtend() {
+        List<STNode> xmlStepExtendList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        if (isEndOfXMLStepExtend(nextToken.kind)) {
+            return STNodeFactory.createNodeList(xmlStepExtendList);
+        }
+
+        startContext(ParserRuleContext.XML_STEP_EXTEND);
+        STNode stepExtension;
+        while (!isEndOfXMLStepExtend(nextToken.kind)) {
+            if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
+                STNode dotToken = parseDotToken();
+                STNode funcCallExpression = parseFuncCall(parseIdentifier(ParserRuleContext.IDENTIFIER));
+                stepExtension = STNodeFactory.createXMLStepMethodCallExtendNode(dotToken, funcCallExpression);
+            } else if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+                stepExtension = parseXMLFilterExpressionRhs();
+            } else {
+                STNode openBracket = parseOpenBracket();
+                STNode keyExpr = parseKeyExpr(true);
+                STNode closeBracket = parseCloseBracket();
+                stepExtension = STNodeFactory.createXMLStepIndexedExtendNode(openBracket, keyExpr, closeBracket);
+            }
+            xmlStepExtendList.add(stepExtension);
+            nextToken = peek();
+        }
+        endContext();
+        return STNodeFactory.createNodeList(xmlStepExtendList);
+    }
+
+    /**
      * Parse <code> .< </code> token.
      *
      * @return Parsed node
@@ -14634,6 +14674,14 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private boolean isEndOfXMLStepExtend(SyntaxKind tokenKind) {
+        return switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN, DOT_LT_TOKEN -> false;
+            case DOT_TOKEN -> peek(3).kind != SyntaxKind.OPEN_PAREN_TOKEN;
+            default -> true;
+        };
     }
 
     private STNode parseXMLNamePatternSeparator() {
@@ -14710,7 +14758,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseXMLStepExpression(STNode lhsExpr) {
         STNode xmlStepStart = parseXMLStepStart();
-        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
+        STNode xmlStepExtend = parseXMLStepExtend();
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtend);
     }
 
     /**

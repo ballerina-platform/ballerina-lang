@@ -2734,13 +2734,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLStepExpressionNode createXMLStepExpressionNode(
             ExpressionNode expression,
-            Node xmlStepStart) {
+            Node xmlStepStart,
+            NodeList<Node> xmlStepExtend) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(xmlStepStart, "xmlStepStart must not be null");
+        Objects.requireNonNull(xmlStepExtend, "xmlStepExtend must not be null");
 
         STNode stXMLStepExpressionNode = STNodeFactory.createXMLStepExpressionNode(
                 expression.internalNode(),
-                xmlStepStart.internalNode());
+                xmlStepStart.internalNode(),
+                xmlStepExtend.underlyingListNode().internalNode());
         return stXMLStepExpressionNode.createUnlinkedFacade();
     }
 
@@ -2757,6 +2760,33 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 xmlNamePattern.underlyingListNode().internalNode(),
                 gtToken.internalNode());
         return stXMLNamePatternChainingNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepIndexedExtendNode createXMLStepIndexedExtendNode(
+            Token openBracket,
+            Node expression,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stXMLStepIndexedExtendNode = STNodeFactory.createXMLStepIndexedExtendNode(
+                openBracket.internalNode(),
+                expression.internalNode(),
+                closeBracket.internalNode());
+        return stXMLStepIndexedExtendNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepMethodCallExtendNode createXMLStepMethodCallExtendNode(
+            Token dotToken,
+            FunctionCallExpressionNode functionCallExpression) {
+        Objects.requireNonNull(dotToken, "dotToken must not be null");
+        Objects.requireNonNull(functionCallExpression, "functionCallExpression must not be null");
+
+        STNode stXMLStepMethodCallExtendNode = STNodeFactory.createXMLStepMethodCallExtendNode(
+                dotToken.internalNode(),
+                functionCallExpression.internalNode());
+        return stXMLStepMethodCallExtendNode.createUnlinkedFacade();
     }
 
     public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(

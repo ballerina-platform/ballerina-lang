@@ -1,26 +1,12 @@
 {
-  "kind": "INDEXED_EXPRESSION",
+  "kind": "XML_STEP_EXPRESSION",
   "children": [
     {
-      "kind": "XML_STEP_EXPRESSION",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "children": [
         {
-          "kind": "SIMPLE_NAME_REFERENCE",
-          "children": [
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "SLASH_ASTERISK_TOKEN",
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -31,24 +17,38 @@
       ]
     },
     {
-      "kind": "OPEN_BRACKET_TOKEN"
+      "kind": "SLASH_ASTERISK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",
       "children": [
         {
-          "kind": "SIMPLE_NAME_REFERENCE",
+          "kind": "XML_STEP_INDEXED_EXTEND",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "CLOSE_BRACKET_TOKEN"
     }
   ]
 }

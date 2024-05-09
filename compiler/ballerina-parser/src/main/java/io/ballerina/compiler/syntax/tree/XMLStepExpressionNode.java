@@ -40,6 +40,10 @@ public class XMLStepExpressionNode extends XMLNavigateExpressionNode {
         return childInBucket(1);
     }
 
+    public NodeList<Node> xmlStepExtend() {
+        return new NodeList<>(childInBucket(2));
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -54,21 +58,25 @@ public class XMLStepExpressionNode extends XMLNavigateExpressionNode {
     protected String[] childNames() {
         return new String[]{
                 "expression",
-                "xmlStepStart"};
+                "xmlStepStart",
+                "xmlStepExtend"};
     }
 
     public XMLStepExpressionNode modify(
             ExpressionNode expression,
-            Node xmlStepStart) {
+            Node xmlStepStart,
+            NodeList<Node> xmlStepExtend) {
         if (checkForReferenceEquality(
                 expression,
-                xmlStepStart)) {
+                xmlStepStart,
+                xmlStepExtend.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createXMLStepExpressionNode(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     public XMLStepExpressionNodeModifier modify() {
@@ -84,11 +92,13 @@ public class XMLStepExpressionNode extends XMLNavigateExpressionNode {
         private final XMLStepExpressionNode oldNode;
         private ExpressionNode expression;
         private Node xmlStepStart;
+        private NodeList<Node> xmlStepExtend;
 
         public XMLStepExpressionNodeModifier(XMLStepExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
             this.xmlStepStart = oldNode.xmlStepStart();
+            this.xmlStepExtend = oldNode.xmlStepExtend();
         }
 
         public XMLStepExpressionNodeModifier withExpression(
@@ -105,10 +115,18 @@ public class XMLStepExpressionNode extends XMLNavigateExpressionNode {
             return this;
         }
 
+        public XMLStepExpressionNodeModifier withXmlStepExtend(
+                NodeList<Node> xmlStepExtend) {
+            Objects.requireNonNull(xmlStepExtend, "xmlStepExtend must not be null");
+            this.xmlStepExtend = xmlStepExtend;
+            return this;
+        }
+
         public XMLStepExpressionNode apply() {
             return oldNode.modify(
                     expression,
-                    xmlStepStart);
+                    xmlStepStart,
+                    xmlStepExtend);
         }
     }
 }

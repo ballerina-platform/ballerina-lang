@@ -724,6 +724,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamePatternChainingNode);
     }
 
+    public T transform(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        return transformSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public T transform(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        return transformSyntaxNode(xMLStepMethodCallExtendNode);
+    }
+
     public T transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         return transformSyntaxNode(xMLAtomicNamePatternNode);
     }

@@ -70,6 +70,7 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
         test("a /<b:c> [d>e] [f] .<*>", "xml-navigate-expr/xml_step_expr_assert_14.json");
         test("a /**/<*> .foo(5, a, age = 18, ...subjects) .<b:c> .<d:*>",
                 "xml-navigate-expr/xml_step_expr_assert_15.json");
+        testFile("xml-navigate-expr/xml_step_expr_source_26.bal", "xml-navigate-expr/xml_step_expr_assert_26.json");
     }
 
     // Recovery tests
@@ -111,5 +112,12 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
         test("a .< public * >", "xml-navigate-expr/xml_filter_expr_assert_15.json");
         test("a /< * | public b:c >", "xml-navigate-expr/xml_step_expr_assert_24.json");
         test("a /**/< b public :c >", "xml-navigate-expr/xml_step_expr_assert_25.json");
+    }
+
+    @Test
+    public void testXMLStepExtendRecovery() {
+        testFile("xml-navigate-expr/xml_step_expr_source_27.bal", "xml-navigate-expr/xml_step_expr_assert_27.json");
+        testFile("xml-navigate-expr/xml_step_expr_source_28.bal", "xml-navigate-expr/xml_step_expr_assert_28.json");
+        testFile("xml-navigate-expr/xml_step_expr_source_29.bal", "xml-navigate-expr/xml_step_expr_assert_29.json");
     }
 }

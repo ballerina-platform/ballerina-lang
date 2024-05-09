@@ -820,6 +820,10 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAME_PATTERN_CHAIN;
             case "XML_ATOMIC_NAME_PATTERN":
                 return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
+            case "XML_STEP_INDEXED_EXTEND":
+                return SyntaxKind.XML_STEP_INDEXED_EXTEND;
+            case "XML_STEP_METHOD_CALL_EXTEND":
+                return SyntaxKind.XML_STEP_METHOD_CALL_EXTEND;
             case "REQUIRED_EXPRESSION":
                 return SyntaxKind.REQUIRED_EXPRESSION;
             case "OBJECT_CONSTRUCTOR":
