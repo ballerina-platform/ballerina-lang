@@ -33,27 +33,33 @@ import java.util.Collections;
 public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
     public final STNode expression;
     public final STNode xmlStepStart;
+    public final STNode xmlStepExtend;
 
     STXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart) {
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
         this(
                 expression,
                 xmlStepStart,
+                xmlStepExtend,
                 Collections.emptyList());
     }
 
     STXMLStepExpressionNode(
             STNode expression,
             STNode xmlStepStart,
+            STNode xmlStepExtend,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.XML_STEP_EXPRESSION, diagnostics);
         this.expression = expression;
         this.xmlStepStart = xmlStepStart;
+        this.xmlStepExtend = xmlStepExtend;
 
         addChildren(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     @Override
@@ -61,21 +67,25 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
         return new STXMLStepExpressionNode(
                 this.expression,
                 this.xmlStepStart,
+                this.xmlStepExtend,
                 diagnostics);
     }
 
     public STXMLStepExpressionNode modify(
             STNode expression,
-            STNode xmlStepStart) {
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
         if (checkForReferenceEquality(
                 expression,
-                xmlStepStart)) {
+                xmlStepStart,
+                xmlStepExtend)) {
             return this;
         }
 
         return new STXMLStepExpressionNode(
                 expression,
                 xmlStepStart,
+                xmlStepExtend,
                 diagnostics);
     }
 

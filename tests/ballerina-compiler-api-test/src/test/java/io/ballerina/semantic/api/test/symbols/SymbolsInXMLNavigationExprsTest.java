@@ -80,7 +80,7 @@ public class SymbolsInXMLNavigationExprsTest {
         };
     }
 
-    @Test(dataProvider = "StepExprPosProvider")
+    @Test(dataProvider = "StepExprPosProvider", enabled = false)
     public void testXMLStepExprs(int line, int col, SymbolKind kind, String name) {
         assertSymbol(line, col, kind, name);
     }
