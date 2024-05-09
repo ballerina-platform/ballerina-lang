@@ -372,6 +372,18 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, separator) + className;
     }
 
+    public static String getModuleLevelClassName(PackageID packageID, String prefix, String sourceFileName,
+                                                 String separator) {
+        String className = cleanupSourceFileName(sourceFileName);
+        // handle source file path start with '/'.
+        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+            className = className.substring(1);
+        }
+        className = prefix + className;
+        return getPackageNameWithSeparator(packageID, separator) + className;
+    }
+
+
     private static String cleanupSourceFileName(String name) {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }

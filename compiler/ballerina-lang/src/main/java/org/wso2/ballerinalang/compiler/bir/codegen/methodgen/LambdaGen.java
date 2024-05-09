@@ -30,7 +30,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.RecordDefaultValueDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -107,31 +109,29 @@ public class LambdaGen {
         this.module = module;
     }
 
-    public void generateLambdaClassesForRecords(RecordDefaultValueDataCollector defaultValueDataCollector,
-                                                Map<String, byte[]> jarEntries) {
-        String sourceFileName = module.functions.get(0).pos.lineRange().fileName();
-        Map<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> recordDefaultValuesLambdas =
-                defaultValueDataCollector.getRecordDefaultValuesLambdas();
-        if (recordDefaultValuesLambdas.isEmpty()) {
+    public void generateLambdaClasses(AsyncDataCollector asyncDataCollector,
+                                      Map<String, byte[]> jarEntries) {
+        Map<String, LambdaClass> lambdaClasses = asyncDataCollector.getLambdaClasses();
+        if (lambdaClasses.isEmpty()) {
             return;
         }
-        for (Map.Entry<String, List<RecordDefaultValueDataCollector.RecordDefaultValueLambda>> entry :
-                recordDefaultValuesLambdas.entrySet()) {
-            String lambdaClass = entry.getKey();
+        for (Map.Entry<String, LambdaClass> entry : lambdaClasses.entrySet()) {
+            String lambdaClassName = entry.getKey();
+            LambdaClass lambdaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            cw.visitSource(sourceFileName, null);
-            generateConstantsClassInit(cw, lambdaClass);
-            List<RecordDefaultValueDataCollector.RecordDefaultValueLambda> lambdaList = entry.getValue();
-            for (RecordDefaultValueDataCollector.RecordDefaultValueLambda recordDefaultValueLambda : lambdaList) {
+            cw.visitSource(lambdaClass.sourceFileName, null);
+            generateConstantsClassInit(cw, lambdaClassName);
+            List<LambdaFunction> lambdaList = lambdaClass.lambdaFunctionList;
+            for (LambdaFunction recordDefaultValueLambda : lambdaList) {
                 generateLambdaMethod(recordDefaultValueLambda.callInstruction, cw,
-                        recordDefaultValueLambda.lambdaName, lambdaClass);
+                        recordDefaultValueLambda.lambdaName, lambdaClassName);
             }
             cw.visitEnd();
-            jarEntries.put(lambdaClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+            jarEntries.put(lambdaClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
         }
     }
 
-    public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {
+    private void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {
         LambdaDetails lambdaDetails = getLambdaDetails(ins);
         boolean isSamePkg = JvmCodeGenUtil.isSameModule(module.packageID, lambdaDetails.packageID);
         MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins, isSamePkg);
@@ -227,7 +227,6 @@ public class LambdaGen {
         mv.visitInsn(AALOAD);
         mv.visitInsn(AASTORE);
     }
-
 
     private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
                                        boolean isSamePkg) {

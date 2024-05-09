@@ -1839,7 +1839,7 @@ public class JvmInstructionGen {
         String lambdaName = functions.get(funcKey);
         if (lambdaName == null) {
             lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
-                    asyncDataCollector.getLambdaIndex(inst.funcName.value) + "$";
+                    asyncDataCollector.getLambdaIndex() + "$";
             functions.put(funcKey, lambdaName);
         }
 
