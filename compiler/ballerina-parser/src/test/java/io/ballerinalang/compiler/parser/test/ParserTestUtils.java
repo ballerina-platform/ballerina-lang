@@ -632,6 +632,8 @@ public final class ParserTestUtils {
             case "XML_STEP_EXPRESSION" -> SyntaxKind.XML_STEP_EXPRESSION;
             case "XML_NAME_PATTERN_CHAIN" -> SyntaxKind.XML_NAME_PATTERN_CHAIN;
             case "XML_ATOMIC_NAME_PATTERN" -> SyntaxKind.XML_ATOMIC_NAME_PATTERN;
+            case "XML_STEP_INDEXED_EXTEND" -> SyntaxKind.XML_STEP_INDEXED_EXTEND;
+            case "XML_STEP_METHOD_CALL_EXTEND" -> SyntaxKind.XML_STEP_METHOD_CALL_EXTEND;
             case "REQUIRED_EXPRESSION" -> SyntaxKind.REQUIRED_EXPRESSION;
             case "OBJECT_CONSTRUCTOR" -> SyntaxKind.OBJECT_CONSTRUCTOR;
             case "ERROR_CONSTRUCTOR" -> SyntaxKind.ERROR_CONSTRUCTOR;

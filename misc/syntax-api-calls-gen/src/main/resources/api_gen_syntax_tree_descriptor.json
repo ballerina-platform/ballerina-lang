@@ -3774,6 +3774,11 @@
         {
           "name": "xmlStepStart",
           "type": "Node"
+        },
+        {
+          "name": "xmlStepExtend",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
         }
       ]
     },
@@ -3796,6 +3801,40 @@
           "type": "Token"
         }
       ]
+    },
+    {
+      "name": "XMLStepIndexedExtendNode",
+      "base": "Node",
+      "kind": "XML_STEP_INDEXED_EXTEND",
+      "attributes": [
+          {
+              "name": "openBracket",
+              "type": "Token"
+          },
+          {
+              "name": "expression",
+              "type": "Node"
+          },
+          {
+              "name": "closeBracket",
+              "type": "Token"
+          }
+      ]
+    },
+    {
+        "name": "XMLStepMethodCallExtendNode",
+        "base": "Node",
+        "kind": "XML_STEP_METHOD_CALL_EXTEND",
+        "attributes": [
+            {
+                "name": "dotToken",
+                "type": "Token"
+            },
+            {
+                "name": "functionCallExpression",
+                "type": "FunctionCallExpressionNode"
+            }
+        ]
     },
     {
       "name": "XMLAtomicNamePatternNode",
