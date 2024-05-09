@@ -4,10 +4,11 @@ Compiling source
 Running Tests with Coverage
 
 	validate_escaped_identifiers
+		[pass] test
 		[pass] test_add
 
 
-		1 passing
+		2 passing
 		0 failing
 		0 skipped
 

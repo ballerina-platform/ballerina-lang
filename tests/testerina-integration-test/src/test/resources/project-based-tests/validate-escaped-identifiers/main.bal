@@ -16,6 +16,25 @@
 
 public int int\-a = 10;
 
+client class Client {
+    resource function get users\-all(string 'order = "asc") returns json {
+        return {
+            "users": [
+                {
+                    "name": "Mitchell",
+                    "age": 30
+                },
+                {
+                    "name": "Andrew",
+                    "age": 35
+                }
+            ]
+        };
+    }
+}
+
+final Client clientEP = new;
+
 function add(int a, int b) returns int {
     return a + b;
 }

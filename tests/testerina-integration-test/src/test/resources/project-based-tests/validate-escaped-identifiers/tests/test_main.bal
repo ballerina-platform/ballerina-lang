@@ -20,3 +20,9 @@ import ballerina/test;
 function test_add() {
     test:assertEquals(add(1, int\-a), 11);
 }
+
+@test:Config {}
+function test() {
+    json res = clientEP->/users\-all();
+    test:assertEquals(res, {"users":[{"name":"Mitchell","age":30},{"name":"Andrew","age":35}]});
+}

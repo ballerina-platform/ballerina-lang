@@ -4,14 +4,15 @@ Compiling source
 Running Tests with Coverage
 
 	validate_escaped_identifiers
+		[pass] test
 		[pass] test_add
 
 
-		1 passing
+		2 passing
 		0 failing
 		0 skipped
 
 		Test execution time :*****s
 
 Generating Test Report
-	validate-escaped-identifiers/target/report/test_results.json
+	validate-escaped-identifiers\target\report\test_results.json
