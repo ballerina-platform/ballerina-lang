@@ -689,6 +689,7 @@ public class CentralAPIClient {
                 Optional<String> latestVersion = Optional.empty();
                 Optional<String> balaUrl = Optional.empty();
                 Optional<String> platform = Optional.empty();
+                String digest = "";
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -699,6 +700,7 @@ public class CentralAPIClient {
                         balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
                         platform = Optional.of(jsonContent.get(PLATFORM).getAsString())
                                 .or(() -> Optional.of(ANY_PLATFORM));
+                        digest = Optional.ofNullable(jsonContent.get(DIGEST).getAsString()).orElse("");
                     }
                 }
 
@@ -724,7 +726,7 @@ public class CentralAPIClient {
                         try {
                             createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
                                     isNightlyBuild, null, balaUrl.get(), balaFileName,
-                                    enableOutputStream ? outStream : null, logFormatter, "");
+                                    enableOutputStream ? outStream : null, logFormatter, digest);
                             return new String[] { String.valueOf(true), org.get(), pkgName.get(), latestVersion.get() };
                         } catch (PackageAlreadyExistsException ignore) {
                             // package already exists. setting org, name and version fields is enough
