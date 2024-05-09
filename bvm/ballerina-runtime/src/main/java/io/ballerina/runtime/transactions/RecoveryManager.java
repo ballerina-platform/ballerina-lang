@@ -72,9 +72,8 @@ public class RecoveryManager {
     }
 
     /**
-     * Add a xa resource to the list of resources to recover. XAResources should be added from the relevant library side
-     * during their initialization. Resources should be defined outside transaction-block for recovery to work
-     * properly.
+     * Add a xa resource to the list of resources to recover. Recoverable XAResources should be added from the relevant library side
+     * during their initialization.
      *
      * @param xaResource the resource to be recovered
      */
@@ -157,7 +156,8 @@ public class RecoveryManager {
     private boolean recoverFailedTrxInAllResources(Xid xid, RecoveryState state) {
         boolean allResourcesRecovered = true;
         for (XAResource xaResource : xaResources) {
-            allResourcesRecovered = allResourcesRecovered && recoverFailedTrxInXAResource(xaResource, xid, state);
+            boolean recoveredResource = recoverFailedTrxInXAResource(xaResource, xid, state);
+            allResourcesRecovered = recoveredResource && allResourcesRecovered;
         }
         return allResourcesRecovered;
     }
