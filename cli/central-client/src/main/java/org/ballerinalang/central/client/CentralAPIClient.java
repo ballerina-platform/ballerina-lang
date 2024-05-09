@@ -524,9 +524,12 @@ public class CentralAPIClient {
                 break;
             } catch (CentralClientException centralClientException) {
                 if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
-                    outStream.println("* Retrying to pull the package: " + org + "/" + name + ":" + version +
-                            " due to: " + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
-                    outStream.println();
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the package: " + org + "/" + name + ":" + version +
+                                " due to: " + centralClientException.getMessage() + ". Retry attempt: "
+                                + (retryCount + 1));
+                        outStream.println();
+                    }
                     retryCount++;
                     continue;
                 }
@@ -698,9 +701,11 @@ public class CentralAPIClient {
                 break;
             } catch (CentralClientException centralClientException) {
                 if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
-                    outStream.println("* Retrying to pull the tool: " + toolId + ":" + version + " due to: "
-                            + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
-                    outStream.println();
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the tool: " + toolId + ":" + version + " due to: "
+                                + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
+                        outStream.println();
+                    }
                     retryCount++;
                     continue;
                 }
