@@ -21,11 +21,13 @@ package io.ballerina.runtime.api.types.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBasicTypeBitSet;
+import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,10 @@ public final class Builder {
         return from(BasicTypeCode.BT_NIL);
     }
 
+    public static SemType decimalType() {
+        return from(BasicTypeCode.BT_DECIMAL);
+    }
+
     public static SemType basicTypeUnion(int bitset) {
         return BBasicTypeBitSet.from(bitset);
     }
@@ -71,6 +77,11 @@ public final class Builder {
         List<Long> values = new ArrayList<>(1);
         values.add(value);
         return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(values));
+    }
+
+    public static SemType decimalConst(BigDecimal value) {
+        BigDecimal[] values = {value};
+        return basicSubType(BasicTypeCode.BT_DECIMAL, BDecimalSubType.createDecimalSubType(true, values));
     }
 
     public static SemType floatConst(double value) {
