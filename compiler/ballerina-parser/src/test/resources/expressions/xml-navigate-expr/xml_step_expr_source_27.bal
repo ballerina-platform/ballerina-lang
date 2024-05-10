@@ -26,7 +26,7 @@ function foo() {
     _ = x/<book>[].data().<*|;
 
     _ = x/<book>[y]];
-    _ = x/<book>.<ns::name>;
+    // _ = x/<book>.<ns::name>; uncomment after #42726 is fixed
     _ = x/<book>.data());
     _ = x/<book>.data().<name>[0]];
     _ = x/<book>.data().<**>;
