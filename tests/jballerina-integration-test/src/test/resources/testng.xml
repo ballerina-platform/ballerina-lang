@@ -157,4 +157,10 @@
             <class name="org.ballerinalang.test.runtime.api.RuntimeAPITest"/>
         </classes>
     </test>
+    <test name="ballerina-codegen-optimization-tests">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.codegen.optimizer.NativeDependencyOptimizationTests"/>
+        </classes>
+    </test>
 </suite>
