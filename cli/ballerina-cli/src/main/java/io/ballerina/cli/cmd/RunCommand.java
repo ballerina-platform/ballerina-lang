@@ -249,9 +249,9 @@ public class RunCommand implements BLauncherCmd {
                 target.setOutputPath(target.getBinPath());
             }
         } catch (IOException e) {
-            throw createLauncherException("unable to resolve target path:" + e.getMessage());
+            throw createLauncherException("unable to resolve the target path:" + e.getMessage());
         } catch (ProjectException e) {
-            throw createLauncherException("unable to create executable:" + e.getMessage());
+            throw createLauncherException("unable to create the executable:" + e.getMessage());
         }
 
         // Check package files are modified after last build

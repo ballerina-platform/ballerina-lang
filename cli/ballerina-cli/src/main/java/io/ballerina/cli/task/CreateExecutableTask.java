@@ -126,7 +126,7 @@ public class CreateExecutableTask implements Task {
             }
 
             // Print diagnostics found during emit executable
-            if (!emitResult.diagnostics().diagnostics().isEmpty()) {
+            if (!emitResult.diagnostics().diagnostics().isEmpty() && !isHideTaskOutput) {
                 emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
 
