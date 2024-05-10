@@ -42,8 +42,10 @@ public final class BTypeConverter {
     private BTypeConverter() {
     }
 
-    private static final SemType READONLY_SEMTYPE_PART = Core.union(Builder.nilType(), Builder.decimalType());
-    private static final SemType ANY_SEMTYPE_PART = Core.union(Builder.nilType(), Builder.decimalType());
+    private static final SemType READONLY_SEMTYPE_PART =
+            Core.union(Builder.floatType(), Core.union(Builder.nilType(), Builder.decimalType()));
+    private static final SemType ANY_SEMTYPE_PART =
+            Core.union(Builder.floatType(), Core.union(Builder.nilType(), Builder.decimalType()));
 
     private static SemType from(Type type) {
         if (type instanceof SemType semType) {
@@ -101,6 +103,9 @@ public final class BTypeConverter {
 
     static SemType fromFiniteType(BFiniteType finiteType) {
         BTypeParts parts = splitFiniteType(finiteType);
+        if (parts.bTypeParts().isEmpty()) {
+            return parts.semTypePart();
+        }
         BType newFiniteType = (BType) parts.bTypeParts().get(0);
         SemType bTypePart = wrapAsPureBType(newFiniteType);
         return Core.union(parts.semTypePart(), bTypePart);
@@ -149,9 +154,14 @@ public final class BTypeConverter {
                 semTypePart = Core.union(semTypePart, Builder.nilType());
             } else if (each instanceof DecimalValue decimalValue) {
                 semTypePart = Core.union(semTypePart, Builder.decimalConst(decimalValue.value()));
+            } else if (each instanceof Double doubleValue) {
+                semTypePart = Core.union(semTypePart, Builder.floatConst(doubleValue));
             } else {
                 newValueSpace.add(each);
             }
+        }
+        if (newValueSpace.isEmpty()) {
+            return new BTypeParts(semTypePart, List.of());
         }
         BFiniteType newFiniteType = finiteType.cloneWithValueSpace(newValueSpace);
         return new BTypeParts(semTypePart, List.of(newFiniteType));
@@ -176,7 +186,7 @@ public final class BTypeConverter {
 
     private static boolean isSemType(Type type) {
         return switch (type.getTag()) {
-            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG -> true;
+            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG -> true;
             default -> false;
         };
     }

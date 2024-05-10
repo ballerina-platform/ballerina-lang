@@ -65,6 +65,10 @@ public final class Builder {
         return from(BasicTypeCode.BT_DECIMAL);
     }
 
+    public static SemType floatType() {
+        return from(BasicTypeCode.BT_FLOAT);
+    }
+
     public static SemType basicTypeUnion(int bitset) {
         return BBasicTypeBitSet.from(bitset);
     }
