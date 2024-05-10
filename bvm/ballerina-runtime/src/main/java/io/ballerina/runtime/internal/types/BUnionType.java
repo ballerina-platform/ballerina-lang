@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
+import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -135,27 +136,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.readonly = readonly;
     }
 
-    BUnionType cloneWithMembers(List<Type> newMembers) {
-        BUnionType newUnionType = new BUnionType(memberTypes, this.typeFlags, this.readonly, this.isCyclic);
-        newUnionType.isCyclic = isCyclic;
-        newUnionType.memberTypes = newMembers;
-        newUnionType.originalMemberTypes = newMembers;
-        newUnionType.nullable = nullable;
-        newUnionType.flags = flags;
-        newUnionType.typeFlags = typeFlags;
-        newUnionType.readonly = readonly;
-        newUnionType.immutableType = immutableType;
-        newUnionType.intersectionType = intersectionType;
-        newUnionType.cachedToString = cachedToString;
-        newUnionType.resolving = resolving;
-        newUnionType.resolvingReadonly = resolvingReadonly;
-
-        newUnionType.typeName = typeName;
-        newUnionType.pkg = pkg;
-
-        return newUnionType;
-    }
-
     /**
      * Constructor used when defining union type defs where cyclic reference is possible.
      *
@@ -188,6 +168,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         }
         this.memberTypes = readonly ? getReadOnlyTypes(members) : Arrays.asList(members);
         setFlagsBasedOnMembers();
+        resetSemTypeCache();
     }
 
     public void setOriginalMemberTypes(Type[] originalMemberTypes) {
@@ -563,5 +544,10 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    SemType createSemType() {
+        return BTypeConverter.fromUnionType(this);
     }
 }

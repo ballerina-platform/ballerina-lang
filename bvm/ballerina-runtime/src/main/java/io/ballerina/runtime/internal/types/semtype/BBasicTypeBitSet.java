@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SemType.SemTypeHelper;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.HashMap;
@@ -125,5 +126,10 @@ public final class BBasicTypeBitSet implements BasicTypeBitSet {
     @Override
     public int all() {
         return all;
+    }
+
+    @Override
+    public String toString() {
+        return SemTypeHelper.stringRepr(this);
     }
 }

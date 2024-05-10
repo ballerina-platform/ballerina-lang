@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -48,7 +47,7 @@ public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
-    private SemType cachedSemType = null;
+    SemType cachedSemType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -218,10 +217,18 @@ public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
         return this.cachedImpliedType;
     }
 
+    void resetSemTypeCache() {
+        cachedSemType = null;
+    }
+
+    SemType createSemType() {
+        return BTypeConverter.wrapAsPureBType(this);
+    }
+
     @Override
     public SemType get() {
         if (cachedSemType == null) {
-            cachedSemType = Builder.from(this);
+            cachedSemType = createSemType();
         }
         return cachedSemType;
     }
