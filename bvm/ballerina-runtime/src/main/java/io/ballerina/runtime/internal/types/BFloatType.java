@@ -20,6 +20,10 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
+
+import java.util.List;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -28,7 +32,7 @@ import io.ballerina.runtime.api.types.FloatType;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BType implements FloatType {
+public class BFloatType extends BType implements FloatType, SemType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
@@ -57,5 +61,20 @@ public class BFloatType extends BType implements FloatType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public int all() {
+        return get().all();
+    }
+
+    @Override
+    public int some() {
+        return get().some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return get().subTypeData();
     }
 }
