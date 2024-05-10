@@ -110,11 +110,11 @@ function executeAfterSuiteFunctions() {
 
 function orderTests() returns error? {
     string[] descendants = [];
-    from TestFunction testFunction in testRegistry.getDependentFunctions()
-    where !executionManager.isVisited(testFunction.name) && executionManager.isEnabled(testFunction.name)
-    do {
-        check restructureTest(testFunction, descendants);
-    };
+    foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
+        if (!executionManager.isVisited(testFunction.name) && executionManager.isEnabled(testFunction.name)) {
+            check restructureTest(testFunction, descendants);
+        }
+    }
 }
 
 function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
