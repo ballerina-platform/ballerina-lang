@@ -52,9 +52,13 @@ public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
+    private Target target;
+    private final boolean isHideTaskOutput;
 
-    public CreateExecutableTask(PrintStream out, String output) {
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
         this.out = out;
+        this.target = target;
+        this.isHideTaskOutput = isHideTaskOutput;
         if (output != null) {
             this.output = Paths.get(output);
         }
@@ -62,17 +66,18 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
-
-        if (!project.buildOptions().nativeImage()) {
-            this.out.println("Generating executable");
+        if (!isHideTaskOutput) {
+            this.out.println();
+            if (!project.buildOptions().nativeImage()) {
+                this.out.println("Generating executable");
+            }
         }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
-        Target target = getTarget(project);
-
+        if (target == null) {
+            target = getTarget(project);
+        }
         Path executablePath = getExecutablePath(project, target);
-
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
@@ -106,7 +111,7 @@ public class CreateExecutableTask implements Task {
             }
 
             // Print diagnostics found during emit executable
-            if (!emitResult.diagnostics().diagnostics().isEmpty()) {
+            if (!emitResult.diagnostics().diagnostics().isEmpty() && !isHideTaskOutput) {
                 emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
 
@@ -114,7 +119,7 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage()) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {

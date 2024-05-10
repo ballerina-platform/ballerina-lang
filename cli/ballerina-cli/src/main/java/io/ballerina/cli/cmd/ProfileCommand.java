@@ -203,7 +203,7 @@ public class ProfileCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, false, isPackageModified,
                         buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, null), false)
+                .addTask(new CreateExecutableTask(outStream, null, null, false), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
                 .addTask(new RunProfilerTask(errStream), false).build();
     }
