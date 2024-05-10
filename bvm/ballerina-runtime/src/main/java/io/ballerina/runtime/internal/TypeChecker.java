@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BFiniteType;
+import io.ballerina.runtime.internal.types.BFloatType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -344,8 +345,8 @@ public class TypeChecker {
         } else if (value instanceof Number) {
             if (value instanceof Long) {
                 return TYPE_INT;
-            } else if (value instanceof Double) {
-                return TYPE_FLOAT;
+            } else if (value instanceof Double doubleValue) {
+                return BFloatType.singletonType(doubleValue);
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
