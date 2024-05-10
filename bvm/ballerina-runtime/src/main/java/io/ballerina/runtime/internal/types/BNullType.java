@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
+import io.ballerina.runtime.api.types.SemType.Builder;
+import io.ballerina.runtime.api.types.SemType.SemType;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -59,5 +61,10 @@ public class BNullType extends BType implements NullType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    SemType createSemType() {
+        return Builder.nilType();
     }
 }
