@@ -27,6 +27,7 @@ import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -133,6 +134,8 @@ public class CentralAPIClient {
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
     private static final int DEFAULT_CALL_TIMEOUT = 0;
+    private static final int MAX_RETRY = 1;
+    public static final String CONNECTION_RESET = "Connection reset";
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -145,6 +148,7 @@ public class CentralAPIClient {
     private final int readTimeout;
     private final int writeTimeout;
     private final int callTimeout;
+    private final int maxRetries;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -158,11 +162,28 @@ public class CentralAPIClient {
         this.readTimeout = DEFAULT_READ_TIMEOUT;
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
+        this.maxRetries = MAX_RETRY;
+    }
+
+    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
+                            PrintStream outStream) {
+        this.outStream = outStream;
+        this.baseUrl = baseUrl;
+        this.proxy = proxy;
+        this.accessToken = accessToken;
+        this.verboseEnabled = verboseEnabled;
+        this.proxyUsername = "";
+        this.proxyPassword = "";
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
+        this.maxRetries = maxRetries;
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
                             String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
-                            int callTimeout) {
+                            int callTimeout, int maxRetries) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -174,6 +195,7 @@ public class CentralAPIClient {
         this.readTimeout = readTimeout;
         this.writeTimeout = writeTimeout;
         this.callTimeout = callTimeout;
+        this.maxRetries = maxRetries;
     }
 
     /**
@@ -187,7 +209,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                              String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + "/" + packageNamePath + ":" + version;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -228,7 +250,7 @@ public class CentralAPIClient {
                             throw new NoPackageException(error.getMessage());
                         } else {
                             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: "
-                                                                     + error.getMessage());
+                                    + error.getMessage());
                         }
                     }
 
@@ -239,8 +261,8 @@ public class CentralAPIClient {
 
                     // If request sent is wrong or error occurred at remote repository
                     if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
-                        getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
-                        getPackageResponse.code() == HTTP_UNAVAILABLE) {
+                            getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
+                            getPackageResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(responseBodyContent, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -252,10 +274,10 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature);
         } catch (SocketTimeoutException e) {
             throw new ConnectionErrorException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                                                       e.getMessage());
+                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                                                     e.getMessage());
+                    e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -276,7 +298,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                                           String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + "/" + packageNamePath;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -320,17 +342,17 @@ public class CentralAPIClient {
                             return new ArrayList<>();
                         } else {
                             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
-                                                             ". reason: " + error.getMessage());
+                                    ". reason: " + error.getMessage());
                         }
                     }
 
                     // If request sent is wrong or error occurred at remote repository
                     if (getVersionsResponse.code() == HTTP_BAD_REQUEST ||
-                        getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
-                        getVersionsResponse.code() == HTTP_UNAVAILABLE) {
+                            getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
+                            getVersionsResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(responseBodyContent, Error.class);
                         throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
-                                                         ". reason: " + error.getMessage());
+                                ". reason: " + error.getMessage());
                     }
                 }
             }
@@ -338,10 +360,10 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ".");
         } catch (SocketTimeoutException | UnknownHostException e) {
             throw new ConnectionErrorException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                                                       e.getMessage());
+                    e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                                                     e.getMessage());
+                    e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -429,7 +451,7 @@ public class CentralAPIClient {
                             // be removed with https://github.com/wso2-enterprise/ballerina-registry/issues/745
                             if (error.getMessage().contains("subject claims missing in the user info repsonse")) {
                                 error.setMessage("unauthorized access token for organization: '" + org + "'. check " +
-                                                 "access token set in 'Settings.toml' file.");
+                                        "access token set in 'Settings.toml' file.");
                             }
                             throw new CentralClientException(error.getMessage());
                         }
@@ -437,11 +459,11 @@ public class CentralAPIClient {
 
                     // When error occurred at remote repository
                     if (packagePushResponse.code() == HTTP_INTERNAL_ERROR ||
-                        packagePushResponse.code() == HTTP_UNAVAILABLE) {
+                            packagePushResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(responseBodyContent, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature +
-                                                             "' reason:" + error.getMessage());
+                                    "' reason:" + error.getMessage());
                         }
                     }
                 }
@@ -451,7 +473,7 @@ public class CentralAPIClient {
                     url + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
-                                             url + "'. reason: " + e.getMessage());
+                    url + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -475,6 +497,31 @@ public class CentralAPIClient {
      * @throws CentralClientException   Central Client exception.
      */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+        int retryCount = 0;
+        while (retryCount <= this.maxRetries) {
+            try {
+                pullPackageInternal(org, name, version, packagePathInBalaCache, supportedPlatform, ballerinaVersion,
+                        isBuild);
+                break;
+            } catch (CentralClientException centralClientException) {
+                if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the package: " + org + "/" + name + ":" + version +
+                                " due to: " + centralClientException.getMessage() + ". Retry attempt: "
+                                + (retryCount + 1));
+                        outStream.println();
+                    }
+                    retryCount++;
+                    continue;
+                }
+                throw centralClientException;
+            }
+        }
+    }
+
+    private void pullPackageInternal(String org, String name, String version, Path packagePathInBalaCache,
                             String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         String resourceUrl = "/" + PACKAGES + "/" + org + "/" + name;
@@ -573,7 +620,7 @@ public class CentralAPIClient {
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If request sent is invalid or when package is not found
                     if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
-                        packagePullResponse.code() == HTTP_NOT_FOUND) {
+                            packagePullResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException("error: " + error.getMessage());
@@ -582,14 +629,14 @@ public class CentralAPIClient {
 
                     //  When error occurred at remote repository
                     if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
-                        packagePullResponse.code() == HTTP_UNAVAILABLE) {
+                            packagePullResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
                                     logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
-                                                           "' from" +
-                                                           " the remote repository '" + url +
-                                                           "'. reason: " + error.getMessage());
+                                            "' from" +
+                                            " the remote repository '" + url +
+                                            "'. reason: " + error.getMessage());
                             throw new CentralClientException(errorMsg);
                         }
                     }
@@ -624,7 +671,32 @@ public class CentralAPIClient {
      * @throws CentralClientException   Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
-                         String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                             String ballerinaVersion, boolean isBuild) throws CentralClientException {
+        int retryCount = 0;
+        String[] result = new String[0];
+        while (retryCount <= this.maxRetries) {
+            try {
+                result = pullToolInternal(toolId, version, balaCacheDirPath, supportedPlatform, ballerinaVersion,
+                        isBuild);
+                break;
+            } catch (CentralClientException centralClientException) {
+                if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the tool: " + toolId + ":" + version + " due to: "
+                                + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
+                        outStream.println();
+                    }
+                    retryCount++;
+                    continue;
+                }
+                throw centralClientException;
+            }
+        }
+        return result;
+    }
+
+    private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
+                             String ballerinaVersion, boolean isBuild) throws CentralClientException {
         String resourceUrl = "/" + TOOLS + "/" + toolId;
         boolean enableOutputStream =
                 Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
@@ -973,7 +1045,7 @@ public class CentralAPIClient {
 
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
-                        searchResponse.code() == HTTP_UNAVAILABLE) {
+                            searchResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
@@ -1429,6 +1501,7 @@ public class CentralAPIClient {
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
+                .addInterceptor(new CustomRetryInterceptor(this.maxRetries))
                 .build();
 
         if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
@@ -1706,7 +1779,7 @@ public class CentralAPIClient {
             throws IOException, CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
-                    "check access token set in 'Settings.toml' file.");
+                "check access token set in 'Settings.toml' file.");
         if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
             Error error = new Gson().fromJson(responseBody, Error.class);
             message.append("reason: ").append(error.getMessage());
@@ -1753,5 +1826,53 @@ public class CentralAPIClient {
             }
             this.outStream.println(">");
         }
+    }
+
+     class CustomRetryInterceptor implements Interceptor {
+        private final int maxRetries;
+        CustomRetryInterceptor(int maxRetry) {
+            this.maxRetries = maxRetry;
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            int retryCount = 0;
+            Request request = chain.request();
+            Response response = null;
+            while (retryCount <= maxRetries) {
+                response = chain.proceed(request);
+                if (response.code() < 500 || retryCount == maxRetries) {
+                    return response;
+                }
+                retryCount++;
+                Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                String responseBodyString = null;
+                if (body.isPresent()) {
+                    responseBodyString = body.get().string();
+                }
+                logRetryVerbose(response, responseBodyString, request, retryCount);
+                response.close();
+            }
+            return response;
+        }
+
+         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
+             if (verboseEnabled) {
+                 Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                 outStream.println("< HTTP " + response.code() + " " + response.message());
+                 if (body.isPresent()) {
+                     for (String headerName : response.headers().names()) {
+                         outStream.println("> " + headerName + ": " + response.header(headerName));
+                     }
+                     outStream.println("< ");
+                     if (bodyContent != null && !bodyContent.isEmpty()) {
+                         outStream.println(bodyContent);
+                     }
+                     outStream.println("* Connection to host " + baseUrl + " left intact \n");
+                 }
+                 outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
+                         " response code. Retry attempt: " + retryCount);
+             }
+         }
     }
 }
