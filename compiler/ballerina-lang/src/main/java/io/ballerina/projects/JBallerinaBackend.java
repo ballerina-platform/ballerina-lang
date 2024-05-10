@@ -967,7 +967,7 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
-    // TODO Optimize the condition to lookup the byte byteArrayOutputStream
+    // TODO Optimize the condition to lookup the byteArrayOutputStream
     private JarInputStream getOptimizedJarInputStream(String jarPath) {
         AtomicReference<JarInputStream> jarInputStream = new AtomicReference<>();
         optimizedJarStreams.forEach((key, value) -> {
