@@ -169,6 +169,16 @@ public class XMLToRecordConverterTests {
     private final Path sample25Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_25.bal");
 
+    private final Path sample26XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_26.xml");
+    private final Path sample26Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_26.bal");
+
+    private final Path sample27XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_27.xml");
+    private final Path sample27Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_27.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -421,6 +431,24 @@ public class XMLToRecordConverterTests {
         XMLToRecordResponse response = (XMLToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample25Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleAttributes")
+    public void testXMLWithMultipleAttributes() throws IOException {
+        String xmlFileContent = Files.readString(sample26XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample26Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespaceAnnotations")
+    public void testXMLWithoutNamespaceAnnotations() throws IOException {
+        String xmlFileContent = Files.readString(sample27XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample27Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }

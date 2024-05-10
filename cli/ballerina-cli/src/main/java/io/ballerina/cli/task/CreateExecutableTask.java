@@ -73,26 +73,11 @@ public class CreateExecutableTask implements Task {
                 this.out.println("Generating executable");
             }
         }
-        this.currentDir = Paths.get(System.getProperty(USER_DIR));
-        try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT) && target == null) {
-                target = new Target(project.targetDir());
-            } else if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && target == null) {
-                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
-                target.setOutputPath(getExecutablePath(project));
-            }
-        } catch (IOException e) {
-            throw createLauncherException("unable to resolve target path:" + e.getMessage());
-        } catch (ProjectException e) {
-            throw createLauncherException("unable to create executable:" + e.getMessage());
-        }
 
-        Path executablePath;
-        try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
+        this.currentDir = Paths.get(System.getProperty(USER_DIR));
+        target = getTarget(project);
+
+        Path executablePath = getExecutablePath(project, target);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
@@ -151,13 +136,30 @@ public class CreateExecutableTask implements Task {
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
-        notifyPlugins(project, target);
+        BuildUtils.notifyPlugins(project, target);
     }
 
-    private void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
+    private Target getTarget(Project project) {
+        Target target;
+        try {
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+                target = new Target(project.targetDir());
+            } else {
+                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
+                target.setOutputPath(getExecutablePath(project));
+            }
+        } catch (IOException e) {
+            throw createLauncherException("unable to resolve target path:" + e.getMessage());
+        } catch (ProjectException e) {
+            throw createLauncherException("unable to create executable:" + e.getMessage());
+        }
+        return target;
+    }
+    private Path getExecutablePath(Project project, Target target) {
+        try {
+            return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw createLauncherException(e.getMessage());
         }
     }
 

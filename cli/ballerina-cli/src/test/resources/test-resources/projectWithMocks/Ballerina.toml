@@ -1,0 +1,4 @@
+[package]
+org = "foo"
+name = "projectWithMocks"
+version = "0.1.0"
