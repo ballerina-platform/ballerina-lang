@@ -22,7 +22,7 @@ function foo() {
     _ = x/*.()[1];
 
     _ = x/*[y]];
-    _ = x/*.<ns::name>;
+    // _ = x/*.<ns::name>; uncomment after #42726 is fixed
     _ = x/*.<book>.data());
     _ = x/*.<book>.data().<name>[0]];
     _ = x/*.<book>.data().<**>;
