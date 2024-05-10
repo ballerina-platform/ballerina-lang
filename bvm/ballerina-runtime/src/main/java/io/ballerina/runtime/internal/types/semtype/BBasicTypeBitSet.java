@@ -21,18 +21,17 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SemType.BasicTypeCode;
 import io.ballerina.runtime.api.types.SemType.SemTypeHelper;
 import io.ballerina.runtime.api.types.Type;
 
-import java.util.HashMap;
-import java.util.Map;
+import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_B_TYPE;
+import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_NIL;
 
 public final class BBasicTypeBitSet implements BasicTypeBitSet {
 
     private final int all;
     private final BTypeAdapter adapter;
-
-    private final static Map<Integer, BBasicTypeBitSet> cache = new HashMap<>();
 
     private BBasicTypeBitSet(int all) {
         this.all = all;
@@ -40,7 +39,11 @@ public final class BBasicTypeBitSet implements BasicTypeBitSet {
     }
 
     public static BasicTypeBitSet from(int all) {
-        return cache.computeIfAbsent(all, BBasicTypeBitSet::new);
+        int index = BBasicTypeBitSetCache.cacheIndex(all);
+        if (index != BBasicTypeBitSetCache.NotFound) {
+            return BBasicTypeBitSetCache.cache[index];
+        }
+        return new BBasicTypeBitSet(all);
     }
 
     @Override
@@ -131,5 +134,28 @@ public final class BBasicTypeBitSet implements BasicTypeBitSet {
     @Override
     public String toString() {
         return SemTypeHelper.stringRepr(this);
+    }
+
+    // TODO: see if we can use Application CDS to make this even faster
+    private final static class BBasicTypeBitSetCache {
+
+        private static final BBasicTypeBitSet[] cache;
+        private static final int NotFound = -1;
+        static {
+            cache = new BBasicTypeBitSet[BasicTypeCode.CODE_B_TYPE + 2];
+            for (int i = CODE_NIL; i < CODE_B_TYPE + 1; i++) {
+                cache[i] = new BBasicTypeBitSet(1 << i);
+            }
+        }
+
+        private static int cacheIndex(int all) {
+            // TODO: check this is getting unrolled, otherwise use a switch
+            for (int i = CODE_NIL; i < CODE_B_TYPE + 1; i++) {
+                if (all == (1 << i)) {
+                    return i;
+                }
+            }
+            return NotFound;
+        }
     }
 }
