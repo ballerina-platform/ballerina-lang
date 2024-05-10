@@ -19,11 +19,15 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.SemType.SubType;
 
 import java.util.List;
+
+import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -39,8 +43,15 @@ public class BFloatType extends BType implements FloatType, SemType {
      *
      * @param typeName string name of the type
      */
+    private final SemType semType;
+
     public BFloatType(String typeName, Module pkg) {
+        this(typeName, pkg, Builder.floatType());
+    }
+
+    private BFloatType(String typeName, Module pkg, SemType semType) {
         super(typeName, pkg, Double.class);
+        this.semType = semType;
     }
 
     @Override
@@ -56,6 +67,10 @@ public class BFloatType extends BType implements FloatType, SemType {
     @Override
     public int getTag() {
         return TypeTags.FLOAT_TAG;
+    }
+
+    public static BFloatType singletonType(Double value) {
+        return new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.floatConst(value));
     }
 
     @Override
@@ -76,5 +91,10 @@ public class BFloatType extends BType implements FloatType, SemType {
     @Override
     public List<SubType> subTypeData() {
         return get().subTypeData();
+    }
+
+    @Override
+    SemType createSemType() {
+        return semType;
     }
 }
