@@ -70,6 +70,7 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
 
     public void setFields(Map<String, Field> fields) {
         this.fields = fields;
+        resetSemTypeCache();
     }
 
     public long getFlags() {

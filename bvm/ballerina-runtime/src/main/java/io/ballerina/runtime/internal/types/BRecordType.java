@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -218,4 +219,8 @@ public class BRecordType extends BStructureType implements RecordType {
         return defaultValues;
     }
 
+    @Override
+    SemType createSemType() {
+        return BTypeConverter.fromRecordType(this);
+    }
 }
