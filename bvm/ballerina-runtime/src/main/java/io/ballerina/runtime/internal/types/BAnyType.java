@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -99,5 +100,10 @@ public class BAnyType extends BType implements AnyType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    SemType createSemType() {
+        return BTypeConverter.fromAnyType(this);
     }
 }

@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -298,5 +299,10 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     @Override
     public String getAnnotationKey() {
         return Utils.decodeIdentifier(this.typeName);
+    }
+
+    @Override
+    SemType createSemType() {
+        return BTypeConverter.fromTupleType(this);
     }
 }
