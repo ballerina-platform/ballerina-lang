@@ -18,8 +18,10 @@
 
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SemType.BasicTypeCode;
 import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.Core;
@@ -28,7 +30,10 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // NOTE: this is so that we don't have to expose any utility constructors as public to builder
 public final class BTypeConverter {
@@ -45,20 +50,23 @@ public final class BTypeConverter {
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
+    // TODO: ideally this should be only called by BTypes (ie. no need for this to be public) and they should call
+    //  the correct method (ie. no need for this instance of thing)
     public static SemType from(BType innerType) {
-        if (innerType instanceof BNeverType) {
-            return Builder.neverType();
-        } else if (innerType instanceof BUnionType unionType) {
-            return fromUnionType(unionType);
-        } else if (innerType instanceof BRecordType recordType) {
-            return fromRecordType(recordType);
-        } else if (innerType instanceof BTupleType tupleType) {
-            return fromTupleType(tupleType);
-        }
-        return wrapAsPureBType(innerType);
+        return innerType.get();
     }
 
-    private static SemType fromTupleType(BTupleType tupleType) {
+    static SemType fromReadonly(BReadonlyType readonlyType) {
+        SemType semTypePart = Builder.nilType();
+        SemType bTypePart = wrapAsPureBType(readonlyType);
+        return Core.union(semTypePart, bTypePart);
+    }
+
+    static SemType fromTypeReference(ReferenceType referenceType) {
+        return from(referenceType.getReferredType());
+    }
+
+    static SemType fromTupleType(BTupleType tupleType) {
         for (Type type : tupleType.getTupleTypes()) {
             if (Core.isNever(from(type))) {
                 return Builder.neverType();
@@ -67,11 +75,17 @@ public final class BTypeConverter {
         return wrapAsPureBType(tupleType);
     }
 
-    private static SemType wrapAsPureBType(BType tupleType) {
+    static SemType wrapAsPureBType(BType tupleType) {
         return Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(tupleType));
     }
 
-    private static SemType fromRecordType(BRecordType recordType) {
+    static SemType fromAnyType(BAnyType anyType) {
+        SemType semTypePart = Builder.nilType();
+        SemType bTypePart = wrapAsPureBType(anyType);
+        return Core.union(semTypePart, bTypePart);
+    }
+
+    static SemType fromRecordType(BRecordType recordType) {
         for (Field field : recordType.fields.values()) {
             if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
                 SemType fieldType = from(field.getFieldType());
@@ -83,23 +97,80 @@ public final class BTypeConverter {
         return wrapAsPureBType(recordType);
     }
 
-    private static SemType fromUnionType(BUnionType unionType) {
-        List<Type> members = unionType.getMemberTypes();
+    static SemType fromFiniteType(BFiniteType finiteType) {
+        BTypeParts parts = splitFiniteType(finiteType);
+        BType newFiniteType = (BType) parts.bTypeParts().get(0);
+        SemType bTypePart = wrapAsPureBType(newFiniteType);
+        return Core.union(parts.semTypePart(), bTypePart);
+    }
+
+    static SemType fromUnionType(BUnionType unionType) {
+        BTypeParts parts = splitUnion(unionType);
+        SemType bTypePart = Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(unionType));
+        return Core.union(parts.semTypePart(), bTypePart);
+    }
+
+    private record BTypeParts(SemType semTypePart, List<Type> bTypeParts) {
+
+    }
+
+    private static BTypeParts split(Type type) {
+        if (isSemType(type)) {
+            return new BTypeParts(from(type), Collections.emptyList());
+        } else if (type instanceof BUnionType unionType) {
+            return splitUnion(unionType);
+        } else if (type instanceof BAnyType) {
+            return new BTypeParts(Builder.nilType(), List.of(type));
+        } else if (type instanceof BTypeReferenceType referenceType) {
+            return split(referenceType.getReferredType());
+        } else if (type instanceof BIntersectionType intersectionType) {
+            return split(intersectionType.getEffectiveType());
+        } else if (type instanceof BReadonlyType readonlyType) {
+            return splitReadonly(readonlyType);
+        } else if (type instanceof BFiniteType finiteType) {
+            return splitFiniteType(finiteType);
+        } else {
+            return new BTypeParts(Builder.neverType(), List.of(type));
+        }
+    }
+
+    private static BTypeParts splitFiniteType(BFiniteType finiteType) {
+        Set<Object> newValueSpace = new HashSet<>(finiteType.valueSpace.size());
+        SemType semTypePart = Builder.neverType();
+        for (var each : finiteType.valueSpace) {
+            // TODO: lift this to Builder (Object) -> Type
+            if (each == null) {
+                semTypePart = Core.union(semTypePart, Builder.nilType());
+            } else {
+                newValueSpace.add(each);
+            }
+        }
+        BFiniteType newFiniteType = finiteType.cloneWithValueSpace(newValueSpace);
+        return new BTypeParts(semTypePart, List.of(newFiniteType));
+    }
+
+    private static BTypeParts splitReadonly(BReadonlyType readonlyType) {
+        SemType semTypePart = Builder.nilType();
+        // TODO: this is not exactly correct
+        return new BTypeParts(semTypePart, List.of(readonlyType));
+    }
+
+    private static BTypeParts splitUnion(BUnionType unionType) {
+        List<Type> members = Collections.unmodifiableList(unionType.getMemberTypes());
         List<Type> bTypeMembers = new ArrayList<>(members.size());
         SemType semTypePart = Builder.neverType();
         for (Type member : members) {
-            if (isSemType(member)) {
-                semTypePart = Core.union(from(member), semTypePart);
-            } else {
-                bTypeMembers.add(member);
-            }
+            BTypeParts memberParts = split(member);
+            semTypePart = Core.union(memberParts.semTypePart(), semTypePart);
+            bTypeMembers.addAll(memberParts.bTypeParts());
         }
-        BUnionType newUnionType = unionType.cloneWithMembers(bTypeMembers);
-        SemType bTypePart = Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(newUnionType));
-        return Core.union(semTypePart, bTypePart);
+        return new BTypeParts(semTypePart, Collections.unmodifiableList(bTypeMembers));
     }
 
     private static boolean isSemType(Type type) {
-        return type instanceof BNeverType;
+        return switch (type.getTag()) {
+            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG -> true;
+            default -> false;
+        };
     }
 }
