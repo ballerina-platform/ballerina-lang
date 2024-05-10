@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.SemType.Core;
 import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,9 @@ public final class BTypeConverter {
 
     private BTypeConverter() {
     }
+
+    private static final SemType READONLY_SEMTYPE_PART = Core.union(Builder.nilType(), Builder.decimalType());
+    private static final SemType ANY_SEMTYPE_PART = Core.union(Builder.nilType(), Builder.decimalType());
 
     private static SemType from(Type type) {
         if (type instanceof SemType semType) {
@@ -57,9 +61,8 @@ public final class BTypeConverter {
     }
 
     static SemType fromReadonly(BReadonlyType readonlyType) {
-        SemType semTypePart = Builder.nilType();
         SemType bTypePart = wrapAsPureBType(readonlyType);
-        return Core.union(semTypePart, bTypePart);
+        return Core.union(READONLY_SEMTYPE_PART, bTypePart);
     }
 
     static SemType fromTypeReference(ReferenceType referenceType) {
@@ -80,9 +83,8 @@ public final class BTypeConverter {
     }
 
     static SemType fromAnyType(BAnyType anyType) {
-        SemType semTypePart = Builder.nilType();
         SemType bTypePart = wrapAsPureBType(anyType);
-        return Core.union(semTypePart, bTypePart);
+        return Core.union(ANY_SEMTYPE_PART, bTypePart);
     }
 
     static SemType fromRecordType(BRecordType recordType) {
@@ -119,8 +121,8 @@ public final class BTypeConverter {
             return new BTypeParts(from(type), Collections.emptyList());
         } else if (type instanceof BUnionType unionType) {
             return splitUnion(unionType);
-        } else if (type instanceof BAnyType) {
-            return new BTypeParts(Builder.nilType(), List.of(type));
+        } else if (type instanceof BAnyType anyType) {
+            return splitAnyType(anyType);
         } else if (type instanceof BTypeReferenceType referenceType) {
             return split(referenceType.getReferredType());
         } else if (type instanceof BIntersectionType intersectionType) {
@@ -134,6 +136,10 @@ public final class BTypeConverter {
         }
     }
 
+    private static BTypeParts splitAnyType(BAnyType anyType) {
+        return new BTypeParts(ANY_SEMTYPE_PART, List.of(anyType));
+    }
+
     private static BTypeParts splitFiniteType(BFiniteType finiteType) {
         Set<Object> newValueSpace = new HashSet<>(finiteType.valueSpace.size());
         SemType semTypePart = Builder.neverType();
@@ -141,6 +147,8 @@ public final class BTypeConverter {
             // TODO: lift this to Builder (Object) -> Type
             if (each == null) {
                 semTypePart = Core.union(semTypePart, Builder.nilType());
+            } else if (each instanceof DecimalValue decimalValue) {
+                semTypePart = Core.union(semTypePart, Builder.decimalConst(decimalValue.value()));
             } else {
                 newValueSpace.add(each);
             }
@@ -150,9 +158,8 @@ public final class BTypeConverter {
     }
 
     private static BTypeParts splitReadonly(BReadonlyType readonlyType) {
-        SemType semTypePart = Builder.nilType();
         // TODO: this is not exactly correct
-        return new BTypeParts(semTypePart, List.of(readonlyType));
+        return new BTypeParts(READONLY_SEMTYPE_PART, List.of(readonlyType));
     }
 
     private static BTypeParts splitUnion(BUnionType unionType) {
@@ -169,7 +176,7 @@ public final class BTypeConverter {
 
     private static boolean isSemType(Type type) {
         return switch (type.getTag()) {
-            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG -> true;
+            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG -> true;
             default -> false;
         };
     }

@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.types.BDecimalType;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -61,8 +62,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
     private final BigDecimal value;
+    private final Type singletonType;
 
     public DecimalValue(BigDecimal value) {
+        this.singletonType = BDecimalType.singletonType(value);
         this.value = getValidDecimalValue(value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
@@ -84,7 +87,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw exception;
         }
         this.value = getValidDecimalValue(bd);
-
+        this.singletonType = BDecimalType.singletonType(this.value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
@@ -221,7 +224,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return the type
      */
     public Type getType() {
-        return PredefinedTypes.TYPE_DECIMAL;
+        return singletonType;
     }
 
     //========================= Mathematical operations supported ===============================
