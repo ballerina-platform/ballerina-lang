@@ -206,4 +206,9 @@ public class CommandConstants {
     public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
 
     public static final String RENAME_COMMAND_TITLE_FOR_FUNCTION = "Rename function";
+
+    public static final String CLONE_VALUE = "Clone the value";
+
+    public static final String CLONE_READONLY_VALUE = "Clone as a readonly value";
+
 }
