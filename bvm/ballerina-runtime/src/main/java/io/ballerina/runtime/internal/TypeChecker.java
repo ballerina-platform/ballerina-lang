@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.Context;
 import io.ballerina.runtime.api.types.SemType.Core;
@@ -95,6 +96,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
@@ -282,7 +285,7 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        return Core.isSubType(cx, Builder.from(getType(sourceVal)), Builder.from(targetType),
+        return isSubType(getType(sourceVal), targetType,
                 (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(null, sourceVal, sourceTy, targetTy));
     }
 
@@ -296,7 +299,7 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+        return isSubType(sourceType, targetType,
                 (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(errors, sourceVal, sourceTy, targetTy));
     }
 
@@ -550,21 +553,31 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+        return isSubType(sourceType, targetType,
                 (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType, null));
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+        return isSubType(sourceType, targetType,
                 (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType,
                         unresolvedTypes));
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return Core.isSubType(cx, Builder.from(sourceType), Builder.from(targetType),
+        return isSubType(sourceType, targetType,
                 (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceVal, sourceBType, targetBType,
                         unresolvedTypes));
+    }
+
+    private static boolean isSubType(Type t1, Type t2, BiFunction<? super BType, ? super BType, Boolean> fallback) {
+        if (t1 instanceof ParameterizedType paramTy1) {
+            if (t2 instanceof ParameterizedType paramTy2) {
+                return isSubType(paramTy1.getParamValueType(), paramTy2.getParamValueType(), fallback);
+            }
+            return isSubType(paramTy1.getParamValueType(), t2, fallback);
+        }
+        return Core.isSubType(cx, Builder.from(t1), Builder.from(t2), fallback);
     }
 
     // Private methods
