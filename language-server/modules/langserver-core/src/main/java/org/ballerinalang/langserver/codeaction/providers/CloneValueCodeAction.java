@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -96,6 +97,7 @@ public class CloneValueCodeAction implements DiagnosticBasedCodeActionProvider {
     private static boolean isStructuredType(TypeSymbol typeSymbol) {
         return switch (typeSymbol.typeKind()) {
             case RECORD, MAP, ARRAY, TABLE, TUPLE -> true;
+            case TYPE_REFERENCE -> isStructuredType(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor());
             default -> false;
         };
     }
