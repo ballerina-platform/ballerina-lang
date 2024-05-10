@@ -18,33 +18,28 @@
 
 package io.ballerina.runtime.api.types.SemType;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class BasicTypeCode {
 
-    private final static Map<Integer, BasicTypeCode> cache = new HashMap<>();
-
-    static final int CODE_NIL = 0x00;
-    static final int CODE_BOOLEAN = 0x01;
-    static final int CODE_INT = 0x02;
-    static final int CODE_FLOAT = 0x03;
-    static final int CODE_DECIMAL = 0x04;
-    static final int CODE_STRING = 0x05;
-    static final int CODE_ERROR = 0x06;
-    static final int CODE_TYPEDESC = 0x07;
-    static final int CODE_HANDLE = 0x08;
-    static final int CODE_FUNCTION = 0x09;
-    static final int CODE_FUTURE = 0x0A;
-    static final int CODE_STREAM = 0x0B;
-    static final int CODE_LIST = 0x0C;
-    static final int CODE_MAPPING = 0x0D;
-    static final int CODE_TABLE = 0x0E;
-    static final int CODE_XML = 0x0F;
-    static final int CODE_OBJECT = 0x10;
-    static final int CODE_CELL = 0x11;
-    static final int CODE_UNDEF = 0x12;
-    static final int CODE_B_TYPE = 0x13;
+    public static final int CODE_NIL = 0x00;
+    public static final int CODE_BOOLEAN = 0x01;
+    public static final int CODE_INT = 0x02;
+    public static final int CODE_FLOAT = 0x03;
+    public static final int CODE_DECIMAL = 0x04;
+    public static final int CODE_STRING = 0x05;
+    public static final int CODE_ERROR = 0x06;
+    public static final int CODE_TYPEDESC = 0x07;
+    public static final int CODE_HANDLE = 0x08;
+    public static final int CODE_FUNCTION = 0x09;
+    public static final int CODE_FUTURE = 0x0A;
+    public static final int CODE_STREAM = 0x0B;
+    public static final int CODE_LIST = 0x0C;
+    public static final int CODE_MAPPING = 0x0D;
+    public static final int CODE_TABLE = 0x0E;
+    public static final int CODE_XML = 0x0F;
+    public static final int CODE_OBJECT = 0x10;
+    public static final int CODE_CELL = 0x11;
+    public static final int CODE_UNDEF = 0x12;
+    public static final int CODE_B_TYPE = 0x13;
 
     // Inherently immutable
     public static final BasicTypeCode BT_NIL = from(CODE_NIL);
@@ -75,7 +70,7 @@ public final class BasicTypeCode {
     public static final BasicTypeCode BT_B_TYPE = from(CODE_B_TYPE);
 
     // Helper bit fields (does not represent basic type tag)
-    static final int VT_COUNT = BT_OBJECT.code + 1;
+    static final int VT_COUNT = CODE_OBJECT + 1;
     static final int VT_MASK = (1 << VT_COUNT) - 1;
 
     static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
@@ -88,10 +83,29 @@ public final class BasicTypeCode {
     }
 
     public static BasicTypeCode from(int code) {
-        return cache.computeIfAbsent(code, BasicTypeCode::new);
+        if (BasicTypeCodeCache.isCached(code)) {
+            return BasicTypeCodeCache.cache[code];
+        }
+        return new BasicTypeCode(code);
     }
 
     public int code() {
         return code;
+    }
+
+    private final static class BasicTypeCodeCache {
+
+        private static final BasicTypeCode[] cache;
+        static {
+            cache = new BasicTypeCode[CODE_B_TYPE + 2];
+            for (int i = CODE_NIL; i < CODE_B_TYPE + 1; i++) {
+                cache[i] = new BasicTypeCode(i);
+            }
+        }
+
+        private static boolean isCached(int code) {
+            return 0 < code && code < VT_COUNT;
+        }
+
     }
 }
