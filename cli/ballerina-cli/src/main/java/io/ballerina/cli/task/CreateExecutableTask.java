@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.BuildUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.projects.EmitResult;
@@ -29,7 +30,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ServiceLoader;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -75,8 +74,9 @@ public class CreateExecutableTask implements Task {
         }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
-        target = getTarget(project);
-
+        if (target == null) {
+            target = getTarget(project);
+        }
         Path executablePath = getExecutablePath(project, target);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
