@@ -67,15 +67,15 @@ public class NativeDependencyOptimizer {
             new LinkedHashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
 
     /**
-     * key = implementation class name value = interface class name Since one interface can be implemented by more than
-     * one child class, it is possible to have duplicate values.
+     * key = implementation class name, value = interface class name.
+     * Since one interface can be implemented by more than one child class, it is possible to have duplicate values.
      * <p>
      * TODO modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
      */
     private static final Map<String, String> implementationWiseAllServiceProviders = new LinkedHashMap<>();
 
     /**
-     * key = used interface value = used implementation.
+     * key = used interface, value = used implementation.
      */
     private static final Map<String, Set<String>> interfaceWiseAllServiceProviders = new LinkedHashMap<>();
     private static final Set<String> usedSpInterfaces = new LinkedHashSet<>();
@@ -251,6 +251,9 @@ public class NativeDependencyOptimizer {
         return unusedClasses;
     }
 
+    /*
+    This function can be used when modularizing the native dependency optimization.
+     */
     public boolean jarContainsStartPoints() {
         for (String startPoint : startPointClasses) {
             ZipArchiveEntry jarEntry = originalJarFile.getEntry(startPoint + CLASS);
