@@ -246,6 +246,8 @@ import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
 import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -2154,10 +2156,36 @@ public class FormattingTreeModifier extends TreeModifier {
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
         Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
+        NodeList<Node> xmlStepExtend = formatNodeList(xMLStepExpressionNode.xmlStepExtend(), 0, 0, 0, 0);
 
         return xMLStepExpressionNode.modify()
                 .withExpression(expression)
                 .withXmlStepStart(xmlStepStart)
+                .withXmlStepExtend(xmlStepExtend)
+                .apply();
+    }
+
+    @Override
+    public XMLStepIndexedExtendNode transform(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        Token openBracket = formatToken(xMLStepIndexedExtendNode.openBracket(), 0, 0);
+        Node expression = formatNode(xMLStepIndexedExtendNode.expression(), 0, 0);
+        Token closeBracket = formatToken(xMLStepIndexedExtendNode.closeBracket(), 0, 0);
+
+        return xMLStepIndexedExtendNode.modify()
+                .withOpenBracket(openBracket)
+                .withExpression(expression)
+                .withCloseBracket(closeBracket)
+                .apply();
+    }
+
+    public XMLStepMethodCallExtendNode transform(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        Token dotToken = formatToken(xMLStepMethodCallExtendNode.dotToken(), 0, 0);
+        FunctionCallExpressionNode functionCallExpressionNode =
+                (FunctionCallExpressionNode) xMLStepMethodCallExtendNode.functionCallExpression().apply(this);
+
+        return xMLStepMethodCallExtendNode.modify()
+                .withDotToken(dotToken)
+                .withFunctionCallExpression(functionCallExpressionNode)
                 .apply();
     }
 
