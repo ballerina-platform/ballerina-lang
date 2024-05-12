@@ -24,9 +24,11 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
@@ -36,7 +38,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  *
  * @since 0.995.0
  */
-public class BDecimalType extends BType implements DecimalType {
+public class BDecimalType extends BType implements DecimalType, SemType {
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
@@ -82,5 +84,20 @@ public class BDecimalType extends BType implements DecimalType {
     @Override
     SemType createSemType() {
         return semType;
+    }
+
+    @Override
+    public int all() {
+        return get().all();
+    }
+
+    @Override
+    public int some() {
+        return get().some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return get().subTypeData();
     }
 }
