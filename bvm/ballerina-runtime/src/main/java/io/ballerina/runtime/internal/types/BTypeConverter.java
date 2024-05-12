@@ -43,9 +43,11 @@ final class BTypeConverter {
     }
 
     private static final SemType READONLY_SEMTYPE_PART =
-            unionOf(Builder.intType(), Builder.floatType(), Builder.nilType(), Builder.decimalType());
+            unionOf(Builder.booleanType(), Builder.intType(), Builder.floatType(), Builder.nilType(),
+                    Builder.decimalType());
     private static final SemType ANY_SEMTYPE_PART =
-            unionOf(Builder.intType(), Builder.floatType(), Builder.nilType(), Builder.decimalType());
+            unionOf(Builder.booleanType(), Builder.intType(), Builder.floatType(), Builder.nilType(),
+                    Builder.decimalType());
 
     private static SemType unionOf(SemType... semTypes) {
         SemType result = Builder.neverType();
@@ -169,6 +171,8 @@ final class BTypeConverter {
                 semTypePart = Core.union(semTypePart, Builder.floatConst(doubleValue));
             } else if (each instanceof Number intValue) {
                 semTypePart = Core.union(semTypePart, Builder.intConst(intValue.longValue()));
+            } else if (each instanceof Boolean booleanValue) {
+                semTypePart = Core.union(semTypePart, Builder.booleanConst(booleanValue));
             } else {
                 newValueSpace.add(each);
             }
@@ -201,7 +205,7 @@ final class BTypeConverter {
         // FIXME: can't we replace this with instanceof check?
         return switch (type.getTag()) {
             case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG,
-                 TypeTags.INT_TAG, TypeTags.BYTE_TAG,
+                 TypeTags.BOOLEAN_TAG, TypeTags.INT_TAG, TypeTags.BYTE_TAG,
                  TypeTags.SIGNED8_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED32_INT_TAG,
                  TypeTags.UNSIGNED8_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED32_INT_TAG -> true;
             default -> false;

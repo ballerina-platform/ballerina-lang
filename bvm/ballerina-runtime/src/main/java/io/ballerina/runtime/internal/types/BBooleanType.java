@@ -18,15 +18,28 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.SemType.Builder;
+import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
+
+import java.util.List;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BBooleanType extends BType implements BooleanType {
+public class BBooleanType extends BType implements BooleanType, SemType {
+
+    private final SemType semType;
+    private final static BBooleanType TRUE =
+            new BBooleanType(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(true));
+    private final static BBooleanType FALSE =
+            new BBooleanType(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
@@ -34,7 +47,16 @@ public class BBooleanType extends BType implements BooleanType {
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
+        this(typeName, pkg, Builder.booleanType());
+    }
+
+    public static BBooleanType singletonType(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
+    private BBooleanType(String typeName, Module pkg, SemType semType) {
         super(typeName, pkg, Boolean.class);
+        this.semType = semType;
     }
 
     @SuppressWarnings("unchecked")
@@ -56,5 +78,25 @@ public class BBooleanType extends BType implements BooleanType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    SemType createSemType() {
+        return semType;
+    }
+
+    @Override
+    public int all() {
+        return get().all();
+    }
+
+    @Override
+    public int some() {
+        return get().some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return get().subTypeData();
     }
 }
