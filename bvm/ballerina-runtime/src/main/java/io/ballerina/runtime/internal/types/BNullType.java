@@ -22,13 +22,16 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
+
+import java.util.List;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BType implements NullType {
+public class BNullType extends BType implements NullType, SemType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -66,5 +69,20 @@ public class BNullType extends BType implements NullType {
     @Override
     SemType createSemType() {
         return Builder.nilType();
+    }
+
+    @Override
+    public int all() {
+        return get().all();
+    }
+
+    @Override
+    public int some() {
+        return get().some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return get().subTypeData();
     }
 }

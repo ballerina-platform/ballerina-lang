@@ -78,6 +78,14 @@ public final class Builder {
         return from(BasicTypeCode.BT_BOOLEAN);
     }
 
+    public static SemType stringType() {
+        return from(BasicTypeCode.BT_STRING);
+    }
+
+    public static SemType charType() {
+        return StringTypeCache.charType;
+    }
+
     public static SemType basicTypeUnion(int bitset) {
         return BBasicTypeBitSet.from(bitset);
     }
@@ -122,9 +130,9 @@ public final class Builder {
         String[] values = {value};
         String[] empty = new String[0];
         if (value.codePoints().count() == 1) {
-            subType = BStringSubType.createStringSubType(true, values, false, empty);
+            subType = BStringSubType.createStringSubType(true, values, true, empty);
         } else {
-            subType = BStringSubType.createStringSubType(false, empty, true, values);
+            subType = BStringSubType.createStringSubType(true, empty, true, values);
         }
         return basicSubType(BasicTypeCode.BT_STRING, subType);
     }
@@ -151,5 +159,16 @@ public final class Builder {
             return basicSubType(BasicTypeCode.BT_BOOLEAN, BBooleanSubType.from(value));
         }
 
+    }
+
+    private static final class StringTypeCache {
+
+        private static final SemType charType;
+        private static final String[] EMPTY_STRING_ARR = new String[0];
+        static {
+            BStringSubType subTypeData = BStringSubType.createStringSubType(false, EMPTY_STRING_ARR, true,
+                    EMPTY_STRING_ARR);
+            charType = basicSubType(BasicTypeCode.BT_STRING, subTypeData);
+        }
     }
 }

@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ReferenceType;
@@ -27,6 +26,7 @@ import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.Core;
 import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
@@ -43,11 +43,11 @@ final class BTypeConverter {
     }
 
     private static final SemType READONLY_SEMTYPE_PART =
-            unionOf(Builder.booleanType(), Builder.intType(), Builder.floatType(), Builder.nilType(),
-                    Builder.decimalType());
+            unionOf(Builder.stringType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
+                    Builder.nilType(), Builder.decimalType());
     private static final SemType ANY_SEMTYPE_PART =
-            unionOf(Builder.booleanType(), Builder.intType(), Builder.floatType(), Builder.nilType(),
-                    Builder.decimalType());
+            unionOf(Builder.stringType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
+                    Builder.nilType(), Builder.decimalType());
 
     private static SemType unionOf(SemType... semTypes) {
         SemType result = Builder.neverType();
@@ -173,6 +173,8 @@ final class BTypeConverter {
                 semTypePart = Core.union(semTypePart, Builder.intConst(intValue.longValue()));
             } else if (each instanceof Boolean booleanValue) {
                 semTypePart = Core.union(semTypePart, Builder.booleanConst(booleanValue));
+            } else if (each instanceof BString stringValue) {
+                semTypePart = Core.union(semTypePart, Builder.stringConst(stringValue.getValue()));
             } else {
                 newValueSpace.add(each);
             }
@@ -202,13 +204,14 @@ final class BTypeConverter {
     }
 
     private static boolean isSemType(Type type) {
-        // FIXME: can't we replace this with instanceof check?
-        return switch (type.getTag()) {
-            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG,
-                 TypeTags.BOOLEAN_TAG, TypeTags.INT_TAG, TypeTags.BYTE_TAG,
-                 TypeTags.SIGNED8_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED32_INT_TAG,
-                 TypeTags.UNSIGNED8_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED32_INT_TAG -> true;
-            default -> false;
-        };
+        return type instanceof SemType;
+//        // FIXME: can't we replace this with instanceof check?
+//        return switch (type.getTag()) {
+//            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG,
+//                 TypeTags.BOOLEAN_TAG, TypeTags.INT_TAG, TypeTags.BYTE_TAG,
+//                 TypeTags.SIGNED8_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED32_INT_TAG,
+//                 TypeTags.UNSIGNED8_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED32_INT_TAG -> true;
+//            default -> false;
+//        };
     }
 }
