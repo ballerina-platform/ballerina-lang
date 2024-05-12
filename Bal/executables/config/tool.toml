@@ -1,0 +1,84 @@
+[base_command]
+name = "tool"
+short = "Extend the Ballerina CLI with custom commands"
+
+[base_command.help]
+long = "This command allows you to extend the Ballerina CLI with custom commands."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+
+[[base_command.subcommand]]
+name = "pull"
+short = "Pull a tool from the Ballerina Central"
+function="GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
+[[base_command.subcommand]]
+name = "remove"
+short = "Remove a tool from the local environment."
+function="RemoveTool(javaCmdPass, cmdLineArgsPass)"
+
+[[base_command.subcommand]]
+name = "update"
+short = "Update a tool to the latest version compatible with the current distribution."
+function="GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
+[[base_command.subcommand]]
+name = "use"
+short = "Set a tool version as the active version."
+function="GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
+[[base_command.subcommand]]
+name = "list"
+short = "List all tools available in the local environment."
+
+[[base_command.subcommand]]
+name = "search"
+short = "Search the Ballerina Central for tools"
+
+[[pull.flag]]
+name = "repository"
+default_val = ""
+usage = "Pull a tool from a custom repository."
+
+[[remove.flag]]
+command = "remove"
+name = "repository"
+default_val = ""
+usage = "Remove a tool from a custom repository."
+
+[[use.flag]]
+command = "use"
+name = "repository"
+default_val = ""
+usage = "Use a tool from a custom repository."
+
+[pull.help]
+long = "This command allows you to pull a tool from the Ballerina Central to use in your local environment."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+[remove.help]
+long = "This command allows you to remove a tool from the local environment."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+[update.help]
+long = "This command allows you to update a tool to the latest version compatible with the current distribution."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+[use.help]
+long = "This command allows you to set a tool version as the active version."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+[list.help]
+long = "This command allows you to list all tools available in the local environment."
+examples="these are the examples"
+synopsis="this is the synopsis"
+
+[search.help]
+long = "This command allows you to search the Ballerina Central for tools."
+examples="these are the examples"
+synopsis="this is the synopsis"

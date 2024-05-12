@@ -1,0 +1,40 @@
+{
+  "tool_id": "health",
+  "short": "short description of health",
+  "long": "long description of health",
+  "help": {},
+  "flag": [
+    {
+      "name": "output",
+      "shorthand": "o",
+      "default_val": "",
+      "usage": "Write the output to the given file."
+    },
+    {
+      "name": "mode",
+      "shorthand": "m",
+      "default_val": "",
+      "usage": "Mode can be 'package' or 'template'"
+    }
+  ],
+  "subcommand": [
+    {
+      "name": "sub1",
+      "short": "this is short description",
+      "description": "this is long description"
+    },
+    {
+      "name": "sub2",
+      "short": "this is short description",
+      "description": "this is long description"
+    }
+  ],
+  "subcommand_flag": [
+    {
+      "command": "sub1",
+      "name": "repository",
+      "default_val": "",
+      "usage": "Use a tool from a custom repository."
+    }
+  ]
+}
