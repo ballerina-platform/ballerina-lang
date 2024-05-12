@@ -23,13 +23,16 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
 import io.ballerina.runtime.api.types.SemType.Builder;
 import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
+
+import java.util.List;
 
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
  *
  * @since 2.0.0-preview1
  */
-public class BNeverType extends BNullType implements NeverType {
+public class BNeverType extends BNullType implements NeverType, SemType {
     /**
      * Create a {@code BNeverType} represents the type of a {@code Never}.
      *
@@ -52,5 +55,20 @@ public class BNeverType extends BNullType implements NeverType {
     @Override
     SemType createSemType() {
         return Builder.neverType();
+    }
+
+    @Override
+    public int all() {
+        return 0;
+    }
+
+    @Override
+    public int some() {
+        return 0;
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return List.of();
     }
 }

@@ -61,6 +61,7 @@ import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BResourceMethodType;
 import io.ballerina.runtime.internal.types.BStreamType;
+import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
@@ -119,7 +120,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
@@ -353,8 +353,8 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return BByteType.singletonType(number.intValue());
             }
-        } else if (value instanceof BString) {
-            return TYPE_STRING;
+        } else if (value instanceof BString stringValue) {
+            return BStringType.singletonType(stringValue.getValue());
         } else if (value instanceof Boolean booleanValue) {
             return BBooleanType.singletonType(booleanValue);
         } else if (value instanceof BObject) {

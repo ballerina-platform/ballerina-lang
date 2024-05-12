@@ -533,7 +533,7 @@ public class TypeConverter {
             return "()";
         }
         String sourceValueName = sourceValue.toString();
-        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
+        if (TypeChecker.checkIsType(sourceValue, TYPE_STRING)) {
             sourceValueName = "\"" + sourceValueName + "\"";
         }
         if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {
