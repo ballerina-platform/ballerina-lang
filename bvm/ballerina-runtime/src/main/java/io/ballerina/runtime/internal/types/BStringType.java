@@ -18,9 +18,16 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.SemType.Builder;
+import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.SemType.SubType;
 import io.ballerina.runtime.api.types.StringType;
+
+import java.util.List;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -28,9 +35,10 @@ import io.ballerina.runtime.api.types.StringType;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BStringType extends BType implements StringType {
+public class BStringType extends BType implements StringType, SemType {
 
     private final int tag;
+    private final SemType semType;
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -38,13 +46,30 @@ public class BStringType extends BType implements StringType {
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        super(typeName, pkg, String.class);
-        tag = TypeTags.STRING_TAG;
+        this(typeName, pkg, TypeTags.STRING_TAG, Builder.stringType());
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
+        this(typeName, pkg, tag, pickSemtype(tag));
+    }
+
+    private BStringType(String typeName, Module pkg, int tag, SemType semType) {
         super(typeName, pkg, String.class);
         this.tag = tag;
+        this.semType = semType;
+    }
+
+    public static BStringType singletonType(String value) {
+        return new BStringType(TypeConstants.STRING_TNAME, PredefinedTypes.EMPTY_MODULE, TypeTags.STRING_TAG,
+                Builder.stringConst(value));
+    }
+
+    private static SemType pickSemtype(int tag) {
+        return switch (tag) {
+            case TypeTags.STRING_TAG -> Builder.stringType();
+            case TypeTags.CHAR_STRING_TAG -> Builder.charType();
+            default -> throw new IllegalStateException("Unexpected string type tag: " + tag);
+        };
     }
 
     public <V extends Object> V getZeroValue() {
@@ -64,5 +89,25 @@ public class BStringType extends BType implements StringType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    SemType createSemType() {
+        return semType;
+    }
+
+    @Override
+    public int all() {
+        return get().all();
+    }
+
+    @Override
+    public int some() {
+        return get().some();
+    }
+
+    @Override
+    public List<SubType> subTypeData() {
+        return get().subTypeData();
     }
 }
