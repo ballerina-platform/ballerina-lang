@@ -3,10 +3,9 @@ package cmd
 import (
 	"bal/pkg/utils"
 	"fmt"
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
 )
 
 func buildCmd() *cobra.Command {

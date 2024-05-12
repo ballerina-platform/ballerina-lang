@@ -15,17 +15,18 @@ import (
 )
 
 type CommandConfig struct {
-	Name  string
-	Short string
-	Long  string
+	Name     string
+	Short    string
+	Function string
 }
+
 type FlagConfig struct {
 	Name       string
 	Usage      string
 	Shorthend  string
 	DefaultVal interface{}
+	Param      string
 }
-
 type ToolData struct {
 	Id         string
 	Org        string
@@ -35,10 +36,61 @@ type ToolData struct {
 	Repocitory string
 }
 
-func GenerateFlagLine(flag FlagConfig, cmdName string) string {
-	if cmdName == "" {
-		cmdName = "RootCmd"
+const templateContent = `
+package cmd
+
+import (
+	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"bal/pkg/utils"
+	"log"
+)
+
+func {{.Name}}Cmd() *cobra.Command{
+	cmd := &cobra.Command{
+	Use:     "{{.Name}}",
+	Short:   "{{.Short}}",
+	Long:   "",
+	Example: "",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("called")
+		{{.Function}}
+	},
+}
+
+	viper.SetConfigName("{{.Name}}")
+	viper.AddConfigPath("/home/wso2/Final_implementation/ballerina-lang/Bal/executables/config") // Update this with your actual config path
+	viper.SetConfigType("json")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file: %s", err)
 	}
+
+	if long := viper.GetString("base_command.help.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("base_command.help.examples"); examples != "" {
+		cmd.Example = examples
+	}
+
+	{{.FlagLines}}
+
+	return cmd
+
+}
+
+func init() {
+	{{.Name}}Cmd:= {{.Name}}Cmd()
+	RootCmd.AddCommand({{.Name}}Cmd)
+	{{.SubLines}}
+
+}
+
+{{.SubCommands}}
+`
+
+func generateFlagLine(flag FlagConfig, cmdName string) string {
 
 	var flagline string
 
@@ -62,15 +114,28 @@ func GenerateFlagLine(flag FlagConfig, cmdName string) string {
 	return flagline
 }
 
-func GenerateSubCommands(subcommands []interface{}, config CommandConfig) (string, string) {
+func generateSubCommands(subcommands []interface{}, config CommandConfig) (string, string) {
 	const subCommandTemp = `
-	var {{.Name}} = &cobra.Command{
+	func {{.Name}}() *cobra.Command {
+		cmd := &cobra.Command{
 		Use:   "{{.Use}}",
 		Short: "{{.Short}}",
+		Long:  "",
+		Example:"",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("search called")
-			executeBallerinaCommand()
+			{{.Function}}
 		},
+	}
+		{{.SubFlagLines}}
+		viper.SetConfigName("{{.Base}}")
+		viper.AddConfigPath("/home/wso2/Final_implementation/ballerina-lang/Bal/executables/config")
+		viper.SetConfigType("json")
+
+		if err := viper.ReadInConfig(); err != nil {
+			log.Fatalf("Error reading config file: %s", err)
+		}
+
+		return cmd
 	}
 	`
 	var subCommandsStr string
@@ -79,26 +144,42 @@ func GenerateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 	for _, subcmd := range subcommands {
 		if m, ok := subcmd.(map[string]interface{}); ok {
 			subconfig := CommandConfig{
-				Name:  cast.ToString(m["name"]),
-				Short: cast.ToString(m["short"]),
-				Long:  cast.ToString(m["description"]),
+				Name:     cast.ToString(m["name"]),
+				Short:    cast.ToString(m["short"]),
+				Function: cast.ToString(m["function"]),
 			}
+			function := ""
+			if subconfig.Function == "" {
+				function = "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)"
+			} else {
+				function = subconfig.Function
+			}
+
+			subflags, _ := viper.Get(fmt.Sprintf("%s.flag", subconfig.Name)).([]interface{})
+			subflagLines := generateSubFlagLines(subflags, generateFlagLine)
+
 			tmplSubcmd := template.Must(template.New("SubcommandTemplate").Parse(subCommandTemp))
 			var subcmdStrBuffer bytes.Buffer
 			data := struct {
-				Name  string
-				Use   string
-				Short string
+				Name         string
+				Use          string
+				Short        string
+				Function     string
+				SubFlagLines string
+				Base         string
 			}{
-				Name:  subconfig.Name + config.Name + "Cmd",
-				Use:   subconfig.Name,
-				Short: subconfig.Short,
+				Name:         subconfig.Name + config.Name + "Cmd",
+				Use:          subconfig.Name,
+				Short:        subconfig.Short,
+				Function:     function,
+				SubFlagLines: subflagLines,
+				Base:         config.Name,
 			}
 			if err := tmplSubcmd.Execute(&subcmdStrBuffer, data); err != nil {
 				log.Fatalf("Error executing subcommand template: %s", err)
 			}
 			subCommandsStr += subcmdStrBuffer.String() + "\n"
-			subline := fmt.Sprintf("%sCmd.AddCommand(%s)", config.Name, data.Name)
+			subline := fmt.Sprintf("%sCmd.AddCommand(%s)", config.Name, data.Name+"()")
 			subLinesStr += subline + "\n"
 		}
 	}
@@ -106,7 +187,7 @@ func GenerateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 	return subCommandsStr, subLinesStr
 }
 
-func GenerateSubFlagLines(subflags []interface{}, config CommandConfig, generateFlagLine func(FlagConfig, string) string) string {
+func generateSubFlagLines(subflags []interface{}, generateFlagLine func(FlagConfig, string) string) string {
 	var subflagLines string
 
 	for _, table := range subflags {
@@ -117,8 +198,8 @@ func GenerateSubFlagLines(subflags []interface{}, config CommandConfig, generate
 				DefaultVal: m["default_val"],
 				Shorthend:  cast.ToString(m["shorthand"]),
 			}
-			commandName := cast.ToString(m["command"]) + config.Name + "Cmd"
-			subflagline := generateFlagLine(subflag, commandName)
+			//commandName := cast.ToString(m["command"]) + config.Name + "Cmd"
+			subflagline := generateFlagLine(subflag, "cmd")
 			subflagLines += subflagline + "\n"
 		}
 	}
@@ -126,7 +207,7 @@ func GenerateSubFlagLines(subflags []interface{}, config CommandConfig, generate
 	return subflagLines
 }
 
-func GeneratingBaseCommandFlags(flags []interface{}, name string) string {
+func generatingBaseCommandFlags(flags []interface{}, name string) string {
 	var flagLines string
 	for _, table := range flags {
 		if m, ok := table.(map[string]interface{}); ok {
@@ -136,28 +217,28 @@ func GeneratingBaseCommandFlags(flags []interface{}, name string) string {
 				DefaultVal: m["default_val"],
 				Shorthend:  cast.ToString(m["shorthand"]),
 			}
-			flagline := GenerateFlagLine(flag, name)
+			flagline := generateFlagLine(flag, name)
 			flagLines += flagline + "\n"
 		}
 	}
 	return flagLines
 }
 
-func GeneratingCLICommands(path string, name string) {
+func GeneratingCLICommands(path string) {
 
-	viper.SetConfigName(name)
-	viper.AddConfigPath(path)
-	viper.SetConfigType("toml")
+	viper.SetConfigType("json")
+	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
 	config := CommandConfig{
-		Name:  viper.GetString("base_command.name"),
-		Short: viper.GetString("base_command.short"),
-		Long:  viper.GetString("base_command.long"),
+		Name:     viper.GetString("tool_id"),
+		Short:    viper.GetString("short"),
+		Function: "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)",
 	}
+
 	filename := config.Name + ".go"
 	fmt.Println(filename)
 	file, err := os.Create(filepath.Join("cmd", filename))
@@ -165,63 +246,26 @@ func GeneratingCLICommands(path string, name string) {
 		log.Fatalf("Error creating command.go file: %s", err)
 	}
 	defer file.Close()
-
-	const templateContent = `
-package cmd
-
-import (
-	"fmt"
-	"github.com/spf13/cobra"
-)
-
-var {{.Name}}Cmd = &cobra.Command{
-	Use:     "{{.Name}}",
-	Short:   "{{.Short}}",
-	Long:    "{{.Long}}",
-	Run: func(cmd *cobra.Command, args []string) {
-		executeBallerinaCommand()
-		fmt.Println("running")
-	},
-}
-
-func init() {
-	RootCmd.AddCommand({{.Name}}Cmd)
-	//Add subcommands
-	{{.SubLines}}
-	{{ .FlagLines }}
-	// Add subcommand flags here
-	{{.SubFlagLines}}
-
-}
-
-{{.SubCommands}}
-`
-
 	tmpl := template.Must(template.New("commandTemplate").Parse(templateContent))
 	flags, _ := viper.Get("base_command.flag").([]interface{})
-	nameCmd := config.Name + "Cmd"
-	flagLines := GeneratingBaseCommandFlags(flags, nameCmd)
+	flagLines := generatingBaseCommandFlags(flags, "cmd")
 	subcommands, _ := viper.Get("base_command.subcommand").([]interface{})
-	subCommandsStr, subLinesStr := GenerateSubCommands(subcommands, config)
-	subflags, _ := viper.Get("base_command.subcommand_flag").([]interface{})
-	subflagLines := GenerateSubFlagLines(subflags, config, GenerateFlagLine)
+	subCommandsStr, subLinesStr := generateSubCommands(subcommands, config)
 
 	data := struct {
-		Name         string
-		Short        string
-		Long         string
-		FlagLines    string
-		SubCommands  string
-		SubLines     string
-		SubFlagLines string
+		Name        string
+		Short       string
+		Function    string
+		FlagLines   string
+		SubCommands string
+		SubLines    string
 	}{
-		Name:         config.Name,
-		Short:        config.Short,
-		Long:         config.Long,
-		FlagLines:    flagLines,
-		SubCommands:  subCommandsStr,
-		SubLines:     subLinesStr,
-		SubFlagLines: subflagLines,
+		Name:        config.Name,
+		Short:       config.Short,
+		Function:    config.Function,
+		FlagLines:   flagLines,
+		SubCommands: subCommandsStr,
+		SubLines:    subLinesStr,
 	}
 
 	var commandData bytes.Buffer
@@ -229,7 +273,8 @@ func init() {
 	if err := tmpl.Execute(&commandData, data); err != nil {
 		log.Fatalf("Error executing template: %s", err)
 	}
-	output := commandData.String()
+	output := commandData.String() //format the content of the document
+	fmt.Println(output)
 	formattedContent, err := format.Source([]byte(output))
 	if err != nil {
 		log.Fatalf("Error formatting Go code: %s", err)
@@ -285,100 +330,4 @@ func FindPathForJson(toolName string) string {
 	}
 
 	return jasonPath
-}
-
-func GeneratingCLICmd(path string) {
-
-	viper.SetConfigType("json")
-	viper.SetConfigFile(path)
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
-	}
-
-	config := CommandConfig{
-		Name:  viper.GetString("tool_id"),
-		Short: viper.GetString("short"),
-		Long:  viper.GetString("long"),
-	}
-
-	filename := config.Name + ".go"
-	fmt.Println(filename)
-	file, err := os.Create(filepath.Join("cmd", filename))
-	if err != nil {
-		log.Fatalf("Error creating command.go file: %s", err)
-	}
-	defer file.Close()
-
-	const templateContent = `
-package cmd
-
-import (
-	"fmt"
-	"github.com/spf13/cobra"
-)
-
-var {{.Name}}Cmd = &cobra.Command{
-	Use:     "{{.Name}}",
-	Short:   "{{.Short}}",
-	Long:    "{{.Long}}",
-	Run: func(cmd *cobra.Command, args []string) {
-		executeBallerinaCommand()
-		fmt.Println("running")
-	},
-}
-
-func init() {
-	RootCmd.AddCommand({{.Name}}Cmd)
-	//Add subcommands
-	{{.SubLines}}
-	{{ .FlagLines }}
-	// Add subcommand flags here
-	{{.SubFlagLines}}
-
-}
-
-{{.SubCommands}}
-`
-
-	tmpl := template.Must(template.New("commandTemplate").Parse(templateContent))
-	flags, _ := viper.Get("flag").([]interface{})
-	nameCmd := config.Name + "Cmd"
-	flagLines := GeneratingBaseCommandFlags(flags, nameCmd)
-	subcommands, _ := viper.Get("subcommand").([]interface{})
-	subCommandsStr, subLinesStr := GenerateSubCommands(subcommands, config)
-	subflags, _ := viper.Get("subcommand_flag").([]interface{})
-	subflagLines := GenerateSubFlagLines(subflags, config, GenerateFlagLine)
-
-	data := struct {
-		Name         string
-		Short        string
-		Long         string
-		FlagLines    string
-		SubCommands  string
-		SubLines     string
-		SubFlagLines string
-	}{
-		Name:         config.Name,
-		Short:        config.Short,
-		Long:         config.Long,
-		FlagLines:    flagLines,
-		SubCommands:  subCommandsStr,
-		SubLines:     subLinesStr,
-		SubFlagLines: subflagLines,
-	}
-
-	var commandData bytes.Buffer
-
-	if err := tmpl.Execute(&commandData, data); err != nil {
-		log.Fatalf("Error executing template: %s", err)
-	}
-	output := commandData.String()
-	formattedContent, err := format.Source([]byte(output))
-	if err != nil {
-		log.Fatalf("Error formatting Go code: %s", err)
-	}
-	if err := os.WriteFile(filepath.Join("cmd", filename), formattedContent, 0644); err != nil {
-		log.Fatalf("Error writing to file: %s", err)
-	}
 }

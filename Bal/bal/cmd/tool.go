@@ -3,10 +3,9 @@ package cmd
 import (
 	"bal/pkg/utils"
 	"fmt"
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
 )
 
 func toolCmd() *cobra.Command {
@@ -59,7 +58,7 @@ func pulltoolCmd() *cobra.Command {
 		Long:    "",
 		Example: "",
 		Run: func(cmd *cobra.Command, args []string) {
-			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+			utils.GenerateTool(javaCmdPass, cmdLineArgsPass)
 		},
 	}
 	cmd.Flags().String("repository", "", "Pull a tool from a custom repository.")
@@ -82,7 +81,7 @@ func removetoolCmd() *cobra.Command {
 		Long:    "",
 		Example: "",
 		Run: func(cmd *cobra.Command, args []string) {
-			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+			utils.RemoveTool(javaCmdPass, cmdLineArgsPass)
 		},
 	}
 	cmd.Flags().String("repository", "", "Remove a tool from a custom repository.")
@@ -105,7 +104,7 @@ func updatetoolCmd() *cobra.Command {
 		Long:    "",
 		Example: "",
 		Run: func(cmd *cobra.Command, args []string) {
-			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+			utils.GenerateTool(javaCmdPass, cmdLineArgsPass)
 		},
 	}
 
@@ -127,7 +126,7 @@ func usetoolCmd() *cobra.Command {
 		Long:    "",
 		Example: "",
 		Run: func(cmd *cobra.Command, args []string) {
-			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+			utils.GenerateTool(javaCmdPass, cmdLineArgsPass)
 		},
 	}
 	cmd.Flags().String("repository", "", "Use a tool from a custom repository.")

@@ -253,7 +253,7 @@ func GenerateTool(javaCmd string, cmdLineArgs []string) {
 		if _, err = os.Stat(filePath); err == nil {
 			fmt.Println("File exists.")
 			fmt.Println(filePath)
-			generate.GeneratingCLICmd("/home/wso2/BalWithCobra/config/health.json")
+			generate.GeneratingCLICommands("/home/wso2/BalWithCobra/config/health.json")
 		} else {
 			fmt.Println("Could not find the command information json")
 		}

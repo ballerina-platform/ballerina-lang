@@ -105,7 +105,7 @@ func generateFlagLine(flag FlagConfig, cmdName string) string {
 	return flagline
 }
 
-func generateSubCommands(subcommands []interface{}, config CommandConfig, name string, path string) (string, string) {
+func generateSubCommands(subcommands []interface{}, config CommandConfig) (string, string) {
 	const subCommandTemp = `
 	func {{.Name}}() *cobra.Command {
 		cmd := &cobra.Command{
@@ -131,22 +131,23 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig, name s
 	`
 	var subCommandsStr string
 	var subLinesStr string
-	viper.SetConfigName(name)
-	viper.AddConfigPath(path)
-	viper.SetConfigType("toml")
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
-	}
 
 	for _, subcmd := range subcommands {
 		if m, ok := subcmd.(map[string]interface{}); ok {
 			subconfig := CommandConfig{
-				Name:  cast.ToString(m["name"]),
-				Short: cast.ToString(m["short"]),
+				Name:     cast.ToString(m["name"]),
+				Short:    cast.ToString(m["short"]),
+				Function: cast.ToString(m["function"]),
 			}
+			function := ""
+			if subconfig.Function == "" {
+				function = "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)"
+			} else {
+				function = subconfig.Function
+			}
+
 			subflags, _ := viper.Get(fmt.Sprintf("%s.flag", subconfig.Name)).([]interface{})
-			subflagLines := generateSubFlagLines(subflags, config, generateFlagLine)
+			subflagLines := generateSubFlagLines(subflags, generateFlagLine)
 
 			tmplSubcmd := template.Must(template.New("SubcommandTemplate").Parse(subCommandTemp))
 			var subcmdStrBuffer bytes.Buffer
@@ -161,7 +162,7 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig, name s
 				Name:         subconfig.Name + config.Name + "Cmd",
 				Use:          subconfig.Name,
 				Short:        subconfig.Short,
-				Function:     "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)",
+				Function:     function,
 				SubFlagLines: subflagLines,
 				Base:         config.Name,
 			}
@@ -177,7 +178,7 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig, name s
 	return subCommandsStr, subLinesStr
 }
 
-func generateSubFlagLines(subflags []interface{}, config CommandConfig, generateFlagLine func(FlagConfig, string) string) string {
+func generateSubFlagLines(subflags []interface{}, generateFlagLine func(FlagConfig, string) string) string {
 	var subflagLines string
 
 	for _, table := range subflags {
@@ -240,7 +241,7 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 	flags, _ := viper.Get("base_command.flag").([]interface{})
 	flagLines := generatingBaseCommandFlags(flags, "cmd")
 	subcommands, _ := viper.Get("base_command.subcommand").([]interface{})
-	subCommandsStr, subLinesStr := generateSubCommands(subcommands, config, name, path)
+	subCommandsStr, subLinesStr := generateSubCommands(subcommands, config)
 
 	data := struct {
 		Name        string
