@@ -85,10 +85,8 @@ public final class Core {
             if (data.isAll()) {
                 all |= 1 << typeCode;
                 some &= ~(1 << typeCode);
-                subtypes.add(null);
             } else if (data.isNothing()) {
                 some &= ~(1 << typeCode);
-                subtypes.add(null);
             } else {
                 subtypes.add(data);
             }
@@ -132,7 +130,6 @@ public final class Core {
             if (data.isAll()) {
                 all |= 1 << code;
                 some &= ~(1 << code);
-                subtypes.add(null);
             } else {
                 subtypes.add(data);
             }
@@ -194,7 +191,6 @@ public final class Core {
                 subtypes.add(data);
             } else {
                 some &= ~(1 << code);
-                subtypes.add(null);
             }
         }
         if (some == 0) {

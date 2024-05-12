@@ -21,6 +21,7 @@ package io.ballerina.runtime.api.types.SemType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBasicTypeBitSet;
+import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
@@ -73,6 +74,10 @@ public final class Builder {
         return from(BasicTypeCode.BT_FLOAT);
     }
 
+    public static SemType booleanType() {
+        return from(BasicTypeCode.BT_BOOLEAN);
+    }
+
     public static SemType basicTypeUnion(int bitset) {
         return BBasicTypeBitSet.from(bitset);
     }
@@ -92,6 +97,10 @@ public final class Builder {
         List<Long> values = new ArrayList<>(1);
         values.add(value);
         return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(values));
+    }
+
+    public static SemType booleanConst(boolean value) {
+        return value ? BooleanTypeCache.TRUE : BooleanTypeCache.FALSE;
     }
 
     public static SemType intRange(long min, long max) {
@@ -131,5 +140,16 @@ public final class Builder {
                 cache[i - CACHE_MIN_VALUE] = createIntSingletonType(i);
             }
         }
+    }
+
+    private static final class BooleanTypeCache {
+
+        private static final SemType TRUE = createBooleanSingletonType(true);
+        private static final SemType FALSE = createBooleanSingletonType(false);
+
+        private static SemType createBooleanSingletonType(boolean value) {
+            return basicSubType(BasicTypeCode.BT_BOOLEAN, BBooleanSubType.from(value));
+        }
+
     }
 }
