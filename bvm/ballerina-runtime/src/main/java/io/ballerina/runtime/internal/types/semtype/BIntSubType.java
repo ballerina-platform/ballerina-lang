@@ -62,7 +62,9 @@ public final class BIntSubType implements SubType {
         return new BIntSubType(new IntSubTypeData(ranges.toArray(Range[]::new)));
     }
 
-    public static BIntSubType createIntSubType(Range[] ranges) {
+    public static BIntSubType createIntSubType(long min, long max) {
+        Range range = new Range(min, max);
+        Range[] ranges = {range};
         return new BIntSubType(new IntSubTypeData(ranges));
     }
 
