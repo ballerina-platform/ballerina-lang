@@ -43,6 +43,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BBooleanType;
 import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
@@ -356,8 +357,8 @@ public final class TypeChecker {
             }
         } else if (value instanceof BString) {
             return TYPE_STRING;
-        } else if (value instanceof Boolean) {
-            return TYPE_BOOLEAN;
+        } else if (value instanceof Boolean booleanValue) {
+            return BBooleanType.singletonType(booleanValue);
         } else if (value instanceof BObject bObject) {
             return bObject.getOriginalType();
         }
