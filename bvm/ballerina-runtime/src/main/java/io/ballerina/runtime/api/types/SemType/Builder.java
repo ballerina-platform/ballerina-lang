@@ -61,6 +61,10 @@ public final class Builder {
         return from(BasicTypeCode.BT_NIL);
     }
 
+    public static SemType intType() {
+        return from(BasicTypeCode.BT_INT);
+    }
+
     public static SemType decimalType() {
         return from(BasicTypeCode.BT_DECIMAL);
     }
@@ -78,9 +82,20 @@ public final class Builder {
     }
 
     public static SemType intConst(long value) {
+        if (value >= IntTypeCache.CACHE_MIN_VALUE && value <= IntTypeCache.CACHE_MAX_VALUE) {
+            return IntTypeCache.cache[(int) value - IntTypeCache.CACHE_MIN_VALUE];
+        }
+        return createIntSingletonType(value);
+    }
+
+    private static SemType createIntSingletonType(long value) {
         List<Long> values = new ArrayList<>(1);
         values.add(value);
         return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(values));
+    }
+
+    public static SemType intRange(long min, long max) {
+        return basicSubType(BasicTypeCode.BT_INT, BIntSubType.createIntSubType(min, max));
     }
 
     public static SemType decimalConst(BigDecimal value) {
@@ -103,5 +118,18 @@ public final class Builder {
             subType = BStringSubType.createStringSubType(false, empty, true, values);
         }
         return basicSubType(BasicTypeCode.BT_STRING, subType);
+    }
+
+    private static final class IntTypeCache {
+
+        private static final int CACHE_MAX_VALUE = 127;
+        private static final int CACHE_MIN_VALUE = -128;
+        private static final SemType[] cache;
+        static {
+            cache = new SemType[CACHE_MAX_VALUE - CACHE_MIN_VALUE + 1];
+            for (int i = CACHE_MIN_VALUE; i <= CACHE_MAX_VALUE; i++) {
+                cache[i - CACHE_MIN_VALUE] = createIntSingletonType(i);
+            }
+        }
     }
 }

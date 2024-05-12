@@ -43,12 +43,14 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BFloatType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BFutureType;
+import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -342,13 +344,13 @@ public class TypeChecker {
     public static Type getType(Object value) {
         if (value == null) {
             return TYPE_NULL;
-        } else if (value instanceof Number) {
+        } else if (value instanceof Number number) {
             if (value instanceof Long) {
-                return TYPE_INT;
-            } else if (value instanceof Double doubleValue) {
-                return BFloatType.singletonType(doubleValue);
+                return BIntegerType.singletonType(number.longValue());
+            } else if (value instanceof Double) {
+                return BFloatType.singletonType(number.doubleValue());
             } else if (value instanceof Integer || value instanceof Byte) {
-                return TYPE_BYTE;
+                return BByteType.singletonType(number.intValue());
             }
         } else if (value instanceof BString) {
             return TYPE_STRING;

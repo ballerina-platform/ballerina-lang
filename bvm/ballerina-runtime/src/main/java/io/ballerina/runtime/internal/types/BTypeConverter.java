@@ -37,15 +37,23 @@ import java.util.List;
 import java.util.Set;
 
 // NOTE: this is so that we don't have to expose any utility constructors as public to builder
-public final class BTypeConverter {
+final class BTypeConverter {
 
     private BTypeConverter() {
     }
 
     private static final SemType READONLY_SEMTYPE_PART =
-            Core.union(Builder.floatType(), Core.union(Builder.nilType(), Builder.decimalType()));
+            unionOf(Builder.intType(), Builder.floatType(), Builder.nilType(), Builder.decimalType());
     private static final SemType ANY_SEMTYPE_PART =
-            Core.union(Builder.floatType(), Core.union(Builder.nilType(), Builder.decimalType()));
+            unionOf(Builder.intType(), Builder.floatType(), Builder.nilType(), Builder.decimalType());
+
+    private static SemType unionOf(SemType... semTypes) {
+        SemType result = Builder.neverType();
+        for (SemType semType : semTypes) {
+            result = Core.union(result, semType);
+        }
+        return result;
+    }
 
     private static SemType from(Type type) {
         if (type instanceof SemType semType) {
@@ -113,6 +121,9 @@ public final class BTypeConverter {
 
     static SemType fromUnionType(BUnionType unionType) {
         BTypeParts parts = splitUnion(unionType);
+        if (parts.bTypeParts().isEmpty()) {
+            return parts.semTypePart();
+        }
         SemType bTypePart = Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(unionType));
         return Core.union(parts.semTypePart(), bTypePart);
     }
@@ -156,6 +167,8 @@ public final class BTypeConverter {
                 semTypePart = Core.union(semTypePart, Builder.decimalConst(decimalValue.value()));
             } else if (each instanceof Double doubleValue) {
                 semTypePart = Core.union(semTypePart, Builder.floatConst(doubleValue));
+            } else if (each instanceof Number intValue) {
+                semTypePart = Core.union(semTypePart, Builder.intConst(intValue.longValue()));
             } else {
                 newValueSpace.add(each);
             }
@@ -185,8 +198,12 @@ public final class BTypeConverter {
     }
 
     private static boolean isSemType(Type type) {
+        // FIXME: can't we replace this with instanceof check?
         return switch (type.getTag()) {
-            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG -> true;
+            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG,
+                 TypeTags.INT_TAG, TypeTags.BYTE_TAG,
+                 TypeTags.SIGNED8_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED32_INT_TAG -> true;
             default -> false;
         };
     }
