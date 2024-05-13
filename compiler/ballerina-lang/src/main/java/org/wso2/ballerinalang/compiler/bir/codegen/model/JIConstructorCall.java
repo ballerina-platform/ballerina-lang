@@ -15,31 +15,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
+import java.util.List;
 
 /**
- * Java cast instruction.
+ * Java constructor call modeled as a BIR terminator.
  *
  * @since 1.2.0
  */
-public class JCast extends JInstruction {
+public class JIConstructorCall extends JTerminator {
 
-    public BIROperand rhsOp;
-    public BType targetType;
+    public BIROperand receiver;
+    public List<BIROperand> args;
+    public List<BIROperand> resourcePathArgs;
+    public List<BIROperand> functionArgs;
+    public String jClassName;
+    public String jMethodVMSig;
+    public String name;
+    public boolean varArgExist;
+    public JType varArgType;
 
-    JCast(Location pos) {
+    public JIConstructorCall(Location pos) {
 
         super(pos);
-        jKind = JInsKind.JCAST;
+        this.jTermKind = JTermKind.JI_CONSTRUCTOR_CALL;
     }
 
     @Override
     public void accept(BIRVisitor visitor) {
-        // do nothing
+        // Do nothing
+    }
+
+    @Override
+    public BIROperand[] getRhsOperands() {
+        return args.toArray(new BIROperand[0]);
+    }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.args = List.of(operands);
+    }
+
+    @Override
+    public BIRBasicBlock[] getNextBasicBlocks() {
+        return new BIRBasicBlock[0];
     }
 }

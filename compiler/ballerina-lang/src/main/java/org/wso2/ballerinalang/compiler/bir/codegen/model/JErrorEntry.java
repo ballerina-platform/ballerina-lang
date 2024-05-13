@@ -15,17 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Java catch instruction.
+ * Java error entry model class based on BIR error entry node.
  *
  * @since 1.2.0
  */
-public class CatchIns {
+public class JErrorEntry extends BIRNode.BIRErrorEntry {
 
-    public String errorClass;
-    public BIRTerminator.Return term;
+    public List<CatchIns> catchIns = new ArrayList<>();
+
+    public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
+
+        super(trapBB, endBB, errorOp, targetBB);
+    }
 }

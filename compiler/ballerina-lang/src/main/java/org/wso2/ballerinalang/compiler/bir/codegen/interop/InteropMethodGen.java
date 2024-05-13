@@ -34,6 +34,19 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JErrorEntry;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldMethod;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIConstructorCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaField;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -152,8 +165,7 @@ public class InteropMethodGen {
         // the JVM method local variable index for each parameter is assigned
         List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>();
         for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
-            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
-                BIRNode.BIRFunctionParameter functionParameter = (BIRNode.BIRFunctionParameter) birLocalVarOptional;
+            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter functionParameter) {
                 birFuncParams.add(functionParameter);
                 indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
             }
@@ -480,26 +492,17 @@ public class InteropMethodGen {
             return "[" + getJTypeSignature(eType);
         }
 
-        switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                return "B";
-            case JTypeTags.JCHAR:
-                return "C";
-            case JTypeTags.JSHORT:
-                return "S";
-            case JTypeTags.JINT:
-                return "I";
-            case JTypeTags.JLONG:
-                return "J";
-            case JTypeTags.JFLOAT:
-                return "F";
-            case JTypeTags.JDOUBLE:
-                return "D";
-            case JTypeTags.JBOOLEAN:
-                return "Z";
-            default:
-                throw new BLangCompilerException("invalid element type: " + jType);
-        }
+        return switch (jType.jTag) {
+            case JTypeTags.JBYTE -> "B";
+            case JTypeTags.JCHAR -> "C";
+            case JTypeTags.JSHORT -> "S";
+            case JTypeTags.JINT -> "I";
+            case JTypeTags.JLONG -> "J";
+            case JTypeTags.JFLOAT -> "F";
+            case JTypeTags.JDOUBLE -> "D";
+            case JTypeTags.JBOOLEAN -> "Z";
+            default -> throw new BLangCompilerException("invalid element type: " + jType);
+        };
     }
 
     public static String getSignatureForJType(JType jType) {
@@ -507,34 +510,24 @@ public class InteropMethodGen {
             return ((JType.JRefType) jType).typeValue;
         } else if (jType.jTag == JTypeTags.JARRAY) { //must be JArrayType
             JType eType = ((JType.JArrayType) jType).elementType;
-            String sig = "[";
+            StringBuilder sig = new StringBuilder("[");
             while (eType.jTag == JTypeTags.JARRAY) {
                 eType = ((JType.JArrayType) eType).elementType;
-                sig += "[";
+                sig.append("[");
             }
 
-            switch (eType.jTag) {
-                case JTypeTags.JREF:
-                    return sig + "L" + getSignatureForJType(eType) + ";";
-                case JTypeTags.JBYTE:
-                    return sig + "B";
-                case JTypeTags.JCHAR:
-                    return sig + "C";
-                case JTypeTags.JSHORT:
-                    return sig + "S";
-                case JTypeTags.JINT:
-                    return sig + "I";
-                case JTypeTags.JLONG:
-                    return sig + "J";
-                case JTypeTags.JFLOAT:
-                    return sig + "F";
-                case JTypeTags.JDOUBLE:
-                    return sig + "D";
-                case JTypeTags.JBOOLEAN:
-                    return sig + "Z";
-                default:
-                    throw new BLangCompilerException("invalid element type: " + eType);
-            }
+            return switch (eType.jTag) {
+                case JTypeTags.JREF -> sig + "L" + getSignatureForJType(eType) + ";";
+                case JTypeTags.JBYTE -> sig + "B";
+                case JTypeTags.JCHAR -> sig + "C";
+                case JTypeTags.JSHORT -> sig + "S";
+                case JTypeTags.JINT -> sig + "I";
+                case JTypeTags.JLONG -> sig + "J";
+                case JTypeTags.JFLOAT -> sig + "F";
+                case JTypeTags.JDOUBLE -> sig + "D";
+                case JTypeTags.JBOOLEAN -> sig + "Z";
+                default -> throw new BLangCompilerException("invalid element type: " + eType);
+            };
         } else {
             throw new BLangCompilerException("invalid element type: " + jType);
         }
@@ -595,24 +588,16 @@ public class InteropMethodGen {
                                GET_BSTRING_FOR_ARRAY_INDEX, true);
         } else {
             switch (elementTypeTag) {
-                case TypeTags.BOOLEAN:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
-                    break;
-                case TypeTags.BYTE:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
-                    break;
-                case TypeTags.FLOAT:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
-                    break;
-                case TypeTags.HANDLE:
+                case TypeTags.BOOLEAN -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
+                case TypeTags.BYTE -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
+                case TypeTags.FLOAT -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
+                case TypeTags.HANDLE -> {
                     mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
                             true);
                     mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
-                    break;
-                default:
-                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
-                            true);
-                    break;
+                }
+                default -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", GET_STRING_FROM_ARRAY,
+                        true);
             }
         }
 
@@ -632,34 +617,16 @@ public class InteropMethodGen {
 
     private static void genArrayStore(MethodVisitor mv, JType jType) {
 
-        int code;
-        switch (jType.jTag) {
-            case JTypeTags.JINT:
-                code = IASTORE;
-                break;
-            case JTypeTags.JLONG:
-                code = LASTORE;
-                break;
-            case JTypeTags.JDOUBLE:
-                code = DASTORE;
-                break;
-            case JTypeTags.JBYTE:
-            case JTypeTags.JBOOLEAN:
-                code = BASTORE;
-                break;
-            case JTypeTags.JSHORT:
-                code = SASTORE;
-                break;
-            case JTypeTags.JCHAR:
-                code = CASTORE;
-                break;
-            case JTypeTags.JFLOAT:
-                code = FASTORE;
-                break;
-            default:
-                code = AASTORE;
-                break;
-        }
+        int code = switch (jType.jTag) {
+            case JTypeTags.JINT -> IASTORE;
+            case JTypeTags.JLONG -> LASTORE;
+            case JTypeTags.JDOUBLE -> DASTORE;
+            case JTypeTags.JBYTE, JTypeTags.JBOOLEAN -> BASTORE;
+            case JTypeTags.JSHORT -> SASTORE;
+            case JTypeTags.JCHAR -> CASTORE;
+            case JTypeTags.JFLOAT -> FASTORE;
+            default -> AASTORE;
+        };
 
         mv.visitInsn(code);
     }
@@ -667,34 +634,15 @@ public class InteropMethodGen {
     private static void genArrayNew(MethodVisitor mv, JType elementType) {
 
         switch (elementType.jTag) {
-            case JTypeTags.JINT:
-                mv.visitIntInsn(NEWARRAY, T_INT);
-                break;
-            case JTypeTags.JLONG:
-                mv.visitIntInsn(NEWARRAY, T_LONG);
-                break;
-            case JTypeTags.JDOUBLE:
-                mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-                break;
-            case JTypeTags.JBYTE:
-            case JTypeTags.JBOOLEAN:
-                mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
-                break;
-            case JTypeTags.JSHORT:
-                mv.visitIntInsn(NEWARRAY, T_SHORT);
-                break;
-            case JTypeTags.JCHAR:
-                mv.visitIntInsn(NEWARRAY, T_CHAR);
-                break;
-            case JTypeTags.JFLOAT:
-                mv.visitIntInsn(NEWARRAY, T_FLOAT);
-                break;
-            case JTypeTags.JREF:
-            case JTypeTags.JARRAY:
-                mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
-                break;
-            default:
-                throw new BLangCompilerException("invalid type for var-arg: " + elementType);
+            case JTypeTags.JINT -> mv.visitIntInsn(NEWARRAY, T_INT);
+            case JTypeTags.JLONG -> mv.visitIntInsn(NEWARRAY, T_LONG);
+            case JTypeTags.JDOUBLE -> mv.visitIntInsn(NEWARRAY, T_DOUBLE);
+            case JTypeTags.JBYTE, JTypeTags.JBOOLEAN -> mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
+            case JTypeTags.JSHORT -> mv.visitIntInsn(NEWARRAY, T_SHORT);
+            case JTypeTags.JCHAR -> mv.visitIntInsn(NEWARRAY, T_CHAR);
+            case JTypeTags.JFLOAT -> mv.visitIntInsn(NEWARRAY, T_FLOAT);
+            case JTypeTags.JREF, JTypeTags.JARRAY -> mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
+            default -> throw new BLangCompilerException("invalid type for var-arg: " + elementType);
         }
     }
 

@@ -15,34 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * This enum is used to indicate whether the given Ballerina function mutates or access the java field.
+ * An enum to model the JInstruction kind.
  *
  * @since 1.2.0
  */
-enum JFieldMethod {
-    ACCESS("access"),
-    MUTATE("mutate");
+public enum JInsKind {
+    JCAST((byte) 1),
+    CALL((byte) 2),
+    LARGE_ARRAY((byte) 3),
+    LARGE_MAP((byte) 4);
 
-    private String strValue;
+    final byte value;
 
-    JFieldMethod(String strValue) {
+    JInsKind(byte value) {
 
-        this.strValue = strValue;
+        this.value = value;
     }
 
-    static JFieldMethod getKind(String value) {
+    public byte getValue() {
 
-        if ("access".equals(value)) {
-            return ACCESS;
-        }
-        return MUTATE;
-    }
-
-    String getStringValue() {
-
-        return this.strValue;
+        return this.value;
     }
 }

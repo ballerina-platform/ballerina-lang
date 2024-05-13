@@ -15,33 +15,34 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
-
-import io.ballerina.tools.diagnostics.DiagnosticCode;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * This error indicates Ballerina Java interoperability related error.
+ * This enum is used to indicate whether the given Ballerina function mutates or access the java field.
  *
  * @since 1.2.0
  */
-public class JInteropException extends RuntimeException {
+public enum JFieldMethod {
+    ACCESS("access"),
+    MUTATE("mutate");
 
-    private DiagnosticCode code;
+    private String strValue;
 
-    JInteropException(DiagnosticCode code, String message) {
+    JFieldMethod(String strValue) {
 
-        super(message);
-        this.code = code;
+        this.strValue = strValue;
     }
 
-    JInteropException(DiagnosticCode code, String message, Throwable cause) {
+    static JFieldMethod getKind(String value) {
 
-        super(message, cause);
-        this.code = code;
+        if ("access".equals(value)) {
+            return ACCESS;
+        }
+        return MUTATE;
     }
 
-    public DiagnosticCode getCode() {
+    String getStringValue() {
 
-        return this.code;
+        return this.strValue;
     }
 }

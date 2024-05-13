@@ -15,53 +15,55 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getSig;
 
 /**
  * Represents a Java field in this implementation.
  *
  * @since 1.0.0
  */
-class JavaField {
+public class JavaField {
 
-    JFieldMethod method;
+    public JFieldMethod method;
     private Field field;
 
-    JavaField(JFieldMethod method, Field field) {
+    public JavaField(JFieldMethod method, Field field) {
 
         this.method = method;
         this.field = field;
     }
 
-    String getDeclaringClassName() {
+    public String getDeclaringClassName() {
 
         return field.getDeclaringClass().getName().replace(".", "/");
     }
 
-    String getName() {
+    public String getName() {
 
         return field.getName();
     }
 
-    boolean isStatic() {
+    public boolean isStatic() {
 
         return Modifier.isStatic(field.getModifiers());
     }
 
-    JFieldMethod getMethod() {
+    public JFieldMethod getMethod() {
 
         return method;
     }
 
-    String getSignature() {
+    public String getSignature() {
 
-        return JInterop.getSig(field.getType());
+        return getSig(field.getType());
     }
 
-    Class<?> getFieldType() {
+    public Class<?> getFieldType() {
 
         return field.getType();
     }

@@ -15,22 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBYTE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JCHAR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JDOUBLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JFLOAT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JINT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JLONG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JREF;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHORT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JVOID;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JBYTE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JCHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JDOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JFLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JINT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JLONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JREF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JSHORT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JVOID;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
@@ -55,7 +55,7 @@ public class JType extends BType {
     private static final String JARRAY_KIND = "array";
     private static final String JREF_KIND = "ref";
     private static final String JNO_KIND = "no";
-    static JType jVoid = new JType(JVOID);
+    public static JType jVoid = new JType(JVOID);
     private static JType jByte = new JType(JBYTE);
     private static JType jChar = new JType(JCHAR);
     private static JType jShort = new JType(JSHORT);
@@ -72,7 +72,7 @@ public class JType extends BType {
         this.jTag = jTag;
     }
 
-    static JType getJTypeFromTypeName(String typeName) {
+    public static JType getJTypeFromTypeName(String typeName) {
 
         switch (typeName) {
             case JBYTE_KIND:
@@ -98,7 +98,7 @@ public class JType extends BType {
         }
     }
 
-    static JType getJTypeForPrimitive(String typeName) {
+    public static JType getJTypeForPrimitive(String typeName) {
 
         switch (typeName) {
             case JBYTE_KIND:
@@ -124,7 +124,7 @@ public class JType extends BType {
         }
     }
 
-    static int getJTypeTagForPrimitive(String typeName) {
+    public static int getJTypeTagForPrimitive(String typeName) {
 
         switch (typeName) {
             case JBYTE_KIND:
@@ -148,7 +148,7 @@ public class JType extends BType {
         }
     }
 
-    static JArrayType getJArrayTypeFromTypeName(String typeName, byte dimensions) {
+    public static JArrayType getJArrayTypeFromTypeName(String typeName, byte dimensions) {
 
         JArrayType arrayType = new JArrayType(getJTypeFromTypeName(typeName));
         int i = 1;
@@ -160,7 +160,7 @@ public class JType extends BType {
         return arrayType;
     }
 
-    static JType getJTypeForBType(BType type) {
+    public static JType getJTypeForBType(BType type) {
         switch (type.tag) {
             case INT:
                 return jLong;
@@ -182,7 +182,7 @@ public class JType extends BType {
      */
     public static class JArrayType extends JType {
 
-        JType elementType;
+        public JType elementType;
 
         JArrayType(JType elementType) {
 
@@ -199,8 +199,8 @@ public class JType extends BType {
     public static class JRefType extends JType {
 
         public String typeValue;
-        boolean isInterface = false;
-        boolean isArray = false;
+        public boolean isInterface = false;
+        public boolean isArray = false;
 
         public JRefType(String typeValue) {
 

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getMethodSig;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 
 /**
@@ -39,13 +40,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
  *
  * @since 1.2.0
  */
-class JMethod {
+public class JMethod {
 
-    static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
+    public static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
     public static final String BAL_ENV_CANONICAL_NAME = Environment.class.getCanonicalName();
 
-    JMethodKind kind;
-    private Executable method;
+    public JMethodKind kind;
+    private final Executable method;
     private BType receiverType;
     public boolean hasBundledPathParams = false;
     public boolean hasBundledFunctionParams = false;
@@ -57,33 +58,33 @@ class JMethod {
         this.receiverType = receiverType;
     }
 
-    static JMethod build(JMethodKind kind, Executable executable, BType receiverType) {
+    public static JMethod build(JMethodKind kind, Executable executable, BType receiverType) {
 
         return new JMethod(kind, executable, receiverType);
     }
 
 
-    String getClassName() {
+    public String getClassName() {
 
         return method.getDeclaringClass().getName();
     }
 
-    boolean isDeclaringClassInterface() {
+    public boolean isDeclaringClassInterface() {
 
         return this.method.getDeclaringClass().isInterface();
     }
 
-    boolean isStatic() {
+    public boolean isStatic() {
 
         return Modifier.isStatic(method.getModifiers());
     }
 
-    boolean isInstanceMethod() {
+    public boolean isInstanceMethod() {
 
         return !isStatic() && !(method instanceof Constructor);
     }
 
-    String getName() {
+    public String getName() {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
             return JVM_INIT_METHOD;
@@ -92,30 +93,30 @@ class JMethod {
         }
     }
 
-    JMethodKind getKind() {
+    public JMethodKind getKind() {
 
         return kind;
     }
 
-    Executable getMethod() {
+    public Executable getMethod() {
 
         return method;
     }
 
-    String getSignature() {
+    public String getSignature() {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return JInterop.getMethodSig(void.class, method.getParameterTypes());
+            return getMethodSig(void.class, method.getParameterTypes());
         } else {
-            return JInterop.getMethodSig(getReturnType(), method.getParameterTypes());
+            return getMethodSig(getReturnType(), method.getParameterTypes());
         }
     }
 
-    Class<?>[] getParamTypes() {
+    public Class<?>[] getParamTypes() {
         return method.getParameterTypes();
     }
 
-    Class<?> getReturnType() {
+    public Class<?> getReturnType() {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
             return method.getDeclaringClass();
@@ -154,7 +155,7 @@ class JMethod {
         return arrayValue;
     }
 
-    Class<?>[] getExceptionTypes() {
+    public Class<?>[] getExceptionTypes() {
 
         List<Class<?>> checkedExceptions = new ArrayList<>();
         try {

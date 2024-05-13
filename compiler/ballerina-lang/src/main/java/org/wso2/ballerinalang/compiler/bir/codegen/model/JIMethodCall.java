@@ -15,40 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+
+import java.util.List;
 
 /**
- * Java specific instruction definitions.
+ * Java method invocation call modeled as BIR terminator.
  *
  * @since 1.2.0
  */
-public class JInstruction extends BIRNonTerminator {
+public class JIMethodCall extends JTerminator {
 
-    public JInsKind jKind;
+    public BIROperand receiver;
+    public List<BIROperand> args;
+    public List<BIROperand> resourcePathArgs;
+    public List<BIROperand> functionArgs;
+    public boolean varArgExist;
+    public JType varArgType;
+    public String jClassName;
+    public String jMethodVMSig;
+    public String name;
+    public int invocationType;
+    public boolean isInternal = false;
 
-    JInstruction(Location pos) {
+    public JIMethodCall(Location pos) {
 
-        super(pos, InstructionKind.PLATFORM);
+        super(pos);
+        this.jTermKind = JTermKind.JI_METHOD_CALL;
     }
 
     @Override
     public void accept(BIRVisitor visitor) {
-        throw new UnsupportedOperationException();
+        // Do nothing
     }
 
     @Override
     public BIROperand[] getRhsOperands() {
-        return new BIROperand[0];
+        return args.toArray(new BIROperand[0]);
     }
 
     @Override
     public void setRhsOperands(BIROperand[] operands) {
-        // do nothing
+        this.args = List.of(operands);
+    }
+
+    @Override
+    public BIRBasicBlock[] getNextBasicBlocks() {
+        return new BIRBasicBlock[0];
     }
 }

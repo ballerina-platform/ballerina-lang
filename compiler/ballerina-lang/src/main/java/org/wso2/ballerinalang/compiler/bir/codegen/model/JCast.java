@@ -15,25 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * Java error entry model class based on BIR error entry node.
+ * Java cast instruction.
  *
  * @since 1.2.0
  */
-public class JErrorEntry extends BIRNode.BIRErrorEntry {
+public class JCast extends JInstruction {
 
-    public List<CatchIns> catchIns = new ArrayList<>();
+    public BIROperand rhsOp;
+    public BType targetType;
 
-    public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
+    public JCast(Location pos) {
 
-        super(trapBB, endBB, errorOp, targetBB);
+        super(pos);
+        jKind = JInsKind.JCAST;
+    }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        // do nothing
     }
 }
