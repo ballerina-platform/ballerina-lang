@@ -60,6 +60,21 @@ public class CloneValueCodeActionTest extends AbstractCodeActionTest {
     }
 
     @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"clone_value_negative_config1.json"},
+                {"clone_value_negative_config2.json"},
+                {"clone_value_negative_config3.json"}
+        };
+    }
+
+    @Override
     public String getResourceDir() {
         return "clone-value";
     }
