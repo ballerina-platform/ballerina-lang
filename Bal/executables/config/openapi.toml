@@ -1,0 +1,70 @@
+[base_command]
+name = "openapi"
+short = "Generate a Ballerina service or a client from an OpenAPI contract and vice versa."
+long = "This command generates Ballerina service or client code from an OpenAPI contract and vice versa."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "input"
+default_val = ""
+usage = "This is mandatory input. The given Ballerina GraphQL service file will generate the GraphQL schema (SDL) file relevant to the service"
+shorthand = "i"
+
+[[base_command.flag]]
+name = "output"
+default_val = ""
+usage = "Location of the generated Ballerina source code."
+shorthand = "o"
+
+[[base_command.flag]]
+name = "mode"
+default_val = ""
+usage = "The Ballerina service and client will be generated according to the specified mode."
+
+[[base_command.flag]]
+name = "nullable"
+default_val = false
+usage = "This is a safe option to generate all data types in the record with Ballerina nil support"
+shorthand = "n"
+
+[[base_command.flag]]
+name = "license"
+default_val = ""
+usage = "Optional. The `.bal` files will generate with the given copyright or license header."
+
+[[base_command.flag]]
+name = "service"
+default_val = ""
+usage = "This option is used with the command of Ballerina to OpenAPI specification generation."
+shorthand = "s"
+
+[[base_command.flag]]
+name = "json"
+default_val = false
+usage = "Generate the Ballerina service to OpenAPI output in JSON. The default is YAML."
+
+[[base_command.flag]]
+name = "tags"
+default_val = ""
+usage = "This option is used with the OpenAPI to Ballerina file generation command."
+
+[[base_command.flag]]
+name = "operations"
+default_val = ""
+usage = "List of operations to generate the Ballerina service or client."
+
+[[base_command.flag]]
+name = "with-tests"
+default_val = false
+usage = "Work with the client generation command and generate a test"
+
+[[base_command.flag]]
+name = "without-data-binding"
+default_val = false
+usage = "This option can be used in the service generation to generate a low-level service without any data-binding logic."
+
+[[base_command.flag]]
+name = "client-methods"
+default_val = ""
+usage = "This option can be used in client generation to select the client method type, which can be `resource` or `remote`."

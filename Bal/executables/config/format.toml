@@ -1,0 +1,12 @@
+[base_command]
+name = "format"
+short = "Format the Ballerina source files"
+long = "This command formats the Ballerina source files in the project."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "dry-run"
+shorthand = "d"
+default_val = false
+usage = "Perform a dry run of the formatter and see which files will be formatted after the execution"

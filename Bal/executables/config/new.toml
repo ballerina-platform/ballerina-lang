@@ -1,0 +1,12 @@
+[base_command]
+name = "new"
+short = "A brief description of your command"
+long = "This command creates a new package using a predefined template."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "template"
+default_val = ""
+usage = "Create a package using a predefined template."
+shorthand = "t"

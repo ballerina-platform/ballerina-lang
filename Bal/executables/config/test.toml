@@ -1,0 +1,84 @@
+[base_command]
+name = "test"
+short = "A brief description of your command"
+long = "This command is used for testing purposes."
+
+[[base_command.flag]]
+name = "code-coverage"
+default_val = false
+usage = "Generate code coverage in tests."
+
+[[base_command.flag]]
+name = "coverage-format"
+default_val = ""
+usage = "Generate a coverage report in the specified format."
+
+[[base_command.flag]]
+name = "debug"
+default_val = 0
+usage = "Run in remote debugging mode."
+
+[[base_command.flag]]
+name = "disable-groups"
+default_val = ""
+usage = "Specify the test groups to be excluded."
+
+[[base_command.flag]]
+name = "groups"
+default_val = ""
+usage = "Specify the test groups to be executed."
+
+[[base_command.flag]]
+name = "list-groups"
+default_val = false
+usage = "List the test groups available in the test files."
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Proceed without accessing the network."
+
+[[base_command.flag]]
+name = "observability-included"
+default_val = false
+usage = "Include dependencies required to enable observability."
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Attempt to stick to the dependency versions available in the 'Dependencies.toml' file."
+
+[[base_command.flag]]
+name = "rerun-failed"
+default_val = false
+usage = "Rerun failed tests."
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Specify the target directory."
+
+[[base_command.flag]]
+name = "test-report"
+default_val = false
+usage = "Generate an HTML report containing the test results."
+
+[[base_command.flag]]
+name = "tests"
+default_val = ""
+usage = "Specify the test functions to be executed."
+
+[[base_command.flag]]
+name = "graalvm"
+default_val = false
+usage = "Execute test cases using GraalVM native image."
+
+[[base_command.flag]]
+name = "graalvm-build-options"
+default_val = ""
+usage = "Additional build options passed to GraalVM native image."
+
+[[base_command.flag]]
+name = "excludes"
+default_val = ""
+usage = "Exclude specific Ballerina source files or folders from code coverage calculation."

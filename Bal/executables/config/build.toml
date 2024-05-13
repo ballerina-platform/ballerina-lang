@@ -2,10 +2,11 @@
 name = "build"
 short = "short description of build"
 
-[base_command.help]
-long = "long description of build"
-synopsis="bal build [OPTIONS] [<package>|<source-file>]"
-examples="""
+[help]
+    [help.base]
+    long = "long description of build"
+    synopsis="bal build [OPTIONS] [<package>|<source-file>]"
+    examples="""
 	Build the current package. This will generate an 'app.jar' file in the
        'target/bin' directory.
            $ bal build
@@ -20,7 +21,7 @@ examples="""
        Build the package with additional GraalVM native image options.
            $ bal build --graalvm --graalvm-build-options="--static -H:Name=hello-world"
 	"""
-options="""--export-openapi
+    options="""--export-openapi
            Generate OpenAPI definitions for service declarations in the current
            package.
 

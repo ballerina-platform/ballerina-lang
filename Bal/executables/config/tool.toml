@@ -2,10 +2,41 @@
 name = "tool"
 short = "Extend the Ballerina CLI with custom commands"
 
-[base_command.help]
-long = "This command allows you to extend the Ballerina CLI with custom commands."
-examples="these are the examples"
-synopsis="this is the synopsis"
+[help]
+    [help.base]
+    long = "This command allows you to extend the Ballerina CLI with custom commands."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.pull]
+    long = "This command allows you to pull a tool from the Ballerina Central to use in your local environment."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.remove]
+    long = "This command allows you to remove a tool from the local environment."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.update]
+    long = "This command allows you to update a tool to the latest version compatible with the current distribution."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.use]
+    long = "This command allows you to set a tool version as the active version."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.list]
+    long = "This command allows you to list all tools available in the local environment."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
+
+    [help.search]
+    long = "This command allows you to search the Ballerina Central for tools."
+    examples="these are the examples"
+    synopsis="this is the synopsis"
 
 
 [[base_command.subcommand]]
@@ -52,33 +83,3 @@ command = "use"
 name = "repository"
 default_val = ""
 usage = "Use a tool from a custom repository."
-
-[pull.help]
-long = "This command allows you to pull a tool from the Ballerina Central to use in your local environment."
-examples="these are the examples"
-synopsis="this is the synopsis"
-
-[remove.help]
-long = "This command allows you to remove a tool from the local environment."
-examples="these are the examples"
-synopsis="this is the synopsis"
-
-[update.help]
-long = "This command allows you to update a tool to the latest version compatible with the current distribution."
-examples="these are the examples"
-synopsis="this is the synopsis"
-
-[use.help]
-long = "This command allows you to set a tool version as the active version."
-examples="these are the examples"
-synopsis="this is the synopsis"
-
-[list.help]
-long = "This command allows you to list all tools available in the local environment."
-examples="these are the examples"
-synopsis="this is the synopsis"
-
-[search.help]
-long = "This command allows you to search the Ballerina Central for tools."
-examples="these are the examples"
-synopsis="this is the synopsis"

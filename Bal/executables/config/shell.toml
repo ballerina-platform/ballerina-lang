@@ -1,0 +1,27 @@
+[base_command]
+name = "shell"
+short = "Run Ballerina interactive REPL"
+long = "This command runs the Ballerina interactive Read-Eval-Print Loop (REPL) environment."
+
+[[base_command.flag]]
+name = "debug"
+shorthand = "d"
+default_val = false
+usage = "Enable debug mode from the beginning."
+
+[[base_command.flag]]
+name = "force-dumb"
+default_val = false
+usage = "Force the dumb terminal mode."
+
+[[base_command.flag]]
+name = "file"
+shorthand = "f"
+default_val = ""
+usage = "Open a file and load the initial declarations."
+
+[[base_command.flag]]
+name = "time-out"
+shorthand = "t"
+default_val = ""
+usage = "Set the tree parsing timeout value."

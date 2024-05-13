@@ -1,0 +1,33 @@
+[base_command]
+name = "doc"
+short = "A brief description of your command"
+long = "A detailed description of the 'doc' command."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "output"
+shorthand = "o"
+default_val = ""
+usage = "Write the output to the given file."
+
+[[base_command.flag]]
+name = "exclude"
+shorthand = "e"
+default_val = ""
+usage = "Write the output to the given file."
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Run in offline mode"
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Run with including sticky"
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Specify the target directory"

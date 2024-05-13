@@ -58,10 +58,10 @@ func {{.Name}}Cmd() *cobra.Command{
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
-	if long := viper.GetString("base_command.help.long"); long != "" {
+	if long := viper.GetString("help.base.long"); long != "" {
 		cmd.Long = long
 	}
-	if examples := viper.GetString("base_command.help.examples"); examples != "" {
+	if examples := viper.GetString("help.base.examples"); examples != "" {
 		cmd.Example = examples
 	}
 
@@ -124,6 +124,13 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 
 		if err := viper.ReadInConfig(); err != nil {
 			log.Fatalf("Error reading config file: %s", err)
+		}
+
+		if long := viper.GetString("help.{{.Use}}.long"); long != "" {
+			cmd.Long = long
+		}
+		if examples := viper.GetString("help.{{.Use}}.examples"); examples != "" {
+			cmd.Example = examples
 		}
 
 		return cmd
@@ -265,7 +272,7 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 		log.Fatalf("Error executing template: %s", err)
 	}
 	output := commandData.String() //format the content of the document
-	fmt.Println(output)
+	//fmt.Println(output)
 	formattedContent, err := format.Source([]byte(output))
 	if err != nil {
 		log.Fatalf("Error formatting Go code: %s", err)

@@ -32,12 +32,6 @@ func init() {
 	RootCmd.Flags().BoolP("version", "v", false, "Print version information.")
 	cmdLineArgsPass, javaCmdPass = utils.Setup()
 
-	// flags := buildCmd.Flags()
-	// flags.VisitAll(func(flag *pflag.Flag) {
-	// 	fmt.Printf("Long: %s, Short: %s, Usage: %s\n", flag.Name, flag.Shorthand, flag.Usage)
-	// })
-	// Accessing flags using Cobra
-
 	// commandGroups := templates.CommandGroups{
 	// 	{Message: "Core Commands", Commands: []*cobra.Command{runCmd, buildCmd}},
 	// 	{Message: "Package Commands", Commands: []*cobra.Command{newCmd, addCmd}},

@@ -60,7 +60,6 @@ Use 'bal help <command>' for more information on a specific command.
 		return
 	}
 
-	// Data for filling out the template
 	data := struct {
 		Base_Short    string
 		CommandGroups CommandGroups
@@ -69,7 +68,6 @@ Use 'bal help <command>' for more information on a specific command.
 		CommandGroups: commandGroups,
 	}
 
-	// Execute the template
 	err = tmpl.Execute(os.Stdout, data)
 	if err != nil {
 		fmt.Println(err)

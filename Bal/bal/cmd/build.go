@@ -28,10 +28,10 @@ func buildCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
-	if long := viper.GetString("base_command.help.long"); long != "" {
+	if long := viper.GetString("help.base.long"); long != "" {
 		cmd.Long = long
 	}
-	if examples := viper.GetString("base_command.help.examples"); examples != "" {
+	if examples := viper.GetString("help.base.examples"); examples != "" {
 		cmd.Example = examples
 	}
 

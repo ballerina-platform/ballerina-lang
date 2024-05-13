@@ -1,0 +1,16 @@
+[base_command]
+name = "deprecate"
+short = "Deprecates a published package"
+long = "Deprecates a published package using the deprecate command."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "message"
+default_val = ""
+usage = "Use the given <msg> as the deprecation message"
+
+[[base_command.flag]]
+name = "undo"
+default_val = false
+usage = "Undo deprecation of a package"

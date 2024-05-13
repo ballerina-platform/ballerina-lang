@@ -28,10 +28,10 @@ func toolCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
-	if long := viper.GetString("base_command.help.long"); long != "" {
+	if long := viper.GetString("help.base.long"); long != "" {
 		cmd.Long = long
 	}
-	if examples := viper.GetString("base_command.help.examples"); examples != "" {
+	if examples := viper.GetString("help.base.examples"); examples != "" {
 		cmd.Example = examples
 	}
 
@@ -71,6 +71,13 @@ func pulltoolCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
+	if long := viper.GetString("help.pull.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.pull.examples"); examples != "" {
+		cmd.Example = examples
+	}
+
 	return cmd
 }
 
@@ -94,6 +101,13 @@ func removetoolCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
+	if long := viper.GetString("help.remove.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.remove.examples"); examples != "" {
+		cmd.Example = examples
+	}
+
 	return cmd
 }
 
@@ -114,6 +128,13 @@ func updatetoolCmd() *cobra.Command {
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %s", err)
+	}
+
+	if long := viper.GetString("help.update.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.update.examples"); examples != "" {
+		cmd.Example = examples
 	}
 
 	return cmd
@@ -139,6 +160,13 @@ func usetoolCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
+	if long := viper.GetString("help.use.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.use.examples"); examples != "" {
+		cmd.Example = examples
+	}
+
 	return cmd
 }
 
@@ -161,6 +189,13 @@ func listtoolCmd() *cobra.Command {
 		log.Fatalf("Error reading config file: %s", err)
 	}
 
+	if long := viper.GetString("help.list.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.list.examples"); examples != "" {
+		cmd.Example = examples
+	}
+
 	return cmd
 }
 
@@ -181,6 +216,13 @@ func searchtoolCmd() *cobra.Command {
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %s", err)
+	}
+
+	if long := viper.GetString("help.search.long"); long != "" {
+		cmd.Long = long
+	}
+	if examples := viper.GetString("help.search.examples"); examples != "" {
+		cmd.Example = examples
 	}
 
 	return cmd
