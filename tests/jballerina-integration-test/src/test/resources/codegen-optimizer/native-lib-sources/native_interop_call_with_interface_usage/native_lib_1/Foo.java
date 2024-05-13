@@ -15,8 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-public class Foo {
-    public static void fooFunc() {
+public class Foo implements Bar {
+
+    public void fooFunc() {
         System.out.println("Foo class is being used...");
+        barFunc();
+    }
+
+    @Override
+    public void barFunc() {
+        System.out.println("Interface Bar is being used...");
     }
 }
