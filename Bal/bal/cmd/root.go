@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bal/pkg/templates"
 	"bal/pkg/utils"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -32,15 +34,16 @@ func init() {
 	RootCmd.Flags().BoolP("version", "v", false, "Print version information.")
 	cmdLineArgsPass, javaCmdPass = utils.Setup()
 
-	// commandGroups := templates.CommandGroups{
-	// 	{Message: "Core Commands", Commands: []*cobra.Command{runCmd, buildCmd}},
-	// 	{Message: "Package Commands", Commands: []*cobra.Command{newCmd, addCmd}},
-	// 	{Message: "Other Commands", Commands: []*cobra.Command{cleanCmd, formatCmd, versionCmd, pullCmd}},
-	// }
+	commandGroups := templates.CommandGroups{
+		{Message: "Core Commands", Commands: []*cobra.Command{buildCmd(), runCmd, testCmd(), docCmd(), packCmd()}},
+		{Message: "Package Commands", Commands: []*cobra.Command{newCmd(), addCmd(), pullCmd(), pushCmd(), searchCmd(), semverCmd(), graphCmd(), deprecateCmd()}},
+		{Message: "Other Commands", Commands: []*cobra.Command{cleanCmd(), formatCmd(), grpcCmd(), graphqlCmd(), openapiCmd(), asyncapiCmd(), persistCmd(), persistCmd(), bindgenCmd(), shellCmd(), toolCmd(), versionCmd(), profileCmd()}},
+		{Message: "Tool Commands", Commands: []*cobra.Command{}},
+	}
 
-	// RootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-	// 	fmt.Println("Executing custom help template")
-	// 	templates.Executing_Help_Template(*cmd, commandGroups)
-	// })
+	RootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		fmt.Println("Executing custom help template")
+		templates.Executing_Help_Template(*cmd, commandGroups)
+	})
 
 }
