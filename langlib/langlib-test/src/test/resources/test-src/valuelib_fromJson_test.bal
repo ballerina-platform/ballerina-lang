@@ -938,6 +938,48 @@ function testFromJsonStringWithTypeRecordWithXML() {
     }
 }
 
+function testFromJsonWithTypeArray() {
+    string anArray = "[true, false]";
+    boolean[]|string j = checkpanic anArray.fromJsonStringWithType();
+    assertTrue(j is boolean[]);
+    if j is boolean[] {
+        assertEquality(j.length(), 2);
+        assertEquality(j[0], true);     
+    }
+
+    anArray = "[\"hello\", \"world\"]";
+    boolean[]|string[] k = checkpanic anArray.fromJsonStringWithType();
+    assertTrue(j is boolean[]);
+    if k is string[] {
+        assertEquality(k.length(), 2);
+        assertEquality(k[0], "hello");     
+    }
+
+    anArray = "[9.0, 8.6]";
+    float[]|string[] l = checkpanic anArray.fromJsonStringWithType();
+    assertTrue(l is float[]);
+    if l is float[] {
+        assertEquality(l.length(), 2);
+        assertEquality(l[0], 9.0f);     
+    }
+
+    anArray = "[9, 8]";
+    byte[]|string[] m = checkpanic anArray.fromJsonStringWithType();
+    assertTrue(m is byte[]);
+    if m is byte[] {
+        assertEquality(m.length(), 2);
+        assertEquality(m[0], <byte>9);     
+    }
+
+    anArray = "[9, 8]";
+    int[]|string[] n = checkpanic anArray.fromJsonStringWithType();
+    assertTrue(n is int[]);
+    if n is int[] {
+        assertEquality(n.length(), 2);
+        assertEquality(n[0], 9);     
+    }
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
