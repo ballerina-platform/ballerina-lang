@@ -87,7 +87,6 @@ public class JvmRecordCreatorGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, recordsClass, null, OBJECT, null);
         String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-        jvmValueCreatorGen.generateStaticInitializer(module, cw, recordsClass, CREATE_RECORD_VALUE, metadataVarName);
         generateCreateRecordMethods(cw, recordTypeDefList, module.packageID, moduleInitClass, recordsClass,
                 metadataVarName);
         cw.visitEnd();

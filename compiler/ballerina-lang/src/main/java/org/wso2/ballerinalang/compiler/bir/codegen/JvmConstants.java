@@ -305,6 +305,7 @@ public class JvmConstants {
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
+    public static final String MODULE_STRAND_METADATA_CLASS_NAME = "constants/$_strand_metadata";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";

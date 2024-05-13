@@ -154,8 +154,7 @@ public class JvmUnionTypeConstantsGen {
 
     private void createBunionType(MethodVisitor mv, BUnionType unionType, String varName) {
         jvmUnionTypeGen.createUnionType(mv, unionType);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, unionVarConstantsClass, varName,
-                          GET_UNION_TYPE_IMPL);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, unionVarConstantsClass, varName, GET_UNION_TYPE_IMPL);
     }
 
     private void visitBUnionField(String varName) {
@@ -164,8 +163,7 @@ public class JvmUnionTypeConstantsGen {
     }
 
     public void generateGetBUnionType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName,
-                          GET_UNION_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName, GET_UNION_TYPE_IMPL);
     }
 
     public void generateClass(Map<String, byte[]> jarEntries) {

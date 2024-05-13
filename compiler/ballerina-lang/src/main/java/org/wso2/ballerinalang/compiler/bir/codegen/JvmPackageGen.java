@@ -244,20 +244,16 @@ public class JvmPackageGen {
 
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
-                                                  AsyncDataCollector asyncDataCollector,
                                                   JvmConstantsGen jvmConstantsGen) {
-        if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
+        if (!isInitClass) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        if (isInitClass) {
-            setConstantFields(mv, birPackage, jvmConstantsGen);
-            setLockStoreField(mv, className);
-            setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
-            setModuleStatusField(cw, mv, className);
-            setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
-        }
-        JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
+        setConstantFields(mv, birPackage, jvmConstantsGen);
+        setLockStoreField(mv, className);
+        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+        setModuleStatusField(cw, mv, className);
+        setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, className);
         mv.visitEnd();
@@ -393,8 +389,8 @@ public class JvmPackageGen {
                     }
                 }
 
-                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector,
-                        isRemoteMgtEnabled);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmConstantsGen,
+                        asyncDataCollector, isRemoteMgtEnabled);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
@@ -406,9 +402,9 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
-                ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
-                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                                asyncDataCollector);
+                ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen, jvmConstantsGen);
+                stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
+                        asyncDataCollector);
             } else {
                 cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
@@ -419,9 +415,8 @@ public class JvmPackageGen {
                 methodGen.generateMethod(func, cw, module, null, moduleClass, jvmTypeGen, jvmCastGen,
                         jvmConstantsGen, asyncDataCollector);
             }
-            JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, jvmConstantsGen);
+                    jvmConstantsGen);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
@@ -753,6 +748,7 @@ public class JvmPackageGen {
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
                 flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
+        AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module);
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass,
@@ -771,7 +767,6 @@ public class JvmPackageGen {
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
-        AsyncDataCollector asyncDataCollector = new AsyncDataCollector(module);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, asyncDataCollector);
 
         // generate frame classes
@@ -785,7 +780,7 @@ public class JvmPackageGen {
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
-        jvmConstantsGen.generateConstants(jarEntries);
+        jvmConstantsGen.generateConstants(jarEntries, asyncDataCollector.getStrandMetadata());
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 
         // clear class name mappings

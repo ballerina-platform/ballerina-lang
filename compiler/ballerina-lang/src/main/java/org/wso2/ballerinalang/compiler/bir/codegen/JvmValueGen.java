@@ -50,7 +50,6 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -78,7 +77,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
@@ -325,8 +323,6 @@ public class JvmValueGen {
 
         this.createRecordConstructor(cw, INIT_TYPEDESC, className);
         this.createRecordConstructor(cw, TYPE_PARAMETER, className);
-        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
-        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
@@ -485,8 +481,6 @@ public class JvmValueGen {
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);
-        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
-        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
         jarEntries.put(className + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(cw, typeDef));
     }
@@ -590,18 +584,6 @@ public class JvmValueGen {
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
-        mv.visitEnd();
-    }
-
-    private void generateStaticInitializer(ClassWriter cw, String moduleClass, PackageID module,
-                                           AsyncDataCollector asyncDataCollector) {
-        if (asyncDataCollector.getStrandMetadata().isEmpty()) {
-            return;
-        }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleClass);
         mv.visitEnd();
     }
 

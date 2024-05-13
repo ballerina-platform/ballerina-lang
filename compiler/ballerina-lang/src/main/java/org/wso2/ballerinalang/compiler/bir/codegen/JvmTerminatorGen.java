@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -217,25 +218,27 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmTerminatorGen {
 
-    private MethodVisitor mv;
-    private BIRVarToJVMIndexMap indexMap;
-    private LabelGenerator labelGen;
-    private JvmErrorGen errorGen;
-    private String currentPackageName;
-    private String moduleInitClass;
-    private JvmPackageGen jvmPackageGen;
-    private JvmInstructionGen jvmInstructionGen;
-    private PackageCache packageCache;
-    private SymbolTable symbolTable;
-    private Unifier unifier;
-    private JvmTypeGen jvmTypeGen;
-    private JvmCastGen jvmCastGen;
-    private AsyncDataCollector asyncDataCollector;
+    private final MethodVisitor mv;
+    private final BIRVarToJVMIndexMap indexMap;
+    private final LabelGenerator labelGen;
+    private final JvmErrorGen errorGen;
+    private final String currentPackageName;
+    private final String moduleInitClass;
+    private final JvmPackageGen jvmPackageGen;
+    private final JvmInstructionGen jvmInstructionGen;
+    private final PackageCache packageCache;
+    private final SymbolTable symbolTable;
+    private final Unifier unifier;
+    private final JvmTypeGen jvmTypeGen;
+    private final JvmCastGen jvmCastGen;
+    private final AsyncDataCollector asyncDataCollector;
+    private final String strandMetadataClass;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
                             JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
-                            JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector) {
+                            JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
+                            AsyncDataCollector asyncDataCollector) {
 
         this.mv = mv;
         this.indexMap = indexMap;
@@ -251,6 +254,7 @@ public class JvmTerminatorGen {
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         this.unifier = new Unifier();
         this.asyncDataCollector = asyncDataCollector;
+        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
@@ -1383,7 +1387,7 @@ public class JvmTerminatorGen {
 
         }
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
-        this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
+        this.mv.visitFieldInsn(GETSTATIC, this.strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                     SCHEDULE_FUNCTION, false);
@@ -1400,8 +1404,7 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction +
-                "$";
+        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {

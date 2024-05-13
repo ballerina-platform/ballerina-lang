@@ -25,16 +25,13 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -54,7 +51,6 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -101,7 +97,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
@@ -122,7 +117,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -131,7 +125,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_D
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_ARRAY_VALUE;
@@ -279,40 +272,6 @@ public class JvmCodeGenUtil {
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
-    }
-
-    static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
-                                       PackageID packageID, AsyncDataCollector asyncDataCollector) {
-        asyncDataCollector.getStrandMetadata().forEach(
-                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, packageID, varName, metaData));
-    }
-
-    public static void genStrandMetadataField(MethodVisitor mv, String moduleClass, PackageID packageID,
-                                               String varName, ScheduleFunctionInfo metaData) {
-        mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        if (metaData.typeName == null) {
-            mv.visitInsn(Opcodes.ACONST_NULL);
-        } else {
-            mv.visitLdcInsn(metaData.typeName);
-        }
-        mv.visitLdcInsn(metaData.parentFunctionName);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, STRAND_METADATA,
-                           JVM_INIT_METHOD, INIT_STRAND_METADATA, false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, GET_STRAND_METADATA);
-    }
-
-    static void visitStrandMetadataFields(ClassWriter cw, Map<String, ScheduleFunctionInfo> strandMetaDataMap) {
-        strandMetaDataMap.keySet().forEach(varName -> visitStrandMetadataField(cw, varName));
-    }
-
-    private static void visitStrandMetadataField(ClassWriter cw, String varName) {
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, varName,
-                                        GET_STRAND_METADATA, null, null);
-        fv.visitEnd();
     }
 
     public static String getStrandMetadataVarName(String parentFunction) {
