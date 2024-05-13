@@ -135,6 +135,7 @@ import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
@@ -427,11 +428,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -4443,19 +4446,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
-        BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
-        BLangExpression childIndex = null;
-        for (Node extension : xmlStepExpressionNode.xmlStepExtend()) {
-            if (extension.kind() == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
-                childIndex = createExpression(((XMLStepIndexedExtendNode) extension).expression());
-                break;
+        List<BLangXMLStepExtend> extensions = new ArrayList<>();
+        for (Node node : xmlStepExpressionNode.xmlStepExtend()) {
+            BLangXMLStepExtend extension = createBLangXMLStepExtend(node);
+            if (extension != null) {
+                extensions.add(extension);
             }
         }
-        // TODO : implement the value for childIndex
-        BLangXMLNavigationAccess xmlNavigationAccess =
-                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                XMLNavigationAccess.NavAccessType.fromInt(starCount), childIndex);
-        return xmlNavigationAccess;
+
+        BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
+        return new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
+                XMLNavigationAccess.NavAccessType.fromInt(starCount), null, extensions);
     }
 
     @Override
@@ -7079,5 +7080,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
+    }
+
+    private BLangXMLStepExtend createBLangXMLStepExtend(Node node) {
+        SyntaxKind kind = node.kind();
+        NodeLocation location = node.location();
+        if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
+            return new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
+        } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
+            dlog.error(location, DiagnosticErrorCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+        } else {
+            dlog.error(location, DiagnosticErrorCode.UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION);
+        }
+        return null;
     }
 }
