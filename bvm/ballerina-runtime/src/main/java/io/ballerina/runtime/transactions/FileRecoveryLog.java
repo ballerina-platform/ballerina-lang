@@ -57,7 +57,7 @@ public class FileRecoveryLog implements RecoveryLog {
     private final boolean deleteOldLogs;
     private int numOfPutsSinceLastCheckpoint;
     private File logFile;
-    private FileChannel appendChannel = null;
+    private FileLockAndChannel fileLockAndChannel;
     private Map<String, TransactionLogRecord> existingLogs;
     private static final PrintStream stderr = System.err;
     private final RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -101,7 +101,7 @@ public class FileRecoveryLog implements RecoveryLog {
         try {
             Files.createDirectories(recoveryLogDir); // create directory if not exists
             newFile.createNewFile();
-            initAppendChannel(newFile);
+            fileLockAndChannel = initAppendChannel(newFile);
             if (existingLogs == null) {
                 return newFile;
             }
@@ -149,17 +149,19 @@ public class FileRecoveryLog implements RecoveryLog {
      *
      * @param file The file to initialize the append channel for.
      */
-    private void initAppendChannel(File file) {
-        if (appendChannel == null) {
+    private FileLockAndChannel initAppendChannel(File file) {
+        if (fileLockAndChannel == null) {
             synchronized (this) {
-                if (appendChannel == null){
+                if (fileLockAndChannel == null) {
                     try {
-                        appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
+                        FileChannel appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
                         FileLock lock = appendChannel.tryLock();
                         if (lock == null) {
                             stderr.println(
                                     ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file "
                                             + file.toPath());
+                        } else {
+                            fileLockAndChannel = new FileLockAndChannel(lock, appendChannel);
                         }
                     } catch (IOException e) {
                         stderr.println(
@@ -169,6 +171,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         }
+        return fileLockAndChannel;
     }
 
     @Override
@@ -209,13 +212,13 @@ public class FileRecoveryLog implements RecoveryLog {
      * @param str the log entry to write
      */
     private void writeToFile(String str, boolean force) {
-        if (appendChannel == null || !appendChannel.isOpen()) {
-            initAppendChannel(logFile);
+        if (fileLockAndChannel.appendChannel == null || !fileLockAndChannel.appendChannel.isOpen()) {
+            fileLockAndChannel = initAppendChannel(logFile);
         }
         byte[] bytes = str.getBytes();
         try {
-            appendChannel.write(ByteBuffer.wrap(bytes));
-            appendChannel.force(force);
+            fileLockAndChannel.appendChannel.write(ByteBuffer.wrap(bytes));
+            fileLockAndChannel.appendChannel.force(force);
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to write to recovery log file " + logFile.toPath() + ": "
                     + e.getMessage());
@@ -232,7 +235,7 @@ public class FileRecoveryLog implements RecoveryLog {
         if (!file.exists() || file.length() == 0) {
             return null;
         }
-        if (appendChannel != null) {
+        if (fileLockAndChannel != null) {
             closeEverything();
         }
         Map<String, TransactionLogRecord> logMap = new HashMap<>();
@@ -273,13 +276,26 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void close() {
+        closeEverything();
     }
 
     private void closeEverything() {
         try {
-            appendChannel.close();
+            fileLockAndChannel.close();
         } catch (IOException e) {
             // nothing to do here.
         }
     }
+
+    public record FileLockAndChannel(FileLock lock, FileChannel appendChannel) {
+        public void close() throws IOException {
+            if (lock != null) {
+                lock.release();
+            }
+            if (appendChannel != null) {
+                appendChannel.close();
+            }
+        }
+    }
+
 }

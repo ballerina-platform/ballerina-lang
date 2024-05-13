@@ -72,8 +72,8 @@ public class RecoveryManager {
     }
 
     /**
-     * Add a xa resource to the list of resources to recover. Recoverable XAResources should be added from the relevant library side
-     * during their initialization.
+     * Add a xa resource to the list of resources to recover. Recoverable XAResources should be added from the relevant
+     * library side during their initialization.
      *
      * @param xaResource the resource to be recovered
      */
