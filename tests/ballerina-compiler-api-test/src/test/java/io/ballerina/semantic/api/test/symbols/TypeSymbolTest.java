@@ -26,7 +26,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -200,6 +202,35 @@ public class TypeSymbolTest {
         return new Object[][]{
                 {42, 5, INT, "int"},
                 {42, 10, STRING, "string"}
+        };
+    }
+
+    @Test(dataProvider = "TypeSymbolLocationPos")
+    public void testTypeSymbolLocation(int line, int col, int expLine, int expSCol, int expECol) {
+        Optional<TypeSymbol> typeSymbol = model.typeOf(
+                LineRange.from(srcFile.name(), LinePosition.from(line, 8), LinePosition.from(line, col)));
+        assertTrue(typeSymbol.isPresent());
+
+        Optional<Location> location = typeSymbol.get().getLocation();
+        assertTrue(location.isPresent());
+        LineRange lineRange = location.get().lineRange();
+        LinePosition startLine = lineRange.startLine();
+        LinePosition endLine = lineRange.endLine();
+        assertEquals(startLine.line(), expLine);
+        assertEquals(endLine.line(), expLine);
+        assertEquals(startLine.offset(), expSCol);
+        assertEquals(endLine.offset(), expECol);
+    }
+
+    @DataProvider(name = "TypeSymbolLocationPos")
+    public Object[][] getTypeSymbolLocationPos() {
+        return new Object[][]{
+                {67, 11, 90, 0, 5},
+                {68, 10, 91, 0, 11},
+                {69, 13, 92, 0, 13},
+                {70, 11, 93, 0, 30},
+                {71, 11, 94, 5, 8},
+                {72, 11, 96, 0, 10},
         };
     }
 
