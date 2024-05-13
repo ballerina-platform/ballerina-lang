@@ -1,0 +1,8 @@
+[package]
+org = "thushara_piyasekara"
+name = "native_interop_call_with_class_usage"
+version = "0.1.0"
+distribution = "2201.8.6"
+
+[[platform.java17.dependency]]
+path = "libs/native_lib_1.jar"
