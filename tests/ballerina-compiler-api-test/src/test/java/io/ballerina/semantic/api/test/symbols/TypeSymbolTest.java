@@ -80,48 +80,64 @@ public class TypeSymbolTest {
     }
 
     @Test(dataProvider = "PosProvider")
-    public void testTypeSymbolLookup(int line, int col, TypeDescKind typeKind, String signature, boolean hasLocation) {
+    public void testTypeSymbolLookup(int line, int col, TypeDescKind typeKind, String signature) {
         TypeSymbol type = assertBasicsAndGetType(line, col, typeKind, signature);
         assertTrue(type.getName().isEmpty());
-        assertEquals(type.getLocation().isPresent(), hasLocation);
+        assertTrue(type.getLocation().isEmpty());
     }
 
     @DataProvider(name = "PosProvider")
     public Object[][] getTypePosition() {
         return new Object[][]{
-                {17, 4, INT, "int", false},
-                {18, 4, BOOLEAN, "boolean", false},
-                {19, 4, FLOAT, "float", false},
-                {20, 4, DECIMAL, "decimal", false},
-                {21, 4, NIL, "()", false},
-                {22, 4, STRING, "string", false},
-                {23, 4, INT, "int", false},
+                {17, 4, INT, "int"},
+                {18, 4, BOOLEAN, "boolean"},
+                {19, 4, FLOAT, "float"},
+                {20, 4, DECIMAL, "decimal"},
+                {21, 4, NIL, "()"},
+                {22, 4, STRING, "string"},
+                {23, 4, INT, "int"},
 //                {26, 4, TypeDescKind.XML, "xml"},
 //                {27, 4, TypeDescKind.XML, "xml<xml>"},
 //                {28, 4, TypeDescKind.XML, "xml<ballerina/lang.xml:0.8.0:Element>"},
-                {30, 4, MAP, "map<string>", true},
-                {31, 4, TYPEDESC, "typedesc<anydata>", false},
-                {32, 4, TYPEDESC, "typedesc<any|error>", false},
-                {33, 4, TABLE, "table<Person>", true},
-                {34, 4, TABLE, "table<Person> key<int>", true},
-                {35, 4, FUTURE, "future<string>", false},
-                {36, 4, FUTURE, "future<any|error>", false},
-                {40, 4, INT, "int", false},
-                {46, 4, ERROR, "error<ErrorData>", false},
-                {47, 4, HANDLE, "handle", false},
-                {48, 4, STREAM, "stream<Person, error>", false},
-                {52, 4, SINGLETON, "10", false},
-                {54, 4, ANY, "any", false},
-                {55, 4, NEVER, "never", false},
-                {56, 4, READONLY, "readonly", false},
-                {57, 4, INT, "int", false},
-                {57, 8, STRING, "string", false},
-                {58, 13, READONLY, "readonly", false},
-                {59, 4, INT, "int", false},
-                {60, 4, ANYDATA, "anydata", false},
-                {61, 4, JSON, "json", false},
-                {62, 4, BYTE, "byte", false},
-                {63, 13, ERROR, "error", false},
+                {31, 4, TYPEDESC, "typedesc<anydata>"},
+                {32, 4, TYPEDESC, "typedesc<any|error>"},
+                {35, 4, FUTURE, "future<string>"},
+                {36, 4, FUTURE, "future<any|error>"},
+                {40, 4, INT, "int"},
+                {46, 4, ERROR, "error<ErrorData>"},
+                {47, 4, HANDLE, "handle"},
+                {48, 4, STREAM, "stream<Person, error>"},
+                {52, 4, SINGLETON, "10"},
+                {54, 4, ANY, "any"},
+                {55, 4, NEVER, "never"},
+                {56, 4, READONLY, "readonly"},
+                {57, 4, INT, "int"},
+                {57, 8, STRING, "string"},
+                {58, 13, READONLY, "readonly"},
+                {59, 4, INT, "int"},
+                {60, 4, ANYDATA, "anydata"},
+                {61, 4, JSON, "json"},
+                {62, 4, BYTE, "byte"},
+                {63, 13, ERROR, "error"},
+        };
+    }
+
+    @Test(dataProvider = "StructuredPosProvider")
+    public void testStructuredTypeSymbolLookup(int line, int sCol, int eCol, TypeDescKind typeKind, String signature) {
+        TypeSymbol type = assertBasicsAndGetType(line, sCol, typeKind, signature);
+        assertTrue(type.getName().isEmpty());
+
+        Optional<Location> location = type.getLocation();
+        assertTrue(location.isPresent());
+        assertLocationPosition(location.get().lineRange(), line, sCol, eCol);
+    }
+
+    @DataProvider(name = "StructuredPosProvider")
+    public Object[][] getStructuredTypePosition() {
+        return new Object[][]{
+                {30, 4, 15, MAP, "map<string>"},
+                {33, 4, 17, TABLE, "table<Person>"},
+                {34, 4, 26, TABLE, "table<Person> key<int>"}
         };
     }
 
@@ -205,25 +221,19 @@ public class TypeSymbolTest {
         };
     }
 
-    @Test(dataProvider = "TypeSymbolLocationPos")
-    public void testTypeSymbolLocation(int line, int col, int expLine, int expSCol, int expECol) {
+    @Test(dataProvider = "StructuredTypeSymbolLocationPos")
+    public void testStructuredTypeSymbolLocation(int line, int col, int expLine, int expSCol, int expECol) {
         Optional<TypeSymbol> typeSymbol = model.typeOf(
                 LineRange.from(srcFile.name(), LinePosition.from(line, 8), LinePosition.from(line, col)));
         assertTrue(typeSymbol.isPresent());
 
         Optional<Location> location = typeSymbol.get().getLocation();
         assertTrue(location.isPresent());
-        LineRange lineRange = location.get().lineRange();
-        LinePosition startLine = lineRange.startLine();
-        LinePosition endLine = lineRange.endLine();
-        assertEquals(startLine.line(), expLine);
-        assertEquals(endLine.line(), expLine);
-        assertEquals(startLine.offset(), expSCol);
-        assertEquals(endLine.offset(), expECol);
+        assertLocationPosition(location.get().lineRange(), expLine, expSCol, expECol);
     }
 
-    @DataProvider(name = "TypeSymbolLocationPos")
-    public Object[][] getTypeSymbolLocationPos() {
+    @DataProvider(name = "StructuredTypeSymbolLocationPos")
+    public Object[][] getStructuredTypeSymbolLocationPos() {
         return new Object[][]{
                 {67, 11, 90, 0, 5},
                 {68, 10, 91, 0, 11},
@@ -245,5 +255,14 @@ public class TypeSymbolTest {
         assertEquals(type.typeKind(), typeKind);
         assertEquals(type.signature(), signature);
         return (TypeSymbol) symbol.get();
+    }
+
+    private void assertLocationPosition(LineRange actualLineRange, int line, int sCol, int eCol) {
+        LinePosition startLine = actualLineRange.startLine();
+        LinePosition endLine = actualLineRange.endLine();
+        assertEquals(startLine.line(), line);
+        assertEquals(endLine.line(), line);
+        assertEquals(startLine.offset(), sCol);
+        assertEquals(endLine.offset(), eCol);
     }
 }
