@@ -55,7 +55,12 @@ public class CloneValueCodeActionTest extends AbstractCodeActionTest {
                 {"clone_value_config12.json"},
                 {"clone_value_config13.json"},
                 {"clone_value_config14.json"},
-                {"clone_value_config15.json"}
+                {"clone_value_config15.json"},
+                {"clone_value_config16.json"},
+                {"clone_value_config17.json"},
+                {"clone_value_config18.json"},
+                {"clone_value_config19.json"},
+                {"clone_value_config20.json"}
         };
     }
 
