@@ -42,6 +42,8 @@ public class FunctionSignatureInBalaTest {
 
     @BeforeClass
     public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_utils");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_functions");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         compileResult =
                 BCompileUtil.compile("test-src/bala/test_bala/functions/test_different_function_signatures.bal");
@@ -364,6 +366,11 @@ public class FunctionSignatureInBalaTest {
     @Test
     public void testCyclicFuncCallWhenFuncDefinedInModuleWithSameName() {
         BRunUtil.invoke(compileResult, "testCyclicFuncCallWhenFuncDefinedInModuleWithSameName");
+    }
+
+    @Test
+    public void testFuncCallingFuncFromDifferentModuleAsParamDefault() {
+        BRunUtil.invoke(compileResult, "testFuncCallingFuncFromDifferentModuleAsParamDefault");
     }
     
     @Test

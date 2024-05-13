@@ -1,0 +1,7 @@
+{
+  "plugin_id": "code2cloud",
+  "plugin_class": "io.ballerina.c2c.C2CCompilerPlugin",
+  "dependency_paths": [
+    "compiler-plugin/libs/cloud-compiler-plugin-2.11.3.jar"
+  ]
+}

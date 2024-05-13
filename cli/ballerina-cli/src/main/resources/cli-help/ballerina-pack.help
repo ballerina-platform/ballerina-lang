@@ -24,6 +24,10 @@ OPTIONS
        --target-dir
            Target directory path.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
 
 EXAMPLES
        Pack the current package into .bala file.

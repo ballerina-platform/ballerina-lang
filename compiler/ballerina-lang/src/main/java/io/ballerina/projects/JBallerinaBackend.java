@@ -173,8 +173,12 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
+                        !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                        (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+                    moduleDiagnostics.add(
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                }
             }
 
             if (shrink) {
@@ -221,21 +225,46 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-        // Add lifecycle plugin diagnostics.
-        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
-        if (!pluginDiagnostics.isEmpty()) {
-            emitResultDiagnostics.addAll(pluginDiagnostics);
+        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+    }
+
+    public EmitResult emit(TestEmitArgs testEmitArgs) {
+        Path generatedArtifact = null;
+
+        if (diagnosticResult.hasErrors()) {
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), null);
         }
-        // Add jar resolver diagnostics.
-        emitResultDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
-        // JBallerinaBackend diagnostics contains all diagnostics.
-        // EmitResult will only contain diagnostics related to emitting the executable.
-        allDiagnostics.addAll(emitResultDiagnostics);
+
+        if (testEmitArgs.outputType() == OutputType.TEST) {
+            generatedArtifact = emitTestExecutable(testEmitArgs.filePath(), testEmitArgs.jarDependencies(),
+                    testEmitArgs.testSuiteJsonPath(), testEmitArgs.jsonCopyPath(),
+                    testEmitArgs.excludedClasses(), testEmitArgs.classPathTextCopyPath());
+        } else {
+            throw new RuntimeException("Unexpected output type: " + testEmitArgs.outputType());
+        }
+
+        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, BalCommand.TEST, new ArrayList<>());
+    }
+
+    private EmitResult getEmitResult(Path filePath, Path generatedArtifact, BalCommand balCommand,
+                                    List<Diagnostic> emitDiagnostics) {
+        if (filePath != null) {
+            List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, balCommand);
+            if (!pluginDiagnostics.isEmpty()) {
+                emitDiagnostics.addAll(pluginDiagnostics);
+            }
+        }
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        emitDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
+        allDiagnostics.addAll(emitDiagnostics);
         diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
+    }
+
+    public List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
+        return packageCompilation.notifyCompilationCompletion(filePath, balCommand);
     }
 
     private Path emitBala(Path filePath) {
@@ -334,7 +363,8 @@ public class JBallerinaBackend extends CompilerBackend {
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
+        boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -355,7 +385,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
+                isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
@@ -408,23 +439,75 @@ public class JBallerinaBackend extends CompilerBackend {
             writeManifest(manifest, outStream);
 
             // Sort jar libraries list to avoid inconsistent jar reporting
-            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
-                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName())).toList();
-
-            // Copy all the jars
-            for (JarLibrary library : sortedJarLibraries) {
-                copyJar(outStream, library, copiedEntries, serviceEntries);
-            }
+            sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
 
             // Copy merged spi services.
-            for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
-                String s = entry.getKey();
-                StringBuilder service = entry.getValue();
-                JarArchiveEntry e = new JarArchiveEntry(s);
-                outStream.putArchiveEntry(e);
-                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
-                outStream.closeArchiveEntry();
+            copyMergedSpiServices(serviceEntries, outStream);
+        }
+    }
+
+    private void assembleTestExecutableJar(Path executableFilePath,
+                                           Manifest manifest,
+                                           Collection<JarLibrary> jarLibraries,
+                                           Path testSuiteJsonPath, String jsonCopyPath,
+                                           List<String> excludedClasses, String classPathTextCopyPath)
+            throws IOException {
+        // Used to prevent adding duplicated entries during the final jar creation.
+        HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
+
+        // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+        // service loader related information should be merged together in the final executable jar creation.
+        HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
+
+        try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
+            writeManifest(manifest, outStream);
+
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
+
+            // Copy merged spi services.
+            copyMergedSpiServices(serviceEntries, outStream);
+
+            // Write the test suite json file
+            JarArchiveEntry testSuiteJsonEntry = new JarArchiveEntry(jsonCopyPath);
+            outStream.putArchiveEntry(testSuiteJsonEntry);
+            outStream.write(Files.readAllBytes(testSuiteJsonPath));
+            outStream.closeArchiveEntry();
+
+            // Get the module jar paths and copy them to the executable jar
+            JarArchiveEntry classPathTextEntry = new JarArchiveEntry(classPathTextCopyPath);
+            outStream.putArchiveEntry(classPathTextEntry);
+            for (String path : excludedClasses) {
+                outStream.write((path + "\n").getBytes(StandardCharsets.UTF_8));
             }
+            outStream.closeArchiveEntry();
+        }
+    }
+
+    private static void copyMergedSpiServices(HashMap<String, StringBuilder> serviceEntries,
+                                              ZipArchiveOutputStream outStream) throws IOException {
+        for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
+            String s = entry.getKey();
+            StringBuilder service = entry.getValue();
+            JarArchiveEntry e = new JarArchiveEntry(s);
+            outStream.putArchiveEntry(e);
+            outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+            outStream.closeArchiveEntry();
+        }
+    }
+
+    private void sortAndCopyJars(Collection<JarLibrary> jarLibraries, ZipArchiveOutputStream outStream,
+                                 HashMap<String, JarLibrary> copiedEntries,
+                                 HashMap<String, StringBuilder> serviceEntries) throws IOException {
+
+        List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                .collect(Collectors.toList());
+
+        // Copy all the jars
+        for (JarLibrary library : sortedJarLibraries) {
+            copyJar(outStream, library, copiedEntries, serviceEntries);
         }
     }
 
@@ -456,6 +539,15 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
+    private Manifest createTestManifest() {
+        String mainClassName = "org.ballerinalang.test.runtime.BTestMain";
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        return manifest;
+    }
+
     /**
      * Copies a given jar file into the executable fat jar.
      *
@@ -466,7 +558,8 @@ public class JBallerinaBackend extends CompilerBackend {
      * @throws IOException If jar file copying is failed.
      */
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
-            HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services) throws IOException {
+                         HashMap<String, JarLibrary> copiedEntries, HashMap<String,
+            StringBuilder> services) throws IOException {
 
         ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
         ZipArchiveEntryPredicate predicate = entry -> {
@@ -552,6 +645,20 @@ public class JBallerinaBackend extends CompilerBackend {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+        return executableFilePath;
+    }
+
+    private Path emitTestExecutable(Path executableFilePath, HashSet<JarLibrary> jarDependencies,
+                          Path testSuiteJsonPath, String jsonCopyPath, List<String> excludedClasses,
+                          String classPathTextCopyPath) {
+        Manifest manifest = createTestManifest();
+        try {
+            assembleTestExecutableJar(executableFilePath, manifest, jarDependencies, testSuiteJsonPath, jsonCopyPath,
+                    excludedClasses, classPathTextCopyPath);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the test executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
@@ -739,7 +846,8 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
-        GRAAL_EXEC("graal_exec")
+        GRAAL_EXEC("graal_exec"),
+        TEST("test")
         ;
 
         private String value;

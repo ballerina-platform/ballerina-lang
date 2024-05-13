@@ -45,7 +45,7 @@ function workerConditionalSendTest() {
             2 -> w5;
         }
     }
-    
+
     worker w5 returns int|errorLib:NoMessage {
         int|errorLib:NoMessage d = <- w4;
         return d;
@@ -240,8 +240,8 @@ function sameWorkerSendMultiplePath1() {
     worker w1 {
         if foo {
             1 -> w2;
-        } 
-        2 -> w2;  
+        }
+        2 -> w2;
     }
 
     worker w2 returns int|errorLib:NoMessage {
@@ -259,8 +259,8 @@ function sameWorkerSendMultiplePath2() {
     worker w1 {
         if foo {
             1 -> w2;
-        } 
-        2 -> w2;  
+        }
+        2 -> w2;
     }
 
     worker w2 returns int|errorLib:NoMessage {
@@ -282,8 +282,8 @@ function sameWorkerSendMultiplePathError1() {
                 return error("Error in worker 1");
             }
             1 -> w2;
-        } 
-        2 -> w2;  
+        }
+        2 -> w2;
     }
 
     worker w2 returns int|error? {
@@ -303,11 +303,11 @@ function sameWorkerSendMultiplePathError2() {
         int value = 10;
         if foo {
             1 -> w2;
-        } 
+        }
         if value == 10 {
             return error("Error in worker 1");
         }
-        2 -> w2;  
+        2 -> w2;
     }
 
     worker w2 returns int|error {
@@ -334,15 +334,15 @@ function sameWorkerSendMultiplePathError3() {
                 return error("Error in worker 1");
             }
             1 -> w2;
-        } 
-        2 -> w2;  
+        }
+        2 -> w2;
     }
 
     worker w2 returns int|error? {
         int|error a = <- w1 | w1;
         return a;
     }
-    
+
     map<error|int?> mapResult = wait { a : w1, b: w2};
     test:assertTrue(mapResult["a"] is error, "Invalid error result");
     test:assertTrue(mapResult["b"] is error, "Invalid error result");
@@ -359,11 +359,11 @@ function sameWorkerSendMultiplePathError4() {
         int value = 10;
         if foo {
             1 -> w2;
-        } 
+        }
         if value == 10 {
             return error("Error in worker 1");
         }
-        2 -> w2;  
+        2 -> w2;
     }
 
     worker w2 returns int|error {
@@ -387,10 +387,9 @@ function multipleReceiveConditional() {
         } else {
             2-> w3;
         }
-        int y =  <- w3;
-        return y;
+        return 3;
     }
-    
+
     worker w2 returns int|errorLib:NoMessage {
         int|errorLib:NoMessage y = <- w1;
         return y;
@@ -398,7 +397,6 @@ function multipleReceiveConditional() {
 
     worker w3 returns int|errorLib:NoMessage {
         int|errorLib:NoMessage y = <- w1;
-        3 -> w1;
         return y;
     }
 

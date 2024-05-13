@@ -1,0 +1,10 @@
+<library xmlns:book="http://example.com/books" xmlns:genre="http://example.com/genres" xmlns:currency="http://example.com/currency">
+    <book:book>
+        <book:title lang="en" edition="1st">XML Developer's Guide</book:title>
+        <book:author gender="male" nationality="American">Gambardella, Matthew</book:author>
+        <genre:genre category="programming" type="tutorial">Computer</genre:genre>
+        <currency:price currency="USD" discounted="true">44.95</currency:price>
+        <book:publish_date>2000-10-01</book:publish_date>
+        <book:description>An in-depth look at creating applications with XML.</book:description>
+    </book:book>
+</library>

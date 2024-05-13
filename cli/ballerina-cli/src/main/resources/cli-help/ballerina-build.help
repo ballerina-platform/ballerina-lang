@@ -59,6 +59,13 @@ OPTIONS
        --graalvm-build-options
            Additional build options to be passed to the GraalVM native image.
 
+       --remote-management
+           Include the dependencies that are required to enable remote package
+           management service.
+
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
 
 
 EXAMPLES

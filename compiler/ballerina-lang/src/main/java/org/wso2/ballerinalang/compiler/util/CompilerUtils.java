@@ -19,10 +19,18 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 
 import java.util.List;
 
@@ -82,4 +90,17 @@ public class CompilerUtils {
         return false;
     }
 
+    public static boolean isAssignmentToOptionalField(BLangAssignment assignNode) {
+        BLangNode varRef = assignNode.varRef;
+        if (varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) varRef;
+        BType targetType = Types.getImpliedType(fieldAccessNode.expr.getBType());
+        if (targetType.tag != TypeTags.RECORD) {
+            return false;
+        }
+        BField field = ((BRecordType) targetType).fields.get(fieldAccessNode.field.value);
+        return field != null && Symbols.isOptional(field.symbol);
+    }
 }
