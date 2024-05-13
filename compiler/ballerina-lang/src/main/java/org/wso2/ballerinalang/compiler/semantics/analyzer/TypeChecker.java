@@ -1843,18 +1843,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new BTypedescType(listConstructor.typedescType, null);
         }
 
-        BLangListConstructorExpr exprToLog = listConstructor;
-        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-            listConstructor.cloneAttempt++;
-            exprToLog = nodeCloner.cloneNode(listConstructor);
-        }
-
         if (referredType == symTable.semanticError) {
             // Ignore the return value, we only need to visit the expressions.
-            getInferredTupleType(exprToLog, symTable.semanticError, data);
-        } else {
+            getInferredTupleType(listConstructor, symTable.semanticError, data);
+        } else if (!data.commonAnalyzerData.nonErrorLoggingCheck) {
             dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, originalType,
-                    getInferredTupleType(exprToLog, symTable.noType, data));
+                       getInferredTupleType(listConstructor, symTable.noType, data));
         }
 
         return symTable.semanticError;
