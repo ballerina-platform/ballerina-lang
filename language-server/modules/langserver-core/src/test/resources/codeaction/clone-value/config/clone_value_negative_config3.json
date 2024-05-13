@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 19,
+    "character": 22
+  },
+  "source": "clone_value_negative2.bal",
+  "expected": [
+    {
+      "title": "Clone the value"
+    },
+    {
+      "title": "Clone as a readonly value"
+    }
+  ]
+}
