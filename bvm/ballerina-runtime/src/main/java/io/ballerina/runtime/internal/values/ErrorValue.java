@@ -75,7 +75,7 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = "values.$value$";
     private static final String SPLIT_CLASS_SUFFIX_REGEX = "\\$split\\$\\d";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
