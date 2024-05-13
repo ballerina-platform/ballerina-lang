@@ -74,78 +74,49 @@ public class JType extends BType {
 
     public static JType getJTypeFromTypeName(String typeName) {
 
-        switch (typeName) {
-            case JBYTE_KIND:
-                return jByte;
-            case JCHAR_KIND:
-                return jChar;
-            case JSHORT_KIND:
-                return jShort;
-            case JINT_KIND:
-                return jInt;
-            case JLONG_KIND:
-                return jLong;
-            case JFLOAT_KIND:
-                return jFloat;
-            case JDOUBLE_KIND:
-                return jDouble;
-            case JBOOLEAN_KIND:
-                return jBoolean;
-            case JVOID_KIND:
-                return jVoid;
-            default:
-                return new JRefType(typeName.replace('.', '/'));
-        }
+        return switch (typeName) {
+            case JBYTE_KIND -> jByte;
+            case JCHAR_KIND -> jChar;
+            case JSHORT_KIND -> jShort;
+            case JINT_KIND -> jInt;
+            case JLONG_KIND -> jLong;
+            case JFLOAT_KIND -> jFloat;
+            case JDOUBLE_KIND -> jDouble;
+            case JBOOLEAN_KIND -> jBoolean;
+            case JVOID_KIND -> jVoid;
+            default -> new JRefType(typeName.replace('.', '/'));
+        };
     }
 
     public static JType getJTypeForPrimitive(String typeName) {
 
-        switch (typeName) {
-            case JBYTE_KIND:
-                return jByte;
-            case JCHAR_KIND:
-                return jChar;
-            case JSHORT_KIND:
-                return jShort;
-            case JINT_KIND:
-                return jInt;
-            case JLONG_KIND:
-                return jLong;
-            case JFLOAT_KIND:
-                return jFloat;
-            case JDOUBLE_KIND:
-                return jDouble;
-            case JBOOLEAN_KIND:
-                return jBoolean;
-            case JVOID_KIND:
-                return jVoid;
-            default:
-                throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
-        }
+        return switch (typeName) {
+            case JBYTE_KIND -> jByte;
+            case JCHAR_KIND -> jChar;
+            case JSHORT_KIND -> jShort;
+            case JINT_KIND -> jInt;
+            case JLONG_KIND -> jLong;
+            case JFLOAT_KIND -> jFloat;
+            case JDOUBLE_KIND -> jDouble;
+            case JBOOLEAN_KIND -> jBoolean;
+            case JVOID_KIND -> jVoid;
+            default -> throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
+        };
     }
 
     public static int getJTypeTagForPrimitive(String typeName) {
 
-        switch (typeName) {
-            case JBYTE_KIND:
-                return JBYTE;
-            case JCHAR_KIND:
-                return JCHAR;
-            case JSHORT_KIND:
-                return JSHORT;
-            case JINT_KIND:
-                return JINT;
-            case JLONG_KIND:
-                return JLONG;
-            case JFLOAT_KIND:
-                return JFLOAT;
-            case JDOUBLE_KIND:
-                return JDOUBLE;
-            case JBOOLEAN_KIND:
-                return JBOOLEAN;
-            default:
-                throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
-        }
+        return switch (typeName) {
+            case JBYTE_KIND -> JBYTE;
+            case JCHAR_KIND -> JCHAR;
+            case JSHORT_KIND -> JSHORT;
+            case JINT_KIND -> JINT;
+            case JLONG_KIND -> JLONG;
+            case JFLOAT_KIND -> JFLOAT;
+            case JDOUBLE_KIND -> JDOUBLE;
+            case JBOOLEAN_KIND -> JBOOLEAN;
+            default -> throw new IllegalArgumentException("The Java " + typeName + " type is not yet supported.");
+        };
     }
 
     public static JArrayType getJArrayTypeFromTypeName(String typeName, byte dimensions) {
@@ -161,18 +132,13 @@ public class JType extends BType {
     }
 
     public static JType getJTypeForBType(BType type) {
-        switch (type.tag) {
-            case INT:
-                return jLong;
-            case BYTE:
-                return jInt;
-            case BOOLEAN:
-                return jBoolean;
-            case FLOAT:
-                return jFloat;
-            default:
-                return new JRefType(OBJECT);
-        }
+        return switch (type.tag) {
+            case INT -> jLong;
+            case BYTE -> jInt;
+            case BOOLEAN -> jBoolean;
+            case FLOAT -> jFloat;
+            default -> new JRefType(OBJECT);
+        };
     }
 
     /**
