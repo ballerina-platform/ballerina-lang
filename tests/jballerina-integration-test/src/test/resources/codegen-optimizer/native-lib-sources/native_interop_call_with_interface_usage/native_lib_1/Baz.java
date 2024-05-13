@@ -15,8 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-public class Foo {
-    public static void fooFunc() {
-        System.out.println("Foo class is being used...");
+public class Baz implements Quz {
+    public void bazFunc() {
+        System.out.println("Baz class is being used...");
+    }
+
+    @Override
+    public void quzFunc() {
+        System.out.println("Quz interface is being used...");
     }
 }

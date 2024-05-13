@@ -15,8 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-public class Foo {
-    public static void fooFunc() {
+public class Foo extends Bar {
+
+    public void fooFunc() {
         System.out.println("Foo class is being used...");
     }
 }
