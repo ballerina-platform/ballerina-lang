@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,27 +39,69 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NativeDependencyOptimizationTests extends BaseTest {
+
     private static final String NATIVE_DEPENDENCY_OPTIMIZATION_REPORT = "native_dependency_optimization_report.json";
     private static final String TEST_PROJECT_LOCATION = "src/test/resources/codegen-optimizer/native-interop-projects/";
+    private static final String NATIVE_LIB_SOURCES_LOCATION =
+            "src/test/resources/codegen-optimizer/native-lib-sources/";
     private static final String USED_CLASSES = "usedClasses";
     private static final String UNUSED_CLASSES = "unusedClasses";
-    private Path tempProjectPath;
+    private Path tempBalProjectPath;
+    private Path nativeLibSourcePaths;
+
+    private static JsonObject fileContentAsObject(Path filePath) throws IOException {
+        String contentAsString = new String(Files.readAllBytes(filePath));
+        return JsonParser.parseString(contentAsString).getAsJsonObject();
+    }
+
+    private static List<String> getFunctionNamesFromJson(JsonObject parentJson, String fieldName) {
+        return parentJson.get(fieldName).getAsJsonArray().asList().stream().map(JsonElement::getAsString).toList();
+    }
 
     @BeforeClass
-    public void setUp() throws IOException {
-        // copy test resources to the temp directory
-        tempProjectPath = Files.createTempDirectory("b7a-codegen-optimization-test-" + System.nanoTime())
-                .resolve("native-interop-test-resources");
-        FileUtils.copyDirectory(Path.of(TEST_PROJECT_LOCATION).toAbsolutePath().normalize().toFile(), tempProjectPath.toFile());
+    public void setUp() throws IOException, InterruptedException {
+        Path parentProjectPath = Files.createTempDirectory("b7a-codegen-optimization-test-" + System.nanoTime());
+        tempBalProjectPath = parentProjectPath.resolve("native-interop-test-resources");
+        nativeLibSourcePaths = parentProjectPath.resolve("native-libs");
+
+        FileUtils.copyDirectory(Path.of(TEST_PROJECT_LOCATION).toAbsolutePath().normalize().toFile(),
+                tempBalProjectPath.toFile());
+        FileUtils.copyDirectory(Path.of(NATIVE_LIB_SOURCES_LOCATION).toAbsolutePath().normalize().toFile(),
+                nativeLibSourcePaths.toFile());
+
+        buildAndCopyNativeLibs();
+    }
+
+    public void buildAndCopyNativeLibs() throws IOException, InterruptedException {
+        // Native lib jars are not packed with the tests. Only the source files of the native libs are packed.
+        // Compiled jars of native dependencies are generated for each test run.
+        for (File balProject : nativeLibSourcePaths.toAbsolutePath().normalize().toFile().listFiles()) {
+            for (File nativeLib : balProject.listFiles()) {
+                Path nativeLibJarPath = buildClassesAndGetJarFilePath(nativeLib.toPath());
+                Path destPath = tempBalProjectPath.resolve(balProject.getName()).resolve("libs")
+                        .resolve(nativeLibJarPath.getFileName().toString());
+                Files.copy(nativeLibJarPath, destPath);
+            }
+        }
+    }
+
+    public Path buildClassesAndGetJarFilePath(Path parentPackagePath) throws IOException, InterruptedException {
+        Path classCache = parentPackagePath.resolve("generated");
+        Path generatedJar = parentPackagePath.getParent().resolve(parentPackagePath.getFileName() + ".jar");
+        Runtime rt = Runtime.getRuntime();
+        Process process = rt.exec("javac " + parentPackagePath + File.separator + "*.java" + " -d " + classCache);
+        process.waitFor();
+        process = rt.exec("jar cf " + generatedJar + " ./*.class", null, classCache.toFile());
+        process.waitFor();
+        return generatedJar;
     }
 
     @Test(dataProvider = "InteropInfoProvider")
     private void testAll(String projectName, String[] usedClassNames, String[] unusedClassNames)
             throws BallerinaTestException, IOException {
 
-        String projectPath = tempProjectPath.resolve(projectName).toString();
+        String projectPath = tempBalProjectPath.resolve(projectName).toString();
         emitOptimizationReports(projectPath);
-
         JsonObject emittedJsonObject = fileContentAsObject(
                 Path.of(projectPath).resolve("target").resolve(NATIVE_DEPENDENCY_OPTIMIZATION_REPORT));
 
@@ -72,7 +115,8 @@ public class NativeDependencyOptimizationTests extends BaseTest {
     public Object[][] getInteropInfo() {
         return new Object[][]{
                 {"vanilla_native_interop_call", new String[]{"Foo.class"}, new String[]{"Bar.class"}},
-                {"native_interop_call_with_transitive_classes", new String[]{"Foo.class", "Baz.class"}, new String[]{"Bar.class"}},
+                {"native_interop_call_with_transitive_classes", new String[]{"Foo.class", "Baz.class"},
+                        new String[]{"Bar.class"}},
         };
     }
 
@@ -81,14 +125,5 @@ public class NativeDependencyOptimizationTests extends BaseTest {
         LogLeecher leecher = new LogLeecher("Optimized file size");
         bMainInstance.runMain("build", new String[]{"--optimize", "--verbose"}, null, null, new LogLeecher[]{leecher},
                 projectPath);
-    }
-
-    private static JsonObject fileContentAsObject(Path filePath) throws IOException {
-        String contentAsString = new String(Files.readAllBytes(filePath));
-        return JsonParser.parseString(contentAsString).getAsJsonObject();
-    }
-
-    private static List<String> getFunctionNamesFromJson(JsonObject parentJson, String fieldName) {
-        return parentJson.get(fieldName).getAsJsonArray().asList().stream().map(JsonElement::getAsString).toList();
     }
 }
