@@ -16,7 +16,9 @@
  *  under the License.
  */
 public class Foo {
-    public static void fooFunc() {
+    Quz quz;
+    public void fooFunc() {
         System.out.println("Foo class is being used...");
+        Bar bar = new Bar();
     }
 }

@@ -33,9 +33,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-public class BIRLevelOptimizationTest {
+public class BIRLevelCodegenOptimizationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BIRLevelOptimizationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BIRLevelCodegenOptimizationTest.class);
     private static final Path TESTS_SOURCE_PATH = Path.of("src/test/resources").toAbsolutePath().normalize();
     private static final Path EXPECTED_JSON_DIR_PATH =
             Path.of("src/test/resources/test-src/codegen-optimizer/json-files").toAbsolutePath().normalize();
