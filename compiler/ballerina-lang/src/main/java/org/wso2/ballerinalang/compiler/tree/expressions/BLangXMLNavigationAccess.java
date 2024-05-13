@@ -36,6 +36,7 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     public BLangExpression expr;
     public BLangExpression childIndex;
     public final List<BLangXMLElementFilter> filters;
+    public final List<BLangXMLStepExtend> extensions;
 
     // Parser Flags and Data
     public final NavAccessType navAccessType;
@@ -49,12 +50,14 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     public BLangXMLNavigationAccess(Location pos, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
                                     NavAccessType navAccessType,
-                                    BLangExpression childIndex) {
+                                    BLangExpression childIndex,
+                                    List<BLangXMLStepExtend> extensions) {
         this.pos = pos;
         this.expr = expr;
         this.filters = filters;
         this.navAccessType = navAccessType;
         this.childIndex = childIndex;
+        this.extensions = extensions;
     }
 
     @Override
