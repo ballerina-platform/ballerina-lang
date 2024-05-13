@@ -117,6 +117,12 @@ public class NativeDependencyOptimizationTests extends BaseTest {
                 {"vanilla_native_interop_call", new String[]{"Foo.class"}, new String[]{"Bar.class"}},
                 {"native_interop_call_with_transitive_classes", new String[]{"Foo.class", "Baz.class"},
                         new String[]{"Bar.class"}},
+                {"native_interop_call_with_inheritance", new String[]{"Foo.class", "Bar.class"},
+                        new String[]{"Baz.class"}},
+                {"native_interop_call_with_interface_usage", new String[]{"Foo.class", "Bar.class"},
+                        new String[]{"Baz.class", "Quz.class"}},
+                {"native_interop_call_with_class_usage",
+                        new String[]{"Foo.class", "Bar.class", "Quz.class", "Corge.class"}, new String[]{"Baz.class"}},
         };
     }
 
