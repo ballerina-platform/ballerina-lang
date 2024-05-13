@@ -24,11 +24,11 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
@@ -52,7 +52,6 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -87,6 +86,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_METHOD_COUNT_PER_BALLERINA_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPEDESCS_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_VALUES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
@@ -178,11 +179,11 @@ public class JvmValueGen {
     }
 
     public static String getTypeDescClassName(String packageName, String typeName) {
-        return packageName + TYPEDESC_CLASS_PREFIX + typeName;
+        return packageName + MODULE_TYPEDESCS_PACKAGE_NAME + TYPEDESC_CLASS_PREFIX + typeName;
     }
 
     public static String getTypeValueClassName(String packageName, String typeName) {
-        return packageName + VALUE_CLASS_PREFIX + typeName;
+        return packageName + MODULE_VALUES_PACKAGE_NAME + VALUE_CLASS_PREFIX + typeName;
     }
 
     public static String getFieldIsPresentFlagName(String fieldName) {
@@ -458,7 +459,7 @@ public class JvmValueGen {
     }
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, POPULATE_INITIAL_VALUES_METHOD,
                                           POPULATE_INITIAL_VALUES, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
