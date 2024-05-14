@@ -93,7 +93,7 @@ public class LaunchUtils {
         listeners.forEach(listener -> listener.afterRunProgram(isService));
     }
 
-    public static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2){
+    public static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2) {
         VariableKey[] mergedKeyArray = new VariableKey[keyArray1.length + keyArray2.length];
         System.arraycopy(keyArray1, 0, mergedKeyArray, 0, keyArray1.length);
         System.arraycopy(keyArray2, 0, mergedKeyArray, keyArray1.length, keyArray2.length);
