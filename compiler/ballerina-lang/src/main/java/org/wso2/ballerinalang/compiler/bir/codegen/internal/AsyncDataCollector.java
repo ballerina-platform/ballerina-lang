@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -36,29 +37,21 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LA
 public class AsyncDataCollector {
 
     private final Map<String, LambdaClass> lambdas;
-    private final Map<String, String> lambdaVsClassMap;
     private final Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private final PackageID packageID;
     private String currentSourceFileWithoutExt = null;
     private String currentSourceFileName = null;
-    private static int classIndex = -1;
+    private int classIndex = 0;
     private int lambdaIndex = 0;
 
     public AsyncDataCollector(BIRNode.BIRPackage module) {
         this.lambdas = new HashMap<>();
-        this.lambdaVsClassMap = new HashMap<>();
         this.strandMetaDataMap = new HashMap<>();
         this.packageID = module.packageID;
     }
 
-    public int getLambdaIndex() {
-        return lambdaIndex;
-    }
-
-    public void add(String lambdaName, BIRInstruction callInstruction) {
-        if (lambdaVsClassMap.containsKey(lambdaName)) {
-            return;
-        }
+    public LambdaFunction addAndGetLambda(String funcName, BIRInstruction inst) {
+        String encodedFuncName = Utils.encodeFunctionIdentifier(funcName);
         String enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + classIndex,
                 currentSourceFileWithoutExt, "/");
         LambdaClass lambdaClass = lambdas.get(enclosingClass);
@@ -67,14 +60,12 @@ public class AsyncDataCollector {
                     currentSourceFileWithoutExt, "/");
             lambdaClass = new LambdaClass(currentSourceFileName);
             lambdas.put(enclosingClass, lambdaClass);
+            lambdaIndex = 0;
         }
-        lambdaClass.lambdaFunctionList.add(new LambdaFunction(lambdaName, callInstruction));
-        lambdaVsClassMap.put(lambdaName, enclosingClass);
-        lambdaIndex++;
-    }
-
-    public String getEnclosingClass(String lambdaName) {
-        return lambdaVsClassMap.get(lambdaName);
+        String lambdaName = encodedFuncName + "$lambda" + lambdaIndex++ + "$";
+        LambdaFunction lambdaFunction = new LambdaFunction(lambdaName, enclosingClass, inst);
+        lambdaClass.lambdaFunctionList.add(lambdaFunction);
+        return lambdaFunction;
     }
 
     public Map<String, LambdaClass> getLambdaClasses() {

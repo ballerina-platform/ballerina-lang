@@ -29,10 +29,13 @@ public class LambdaFunction {
 
     public String lambdaName;
 
+    public String enclosingClass;
+
     public BIRInstruction callInstruction;
 
-    public LambdaFunction(String lambdaName, BIRInstruction callInstruction) {
+    public LambdaFunction(String lambdaName, String enclosingClass, BIRInstruction callInstruction) {
         this.lambdaName = lambdaName;
+        this.enclosingClass = enclosingClass;
         this.callInstruction = callInstruction;
     }
 }
