@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import sun.misc.Signal;
 
 import java.io.File;
@@ -94,13 +93,21 @@ public class LaunchUtils {
         listeners.forEach(listener -> listener.afterRunProgram(isService));
     }
 
+    public static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2){
+        VariableKey[] mergedKeyArray = new VariableKey[keyArray1.length + keyArray2.length];
+        System.arraycopy(keyArray1, 0, mergedKeyArray, 0, keyArray1.length);
+        System.arraycopy(keyArray2, 0, mergedKeyArray, keyArray1.length, keyArray2.length);
+
+        return mergedKeyArray;
+    }
+
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
         VariableKey[] keys = configurationData.put(m, variableKeys);
         if (keys == null) {
             return;
         }
-        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
+        configurationData.put(m, mergeKeys(keys, variableKeys));
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
