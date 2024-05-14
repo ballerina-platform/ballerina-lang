@@ -125,7 +125,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         completionItem.getCompletionItem().setSortText(sortText);
     }
 
-    protected static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
+    private static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
                                                           LSCompletionItem completionItem) {
         completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
                 SortingUtil.toRank(context, completionItem)));

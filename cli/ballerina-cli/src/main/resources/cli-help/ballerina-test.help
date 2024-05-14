@@ -101,6 +101,22 @@ OPTIONS
                   after-groups) of the test function should be isolated.
             Parallel test execution is an experimental feature which supports only a limited set of functionality.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
+       --cloud <provider>
+           Run the tests in a provided cloud environment. The supported cloud providers are:
+               - Docker
+                    - Requires Docker to be installed on the machine.
+                    - '--cloud=docker' can be used to run the tests in a Docker container.
+           If tests have resources, specify their paths in the Cloud.toml file.
+               - The paths to resources should be specified using the relative
+                 path to the package.
+               - Use [[container.copy.files]] to specify the paths to the resources.
+               - target value should be added as : "/home/ballerina/<resource-path>". <resource-path> should be the
+                 relative path to the package.
+
 
 ARGUMENTS
        (-Ckey=value)...

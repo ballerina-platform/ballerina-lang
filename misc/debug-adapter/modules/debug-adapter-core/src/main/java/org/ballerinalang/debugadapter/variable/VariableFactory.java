@@ -36,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
+import org.ballerinalang.debugadapter.variable.types.BRegexp;
 import org.ballerinalang.debugadapter.variable.types.BService;
 import org.ballerinalang.debugadapter.variable.types.BStream;
 import org.ballerinalang.debugadapter.variable.types.BString;
@@ -166,6 +167,8 @@ public class VariableFactory {
             return new BHandle(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.STREAM_VALUE.getString())) {
             return new BStream(context, varName, value);
+        } else if (valueTypeName.equals(JVMValueType.REGEXP_VALUE.getString())) {
+            return new BRegexp(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
             return new BXmlText(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {

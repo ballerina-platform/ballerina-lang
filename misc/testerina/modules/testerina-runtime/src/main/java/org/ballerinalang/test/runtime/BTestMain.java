@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -76,13 +77,15 @@ public class BTestMain {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 4) {
-            Path targetPath = Paths.get(args[0]);
+        if (args.length >= 4) { //running using the suite json
+            boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
+            Path testSuiteJsonPath = Paths.get(args[1]);
+            Path targetPath = Paths.get(args[2]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            String jacocoAgentJarPath = args[1];
-            boolean report = Boolean.parseBoolean(args[2]);
-            boolean coverage = Boolean.parseBoolean(args[3]);
+                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+            String jacocoAgentJarPath = args[3];
+            boolean report = Boolean.parseBoolean(args[4]);
+            boolean coverage = Boolean.parseBoolean(args[5]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -95,13 +98,19 @@ public class BTestMain {
             }
             out.println();
 
-            Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
-
-            try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
+            try (InputStream is = isFatJarExecution ?
+                    BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath)
+                    : null) {
+                BufferedReader br;
+                if (is != null) {
+                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                } else {
+                    br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
+                }
                 Gson gson = new Gson();
                 Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
                         new TypeToken<Map<String, TestSuite>>() { }.getType());
-
                 if (!testSuiteMap.isEmpty()) {
                     for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey();
@@ -113,7 +122,14 @@ public class BTestMain {
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                        classLoader = createURLClassLoader(testExecutionDependencies);
+
+                        if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
+                            classLoader = createInitialCustomClassLoader();
+                        } else {
+                            // Even if it is fat jar execution but there are no mock functions,
+                            // We can use the URLClassLoader
+                            classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
+                        }
 
                         if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
                             if (coverage) {
@@ -121,15 +137,14 @@ public class BTestMain {
                             }
                             String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
                                     .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
-                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
+                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
+                                    coverage, isFatJarExecution);
                         }
-
-                        String[] testArgs = new String[]{args[0], packageName, moduleName};
-                        for (int i = 2; i < args.length; i++) {
+                        String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
+                        for (int i = 4; i < args.length; i++) {
                             testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
                             testArgs[testArgs.length - 1] = args[i];
                         }
-
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
                                 testArgs);
                         exitStatus = (result == 1) ? result : exitStatus;
@@ -137,11 +152,11 @@ public class BTestMain {
                 } else {
                     exitStatus = 1;
                 }
+                br.close();
             }
         } else {
             exitStatus = 1;
         }
-
         Runtime.getRuntime().exit(exitStatus);
     }
 
@@ -170,7 +185,6 @@ public class BTestMain {
 
     public static List<URL> getURLList(List<String> jarFilePaths) {
         List<URL> urlList = new ArrayList<>();
-
         for (String jarFilePath : jarFilePaths) {
             try {
                 urlList.add(Paths.get(jarFilePath).toUri().toURL());
@@ -182,14 +196,26 @@ public class BTestMain {
         return urlList;
     }
 
-    public static URLClassLoader createURLClassLoader(List<String> jarFilePaths) {
+    public static URLClassLoader createURLClassLoader(List<URL> jarFileUrls) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getURLList(jarFilePaths).toArray(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(jarFileUrls.toArray(
                         new URL[0]), ClassLoader.getSystemClassLoader()));
     }
 
+    public static CustomSystemClassLoader createInitialCustomClassLoader() {
+        return AccessController.doPrivileged(
+                (PrivilegedAction<CustomSystemClassLoader>) CustomSystemClassLoader::new
+        );
+    }
+
+    public static CustomSystemClassLoader createModifiedCustomClassLoader(Map<String, byte[]> modifiedClassDefs) {
+        return AccessController.doPrivileged(
+                (PrivilegedAction<CustomSystemClassLoader>) () -> new CustomSystemClassLoader(modifiedClassDefs)
+        );
+    }
+
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths, String instrumentDir,
-                                              boolean coverage) {
+                                              boolean coverage, boolean isFatJarExecution) {
         populateClassNameVsFunctionToMockMap(suite);
         Map<String, byte[]> modifiedClassDef = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
@@ -198,7 +224,13 @@ public class BTestMain {
             byte[] classFile = getModifiedClassBytes(className, functionNamesList, suite, instrumentDir, coverage);
             modifiedClassDef.put(className, classFile);
         }
-        classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+
+        if (isFatJarExecution) {
+            classLoader = createModifiedCustomClassLoader(modifiedClassDef);
+        } else {
+            classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+        }
+
         clearMockFunctionMapBeforeNextModule();
     }
 

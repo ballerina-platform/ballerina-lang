@@ -1263,6 +1263,22 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Build a project with invalid fields in TOML array 'dependency'")
+    public void testBuildProjectWithInvalidDependencyArrayInBallerinaToml() throws IOException {
+        Path projectPath = this.testResources.resolve("invalid-dependency-array-project");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    getOutput("build-bal-project-with-invalid-dependency-array.txt"));
+        }
+    }
+
     private String getNewVersionForOldDistWarning() {
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());

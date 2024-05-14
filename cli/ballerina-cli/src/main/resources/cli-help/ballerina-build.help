@@ -63,6 +63,10 @@ OPTIONS
            Include the dependencies that are required to enable remote package
            management service.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
 
 EXAMPLES
        Build the current package. This will generate an 'app.jar' file in the
