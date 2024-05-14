@@ -22,24 +22,24 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.BooleanType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BBooleanType extends BType implements BooleanType, SemType {
+public final class BBooleanType extends BSemTypeWrapper implements BooleanType {
 
-    private final SemType semType;
-    private final static BBooleanType TRUE =
-            new BBooleanType(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(true));
-    private final static BBooleanType FALSE =
-            new BBooleanType(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.booleanConst(false));
+    protected final String typeName;
+
+    private static final BBooleanType TRUE =
+            new BBooleanType(new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    Builder.booleanConst(true));
+    private static final BBooleanType FALSE =
+            new BBooleanType(new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    Builder.booleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
@@ -47,56 +47,43 @@ public class BBooleanType extends BType implements BooleanType, SemType {
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        this(typeName, pkg, Builder.booleanType());
+        this(new BBooleanTypeImpl(typeName, pkg), Builder.booleanType());
     }
 
     public static BBooleanType singletonType(boolean value) {
         return value ? TRUE : FALSE;
     }
 
-    private BBooleanType(String typeName, Module pkg, SemType semType) {
-        super(typeName, pkg, Boolean.class);
-        this.semType = semType;
+    private BBooleanType(BBooleanTypeImpl bType, SemType semType) {
+        super(bType, semType);
+        this.typeName = bType.typeName;
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getZeroValue() {
-        return (V) Boolean.FALSE;
-    }
+    private static final class BBooleanTypeImpl extends BType implements BooleanType {
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) Boolean.FALSE;
-    }
+        private BBooleanTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Boolean.class);
+        }
 
-    @Override
-    public int getTag() {
-        return TypeTags.BOOLEAN_TAG;
-    }
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getZeroValue() {
+            return (V) Boolean.FALSE;
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        @SuppressWarnings("unchecked")
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) Boolean.FALSE;
+        }
 
-    @Override
-    SemType createSemType() {
-        return semType;
-    }
+        @Override
+        public int getTag() {
+            return TypeTags.BOOLEAN_TAG;
+        }
 
-    @Override
-    public int all() {
-        return get().all();
-    }
-
-    @Override
-    public int some() {
-        return get().some();
-    }
-
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

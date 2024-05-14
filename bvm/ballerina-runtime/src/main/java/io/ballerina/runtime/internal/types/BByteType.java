@@ -22,11 +22,8 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.ByteType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
@@ -36,67 +33,67 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
  *
  * @since 0.995.0
  */
-public class BByteType extends BType implements ByteType, SemType {
+public final class BByteType extends BSemTypeWrapper implements ByteType {
 
-    private final SemType semType;
+    protected final String typeName;
+    private static final BByteTypeImpl DEFAULT_B_TYPE = new BByteTypeImpl(TypeConstants.BYTE_TNAME, EMPTY_MODULE);
+
     /**
      * Create a {@code BByteType} which represents the byte type.
      *
      * @param typeName string name of the type
      */
     public BByteType(String typeName, Module pkg) {
-        this(typeName, pkg, Builder.intRange(0, UNSIGNED8_MAX_VALUE));
+        this(new BByteTypeImpl(typeName, pkg), Builder.intRange(0, UNSIGNED8_MAX_VALUE));
     }
 
-    private BByteType(String typeName, Module pkg, SemType semType) {
-        super(typeName, pkg, Integer.class);
-        this.semType = semType;
+    private BByteType(BByteTypeImpl bType, SemType semType) {
+        super(bType, semType);
+        this.typeName = bType.typeName;
     }
 
-    // Java Byte is signed, so we need use int to avoid overflow
-    public static BByteType singletonType(Integer value) {
-        return new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE, Builder.intConst(value));
+    public static BByteType singletonType(long value) {
+        try {
+            return new BByteType((BByteTypeImpl) DEFAULT_B_TYPE.clone(), Builder.intConst(value));
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getZeroValue() {
-        return (V) new Integer(0);
-    }
+    private static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getEmptyValue() {
-        return (V) new Integer(0);
-    }
+        private BByteTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Integer.class);
+        }
 
-    @Override
-    public int getTag() {
-        return TypeTags.BYTE_TAG;
-    }
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getZeroValue() {
+            return (V) new Integer(0);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getEmptyValue() {
+            return (V) new Integer(0);
+        }
 
-    @Override
-    SemType createSemType() {
-        return semType;
-    }
+        @Override
+        public int getTag() {
+            return TypeTags.BYTE_TAG;
+        }
 
-    @Override
-    public int all() {
-        return get().all();
-    }
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
 
-    @Override
-    public int some() {
-        return get().some();
-    }
-
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            BType bType = (BType) super.clone();
+            bType.setCachedImpliedType(null);
+            bType.setCachedReferredType(null);
+            return bType;
+        }
     }
 }
