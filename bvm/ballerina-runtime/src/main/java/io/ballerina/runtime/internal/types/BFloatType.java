@@ -21,11 +21,8 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
@@ -36,65 +33,52 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BType implements FloatType, SemType {
+public class BFloatType extends BSemTypeWrapper implements FloatType {
+
+    protected final String typeName;
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    private final SemType semType;
-
     public BFloatType(String typeName, Module pkg) {
-        this(typeName, pkg, Builder.floatType());
+        this(new BFloatTypeImpl(typeName, pkg), Builder.floatType());
     }
 
-    private BFloatType(String typeName, Module pkg, SemType semType) {
-        super(typeName, pkg, Double.class);
-        this.semType = semType;
-    }
-
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return (V) new Double(0);
-    }
-    
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) new Double(0);
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.FLOAT_TAG;
+    private BFloatType(BFloatTypeImpl bType, SemType semType) {
+        super(bType, semType);
+        typeName = bType.typeName;
     }
 
     public static BFloatType singletonType(Double value) {
-        return new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.floatConst(value));
+        return new BFloatType(new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE), Builder.floatConst(value));
     }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+    private static final class BFloatTypeImpl extends BType implements FloatType {
 
-    @Override
-    public int all() {
-        return get().all();
-    }
+        private BFloatTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Double.class);
+        }
 
-    @Override
-    public int some() {
-        return get().some();
-    }
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return (V) new Double(0);
+        }
 
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
-    }
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) new Double(0);
+        }
 
-    @Override
-    SemType createSemType() {
-        return semType;
+        @Override
+        public int getTag() {
+            return TypeTags.FLOAT_TAG;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

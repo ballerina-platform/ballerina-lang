@@ -73,5 +73,5 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.configurable.providers to org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.types;
     exports io.ballerina.runtime.internal.types.semtype;
-    exports io.ballerina.runtime.api.types.SemType;
+    exports io.ballerina.runtime.api.types.semtype;
 }

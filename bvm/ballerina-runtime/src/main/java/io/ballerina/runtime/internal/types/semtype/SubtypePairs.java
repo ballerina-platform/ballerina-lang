@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Iterator;
 

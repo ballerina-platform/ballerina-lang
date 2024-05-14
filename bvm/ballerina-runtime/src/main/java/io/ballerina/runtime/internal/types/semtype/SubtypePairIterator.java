@@ -18,21 +18,21 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.Iterator;
 
 public final class SubtypePairIterator implements Iterator<SubtypePair> {
 
     private int index = 0;
-    private final int maxIndex;
+    private static final int maxIndex = BasicTypeCode.CODE_B_TYPE + 1;
     private final int bits;
     private final SemType t1;
     private final SemType t2;
 
     SubtypePairIterator(SemType t1, SemType t2, int bits) {
-        maxIndex = Integer.max(t1.subTypeData().size(), t2.subTypeData().size());
         this.bits = bits;
         this.t1 = t1;
         this.t2 = t2;
@@ -45,14 +45,14 @@ public final class SubtypePairIterator implements Iterator<SubtypePair> {
     }
 
     private void incrementIndex() {
-        while (index < maxIndex && (bits & (1 << index)) == 0) {
-            index++;
-        }
+        int rest = bits >> index;
+        int offset = Integer.numberOfTrailingZeros(rest);
+        index += offset;
     }
 
     private SubType subTypeAtIndex(SemType t, int index) {
         if ((t.some() & (1 << index)) != 0) {
-            return t.subTypeData().get(index);
+            return t.subTypeData()[index];
         }
         return null;
     }

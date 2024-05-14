@@ -21,11 +21,11 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ReferenceType;
-import io.ballerina.runtime.api.types.SemType.BasicTypeCode;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.Core;
-import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -205,13 +205,5 @@ final class BTypeConverter {
 
     private static boolean isSemType(Type type) {
         return type instanceof SemType;
-//        // FIXME: can't we replace this with instanceof check?
-//        return switch (type.getTag()) {
-//            case TypeTags.NEVER_TAG, TypeTags.NULL_TAG, TypeTags.DECIMAL_TAG, TypeTags.FLOAT_TAG,
-//                 TypeTags.BOOLEAN_TAG, TypeTags.INT_TAG, TypeTags.BYTE_TAG,
-//                 TypeTags.SIGNED8_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED32_INT_TAG,
-//                 TypeTags.UNSIGNED8_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED32_INT_TAG -> true;
-//            default -> false;
-//        };
     }
 }

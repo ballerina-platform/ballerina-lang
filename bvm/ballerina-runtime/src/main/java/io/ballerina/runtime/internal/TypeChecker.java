@@ -26,12 +26,14 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ParameterizedType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.Context;
-import io.ballerina.runtime.api.types.SemType.Core;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -61,7 +63,6 @@ import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BResourceMethodType;
 import io.ballerina.runtime.internal.types.BStreamType;
-import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
@@ -101,7 +102,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
@@ -133,6 +133,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.types.semtype.Core.B_TYPE_TOP;
+import static io.ballerina.runtime.api.types.semtype.Core.SEMTYPE_TOP;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
 import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
@@ -289,9 +291,24 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        return isSubType(getType(sourceVal), targetType,
-                (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(null, sourceVal, sourceTy, targetTy));
+        SemType targetSemType = Builder.from(targetType);
+        SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetSemType);
+        SemType valueBasicType = basicType(sourceVal);
+        if (!Core.isSubtypeSimple(valueBasicType, targetBasicTypeUnion)) {
+            return false;
+        }
+        if (targetBasicTypeUnion == targetSemType) {
+            return true;
+        }
+        SemType sourceSemType = Builder.from(getType(sourceVal));
+        return switch (isSubTypeInner(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case MAYBE -> FallbackTypeChecker.checkIsType(null, sourceVal, bTypePart(sourceSemType),
+                    bTypePart(targetSemType));
+        };
     }
+
 
     /**
      * Check whether a given value belongs to the given type.
@@ -303,8 +320,12 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        return isSubType(sourceType, targetType,
-                (sourceTy, targetTy) -> FallbackTypeChecker.checkIsType(errors, sourceVal, sourceTy, targetTy));
+        return switch (isSubType(sourceType, targetType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case MAYBE ->
+                    FallbackTypeChecker.checkIsType(errors, sourceVal, bTypePart(sourceType), bTypePart(targetType));
+        };
     }
 
     /**
@@ -346,15 +367,16 @@ public class TypeChecker {
         if (value == null) {
             return TYPE_NULL;
         } else if (value instanceof Number number) {
-            if (value instanceof Long) {
-                return BIntegerType.singletonType(number.longValue());
-            } else if (value instanceof Double) {
+            if (value instanceof Double) {
                 return BFloatType.singletonType(number.doubleValue());
-            } else if (value instanceof Integer || value instanceof Byte) {
-                return BByteType.singletonType(number.intValue());
             }
-        } else if (value instanceof BString stringValue) {
-            return BStringType.singletonType(stringValue.getValue());
+            long numberValue =
+                    number instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : number.longValue();
+            if (value instanceof Long) {
+                return BIntegerType.singletonType(numberValue);
+            } else if (value instanceof Integer || value instanceof Byte) {
+                return BByteType.singletonType(numberValue);
+            }
         } else if (value instanceof Boolean booleanValue) {
             return BBooleanType.singletonType(booleanValue);
         } else if (value instanceof BObject) {
@@ -551,34 +573,88 @@ public class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return isSubType(sourceType, targetType,
-                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType, null));
+        return switch (isSubType(sourceType, targetType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(sourceType), bTypePart(targetType), null);
+        };
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return isSubType(sourceType, targetType,
-                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceBType, targetBType,
-                        unresolvedTypes));
+        return switch (isSubType(sourceType, targetType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case MAYBE ->
+                    FallbackTypeChecker.checkIsType(bTypePart(sourceType), bTypePart(targetType), unresolvedTypes);
+        };
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return isSubType(sourceType, targetType,
-                (sourceBType, targetBType) -> FallbackTypeChecker.checkIsType(sourceVal, sourceBType, targetBType,
-                        unresolvedTypes));
-    }
-
-    private static boolean isSubType(Type t1, Type t2, BiFunction<? super BType, ? super BType, Boolean> fallback) {
-        if (t1 instanceof ParameterizedType paramTy1) {
-            if (t2 instanceof ParameterizedType paramTy2) {
-                return isSubType(paramTy1.getParamValueType(), paramTy2.getParamValueType(), fallback);
-            }
-            return isSubType(paramTy1.getParamValueType(), t2, fallback);
-        }
-        return Core.isSubType(cx, Builder.from(t1), Builder.from(t2), fallback);
+        return switch (isSubType(sourceType, targetType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case MAYBE -> FallbackTypeChecker.checkIsType(sourceVal, bTypePart(sourceType), bTypePart(targetType),
+                    unresolvedTypes);
+        };
     }
 
     // Private methods
+
+    private enum TypeCheckResult {
+        TRUE,
+        FALSE,
+        MAYBE
+    }
+
+    private static TypeCheckResult isSubType(Type source, Type target) {
+        if (source instanceof ParameterizedType sourceParamType) {
+            if (target instanceof ParameterizedType targetParamType) {
+                return isSubType(sourceParamType.getParamValueType(), targetParamType.getParamValueType());
+            }
+            return isSubType(sourceParamType.getParamValueType(), target);
+        }
+        return isSubTypeInner(Builder.from(source), Builder.from(target));
+    }
+
+    private static TypeCheckResult isSubTypeInner(SemType source, SemType target) {
+        if (!Core.containsBasicType(source, B_TYPE_TOP)) {
+            return Core.isSubType(cx, source, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
+        }
+        if (!Core.containsBasicType(target, B_TYPE_TOP)) {
+            return TypeCheckResult.FALSE;
+        }
+        SemType sourcePureSemType = Core.intersect(source, SEMTYPE_TOP);
+        SemType targetPureSemType = Core.intersect(target, SEMTYPE_TOP);
+        return Core.isSubType(cx, sourcePureSemType, targetPureSemType) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
+    }
+
+    private static SemType basicType(Object value) {
+        if (value == null) {
+            return Builder.nilType();
+        } else if (value instanceof Double) {
+            return Builder.floatType();
+        } else if (value instanceof Number) {
+            return Builder.intType();
+        } else if (value instanceof BString) {
+            return Builder.stringType();
+        } else if (value instanceof Boolean) {
+            return Builder.booleanType();
+        } else if (value instanceof DecimalValue) {
+            return Builder.decimalType();
+        } else {
+            return Builder.bType();
+        }
+    }
+
+    private static BType bTypePart(Type t) {
+        return bTypePart(Builder.from(t));
+    }
+
+    private static BType bTypePart(SemType t) {
+        return (BType) Core.subTypeData(t, BasicTypeCode.BT_B_TYPE);
+    }
+
 
     private static boolean checkTypeDescType(Type sourceType, BTypedescType targetType,
             List<TypePair> unresolvedTypes) {

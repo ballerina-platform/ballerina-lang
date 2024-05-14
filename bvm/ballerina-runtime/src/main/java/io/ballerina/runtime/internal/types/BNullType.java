@@ -20,18 +20,17 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BType implements NullType, SemType {
+public class BNullType extends BSemTypeWrapper implements NullType {
+
+    protected final String typeName;
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -40,49 +39,50 @@ public class BNullType extends BType implements NullType, SemType {
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        super(typeName, pkg, null);
+        this(new BNullTypeImpl(typeName, pkg), Builder.nilType());
     }
 
-    public <V extends Object> V getZeroValue() {
-        return null;
+    BNullType(String typeName, Module pkg, SemType semType) {
+        this(new BNullTypeImpl(typeName, pkg), semType);
     }
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
+    private BNullType(BNullTypeImpl bNullType, SemType semType) {
+        super(bNullType, semType);
+        this.typeName = bNullType.typeName;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.NULL_TAG;
-    }
+    private static final class BNullTypeImpl extends BType implements NullType {
 
-    public boolean isNilable() {
-        return true;
-    }
+        private BNullTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, null);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
 
-    @Override
-    SemType createSemType() {
-        return Builder.nilType();
-    }
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
 
-    @Override
-    public int all() {
-        return get().all();
-    }
+        @Override
+        public int getTag() {
+            return TypeTags.NULL_TAG;
+        }
 
-    @Override
-    public int some() {
-        return get().some();
-    }
+        public boolean isNilable() {
+            return true;
+        }
 
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
+
+        @Override
+        SemType createSemType() {
+            return Builder.nilType();
+        }
     }
 }

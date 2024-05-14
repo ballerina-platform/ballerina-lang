@@ -20,8 +20,8 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 // All the logic for supporting various Type operations on SemTypes is defined here
 final class BTypeAdapter implements Type {
@@ -65,9 +65,6 @@ final class BTypeAdapter implements Type {
 
     @Override
     public Module getPackage() {
-        if (semType instanceof BSemTypeWithIdentity ty) {
-            return ty.metadata.pkg;
-        }
         throw new IllegalStateException("semtype without identity");
     }
 
@@ -113,9 +110,6 @@ final class BTypeAdapter implements Type {
 
     @Override
     public Module getPkg() {
-        if (semType instanceof BSemTypeWithIdentity ty) {
-            return ty.metadata.pkg;
-        }
         throw new IllegalStateException("semtype without identity");
     }
 }
