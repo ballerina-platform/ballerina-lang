@@ -22,13 +22,11 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.DecimalType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
@@ -38,66 +36,68 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  *
  * @since 0.995.0
  */
-public class BDecimalType extends BType implements DecimalType, SemType {
+public final class BDecimalType extends BSemTypeWrapper implements DecimalType {
+
+    protected final String typeName;
+    private static final BDecimalTypeImpl DEFAULT_B_TYPE =
+            new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
      *
      * @param typeName string name of the type
      */
-    private final SemType semType;
     public BDecimalType(String typeName, Module pkg) {
-        this(typeName, pkg, Builder.decimalType());
+        this(new BDecimalTypeImpl(typeName, pkg), Builder.decimalType());
     }
 
     public static BDecimalType singletonType(BigDecimal value) {
-        return new BDecimalType(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE, Builder.decimalConst(value));
+        try {
+            return new BDecimalType((BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), Builder.decimalConst(value));
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private BDecimalType(String typeName, Module pkg, SemType semType) {
-        super(typeName, pkg, DecimalValue.class);
-        this.semType = semType;
+    private BDecimalType(BDecimalTypeImpl bType, SemType semType) {
+        super(bType, semType);
+        this.typeName = bType.typeName;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getZeroValue() {
-        return (V) new DecimalValue(BigDecimal.ZERO);
-    }
+    private static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getEmptyValue() {
-        return (V) new DecimalValue(BigDecimal.ZERO);
-    }
+        private BDecimalTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, DecimalValue.class);
+        }
 
-    @Override
-    public int getTag() {
-        return TypeTags.DECIMAL_TAG;
-    }
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getZeroValue() {
+            return (V) new DecimalValue(BigDecimal.ZERO);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getEmptyValue() {
+            return (V) new DecimalValue(BigDecimal.ZERO);
+        }
 
-    @Override
-    SemType createSemType() {
-        return semType;
-    }
+        @Override
+        public int getTag() {
+            return TypeTags.DECIMAL_TAG;
+        }
 
-    @Override
-    public int all() {
-        return get().all();
-    }
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
 
-    @Override
-    public int some() {
-        return get().some();
-    }
-
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            BType bType = (BType) super.clone();
+            bType.setCachedImpliedType(null);
+            bType.setCachedReferredType(null);
+            return bType;
+        }
     }
 }

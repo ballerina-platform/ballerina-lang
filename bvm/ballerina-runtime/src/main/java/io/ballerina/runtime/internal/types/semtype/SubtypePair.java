@@ -18,8 +18,13 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
 public record SubtypePair(int typeCode, SubType subType1, SubType subType2) {
 
+    public SubtypePair {
+        if (subType1 == null && subType2 == null) {
+            throw new IllegalArgumentException("both subType1 and subType2 cannot be null");
+        }
+    }
 }

@@ -18,14 +18,15 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BType;
 
-public class BSubType implements SubType {
+public class BSubType extends SubType {
 
     private final BType data;
 
     private BSubType(BType innerType) {
+        super(false, false);
         data = innerType;
     }
 
@@ -33,6 +34,8 @@ public class BSubType implements SubType {
         return new BSubType(innerType);
     }
 
+    // NOTE: we are allowing isAll() and isNothing() (from the parent) so we can get the union of PureSemTypes and
+    // PureBTypes. All other operations are unsupported for BSubType
     @Override
     public SubType union(SubType other) {
         throw new IllegalArgumentException("BSubType don't support semType operations");
@@ -56,17 +59,6 @@ public class BSubType implements SubType {
     @Override
     public boolean isEmpty() {
         throw new IllegalArgumentException("BSubType don't support semType operations");
-    }
-
-    // NOTE: we are allowing isAll() and isNothing() so we can get the union of PureSemTypes and PureBTypes
-    @Override
-    public boolean isAll() {
-        return false;
-    }
-
-    @Override
-    public boolean isNothing() {
-        return false;
     }
 
     @Override

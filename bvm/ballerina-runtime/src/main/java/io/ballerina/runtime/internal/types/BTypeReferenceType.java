@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.SemType.SemType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -130,7 +130,10 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
 
     @Override
     SemType createSemType() {
-        BType referredType = (BType) getReferredType();
-        return referredType.createSemType();
+        Type referredType = getReferredType();
+        if (referredType instanceof SemType semType) {
+            return semType;
+        }
+        return ((BType) referredType).createSemType();
     }
 }

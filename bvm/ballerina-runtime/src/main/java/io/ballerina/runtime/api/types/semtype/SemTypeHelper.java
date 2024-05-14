@@ -16,28 +16,28 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.api.types.semtype;
 
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_BOOLEAN;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_B_TYPE;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_CELL;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_DECIMAL;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_ERROR;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_FLOAT;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_FUNCTION;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_FUTURE;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_HANDLE;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_INT;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_LIST;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_MAPPING;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_NIL;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_OBJECT;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_STREAM;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_STRING;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_TABLE;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_TYPEDESC;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_UNDEF;
-import static io.ballerina.runtime.api.types.SemType.BasicTypeCode.CODE_XML;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_BOOLEAN;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_DECIMAL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_ERROR;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_FLOAT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_FUNCTION;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_FUTURE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_HANDLE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_INT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_LIST;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_MAPPING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_NIL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STREAM;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STRING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TABLE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TYPEDESC;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_XML;
 
 public final class SemTypeHelper {
 

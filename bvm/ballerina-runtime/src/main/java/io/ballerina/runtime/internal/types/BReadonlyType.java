@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ReadonlyType;
-import io.ballerina.runtime.api.types.SemType.SemType;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
