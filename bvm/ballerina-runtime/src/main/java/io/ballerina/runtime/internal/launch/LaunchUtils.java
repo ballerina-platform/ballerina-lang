@@ -93,7 +93,16 @@ public class LaunchUtils {
         listeners.forEach(listener -> listener.afterRunProgram(isService));
     }
 
-    public static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2) {
+    private static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2) {
+
+        if (keyArray1 == null) {
+            return keyArray2.clone();
+        }
+
+        if (keyArray2 == null) {
+            return keyArray1.clone();
+        }
+
         VariableKey[] mergedKeyArray = new VariableKey[keyArray1.length + keyArray2.length];
         System.arraycopy(keyArray1, 0, mergedKeyArray, 0, keyArray1.length);
         System.arraycopy(keyArray2, 0, mergedKeyArray, keyArray1.length, keyArray2.length);
@@ -103,11 +112,7 @@ public class LaunchUtils {
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
-        VariableKey[] keys = configurationData.put(m, variableKeys);
-        if (keys == null) {
-            return;
-        }
-        configurationData.put(m, mergeKeys(keys, variableKeys));
+        configurationData.put(m, mergeKeys(configurationData.get(m), variableKeys));
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
