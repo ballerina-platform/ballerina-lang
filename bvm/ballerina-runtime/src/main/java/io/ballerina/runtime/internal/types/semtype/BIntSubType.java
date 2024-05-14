@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,11 +32,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_MIN_VALUE;
  *
  * @since 2201.10.0
  */
-public final class BIntSubType implements SubType {
+public final class BIntSubType extends SubType {
 
     final SubTypeData data;
 
     private BIntSubType(SubTypeData data) {
+        super(data == AllOrNothing.ALL, data == AllOrNothing.NOTHING);
         this.data = data;
     }
 
@@ -133,16 +134,6 @@ public final class BIntSubType implements SubType {
 
     @Override
     public boolean isEmpty() {
-        return data == AllOrNothing.NOTHING;
-    }
-
-    @Override
-    public boolean isAll() {
-        return data == AllOrNothing.ALL;
-    }
-
-    @Override
-    public boolean isNothing() {
         return data == AllOrNothing.NOTHING;
     }
 

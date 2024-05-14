@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.api.types.semtype;
 
 public final class BasicTypeCode {
 
@@ -93,7 +93,7 @@ public final class BasicTypeCode {
         return code;
     }
 
-    private final static class BasicTypeCodeCache {
+    private static final class BasicTypeCodeCache {
 
         private static final BasicTypeCode[] cache;
         static {

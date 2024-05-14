@@ -18,17 +18,18 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
-public final class BBooleanSubType implements SubType {
+public final class BBooleanSubType extends SubType {
 
     private final BBooleanSubTypeData data;
-    private final static BBooleanSubType ALL = new BBooleanSubType(BBooleanSubTypeData.ALL);
-    private final static BBooleanSubType NOTHING = new BBooleanSubType(BBooleanSubTypeData.NOTHING);
-    private final static BBooleanSubType TRUE = new BBooleanSubType(BBooleanSubTypeData.TRUE);
-    private final static BBooleanSubType FALSE = new BBooleanSubType(BBooleanSubTypeData.FALSE);
+    private static final BBooleanSubType ALL = new BBooleanSubType(BBooleanSubTypeData.ALL);
+    private static final BBooleanSubType NOTHING = new BBooleanSubType(BBooleanSubTypeData.NOTHING);
+    private static final BBooleanSubType TRUE = new BBooleanSubType(BBooleanSubTypeData.TRUE);
+    private static final BBooleanSubType FALSE = new BBooleanSubType(BBooleanSubTypeData.FALSE);
 
     private BBooleanSubType(BBooleanSubTypeData data) {
+        super(data.isAll(), data.isNothing());
         this.data = data;
     }
 
@@ -119,26 +120,16 @@ public final class BBooleanSubType implements SubType {
     }
 
     @Override
-    public boolean isAll() {
-        return data.isAll();
-    }
-
-    @Override
-    public boolean isNothing() {
-        return data.isNothing();
-    }
-
-    @Override
     public SubTypeData data() {
         return data.toData();
     }
 
     private record BBooleanSubTypeData(boolean isAll, boolean isNothing, boolean value) {
 
-        static final BBooleanSubTypeData ALL = new BBooleanSubTypeData(true, false, false);
-        static final BBooleanSubTypeData NOTHING = new BBooleanSubTypeData(false, true, false);
-        static final BBooleanSubTypeData TRUE = new BBooleanSubTypeData(false, false, true);
-        static final BBooleanSubTypeData FALSE = new BBooleanSubTypeData(false, false, false);
+        private static final BBooleanSubTypeData ALL = new BBooleanSubTypeData(true, false, false);
+        private static final BBooleanSubTypeData NOTHING = new BBooleanSubTypeData(false, true, false);
+        private static final BBooleanSubTypeData TRUE = new BBooleanSubTypeData(false, false, true);
+        private static final BBooleanSubTypeData FALSE = new BBooleanSubTypeData(false, false, false);
 
         static BBooleanSubTypeData from(boolean value) {
             return value ? TRUE : FALSE;

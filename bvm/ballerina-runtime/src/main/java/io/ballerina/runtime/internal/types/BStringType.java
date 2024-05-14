@@ -1,33 +1,29 @@
 /*
-*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
 import io.ballerina.runtime.api.types.StringType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -35,10 +31,13 @@ import java.util.List;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BStringType extends BType implements StringType, SemType {
+public final class BStringType extends BSemTypeWrapper implements StringType {
 
-    private final int tag;
-    private final SemType semType;
+    protected final String typeName;
+    // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
+    // dependencies.
+    private static final BStringTypeImpl DEFAULT_B_TYPE =
+            new BStringTypeImpl(TypeConstants.STRING_TNAME, new Module(null, null, null), TypeTags.STRING_TAG);
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -46,22 +45,24 @@ public class BStringType extends BType implements StringType, SemType {
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        this(typeName, pkg, TypeTags.STRING_TAG, Builder.stringType());
+        this(new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), Builder.stringType());
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
-        this(typeName, pkg, tag, pickSemtype(tag));
+        this(new BStringTypeImpl(typeName, pkg, tag), pickSemtype(tag));
     }
 
-    private BStringType(String typeName, Module pkg, int tag, SemType semType) {
-        super(typeName, pkg, String.class);
-        this.tag = tag;
-        this.semType = semType;
+    private BStringType(BStringTypeImpl bType, SemType semType) {
+        super(bType, semType);
+        this.typeName = bType.typeName;
     }
 
     public static BStringType singletonType(String value) {
-        return new BStringType(TypeConstants.STRING_TNAME, PredefinedTypes.EMPTY_MODULE, TypeTags.STRING_TAG,
-                Builder.stringConst(value));
+        try {
+            return new BStringType((BStringTypeImpl) DEFAULT_B_TYPE.clone(), Builder.stringConst(value));
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static SemType pickSemtype(int tag) {
@@ -72,42 +73,40 @@ public class BStringType extends BType implements StringType, SemType {
         };
     }
 
-    public <V extends Object> V getZeroValue() {
-        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-    }
+    private static final class BStringTypeImpl extends BType implements StringType, Cloneable {
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-    }
+        private final int tag;
 
-    @Override
-    public int getTag() {
-        return tag;
-    }
+        private BStringTypeImpl(String typeName, Module pkg, int tag) {
+            super(typeName, pkg, String.class);
+            this.tag = tag;
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        public <V extends Object> V getZeroValue() {
+            return (V) RuntimeConstants.STRING_EMPTY_VALUE;
+        }
 
-    @Override
-    SemType createSemType() {
-        return semType;
-    }
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) RuntimeConstants.STRING_EMPTY_VALUE;
+        }
 
-    @Override
-    public int all() {
-        return get().all();
-    }
+        @Override
+        public int getTag() {
+            return tag;
+        }
 
-    @Override
-    public int some() {
-        return get().some();
-    }
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
 
-    @Override
-    public List<SubType> subTypeData() {
-        return get().subTypeData();
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            BType bType = (BType) super.clone();
+            bType.setCachedImpliedType(null);
+            bType.setCachedReferredType(null);
+            return bType;
+        }
     }
 }
