@@ -137,7 +137,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BMapType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
+        return new BMapType(typeInSymbol.env, typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
+                typeInSymbol.flags);
     }
 
     @Override

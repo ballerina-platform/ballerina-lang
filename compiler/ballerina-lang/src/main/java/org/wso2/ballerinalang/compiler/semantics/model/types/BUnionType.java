@@ -358,7 +358,7 @@ public class BUnionType extends BType implements UnionType {
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
                 if (getImpliedType(mapType.constraint) == unionType) {
-                    BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                    BMapType newMapType = new BMapType(env, mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
@@ -372,7 +372,7 @@ public class BUnionType extends BType implements UnionType {
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
                     if (getImpliedType(mapType.constraint) == unionType) {
-                        BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                        BMapType newMapType = new BMapType(env, mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
                         this.add(newTableType);

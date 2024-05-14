@@ -340,7 +340,7 @@ public class TypeParamAnalyzer {
 
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(symTable.typeEnv(), unionType);
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
+        BMapType mapCloneableType = new BMapType(symTable.typeEnv(), TypeTags.MAP, unionType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
@@ -816,7 +816,8 @@ public class TypeParamAnalyzer {
                 if (!isDifferentTypes(constraint, matchingBoundMapConstraintType)) {
                     return expType;
                 }
-                return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
+                return new BMapType(symTable.typeEnv(), TypeTags.MAP, matchingBoundMapConstraintType,
+                        symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BStreamType expStreamType = (BStreamType) expType;
                 BType expStreamConstraint = expStreamType.constraint;

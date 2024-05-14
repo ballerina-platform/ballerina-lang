@@ -154,7 +154,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BMapType newMType = new BMapType(originalType.tag, newConstraint, null);
+        BMapType newMType = new BMapType(originalType.env, originalType.tag, newConstraint, null);
         setFlags(newMType, originalType.flags);
         return newMType;
     }

@@ -120,7 +120,7 @@ public class BIRTypeWriter extends TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private final Set<Integer> visitedAtoms = new HashSet<>();
+    private final Set<Atom.AtomIdentifier> visitedAtoms = new HashSet<>();
     private final Env typeEnv;
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp, Env typeEnv) {
@@ -617,7 +617,7 @@ public class BIRTypeWriter extends TypeVisitor {
 
         ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList;
         buff.writeByte(subtypeDataList.length);
-        for (ProperSubtypeData psd: subtypeDataList) {
+        for (ProperSubtypeData psd : subtypeDataList) {
             writeProperSubtypeData(psd);
         }
     }
@@ -675,17 +675,18 @@ public class BIRTypeWriter extends TypeVisitor {
             if (index == BDD_REC_ATOM_READONLY) {
                 buff.writeBoolean(true);
                 buff.writeInt(BDD_REC_ATOM_READONLY);
-            } else if (visitedAtoms.contains(index)) {
+            } else if (visitedAtoms.contains(recAtom.getIdentifier())) {
                 buff.writeBoolean(true);
                 buff.writeInt(index);
-                buff.writeInt(recAtom.getTargetKind().ordinal());
+                buff.writeInt(recAtom.kind().ordinal());
             } else {
-                visitedAtoms.add(index);
+                visitedAtoms.add(recAtom.getIdentifier());
                 buff.writeBoolean(false);
-                AtomicType atomicType = switch (recAtom.getTargetKind()) {
+                AtomicType atomicType = switch (recAtom.kind()) {
                     case LIST_ATOM -> typeEnv.listAtomType(recAtom);
                     case FUNCTION_ATOM -> typeEnv.functionAtomType(recAtom);
                     case MAPPING_ATOM -> typeEnv.mappingAtomType(recAtom);
+                    case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
                 };
                 buff.writeInt(index);
                 writeAtomicType(atomicType);
@@ -693,7 +694,7 @@ public class BIRTypeWriter extends TypeVisitor {
         } else {
             buff.writeBoolean(false);
             TypeAtom typeAtom = (TypeAtom) atom;
-            visitedAtoms.add(typeAtom.index());
+            visitedAtoms.add(typeAtom.getIdentifier());
             buff.writeInt(typeAtom.index());
             AtomicType atomicType = typeAtom.atomicType();
             writeAtomicType(atomicType);

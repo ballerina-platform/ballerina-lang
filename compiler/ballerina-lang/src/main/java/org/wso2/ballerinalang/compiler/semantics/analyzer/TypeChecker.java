@@ -3402,7 +3402,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BType errorDetailType = errorRefRestFieldType == symTable.anydataOrReadonly
                 ? symTable.errorType.detailType
-                : new BMapType(TypeTags.MAP, errorRefRestFieldType, null, Flags.PUBLIC);
+                : new BMapType(symTable.typeEnv(), TypeTags.MAP, errorRefRestFieldType, null, Flags.PUBLIC);
         data.resultType = new BErrorType(symTable.errorType.tsymbol, errorDetailType);
     }
 
@@ -4880,24 +4880,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 checkTypesForMap(waitForAllExpr, ((BMapType) referredType).constraint, data);
                 LinkedHashSet<BType> memberTypesForMap = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
                 if (memberTypesForMap.size() == 1) {
-                    data.resultType = new BMapType(TypeTags.MAP,
+                    data.resultType = new BMapType(symTable.typeEnv(), TypeTags.MAP,
                             memberTypesForMap.iterator().next(), symTable.mapType.tsymbol);
                     break;
                 }
                 BUnionType constraintTypeForMap = BUnionType.create(symTable.typeEnv(), null, memberTypesForMap);
-                data.resultType = new BMapType(TypeTags.MAP, constraintTypeForMap, symTable.mapType.tsymbol);
+                data.resultType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintTypeForMap,
+                        symTable.mapType.tsymbol);
                 break;
             case TypeTags.NONE:
             case TypeTags.ANY:
                 checkTypesForMap(waitForAllExpr, expType, data);
                 LinkedHashSet<BType> memberTypes = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
                 if (memberTypes.size() == 1) {
-                    data.resultType =
-                            new BMapType(TypeTags.MAP, memberTypes.iterator().next(), symTable.mapType.tsymbol);
+                    data.resultType = new BMapType(symTable.typeEnv(), TypeTags.MAP, memberTypes.iterator().next(),
+                            symTable.mapType.tsymbol);
                     break;
                 }
                 BUnionType constraintType = BUnionType.create(symTable.typeEnv(), null, memberTypes);
-                data.resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
+                data.resultType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType,
+                        symTable.mapType.tsymbol);
                 break;
             default:
                 dlog.error(waitForAllExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,

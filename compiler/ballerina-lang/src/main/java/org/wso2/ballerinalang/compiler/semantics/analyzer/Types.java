@@ -3792,7 +3792,7 @@ public class Types {
         if (s.tag == TypeTags.MAP) {
             BMapType mapType = (BMapType) s;
             if (mapType.constraint == source) {
-                return new BMapType(mapType.tag, target, mapType.tsymbol, mapType.flags);
+                return new BMapType(typeEnv(), mapType.tag, target, mapType.tsymbol, mapType.flags);
             }
         }
         if (s.tag == TypeTags.TABLE) {
@@ -3805,68 +3805,6 @@ public class Types {
             }
         }
         return s;
-    }
-
-    public static void fixSelfReferencingSameUnion(BType originalMemberType, BUnionType origUnionType,
-                                                    BType immutableMemberType, BUnionType newImmutableUnion,
-                                                    LinkedHashSet<BType> readOnlyMemTypes) {
-        boolean sameMember = originalMemberType == immutableMemberType;
-        if (originalMemberType.tag == TypeTags.ARRAY) {
-            var arrayType = (BArrayType) originalMemberType;
-            if (origUnionType == arrayType.eType) {
-                if (sameMember) {
-                    BArrayType newArrayType =
-                            new BArrayType(arrayType.env, newImmutableUnion, arrayType.tsymbol, arrayType.size,
-                            arrayType.state, arrayType.flags);
-                    readOnlyMemTypes.add(newArrayType);
-                } else {
-                    ((BArrayType) immutableMemberType).eType = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-        } else if (originalMemberType.tag == TypeTags.MAP) {
-            var mapType = (BMapType) originalMemberType;
-            if (origUnionType == mapType.constraint) {
-                if (sameMember) {
-                    BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
-                    readOnlyMemTypes.add(newMapType);
-                } else {
-                    ((BMapType) immutableMemberType).constraint = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-        } else if (originalMemberType.tag == TypeTags.TABLE) {
-            var tableType = (BTableType) originalMemberType;
-            if (origUnionType == tableType.constraint) {
-                if (sameMember) {
-                    BTableType newTableType = new BTableType(tableType.tag, newImmutableUnion, tableType.tsymbol,
-                            tableType.flags);
-                    readOnlyMemTypes.add(newTableType);
-                } else {
-                    ((BTableType) immutableMemberType).constraint = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-                return;
-            }
-
-            var immutableConstraint = ((BTableType) immutableMemberType).constraint;
-            if (tableType.constraint.tag == TypeTags.MAP) {
-                sameMember = tableType.constraint == immutableConstraint;
-                var mapType = (BMapType) tableType.constraint;
-                if (origUnionType == mapType.constraint) {
-                    if (sameMember) {
-                        BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol,
-                                mapType.flags);
-                        ((BTableType) immutableMemberType).constraint = newMapType;
-                    } else {
-                        ((BTableType) immutableMemberType).constraint = newImmutableUnion;
-                    }
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-        } else {
-            readOnlyMemTypes.add(immutableMemberType);
-        }
     }
 
     private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {
@@ -4393,9 +4331,10 @@ public class Types {
                 if (getImpliedType(mapConstraintType).tag == TypeTags.UNION) {
                     Set<BType> constraintUnionTypes =
                             expandAndGetMemberTypesRecursiveHelper(mapConstraintType, visited);
-                    constraintUnionTypes.forEach(constraintUnionType -> {
-                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
-                    });
+                    constraintUnionTypes.forEach(constraintUnionType ->
+                            memberTypes.add(new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintUnionType,
+                                    symTable.mapType.tsymbol))
+                    );
                 }
                 memberTypes.add(bType);
                 break;
@@ -5064,7 +5003,7 @@ public class Types {
             if (intersectionConstraintTypeType == null || intersectionConstraintTypeType == symTable.semanticError) {
                 return null;
             }
-            return new BMapType(TypeTags.MAP, intersectionConstraintTypeType, null);
+            return new BMapType(symTable.typeEnv(), TypeTags.MAP, intersectionConstraintTypeType, null);
         } else if (referredType.tag == TypeTags.ARRAY && referredLhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
                     (BArrayType) referredType, (BTupleType) referredLhsType, env, visitedTypes);

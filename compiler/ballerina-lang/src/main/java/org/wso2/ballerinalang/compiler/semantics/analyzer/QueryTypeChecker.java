@@ -309,7 +309,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    actualType = new BMapType(TypeTags.MAP, mapConstraintType, null);
+                    actualType = new BMapType(symTable.typeEnv(), TypeTags.MAP, mapConstraintType, null);
                     if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
                         actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
                                 symTable, anonymousModelHelper, names, null);

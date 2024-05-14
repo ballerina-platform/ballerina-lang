@@ -1075,7 +1075,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE,
                                 PackageID.VALUE, symTable.cloneableType, symTable.langValueModuleSymbol,
                                 symTable.builtinPos, BUILTIN);
-                symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+                symTable.detailType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.cloneableType, null);
                 symTable.errorType = new BErrorType(null, symTable.detailType);
                 symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                         symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos
@@ -1086,7 +1086,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.anyOrErrorType =
                         BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
 
-                symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+                symTable.mapAllType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyOrErrorType, null);
                 symTable.arrayAllType = new BArrayType(symTable.typeEnv(), symTable.anyOrErrorType);
                 symTable.typeDesc.constraint = symTable.anyOrErrorType;
                 symTable.futureType.constraint = symTable.anyOrErrorType;
@@ -1526,7 +1526,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
-            constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
+            constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {

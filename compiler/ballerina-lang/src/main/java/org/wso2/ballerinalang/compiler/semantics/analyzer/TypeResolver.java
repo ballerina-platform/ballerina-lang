@@ -876,7 +876,7 @@ public class TypeResolver {
         BTypeSymbol tSymbol = Symbols.createTypeSymbol(SymTag.TYPE, typeSymbol.flags, Names.EMPTY,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner,
                 td.pos, BUILTIN);
-        BMapType constrainedType = new BMapType(TypeTags.MAP, symTable.empty, tSymbol);
+        BMapType constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.empty, tSymbol);
         td.setBType(constrainedType);
         tSymbol.type = type;
         resolvingTypes.push(constrainedType);

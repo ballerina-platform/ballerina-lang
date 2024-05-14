@@ -121,6 +121,7 @@ public final class SemTypeHelper {
             case TypeTags.READONLY:
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
+            case TypeTags.MAP:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {

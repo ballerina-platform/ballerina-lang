@@ -1434,7 +1434,8 @@ public class BIRPackageSymbolEnter {
                     }
                     return bTableType;
                 case TypeTags.MAP:
-                    BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol, flags);
+                    BMapType bMapType = new BMapType(symTable.typeEnv(), TypeTags.MAP, null, symTable.mapType.tsymbol,
+                            flags);
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
@@ -1916,7 +1917,6 @@ public class BIRPackageSymbolEnter {
             return createSemType(all, some, subtypeList);
         }
 
-
         private ProperSubtypeData readProperSubtypeData() throws IOException {
             switch (inputStream.readByte()) {
                 case 1:
@@ -1955,15 +1955,16 @@ public class BIRPackageSymbolEnter {
                 int index = inputStream.readInt();
                 if (index != BDD_REC_ATOM_READONLY) {
                     int kindOrdinal = inputStream.readInt();
-                    RecAtom.TargetKind kind = RecAtom.TargetKind.values()[kindOrdinal];
+                    Atom.Kind kind = Atom.Kind.values()[kindOrdinal];
                     int offset = switch (kind) {
                         case LIST_ATOM -> offsets.listOffset();
                         case FUNCTION_ATOM -> offsets.functionOffset();
                         case MAPPING_ATOM -> offsets.mappingOffset();
+                        case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
                     };
                     index += offset;
                     RecAtom recAtom = RecAtom.createRecAtom(index);
-                    recAtom.setTargetKind(kind);
+                    recAtom.setKind(kind);
                     atom = recAtom;
                 } else { // BDD_REC_ATOM_READONLY is unique and every environment will have the same one
                     atom = RecAtom.createRecAtom(BDD_REC_ATOM_READONLY);

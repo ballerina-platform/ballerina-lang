@@ -17,6 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.MappingDefinition;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -25,6 +29,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.List;
+
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.PredefinedType.ANY;
+import static io.ballerina.types.PredefinedType.NEVER;
+
 /**
  * @since 0.94
  */
@@ -32,14 +43,19 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     public BType constraint;
     public BMapType mutableType;
 
-    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public final Env env;
+    private MappingDefinition md = null;
+
+    public BMapType(Env env, int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+        this.env = env;
     }
 
-    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, long flags) {
+    public BMapType(Env env, int tag, BType constraint, BTypeSymbol tsymbol, long flags) {
         super(tag, tsymbol, flags);
         this.constraint = constraint;
+        this.env = env;
     }
 
     @Override
@@ -68,5 +84,37 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    private boolean hasTypeHoles() {
+        return constraint instanceof BNoType;
+    }
+
+    // If the member has a semtype component then it will be represented by that component otherwise with never. This
+    // means we depend on properly partitioning types to semtype components. Also, we need to ensure member types are
+    // "ready" when we call this
+    @Override
+    public SemType semType() {
+        if (md != null) {
+            return md.getSemType(env);
+        }
+        md = new MappingDefinition();
+        if (hasTypeHoles()) {
+            return md.defineMappingTypeWrapped(env, List.of(), ANY);
+        }
+        SemType elementTypeSemType = constraint.semType();
+        if (elementTypeSemType == null) {
+            elementTypeSemType = NEVER;
+        }
+        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
+        return md.defineMappingTypeWrapped(env, List.of(), elementTypeSemType, mut);
+    }
+
+    // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
+    // this will have an invalid list type since parent union type call this while it is filling its members
+    @Override
+    public boolean isNullable() {
+        return false;
     }
 }

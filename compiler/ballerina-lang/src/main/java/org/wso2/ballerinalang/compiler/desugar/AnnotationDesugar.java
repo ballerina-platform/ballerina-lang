@@ -913,7 +913,7 @@ public class AnnotationDesugar {
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
         functionSymbol.type = new BInvokableType(Collections.emptyList(),
                 function.restParam != null ? function.restParam.getBType() : null,
-                new BMapType(TypeTags.MAP, symTable.anyType, null),
+                new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyType, null),
                 null);
         function.symbol = functionSymbol;
         return functionSymbol;

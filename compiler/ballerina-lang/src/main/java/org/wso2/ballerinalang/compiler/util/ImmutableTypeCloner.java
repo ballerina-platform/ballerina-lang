@@ -387,7 +387,7 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BMapType(TypeTags.MAP, null, immutableMapTSymbol,
+                    originalType, new BMapType(symTable.typeEnv(), TypeTags.MAP, null, immutableMapTSymbol,
                             type.flags | Flags.READONLY), symTable));
         }
 

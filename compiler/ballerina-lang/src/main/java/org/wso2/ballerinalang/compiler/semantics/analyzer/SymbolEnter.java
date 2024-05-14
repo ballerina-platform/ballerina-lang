@@ -3387,7 +3387,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE, env);
             BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
-            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
+            BMapType restType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.setBType(restType);
             defineMemberNode(errorVariable.restDetail, env, restType);

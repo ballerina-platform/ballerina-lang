@@ -50,7 +50,7 @@ import static io.ballerina.types.typeops.XmlOps.XML_SUBTYPE_RO;
  *
  * @since 2201.8.0
  */
-public class PredefinedType {
+public final class PredefinedType {
     public static final BasicTypeBitSet NEVER = basicTypeUnion(0);
     public static final BasicTypeBitSet NIL = basicType(BasicTypeCode.BT_NIL);
     public static final BasicTypeBitSet BOOLEAN = basicType(BasicTypeCode.BT_BOOLEAN);
@@ -97,7 +97,7 @@ public class PredefinedType {
                     | (1 << BasicTypeCode.BT_DECIMAL.code)
                     | (1 << BasicTypeCode.BT_STRING.code));
 
-    public static final SemType IMPLEMENTED_TYPES = union(SIMPLE_OR_STRING, LIST);
+    public static final SemType IMPLEMENTED_TYPES = union(SIMPLE_OR_STRING, union(LIST, MAPPING));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
@@ -177,7 +177,8 @@ public class PredefinedType {
             BasicSubtype.from(BT_XML, XML_SUBTYPE_RO)
     );
     public static final SemType IMPLEMENTED_VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
-            BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO)
+            BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
+            BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO)
     );
 
     protected static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
