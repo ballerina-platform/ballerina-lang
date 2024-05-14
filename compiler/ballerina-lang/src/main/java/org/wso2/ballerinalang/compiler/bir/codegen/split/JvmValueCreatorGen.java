@@ -55,7 +55,7 @@ public class JvmValueCreatorGen {
     private final JvmFunctionCallsCreatorsGen jvmFunctionCallsCreatorsGen;
 
     public JvmValueCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
-        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID, jvmTypeGen);
+        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(packageID, jvmTypeGen);
         this.jvmObjectCreatorGen = new JvmObjectCreatorGen(packageID, jvmConstantsGen);
         this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID, jvmTypeGen);
         this.jvmFunctionCallsCreatorsGen = new JvmFunctionCallsCreatorsGen(packageID);
