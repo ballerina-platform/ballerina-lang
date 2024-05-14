@@ -16,29 +16,34 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.types.semtype.BBasicTypeBitSet;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
-import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
+
 public final class Builder {
+
+    private static final String[] EMPTY_STRING_ARR = new String[0];
 
     private Builder() {
     }
 
     public static SemType from(BasicTypeCode typeCode) {
-        return BBasicTypeBitSet.from(1 << typeCode.code());
+        if (BasicTypeCache.isCached(typeCode)) {
+            return BasicTypeCache.cache[typeCode.code()];
+        }
+        return SemType.from(1 << typeCode.code());
     }
 
     public static SemType from(Type type) {
@@ -66,6 +71,10 @@ public final class Builder {
         return from(BasicTypeCode.BT_INT);
     }
 
+    public static SemType bType() {
+        return from(BasicTypeCode.BT_B_TYPE);
+    }
+
     public static SemType decimalType() {
         return from(BasicTypeCode.BT_DECIMAL);
     }
@@ -86,12 +95,25 @@ public final class Builder {
         return StringTypeCache.charType;
     }
 
+    private static final SemType NEVER = SemType.from(0);
+
     public static SemType basicTypeUnion(int bitset) {
-        return BBasicTypeBitSet.from(bitset);
+        // TODO: may be cache single type bit sets as well as well
+        if (bitset == 0) {
+            return NEVER;
+        } else if (Integer.bitCount(bitset) == 1) {
+            int code = Integer.numberOfTrailingZeros(bitset);
+            if (BasicTypeCache.isCached(code)) {
+                return BasicTypeCache.cache[code];
+            }
+        }
+        return SemType.from(bitset);
     }
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
-        return BSemType.from(0, 1 << basicTypeCode.code(), List.of(subType));
+        SubType[] subTypes = initializeSubtypeArray();
+        subTypes[basicTypeCode.code()] = subType;
+        return SemType.from(0, 1 << basicTypeCode.code(), subTypes);
     }
 
     public static SemType intConst(long value) {
@@ -128,13 +150,17 @@ public final class Builder {
     public static SemType stringConst(String value) {
         BStringSubType subType;
         String[] values = {value};
-        String[] empty = new String[0];
-        if (value.codePoints().count() == 1) {
+        String[] empty = EMPTY_STRING_ARR;
+        if (value.length() == 1 || value.codePointCount(0, value.length()) == 1) {
             subType = BStringSubType.createStringSubType(true, values, true, empty);
         } else {
             subType = BStringSubType.createStringSubType(true, empty, true, values);
         }
         return basicSubType(BasicTypeCode.BT_STRING, subType);
+    }
+
+    static SubType[] initializeSubtypeArray() {
+        return new SubType[CODE_B_TYPE + 2];
     }
 
     private static final class IntTypeCache {
@@ -164,11 +190,30 @@ public final class Builder {
     private static final class StringTypeCache {
 
         private static final SemType charType;
-        private static final String[] EMPTY_STRING_ARR = new String[0];
         static {
-            BStringSubType subTypeData = BStringSubType.createStringSubType(false, EMPTY_STRING_ARR, true,
-                    EMPTY_STRING_ARR);
+            BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,
+                    Builder.EMPTY_STRING_ARR);
             charType = basicSubType(BasicTypeCode.BT_STRING, subTypeData);
+        }
+    }
+
+    private static final class BasicTypeCache {
+
+        private static final SemType[] cache;
+        static {
+            cache = new SemType[CODE_B_TYPE + 2];
+            for (int i = 0; i < CODE_B_TYPE + 1; i++) {
+                cache[i] = SemType.from(1 << i);
+            }
+        }
+
+        private static boolean isCached(BasicTypeCode code) {
+            int i = code.code();
+            return 0 < i && i <= CODE_B_TYPE;
+        }
+
+        private static boolean isCached(int code) {
+            return 0 < code && code <= CODE_B_TYPE;
         }
     }
 }
