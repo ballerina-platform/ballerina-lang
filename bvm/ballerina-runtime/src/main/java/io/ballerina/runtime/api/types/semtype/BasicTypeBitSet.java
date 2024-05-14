@@ -16,32 +16,15 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.types.semtype.SubTypeData;
+public interface BasicTypeBitSet {
 
-/**
- * Describe set of operation supported by each basic Type
- *
- * @since 2201.10.0
- */
-public interface SubType {
-
-    SubType union(SubType other);
-
-    SubType intersect(SubType other);
-
-    default SubType diff(SubType other) {
-        return this.intersect(other.complement());
+    default int some() {
+        return 0;
     }
 
-    SubType complement();
-
-    boolean isEmpty();
-
-    boolean isAll();
-
-    boolean isNothing();
-
-    SubTypeData data();
+    default SubType[] subTypeData() {
+        return new SubType[0];
+    }
 }

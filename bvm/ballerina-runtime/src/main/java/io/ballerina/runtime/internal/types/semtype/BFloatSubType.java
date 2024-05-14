@@ -19,7 +19,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,11 +30,12 @@ import java.util.List;
  *
  * @since 2201.10.0
  */
-public final class BFloatSubType implements SubType {
+public final class BFloatSubType extends SubType {
 
     final SubTypeData data;
 
     private BFloatSubType(SubTypeData data) {
+        super(data == AllOrNothing.ALL, data == AllOrNothing.NOTHING);
         this.data = data;
     }
 
@@ -112,16 +113,6 @@ public final class BFloatSubType implements SubType {
 
     @Override
     public boolean isEmpty() {
-        return data == AllOrNothing.NOTHING;
-    }
-
-    @Override
-    public boolean isAll() {
-        return data == AllOrNothing.ALL;
-    }
-
-    @Override
-    public boolean isNothing() {
         return data == AllOrNothing.NOTHING;
     }
 

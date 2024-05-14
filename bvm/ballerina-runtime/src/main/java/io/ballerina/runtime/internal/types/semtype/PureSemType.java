@@ -16,8 +16,18 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.internal.types.semtype;
 
-public class Context {
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 
+public final class PureSemType extends SemType {
+
+    public PureSemType(int all, int some, SubType[] subTypeData) {
+        super(all, some, subTypeData);
+    }
+
+    public PureSemType(int all) {
+        super(all);
+    }
 }

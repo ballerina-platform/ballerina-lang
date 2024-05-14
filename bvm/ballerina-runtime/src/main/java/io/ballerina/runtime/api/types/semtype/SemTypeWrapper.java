@@ -16,22 +16,11 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types;
+package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
+import io.ballerina.runtime.api.types.Type;
 
-import java.util.List;
+public interface SemTypeWrapper extends Type {
 
-public interface BasicTypeBitSet extends SemType {
-
-    @Override
-    default int some() {
-        return 0;
-    }
-
-    @Override
-    default List<SubType> subTypeData() {
-        return List.of();
-    }
+    SemType semType();
 }

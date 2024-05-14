@@ -21,25 +21,21 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
-import io.ballerina.runtime.api.types.SemType.Builder;
-import io.ballerina.runtime.api.types.SemType.SemType;
-import io.ballerina.runtime.api.types.SemType.SubType;
-
-import java.util.List;
+import io.ballerina.runtime.api.types.semtype.Builder;
 
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
  *
  * @since 2.0.0-preview1
  */
-public class BNeverType extends BNullType implements NeverType, SemType {
+public class BNeverType extends BNullType implements NeverType {
     /**
      * Create a {@code BNeverType} represents the type of a {@code Never}.
      *
      * @param pkg package path
      */
     public BNeverType(Module pkg) {
-        super(TypeConstants.NEVER_TNAME, pkg);
+        super(TypeConstants.NEVER_TNAME, pkg, Builder.neverType());
     }
 
     @Override
@@ -50,25 +46,5 @@ public class BNeverType extends BNullType implements NeverType, SemType {
     @Override
     public int getTag() {
         return TypeTags.NEVER_TAG;
-    }
-
-    @Override
-    SemType createSemType() {
-        return Builder.neverType();
-    }
-
-    @Override
-    public int all() {
-        return 0;
-    }
-
-    @Override
-    public int some() {
-        return 0;
-    }
-
-    @Override
-    public List<SubType> subTypeData() {
-        return List.of();
     }
 }

@@ -16,17 +16,8 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.SemType;
+package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.types.Type;
+public class Context {
 
-import java.util.List;
-
-public interface SemType extends Type {
-
-    int all();
-
-    int some();
-
-    List<SubType> subTypeData();
 }
