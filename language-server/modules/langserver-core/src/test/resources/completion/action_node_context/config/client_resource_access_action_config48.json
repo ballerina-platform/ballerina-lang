@@ -1,35 +1,35 @@
 {
   "position": {
-    "line": 38,
-    "character": 33
+    "line": 21,
+    "character": 30
   },
-  "source": "action_node_context/source/client_resource_access_action_source16.bal",
-  "description": "",
+  "source": "action_node_context/source/client_resource_access_action_source39.bal",
+  "description": "Test completions after a resource path with the same prefix",
   "items": [
     {
-      "label": "/[string... ids]",
+      "label": "/[string second]",
       "kind": "Function",
-      "detail": "()",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CA",
-      "filterText": "get",
+      "sortText": "GA",
+      "filterText": "|get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 38,
-              "character": 32
+              "line": 21,
+              "character": 29
             },
             "end": {
-              "line": 38,
-              "character": 33
+              "line": 21,
+              "character": 30
             }
           },
           "newText": ""
@@ -37,29 +37,29 @@
       ]
     },
     {
-      "label": "/<ids>",
+      "label": "/<second>",
       "kind": "Function",
-      "detail": "()",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CB",
-      "filterText": "get",
+      "sortText": "GB",
+      "filterText": "|get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 38,
-              "character": 32
+              "line": 21,
+              "character": 29
             },
             "end": {
-              "line": 38,
-              "character": 33
+              "line": 21,
+              "character": 30
             }
           },
           "newText": ""
@@ -67,29 +67,29 @@
       ]
     },
     {
-      "label": "/[string... ids].post(string b, string... ids2)",
+      "label": "/[string second]/Third(string val)",
       "kind": "Function",
-      "detail": "()",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CC",
-      "filterText": "|post",
-      "insertText": "/[${1:\"path\"}].post(${2});",
+      "sortText": "GC",
+      "filterText": "Third|get",
+      "insertText": "/[${1:\"path\"}]/Third(${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 38,
-              "character": 32
+              "line": 21,
+              "character": 29
             },
             "end": {
-              "line": 38,
-              "character": 33
+              "line": 21,
+              "character": 30
             }
           },
           "newText": ""
@@ -101,29 +101,29 @@
       }
     },
     {
-      "label": "/<ids>.post(string b, string... ids2)",
+      "label": "/<second>/Third(string val)",
       "kind": "Function",
-      "detail": "()",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CD",
-      "filterText": "|post",
-      "insertText": "/${1:path}.post(${2});",
+      "sortText": "GD",
+      "filterText": "Third|get",
+      "insertText": "/${1:path}/Third(${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 38,
-              "character": 32
+              "line": 21,
+              "character": 29
             },
             "end": {
-              "line": 38,
-              "character": 33
+              "line": 21,
+              "character": 30
             }
           },
           "newText": ""
