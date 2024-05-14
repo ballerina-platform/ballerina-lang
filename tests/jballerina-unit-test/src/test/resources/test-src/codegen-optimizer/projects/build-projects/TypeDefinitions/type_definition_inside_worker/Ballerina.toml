@@ -1,0 +1,8 @@
+[package]
+org = "thushara_piyasekara"
+name = "type_definition_inside_worker"
+version = "0.1.0"
+distribution = "2201.8.6"
+
+[build-options]
+observabilityIncluded = true

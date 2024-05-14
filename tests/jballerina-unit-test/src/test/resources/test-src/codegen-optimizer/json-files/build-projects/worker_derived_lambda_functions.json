@@ -1,0 +1,36 @@
+{
+  "thushara_piyasekara/worker_derived_lambda_functions:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$lambda$_0"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar",
+        "baz"
+      ],
+      "virtualFunctions": [
+        "$lambda$_1"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": [
+        "$anonType$_0"
+      ]
+    },
+    "usedNativeClassPaths": []
+  }
+}
