@@ -1,0 +1,37 @@
+{
+  "thushara_piyasekara/function_invocation_inside_worker_with_wait:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo",
+        "bar"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$lambda$_0"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "baz",
+        "qux"
+      ],
+      "virtualFunctions": [
+        "$lambda$_1"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": [
+        "$anonType$_0"
+      ]
+    },
+    "usedNativeClassPaths": []
+  }
+}
