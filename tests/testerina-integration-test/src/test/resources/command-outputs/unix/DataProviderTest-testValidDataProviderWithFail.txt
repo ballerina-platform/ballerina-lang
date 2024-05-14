@@ -23,7 +23,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
-				callableName: intDataProviderTest$lambda97$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 		[fail] intDataProviderTest#Case2:
@@ -35,7 +35,7 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
-				callableName: intDataProviderTest$lambda97$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 

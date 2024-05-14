@@ -67,7 +67,7 @@ Calling start for moduleA listener
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: negative_test1 moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_moduleA fileName: tests/test_moduleA.bal lineNumber: 26
-				callableName: negative_test1$lambda9$ moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: negative_test1$lambda1$ moduleName: wso2.moduleGracefulStopTest.moduleA$test.0.tests.test_execute-generated_*****lineNumber: 5
 			
 
 
