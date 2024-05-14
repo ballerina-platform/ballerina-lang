@@ -1,35 +1,35 @@
 {
   "position": {
-    "line": 14,
-    "character": 16
+    "line": 21,
+    "character": 20
   },
-  "source": "action_node_context/source/client_resource_access_action_source27.bal",
-  "description": "Tests union typed path params",
+  "source": "action_node_context/source/client_resource_access_action_source38.bal",
+  "description": "Test completions after a resource path with the same prefix",
   "items": [
     {
-      "label": "/[PathParamType... path]",
+      "label": "/[string second]",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
         }
       },
-      "sortText": "GA",
-      "filterText": "get",
+      "sortText": "CA",
+      "filterText": "|get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 14,
-              "character": 15
+              "line": 21,
+              "character": 19
             },
             "end": {
-              "line": 14,
-              "character": 16
+              "line": 21,
+              "character": 20
             }
           },
           "newText": ""
@@ -37,29 +37,29 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<second>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
         }
       },
-      "sortText": "GB",
-      "filterText": "get",
+      "sortText": "CB",
+      "filterText": "|get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 14,
-              "character": 15
+              "line": 21,
+              "character": 19
             },
             "end": {
-              "line": 14,
-              "character": 16
+              "line": 21,
+              "character": 20
             }
           },
           "newText": ""
@@ -67,29 +67,29 @@
       ]
     },
     {
-      "label": "/[PathParamType... path].post",
+      "label": "/[string second]/Third",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
         }
       },
-      "sortText": "GC",
-      "filterText": "post",
-      "insertText": "/[${1:\"path\"}].post;",
+      "sortText": "CC",
+      "filterText": "Third|get",
+      "insertText": "/[${1:\"path\"}]/Third;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 14,
-              "character": 15
+              "line": 21,
+              "character": 19
             },
             "end": {
-              "line": 14,
-              "character": 16
+              "line": 21,
+              "character": 20
             }
           },
           "newText": ""
@@ -97,29 +97,29 @@
       ]
     },
     {
-      "label": "/<path>.post",
+      "label": "/<second>/Third",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
         }
       },
-      "sortText": "GD",
-      "filterText": "post",
-      "insertText": "/${1:path}.post;",
+      "sortText": "CD",
+      "filterText": "Third|get",
+      "insertText": "/${1:path}/Third;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 14,
-              "character": 15
+              "line": 21,
+              "character": 19
             },
             "end": {
-              "line": 14,
-              "character": 16
+              "line": 21,
+              "character": 20
             }
           },
           "newText": ""
