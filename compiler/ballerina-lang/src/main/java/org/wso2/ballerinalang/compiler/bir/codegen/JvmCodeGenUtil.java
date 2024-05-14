@@ -30,8 +30,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -274,8 +276,11 @@ public class JvmCodeGenUtil {
         mv.visitEnd();
     }
 
-    public static String getStrandMetadataVarName(String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
+    public static String setAndGetStrandMetadataVarName(String parentFunction, AsyncDataCollector asyncDataCollector) {
+        String metaDataVarName = STRAND_METADATA_VAR_PREFIX + parentFunction + "$";
+        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
+                new ScheduleFunctionInfo(parentFunction));
+        return metaDataVarName;
     }
 
     public static boolean isExternFunc(BIRNode.BIRFunction func) {

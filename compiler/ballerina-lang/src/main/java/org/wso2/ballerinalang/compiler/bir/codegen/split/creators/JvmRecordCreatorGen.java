@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -80,21 +79,17 @@ public class JvmRecordCreatorGen {
     }
 
     public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, Map<String, byte[]> jarEntries,
-                                     List<BIRTypeDefinition> recordTypeDefList) {
+                                     Map<String, byte[]> jarEntries, List<BIRTypeDefinition> recordTypeDefList) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, recordsClass, null, OBJECT, null);
-        String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-        generateCreateRecordMethods(cw, recordTypeDefList, module.packageID, moduleInitClass, recordsClass,
-                metadataVarName);
+        generateCreateRecordMethods(cw, recordTypeDefList, recordsClass);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
         jarEntries.put(recordsClass + CLASS_FILE_SUFFIX, bytes);
     }
 
     private void generateCreateRecordMethods(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefList,
-                                             PackageID moduleId, String moduleInitClass, String typeOwnerClass,
-                                             String metadataVarName) {
+                                             String typeOwnerClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_RECORD_VALUE,
                 CREATE_RECORD,
                 CREATE_RECORD_WITH_MAP, null);
@@ -103,19 +98,16 @@ public class JvmRecordCreatorGen {
             createDefaultCase(mv, new Label(), 0, "No such record: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0,
-                    CREATE_RECORD, false);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0, CREATE_RECORD, false);
             mv.visitInsn(ARETURN);
-            generateCreateRecordMethodSplits(cw, recordTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
-                    metadataVarName);
+            generateCreateRecordMethodSplits(cw, recordTypeDefList, typeOwnerClass);
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, recordsClass);
         mv.visitEnd();
     }
 
     private void generateCreateRecordMethodSplits(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefList,
-                                                  PackageID moduleId, String moduleInitClass, String typeOwnerClass,
-                                                  String metadataVarName) {
+                                                  String typeOwnerClass) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;

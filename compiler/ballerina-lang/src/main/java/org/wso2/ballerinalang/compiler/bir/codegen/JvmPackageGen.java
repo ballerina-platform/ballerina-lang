@@ -779,7 +779,7 @@ public class JvmPackageGen {
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
-        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, asyncDataCollector);
         jvmConstantsGen.generateConstants(jarEntries, asyncDataCollector.getStrandMetadata());
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 

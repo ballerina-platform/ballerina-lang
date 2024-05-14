@@ -1042,7 +1042,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent);
+        this.submitToScheduler(callIns.lhsOp, attachedType, parentFunction, concurrent);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
@@ -1189,7 +1189,7 @@ public class JvmTerminatorGen {
             }
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true);
+            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, true);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1204,7 +1204,7 @@ public class JvmTerminatorGen {
             }
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false);
+            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, false);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1372,21 +1372,15 @@ public class JvmTerminatorGen {
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType,
-                                   String parentFunction, boolean concurrent) {
+    private void submitToScheduler(BIROperand lhsOp, BType attachedType, String parentFunction, boolean concurrent) {
 
         String metaDataVarName;
-        ScheduleFunctionInfo strandMetaData;
         if (attachedType != null) {
-            metaDataVarName = getStrandMetadataVarName(attachedType.tsymbol.name.value,
-                                                                         parentFunction);
-            strandMetaData = new ScheduleFunctionInfo(attachedType.tsymbol.name.value, parentFunction);
+            metaDataVarName = setAndGetStrandMetadataVarName(attachedType.tsymbol.name.value, parentFunction,
+                    asyncDataCollector);
         } else {
-            metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(parentFunction);
-            strandMetaData = new ScheduleFunctionInfo(parentFunction);
-
+            metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(parentFunction, asyncDataCollector);
         }
-        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, this.strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
@@ -1403,8 +1397,12 @@ public class JvmTerminatorGen {
         }
     }
 
-    static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
+    private String setAndGetStrandMetadataVarName(String typeName, String parentFunction,
+                                         AsyncDataCollector asyncDataCollector) {
+        String metaDataVarName = STRAND_METADATA_VAR_PREFIX + typeName + "$" + parentFunction + "$";
+        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
+                new ScheduleFunctionInfo(typeName, parentFunction));
+        return metaDataVarName;
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {

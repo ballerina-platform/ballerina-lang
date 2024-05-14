@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmObjectCreatorGen;
@@ -64,7 +65,8 @@ public class JvmValueCreatorGen {
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                             String moduleInitClass, Map<String, byte[]> jarEntries,
                                             SymbolTable symbolTable, JvmCastGen jvmCastGen,
-                                            List<BIRNode.BIRFunction> sortedFunctions) {
+                                            List<BIRNode.BIRFunction> sortedFunctions,
+                                            AsyncDataCollector asyncDataCollector) {
 
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
@@ -82,10 +84,9 @@ public class JvmValueCreatorGen {
             }
         }
         ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
-        jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, moduleInitClass, jarEntries,
-                recordTypeDefList);
+        jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
         jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, moduleInitClass, jarEntries,
-                objectTypeDefList, symbolTable);
+                objectTypeDefList, symbolTable, asyncDataCollector);
         jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, moduleInitClass, jarEntries, errorTypeDefList,
                 symbolTable);
         jvmFunctionCallsCreatorsGen.generateFunctionCallsClass(jvmPackageGen, module, jarEntries, jvmCastGen,

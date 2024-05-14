@@ -24,6 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
@@ -63,7 +64,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
@@ -98,13 +98,12 @@ public class JvmObjectCreatorGen {
     public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                      String moduleInitClass, Map<String, byte[]> jarEntries,
                                      List<BIRTypeDefinition> objectTypeDefList,
-                                     SymbolTable symbolTable) {
+                                     SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
-        String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
+        String metadataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(CREATE_OBJECT_VALUE, asyncDataCollector);
         generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, objectsClass,
                 symbolTable, metadataVarName);
-
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
         jarEntries.put(objectsClass + CLASS_FILE_SUFFIX, bytes);
