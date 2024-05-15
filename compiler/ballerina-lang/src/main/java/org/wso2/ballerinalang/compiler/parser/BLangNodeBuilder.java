@@ -428,6 +428,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -7089,9 +7090,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             return new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
         } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
             dlog.error(location, DiagnosticErrorCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+            return null;
         } else {
-            dlog.error(location, DiagnosticErrorCode.UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION);
+            XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
+            List<BLangXMLElementFilter> filters = new ArrayList<>();
+            for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
+                filters.add(createXMLElementFilter(namePattern));
+            }
+            return new BLangXMLFilterStepExtend(filters);
         }
-        return null;
     }
 }

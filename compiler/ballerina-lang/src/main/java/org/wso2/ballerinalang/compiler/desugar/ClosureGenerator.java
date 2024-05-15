@@ -142,6 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1405,6 +1406,11 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
         xmlIndexedStepExtend.indexExpr = rewriteExpr(xmlIndexedStepExtend.indexExpr);
         result = xmlIndexedStepExtend;
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        result = xmlFilterStepExtend;
     }
 
     @Override

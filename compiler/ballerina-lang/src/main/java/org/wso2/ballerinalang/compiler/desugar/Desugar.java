@@ -228,6 +228,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -10691,6 +10692,11 @@ public class Desugar extends BLangNodeVisitor {
                     simpleVarRef.symbol.closure = true;
                     arrowFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, pos));
                 }
+            } else if (extension.getKind() == NodeKind.XML_STEP_FILTER_EXTEND) {
+                BLangXMLFilterStepExtend filterStepExtend = (BLangXMLFilterStepExtend) extension;
+                ArrayList<BLangExpression> filterExtensions = expandFilters(filterStepExtend.filters);
+                expression = createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, new ArrayList<>(),
+                        filterExtensions);
             }
             expression.setBType(xmlType);
         }
