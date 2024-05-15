@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -30,9 +28,6 @@ import java.nio.file.Paths;
  * @since 0.94
  */
 public class BCompileUtil {
-
-    //TODO find a way to remove below line.
-    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
     public static String readFileAsString(String path) throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(path);
