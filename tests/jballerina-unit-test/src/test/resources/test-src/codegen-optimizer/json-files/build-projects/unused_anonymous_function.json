@@ -1,0 +1,38 @@
+{
+  "thushara_piyasekara/arrow_functions_2:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$lambda$_0",
+        "$lambda$_2",
+        "$lambda$_4",
+        "$lambda$_6"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": [
+        "$lambda$_1",
+        "$lambda$_3",
+        "$lambda$_5"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
