@@ -192,6 +192,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -2066,6 +2067,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
         analyzeNode(xmlIndexedStepExtend.indexExpr, env);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        /* ignore */
     }
 
     @Override
