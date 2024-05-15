@@ -37,7 +37,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -238,12 +237,6 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
         Target target;
         try {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
