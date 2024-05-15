@@ -1,0 +1,50 @@
+{
+  "thushara_piyasekara/function_invocation_inside_listener:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "object { string usedVar; resource function get albums() returns (string); }.$get$albums",
+        "foo",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.start",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.gracefulStop",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.immediateStop",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.detach",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.attach",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.init"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        "$annot_func$_0",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0.<init>0",
+        "object { string usedVar; resource function get albums() returns (string); }.$init$",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0.<init>1",
+        "thushara_piyasekara/function_invocation_inside_listener:0.1.0:Listener.$init$",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar"
+      ],
+      "virtualFunctions": [
+        "$Listener_Listener_attach_name"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "Listener"
+      ],
+      "virtualTypeDefinitions": [
+        "$anonType$_1",
+        "$anonType$_0",
+        "$anonType$s$detach$_0",
+        "$anonType$s$attach$_0"
+      ]
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
