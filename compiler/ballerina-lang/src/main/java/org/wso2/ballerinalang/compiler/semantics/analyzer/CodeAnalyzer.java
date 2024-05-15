@@ -178,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -2876,6 +2877,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend, AnalyzerData data) {
         analyzeExpr(xmlIndexedStepExtend.indexExpr, data);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend, AnalyzerData data) {
+        /* ignore */
     }
 
     private void validateMethodInvocationsInXMLNavigationExpression(BLangXMLNavigationAccess expression) {

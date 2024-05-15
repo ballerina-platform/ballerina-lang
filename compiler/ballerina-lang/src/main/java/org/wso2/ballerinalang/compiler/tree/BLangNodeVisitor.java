@@ -148,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1153,6 +1154,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
         throw new AssertionError();
     }
 }

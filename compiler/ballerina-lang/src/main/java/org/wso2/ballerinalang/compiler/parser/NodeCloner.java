@@ -171,6 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -2314,6 +2315,12 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLIndexedStepExtend source) {
         BLangXMLIndexedStepExtend clone = new BLangXMLIndexedStepExtend(source.indexExpr);
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend source) {
+        BLangXMLFilterStepExtend clone = new BLangXMLFilterStepExtend(cloneList(source.filters));
         source.cloneRef = clone;
     }
 
