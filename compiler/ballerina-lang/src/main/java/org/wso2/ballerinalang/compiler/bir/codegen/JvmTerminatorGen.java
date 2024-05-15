@@ -984,8 +984,7 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
 
-        LambdaFunction lambdaFunction = asyncDataCollector.addAndGetLambda(callIns.name.value,
-                callIns);
+        LambdaFunction lambdaFunction = asyncDataCollector.addAndGetLambda(callIns.name.value, callIns, true);
         JvmCodeGenUtil.createFunctionPointer(this.mv, lambdaFunction.enclosingClass, lambdaFunction.lambdaName);
 
         boolean concurrent = false;

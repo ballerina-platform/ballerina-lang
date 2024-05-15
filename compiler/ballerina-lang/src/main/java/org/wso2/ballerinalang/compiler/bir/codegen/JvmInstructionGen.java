@@ -1848,7 +1848,7 @@ public class JvmInstructionGen {
         }
         LambdaFunction lambdaFunction = functions.get(funcKey);
         if (lambdaFunction == null) {
-            lambdaFunction = asyncDataCollector.addAndGetLambda(name, inst);
+            lambdaFunction = asyncDataCollector.addAndGetLambda(name, inst, false);
         }
         JvmCodeGenUtil.visitInvokeDynamic(mv, lambdaFunction.enclosingClass, lambdaFunction.lambdaName,
                 inst.closureMaps.size());

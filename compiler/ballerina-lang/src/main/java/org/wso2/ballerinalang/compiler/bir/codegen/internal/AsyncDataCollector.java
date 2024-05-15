@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_LAMBDAS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LAMBDAS_CLASS_NAME;
 
@@ -50,7 +51,7 @@ public class AsyncDataCollector {
         this.packageID = module.packageID;
     }
 
-    public LambdaFunction addAndGetLambda(String funcName, BIRInstruction inst) {
+    public LambdaFunction addAndGetLambda(String funcName, BIRInstruction inst, boolean isAsync) {
         String encodedFuncName = Utils.encodeFunctionIdentifier(funcName);
         String enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + classIndex,
                 currentSourceFileWithoutExt, "/");
@@ -62,7 +63,12 @@ public class AsyncDataCollector {
             lambdas.put(enclosingClass, lambdaClass);
             lambdaIndex = 0;
         }
-        String lambdaName = encodedFuncName + "$lambda" + lambdaIndex++ + "$";
+        String lambdaName;
+        if (isAsync) {
+            lambdaName = encodedFuncName + LAMBDA_PREFIX + lambdaIndex++ + "$";
+        } else {
+            lambdaName = encodedFuncName + "$lambda" + lambdaIndex++ + "$";
+        }
         LambdaFunction lambdaFunction = new LambdaFunction(lambdaName, enclosingClass, inst);
         lambdaClass.lambdaFunctionList.add(lambdaFunction);
         return lambdaFunction;
