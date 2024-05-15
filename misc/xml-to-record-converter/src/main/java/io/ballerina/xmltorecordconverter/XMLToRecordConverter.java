@@ -277,9 +277,9 @@ public class XMLToRecordConverter {
         for (int i = 0; i < xmlAttributesMap.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlAttributesMap.item(i);
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
-                if ((xmlNode.getPrefix() == null &&
-                        XMLNS_PREFIX.equals(xmlNode.getLocalName())) || (XMLNS_PREFIX.equals(xmlNode.getPrefix()) &&
-                                xmlNode.getLocalName().equals(xmlElement.getPrefix())) && withNameSpace) {
+                if (((xmlNode.getPrefix() == null && XMLNS_PREFIX.equals(xmlNode.getLocalName())) ||
+                        (XMLNS_PREFIX.equals(xmlNode.getPrefix()) &&
+                        xmlNode.getLocalName().equals(xmlElement.getPrefix()))) && withNameSpace) {
                     String prefix = null;
                     if (xmlElement.getPrefix() != null && xmlElement.getPrefix().equals(xmlNode.getLocalName())) {
                         prefix = xmlNode.getLocalName();
@@ -296,7 +296,7 @@ public class XMLToRecordConverter {
             }
         }
         if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
-            Token fieldType = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
+            Token fieldType = getPrimitiveTypeName(xmlElement.getFirstChild().getNodeValue());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(textFieldName == null ?
                     escapeIdentifier("#content") : textFieldName);
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);

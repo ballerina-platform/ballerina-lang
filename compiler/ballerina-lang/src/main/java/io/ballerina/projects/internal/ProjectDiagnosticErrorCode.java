@@ -61,6 +61,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     // Error codes used for Jar resolving.
     CONFLICTING_PLATFORM_JAR_FILES("BCE5501", "conflicting.platform.jars.type"),
     PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
+
+    // Error codes used for pack command
+    DEPRECATED_DOC_FILE("BCE5601", "deprecated.doc.file"),
     ;
 
     private final String diagnosticId;

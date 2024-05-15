@@ -38,6 +38,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okio:okio'
 
+    testImplementation "com.squareup.okhttp3:mockwebserver:${mockWebserverVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${mockitoTestNGVersion}"
     testImplementation 'org.testng:testng'
