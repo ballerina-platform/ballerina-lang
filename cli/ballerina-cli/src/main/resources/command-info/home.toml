@@ -1,0 +1,9 @@
+[base_command]
+name = "home"
+short = "Display ballerina home"
+
+[help]
+    [help.base]
+    long = "long description of home"
+    examples="this is an example for home"
+    synopsis="bal home"

@@ -1,0 +1,16 @@
+[base_command]
+name = "semver"
+short = "Validate SemVer compliance of the package changes"
+long = "This command allows you to validate SemVer compliance of the package changes."
+
+[[base_command.flag]]
+name = "show-diff"
+shorthand = "d"
+default_val = false
+usage = "Display the detailed information of source code differences between the compared package versions"
+
+[[base_command.flag]]
+name = "compare-version"
+shorthand = "c"
+default_val = ""
+usage = "Analyze SemVer compliance of the local changes against the specified release version"

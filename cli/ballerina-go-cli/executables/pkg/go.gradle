@@ -1,0 +1,114 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+def osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+def osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH)
+tasks.register('go_clean', Exec) {
+    group 'go'
+    description 'Removes object files from package source directories.'
+    commandLine 'go', 'clean'
+}
+
+tasks.register('go_revive_run', Exec) {
+    group 'go'
+    description 'Running revive.'
+    commandLine 'revive', '-config', 'revive.toml', '-set_exit_status', './...'
+}
+
+tasks.register('go_vet', Exec) {
+    group 'go'
+    description 'Running go vet.'
+    commandLine 'go', 'vet', '-c=5', './...'
+}
+
+tasks.register('go_tidy', Exec) {
+    group 'go'
+    description 'Running go mod tidy.'
+    commandLine 'go', 'mod', 'tidy'
+}
+
+task updateGoScript {
+    doFirst {
+        def goScriptFile = file("$rootDir/cli/ballerina-go-cli/bal/pkg/utils/utils.go")
+        def goScriptContent = goScriptFile.text
+        def version = project.version
+        def updatedGoScriptContent = goScriptContent.replace('@VERSION@', version)
+        updatedGoScriptContent = updatedGoScriptContent.replace('@JDK_VERSION@', project.jdkversion)
+        updatedGoScriptContent = updatedGoScriptContent.replace('@XMS_VAL@', project.xmsValue)
+        updatedGoScriptContent = updatedGoScriptContent.replace('@XMX_VAL@', project.xmxValue)
+        def updatedExecutablesDir = file("$rootDir/cli/ballerina-go-cli/build/bal/pkg/utils")
+        updatedExecutablesDir.mkdirs()
+        def updatedGoScriptFile = file("$rootDir/cli/ballerina-go-cli/build/bal/pkg/utils/utils.go")
+        updatedGoScriptFile.text = updatedGoScriptContent
+
+    }
+}
+
+tasks.register('go_build') {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 and ARM64 Archtecture'
+    //dependsOn go_tidy
+    dependsOn go_darwin_amd64_build
+    dependsOn go_linux_amd64_build
+    dependsOn go_darwin_arm64_build
+    dependsOn go_windows_build_arm64
+    dependsOn go_build_default
+}
+
+tasks.register('go_darwin_amd64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Archtecture'
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64','CGO_ENABLED=0','go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+}
+tasks.register('go_linux_amd64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Architecture'
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build','-o',"$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+}
+tasks.register('go_darwin_arm64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64','CGO_ENABLED=0','go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+}
+
+tasks.register('go_windows_build_arm64', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build','-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+}
+
+tasks.register('go_build_default', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. according to current code running architecture'
+    commandLine 'env', 'CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+}
+
+task runGoExecutable(type: Exec) {
+    workingDir "$rootDir/cli/ballerina-go-cli/build"
+    commandLine './executable'
+}
+
+tasks.register('go_build_commands', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. according to current code running architecture'
+    dependsOn updateGoScript
+    commandLine 'env', 'CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/cli/ballerina-go-cli/build/executable", "$rootDir/cli/ballerina-go-cli/executables/main.go"
+}

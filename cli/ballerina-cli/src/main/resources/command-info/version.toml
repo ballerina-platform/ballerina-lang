@@ -1,0 +1,4 @@
+[base_command]
+name = "version"
+short = "Print the Ballerina version"
+long = "This command prints the version of the Ballerina CLI."

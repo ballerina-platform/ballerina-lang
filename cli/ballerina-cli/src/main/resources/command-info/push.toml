@@ -1,0 +1,11 @@
+[base_command]
+name = "push"
+short = "Push the Ballerina Archive (BALA) of the current package to a package repository"
+long = "This command allows you to push the Ballerina Archive (BALA) of the current package to a package repository."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "repository"
+default_val = ""
+usage = "Push the BALA of the current package to a custom repository."

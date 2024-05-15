@@ -1,0 +1,27 @@
+[base_command]
+name = "persist"
+short = "Manage data persistence"
+long = "This command allows you to manage data persistence."
+
+[base_command.help]
+
+[[base_command.subcommand]]
+name = "init"
+short = "Initialize the Ballerina package for persistence."
+description = "This subcommand initializes the Ballerina package for persistence."
+
+[[init.flag]]
+
+name = "module"
+default_val = ""
+usage = "Initialize the Ballerina package for persistence with the given module"
+
+[[init.flag]]
+name = "datastore"
+default_val = ""
+usage = "The type of the datastore to be used for persistence"
+
+[[base_command.subcommand]]
+name = "generate"
+short = "Generate the client API based on the data model."
+description = "This subcommand generates the client API based on the data model."

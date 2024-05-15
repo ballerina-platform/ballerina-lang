@@ -1,0 +1,76 @@
+[base_command]
+name = "build"
+short = "short description of build"
+
+[help]
+    [help.base]
+    long = "long description of build"
+    synopsis="bal build [OPTIONS] [<package>|<source-file>]"
+    examples="""
+	Build the current package. This will generate an 'app.jar' file in the
+       'target/bin' directory.
+           $ bal build
+
+       Build a single '.bal' file. This will generate an 'app.jar' file in the
+       current directory.
+           $ bal build app.bal
+
+       Build the 'app' package from a different directory.
+           $ bal build <app-package-path>
+
+       Build the package with additional GraalVM native image options.
+           $ bal build --graalvm --graalvm-build-options="--static -H:Name=hello-world"
+	"""
+[[base_command.flag]]
+name = "output"
+shorthand = "o"
+default_val = ""
+usage = "Write the output to the given file."
+param="output"
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Run in offline mode"
+
+[[base_command.flag]]
+name = "observability-included"
+default_val = false
+usage = "Run with including observability"
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Run with including sticky"
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Specify the target directory"
+param="target-dir"
+
+[[base_command.flag]]
+name = "export-openapi"
+default_val = false
+usage = "Export OpenAPI specification"
+
+[[base_command.flag]]
+name = "list-conflicted-classes"
+default_val = false
+usage = "List conflicted classes"
+
+[[base_command.flag]]
+name = "graalvm"
+default_val = false
+usage = "Use GraalVM"
+
+[[base_command.flag]]
+name = "graalvm-build-options"
+default_val = ""
+usage = "Specify GraalVM build options"
+
+[[base_command.flag]]
+name = "cloud"
+default_val = ""
+usage = "Specify the cloud provider"
+param="provider"

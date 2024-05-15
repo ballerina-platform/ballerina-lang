@@ -1,0 +1,11 @@
+[base_command]
+name = "clean"
+short = "Remove the artifacts created during the build"
+long = "Remove the artifacts created during the build process using the clean command."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Target directory path"

@@ -21,6 +21,7 @@ plugins {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 apply from: "$rootDir/gradle/javaLibsProject.gradle"
+apply from: "$rootDir/cli/ballerina-go-cli/executables/pkg/go.gradle"
 
 configurations {
     dist {
@@ -128,6 +129,18 @@ CopySpec copyResourceSpec = copySpec {
 //    into("$basePath/src")
 //}
 
+task createBuildDir {
+    doLast {
+        file("$rootDir/cli/ballerina-go-cli/build/bal").mkdirs()
+    }
+}
+
+task copyGoProjectSpec(type: Copy) {
+    dependsOn createBuildDir
+    from "$rootDir/cli/ballerina-go-cli/bal"
+    into "$rootDir/cli/ballerina-go-cli/build/bal"
+}
+
 
 task createZip(type: Zip) {
     with copyJarSpec
@@ -151,7 +164,17 @@ artifacts {
     zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
+go_build.mustRunAfter copyGoProjectSpec
+go_build.mustRunAfter updateGoScript
+go_build.mustRunAfter go_build_commands
+go_build.mustRunAfter runGoExecutable
+
 build {
+    dependsOn copyGoProjectSpec
+    dependsOn updateGoScript
+    dependsOn go_build_commands
+    dependsOn runGoExecutable
+    dependsOn go_build
     dependsOn createZip
 }
 

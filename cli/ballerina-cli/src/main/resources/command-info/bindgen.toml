@@ -1,0 +1,43 @@
+[base_command]
+name = "bindgen"
+short = "Generate Ballerina bindings for Java APIs"
+long = "Generate Ballerina bindings for Java APIs using the bindgen tool."
+
+[base_command.help]
+
+
+[[base_command.flag]]
+name = "classpath"
+default_val = ""
+usage = "Specify the classpath for Java APIs."
+
+[[base_command.flag]]
+name = "maven"
+default_val = ""
+usage = "Specify a Maven dependency with a colon-delimited group ID, artifact ID, and version."
+
+[[base_command.flag]]
+name = "output"
+shorthand = "o"
+default_val = ""
+usage = "Write the output to the given file."
+
+[[base_command.flag]]
+name = "public"
+default_val = false
+usage = "Generate public API."
+
+[[base_command.flag]]
+name = "with-optional-types"
+default_val = false
+usage = "Generate bindings with optional types."
+
+[[base_command.flag]]
+name = "with-optional-types-param"
+default_val = false
+usage = "Include optional types in function parameters."
+
+[[base_command.flag]]
+name = "with-optional-types-return"
+default_val = false
+usage = "Include optional types in function return types."

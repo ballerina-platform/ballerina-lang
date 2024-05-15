@@ -1,0 +1,26 @@
+[base_command]
+name = "grpc"
+short = "Generate Ballerina sources for the given Protocol Buffer definition"
+long = "This command generates Ballerina sources for the specified Protocol Buffer (.proto) definition."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "input"
+default_val = ""
+usage = "Path to a '.proto' file or a directory containing multiple '.proto' files."
+
+[[base_command.flag]]
+name = "output"
+default_val = ""
+usage = "Location of the generated Ballerina source files."
+
+[[base_command.flag]]
+name = "proto-path"
+default_val = ""
+usage = "Path to a directory in which to look for '.proto' files when resolving import directives."
+
+[[base_command.flag]]
+name = "mode"
+default_val = false
+usage = "Set the 'client' or 'service' mode to generate sample code."

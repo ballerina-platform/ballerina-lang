@@ -1,0 +1,11 @@
+[base_command]
+name = "pull"
+short = "Fetch packages from Ballerina Central or a custom package repository"
+long = "This command allows you to fetch packages from Ballerina Central or a custom package repository."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "repository"
+default_val = ""
+usage = "Pull a package from a custom repository."

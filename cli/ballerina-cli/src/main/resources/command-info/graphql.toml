@@ -1,0 +1,36 @@
+[base_command]
+name = "graphql"
+short = "Generate the GraphQL schema for a Ballerina GraphQL service"
+long = "This command generates the GraphQL schema for a Ballerina GraphQL service."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "input"
+shorthand = "i"
+default_val = ""
+usage = "This is mandatory input. The given Ballerina GraphQL service file will generate the GraphQL schema (SDL) file relevant to the service."
+
+[[base_command.flag]]
+name = "output"
+shorthand = "o"
+default_val = ""
+usage = "Output file path"
+
+[[base_command.flag]]
+name = "service"
+shorthand = "s"
+default_val = ""
+usage = "Service name"
+
+[[base_command.flag]]
+name = "use-records-for-objects"
+shorthand = "r"
+default_val = false
+usage = "Use records for objects"
+
+[[base_command.flag]]
+name = "mode"
+shorthand = "m"
+default_val = false
+usage = "Mode flag"

@@ -1,0 +1,26 @@
+[base_command]
+name = "graph"
+short = "Print the dependency graph"
+long = "This command prints the dependency graph for the project."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "dump-raw-graphs"
+default_val = false
+usage = "Print all intermediate graphs created in the dependency resolution process."
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Proceed without accessing the network."
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Attempt to stick to the dependency versions available in the 'Dependencies.toml' file."
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Target directory path"

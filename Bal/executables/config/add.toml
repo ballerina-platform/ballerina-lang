@@ -1,9 +1,0 @@
-[base_command]
-name = "add"
-short = "short description of add"
-
-[help]
-    [help.base]
-    long = "long description of add"
-    examples="this is an example for add"
-    synopsis="add <file>"

@@ -1,0 +1,21 @@
+[base_command]
+name = "pack"
+short = "A brief description of your command"
+long = "This command represents the pack command and provides a brief description of its functionality."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Run in offline mode"
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Run with including sticky"
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Specify the target directory"

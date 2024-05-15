@@ -1,0 +1,11 @@
+[base_command]
+name = "profile"
+short = "A brief description of your command"
+long = "This command allows you to profile your Ballerina applications."
+
+[base_command.help]
+
+[[base_command.flag]]
+name = "debug"
+default_val = ""
+usage = "Run Ballerina Profiler in the remote debugging mode."
