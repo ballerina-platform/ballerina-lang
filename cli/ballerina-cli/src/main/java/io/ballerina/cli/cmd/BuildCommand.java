@@ -33,7 +33,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -260,14 +259,6 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
-                    false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-        }
-
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -293,7 +284,7 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 

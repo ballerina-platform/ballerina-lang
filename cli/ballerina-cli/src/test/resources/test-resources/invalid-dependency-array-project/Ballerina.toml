@@ -1,0 +1,16 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[dependency]]
+org = "ballerina#"
+name = "dat$a"
+version = "0.1.0r"
+repository = "local"
+
+[[dependency]]
+org1 = "ballerina"
+name2 = "data"
+version3 = "0.1.0"
+repository = "maven"

@@ -51,6 +51,7 @@ public class BuildOptions {
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
         this.showDependencyDiagnostics = showDependencyDiagnostics;
+
     }
 
     public boolean testReport() {
