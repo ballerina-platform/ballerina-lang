@@ -17,7 +17,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -164,15 +163,6 @@ public class PackCommand implements BLauncherCmd {
             }
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty() &&
-                project.currentPackage().balToolToml().isEmpty()) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
-                        false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
