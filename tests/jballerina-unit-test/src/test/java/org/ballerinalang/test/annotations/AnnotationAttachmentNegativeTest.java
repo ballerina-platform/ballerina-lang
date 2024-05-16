@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.annotations;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -563,6 +564,15 @@ public class AnnotationAttachmentNegativeTest {
                 "function", line += 3, 5);
         validateError(compileResult, index, "annotation 'v15' is not allowed on service_remote, object_method, " +
                 "function", line + 3, 5);
+    }
+
+    @Test(description = "Validate an instance method within an annotation attachment")
+    public void testAnnotationExpression() {
+        int i = 0;
+        CompileResult result = BCompileUtil.compile(
+                "test-src/annotations/within_annotation_attachment_negative.bal");
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 27, 19);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
