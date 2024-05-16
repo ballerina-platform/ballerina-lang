@@ -13,6 +13,7 @@
 // KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import arrow_function_pointer_invocation_from_imported_module.subModule_1;
 
 public function main() {
