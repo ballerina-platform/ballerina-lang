@@ -18,7 +18,6 @@ public type ResourceConfigRec record {|
     function prefetch;
 |};
 
-# The annotation to configure the load method with batch functions.
 public annotation ResourceConfigRec ResourceConfig on object function;
 
 isolated distinct service class Author {
@@ -31,6 +30,5 @@ isolated distinct service class Author {
     }
 
     public function prefetchBooks() {
-        // Prefetch books
     }
 }
