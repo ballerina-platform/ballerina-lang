@@ -3182,6 +3182,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
+                if (data.commonAnalyzerData.withinAnnotationExpr && varName.getValue().equals("self")) {
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, varName);
+                }
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSelfReferences(varRefExpr.pos, data.env, varSym);
                 varRefExpr.symbol = varSym;

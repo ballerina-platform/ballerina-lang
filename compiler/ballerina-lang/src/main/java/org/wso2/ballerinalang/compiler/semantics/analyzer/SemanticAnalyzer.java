@@ -4683,10 +4683,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         if (annAttachmentNode.expr != null) {
+            data.commonAnalyzerData.withinAnnotationExpr = true;
             this.typeChecker.checkExpr(annAttachmentNode.expr, data.env,
                     referredAnnotType.tag ==
                             TypeTags.ARRAY ? ((BArrayType) referredAnnotType).eType : annotType, data.prevEnvs,
                     data.commonAnalyzerData);
+            data.commonAnalyzerData.withinAnnotationExpr = false;
 
             if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
                 checkAnnotConstantExpression(annAttachmentNode.expr);

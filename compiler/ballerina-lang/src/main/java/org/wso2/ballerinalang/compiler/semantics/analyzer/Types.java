@@ -7169,6 +7169,7 @@ public class Types {
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
+        boolean withinAnnotationExpr = false;
 
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
     }
