@@ -400,10 +400,6 @@ public class MethodGen {
         } else {
             // this means this is a function created for a worker
             mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
-
-            mv.visitVarInsn(ALOAD, localVarOffset);
-            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
-            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, WD_CHANNEL_INDEX, "I");
         }
         mv.visitVarInsn(ISTORE, invocationVarIndex);
     }
@@ -442,6 +438,10 @@ public class MethodGen {
         JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels), invocationVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "updateChannelDetails",
                 UPDATE_CHANNEL_DETAILS, false);
+        // Update wdChannelIndex of the strand.
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitVarInsn(ILOAD, invocationVarIndex);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, WD_CHANNEL_INDEX, "I");
     }
 
     private void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {

@@ -479,6 +479,7 @@ function testSendWithEarlyReturnError() {
 }
 
 public function testWorkerEarlyReturnWithinIf() {
+    int _ = foo(1);
     worker w1 {
         boolean b = true;
         if b {
@@ -571,4 +572,8 @@ public function testWorkerEarlyReturnWithinIf() {
 
     wait w4;
     wait w5;
+}
+
+function foo(int i) returns int {
+    return i;
 }
