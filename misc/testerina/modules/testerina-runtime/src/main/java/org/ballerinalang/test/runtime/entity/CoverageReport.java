@@ -53,6 +53,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -371,27 +372,34 @@ public class CoverageReport {
                             if (missedLinesList.isPresent() && coveredLinesList.isPresent()) {
                                 List<Integer> missedLines = missedLinesList.get();
                                 List<Integer> coveredLines = coveredLinesList.get();
-                                List<Integer> existingMissedLines = new ArrayList<>(missedLines);
                                 boolean isCoverageUpdated = false;
-                                int updateMissedLineCount = 0;
-                                for (int missedLine : existingMissedLines) {
-                                    // Traverse through the missed lines of a source file and update
-                                    // coverage status if it is covered in the current module.
-                                    // This is to make sure multi module tests are reflected in test coverage
-                                    ILine line = sourceFileCoverage.getLine(missedLine);
-                                    if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                int updatedCoveredLineCount = 0;
+                                int updatedMissedLineCount = 0;
+                                for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
+                                     i++) {
+                                    if (coveredLines.contains(i)) {
+                                        continue;
+                                    }
+                                    ILine line = sourceFileCoverage.getLine(i);
+                                    if (line.getStatus() == NOT_COVERED && !missedLines.contains(i)) {
                                         isCoverageUpdated = true;
-                                        missedLines.remove(missedLine);
-                                        coveredLines.add(missedLine);
-                                        updateMissedLineCount++;
+                                        missedLines.add(i);
+                                        updatedMissedLineCount++;
+                                    } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                        isCoverageUpdated = true;
+                                        coveredLines.add(i);
+                                        updatedCoveredLineCount++;
+                                        if (missedLines.remove((Integer) i)) {
+                                            updatedMissedLineCount--;
+                                        }
                                     }
                                 }
                                 if (isCoverageUpdated) {
                                     // Update the coverage only if there is a coverage change
-                                    if (document != null) {
-                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines,
-                                                updateMissedLineCount);
-                                    }
+                                    Collections.sort(missedLines);
+                                    Collections.sort(coveredLines);
+                                    moduleCoverage.updateCoverage(document, coveredLines, missedLines,
+                                            updatedCoveredLineCount, updatedMissedLineCount);
                                 }
                             }
                         } else {

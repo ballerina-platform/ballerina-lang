@@ -72,13 +72,14 @@ public class ModuleCoverage {
     /**
      * Update coverage information for a given source file.
      *
-     * @param document     Document
-     * @param coveredLines List<Integer>
-     * @param missedLines  List<Integer>
-     * @param updatedMissedLineCount  int
+     * @param document               Document
+     * @param coveredLines           List<Integer>
+     * @param missedLines            List<Integer>
+     * @param updatedCoveredLineCount int
+     * @param updatedMissedLineCount     int
      */
     public void updateCoverage(Document document, List<Integer> coveredLines,
-                               List<Integer> missedLines, int updatedMissedLineCount) {
+                               List<Integer> missedLines, int updatedCoveredLineCount, int updatedMissedLineCount) {
         List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
         for (SourceFile sourceFile : sourceFileList) {
             if (sourceFile.getName().equals(document.name())) {
@@ -87,8 +88,8 @@ public class ModuleCoverage {
                 SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
                 this.sourceFiles.add(newSourceFile);
                 // Update coverage counts
-                this.coveredLines += updatedMissedLineCount;
-                this.missedLines -= updatedMissedLineCount;
+                this.coveredLines += updatedCoveredLineCount;
+                this.missedLines += updatedMissedLineCount;
                 setCoveragePercentage();
             }
         }
