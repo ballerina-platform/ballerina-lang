@@ -1449,7 +1449,7 @@ public class Types {
                 boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
 
                 if (isTypeParam) {
-                    if (!constituentTypesAssignable(sourceParam, targetParam)) {
+                    if (!isTypeParamAssignable(sourceParam, targetParam)) {
                         return false;
                     }
                 } else {
@@ -1474,15 +1474,9 @@ public class Types {
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
     }
 
-    public boolean constituentTypesAssignable(BType varType, BType typeNodeType) {
-        if (varType.tag == TypeTags.XML) {
-            typeNodeType = getReferredType(typeNodeType);
-            if (typeNodeType.tag == TypeTags.UNION) {
-                return isAssignable(symTable.xmlItemType, typeNodeType);
-            }
-            return typeNodeType.tag == TypeTags.XML;
-        }
-        return isAssignable(varType, typeNodeType);
+    private boolean isTypeParamAssignable(BType sourceParam, BType targetParam) {
+        return isAssignable(sourceParam, targetParam) ||
+                (isAssignable(sourceParam, symTable.xmlType) && isAssignable(targetParam, sourceParam));
     }
 
     public boolean isInherentlyImmutableType(BType type) {
@@ -2062,8 +2056,7 @@ public class Types {
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                 Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
-                        collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
+                return BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
         }
