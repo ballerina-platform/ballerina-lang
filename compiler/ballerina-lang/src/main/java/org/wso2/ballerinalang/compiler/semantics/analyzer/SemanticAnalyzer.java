@@ -4473,7 +4473,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
         // Checking whether the RHS type is assignable to LHS type.
-        if (types.constituentTypesAssignable(varType, typeNodeType)) {
+        if (types.isAssignable(varType, typeNodeType)) {
             if (onFail && varType == symTable.neverType) {
                 varType = typeNodeType;
             }
