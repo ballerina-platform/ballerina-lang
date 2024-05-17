@@ -225,8 +225,8 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
-                "incompatible types: expected '(xml & readonly)', found " +
-                        "'xml'", 263, 41);
+                "incompatible types: expected '(xml & readonly)', found '" +
+                        "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'", 263, 41);
         validateError(negativeResult, index++,
                 "incompatible types: expected '(int[2] & readonly)', found 'int[2]'", 279, 69);
         validateError(negativeResult, index++,
