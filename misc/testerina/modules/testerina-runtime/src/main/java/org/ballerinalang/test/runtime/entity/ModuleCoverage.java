@@ -42,10 +42,11 @@ public class ModuleCoverage {
      * @param document     source file
      * @param coveredLines list of lines covered
      * @param missedLines  list of lines missed
+     * @param emptyLines   list of empty lines
      */
     public void addSourceFileCoverage(Document document, List<Integer> coveredLines,
-                                      List<Integer> missedLines) {
-        SourceFile sourceFile = new SourceFile(document, coveredLines, missedLines);
+                                      List<Integer> missedLines, List<Integer> emptyLines) {
+        SourceFile sourceFile = new SourceFile(document, coveredLines, missedLines, emptyLines);
         this.sourceFiles.add(sourceFile);
         this.coveredLines += coveredLines.size();
         this.missedLines += missedLines.size();
@@ -72,23 +73,29 @@ public class ModuleCoverage {
     /**
      * Update coverage information for a given source file.
      *
-     * @param document     Document
-     * @param coveredLines List<Integer>
-     * @param missedLines  List<Integer>
-     * @param updatedMissedLineCount  int
+     * @param document               Updated source file
+     * @param coveredLines           latest covered lines
+     * @param missedLines            latest missed lines
+     * @param emptyLines             latest empty lines
+     * @param coveredMissedLineCount latest covered line count for previously missed lines
+     * @param coveredEmptyLineCount  latest covered line count for previously empty lines
+     * @param missedEmptyLineCount
      */
     public void updateCoverage(Document document, List<Integer> coveredLines,
-                               List<Integer> missedLines, int updatedMissedLineCount) {
+                               List<Integer> missedLines, List<Integer> emptyLines, int coveredMissedLineCount,
+                               int coveredEmptyLineCount, int missedEmptyLineCount) {
         List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
         for (SourceFile sourceFile : sourceFileList) {
             if (sourceFile.getName().equals(document.name())) {
                 // Remove outdated source file and add updated sourceFile
                 sourceFiles.remove(sourceFile);
-                SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
+                SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines, emptyLines);
                 this.sourceFiles.add(newSourceFile);
                 // Update coverage counts
-                this.coveredLines += updatedMissedLineCount;
-                this.missedLines -= updatedMissedLineCount;
+                this.coveredLines += coveredMissedLineCount;
+                this.coveredLines += coveredEmptyLineCount;
+                this.missedLines -= coveredMissedLineCount;
+                this.missedLines += missedEmptyLineCount;
                 setCoveragePercentage();
             }
         }
@@ -97,12 +104,13 @@ public class ModuleCoverage {
     /**
      * Replace coverage information for a given source file.
      *
-     * @param document     Document
-     * @param coveredLines List<Integer>
-     * @param missedLines  List<Integer>
+     * @param document               Updated source file
+     * @param coveredLines           latest covered lines
+     * @param missedLines            latest missed lines
+     * @param emptyLines             latest empty lines
      */
     public void replaceCoverage(Document document, List<Integer> coveredLines,
-                               List<Integer> missedLines) {
+                                List<Integer> missedLines, List<Integer> emptyLines) {
         List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
         for (SourceFile sourceFile : sourceFileList) {
             if (sourceFile.getName().equals(document.name())) {
@@ -112,7 +120,7 @@ public class ModuleCoverage {
 
                 // Remove outdated source file and add updated sourceFile
                 sourceFiles.remove(sourceFile);
-                SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
+                SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines, emptyLines);
                 this.sourceFiles.add(newSourceFile);
 
                 // Remove old covered and missed lines
@@ -183,6 +191,15 @@ public class ModuleCoverage {
         return Optional.empty();
     }
 
+    public Optional<List<Integer>> getEmptyLinesList(String sourceFileName) {
+        for (SourceFile sourceFile : this.sourceFiles) {
+            if (sourceFile.getName().equals(sourceFileName)) {
+                return Optional.of(sourceFile.emptyLines);
+            }
+        }
+        return Optional.empty();
+    }
+
 
     /**
      * Inner class for the SourceFile in Json.
@@ -191,6 +208,7 @@ public class ModuleCoverage {
         private String name;
         private List<Integer> coveredLines;
         private List<Integer> missedLines;
+        private List<Integer> emptyLines;
         private float coveragePercentage;
         private String sourceCode;
 
@@ -198,6 +216,16 @@ public class ModuleCoverage {
             this.name = document.name();
             this.coveredLines = coveredLines;
             this.missedLines = missedLines;
+            setCoveragePercentage(coveredLines, missedLines);
+            setSourceCode(document);
+        }
+
+        private SourceFile(Document document, List<Integer> coveredLines, List<Integer> missedLines,
+                           List<Integer> emptyLines) {
+            this.name = document.name();
+            this.coveredLines = coveredLines;
+            this.missedLines = missedLines;
+            this.emptyLines = emptyLines;
             setCoveragePercentage(coveredLines, missedLines);
             setSourceCode(document);
         }
