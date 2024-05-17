@@ -95,10 +95,6 @@ public class LaunchUtils {
 
     private static VariableKey[] mergeKeys(VariableKey[] keyArray1, VariableKey[] keyArray2) {
 
-        if (keyArray1 == null && keyArray2 == null) {
-            return null;
-        }
-
         if (keyArray1 == null) {
             return keyArray2.clone();
         }
