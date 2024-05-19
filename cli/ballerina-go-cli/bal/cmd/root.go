@@ -13,6 +13,7 @@ var (
 	javaCmdPass     string
 	cmdLineArgsPass []string
 	ToolsPass       []*cobra.Command
+	commandGroups   templates.CommandGroups
 )
 
 var RootCmd = &cobra.Command{
@@ -31,7 +32,6 @@ func Execute() {
 }
 
 func init() {
-
 	RootCmd.Flags().BoolP("version", "v", false, "Print version information.")
 	cmdLineArgsPass, javaCmdPass = utils.Setup()
 
@@ -39,7 +39,7 @@ func init() {
 	Tools := templates.CommandGroup{Message: "Tool Commands", Commands: generate.GetCommandsList(toolList, RootCmd)}
 	ToolsPass = Tools.Commands
 
-	commandGroups := templates.CommandGroups{
+	commandGroups = templates.CommandGroups{
 		{Message: "Core Commands", Commands: []*cobra.Command{buildCmd(), runCmd(), testCmd(), docCmd(), packCmd()}},
 		{Message: "Package Commands", Commands: []*cobra.Command{newCmd(), addCmd(), pullCmd(), pushCmd(), searchCmd(), semverCmd(), graphCmd(), deprecateCmd()}},
 		{Message: "Other Commands", Commands: []*cobra.Command{cleanCmd(), formatCmd(), grpcCmd(), graphqlCmd(), openapiCmd(), asyncapiCmd(), persistCmd(), persistCmd(), bindgenCmd(), shellCmd(), toolCmd(), versionCmd(), profileCmd()}},
@@ -53,5 +53,4 @@ func init() {
 			templates.ValidateArgs(args[:len(args)-1], RootCmd, ToolsPass)
 		}
 	})
-
 }
