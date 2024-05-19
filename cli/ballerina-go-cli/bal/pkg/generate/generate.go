@@ -42,6 +42,48 @@ type ToolData struct {
 	Repocitory string
 }
 
+func readToolToml() error {
+	currentUser, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	balToolPath := filepath.Join(currentUser.HomeDir, ".ballerina", ".config")
+	viper.SetConfigName("bal-tools")
+	viper.AddConfigPath(balToolPath)
+	viper.SetConfigType("toml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("error reading config file: %w", err)
+	}
+
+	return nil
+}
+
+func FindPathForJson(toolName string) string {
+	jasonPath := ""
+	currentUser, _ := user.Current()
+	readToolToml()
+	toolDetails := viper.Get("tool")
+	if toolDetails != nil {
+		for _, table := range toolDetails.([]interface{}) {
+			if m, ok := table.(map[string]interface{}); ok {
+				if cast.ToString(m["id"]) == toolName && cast.ToBool(m["active"]) {
+					toolData := createToolData(m)
+					repocitoryType := getRepositoryType(toolData)
+					jasonPath = getJasonPath(currentUser, repocitoryType, toolData)
+					break
+				}
+			}
+		}
+	}
+
+	if jasonPath == "" {
+		fmt.Println("Tool not found or not active in config")
+	}
+	return jasonPath
+}
+
 func GetCommandsList(names []string, rootCmd *cobra.Command) []*cobra.Command {
 	var commands []*cobra.Command
 	allCommands := rootCmd.Commands()
@@ -55,27 +97,7 @@ func GetCommandsList(names []string, rootCmd *cobra.Command) []*cobra.Command {
 	return commands
 }
 
-func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path string, rootCmd *cobra.Command) error {
-	viper.SetConfigFile(path)
-	viper.SetConfigType("json")
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalln("Error reading config file:", err)
-	}
-	toolID := viper.GetString("tool_id")
-	toolShort := viper.GetString("short")
-	toolLong := viper.GetString("help.base.long")
-	toolExamples := viper.GetString("help.base.examples")
-
-	cmd := &cobra.Command{
-		Use:     toolID,
-		Short:   toolShort,
-		Long:    toolLong,
-		Example: toolExamples,
-		Run: func(cmd *cobra.Command, args []string) {
-			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
-		},
-	}
-	flags := viper.Get("base_command.flag")
+func addFlagsToCommand(cmd *cobra.Command, flags interface{}) {
 	if flags != nil {
 		for _, table := range flags.([]interface{}) {
 			if m, ok := table.(map[string]interface{}); ok {
@@ -87,17 +109,54 @@ func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path 
 				}
 				switch flag.DefaultVal.(type) {
 				case bool:
-					cmd.Flags().BoolP(flag.Name, flag.Shorthend, flag.DefaultVal.(bool), flag.Usage)
+					if flag.Shorthend == "" {
+						cmd.Flags().Bool(flag.Name, flag.DefaultVal.(bool), flag.Usage)
+					} else {
+						cmd.Flags().BoolP(flag.Name, flag.Shorthend, flag.DefaultVal.(bool), flag.Usage)
+					}
 				case string:
-					cmd.Flags().StringP(flag.Name, flag.Shorthend, flag.DefaultVal.(string), flag.Usage)
+					if flag.Shorthend == "" {
+						cmd.Flags().String(flag.Name, flag.DefaultVal.(string), flag.Usage)
+					} else {
+						cmd.Flags().StringP(flag.Name, flag.Shorthend, flag.DefaultVal.(string), flag.Usage)
+					}
 				case int:
-					cmd.Flags().IntP(flag.Name, flag.Shorthend, flag.DefaultVal.(int), flag.Usage)
-
+					if flag.Shorthend == "" {
+						cmd.Flags().Int(flag.Name, flag.DefaultVal.(int), flag.Usage)
+					} else {
+						cmd.Flags().IntP(flag.Name, flag.Shorthend, flag.DefaultVal.(int), flag.Usage)
+					}
 				}
 			}
 		}
 	}
-	// Register subcommands
+}
+
+// RegisterDynamicCommands function reads the json file and creates the cobra commands
+// according to the json data.
+func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path string, rootCmd *cobra.Command) error {
+	viper.SetConfigFile(path)
+	viper.SetConfigType("json")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalln("Error reading config file:", err)
+	}
+	//Create Base command
+	toolID := viper.GetString("tool_id")
+	toolShort := viper.GetString("short")
+	toolLong := viper.GetString("help.base.long")
+	toolExamples := viper.GetString("help.base.examples")
+	cmd := &cobra.Command{
+		Use:     toolID,
+		Short:   toolShort,
+		Long:    toolLong,
+		Example: toolExamples,
+		Run: func(cmd *cobra.Command, args []string) {
+			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+		},
+	}
+	flags := viper.Get("base_command.flag")
+	addFlagsToCommand(cmd, flags)
+	// Create sub commands
 	subcommands := viper.Get("base_command.subcommand")
 	if subcommands != nil {
 		for _, subcmd := range subcommands.([]interface{}) {
@@ -116,26 +175,7 @@ func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path 
 					},
 				}
 				subFlags := viper.Get(subconfig.Name + ".flag")
-				if subFlags != nil {
-					for _, table := range subFlags.([]interface{}) {
-						if m, ok := table.(map[string]interface{}); ok {
-							subflag := FlagConfig{
-								Name:       cast.ToString(m["name"]),
-								Usage:      cast.ToString(m["usage"]),
-								DefaultVal: m["default_val"],
-								Shorthend:  cast.ToString(m["shorthand"]),
-							}
-							switch subflag.DefaultVal.(type) {
-							case bool:
-								subCmd.Flags().BoolP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(bool), subflag.Usage)
-							case string:
-								subCmd.Flags().StringP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(string), subflag.Usage)
-							case int:
-								subCmd.Flags().IntP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(int), subflag.Usage)
-							}
-						}
-					}
-				}
+				addFlagsToCommand(subCmd, subFlags)
 				cmd.AddCommand(subCmd)
 			}
 		}
@@ -144,52 +184,66 @@ func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path 
 	return nil
 }
 
+// GetTools function reads the bal-tools.toml file and returns the list of tools that are active and
+// creates the cobra commands for the tools that are active.
 func GetTools(javaCmd string, cmdLineArgs []string, rootCmd *cobra.Command) []string {
 	currentUser, _ := user.Current()
 	balToolPath := filepath.Join(currentUser.HomeDir, ".ballerina", ".config")
-	viper.SetConfigName("bal-tools")
-	viper.AddConfigPath(balToolPath)
-	viper.SetConfigType("toml")
 	toolList := []string{}
 	if fileExists(filepath.Join(balToolPath, "bal-tools.toml")) {
-		if err := viper.ReadInConfig(); err != nil {
-			log.Println("Error reading config file:", err)
-		}
+		readToolToml()
 		toolDetails := viper.Get("tool")
 		if toolDetails != nil {
-			for _, table := range toolDetails.([]interface{}) {
-				if m, ok := table.(map[string]interface{}); ok {
-					if cast.ToBool(m["active"]) {
-						toolData := ToolData{
-							Id:         cast.ToString(m["id"]),
-							Org:        cast.ToString(m["org"]),
-							Name:       cast.ToString(m["name"]),
-							Active:     cast.ToBool(m["active"]),
-							Version:    cast.ToString(m["version"]),
-							Repocitory: cast.ToString(m["repocitory"]),
-						}
-						repocitoryType := ""
-						if toolData.Repocitory == "" {
-							repocitoryType = "central.ballerina.io"
-						} else {
-							repocitoryType = toolData.Repocitory
-						}
-						toolList = append(toolList, toolData.Id)
-						jasonPath := filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
-						jasonPath = "/home/wso2/Bal/executables/config/health.json"
-						err := RegisterDynamicCommands(javaCmd, cmdLineArgs, jasonPath, rootCmd)
-						if err != nil {
-							fmt.Println("Error registering dynamic commands:", err)
-						}
-
-					}
-				}
-			}
-
+			toolList = processToolDetails(toolDetails, javaCmd, cmdLineArgs, rootCmd, currentUser)
 		}
-
 	}
 	return toolList
+}
+
+func processToolDetails(toolDetails interface{}, javaCmd string, cmdLineArgs []string, rootCmd *cobra.Command, currentUser *user.User) []string {
+	toolList := []string{}
+	for _, table := range toolDetails.([]interface{}) {
+		if m, ok := table.(map[string]interface{}); ok {
+			if cast.ToBool(m["active"]) {
+				toolData := createToolData(m)
+				repocitoryType := getRepositoryType(toolData)
+				toolList = append(toolList, toolData.Id)
+				jasonPath := getJasonPath(currentUser, repocitoryType, toolData)
+				registerCommands(javaCmd, cmdLineArgs, jasonPath, rootCmd)
+			}
+		}
+	}
+	return toolList
+}
+
+func createToolData(m map[string]interface{}) ToolData {
+	return ToolData{
+		Id:         cast.ToString(m["id"]),
+		Org:        cast.ToString(m["org"]),
+		Name:       cast.ToString(m["name"]),
+		Active:     cast.ToBool(m["active"]),
+		Version:    cast.ToString(m["version"]),
+		Repocitory: cast.ToString(m["repocitory"]),
+	}
+}
+
+func getRepositoryType(toolData ToolData) string {
+	if toolData.Repocitory == "" {
+		return "central.ballerina.io"
+	}
+	return toolData.Repocitory
+}
+
+func getJasonPath(currentUser *user.User, repocitoryType string, toolData ToolData) string {
+	jasonPath := filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
+	return jasonPath
+}
+
+func registerCommands(javaCmd string, cmdLineArgs []string, jasonPath string, rootCmd *cobra.Command) {
+	err := RegisterDynamicCommands(javaCmd, cmdLineArgs, jasonPath, rootCmd)
+	if err != nil {
+		log.Println("Error registering dynamic commands:", err)
+	}
 }
 
 func fileExists(filepath string) bool {
@@ -198,50 +252,4 @@ func fileExists(filepath string) bool {
 		return false
 	}
 	return !info.IsDir()
-}
-
-func FindPathForJson(toolName string) string {
-	jasonPath := ""
-	currentUser, _ := user.Current()
-	balToolPath := filepath.Join(currentUser.HomeDir, ".ballerina", ".config")
-	fmt.Println("Configuration path:", balToolPath)
-
-	viper.SetConfigName("bal-tools")
-	viper.AddConfigPath(balToolPath)
-	viper.SetConfigType("toml")
-
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Error reading config file:", err)
-	}
-	toolDetails := viper.Get("tool")
-	if toolDetails != nil {
-		for _, table := range toolDetails.([]interface{}) {
-			if m, ok := table.(map[string]interface{}); ok {
-				if cast.ToString(m["id"]) == toolName && cast.ToBool(m["active"]) {
-					toolData := ToolData{
-						Id:         cast.ToString(m["id"]),
-						Org:        cast.ToString(m["org"]),
-						Name:       cast.ToString(m["name"]),
-						Active:     cast.ToBool(m["active"]),
-						Version:    cast.ToString(m["version"]),
-						Repocitory: cast.ToString(m["repocitory"]),
-					}
-					repocitoryType := ""
-					if toolData.Repocitory == "" {
-						repocitoryType = "central.ballerina.io"
-					} else {
-						repocitoryType = toolData.Repocitory
-					}
-					jasonPath = filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
-					break
-				}
-			}
-		}
-	}
-
-	if jasonPath == "" {
-		fmt.Println("Tool not found or not active in config")
-	}
-
-	return jasonPath
 }

@@ -1,0 +1,54 @@
+[base_command]
+name = "run"
+short = "short description of run"
+function="utils.RunCommand(cmd, args, javaCmdPass, cmdLineArgsPass)"
+
+[help]
+    [help.base]
+    long = "long description of run"
+    synopsis = "bal run [OPTIONS] [<package>|<source-file>]"
+    examples = """
+    Run the 'main' function and service(s) in the 'app.bal' file.
+           $ bal run app.bal
+
+       Run the 'main' function and service(s) in the `app` executable JAR.
+           $ bal run app.jar
+
+       Run the 'main' function and service(s) in the current package.
+           $ bal run
+
+       Run the 'main' function in the current package with three program args:
+       add, 10, and 5.
+           $ bal run -- add 10 5
+
+       Run the 'main' function with values provided for configurable variables:
+           $ bal run -- -Cval1=add -Cval2=10 -Cval3=5
+
+    """
+
+[[base_command.flag]]
+name = "debug"
+default_val = ""
+usage = "Enable debug mode with the specified port number"
+param = "port"
+
+[[base_command.flag]]
+name = "offline"
+default_val = false
+usage = "Run in offline mode"
+
+[[base_command.flag]]
+name = "observability-included"
+default_val = false
+usage = "Run with including observability"
+
+[[base_command.flag]]
+name = "sticky"
+default_val = false
+usage = "Run with including sticky"
+
+[[base_command.flag]]
+name = "target-dir"
+default_val = ""
+usage = "Specify the target directory"
+param = "target-dir"

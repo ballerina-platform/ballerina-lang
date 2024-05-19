@@ -3,7 +3,8 @@ name = "graphql"
 short = "Generate the GraphQL schema for a Ballerina GraphQL service"
 long = "This command generates the GraphQL schema for a Ballerina GraphQL service."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "input"

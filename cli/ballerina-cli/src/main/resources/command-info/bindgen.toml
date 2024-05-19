@@ -3,8 +3,8 @@ name = "bindgen"
 short = "Generate Ballerina bindings for Java APIs"
 long = "Generate Ballerina bindings for Java APIs using the bindgen tool."
 
-[base_command.help]
-
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "classpath"

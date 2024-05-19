@@ -1,6 +1,7 @@
 [base_command]
 name = "asyncapi"
 short = "short description of build"
+
 [help]
 [help.base]
 long = "long description of asyncapi"

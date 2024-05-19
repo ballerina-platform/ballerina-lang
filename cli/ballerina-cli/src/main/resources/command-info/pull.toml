@@ -3,7 +3,8 @@ name = "pull"
 short = "Fetch packages from Ballerina Central or a custom package repository"
 long = "This command allows you to fetch packages from Ballerina Central or a custom package repository."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "repository"

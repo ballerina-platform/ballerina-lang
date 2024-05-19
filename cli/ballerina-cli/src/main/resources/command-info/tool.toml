@@ -43,7 +43,6 @@ short = "Extend the Ballerina CLI with custom commands"
 name = "pull"
 short = "Pull a tool from the Ballerina Central"
 
-
 [[base_command.subcommand]]
 name = "remove"
 short = "Remove a tool from the local environment."
@@ -52,7 +51,6 @@ short = "Remove a tool from the local environment."
 [[base_command.subcommand]]
 name = "update"
 short = "Update a tool to the latest version compatible with the current distribution."
-
 
 [[base_command.subcommand]]
 name = "use"

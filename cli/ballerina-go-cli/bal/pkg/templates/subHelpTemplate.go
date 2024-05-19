@@ -20,7 +20,6 @@ type SubCommandInfo struct {
 type ConfigFileInfo struct {
 	Path     string
 	FileType string
-	Name     string
 }
 
 const subcommandTemplate = `
@@ -99,13 +98,12 @@ func GetSubCommands(cmd *cobra.Command) []SubCommandInfo {
 	return commands
 }
 
-func GetCommandData(cmd *cobra.Command, field string, configInfo ConfigFileInfo, flagfield string) CommandData {
-	//configInfo.Path = "/home/wso2/Bal/executables/config/health.json" // For testing purposes
+func GetCommandData(cmd *cobra.Command, field string, configInfo ConfigFileInfo, flagfield string, name string) CommandData {
 	viper.SetConfigFile(configInfo.Path)
 	viper.SetConfigType(configInfo.FileType)
 	fmt.Println(configInfo.Path)
 	return CommandData{
-		BName:    cmd.Name(),
+		BName:    name,
 		BShort:   cmd.Short,
 		Synopsis: GetSynopsis(field),
 		Long:     cmd.Long,

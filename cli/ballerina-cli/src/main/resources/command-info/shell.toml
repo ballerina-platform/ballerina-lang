@@ -3,6 +3,9 @@ name = "shell"
 short = "Run Ballerina interactive REPL"
 long = "This command runs the Ballerina interactive Read-Eval-Print Loop (REPL) environment."
 
+[help]
+    [help.base]
+
 [[base_command.flag]]
 name = "debug"
 shorthand = "d"

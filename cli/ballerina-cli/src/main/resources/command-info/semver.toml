@@ -3,6 +3,9 @@ name = "semver"
 short = "Validate SemVer compliance of the package changes"
 long = "This command allows you to validate SemVer compliance of the package changes."
 
+[help]
+    [help.base]
+
 [[base_command.flag]]
 name = "show-diff"
 shorthand = "d"

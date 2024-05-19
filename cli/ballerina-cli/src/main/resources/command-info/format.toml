@@ -3,7 +3,8 @@ name = "format"
 short = "Format the Ballerina source files"
 long = "This command formats the Ballerina source files in the project."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "dry-run"

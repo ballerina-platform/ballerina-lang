@@ -3,7 +3,8 @@ name = "push"
 short = "Push the Ballerina Archive (BALA) of the current package to a package repository"
 long = "This command allows you to push the Ballerina Archive (BALA) of the current package to a package repository."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "repository"

@@ -3,7 +3,8 @@ name = "clean"
 short = "Remove the artifacts created during the build"
 long = "Remove the artifacts created during the build process using the clean command."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "target-dir"

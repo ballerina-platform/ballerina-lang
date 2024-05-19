@@ -3,6 +3,9 @@ name = "test"
 short = "A brief description of your command"
 long = "This command is used for testing purposes."
 
+[help]
+    [help.base]
+
 [[base_command.flag]]
 name = "code-coverage"
 default_val = false

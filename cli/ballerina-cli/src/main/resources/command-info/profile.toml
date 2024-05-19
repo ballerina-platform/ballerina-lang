@@ -3,7 +3,8 @@ name = "profile"
 short = "A brief description of your command"
 long = "This command allows you to profile your Ballerina applications."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "debug"

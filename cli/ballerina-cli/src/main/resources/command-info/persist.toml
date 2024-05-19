@@ -3,7 +3,8 @@ name = "persist"
 short = "Manage data persistence"
 long = "This command allows you to manage data persistence."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.subcommand]]
 name = "init"

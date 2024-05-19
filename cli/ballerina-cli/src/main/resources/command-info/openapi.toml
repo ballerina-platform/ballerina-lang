@@ -3,7 +3,8 @@ name = "openapi"
 short = "Generate a Ballerina service or a client from an OpenAPI contract and vice versa."
 long = "This command generates Ballerina service or client code from an OpenAPI contract and vice versa."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "input"

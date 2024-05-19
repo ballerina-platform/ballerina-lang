@@ -3,4 +3,5 @@ name = "search"
 short = "Search Ballerina Central for packages"
 long = "This command allows you to search Ballerina Central for packages."
 
-[base_command.help]
+[help]
+    [help.base]

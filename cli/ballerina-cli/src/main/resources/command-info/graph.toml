@@ -3,7 +3,8 @@ name = "graph"
 short = "Print the dependency graph"
 long = "This command prints the dependency graph for the project."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "dump-raw-graphs"

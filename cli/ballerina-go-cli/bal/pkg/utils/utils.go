@@ -29,7 +29,10 @@ import (
 	"strings"
 
 	tsize "github.com/kopoli/go-terminal-size"
+	"github.com/spf13/cobra"
 )
+
+const defaultJavaCmd = "java"
 
 func IsJarFile(filePath string) bool {
 	return len(filePath) > 4 && filePath[len(filePath)-4:] == ".jar"
@@ -100,7 +103,7 @@ func GetJavaOpts() string {
 		}
 	}
 	return javaOpts
-} //optimise the validation with validation functions
+}
 
 func GetJavaSettings(ballerinaHome string) (javaHome, javaCmd string) {
 	javaPath := filepath.Join(ballerinaHome, "..", "..", "dependencies", "@JDK_VERSION@")
@@ -131,14 +134,12 @@ func GetJavaSettings(ballerinaHome string) (javaHome, javaCmd string) {
 				CmdOutput, err := exec.Command(path).Output()
 				if err == nil {
 					javaHome = strings.TrimSpace(string(CmdOutput))
-					//os.Setenv("JAVA_HOME", javaHome)
 				}
 			} else {
 				// If JAVA_HOME is not set, but JAVA_VERSION is set, get the Java home for the specified version
 				CmdOutput, err := exec.Command(path, "-v", javaVersion).Output()
 				if err == nil {
 					javaHome = strings.TrimSpace(string(CmdOutput))
-					//os.Setenv("JAVA_HOME", javaHome)
 				}
 			}
 		}
@@ -154,7 +155,7 @@ func GetJavaSettings(ballerinaHome string) (javaHome, javaCmd string) {
 				javaCmd = filepath.Join(javaHome, "bin", "java")
 			}
 		} else {
-			javaCmd = "java"
+			javaCmd = defaultJavaCmd
 		}
 	}
 	javaCmd = strings.TrimSpace(javaCmd)
@@ -166,7 +167,7 @@ func ExecuteCommand(javaCmd string, cmdArgs []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
-	return cmd.Run() //type error  check md  run command
+	return cmd.Run()
 }
 
 func GetBalScriptDir() string {
@@ -191,9 +192,7 @@ func GetBalScriptDir() string {
 
 func Setup() ([]string, string) {
 	ballerinaVersion := "@VERSION@"
-
 	scriptPathDir := GetBalScriptDir()
-
 	ballerinaHome, _ := filepath.Abs(filepath.Join(scriptPathDir, ".."))
 	javaHome, javaCmd := GetJavaSettings(ballerinaHome)
 
@@ -246,5 +245,55 @@ func ExecuteBallerinaCommand(javaCmd string, cmdLineArgs []string) error {
 	cmdArgs = append(cmdArgs, os.Args[1:]...)
 	err := ExecuteCommand(javaCmd, cmdArgs)
 	return err
+}
 
+func RunDebugMode(javaCmd string, cmdLineArgs []string, args []string, debugPort int) {
+	cmdArgs := append(cmdLineArgs,
+		fmt.Sprintf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%d", debugPort),
+		"-jar",
+	)
+	cmdArgs = append(cmdArgs, args[0:]...)
+	err := ExecuteCommand(javaCmd, cmdArgs)
+	if err != nil {
+		log.Fatalln("Error: executing bal run --debug=<PORT> <*.jar>: ", err)
+	}
+}
+
+func RunJarExecution(javaCmd string, cmdLineArgs []string, args []string) {
+	cmdArgs := append(cmdLineArgs, "-jar")
+	cmdArgs = append(cmdArgs, args[0:]...)
+	err := ExecuteCommand(javaCmd, cmdArgs)
+	if err != nil {
+		log.Fatalln("Error: executing bal run <*.jar> :", err)
+	}
+}
+
+func RunCommand(cmd *cobra.Command, args []string, javaCmd string, cmdLineArgs []string) {
+	debugPortStr, _ := cmd.Flags().GetString("debug")
+	var debugPort int
+	if debugPortStr != "" {
+		port, err := strconv.Atoi(debugPortStr)
+		if err != nil {
+			fmt.Println("Error: Invalid debug port number specified.")
+			return
+		}
+		debugPort = port
+		if debugPort <= 0 || debugPort > 65535 {
+			fmt.Println("Error: Invalid debug port number specified.")
+			return
+		}
+	}
+
+	if len(args) >= 1 && IsJarFile(args[0]) {
+		if debugPort > 0 {
+			fmt.Println("running debug port")
+			RunDebugMode(javaCmd, cmdLineArgs, args, debugPort)
+		} else {
+			fmt.Println("running jar file execution")
+			RunJarExecution(javaCmd, cmdLineArgs, args)
+		}
+	} else {
+		fmt.Println("running Ballerina program")
+		_ = ExecuteBallerinaCommand(javaCmd, cmdLineArgs)
+	}
 }

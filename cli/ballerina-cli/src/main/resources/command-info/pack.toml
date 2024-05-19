@@ -3,7 +3,8 @@ name = "pack"
 short = "A brief description of your command"
 long = "This command represents the pack command and provides a brief description of its functionality."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "offline"

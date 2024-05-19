@@ -158,7 +158,7 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 			}
 
 			subflags, _ := viper.Get(fmt.Sprintf("%s.flag", subconfig.Name)).([]interface{})
-			subflagLines := generateSubFlagLines(subflags, generateFlagLine)
+			subflagLines := generateFlagLines(subflags, generateFlagLine)
 
 			tmplSubcmd := template.Must(template.New("SubcommandTemplate").Parse(subCommandTemp))
 			var subcmdStrBuffer bytes.Buffer
@@ -190,10 +190,10 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 	return subCommandsStr, subLinesStr
 }
 
-func generateSubFlagLines(subflags []interface{}, generateFlagLine func(FlagConfig, string) string) string {
-	var subflagLines string
+func generateFlagLines(flags []interface{}, generateFlagLine func(FlagConfig, string) string) string {
+	var flagLines string
 
-	for _, table := range subflags {
+	for _, table := range flags {
 		if m, ok := table.(map[string]interface{}); ok {
 			subflag := FlagConfig{
 				Name:       cast.ToString(m["name"]),
@@ -201,28 +201,11 @@ func generateSubFlagLines(subflags []interface{}, generateFlagLine func(FlagConf
 				DefaultVal: m["default_val"],
 				Shorthend:  cast.ToString(m["shorthand"]),
 			}
-			subflagline := generateFlagLine(subflag, "cmd")
-			subflagLines += subflagline + "\n"
-		}
-	}
-
-	return subflagLines
-}
-
-func generatingBaseCommandFlags(flags []interface{}, name string) string {
-	var flagLines string
-	for _, table := range flags {
-		if m, ok := table.(map[string]interface{}); ok {
-			flag := FlagConfig{
-				Name:       cast.ToString(m["name"]),
-				Usage:      cast.ToString(m["usage"]),
-				DefaultVal: m["default_val "],
-				Shorthend:  cast.ToString(m["shorthand"]),
-			}
-			flagline := generateFlagLine(flag, name)
+			flagline := generateFlagLine(subflag, "cmd")
 			flagLines += flagline + "\n"
 		}
 	}
+
 	return flagLines
 }
 
@@ -235,11 +218,14 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %s", err)
 	}
-
+	baseFunction := viper.GetString("base_command.function")
+	if baseFunction == "" {
+		baseFunction = "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)"
+	}
 	config := CommandConfig{
 		Name:     viper.GetString("base_command.name"),
 		Short:    viper.GetString("base_command.short"),
-		Function: "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)",
+		Function: baseFunction,
 	}
 	filename := config.Name + ".go"
 	filePath := filepath.Join(commandPath, filename)
@@ -250,7 +236,7 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 	defer file.Close()
 	tmpl := template.Must(template.New("commandTemplate").Parse(templateContent))
 	flags, _ := viper.Get("base_command.flag").([]interface{})
-	flagLines := generatingBaseCommandFlags(flags, "cmd")
+	flagLines := generateFlagLines(flags, generateFlagLine)
 	subcommands, _ := viper.Get("base_command.subcommand").([]interface{})
 	subCommandsStr, subLinesStr := generateSubCommands(subcommands, config)
 
@@ -276,7 +262,6 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 		log.Fatalf("Error executing template: %s", err)
 	}
 	output := commandData.String() //format the content of the document
-	//fmt.Println(output)
 	formattedContent, err := format.Source([]byte(output))
 	if err != nil {
 		log.Fatalf("Error formatting Go code: %s", err)

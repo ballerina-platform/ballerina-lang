@@ -3,7 +3,8 @@ name = "doc"
 short = "A brief description of your command"
 long = "A detailed description of the 'doc' command."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "output"

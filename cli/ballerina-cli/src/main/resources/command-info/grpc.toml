@@ -3,7 +3,8 @@ name = "grpc"
 short = "Generate Ballerina sources for the given Protocol Buffer definition"
 long = "This command generates Ballerina sources for the specified Protocol Buffer (.proto) definition."
 
-[base_command.help]
+[help]
+    [help.base]
 
 [[base_command.flag]]
 name = "input"
