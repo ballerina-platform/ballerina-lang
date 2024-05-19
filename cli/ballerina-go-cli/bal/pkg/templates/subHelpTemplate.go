@@ -35,13 +35,13 @@ DESCRIPTION:
 
 OPTIONS:
 	{{.Options}}
+{{- if .Commands}}
 
-{{if .Commands}}
 SUBCOMMANDS:
 {{range .Commands}}
        {{.Name}}        {{.Short}}
 {{end}}
-{{end}}
+{{end -}}
 
 EXAMPLES:
 	{{.Examples}}
@@ -49,8 +49,7 @@ EXAMPLES:
 {{if .Commands}}Use 'bal {{.BName}} <subcommand> --help' for more information on a specific tool subcommand.{{end}}
 `
 
-const FlagTemplate = `
-	{{if .ShortForm}}-{{.ShortForm}}, {{end}}{{if .Param}}--{{.LongForm}} <{{.Param}}>{{else}}--{{.LongForm}}{{end}}
+const FlagTemplate = `	{{if .ShortForm}}-{{.ShortForm}}, {{end}}{{if .Param}}--{{.LongForm}} <{{.Param}}>{{else}}--{{.LongForm}}{{end}}
 		{{.Usage}}
 
 `
@@ -101,9 +100,10 @@ func GetSubCommands(cmd *cobra.Command) []SubCommandInfo {
 }
 
 func GetCommandData(cmd *cobra.Command, field string, configInfo ConfigFileInfo, flagfield string) CommandData {
-	viper.SetConfigName(configInfo.Name)
-	viper.AddConfigPath(configInfo.Path)
+	//configInfo.Path = "/home/wso2/Bal/executables/config/health.json" // For testing purposes
+	viper.SetConfigFile(configInfo.Path)
 	viper.SetConfigType(configInfo.FileType)
+	fmt.Println(configInfo.Path)
 	return CommandData{
 		BName:    cmd.Name(),
 		BShort:   cmd.Short,
@@ -159,7 +159,7 @@ func FillOptions(field string, cmd *cobra.Command) string {
 func GetSynopsis(field string) string {
 	synopsis := ""
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
+		log.Fatalf("Error reading synopsis config file: %s", err)
 	}
 	if viper.GetString(field) != "" {
 		synopsis = viper.GetString(field)
