@@ -38,6 +38,7 @@ import io.ballerina.types.subtypedata.Range;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -70,7 +71,39 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 (Bdd) t);
     }
 
+    // Way `listInhabited` method works is essentially removing negative atoms one by one until either we run-out of
+    // negative atoms or there is nothing left in the positive (intersection) atom. While correctness of this method is
+    // independent of other order of negative atoms, the performance of this method is dependent on the order. For
+    // example consider positive atom is int[] and we have negative atoms int[1], int[2], int[3], any[]. If we start
+    // with any[] we immediately know it is not inhabited whereas in any other order we have to evaluate until we come
+    // to any[] to figure this out. We say any[] is larger than others since it covers more values than them.
+    // Evaluating such larger atoms before smaller ones improve our odds of stopping early.
+    private static Conjunction reorderNegAtoms(Context cx, Conjunction neg) {
+        List<TwoTuple<Integer, Atom>> atomsInChain = new ArrayList<>();
+        Conjunction current = neg;
+        while (current != null) {
+            Atom atom = current.atom;
+            ListAtomicType listAtom = cx.listAtomType(atom);
+            SemType restType = cellInnerVal(listAtom.rest());
+            int size;
+            if (!Core.isNever(restType)) {
+                size = Integer.MAX_VALUE;
+            } else {
+                size = listAtom.members().fixedLength();
+            }
+            atomsInChain.add(TwoTuple.from(size, atom));
+            current = current.next;
+        }
+        atomsInChain.sort(Comparator.comparingInt(a -> a.item1));
+        Conjunction result = null;
+        for (var each : atomsInChain) {
+            result = Conjunction.and(each.item2, result);
+        }
+        return result;
+    }
+
     private static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
+        neg = reorderNegAtoms(cx, neg);
         FixedLengthArray members;
         CellSemType rest;
         if (pos == null) {
@@ -250,9 +283,22 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
-            // Consider cases we can avoid this negative by having a sufficiently short list
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
+                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+                // Therefore, we can skip the negative
+                for (int i = 0; i < memberTypes.length; i++) {
+                    int index = indices[i];
+                    if (index >= negLen) {
+                        break;
+                    }
+                    SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                    SemType common = Core.intersect(memberTypes[i], negMemberType);
+                    if (Core.isEmpty(cx, common)) {
+                        return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                    }
+                }
+                // Consider cases we can avoid this negative by having a sufficiently short list
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
                     return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
