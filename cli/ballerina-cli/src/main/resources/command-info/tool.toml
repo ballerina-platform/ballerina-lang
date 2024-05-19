@@ -42,22 +42,22 @@ short = "Extend the Ballerina CLI with custom commands"
 [[base_command.subcommand]]
 name = "pull"
 short = "Pull a tool from the Ballerina Central"
-function="utils.GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
 
 [[base_command.subcommand]]
 name = "remove"
 short = "Remove a tool from the local environment."
-function="utils.RemoveTool(javaCmdPass, cmdLineArgsPass)"
+
 
 [[base_command.subcommand]]
 name = "update"
 short = "Update a tool to the latest version compatible with the current distribution."
-function="utils.GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
 
 [[base_command.subcommand]]
 name = "use"
 short = "Set a tool version as the active version."
-function="utils.GenerateTool(javaCmdPass, cmdLineArgsPass)"
+
 
 [[base_command.subcommand]]
 name = "list"

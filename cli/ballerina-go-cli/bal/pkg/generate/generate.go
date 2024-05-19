@@ -1,14 +1,12 @@
 package generate
 
 import (
-	"bytes"
+	"bal/pkg/utils"
 	"fmt"
-	"go/format"
 	"log"
 	"os"
 	"os/user"
 	"path/filepath"
-	"text/template"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -44,260 +42,162 @@ type ToolData struct {
 	Repocitory string
 }
 
-const templateContent = `
-package cmd
-
-import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"bal/pkg/utils"
-	"log"
-)
-
-func {{.Name}}Cmd() *cobra.Command{
-	cmd := &cobra.Command{
-	Use:     "{{.Name}}",
-	Short:   "{{.Short}}",
-	Long:   "",
-	Example: "",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("called")
-		{{.Function}}
-	},
+func GetCommandsList(names []string, rootCmd *cobra.Command) []*cobra.Command {
+	var commands []*cobra.Command
+	allCommands := rootCmd.Commands()
+	for _, cmd := range allCommands {
+		for _, name := range names {
+			if cmd.Use == name {
+				commands = append(commands, cmd)
+			}
+		}
+	}
+	return commands
 }
 
-	viper.SetConfigName("{{.Name}}")
-	viper.AddConfigPath("/home/wso2/Final_implementation/ballerina-lang/Bal/executables/config") // Update this with your actual config path
+func RegisterDynamicCommands(javaCmdPass string, cmdLineArgsPass []string, path string, rootCmd *cobra.Command) error {
+	viper.SetConfigFile(path)
 	viper.SetConfigType("json")
-
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
+		log.Fatalln("Error reading config file:", err)
 	}
+	toolID := viper.GetString("tool_id")
+	toolShort := viper.GetString("short")
+	toolLong := viper.GetString("help.base.long")
+	toolExamples := viper.GetString("help.base.examples")
 
-	if long := viper.GetString("help.base.long"); long != "" {
-		cmd.Long = long
-	}
-	if examples := viper.GetString("help.base.examples"); examples != "" {
-		cmd.Example = examples
-	}
-
-	{{.FlagLines}}
-
-	return cmd
-
-}
-
-func init() {
-	{{.Name}}Cmd:= {{.Name}}Cmd()
-	RootCmd.AddCommand({{.Name}}Cmd)
-	{{.SubLines}}
-
-}
-
-{{.SubCommands}}
-`
-
-func generateFlagLine(flag FlagConfig, cmdName string) string {
-
-	var flagline string
-
-	switch flag.DefaultVal.(type) {
-	case bool:
-		if flag.Shorthend == "" {
-			flagline = fmt.Sprintf("%s.Flags().Bool(\"%s\", %t, \"%s\")", cmdName, flag.Name, flag.DefaultVal.(bool), flag.Usage)
-		} else {
-			flagline = fmt.Sprintf("%s.Flags().BoolP(\"%s\", \"%s\", %t, \"%s\")", cmdName, flag.Name, flag.Shorthend, flag.DefaultVal.(bool), flag.Usage)
-		}
-	case string:
-		if flag.Shorthend == "" {
-			flagline = fmt.Sprintf("%s.Flags().String(\"%s\", \"%s\", \"%s\")", cmdName, flag.Name, flag.DefaultVal.(string), flag.Usage)
-		} else {
-			flagline = fmt.Sprintf("%s.Flags().StringP(\"%s\", \"%s\", \"%s\", \"%s\")", cmdName, flag.Name, flag.Shorthend, flag.DefaultVal.(string), flag.Usage)
-		}
-	case int:
-		flagline = fmt.Sprintf("%s.Flags().IntP(\"%s\", \"%s\", %d, \"%s\")", cmdName, flag.Name, flag.Shorthend, flag.DefaultVal.(int), flag.Usage)
-	}
-
-	return flagline
-}
-
-func generateSubCommands(subcommands []interface{}, config CommandConfig) (string, string) {
-	const subCommandTemp = `
-	func {{.Name}}() *cobra.Command {
-		cmd := &cobra.Command{
-		Use:   "{{.Use}}",
-		Short: "{{.Short}}",
-		Long:  "",
-		Example:"",
+	cmd := &cobra.Command{
+		Use:     toolID,
+		Short:   toolShort,
+		Long:    toolLong,
+		Example: toolExamples,
 		Run: func(cmd *cobra.Command, args []string) {
-			{{.Function}}
+			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
 		},
 	}
-		{{.SubFlagLines}}
-		viper.SetConfigName("{{.Base}}")
-		viper.AddConfigPath("/home/wso2/Final_implementation/ballerina-lang/Bal/executables/config")
-		viper.SetConfigType("json")
+	flags := viper.Get("base_command.flag")
+	if flags != nil {
+		for _, table := range flags.([]interface{}) {
+			if m, ok := table.(map[string]interface{}); ok {
+				flag := FlagConfig{
+					Name:       cast.ToString(m["name"]),
+					Usage:      cast.ToString(m["usage"]),
+					DefaultVal: m["default_val"],
+					Shorthend:  cast.ToString(m["shorthand"]),
+				}
+				switch flag.DefaultVal.(type) {
+				case bool:
+					cmd.Flags().BoolP(flag.Name, flag.Shorthend, flag.DefaultVal.(bool), flag.Usage)
+				case string:
+					cmd.Flags().StringP(flag.Name, flag.Shorthend, flag.DefaultVal.(string), flag.Usage)
+				case int:
+					cmd.Flags().IntP(flag.Name, flag.Shorthend, flag.DefaultVal.(int), flag.Usage)
 
+				}
+			}
+		}
+	}
+	// Register subcommands
+	subcommands := viper.Get("base_command.subcommand")
+	if subcommands != nil {
+		for _, subcmd := range subcommands.([]interface{}) {
+			if m, ok := subcmd.(map[string]interface{}); ok {
+				subconfig := CommandConfig{
+					Name:  cast.ToString(m["name"]),
+					Short: cast.ToString(m["short"]),
+				}
+				subCmd := &cobra.Command{
+					Use:     subconfig.Name,
+					Short:   subconfig.Short,
+					Long:    viper.GetString(fmt.Sprintf("help.%s.long", subconfig.Name)),
+					Example: viper.GetString(fmt.Sprintf("help.%s.examples", subconfig.Name)),
+					Run: func(cmd *cobra.Command, args []string) {
+						_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+					},
+				}
+				subFlags := viper.Get(subconfig.Name + ".flag")
+				if subFlags != nil {
+					for _, table := range subFlags.([]interface{}) {
+						if m, ok := table.(map[string]interface{}); ok {
+							subflag := FlagConfig{
+								Name:       cast.ToString(m["name"]),
+								Usage:      cast.ToString(m["usage"]),
+								DefaultVal: m["default_val"],
+								Shorthend:  cast.ToString(m["shorthand"]),
+							}
+							switch subflag.DefaultVal.(type) {
+							case bool:
+								subCmd.Flags().BoolP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(bool), subflag.Usage)
+							case string:
+								subCmd.Flags().StringP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(string), subflag.Usage)
+							case int:
+								subCmd.Flags().IntP(subflag.Name, subflag.Shorthend, subflag.DefaultVal.(int), subflag.Usage)
+							}
+						}
+					}
+				}
+				cmd.AddCommand(subCmd)
+			}
+		}
+	}
+	rootCmd.AddCommand(cmd)
+	return nil
+}
+
+func GetTools(javaCmd string, cmdLineArgs []string, rootCmd *cobra.Command) []string {
+	currentUser, _ := user.Current()
+	balToolPath := filepath.Join(currentUser.HomeDir, ".ballerina", ".config")
+	viper.SetConfigName("bal-tools")
+	viper.AddConfigPath(balToolPath)
+	viper.SetConfigType("toml")
+	toolList := []string{}
+	if fileExists(filepath.Join(balToolPath, "bal-tools.toml")) {
 		if err := viper.ReadInConfig(); err != nil {
-			log.Fatalf("Error reading config file: %s", err)
+			log.Println("Error reading config file:", err)
 		}
-		if long := viper.GetString("help.{{.Use}}.long"); long != "" {
-			cmd.Long = long
-		}
-		if examples := viper.GetString("help.{{.Use}}.examples"); examples != "" {
-			cmd.Example = examples
+		toolDetails := viper.Get("tool")
+		if toolDetails != nil {
+			for _, table := range toolDetails.([]interface{}) {
+				if m, ok := table.(map[string]interface{}); ok {
+					if cast.ToBool(m["active"]) {
+						toolData := ToolData{
+							Id:         cast.ToString(m["id"]),
+							Org:        cast.ToString(m["org"]),
+							Name:       cast.ToString(m["name"]),
+							Active:     cast.ToBool(m["active"]),
+							Version:    cast.ToString(m["version"]),
+							Repocitory: cast.ToString(m["repocitory"]),
+						}
+						repocitoryType := ""
+						if toolData.Repocitory == "" {
+							repocitoryType = "central.ballerina.io"
+						} else {
+							repocitoryType = toolData.Repocitory
+						}
+						toolList = append(toolList, toolData.Id)
+						jasonPath := filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
+						jasonPath = "/home/wso2/Bal/executables/config/health.json"
+						err := RegisterDynamicCommands(javaCmd, cmdLineArgs, jasonPath, rootCmd)
+						if err != nil {
+							fmt.Println("Error registering dynamic commands:", err)
+						}
+
+					}
+				}
+			}
+
 		}
 
-		return cmd
 	}
-	`
-	var subCommandsStr string
-	var subLinesStr string
-
-	for _, subcmd := range subcommands {
-		if m, ok := subcmd.(map[string]interface{}); ok {
-			subconfig := Subcommand{
-				Name:     cast.ToString(m["name"]),
-				Short:    cast.ToString(m["short"]),
-				Function: cast.ToString(m["function"]),
-				Flags:    m["flags"].([]interface{}),
-			}
-			function := ""
-			if subconfig.Function == "" {
-				function = "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)"
-			} else {
-				function = subconfig.Function
-			}
-
-			//subflags, _ := viper.Get(fmt.Sprintf("%s.flag", subconfig.Name)).([]interface{})
-			subflagLines := generateSubFlagLines(subconfig.Flags, generateFlagLine)
-
-			tmplSubcmd := template.Must(template.New("SubcommandTemplate").Parse(subCommandTemp))
-			var subcmdStrBuffer bytes.Buffer
-			data := struct {
-				Name         string
-				Use          string
-				Short        string
-				Function     string
-				SubFlagLines string
-				Base         string
-			}{
-				Name:         subconfig.Name + config.Name + "Cmd",
-				Use:          subconfig.Name,
-				Short:        subconfig.Short,
-				Function:     function,
-				SubFlagLines: subflagLines,
-				Base:         config.Name,
-			}
-			if err := tmplSubcmd.Execute(&subcmdStrBuffer, data); err != nil {
-				log.Fatalf("Error executing subcommand template: %s", err)
-			}
-			subCommandsStr += subcmdStrBuffer.String() + "\n"
-			subline := fmt.Sprintf("%sCmd.AddCommand(%s)", config.Name, data.Name+"()")
-			subLinesStr += subline + "\n"
-		}
-	}
-
-	return subCommandsStr, subLinesStr
+	return toolList
 }
 
-func generateSubFlagLines(subflags []interface{}, generateFlagLine func(FlagConfig, string) string) string {
-	var subflagLines string
-
-	for _, table := range subflags {
-		if m, ok := table.(map[string]interface{}); ok {
-			subflag := FlagConfig{
-				Name:       cast.ToString(m["name"]),
-				Usage:      cast.ToString(m["usage"]),
-				DefaultVal: m["default_val"],
-				Shorthend:  cast.ToString(m["shorthand"]),
-			}
-			//commandName := cast.ToString(m["command"]) + config.Name + "Cmd"
-			subflagline := generateFlagLine(subflag, "cmd")
-			subflagLines += subflagline + "\n"
-		}
+func fileExists(filepath string) bool {
+	info, err := os.Stat(filepath)
+	if os.IsNotExist(err) {
+		return false
 	}
-
-	return subflagLines
-}
-
-func generatingBaseCommandFlags(flags []interface{}, name string) string {
-	var flagLines string
-	for _, table := range flags {
-		if m, ok := table.(map[string]interface{}); ok {
-			flag := FlagConfig{
-				Name:       cast.ToString(m["name"]),
-				Usage:      cast.ToString(m["usage"]),
-				DefaultVal: m["default_val"],
-				Shorthend:  cast.ToString(m["shorthand"]),
-			}
-			flagline := generateFlagLine(flag, name)
-			flagLines += flagline + "\n"
-		}
-	}
-	return flagLines
-}
-
-func GeneratingCLICommands(path string) {
-
-	viper.SetConfigType("json")
-	viper.SetConfigFile(path)
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %s", err)
-	}
-
-	config := CommandConfig{
-		Name:     viper.GetString("tool_id"),
-		Short:    viper.GetString("short"),
-		Function: "_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)",
-	}
-
-	filename := config.Name + ".go"
-	fmt.Println(filename)
-	file, err := os.Create(filepath.Join("cmd", filename))
-	if err != nil {
-		log.Fatalf("Error creating command.go file: %s", err)
-	}
-	defer file.Close()
-	tmpl := template.Must(template.New("commandTemplate").Parse(templateContent))
-	flags, _ := viper.Get("flag").([]interface{})
-	fmt.Println(flags)
-	flagLines := generatingBaseCommandFlags(flags, "cmd")
-	subcommands, _ := viper.Get("subcommand").([]interface{})
-	subCommandsStr, subLinesStr := generateSubCommands(subcommands, config)
-
-	data := struct {
-		Name        string
-		Short       string
-		Function    string
-		FlagLines   string
-		SubCommands string
-		SubLines    string
-	}{
-		Name:        config.Name,
-		Short:       config.Short,
-		Function:    config.Function,
-		FlagLines:   flagLines,
-		SubCommands: subCommandsStr,
-		SubLines:    subLinesStr,
-	}
-
-	var commandData bytes.Buffer
-
-	if err := tmpl.Execute(&commandData, data); err != nil {
-		log.Fatalf("Error executing template: %s", err)
-	}
-	output := commandData.String() //format the content of the document
-	fmt.Println(output)
-	formattedContent, err := format.Source([]byte(output))
-	if err != nil {
-		log.Fatalf("Error formatting Go code: %s", err)
-	}
-	if err := os.WriteFile(filepath.Join("cmd", filename), formattedContent, 0644); err != nil {
-		log.Fatalf("Error writing to file: %s", err)
-	}
+	return !info.IsDir()
 }
 
 func FindPathForJson(toolName string) string {
@@ -313,30 +213,28 @@ func FindPathForJson(toolName string) string {
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println("Error reading config file:", err)
 	}
-
-	toolDetails, ok := viper.Get("tool").([]interface{})
-	if !ok {
-		fmt.Println("Error reading tool details from config")
-	}
-	for _, table := range toolDetails {
-		if m, ok := table.(map[string]interface{}); ok {
-			if cast.ToString(m["id"]) == toolName && cast.ToBool(m["active"]) {
-				toolData := ToolData{
-					Id:         cast.ToString(m["id"]),
-					Org:        cast.ToString(m["org"]),
-					Name:       cast.ToString(m["name"]),
-					Active:     cast.ToBool(m["active"]),
-					Version:    cast.ToString(m["version"]),
-					Repocitory: cast.ToString(m["repocitory"]),
+	toolDetails := viper.Get("tool")
+	if toolDetails != nil {
+		for _, table := range toolDetails.([]interface{}) {
+			if m, ok := table.(map[string]interface{}); ok {
+				if cast.ToString(m["id"]) == toolName && cast.ToBool(m["active"]) {
+					toolData := ToolData{
+						Id:         cast.ToString(m["id"]),
+						Org:        cast.ToString(m["org"]),
+						Name:       cast.ToString(m["name"]),
+						Active:     cast.ToBool(m["active"]),
+						Version:    cast.ToString(m["version"]),
+						Repocitory: cast.ToString(m["repocitory"]),
+					}
+					repocitoryType := ""
+					if toolData.Repocitory == "" {
+						repocitoryType = "central.ballerina.io"
+					} else {
+						repocitoryType = toolData.Repocitory
+					}
+					jasonPath = filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
+					break
 				}
-				repocitoryType := ""
-				if toolData.Repocitory == "" {
-					repocitoryType = "central.ballerina.io"
-				} else {
-					repocitoryType = toolData.Repocitory
-				}
-				jasonPath = filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
-				break
 			}
 		}
 	}
@@ -346,45 +244,4 @@ func FindPathForJson(toolName string) string {
 	}
 
 	return jasonPath
-}
-
-func GetListOfTools() []string {
-	currentUser, _ := user.Current()
-	balToolPath := filepath.Join(currentUser.HomeDir, ".ballerina", ".config")
-	fmt.Println("Configuration path:", balToolPath)
-
-	viper.SetConfigName("bal-tools")
-	viper.AddConfigPath(balToolPath)
-	viper.SetConfigType("toml")
-
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Error reading config file:", err)
-	}
-
-	toolDetails, ok := viper.Get("tool").([]interface{})
-	if !ok {
-		fmt.Println("Error reading tool details from config")
-	}
-	toolList := []string{}
-	for _, table := range toolDetails {
-		if m, ok := table.(map[string]interface{}); ok {
-			if cast.ToBool(m["active"]) {
-				toolList = append(toolList, cast.ToString(m["id"]))
-			}
-		}
-	}
-	return toolList
-}
-
-func GetCommandsList(names []string, rootCmd *cobra.Command) []*cobra.Command {
-	var commands []*cobra.Command
-	allCommands := rootCmd.Commands()
-	for _, cmd := range allCommands {
-		for _, name := range names {
-			if cmd.Use == name {
-				commands = append(commands, cmd)
-			}
-		}
-	}
-	return commands
 }

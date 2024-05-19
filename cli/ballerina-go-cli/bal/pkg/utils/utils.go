@@ -19,7 +19,6 @@
 package utils
 
 import (
-	"bal/pkg/generate"
 	"fmt"
 	"log"
 	"os"
@@ -248,39 +247,4 @@ func ExecuteBallerinaCommand(javaCmd string, cmdLineArgs []string) error {
 	err := ExecuteCommand(javaCmd, cmdArgs)
 	return err
 
-}
-
-func GenerateTool(javaCmd string, cmdLineArgs []string) {
-	err := ExecuteBallerinaCommand(javaCmd, cmdLineArgs)
-	if err == nil {
-		filePath := generate.FindPathForJson(os.Args[3])
-		fmt.Println(filePath)
-		if _, err = os.Stat(filePath); err == nil {
-			fmt.Println("File exists.")
-			fmt.Println(filePath)
-			generate.GeneratingCLICommands("/home/wso2/BalWithCobra/config/health.json")
-		} else {
-			fmt.Println("Could not find the command information json")
-		}
-
-	}
-}
-
-func removeFileIfExists(filePath string) error {
-	if _, err := os.Stat(filePath); err == nil {
-		if err := os.Remove(filePath); err != nil {
-			return err
-		}
-		fmt.Println("File deleted successfully.")
-	}
-	return nil
-}
-
-func RemoveTool(javaCmd string, cmdLineArgs []string) {
-	err := ExecuteBallerinaCommand(javaCmd, cmdLineArgs)
-	if err == nil {
-		filepath := filepath.Join("cmd", os.Args[3]+".go")
-		fmt.Print(filepath)
-		_ = removeFileIfExists(filepath)
-	}
 }
