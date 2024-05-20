@@ -96,7 +96,7 @@ public class CloneValueCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static boolean isStructuredType(TypeSymbol typeSymbol) {
         return switch (typeSymbol.typeKind()) {
-            case RECORD, MAP, ARRAY, TABLE, TUPLE, JSON, ANYDATA -> true;
+            case RECORD, MAP, ARRAY, TABLE, TUPLE, JSON, ANYDATA, UNION -> true;
             case TYPE_REFERENCE -> isStructuredType(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor());
             default -> false;
         };

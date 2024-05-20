@@ -17,6 +17,6 @@ isolated stream<int, error?> evenStream = new (object {
 
 function fn1() returns stream<int, error?> {
     lock {
-	    return evenStream;
+        return evenStream;
     }
 }
