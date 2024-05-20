@@ -65,6 +65,11 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
             SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
             TypeSymbol typeSymbol = semanticModel.typeOf(node).orElseThrow();
             Location location = typeSymbol.getLocation().orElseThrow();
+
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                return Collections.emptyList();
+            }
+
             List<TextEdit> textEdits = CodeActionUtil.getReadonlyTextEdits(location.lineRange(),
                     typeSymbol.typeKind() == TypeDescKind.UNION,
                     node.kind() == SyntaxKind.INDEXED_EXPRESSION && typeSymbol.typeKind() != TypeDescKind.ARRAY);

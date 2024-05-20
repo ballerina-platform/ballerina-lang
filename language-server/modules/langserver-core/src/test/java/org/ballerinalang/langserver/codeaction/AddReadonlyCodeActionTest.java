@@ -69,6 +69,21 @@ public class AddReadonlyCodeActionTest extends AbstractCodeActionTest {
     }
 
     @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"add_readonly_negative_config1.json"},
+                {"add_readonly_negative_config2.json"},
+                {"add_readonly_negative_config3.json"}
+        };
+    }
+
+    @Override
     public String getResourceDir() {
         return "add-readonly";
     }
