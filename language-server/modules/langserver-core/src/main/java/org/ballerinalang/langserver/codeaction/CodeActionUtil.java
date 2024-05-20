@@ -859,22 +859,29 @@ public class CodeActionUtil {
                         qualifiers.toString().strip().equals("readonly"));
     }
 
-    public static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean isUnion) {
-        LinePosition startLinePosition = lineRange.startLine();
-        LinePosition endLinePosition = lineRange.endLine();
+    public static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean encloseType, boolean encloseFull) {
         List<TextEdit> textEdits = new ArrayList<>();
+        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
+        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
 
-        if (isUnion) {
-            Position startPosition = PositionUtil.toPosition(startLinePosition);
-            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition),
-                    SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+        StringBuilder startText = new StringBuilder();
+        StringBuilder endText = new StringBuilder();
+        if (encloseType) {
+            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
+        }
+        endText.append(" & ").append(SyntaxKind.READONLY_KEYWORD.stringValue());
+        if (encloseFull) {
+            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
+        }
+
+        if (startText.length() > 0) {
+            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition), startText.toString());
             textEdits.add(startTextEdit);
         }
 
-        Position endPosition = PositionUtil.toPosition(endLinePosition);
-        String editText = (isUnion ? SyntaxKind.CLOSE_PAREN_TOKEN.stringValue() : "") + " & " +
-                SyntaxKind.READONLY_KEYWORD.stringValue();
-        TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), editText);
+        TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), endText.toString());
         textEdits.add(endTextEdit);
 
         return textEdits;
