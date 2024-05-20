@@ -26,5 +26,5 @@ package org.wso2.ballerinalang.compiler.bir.model;
  * @param parent parent scope
  * @since 2.0.0
  */
-public record BirScope(int id, org.wso2.ballerinalang.compiler.bir.model.BirScope parent) {
+public record BirScope(int id, BirScope parent) {
 }
