@@ -859,34 +859,6 @@ public class CodeActionUtil {
                         qualifiers.toString().strip().equals("readonly"));
     }
 
-    public static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean encloseType, boolean encloseFull) {
-        List<TextEdit> textEdits = new ArrayList<>();
-        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
-        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
-
-        StringBuilder startText = new StringBuilder();
-        StringBuilder endText = new StringBuilder();
-        if (encloseType) {
-            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
-            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
-        }
-        endText.append(" & ").append(SyntaxKind.READONLY_KEYWORD.stringValue());
-        if (encloseFull) {
-            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
-            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
-        }
-
-        if (startText.length() > 0) {
-            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition), startText.toString());
-            textEdits.add(startTextEdit);
-        }
-
-        TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), endText.toString());
-        textEdits.add(endTextEdit);
-
-        return textEdits;
-    }
-
     /**
      * Get the filter function used for filter diagnostic property values.
      *

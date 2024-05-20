@@ -25,17 +25,22 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,7 +75,7 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
                 return Collections.emptyList();
             }
 
-            List<TextEdit> textEdits = CodeActionUtil.getReadonlyTextEdits(location.lineRange(),
+            List<TextEdit> textEdits = getReadonlyTextEdits(location.lineRange(),
                     typeSymbol.typeKind() == TypeDescKind.UNION,
                     node.kind() == SyntaxKind.INDEXED_EXPRESSION && typeSymbol.typeKind() != TypeDescKind.ARRAY);
             return Collections.singletonList(CodeActionUtil.createCodeAction(
@@ -81,6 +86,34 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
         } catch (RuntimeException e) {
             return Collections.emptyList();
         }
+    }
+
+    private static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean encloseType, boolean encloseFull) {
+        List<TextEdit> textEdits = new ArrayList<>();
+        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
+        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
+
+        StringBuilder startText = new StringBuilder();
+        StringBuilder endText = new StringBuilder();
+        if (encloseType) {
+            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
+        }
+        endText.append(" & ").append(SyntaxKind.READONLY_KEYWORD.stringValue());
+        if (encloseFull) {
+            startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+            endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
+        }
+
+        if (startText.length() > 0) {
+            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition), startText.toString());
+            textEdits.add(startTextEdit);
+        }
+
+        TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), endText.toString());
+        textEdits.add(endTextEdit);
+
+        return textEdits;
     }
 
     @Override
