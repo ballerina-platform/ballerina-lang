@@ -34,7 +34,7 @@ dependencies {
     dependency 'commons-io:commons-io:2.7'
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 

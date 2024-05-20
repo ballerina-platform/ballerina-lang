@@ -49,7 +49,7 @@ dependencies {
     testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
 }

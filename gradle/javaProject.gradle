@@ -118,7 +118,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
@@ -128,7 +128,7 @@ checkstyle {
 }
 
 def excludePattern = '**/module-info.java'
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
     exclude excludePattern
 }
 
@@ -175,7 +175,7 @@ jacocoTestReport {
     }
 }
 
-task createJavadoc(type: Javadoc) {
+tasks.register('createJavadoc', Javadoc) {
     source = sourceSets.main.java
     classpath = sourceSets.main.compileClasspath
     failOnError false //Temporary disabled to avoid build failure
@@ -186,7 +186,7 @@ check {
     dependsOn createJavadoc
 }
 
-task jacocoMergeExec(type: JacocoReport) {
+tasks.register('jacocoMergeExec', JacocoReport) {
     getExecutionData().setFrom(fileTree("$buildDir/jacoco/").matching {
         include "**.exec"
     } as FileCollection)

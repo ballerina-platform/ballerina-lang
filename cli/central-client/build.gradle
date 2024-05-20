@@ -45,13 +45,13 @@ dependencies {
     testImplementation 'org.awaitility:awaitility'
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task createBirCache {
+tasks.register('createBirCache') {
     dependsOn configurations.bir
 
     doLast {

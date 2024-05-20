@@ -39,7 +39,7 @@ configurations.testCompileClasspath {
     }
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",

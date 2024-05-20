@@ -88,7 +88,7 @@ dependencies {
 description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
-task pathingJar(type: Jar) {
+tasks.register('pathingJar', Jar) {
     archiveAppendix = "pathing"
     doFirst {
         manifest {
@@ -99,15 +99,16 @@ task pathingJar(type: Jar) {
     }
 }
 
-task clearPathingJar(type: Delete) {
+tasks.register('clearPathingJar', Delete) {
     delete pathingJar.archiveFile
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 
-task testJar(type: Jar, dependsOn: testClasses) {
+tasks.register('testJar', Jar) {
+    dependsOn testClasses
     archiveBaseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output
 }
@@ -124,12 +125,12 @@ createJavadoc {
     exclude "**"
 }
 
-task deleteGeneratedModules(type:Delete) {
+tasks.register('deleteGeneratedModules', Delete) {
     delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
 }
 
 // This is need for the run via ls (fast-run) feature to be tested.
-task copyRuntime() {
+tasks.register('copyRuntime') {
     dependsOn configurations.dist
     doFirst {
         configurations.dist.each { artifact ->
@@ -154,7 +155,7 @@ test {
     }
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into project(':jballerina-tools').projectDir.absolutePath +

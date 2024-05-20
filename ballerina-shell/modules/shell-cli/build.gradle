@@ -51,13 +51,13 @@ test {
 }
 
 def mainCliClass = 'io.ballerina.shell.cli.ReplShellApplication'
-task run(type: JavaExec) {
+tasks.register('run', JavaExec) {
     main = mainCliClass
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest { attributes 'Main-Class': mainCliClass }
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }

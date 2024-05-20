@@ -52,12 +52,12 @@ CopySpec copyJarSpec = copySpec {
     into("lib")
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
     with copyJarSpec
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +

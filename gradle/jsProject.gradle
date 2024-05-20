@@ -19,7 +19,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 apply plugin: 'base'
 
-task npmInstall() {
+tasks.register('npmInstall') {
     dependsOn 'updateVersion'
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
@@ -35,7 +35,7 @@ task npmInstall() {
     }
 }
 
-task npmBuild() {
+tasks.register('npmBuild') {
     dependsOn npmInstall
 }
 
@@ -44,7 +44,7 @@ assemble {
 }
 
 
-task updateVersion(type: Exec) {
+tasks.register('updateVersion', Exec) {
     inputs.file("package.json")
     outputs.file("package.json")
     doFirst {

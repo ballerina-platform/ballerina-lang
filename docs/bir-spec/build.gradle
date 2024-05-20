@@ -56,7 +56,7 @@ kaitai {
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'
 checkstyleMain.exclude '**/kaitai/**'
 
-task genBirSpec(type: JavaExec) {
+tasks.register('genBirSpec', JavaExec) {
     dependsOn classes
     classpath += sourceSets.main.runtimeClasspath
     main = 'org.ballerinalang.birspec.BIRSpecGenerator'

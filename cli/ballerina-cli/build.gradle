@@ -89,23 +89,23 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task copyCompilerPluginJars(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
 }
 
-task copyProfilerResources(type: Copy) {
+tasks.register('copyProfilerResources', Copy) {
     from project(':jballerina-tools').file('resources/profiler')
     into "$buildDir/resources/profiler"
 }
 
-task createTestBre(type: Copy) {
+tasks.register('createTestBre', Copy) {
     from configurations.balRt
     from configurations.testRt
     from configurations.testCore
