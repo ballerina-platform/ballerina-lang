@@ -1790,8 +1790,7 @@ public class LargeMethodOptimizer {
                     new BIROperand(instructionList.get(possibleSplit.lastIns).lhsOp.variableDcl);
             BIRFunction newBIRFunc = createNewBIRFuncForSplitInBB(newFuncName,
                     instructionList.get(possibleSplit.lastIns),
-                    instructionList.subList(possibleSplit.firstIns,
-                            possibleSplit.lastIns),
+                    instructionList.subList(possibleSplit.firstIns, possibleSplit.lastIns),
                     possibleSplit.lhsVars, possibleSplit.funcArgs, fromAttachedFunction);
             newlyAddedFunctions.add(newBIRFunc);
             if (possibleSplit.splitFurther) {

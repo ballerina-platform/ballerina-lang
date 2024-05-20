@@ -343,8 +343,7 @@ public class JvmCodeGenUtil {
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
         }
-        className = prefix + className;
-        return getPackageNameWithSeparator(packageID, separator) + className;
+        return getPackageNameWithSeparator(packageID, separator) + prefix + className;
     }
 
 

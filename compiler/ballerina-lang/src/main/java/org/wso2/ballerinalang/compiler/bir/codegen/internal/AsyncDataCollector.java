@@ -64,6 +64,8 @@ public class AsyncDataCollector {
             lambdaIndex = 0;
         }
         String lambdaName;
+        // We need to differentiate FP value and Async call for debugger purpose, hence using  different names for
+        // generated lambdas.
         if (isAsync) {
             lambdaName = encodedFuncName + LAMBDA_PREFIX + lambdaIndex++ + "$";
         } else {
