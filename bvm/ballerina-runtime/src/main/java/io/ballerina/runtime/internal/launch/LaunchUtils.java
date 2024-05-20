@@ -95,10 +95,8 @@ public class LaunchUtils {
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
-
         VariableKey[] currKeys = configurationData.get(m);
         VariableKey[] mergedKeyArray;
-
         if (currKeys == null) {
             mergedKeyArray = variableKeys;
         } else {
@@ -106,7 +104,6 @@ public class LaunchUtils {
             System.arraycopy(currKeys, 0, mergedKeyArray, 0, currKeys.length);
             System.arraycopy(variableKeys, 0, mergedKeyArray, currKeys.length, variableKeys.length);
         }
-
         configurationData.put(m, mergedKeyArray);
     }
 
