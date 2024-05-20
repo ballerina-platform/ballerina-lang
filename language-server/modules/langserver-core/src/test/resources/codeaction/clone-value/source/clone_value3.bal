@@ -33,3 +33,9 @@ function fn4() returns map<string> {
         return rec3.field2.value.mp;
     }
 }
+
+function fn5() returns Rec {
+    lock {
+        return rec2;
+    }
+}
