@@ -38,7 +38,6 @@ import io.ballerina.types.subtypedata.Range;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -71,39 +70,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 (Bdd) t);
     }
 
-    // Way `listInhabited` method works is essentially removing negative atoms one by one until either we run-out of
-    // negative atoms or there is nothing left in the positive (intersection) atom. While correctness of this method is
-    // independent of other order of negative atoms, the performance of this method is dependent on the order. For
-    // example consider positive atom is int[] and we have negative atoms int[1], int[2], int[3], any[]. If we start
-    // with any[] we immediately know it is not inhabited whereas in any other order we have to evaluate until we come
-    // to any[] to figure this out. We say any[] is larger than others since it covers more values than them.
-    // Evaluating such larger atoms before smaller ones improve our odds of stopping early.
-    private static Conjunction reorderNegAtoms(Context cx, Conjunction neg) {
-        List<TwoTuple<Integer, Atom>> atomsInChain = new ArrayList<>();
-        Conjunction current = neg;
-        while (current != null) {
-            Atom atom = current.atom;
-            ListAtomicType listAtom = cx.listAtomType(atom);
-            SemType restType = cellInnerVal(listAtom.rest());
-            int size;
-            if (!Core.isNever(restType)) {
-                size = Integer.MAX_VALUE;
-            } else {
-                size = listAtom.members().fixedLength();
-            }
-            atomsInChain.add(TwoTuple.from(size, atom));
-            current = current.next;
-        }
-        atomsInChain.sort(Comparator.comparingInt(a -> a.item1));
-        Conjunction result = null;
-        for (var each : atomsInChain) {
-            result = Conjunction.and(each.item2, result);
-        }
-        return result;
-    }
-
     private static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        neg = reorderNegAtoms(cx, neg);
         FixedLengthArray members;
         CellSemType rest;
         if (pos == null) {
@@ -275,6 +242,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // `nRequired` is the number of members of `memberTypes` that are required by P.
     // `neg` represents N.
     static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired, Conjunction neg) {
+        // TODO: Way `listInhabited` method works is essentially removing negative atoms one by one until either we
+        //  run-out of negative atoms or there is nothing left in the positive (intersection) atom. While correctness
+        //  of this method is independent of the order of negative atoms, the performance of this method is dependent
+        //  on the order. For example consider positive atom is int[] and we have negative atoms int[1], int[2],
+        //  int[3], any[]. If we start with any[] we immediately know it is not inhabited whereas in any other order we
+        //  have to evaluate until we come to any[] to figure this out. We say any[] is larger than others since it
+        //  covers more values than them. According to Frisch section 7.3.1 we should use this size as an heuristic to
+        //  sort negative atoms. However it is not clear to me how to estimate the size correctly
         if (neg == null) {
             return true;
         } else {
