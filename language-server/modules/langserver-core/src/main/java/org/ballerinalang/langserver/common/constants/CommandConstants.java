@@ -124,6 +124,8 @@ public class CommandConstants {
 
     public static final String MAKE_VARIABLE_IMMUTABLE = "Add %s to the variable";
 
+    public static final String ADD_READONLY = "Add readonly to '%s'";
+
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
     public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
