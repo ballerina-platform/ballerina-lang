@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -88,13 +87,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_
  */
 public class LambdaGen {
 
-    private final SymbolTable symbolTable;
     private final JvmPackageGen jvmPackageGen;
     private final JvmCastGen jvmCastGen;
 
     public LambdaGen(JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen) {
         this.jvmPackageGen = jvmPackageGen;
-        this.symbolTable = jvmPackageGen.symbolTable;
         this.jvmCastGen = jvmCastGen;
     }
 
@@ -117,7 +114,7 @@ public class LambdaGen {
         String methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
                 isWorker);
         if (lambdaDetails.functionWrapper != null) {
-            jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName;
+            jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName();
         } else {
             String balFileName = lambdaDetails.funcSymbol.source;
 
@@ -141,23 +138,19 @@ public class LambdaGen {
     }
 
     private void handleLambdaVirtual(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
-                                                                          lambdaDetails.packageID.name.getValue());
         List<BIROperand> paramTypes = ins.args;
-        genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes,
-                                            isBuiltinModule);
+        genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes
+        );
         int paramIndex = 1;
         for (int paramTypeIndex = 1; paramTypeIndex < paramTypes.size(); paramTypeIndex++) {
             generateObjectArgs(mv, paramIndex);
             paramIndex += 1;
         }
-        String methodDesc = BOBJECT_CALL;
-        mv.visitMethodInsn(INVOKEINTERFACE , B_OBJECT, "call", methodDesc, true);
+        mv.visitMethodInsn(INVOKEINTERFACE , B_OBJECT, "call", BOBJECT_CALL, true);
     }
 
     private void genLoadDataForObjectAttachedLambdas(BIRTerminator.AsyncCall ins, MethodVisitor mv,
-                                                     int closureMapsCount, List<BIROperand> paramTypes,
-                                                     boolean isBuiltinModule) {
+                                                     int closureMapsCount, List<BIROperand> paramTypes) {
 
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
@@ -186,9 +179,7 @@ public class LambdaGen {
     }
 
     private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
-                                                                          lambdaDetails.packageID.name.getValue());
-        List<BType> paramTypes = getFpParamTypes(lambdaDetails);
+       List<BType> paramTypes = getFpParamTypes(lambdaDetails);
         // load and cast param values= asyncIns.args;
         int argIndex = 1;
         for (BType paramType : paramTypes) {
@@ -202,18 +193,11 @@ public class LambdaGen {
         genNonVirtual(lambdaDetails, mv, paramBTypes, false);
     }
 
-    private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
-        mv.visitVarInsn(ALOAD, arrayIndex);
-        mv.visitIntInsn(BIPUSH, paramIndex);
-        mv.visitInsn(AALOAD);
-        jvmCastGen.addUnboxInsn(mv, symbolTable.booleanType);
-    }
-
     private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
         List<BType> paramTypes;
         if (lambdaDetails.functionWrapper != null) {
-            paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func.type.paramTypes,
-                                              lambdaDetails.functionWrapper.func.argsCount);
+            paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func().type.paramTypes,
+                                              lambdaDetails.functionWrapper.func().argsCount);
         } else {
             BInvokableType type = (BInvokableType) lambdaDetails.funcSymbol.type;
             if (type.restType == null) {
@@ -384,33 +368,32 @@ public class LambdaGen {
         PackageID packageID;
 
         switch (kind) {
-            case CALL:
+            case CALL -> {
                 BIRTerminator.Call call = (BIRTerminator.Call) callIns;
                 if (call.isVirtual) {
                     return false;
                 }
                 methodName = call.name.value;
                 packageID = call.calleePkg;
-                break;
-            case ASYNC_CALL:
+            }
+            case ASYNC_CALL -> {
                 BIRTerminator.AsyncCall asyncCall = (BIRTerminator.AsyncCall) callIns;
                 methodName = asyncCall.name.value;
                 packageID = asyncCall.calleePkg;
-                break;
-            case FP_LOAD:
+            }
+            case FP_LOAD -> {
                 BIRNonTerminator.FPLoad fpLoad = (BIRNonTerminator.FPLoad) callIns;
                 methodName = fpLoad.funcName.value;
                 packageID = fpLoad.pkgId;
-                break;
-            default:
-                throw new BLangCompilerException("JVM static function call generation is not supported for " +
-                                                         "instruction " + callIns);
+            }
+            default -> throw new BLangCompilerException("JVM static function call generation is not supported for " +
+                    "instruction " + callIns);
         }
 
         String key = JvmCodeGenUtil.getPackageName(packageID) + methodName;
 
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
-        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func);
+        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func());
     }
 
     private void populateLambdaReturnType(BIRInstruction ins, LambdaDetails lambdaDetails) {

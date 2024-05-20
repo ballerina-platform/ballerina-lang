@@ -29,10 +29,10 @@ import java.util.Map;
  */
 public class AsyncDataCollector {
 
-    private Map<String, BIRInstruction> lambdas;
-    private Map<String, ScheduleFunctionInfo> strandMetaDataMap;
+    private final Map<String, BIRInstruction> lambdas;
+    private final Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private int lambdaIndex = 0;
-    private String enclosingClass;
+    private final String enclosingClass;
 
     public AsyncDataCollector(String enclosingClass) {
 

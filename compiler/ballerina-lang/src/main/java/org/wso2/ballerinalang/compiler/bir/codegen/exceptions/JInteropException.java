@@ -15,38 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.exceptions;
+
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 /**
- * This enum is used to indicate whether the given Java method is a static method or an instance or a constructor.
+ * This error indicates Ballerina Java interoperability related error.
  *
  * @since 1.2.0
  */
-enum JMethodKind {
-    METHOD("method"),
-    CONSTRUCTOR("constructor");
+public class JInteropException extends RuntimeException {
 
-    private String strValue;
+    private final DiagnosticCode code;
 
-    JMethodKind(String strValue) {
+    public JInteropException(DiagnosticCode code, String message) {
 
-        this.strValue = strValue;
+        super(message);
+        this.code = code;
     }
 
-    static JMethodKind getKind(String value) {
+    public JInteropException(DiagnosticCode code, String message, Throwable cause) {
 
-        switch (value) {
-            case "method":
-                return METHOD;
-            case "constructor":
-                return CONSTRUCTOR;
-            default:
-                throw new IllegalStateException("Unknown Java method modifier '" + value + "'");
-        }
+        super(message, cause);
+        this.code = code;
     }
 
-    String getStringValue() {
+    public DiagnosticCode getCode() {
 
-        return this.strValue;
+        return this.code;
     }
 }

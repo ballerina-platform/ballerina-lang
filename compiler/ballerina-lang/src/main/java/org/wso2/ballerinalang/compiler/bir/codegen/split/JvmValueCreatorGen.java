@@ -92,11 +92,11 @@ public class JvmValueCreatorGen {
             }
         }
         ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
-        jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, moduleInitClass, jarEntries,
+        jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, jarEntries,
                 recordTypeDefList);
         jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, moduleInitClass, jarEntries,
                 objectTypeDefList, symbolTable);
-        jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, moduleInitClass, jarEntries, errorTypeDefList,
+        jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, jarEntries, errorTypeDefList,
                 symbolTable);
         jvmFunctionCallsCreatorsGen.generateFunctionCallsClass(jvmPackageGen, module, jarEntries, jvmCastGen,
                 sortedFunctions);

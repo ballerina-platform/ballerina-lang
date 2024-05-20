@@ -42,15 +42,11 @@ public class FunctionParamComparator implements Comparator<BIRNode.BIRVariableDc
 
     private int getWeight(BIRNode.BIRVariableDcl variableDcl) {
 
-        switch (variableDcl.kind) {
-            case RETURN:
-                return 1;
-            case ARG:
-                return 2;
-            case TEMP:
-                return 3;
-            default:
-                return 4;
-        }
+        return switch (variableDcl.kind) {
+            case RETURN -> 1;
+            case ARG -> 2;
+            case TEMP -> 3;
+            default -> 4;
+        };
     }
 }

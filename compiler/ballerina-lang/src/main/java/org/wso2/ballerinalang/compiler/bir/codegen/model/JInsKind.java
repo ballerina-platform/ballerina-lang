@@ -15,33 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
-
-import io.ballerina.tools.diagnostics.DiagnosticCode;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * This error indicates Ballerina Java interoperability related error.
+ * An enum to model the JInstruction kind.
  *
  * @since 1.2.0
  */
-public class JInteropException extends RuntimeException {
-
-    private DiagnosticCode code;
-
-    JInteropException(DiagnosticCode code, String message) {
-
-        super(message);
-        this.code = code;
-    }
-
-    JInteropException(DiagnosticCode code, String message, Throwable cause) {
-
-        super(message, cause);
-        this.code = code;
-    }
-
-    public DiagnosticCode getCode() {
-
-        return this.code;
-    }
+public enum JInsKind {
+    J_CAST(),
+    CALL(),
+    LARGE_ARRAY(),
+    LARGE_MAP()
 }

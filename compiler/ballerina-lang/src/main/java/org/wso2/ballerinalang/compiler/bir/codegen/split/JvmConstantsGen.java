@@ -119,23 +119,14 @@ public class JvmConstantsGen {
         tupleTypeConstantsGen.generateGetBTupleType(mv, varName);
     }
 
-    public void generateGetBTypeRefType(MethodVisitor mv, String varName) {
-        refTypeConstantsGen.generateGetBTypeRefType(mv, varName);
-    }
-
     public String getTypeConstantsVar(BType type, SymbolTable symbolTable) {
-        switch (type.tag) {
-            case TypeTags.ERROR:
-                return errorTypeConstantsGen.add((BErrorType) type);
-            case TypeTags.ARRAY:
-                return arrayTypeConstantsGen.add((BArrayType) type);
-            case TypeTags.TUPLE:
-                return tupleTypeConstantsGen.add((BTupleType) type, symbolTable);
-            case TypeTags.TYPEREFDESC:
-                return refTypeConstantsGen.add((BTypeReferenceType) type);
-            default:
-                return unionTypeConstantsGen.add((BUnionType) type, symbolTable);
-        }
+        return switch (type.tag) {
+            case TypeTags.ERROR -> errorTypeConstantsGen.add((BErrorType) type);
+            case TypeTags.ARRAY -> arrayTypeConstantsGen.add((BArrayType) type);
+            case TypeTags.TUPLE -> tupleTypeConstantsGen.add((BTupleType) type, symbolTable);
+            case TypeTags.TYPEREFDESC -> refTypeConstantsGen.add((BTypeReferenceType) type);
+            default -> unionTypeConstantsGen.add((BUnionType) type, symbolTable);
+        };
     }
 
     public String getStringConstantsClass() {
