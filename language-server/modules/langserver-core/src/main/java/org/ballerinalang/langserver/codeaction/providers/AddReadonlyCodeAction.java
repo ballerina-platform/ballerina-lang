@@ -64,10 +64,10 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
             NonTerminalNode node = positionDetails.matchedNode();
             SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
             TypeSymbol typeSymbol = semanticModel.typeOf(node).orElseThrow();
-            boolean withParams =
-                    node.kind() == SyntaxKind.INDEXED_EXPRESSION && typeSymbol.typeKind() != TypeDescKind.ARRAY;
             Location location = typeSymbol.getLocation().orElseThrow();
-            List<TextEdit> textEdits = CodeActionUtil.getReadonlyTextEdits(location.lineRange(), withParams);
+            List<TextEdit> textEdits = CodeActionUtil.getReadonlyTextEdits(location.lineRange(),
+                    typeSymbol.typeKind() == TypeDescKind.UNION,
+                    node.kind() == SyntaxKind.INDEXED_EXPRESSION && typeSymbol.typeKind() != TypeDescKind.ARRAY);
             return Collections.singletonList(CodeActionUtil.createCodeAction(
                     String.format(CommandConstants.ADD_READONLY, typeSymbol.signature()),
                     textEdits,
