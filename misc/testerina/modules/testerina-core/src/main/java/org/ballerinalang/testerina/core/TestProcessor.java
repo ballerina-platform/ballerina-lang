@@ -104,7 +104,7 @@ public class TestProcessor {
      * Generate and return the testsuite for module tests.
      *
      * @param module  Module
-     * @return Optional<TestSuite>
+     * @return {@link Optional Optional&lt;TestSuite&gt;}
      */
     public Optional<TestSuite> testSuite(Module module) {
         if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT

@@ -62,3 +62,10 @@ compileJava {
         classpath = files()
     }
 }
+
+createJavadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}

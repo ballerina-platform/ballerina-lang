@@ -73,8 +73,8 @@ public class ModuleCoverage {
      * Update coverage information for a given source file.
      *
      * @param document     Document
-     * @param coveredLines List<Integer>
-     * @param missedLines  List<Integer>
+     * @param coveredLines {@link List List&lt;Integer&gt;}
+     * @param missedLines  {@link List List&lt;Integer&gt;}
      * @param updatedMissedLineCount  int
      */
     public void updateCoverage(Document document, List<Integer> coveredLines,
@@ -98,8 +98,8 @@ public class ModuleCoverage {
      * Replace coverage information for a given source file.
      *
      * @param document     Document
-     * @param coveredLines List<Integer>
-     * @param missedLines  List<Integer>
+     * @param coveredLines {@link List List&lt;Integer&gt;}
+     * @param missedLines  {@link List List&lt;Integer&gt;}
      */
     public void replaceCoverage(Document document, List<Integer> coveredLines,
                                List<Integer> missedLines) {

@@ -79,6 +79,13 @@ compileJava {
     }
 }
 
+createJavadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'

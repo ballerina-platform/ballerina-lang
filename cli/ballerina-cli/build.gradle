@@ -144,6 +144,13 @@ compileJava {
     }
 }
 
+createJavadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
 
 tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
 tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')

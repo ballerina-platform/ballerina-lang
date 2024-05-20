@@ -51,4 +51,11 @@ compileJava {
     }
 }
 
+createJavadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
 ext.moduleName = 'io.ballerina.shell'

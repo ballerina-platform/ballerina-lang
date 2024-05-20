@@ -56,14 +56,15 @@ import java.util.stream.Stream;
 
 /**
  * Package Repository stored in file system.
- * The structure of the repository is as bellow
+ * The structure of the repository is as below
+ * <pre>
  * - bala
  *     - org
  *         - package-name
  *             - version
  *                 - platform (contains extracted bala)
  *
- * - cache[-<distShortVersion>]
+ * - cache[-&lt;distShortVersion&gt;]
  *     - org
  *         - package-name
  *             - version
@@ -72,7 +73,7 @@ import java.util.stream.Stream;
  *                     - mod2.bir
  *                 - jar
  *                     - org-package-name-version.jar
- *
+ * </pre>
  * @since 2.0.0
  */
 public class FileSystemRepository extends AbstractPackageRepository {

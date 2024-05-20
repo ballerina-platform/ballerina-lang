@@ -178,8 +178,6 @@ jacocoTestReport {
 tasks.register('createJavadoc', Javadoc) {
     source = sourceSets.main.java
     classpath = sourceSets.main.compileClasspath
-    failOnError false //Temporary disabled to avoid build failure
-    options.addStringOption('Xwerror', '-quiet')
 }
 
 check {
