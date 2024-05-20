@@ -859,6 +859,27 @@ public class CodeActionUtil {
                         qualifiers.toString().strip().equals("readonly"));
     }
 
+    public static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean isUnion) {
+        LinePosition startLinePosition = lineRange.startLine();
+        LinePosition endLinePosition = lineRange.endLine();
+        List<TextEdit> textEdits = new ArrayList<>();
+
+        if (isUnion) {
+            Position startPosition = PositionUtil.toPosition(startLinePosition);
+            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition),
+                    SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
+            textEdits.add(startTextEdit);
+        }
+
+        Position endPosition = PositionUtil.toPosition(endLinePosition);
+        String editText = (isUnion ? SyntaxKind.CLOSE_PAREN_TOKEN.stringValue() : "") + " & " +
+                SyntaxKind.READONLY_KEYWORD.stringValue();
+        TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), editText);
+        textEdits.add(endTextEdit);
+
+        return textEdits;
+    }
+
     /**
      * Get the filter function used for filter diagnostic property values.
      *
