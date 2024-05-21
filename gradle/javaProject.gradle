@@ -178,6 +178,7 @@ jacocoTestReport {
 tasks.register('createJavadoc', Javadoc) {
     source = sourceSets.main.java
     classpath = sourceSets.main.compileClasspath
+    options.addBooleanOption("Xdoclint:all,-missing", true)
 }
 
 check {
