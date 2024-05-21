@@ -1,30 +1,56 @@
 [base_command]
 name = "shell"
 short = "Run Ballerina interactive REPL"
-long = "This command runs the Ballerina interactive Read-Eval-Print Loop (REPL) environment."
 
 [help]
-    [help.base]
+[help.base]
+examples = """ Run the Ballerina Shell.
+           $ bal shell
+
+       Run the Ballerina Shell in the debug mode.
+           $ bal shell -d
+
+       Run the Ballerina Shell with a one second time out.
+           $ bal shell -t 1000
+
+       Run the Ballerina Shell by loading the initial declarations from the
+       `main.bal` file.
+           $ bal shell -f main.bal"""
+long = """Run a REPL instance of Ballerina to enable users to execute small
+       snippets of code.
+
+       Note: This is an experimental feature, which supports only a limited
+       set of functionality.
+
+       Debug messages can be enabled using the '-d' option."""
+synopsis = "bal shell [OPTIONS]"
 
 [[base_command.flag]]
+default_val = false
 name = "debug"
 shorthand = "d"
-default_val = false
 usage = "Enable debug mode from the beginning."
+short = "add a meaningfull short message about flag"
 
 [[base_command.flag]]
-name = "force-dumb"
 default_val = false
+name = "force-dumb"
 usage = "Force the dumb terminal mode."
+short = "add a meaningfull short message about flag"
 
 [[base_command.flag]]
+default_val = ""
 name = "file"
+param = "file-name"
 shorthand = "f"
-default_val = ""
 usage = "Open a file and load the initial declarations."
+short = "add a meaningfull short message about flag"
 
 [[base_command.flag]]
-name = "time-out"
-shorthand = "t"
 default_val = ""
-usage = "Set the tree parsing timeout value."
+name = "time-out"
+param = "time-out-duration"
+shorthand = "t"
+usage = """Set the tree parsing timeout value. Default is 100ms. Value should be
+           given in milliseconds."""
+short = "add a meaningfull short message about flag"

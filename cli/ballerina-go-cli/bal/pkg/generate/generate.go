@@ -235,7 +235,8 @@ func getRepositoryType(toolData ToolData) string {
 }
 
 func getJasonPath(currentUser *user.User, repocitoryType string, toolData ToolData) string {
-	jasonPath := filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
+	repoPath := filepath.Join(currentUser.HomeDir, ".ballerina", "repositories", repocitoryType)
+	jasonPath := filepath.Join(repoPath, "bala", toolData.Org, toolData.Name, toolData.Version, "java17", "tool", "bal-tool.json")
 	return jasonPath
 }
 

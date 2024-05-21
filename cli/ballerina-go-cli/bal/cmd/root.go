@@ -38,7 +38,12 @@ var RootCmd = &cobra.Command{
 	Use:   "bal",
 	Short: "The build system and package manager of Ballerina",
 	Run: func(cmd *cobra.Command, args []string) {
-		_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+		version, _ := cmd.Flags().GetBool("version")
+		if version {
+			_ = utils.ExecuteBallerinaCommand(javaCmdPass, cmdLineArgsPass)
+		} else {
+			cmd.Help()
+		}
 	},
 }
 
@@ -56,11 +61,14 @@ func init() {
 	toolList := generate.GetTools(javaCmdPass, cmdLineArgsPass, RootCmd)
 	Tools := templates.CommandGroup{Message: "Tool Commands", Commands: generate.GetCommandsList(toolList, RootCmd)}
 	ToolsPass = Tools.Commands
-
+	coreCommands := []*cobra.Command{buildCmd(), runCmd(), testCmd(), docCmd(), packCmd()}
+	packageCommands := []*cobra.Command{newCmd(), addCmd(), pullCmd(), pushCmd(), searchCmd(), semverCmd(), graphCmd(), deprecateCmd()}
+	otherCommands := []*cobra.Command{cleanCmd(), formatCmd(), grpcCmd(), graphqlCmd(), openapiCmd(), asyncapiCmd()}
+	otherCommands = append(otherCommands, []*cobra.Command{persistCmd(), bindgenCmd(), shellCmd(), toolCmd(), versionCmd(), profileCmd()}...)
 	commandGroups = templates.CommandGroups{
-		{Message: "Core Commands", Commands: []*cobra.Command{buildCmd(), runCmd(), testCmd(), docCmd(), packCmd()}},
-		{Message: "Package Commands", Commands: []*cobra.Command{newCmd(), addCmd(), pullCmd(), pushCmd(), searchCmd(), semverCmd(), graphCmd(), deprecateCmd()}},
-		{Message: "Other Commands", Commands: []*cobra.Command{cleanCmd(), formatCmd(), grpcCmd(), graphqlCmd(), openapiCmd(), asyncapiCmd(), persistCmd(), persistCmd(), bindgenCmd(), shellCmd(), toolCmd(), versionCmd(), profileCmd()}},
+		{Message: "Core Commands", Commands: coreCommands},
+		{Message: "Package Commands", Commands: packageCommands},
+		{Message: "Other Commands", Commands: otherCommands},
 		Tools,
 	}
 

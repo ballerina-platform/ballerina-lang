@@ -1,27 +1,46 @@
 [base_command]
 name = "grpc"
 short = "Generate Ballerina sources for the given Protocol Buffer definition"
-long = "This command generates Ballerina sources for the specified Protocol Buffer (.proto) definition."
 
 [help]
-    [help.base]
+[help.base]
+long = """Generate the Ballerina gRPC client/service sources for a given
+       gRPC protocol buffer (Protobuf) definition."""
+synopsis = """bal grpc --input <proto-file-path> [--output <path>]
+                        [--mode mode]
+                        [--proto-path <path>]"""
 
 [[base_command.flag]]
+default_val = ""
 name = "input"
-default_val = ""
-usage = "Path to a '.proto' file or a directory containing multiple '.proto' files."
+param = "path"
+short = "add a meaningfull short message about flag"
+usage = """Path to a '.proto' file or a directory containing multiple '.proto'
+           files."""
 
 [[base_command.flag]]
+default_val = ""
 name = "output"
-default_val = ""
-usage = "Location of the generated Ballerina source files."
+param = "path"
+short = "add a meaningfull short message about flag"
+usage = """Location of the generated Ballerina source files.
+           If the output path is not specified, the output will be written to a
+           directory corresponding to the package in the protocol buffer
+           definition. If a package is not specified, the output will be written
+           to a 'temp' directory in the current location."""
 
 [[base_command.flag]]
+default_val = ""
 name = "proto-path"
-default_val = ""
-usage = "Path to a directory in which to look for '.proto' files when resolving import directives."
+param = "path"
+short = "add a meaningfull short message about flag"
+usage = """Path to a directory in which to look for '.proto' files when
+            resolving import directives."""
 
 [[base_command.flag]]
-name = "mode"
 default_val = false
-usage = "Set the 'client' or 'service' mode to generate sample code."
+name = "mode"
+param = "mode"
+short = "add a meaningfull short message about flag"
+usage = """Set the 'client' or 'service' mode to generate sample code.
+        If not specified, only the stub file is generated."""

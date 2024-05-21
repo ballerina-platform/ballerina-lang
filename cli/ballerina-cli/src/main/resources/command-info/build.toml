@@ -3,10 +3,8 @@ name = "build"
 short = "short description of build"
 
 [help]
-    [help.base]
-    long = "long description of build"
-    synopsis="bal build [OPTIONS] [<package>|<source-file>]"
-    examples="""
+[help.base]
+examples = """
 	Build the current package. This will generate an 'app.jar' file in the
        'target/bin' directory.
            $ bal build
@@ -21,56 +19,91 @@ short = "short description of build"
        Build the package with additional GraalVM native image options.
            $ bal build --graalvm --graalvm-build-options="--static -H:Name=hello-world"
 	"""
+long = "long description of build"
+synopsis = "bal build [OPTIONS] [<package>|<source-file>]"
 [[base_command.flag]]
+default_val = ""
 name = "output"
+param = "output"
+short = "add a meaningfull short message about flag"
 shorthand = "o"
-default_val = ""
-usage = "Write the output to the given file."
-param="output"
+usage = """Write the output to the given file. These options will only work
+           for the single '.bal' file scenario."""
 
 [[base_command.flag]]
+default_val = false
 name = "offline"
-default_val = false
-usage = "Run in offline mode"
+short = "add a meaningfull short message about flag"
+usage = """Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches, will fail
+           otherwise."""
 
 [[base_command.flag]]
+default_val = false
 name = "observability-included"
-default_val = false
-usage = "Run with including observability"
+short = "add a meaningfull short message about flag"
+usage = "Include the dependencies that are required to enable observability."
 
 [[base_command.flag]]
+default_val = false
 name = "sticky"
-default_val = false
-usage = "Run with including sticky"
+short = "add a meaningfull short message about flag"
+usage = """Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored."""
 
 [[base_command.flag]]
+default_val = ""
 name = "target-dir"
-default_val = ""
-usage = "Specify the target directory"
-param="target-dir"
+param = "path"
+short = "add a meaningfull short message about flag"
+usage = "Target directory path."
 
 [[base_command.flag]]
+default_val = false
 name = "export-openapi"
-default_val = false
-usage = "Export OpenAPI specification"
+short = "add a meaningfull short message about flag"
+usage = """Generate OpenAPI definitions for service declarations in the current
+           package."""
 
 [[base_command.flag]]
+default_val = false
 name = "list-conflicted-classes"
-default_val = false
-usage = "List conflicted classes"
+short = "add a meaningfull short message about flag"
+usage = "List the conflicting classes of conflicting JARs in the package."
 
 [[base_command.flag]]
+default_val = false
 name = "graalvm"
-default_val = false
-usage = "Use GraalVM"
+short = "add a meaningfull short message about flag"
+usage = """Generate a GraalVM native image. Native image generation is an
+           experimental feature which supports only a limited set of
+           functionality."""
 
 [[base_command.flag]]
+default_val = ""
 name = "graalvm-build-options"
-default_val = ""
-usage = "Specify GraalVM build options"
+short = "add a meaningfull short message about flag"
+usage = "Additional build options to be passed to the GraalVM native image."
 
 [[base_command.flag]]
-name = "cloud"
 default_val = ""
-usage = "Specify the cloud provider"
-param="provider"
+name = "cloud"
+param = "provider"
+short = "add a meaningfull short message about flag"
+usage = """Generate cloud artifacts: '--cloud=k8s' for Kubernetes
+           and '--cloud=docker' for Docker."""
+
+[[base_command.flag]]
+default_val = false
+name = "remote-management"
+short = "add a meaningfull short message about flag"
+usage = """Include the dependencies that are required to enable remote package
+           management service."""
+
+[[base_command.flag]]
+default_val = "false"
+name = "show-dependency-diagnostics"
+short = "add a meaningfull short message about flag"
+usage = """Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console."""

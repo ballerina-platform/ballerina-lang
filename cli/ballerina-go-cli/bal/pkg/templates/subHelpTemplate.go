@@ -34,16 +34,18 @@ DESCRIPTION:
 
 OPTIONS:
 	{{.Options}}
-{{- if .Commands}}
 
+{{- if .Commands}}
 SUBCOMMANDS:
 {{range .Commands}}
        {{.Name}}        {{.Short}}
 {{end}}
 {{end -}}
 
+{{- if .Examples}}
 EXAMPLES:
 	{{.Examples}}
+{{end}}
 
 {{if .Commands}}Use 'bal {{.BName}} <subcommand> --help' for more information on a specific tool subcommand.{{end}}
 `

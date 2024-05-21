@@ -25,6 +25,7 @@ type FlagConfig struct {
 	Shorthend  string
 	DefaultVal interface{}
 	Param      string
+	Short      string
 }
 
 const templateContent = `
@@ -41,8 +42,8 @@ import (
 var {{.Name}}cmd *cobra.Command
 func {{.Name}}Cmd() *cobra.Command{
 	cmd := &cobra.Command{
-	Use:     "{{.Name}}",
-	Short:   "{{.Short}}",
+	Use: "{{.Name}}",
+	Short: ` + "`{{.Short}}`," + `
 	Long:   "",
 	Example: "",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -111,13 +112,13 @@ func generateSubCommands(subcommands []interface{}, config CommandConfig) (strin
 	var {{.Name}}cmd *cobra.Command
 	func {{.Name}}Cmd() *cobra.Command {
 		cmd := &cobra.Command{
-		Use:   "{{.Use}}",
-		Short: "{{.Short}}",
-		Long:  "",
-		Example:"",
-		Run: func(cmd *cobra.Command, args []string) {
-			{{.Function}}
-		},
+			Use:   "{{.Use}}",
+			Short: ` + "`{{.Short}}`," + `
+			Long:  "",
+			Example: "",
+			Run: func(cmd *cobra.Command, args []string) {
+				{{.Function}}
+			},
 	}
 		{{.SubFlagLines}}
 		viper.SetConfigName("{{.Base}}")
@@ -197,7 +198,7 @@ func generateFlagLines(flags []interface{}, generateFlagLine func(FlagConfig, st
 		if m, ok := table.(map[string]interface{}); ok {
 			subflag := FlagConfig{
 				Name:       cast.ToString(m["name"]),
-				Usage:      cast.ToString(m["usage"]),
+				Usage:      cast.ToString(m["short"]),
 				DefaultVal: m["default_val"],
 				Shorthend:  cast.ToString(m["shorthand"]),
 			}
@@ -205,7 +206,6 @@ func generateFlagLines(flags []interface{}, generateFlagLine func(FlagConfig, st
 			flagLines += flagline + "\n"
 		}
 	}
-
 	return flagLines
 }
 
@@ -262,6 +262,7 @@ func GeneratingCLICommands(path string, name string, commandPath string) {
 		log.Fatalf("Error executing template: %s", err)
 	}
 	output := commandData.String() //format the content of the document
+	fmt.Println(output)
 	formattedContent, err := format.Source([]byte(output))
 	if err != nil {
 		log.Fatalf("Error formatting Go code: %s", err)

@@ -124,7 +124,7 @@ func GetJavaSettings(ballerinaHome string) (javaHome, javaCmd string) {
 			javaCmd = javaExePath
 		}
 	}
-	//Set javaHome to installed java version in the user's device
+	// Set javaHome to installed java version in the user's device
 	switch OS {
 	case "darwin":
 		javaVersion := os.Getenv("JAVA_VERSION")
@@ -190,8 +190,9 @@ func GetBalScriptDir() string {
 	return scriptPathDir
 }
 
+var ballerinaVersion string
+
 func Setup() ([]string, string) {
-	ballerinaVersion := "@VERSION@"
 	scriptPathDir := GetBalScriptDir()
 	ballerinaHome, _ := filepath.Abs(filepath.Join(scriptPathDir, ".."))
 	javaHome, javaCmd := GetJavaSettings(ballerinaHome)
@@ -205,8 +206,8 @@ func Setup() ([]string, string) {
 
 	javaOpts := GetJavaOpts()
 	ballerinaClasspath := SetBallerinaClassPath(ballerinaHome, javaHome)
-	//BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
-	//classpath locations, e.g. AWS Lambda function libraries.
+	// BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
+	// classpath locations, e.g. AWS Lambda function libraries.
 	ballerinaClasspathExt := os.Getenv("BALLERINA_CLASSPATH_EXT")
 	if ballerinaClasspathExt != "" {
 		ballerinaClasspath = ballerinaClasspath + string(filepath.ListSeparator) + ballerinaClasspathExt

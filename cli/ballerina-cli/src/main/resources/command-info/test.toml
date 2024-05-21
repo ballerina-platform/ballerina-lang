@@ -1,87 +1,213 @@
 [base_command]
 name = "test"
-short = "A brief description of your command"
-long = "This command is used for testing purposes."
+short = "Run package tests"
 
 [help]
-    [help.base]
+[help.base]
+examples = """Run all the test functions in the current package.
+           $ bal test
+
+       Run all test cases using the GraalVM native image.
+           $ bal test --graalvm
+
+       List all the test groups in the current package.
+           $ bal test --list-groups
+
+       Run only the set of test functions belonging to the `group_x` in the
+       current package.
+           $ bal test --groups group_x
+
+       Run only the given set of test functions in the current package.
+           $ bal test --tests testFunction
+
+       Run only the given set of test functions in the default module.
+           $ bal test --tests PackageName:testName1,testName2*
+
+       Run all the test functions in the given module.
+           $ bal test --tests PackageName.ModuleName:*
+
+       Run only the previously-failed test functions in the current package.
+           $ bal test --rerun-failed
+
+       Run the tests in a standalone Ballerina file. The file path can be
+       relative or absolute.
+           $ bal test main_test.bal
+
+       Run a standalone test file using the GraalVM native image.
+           $ bal test --graalvm main_test.bal
+
+       Run the tests and generate a test report.
+           $ bal test --test-report
+
+       Run the tests with the code coverage.
+           $ bal test --code-coverage
+
+       Run the test functions with the code coverage and generate a test report
+       with test statuses and code coverage information.
+           $ bal test --test-report --code-coverage
+
+       Run the test functions with the code coverage and generate a coverage
+       report in the XML format.
+           $ bal test --test-report --code-coverage --coverage-format=xml
+
+       Run the tests with the code coverage with files excluded from coverage
+       calculation.
+           $ bal test --code-coverage --excludes=<source_path1>,<source_path2>
+
+       Run the tests with the code coverage with directories excludes from coverage
+       calculation with '**' and '*'.
+           $ bal test --code-coverage --excludes=<source_path1/**>,<source_path2/*>
+
+       Run the test functions with values provided for configurable variables:
+           $ bal test -Cval1=add -Cval2=10 -Cval3=5
+
+       Test the package with additional GraalVM native image options.
+           $ bal test --graalvm --graalvm-build-options="--static -H:Name=hello-world"
+"""
+long = """Compiles and executes test functions and prints a summary of
+       the test results.
+
+       Test runs the test functions defined in each module of a package when
+       building the current package. It runs the test functions defined in the
+       given source file when building a single '.bal' file.
+
+       Note: Testing individual '.bal' files of a package is not allowed."""
+synopsis = "bal test [OPTIONS] [<package>|<source-file>] [(-Ckey=value)...]"
 
 [[base_command.flag]]
-name = "code-coverage"
 default_val = false
-usage = "Generate code coverage in tests."
+name = "code-coverage"
+short = "add a meaningfull short message about flag"
+usage = """Enable code coverage. This will analyze the line coverage of the
+           source `.bal` files in the Ballerina package and add a section
+           to the test report with the code coverage details. This feature is
+           not supported with standalone Ballerina file executions."""
 
 [[base_command.flag]]
+default_val = ""
 name = "coverage-format"
-default_val = ""
-usage = "Generate a coverage report in the specified format."
+short = "add a meaningfull short message about flag"
+usage = """Generate a coverage report in the specified format. Only
+           'xml' format is supported."""
 
 [[base_command.flag]]
-name = "debug"
 default_val = 0
-usage = "Run in remote debugging mode."
+name = "debug"
+param = "port"
+short = "add a meaningfull short message about flag"
+usage = "Run in the remote debugging mode."
 
 [[base_command.flag]]
-name = "disable-groups"
 default_val = ""
+name = "disable-groups"
+param = "test_group, ..."
+short = "add a meaningfull short message about flag"
 usage = "Specify the test groups to be excluded."
 
 [[base_command.flag]]
-name = "groups"
 default_val = ""
+name = "groups"
+param = "test_group, ..."
+short = "add a meaningfull short message about flag"
 usage = "Specify the test groups to be executed."
 
 [[base_command.flag]]
-name = "list-groups"
 default_val = false
+name = "list-groups"
+short = "add a meaningfull short message about flag"
 usage = "List the test groups available in the test files."
 
 [[base_command.flag]]
-name = "offline"
 default_val = false
+name = "offline"
+short = "add a meaningfull short message about flag"
 usage = "Proceed without accessing the network."
 
 [[base_command.flag]]
-name = "observability-included"
 default_val = false
+name = "observability-included"
+short = "add a meaningfull short message about flag"
 usage = "Include dependencies required to enable observability."
 
 [[base_command.flag]]
+default_val = false
 name = "sticky"
-default_val = false
-usage = "Attempt to stick to the dependency versions available in the 'Dependencies.toml' file."
+short = "add a meaningfull short message about flag"
+usage = """Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored."""
 
 [[base_command.flag]]
+default_val = false
 name = "rerun-failed"
-default_val = false
-usage = "Rerun failed tests."
+short = "add a meaningfull short message about flag"
+usage = """Execute only the test cases in the packages that failed in the
+           previous run."""
 
 [[base_command.flag]]
-name = "target-dir"
 default_val = ""
+name = "target-dir"
+short = "add a meaningfull short message about flag"
 usage = "Specify the target directory."
 
 [[base_command.flag]]
-name = "test-report"
 default_val = false
+name = "test-report"
+short = "add a meaningfull short message about flag"
 usage = "Generate an HTML report containing the test results."
 
 [[base_command.flag]]
-name = "tests"
 default_val = ""
-usage = "Specify the test functions to be executed."
+name = "tests"
+param = "FullyQualifiedModuleName>:<test_function_name, ..."
+short = "add a meaningfull short message about flag"
+usage = """Specify the test functions to be executed only from the given
+           module. The fully qualified module name for the default module is
+           <PackageName>.
+           For other modules, it is <PackageName>.<ModuleDirectoryName>.
+           Wildcards can be used to specify the set of functions to be executed."""
 
 [[base_command.flag]]
-name = "graalvm"
 default_val = false
+name = "graalvm"
+short = "add a meaningfull short message about flag"
 usage = "Execute test cases using GraalVM native image."
 
 [[base_command.flag]]
-name = "graalvm-build-options"
 default_val = ""
-usage = "Additional build options passed to GraalVM native image."
+name = "graalvm-build-options"
+short = "add a meaningfull short message about flag"
+usage = "Additional build options to be passed to the GraalVM native image."
 
 [[base_command.flag]]
-name = "excludes"
 default_val = ""
-usage = "Exclude specific Ballerina source files or folders from code coverage calculation."
+name = "excludes"
+short = "add a meaningfull short message about flag"
+usage = """Exclude a specific Ballerina source files or folders from code coverage
+            calculation by providing a comma-separated list of file paths. Path can be relative
+            to the package directory or absolute. Use the '*' character to match all source files
+            within a single directory level, without traversing into sub-directories.
+            Use the '**' character to extend the traversal to the sub-directories.
+            For the complete list of supported patterns,
+            see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage."""
+
+[[base_command.flag]]
+default_val = true
+name = "parallel"
+short = "add a meaningfull short message about flag"
+usage = """Enable parallel execution of tests. A test should satisfy the following conditions to be
+            executed in parallel:
+                - Test function should be isolated.
+                - If it is a data provider test,
+                    - The data provider of a test function should be isolated.
+                    - Test function parameters should be read-only type.
+                - Respective set-up, and tear-down functions (before, after, before-each, after-each, before-groups,
+                  after-groups) of the test function should be isolated.
+            Parallel test execution is an experimental feature which supports only a limited set of functionality."""
+
+[[base_command.flag]]
+default_val = "false"
+name = "show-dependency-diagnostics"
+short = "add a meaningfull short message about flag"
+usage = """Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console."""

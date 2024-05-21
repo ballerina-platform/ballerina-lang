@@ -1,19 +1,38 @@
 [base_command]
 name = "semver"
 short = "Validate SemVer compliance of the package changes"
-long = "This command allows you to validate SemVer compliance of the package changes."
 
 [help]
-    [help.base]
+[help.base]
+examples = """Provide SemVer compatibility information for the current package
+       w.r.t. the latest compatible release version available in Ballerina Central.
+           $ bal semver
+
+       Provide SemVer compatibility information for a package from a different directory.
+           $ bal semver <package-path>"""
+long = """Compare the local changes in the package with any previously released package
+       version available in Ballerina Central.
+
+       Provide suggestions for the next version based on the source code compatibility
+       between the local changes and any specified previous release version.
+
+       Note: This feature is experimental and has limited support for some advanced
+       language constructs."""
+synopsis = "bal semver [OPTIONS] [<package-path>]"
 
 [[base_command.flag]]
-name = "show-diff"
-shorthand = "d"
 default_val = false
-usage = "Display the detailed information of source code differences between the compared package versions"
+name = "show-diff"
+short = "add a meaningfull short message about flag"
+shorthand = "d"
+usage = """Display the detailed information of source code differences between
+           the compared package versions"""
 
 [[base_command.flag]]
-name = "compare-version"
-shorthand = "c"
 default_val = ""
-usage = "Analyze SemVer compliance of the local changes against the specified release version"
+name = "compare-version"
+param = "version"
+short = "add a meaningfull short message about flag"
+shorthand = "c"
+usage = """Analyze SemVer compliance of the local changes against the specified
+           release version."""

@@ -1,12 +1,24 @@
 [base_command]
 name = "clean"
 short = "Remove the artifacts created during the build"
-long = "Remove the artifacts created during the build process using the clean command."
 
 [help]
-    [help.base]
+[help.base]
+examples = """Clean the default target directory of the current package.
+           $ bal clean
+
+       Clean the provided target directory.
+           $ bal clean <target-directory-path>"""
+long = """Remove the 'target' directory created during the build. This will delete
+       all files and directories in the target directory.
+
+       The default target directory that will be cleaned is the
+       '<package-root>/target'. You may also provide a custom target to be
+       cleaned."""
+synopsis = "bal clean [OPTIONS]"
 
 [[base_command.flag]]
-name = "target-dir"
 default_val = ""
-usage = "Target directory path"
+name = "target-dir"
+usage = "Target directory path."
+short = "add a meaningfull short message about flag"

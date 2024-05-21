@@ -1,13 +1,35 @@
 [base_command]
 name = "format"
 short = "Format the Ballerina source files"
-long = "This command formats the Ballerina source files in the project."
 
 [help]
-    [help.base]
+[help.base]
+examples = """Format the current package.
+           $ bal format
+
+       Format the module 'core' in the current package.
+           $ bal format core
+
+       Format a Ballerina file.
+           $ bal format app.bal
+
+       Perform a dry run to see which files will be formatted.
+           $ bal format -d """
+long = """Formats the Ballerina source files. Formatting can be performed on a
+       Ballerina package, module, or source file.
+
+       The formatted content will be written to the original files. By using the
+       `dry run` option, you will be able to check which files will be formatted
+       after the execution.
+
+       If the Ballerina sources contain syntax errors, they will be notified and
+       formatting will not be proceeded until they are fixed."""
+synopsis = "bal format [OPTIONS] [<package>|<module>|<source-file>]"
 
 [[base_command.flag]]
-name = "dry-run"
-shorthand = "d"
 default_val = false
-usage = "Perform a dry run of the formatter and see which files will be formatted after the execution"
+name = "dry-run"
+short = "add a meaningfull short message about flag"
+shorthand = "d"
+usage = """Perform a dry run of the formatter and see which files
+will be formatted after the execution."""

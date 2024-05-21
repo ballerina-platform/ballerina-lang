@@ -47,8 +47,7 @@ task updateGoScript {
         def goScriptFile = file("$rootDir/cli/ballerina-go-cli/bal/pkg/utils/utils.go")
         def goScriptContent = goScriptFile.text
         def version = project.version
-        def updatedGoScriptContent = goScriptContent.replace('@VERSION@', version)
-        updatedGoScriptContent = updatedGoScriptContent.replace('@JDK_VERSION@', project.jdkversion)
+        def updatedGoScriptContent = goScriptContent.replace('@JDK_VERSION@', project.jdkversion)
         updatedGoScriptContent = updatedGoScriptContent.replace('@XMS_VAL@', project.xmsValue)
         updatedGoScriptContent = updatedGoScriptContent.replace('@XMX_VAL@', project.xmxValue)
         def updatedExecutablesDir = file("$rootDir/cli/ballerina-go-cli/build/bal/pkg/utils")
@@ -72,33 +71,32 @@ tasks.register('go_build') {
 
 tasks.register('go_darwin_amd64_build', Exec) {
     group 'go'
-    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Archtecture'
-    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64','CGO_ENABLED=0','go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Architecture'
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64', 'CGO_ENABLED=0', 'go', 'build', '-ldflags', "-X main.ballerinaVersion=${project.version}", '-o', "$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
 }
+
 tasks.register('go_linux_amd64_build', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Architecture'
-    // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build','-o',"$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64', 'CGO_ENABLED=0', 'go', 'build', '-ldflags', "-X main.ballerinaVersion=${project.version}", '-o', "$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
 }
+
 tasks.register('go_darwin_arm64_build', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
-    // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64','CGO_ENABLED=0','go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64', 'CGO_ENABLED=0', 'go', 'build', '-ldflags', "-X main.ballerinaVersion=${project.version}", '-o', "$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
 }
 
 tasks.register('go_windows_build_arm64', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
-    // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build','-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64', 'CGO_ENABLED=0', 'go', 'build', '-ldflags', "-X main.ballerinaVersion=${project.version}", '-o', "$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
 }
 
 tasks.register('go_build_default', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. according to current code running architecture'
-    commandLine 'env', 'CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
+    commandLine 'env', 'CGO_ENABLED=0', 'go', 'build', '-ldflags', "-X main.ballerinaVersion=${project.version}", '-o', "$rootDir/distribution/zip/jballerina/bin/bal", "$rootDir/cli/ballerina-go-cli/build/bal/main.go"
 }
 
 task runGoExecutable(type: Exec) {

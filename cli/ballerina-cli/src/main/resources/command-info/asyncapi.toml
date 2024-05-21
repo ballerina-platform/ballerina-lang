@@ -1,24 +1,43 @@
 [base_command]
 name = "asyncapi"
-short = "short description of build"
+short = "Generate a Ballerina listener from an AsyncAPI contract."
 
 [help]
 [help.base]
-long = "long description of asyncapi"
-examples="""
+examples = """
   # Generate Ballerina source code from the given AsyncAPI contract.
   $ asyncapi -i /path/to/asyncapi.yaml -o /path/to/output
 """
-synopsis = "Generate Ballerina source code from the given AsyncAPI contract."
+long = """Generate a Ballerina source from the given AsyncAPI definition file.
+       This will generate the four Ballerina files below.
+        1. `data_types.bal` - Contains all the data types of the listener
+        2. `service_types.bal` - Contains all the service types relevant to the
+            generated listener
+        3. `listener.bal` - Contains the HTTP listener, which listens to the
+            relevant third-party service
+        4. `dispacther_service.bal` - Contains the event dispatching logic
+
+       The generated Ballerina sources will be written into the provided output
+       location."""
+synopsis = """bal asyncapi [-i | --input] <asyncapi-contract-file-path> [-o | --output]
+       <output-location>"""
 
 [[base_command.flag]]
+default_val = ""
 name = "input"
+param = "asyncapi-contract-file-path"
+short = "add a meaningfull short message about flag"
 shorthand = "i"
-default_val = ""
-usage = "This is a mandatory input. The listener will be generated according to the given AsyncAPI contract."
+usage = """This is a mandatory input. The listener will be generated according
+            to the given AsyncAPI contract.
+            This generated listener can be used as a code template to start the
+            listener implementation."""
 
 [[base_command.flag]]
-name = "output"
-shorthand = "o"
 default_val = ""
-usage = "Location of the generated Ballerina source code."
+name = "output"
+short = "add a meaningfull short message about flag"
+shorthand = "o"
+usage = """Location of the generated Ballerina source code. If this path is not
+        specified, the output will be written to the same directory from
+        which the command is run."""
