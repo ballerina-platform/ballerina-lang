@@ -5813,14 +5813,14 @@ public class Desugar extends BLangNodeVisitor {
         internalOnFail.pos = pos;
         internalOnFail.body = ASTBuilderUtil.createBlockStmt(pos);
         internalOnFail.body.scope = new Scope(env.scope.owner);
+        internalOnFail.isInternal = true;
 
-        BVarSymbol caughtErrorSym = new BVarSymbol(0, names.fromString("$caughtError$"),
-                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
+        BVarSymbol caughtErrorSym = new BVarSymbol(0,
+                Names.fromString("$caughtError$" + UNDERSCORE + retryBlockCount++), env.scope.owner.pkgID,
+                symTable.errorType, env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable caughtError = ASTBuilderUtil.createVariable(pos,
-                "$caughtError$", symTable.errorType, null, caughtErrorSym);
-        internalOnFail.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos,
-                caughtError);
-        env.scope.define(caughtErrorSym.name, caughtErrorSym);
+                caughtErrorSym.name.value, symTable.errorType, null, caughtErrorSym);
+        internalOnFail.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, caughtError);
         BLangSimpleVarRef caughtErrorRef = ASTBuilderUtil.createVariableRef(pos, caughtErrorSym);
 
         // $retryResult$ = $caughtError$;
