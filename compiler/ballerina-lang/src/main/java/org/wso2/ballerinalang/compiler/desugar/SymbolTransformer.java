@@ -404,7 +404,7 @@ public class SymbolTransformer extends SimpleBLangNodeAnalyzer<SymbolTransformer
         for (BLangSimpleVariable param : functionTypeNode.params) {
             analyzeNode(param, data);
         }
-        analyzeNode(functionTypeNode.restParam.typeNode, data);
+        analyzeNode(functionTypeNode.restParam, data);
         analyzeNode(functionTypeNode.returnTypeNode, data);
     }
 

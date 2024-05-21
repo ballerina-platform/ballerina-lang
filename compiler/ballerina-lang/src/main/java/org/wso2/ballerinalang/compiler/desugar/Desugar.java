@@ -380,6 +380,7 @@ public class Desugar extends BLangNodeVisitor {
     private final SymbolEnter symbolEnter;
     private ClosureDesugar closureDesugar;
     private ClosureGenerator closureGenerator;
+    private SymbolTransformer symbolTransformer;
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
@@ -416,6 +417,7 @@ public class Desugar extends BLangNodeVisitor {
     private int letCount = 0;
     private int varargCount = 0;
     private int funcParamCount = 1;
+    private int retryBlockCount = 0;
     private boolean isVisitingQuery;
     private boolean desugarToReturn;
 
@@ -457,6 +459,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
         this.closureGenerator = ClosureGenerator.getInstance(context);
+        this.symbolTransformer = SymbolTransformer.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
@@ -5293,8 +5296,6 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK;
                 }
-            } else {
-                rewrite(onFailClause, env);
             }
         }
     }
@@ -5302,10 +5303,9 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFail createOnFailInvocation(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailBody.stmts.addAll(onFailClause.body.stmts);
-        env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
 
-        handleOnFailErrorVarDefNode(onFailClause.variableDefinitionNode, onFailBody, fail);
+        handleOnFailErrorVarDefNode(onFailClause, onFailClause.variableDefinitionNode, onFailBody, fail);
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5324,17 +5324,30 @@ public class Desugar extends BLangNodeVisitor {
         return fail;
     }
 
-    private void handleOnFailErrorVarDefNode(VariableDefinitionNode onFailVarDefNode, BLangBlockStmt onFailBody,
-                                             BLangFail fail) {
+    private void handleOnFailErrorVarDefNode(BLangOnFailClause onFailClause, VariableDefinitionNode onFailVarDefNode,
+                                             BLangBlockStmt onFailBody, BLangFail fail) {
         if (onFailVarDefNode == null) {
             return;
         }
 
-        BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
-        onFailBody.stmts.add(0,
-                             variableNode.getKind() == NodeKind.ERROR_VARIABLE ?
-                                     handleErrorBPInOnFail((BLangErrorVariable) variableNode, fail) :
-                                     handleCaptureBPInOnFail((BLangSimpleVariable) variableNode, fail));
+        BLangVariable variableNode = getVariableNode(onFailClause, onFailVarDefNode, onFailBody);
+
+        onFailBody.stmts.add(0, variableNode.getKind() == NodeKind.ERROR_VARIABLE ?
+                                                    handleErrorBPInOnFail((BLangErrorVariable) variableNode, fail) :
+                                                    handleCaptureBPInOnFail((BLangSimpleVariable) variableNode, fail));
+    }
+
+    private BLangVariable getVariableNode(BLangOnFailClause onFailClause, VariableDefinitionNode onFailVarDefNode,
+                                          BLangBlockStmt onFailBody) {
+        if (onFailClause.isInternal) {
+            return (BLangVariable) onFailVarDefNode.getVariable();
+        }
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailBody, env);
+        BLangVariable clonedVariable = (BLangVariable) nodeCloner.cloneNode(onFailVarDefNode.getVariable());
+        symbolEnter.defineNode(clonedVariable, blockEnv);
+        onFailClause.variableDefinitionNode.setVariable(clonedVariable);
+        symbolTransformer.transformer(onFailBody, blockEnv);
+        return clonedVariable;
     }
 
     private BLangStatement handleErrorBPInOnFail(BLangErrorVariable varNode, BLangFail fail) {
@@ -5350,9 +5363,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
                 onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
                 onFailErrorVariableSymbol);
-        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-        return errorVarDef;
+        return ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
     }
 
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
@@ -5360,11 +5371,10 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailBody.stmts.addAll(onFailClause.body.stmts);
-        onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
 
-        handleOnFailErrorVarDefNode(onFailClause.variableDefinitionNode, onFailBody, fail);
+        handleOnFailErrorVarDefNode(onFailClause, onFailClause.variableDefinitionNode, onFailBody, fail);
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
