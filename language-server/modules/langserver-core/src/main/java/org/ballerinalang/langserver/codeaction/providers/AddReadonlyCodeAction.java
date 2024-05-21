@@ -89,12 +89,9 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
     }
 
     private static List<TextEdit> getReadonlyTextEdits(LineRange lineRange, boolean encloseType, boolean encloseFull) {
-        List<TextEdit> textEdits = new ArrayList<>();
-        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
-        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
-
         StringBuilder startText = new StringBuilder();
         StringBuilder endText = new StringBuilder();
+
         if (encloseType) {
             startText.append(SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
             endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
@@ -105,11 +102,14 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
             endText.append(SyntaxKind.CLOSE_PAREN_TOKEN.stringValue());
         }
 
+        List<TextEdit> textEdits = new ArrayList<>();
         if (startText.length() > 0) {
+            Position startPosition = PositionUtil.toPosition(lineRange.startLine());
             TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition), startText.toString());
             textEdits.add(startTextEdit);
         }
 
+        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
         TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), endText.toString());
         textEdits.add(endTextEdit);
 
