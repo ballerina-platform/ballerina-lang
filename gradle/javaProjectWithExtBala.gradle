@@ -42,7 +42,7 @@ compileJava {
                              "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
                              "-s", "$generatedSources"]
 
-    println 'Compiler args: ' + options.compilerArgs
+    //println 'Compiler args: ' + options.compilerArgs
     doFirst {
         generatedOutputDir.exists() || generatedOutputDir.mkdirs()
         options.compilerArgs = [
