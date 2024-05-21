@@ -187,7 +187,7 @@ class BallerinaPackageResolver {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
     }
 
     private Path resolveBalaPath(String org, String pkgName, String version) throws SemverToolException {

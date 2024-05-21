@@ -1,11 +1,27 @@
 type Main_Location record {
-    string main\:city;
-    string main\:state;
+    @xmldata:Namespace {
+        prefix: "main",
+        uri: "http://example.com/main"
+    }
+    string city;
+    @xmldata:Namespace {
+        prefix: "main",
+        uri: "http://example.com/main"
+    }
+    string state;
 };
 
 type Main_CompanyInfo record {
-    string main\:name;
-    Main_Location main\:location;
+    @xmldata:Namespace {
+        prefix: "main",
+        uri: "http://example.com/main"
+    }
+    string name;
+    @xmldata:Namespace {
+        prefix: "main",
+        uri: "http://example.com/main"
+    }
+    Main_Location location;
 };
 
 type Project record {
@@ -47,11 +63,13 @@ type Mixed record {
     uri: "http://example.com/root"
 }
 type Root_Root record {
-    Main_CompanyInfo main\:companyInfo;
+    @xmldata:Namespace {
+        prefix: "main",
+        uri: "http://example.com/main"
+    }
+    Main_CompanyInfo companyInfo;
     Employees employees;
     Mixed mixed;
     @xmldata:Attribute
     string version;
-    @xmldata:Attribute
-    string xmlns\:main = "http://example.com/main";
 };

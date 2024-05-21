@@ -1,0 +1,25 @@
+[indent]
+indentSize = "4"
+continuationIndentSize = true
+
+[wrapping]
+maxLineLength = 120
+simpleBlocksInOneLine = "true"
+simpleFunctionsInOneLine = "true"
+
+[braces]
+classBraceStyle = "NEWLINE"
+functionBraceStyle = "NEWLINE"
+
+[functionDefinition]
+parametersWrap = "CHOPDOWN"
+paramterExtend = true
+
+[functionCall]
+argumentsWrap = "WRAP"
+
+[elseStatement]
+elseOnNewLine = false
+
+[Spacing]
+afterTypeCast = true

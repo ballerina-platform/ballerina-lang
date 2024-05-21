@@ -2,3 +2,6 @@
 org= "testorg"
 name="runtime_mgt"
 version= "1.0.0"
+
+[build-options]
+remoteManagement=true

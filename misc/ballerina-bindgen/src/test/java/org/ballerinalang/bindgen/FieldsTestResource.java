@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractList;
@@ -125,6 +126,11 @@ public class FieldsTestResource implements InterfaceTestResource {
     @Override
     public int testMethod(int x) {
         return 0;
+    }
+
+    @Override
+    public String testMethodWithException(Object obj) throws IOException {
+        throw new IOException();
     }
 
     @Override
