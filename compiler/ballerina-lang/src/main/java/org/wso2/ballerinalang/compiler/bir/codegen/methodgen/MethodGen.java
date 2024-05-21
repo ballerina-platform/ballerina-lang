@@ -161,7 +161,6 @@ public class MethodGen {
     protected static final String FUNCTION_INVOCATION = "functionInvocation";
     private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
-    private static final String WD_CHANNEL_INDEX = "wdChannelIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
     private final Types types;
@@ -438,10 +437,6 @@ public class MethodGen {
         JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels), invocationVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "updateChannelDetails",
                 UPDATE_CHANNEL_DETAILS, false);
-        // Update wdChannelIndex of the strand.
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitVarInsn(ILOAD, invocationVarIndex);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, WD_CHANNEL_INDEX, "I");
     }
 
     private void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
