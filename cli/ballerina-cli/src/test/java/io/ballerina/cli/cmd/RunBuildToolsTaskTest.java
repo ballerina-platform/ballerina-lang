@@ -113,7 +113,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             }
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput(outputFileName));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput(outputFileName));
     }
 
     @Test(description = "Generate files using a project and find the generated file in project instance")
@@ -127,7 +127,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-tool-generate-file.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-generate-file.txt"));
         AtomicBoolean fileFound = new AtomicBoolean(false);
         project.currentPackage().modules().forEach(module -> {
             if (module.moduleName().toString().equals("winery.mod_generate")) {

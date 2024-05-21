@@ -114,7 +114,7 @@ public class BalToolsUtil {
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
-    private static final List<String> builtInToolCommands = Arrays.asList();
+    private static final List<String> builtInToolCommands = List.of();
 
     private static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
             Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
@@ -266,7 +266,7 @@ public class BalToolsUtil {
         if (oldTools.isEmpty()) {
             return;
         }
-        oldTools.values().stream().forEach(tool -> {
+        oldTools.values().forEach(tool -> {
             Path toolCachePath = balaCacheDirPath.resolve(Path.of(tool.org(), tool.name()));
             if (toolCachePath.toFile().isDirectory()) {
                 List<String> versions = Arrays.stream(toolCachePath.toFile().listFiles((dir, name) -> {
@@ -279,7 +279,7 @@ public class BalToolsUtil {
                 })).map(File::getName).collect(Collectors.toList());
 
                 Optional<String> latestVersion = getLatestVersion(versions);
-                versions.stream().forEach(version -> {
+                versions.forEach(version -> {
                     // If there is no current active version in balToolsManifest, we set the latest version in the
                     // central cache as active. This is because in U6, U7, the latest is automatically picked as active.
                     boolean isActive = balToolsManifest.getActiveTool(tool.id()).isEmpty()

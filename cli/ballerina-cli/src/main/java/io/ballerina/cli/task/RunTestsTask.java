@@ -95,11 +95,11 @@ public class RunTestsTask implements Task {
     private String disableGroupList;
     private boolean report;
     private boolean coverage;
-    private String coverageReportFormat;
-    private boolean isRerunTestExecution;
+    private final String coverageReportFormat;
+    private final boolean isRerunTestExecution;
     private String singleExecTests;
-    private Map<String, Module> coverageModules;
-    private boolean listGroups;
+    private final Map<String, Module> coverageModules;
+    private final boolean listGroups;
     private final List<String> cliArgs;
     private final boolean isParallelExecution;
     TestReport testReport;
@@ -324,7 +324,7 @@ public class RunTestsTask implements Task {
         }
 
         if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
-            if (!this.excludesInCoverage.equals("")) {
+            if (!this.excludesInCoverage.isEmpty()) {
                 List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
                         split(",")));
                 getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
@@ -336,7 +336,10 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
+        List<Path> paths;
+        try (var files = Files.walk(Paths.get(projectRootString), 3)) {
+            paths = files.toList();
+        }
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
@@ -456,7 +459,7 @@ public class RunTestsTask implements Task {
                 unMatchedPatterns.add(unModifiedSourcePattern);
                 continue;
             }
-            validSourceFileSet.removeAll(filteredPaths);
+            filteredPaths.forEach(validSourceFileSet::remove);
         }
         if (!unMatchedPatterns.isEmpty()) {
             out.println("WARNING: No matching sources found for " + String.join(", ", unMatchedPatterns));

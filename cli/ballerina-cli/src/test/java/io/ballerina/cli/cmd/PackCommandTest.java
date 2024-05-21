@@ -78,7 +78,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("compile-bal-project.txt"));
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
     }
@@ -93,7 +93,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-bal-project.txt"));
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
@@ -178,7 +178,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
                 .toFile().exists());
@@ -193,7 +193,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
         Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
@@ -214,7 +214,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
         Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
@@ -237,7 +237,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("pack-project-with-test-only-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
                 .toFile().exists());
@@ -252,7 +252,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("pack-project-with-test-only-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
                 .toFile().exists());
@@ -266,7 +266,7 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
                 getOutput("pack-project-with-build-tool.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
                 .toFile().exists());
@@ -281,7 +281,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-dependencies-toml.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
                 .toFile().exists());
@@ -301,7 +301,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
                 .toFile().exists());
@@ -322,7 +322,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
                 .resolve("wso2-emptyProjWithCompilerPlugin-java17-0.1.0.bala").toFile().exists());
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
     }
 
@@ -343,7 +343,7 @@ public class PackCommandTest extends BaseCommandTest {
             packCommand.execute();
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("pack-empty-project-with-build-tools.txt"));
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"), getOutput("pack-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Pack an empty package as a tool")
@@ -358,7 +358,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
                 .resolve("wso2-emptyProjWithTool-java17-0.1.0.bala").toFile().exists());
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-tool.txt"));
     }
 
@@ -431,7 +431,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("pack-bal-project-custom-dir.txt"));
         Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
@@ -452,7 +452,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("pack-bal-project-custom-dir.txt"));
         Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
@@ -489,7 +489,7 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("pack-empty-package-with-compiler-plugin.txt"));
     }
 
@@ -559,7 +559,7 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("pack-project-with-platform-libs.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs.txt"));
     }
 
     @AfterClass

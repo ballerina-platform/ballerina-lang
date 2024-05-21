@@ -63,8 +63,7 @@ public class ShellCommandTest extends BaseCommandTest {
         // Does not give the prompt
         Assert.assertFalse(baos.toString().endsWith("=$ "));
         // Exit because home dir err
-        Assert.assertEquals(readOutput().trim(), "" +
-                "something went wrong while executing REPL: " +
+        Assert.assertEquals(readOutput().replace("\\", "/").trim(), "something went wrong while executing REPL: " +
                 "io.ballerina.projects.ProjectException: Ballerina distribution directory does not exists in `" +
                 "not/existing/dir/abc'");
     }

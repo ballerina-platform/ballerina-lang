@@ -129,7 +129,7 @@ public class TestCommandTest extends BaseCommandTest {
         testCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
+        Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
     }
 
@@ -142,7 +142,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
+        Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("The file does not exist: " + validBalFilePath));
 
     }
@@ -170,7 +170,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-project.txt"));
     }
 
     @Test(description = "Build a valid ballerina project")
@@ -191,7 +191,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-project.txt"));
     }
 
     @Test(description = "Test a project with a build tool execution")
@@ -202,7 +202,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("test-project-with-build-tool.txt"));
     }
 
@@ -217,7 +217,7 @@ public class TestCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             File projectDir = new File(projectPath.toString());
-            FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
+            FileFilter fileFilter = WildcardFileFilter.builder().setWildcards("java_pid*.hprof").get();
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
         }
     }
@@ -326,7 +326,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(firstTestCommand).parseArgs();
         firstTestCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
@@ -344,7 +344,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(secondTestCommand).parseArgs("--sticky");
         secondTestCommand.execute();
         String secondBuildLog = readOutput(true);
-        Assert.assertEquals(secondBuildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
+        Assert.assertEquals(secondBuildLog.replace("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
@@ -365,7 +365,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-graph");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
@@ -389,7 +389,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-raw-graphs");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replace("\r", "").replace("\\", "/").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
@@ -431,11 +431,11 @@ public class TestCommandTest extends BaseCommandTest {
             testCommand.execute();
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-empty-project-with-build-tools.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Test the emission of testable fat jar for a project with tests")
-    public void testTestableFatJarEmission() throws IOException {
+    public void testTestableFatJarEmission() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
@@ -465,8 +465,7 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        List<String> pbArgs = new ArrayList<>();
-        pbArgs.addAll(TestUtils.getInitialCmdArgs(null, null));
+        List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
         pbArgs.add("-jar");
         pbArgs.add(testableJar.toString());
         pbArgs.addAll(mainArgs);
@@ -477,9 +476,7 @@ public class TestCommandTest extends BaseCommandTest {
         int exitCode = -1;
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                br.lines().forEach(line -> {
-                    output.append(line).append("\n");
-                });
+                br.lines().forEach(line -> output.append(line).append("\n"));
             }
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
@@ -506,9 +503,10 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(testableJar.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 1);
+        try (var testableJars = Files.list(testableJar.getParent())) {
+            Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
+                                    .map(Path::toFile).toList().size(), 1);
+        }
     }
 
     @Test(description = "Test the execution of testable fat jar for a project with tests and mocks",
@@ -525,8 +523,7 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        List<String> pbArgs = new ArrayList<>();
-        pbArgs.addAll(TestUtils.getInitialCmdArgs(null, null));
+        List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
         pbArgs.add("-jar");
         pbArgs.add(testableJar.toString());
         pbArgs.addAll(mainArgs);
@@ -537,9 +534,7 @@ public class TestCommandTest extends BaseCommandTest {
         int exitCode = -1;
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                br.lines().forEach(line -> {
-                    output.append(line).append("\n");
-                });
+                br.lines().forEach(line -> output.append(line).append("\n"));
             }
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
@@ -568,9 +563,10 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(testableJar.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 1);
+        try (var testableJars = Files.list(testableJar.getParent())) {
+            Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
+                                    .map(Path::toFile).toList().size(), 1);
+        }
     }
 
     @Test(description = "Test the emission of multiple testable fat jars for a project with mocks when " +
@@ -589,13 +585,15 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = targetDir.resolve("bin").resolve("tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(mainArgsFile.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
-        List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
-                "projectWithMocks.mod1-testable.jar");
-        for (File testableJar : testableJars) {
-            Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
+        try (var files = Files.list(mainArgsFile.getParent())) {
+            List<File> testableJars = files.filter(path -> path.toString().endsWith(".jar"))
+                            .map(Path::toFile).toList();
+            Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
+            List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
+                    "projectWithMocks.mod1-testable.jar");
+            for (File testableJar : testableJars) {
+                Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
+            }
         }
     }
 
@@ -612,41 +610,39 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        List<Path> testableJars = Files.list(mainArgsFile.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .toList();
-        for (Path testableJar : testableJars) {
-            List<String> pbArgs = new ArrayList<>();
-            pbArgs.addAll(TestUtils.getInitialCmdArgs(null, null));
-            pbArgs.add("-jar");
-            pbArgs.add(testableJar.toString());
-            pbArgs.addAll(mainArgs);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
-            Process process = processBuilder.start();
-            StringBuilder output = new StringBuilder();
-            int exitCode = -1;
-            try {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    br.lines().forEach(line -> {
-                        output.append(line).append("\n");
-                    });
+        try (var files = Files.list(mainArgsFile.getParent())) {
+            List<Path> testableJars = files.filter(path -> path.toString().endsWith(".jar")).toList();
+            for (Path testableJar : testableJars) {
+                List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
+                pbArgs.add("-jar");
+                pbArgs.add(testableJar.toString());
+                pbArgs.addAll(mainArgs);
+                
+                ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
+                Process process = processBuilder.start();
+                StringBuilder output = new StringBuilder();
+                int exitCode = -1;
+                try {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        br.lines().forEach(line -> output.append(line).append("\n"));
+                    }
+                    exitCode = process.waitFor();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-                exitCode = process.waitFor();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            Assert.assertEquals(exitCode, 0);
-            if (testableJar.getFileName().toString().equals("projectWithMocks-testable.jar")) {
-                Assert.assertTrue(output.toString().contains("[pass] testMockedIntAdd"));
-                Assert.assertTrue(output.toString().contains("[pass] testRealIntSub"));
-            } else {
-                Assert.assertTrue(output.toString().contains("[pass] testMockedIntSub"));
+                Assert.assertEquals(exitCode, 0);
+                if (testableJar.getFileName().toString().equals("projectWithMocks-testable.jar")) {
+                    Assert.assertTrue(output.toString().contains("[pass] testMockedIntAdd"));
+                    Assert.assertTrue(output.toString().contains("[pass] testRealIntSub"));
+                } else {
+                    Assert.assertTrue(output.toString().contains("[pass] testMockedIntSub"));
+                }
             }
         }
     }
 
     @Test(description = "Test the emission of testable fat jar for a single test bal file")
-    public void testEmissionOfTestableFatJarForSingleTestBalFile() throws IOException {
+    public void testEmissionOfTestableFatJarForSingleTestBalFile() {
         Path projectPath = this.testResources.resolve("validProjectWithTests")
                 .resolve("tests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
@@ -665,9 +661,9 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final StandardCopyOption copyOption;
 
         public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;

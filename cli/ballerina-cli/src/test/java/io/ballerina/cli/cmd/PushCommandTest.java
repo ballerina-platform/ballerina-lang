@@ -27,7 +27,6 @@ import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -80,17 +79,17 @@ public class PushCommandTest extends BaseCommandTest {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         String invalidPath = "tests";
-        new CommandLine(pushCommand).parse(invalidPath);
+        new CommandLine(pushCommand).parseArgs(invalidPath);
         pushCommand.execute();
 
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         String expected = "path provided for the bala file does not exist: " + invalidPath + ".";
         Assert.assertTrue(actual.contains(expected));
     }
 
     @Test (description = "Push a package to a custom remote repository")
-    public void testPushPackageCustom() throws IOException, SettingsTomlException {
+    public void testPushPackageCustom() throws IOException {
         String org = "luheerathan";
         String packageName = "pact1";
         String version = "0.1.0";
@@ -102,7 +101,7 @@ public class PushCommandTest extends BaseCommandTest {
                 "luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pull" };
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
                     .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()
@@ -110,7 +109,7 @@ public class PushCommandTest extends BaseCommandTest {
             pushCommand.execute();
         }
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         Assert.assertEquals(actual.replace("\\", "/"), expected);
         String artifact = packageName + "-" + version + BALA_EXTENSION;
         String pomFile = packageName + "-" + version + POM_EXTENSION;
@@ -122,7 +121,7 @@ public class PushCommandTest extends BaseCommandTest {
     }
 
     @Test (description = "Push a package to a custom remote repository(not exist in Settings.toml)")
-    public void testPushPackageNonExistingCustom() throws IOException, SettingsTomlException {
+    public void testPushPackageNonExistingCustom() throws IOException {
         String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
                 "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
 
@@ -131,7 +130,7 @@ public class PushCommandTest extends BaseCommandTest {
                 "luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pul" };
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
                     .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
@@ -142,7 +141,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertEquals(actual, expected);
     }
 
-    private static Settings readSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+    private static Settings readSettings(Path settingsFilePath, String repoPath) {
         try {
             String settingString = Files.readString(settingsFilePath);
             settingString = settingString.replaceAll("REPO_PATH", repoPath);
@@ -162,7 +161,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         String invalidExtensionFilePath = this.testResources.resolve("non-bal-file")
                 .resolve("hello_world.txt").toString();
-        new CommandLine(pushCommand).parse(invalidExtensionFilePath);
+        new CommandLine(pushCommand).parseArgs(invalidExtensionFilePath);
         pushCommand.execute();
 
         String buildLog = readOutput(true);
@@ -185,7 +184,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
 
         Path mockRepo = Paths.get("build").resolve("ballerina-home");
 
@@ -198,7 +197,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        String expected = "Successfully pushed " + customTargetDirBalaPath.toString() + " to 'local' repository.";
+        String expected = "Successfully pushed " + customTargetDirBalaPath + " to 'local' repository.";
         Assert.assertTrue(actual.contains(expected));
 
         try {
@@ -223,7 +222,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
 
         Path mockRepo = Paths.get("build").resolve("ballerina-home");
 
@@ -236,7 +235,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        String expected = "Successfully pushed " + customTargetDirBalaPath.toString() + " to 'local' repository.";
+        String expected = "Successfully pushed " + customTargetDirBalaPath + " to 'local' repository.";
         Assert.assertTrue(actual.contains(expected));
 
         try {
@@ -269,7 +268,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        new CommandLine(pushCommand).parse();
+        new CommandLine(pushCommand).parseArgs();
         pushCommand.execute();
 
         String buildLog = readOutput(true);
@@ -284,7 +283,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Build project
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
@@ -299,7 +298,7 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "cannot find bala file for the package: winery. Run "
                 + "'bal pack' to compile and generate the bala.";
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
-        new CommandLine(pushCommand).parse();
+        new CommandLine(pushCommand).parseArgs();
         pushCommand.execute();
 
         buildLog = readOutput(true);
@@ -313,7 +312,7 @@ public class PushCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         pushCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
@@ -325,7 +324,7 @@ public class PushCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "-h" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         pushCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
@@ -343,7 +342,7 @@ public class PushCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
             repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
@@ -366,7 +365,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Pack project
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
@@ -375,7 +374,7 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "README.md is missing in bala file";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
-        new CommandLine(pushCommand).parse();
+        new CommandLine(pushCommand).parseArgs();
         pushCommand.execute();
 
         String buildLog = readOutput(true);
@@ -391,7 +390,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Pack project
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
@@ -402,7 +401,7 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "md file cannot be empty";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
-        new CommandLine(pushCommand).parse();
+        new CommandLine(pushCommand).parseArgs();
         pushCommand.execute();
 
         String buildLog = readOutput(true);
@@ -415,14 +414,14 @@ public class PushCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parse();
+        new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
         String[] args = { "--repository=stdlib.local" };
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
-        new CommandLine(pushCommand).parse(args);
+        new CommandLine(pushCommand).parseArgs(args);
         pushCommand.execute();
         String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository and repositories " +
                 "mentioned in the Settings.toml are supported.";

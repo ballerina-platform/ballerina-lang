@@ -159,7 +159,7 @@ public class TestUtils {
         if (!project.buildOptions().testReport() && !project.buildOptions().codeCoverage()) {
             return;
         }
-        if (testReport.getModuleStatus().size() <= 0) {
+        if (testReport.getModuleStatus().isEmpty()) {
             return;
         }
 

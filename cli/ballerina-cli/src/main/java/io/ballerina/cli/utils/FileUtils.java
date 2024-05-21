@@ -59,7 +59,7 @@ public class FileUtils {
         if (null == fileName) {
             return "";
         }
-        Optional<String> extension = Optional.ofNullable(fileName.toString())
+        Optional<String> extension = Optional.of(fileName.toString())
                 .filter(f -> f.contains("."))
                 .map(f -> f.substring(fileName.toString().lastIndexOf(".") + 1));
         return extension.orElse("");
@@ -113,7 +113,7 @@ public class FileUtils {
         ) {
             String content;
             while ((content = br.readLine()) != null) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append('\n');
                 }
                 sb.append(content);

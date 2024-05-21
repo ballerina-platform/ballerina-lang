@@ -55,7 +55,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("1 passing"));
@@ -66,7 +66,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-H:Name=foo");
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"));
@@ -78,7 +78,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
         // non existing bal file
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("[pass] intAddTest"));
@@ -92,7 +92,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
 
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file")
-    public void testTestBalFile() throws IOException {
+    public void testTestBalFile() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true, "");
@@ -101,13 +101,13 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
-                    "standalone Ballerina files containing resources"));
+                    "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
         }
     }
 
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with additional args")
-    public void testTestBalFileWithAdditionalArgs() throws IOException {
+    public void testTestBalFileWithAdditionalArgs() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
@@ -117,13 +117,13 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
-                    "standalone Ballerina files containing resources"));
+                    "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
         }
     }
 
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with periods in the file name")
-    public void testTestBalFileWithPeriods() throws IOException {
+    public void testTestBalFileWithPeriods() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
@@ -134,7 +134,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
-                    "standalone Ballerina files containing resources"));
+                    "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
         }
     }
 }
