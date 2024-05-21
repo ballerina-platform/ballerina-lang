@@ -80,6 +80,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INT
  */
 public class Utils {
 
+    private static final int BUFFER_SIZE = 1024;
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_STAGE_CENTRAL));
@@ -348,7 +349,7 @@ public class Utils {
             long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter,
             Path homeRepo) throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         String remoteRepo = getRemoteRepo();
         String progressBarTask = fullPkgName + " [" + remoteRepo + " ->" + homeRepo + "] ";
         try (ProgressBar progressBar = new ProgressBar(progressBarTask, totalSizeInKB, 1000,
@@ -365,7 +366,7 @@ public class Utils {
     private static void writeAndHandleProgressQuietly(InputStream inputStream, FileOutputStream outputStream)
             throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         while ((count = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, count);
@@ -479,7 +480,8 @@ public class Utils {
 
         try (InputStream is = new FileInputStream(filePath);
              DigestInputStream dis = new DigestInputStream(is, md)) {
-            while (dis.read() != -1) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (dis.read(buffer) != -1) {
             }
             md = dis.getMessageDigest();
             return bytesToHex(md.digest());
