@@ -71,6 +71,7 @@ public class AddReadonlyCodeAction implements DiagnosticBasedCodeActionProvider 
             TypeSymbol typeSymbol = semanticModel.typeOf(node).orElseThrow();
             Location location = typeSymbol.getLocation().orElseThrow();
 
+            // Skip if a type reference, as the symbol does not contain the location of the variable initialization.
             if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 return Collections.emptyList();
             }

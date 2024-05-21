@@ -4,7 +4,7 @@
     "character": 17
   },
   "source": "add_readonly4.bal",
-  "description": "Add readonly to record type",
+  "description": "Add readonly to table type",
   "expected": [
     {
       "title": "Add readonly to 'table<Row>'",

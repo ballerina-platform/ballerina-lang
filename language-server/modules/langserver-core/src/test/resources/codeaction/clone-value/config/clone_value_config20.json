@@ -4,7 +4,7 @@
     "character": 18
   },
   "source": "clone_value6.bal",
-  "description": "Clone a anydata value",
+  "description": "Clone an anydata value",
   "expected": [
     {
       "title": "Clone the value",
