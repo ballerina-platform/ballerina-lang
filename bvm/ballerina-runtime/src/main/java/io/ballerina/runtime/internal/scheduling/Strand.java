@@ -74,7 +74,6 @@ public class Strand {
     public Scheduler scheduler;
     public Strand parent;
     public WDChannels wdChannels;
-    public int wdChannelIndex;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
