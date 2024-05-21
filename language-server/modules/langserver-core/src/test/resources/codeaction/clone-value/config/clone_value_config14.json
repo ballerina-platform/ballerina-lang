@@ -4,7 +4,7 @@
     "character": 17
   },
   "source": "clone_value4.bal",
-  "description": "Clone a tuple  value",
+  "description": "Clone a tuple value",
   "expected": [
     {
       "title": "Clone the value",

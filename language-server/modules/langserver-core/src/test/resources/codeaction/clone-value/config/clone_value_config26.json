@@ -4,7 +4,7 @@
     "character": 17
   },
   "source": "clone_value8.bal",
-  "description": "Clone a class field value",
+  "description": "Clone an union value",
   "expected": [
     {
       "title": "Clone the value",

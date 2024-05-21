@@ -69,6 +69,7 @@ public class CloneValueCodeAction implements DiagnosticBasedCodeActionProvider {
         Optional<TypeSymbol> optTypeSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(positionDetails.matchedNode()));
         if (optTypeSymbol.isEmpty()) {
+            assert false : "The diagnostic cannot be produced for a node without a type symbol.";
             return Collections.emptyList();
         }
         TypeSymbol typeSymbol = optTypeSymbol.get();
