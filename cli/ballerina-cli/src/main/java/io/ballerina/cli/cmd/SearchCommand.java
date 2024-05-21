@@ -148,7 +148,8 @@ public class SearchCommand implements BLauncherCmd {
                                                             settings.getCentral().getConnectTimeout(),
                                                             settings.getCentral().getReadTimeout(),
                                                             settings.getCentral().getWriteTimeout(),
-                                                            settings.getCentral().getCallTimeout());
+                                                            settings.getCentral().getCallTimeout(),
+                                                            settings.getCentral().getMaxRetries());
             boolean foundSearch = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(target -> target.code())

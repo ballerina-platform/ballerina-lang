@@ -36,7 +36,7 @@ public class Messages {
 
     private static final String NO_MODULE_FOUND = "couldn't find an existing module by the name: ";
 
-    private static final String EXCEPTION = "something went wrong when formatting." + System.lineSeparator();
+    private static final String EXCEPTION = "formatting failed - ";
 
     private static final String NO_BALLERINA_FILE = "couldn't find an existing ballerina file by the name: ";
 

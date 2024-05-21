@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "source": "make_variable_immutable21.bal",
+  "description": "Make immutable of a isolated class variable",
+  "expected": [
+    {
+      "title": "Add 'final' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "final "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

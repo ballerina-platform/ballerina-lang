@@ -118,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -246,6 +245,7 @@ import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CAPTURING_GROUP;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CHARACTER_CLASS;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isAssignmentToOptionalField;
 
 /**
  * @since 0.94
@@ -2318,15 +2318,20 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateFunctionVarRef(varRef, data);
 
         checkInvalidTypeDef(varRef);
-        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && data.expType.tag != TypeTags.SEMANTIC_ERROR) {
-            BLangFieldBasedAccess fieldBasedAccessVarRef = (BLangFieldBasedAccess) varRef;
-            int varRefTypeTag = Types.getImpliedType(fieldBasedAccessVarRef.expr.getBType()).tag;
-            if (varRefTypeTag == TypeTags.RECORD && Symbols.isOptional(fieldBasedAccessVarRef.symbol)) {
-                data.expType = types.addNilForNillableAccessType(data.expType);
-            }
+        BType actualExpectedType = null;
+        // For optional field assignments we add nil to the expected type before doing type checking in order to get
+        // the type in error messages correct. But we don't need an implicit conversion since desugar will add a
+        // cast if needed.
+        if (data.expType != symTable.semanticError && isAssignmentToOptionalField(assignNode)) {
+            actualExpectedType = data.expType;
+            data.expType = types.addNilForNillableAccessType(actualExpectedType);
         }
 
-        data.typeChecker.checkExpr(assignNode.expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        BLangExpression expr = assignNode.expr;
+        data.typeChecker.checkExpr(expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        if (actualExpectedType != null && expr.impConversionExpr != null) {
+            data.typeChecker.resetImpConversionExpr(expr, expr.getBType(), actualExpectedType);
+        }
 
         validateWorkerAnnAttachments(assignNode.expr, data);
 

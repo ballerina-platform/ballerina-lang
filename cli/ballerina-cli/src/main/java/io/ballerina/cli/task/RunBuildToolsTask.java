@@ -57,6 +57,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -87,7 +88,7 @@ public class RunBuildToolsTask implements Task {
     private final boolean exitWhenFinish;
     private ClassLoader toolClassLoader = this.getClass().getClassLoader();
     ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
-    private final Map<String, ToolContext> toolContextMap = new HashMap<>();
+    private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
 
     public RunBuildToolsTask(PrintStream out) {
         this.outStream = out;
@@ -103,6 +104,7 @@ public class RunBuildToolsTask implements Task {
                 .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code()
                         .startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)).toList();
         toolManifestDiagnostics.forEach(outStream::println);
+        List<Diagnostic> toolDiagnostics = new ArrayList<>(toolManifestDiagnostics);
 
         // Read the build tool entries specified the Ballerina.toml
         List<Tool> toolEntries = project.currentPackage().manifest().tools();
@@ -115,7 +117,7 @@ public class RunBuildToolsTask implements Task {
         for (Tool toolEntry : toolEntries) {
             // Populate tool context
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
-            toolContextMap.put(toolEntry.id().value(), toolContext);
+            toolContextMap.put(toolEntry.id(), toolContext);
         }
         BuildToolResolution buildToolResolution;
         try {
@@ -126,6 +128,7 @@ public class RunBuildToolsTask implements Task {
             return;
         }
         buildToolResolution.getDiagnosticList().forEach(outStream::println);
+        toolDiagnostics.addAll(buildToolResolution.getDiagnosticList());
         List<BuildTool> resolvedTools = buildToolResolution.getResolvedTools();
         List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION
                 .equals(tool.version().toString())).toList();
@@ -144,7 +147,7 @@ public class RunBuildToolsTask implements Task {
                 .toList();
         for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type().value();
-            ToolContext toolContext = toolContextMap.get(toolEntry.id().value());
+            ToolContext toolContext = toolContextMap.get(toolEntry.id());
             Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
@@ -169,8 +172,7 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id().value(),
-                        toolEntry.type());
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.type());
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
@@ -196,6 +198,7 @@ public class RunBuildToolsTask implements Task {
             try {
                 this.outStream.printf("\t%s(%s)%n", toolEntry.type().value(), toolEntry.id().value());
                 targetTool.get().execute(toolContext);
+                toolDiagnostics.addAll(toolContext.diagnostics());
                 for (Diagnostic d : toolContext.diagnostics()) {
                     if (d.toString().contains("(1:1,1:1)")) {
                         outStream.println(new PackageDiagnostic(d.diagnosticInfo(), toolContext.toolId()));
@@ -207,21 +210,28 @@ public class RunBuildToolsTask implements Task {
                 throw createLauncherException(e.getMessage());
             }
         }
+
+        // Exit if there is any error diagnostic
+        boolean hasErrors = toolDiagnostics.stream()
+                .anyMatch(d -> d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR));
+        if (hasErrors) {
+            throw createLauncherException("build tool execution contains errors");
+        }
         // Reload the project to load the generated code
         reloadProject(project);
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, Tool.Field toolType) throws IOException {
         if (optionsToml == null) {
-            return validateEmptyOptionsToml(toolId, toolType);
+            return validateEmptyOptionsToml(toolType);
         }
         FileUtils.validateToml(optionsToml, toolType.value(), toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateEmptyOptionsToml(Tool.Field toolType) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolType.value(), toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
@@ -236,8 +246,6 @@ public class RunBuildToolsTask implements Task {
             }
             return true;
         }
-        this.outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to " +
-                "no tool options found%n", toolType, toolId);
         return false;
     }
 
@@ -311,7 +319,7 @@ public class RunBuildToolsTask implements Task {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);

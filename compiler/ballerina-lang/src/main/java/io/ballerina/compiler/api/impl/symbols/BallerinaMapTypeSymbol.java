@@ -31,7 +31,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTypeSymbol {
+public class BallerinaMapTypeSymbol extends AbstractStructuredTypeSymbol implements MapTypeSymbol {
 
     private TypeSymbol memberTypeDesc;
     private String signature;

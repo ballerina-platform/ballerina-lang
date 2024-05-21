@@ -1,0 +1,3 @@
+[braces]
+classBraceStyle = "NewLine"
+functionBraceStyle = "NewLine"

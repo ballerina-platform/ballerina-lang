@@ -39,7 +39,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements TupleTypeSymbol {
+public class BallerinaTupleTypeSymbol extends AbstractStructuredTypeSymbol implements TupleTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
     private List<MemberTypeSymbol> tupleMembers;

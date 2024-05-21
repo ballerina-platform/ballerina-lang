@@ -205,8 +205,8 @@ public class JvmValueGen {
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
-                this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector, jarEntries);
+                this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen,
+                        asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen

@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A31\"` a"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "accessor",
       "insertText": ".accessor",
       "insertTextFormat": "Snippet",
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A31\"|\"A32\"` a"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "put",
       "insertText": ".put",
       "insertTextFormat": "Snippet",

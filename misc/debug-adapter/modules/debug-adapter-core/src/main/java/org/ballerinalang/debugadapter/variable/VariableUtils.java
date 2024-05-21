@@ -46,7 +46,8 @@ public class VariableUtils {
     public static final String FIELD_PKG_ORG = "org";
     public static final String FIELD_PKG_NAME = "name";
     private static final String FIELD_CONSTRAINT = "constraint";
-    private static final String METHOD_STRINGVALUE = "stringValue";
+    private static final String METHOD_STR_VALUE = "stringValue";
+    private static final String METHOD_EXP_STR_VALUE = "expressionStringValue";
     public static final String UNKNOWN_VALUE = "unknown";
     private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
@@ -172,7 +173,33 @@ public class VariableUtils {
             if (!(jvmObject instanceof ObjectReference)) {
                 return UNKNOWN_VALUE;
             }
-            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
+            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STR_VALUE);
+            if (method.isPresent()) {
+                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                                .getThreadReference(), method.get(), Collections.singletonList(null),
+                        ObjectReference.INVOKE_SINGLE_THREADED);
+                return VariableUtils.getStringFrom(stringValue);
+            }
+            return UNKNOWN_VALUE;
+        } catch (Exception ignored) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
+     * Invokes "expressionStringValue()" method of the given ballerina jvm variable instance and, returns the result
+     * as a string.
+     *
+     * @param context   variable debug context.
+     * @param jvmObject ballerina jvm variable instance.
+     * @return result of the method invocation as a string.
+     */
+    public static String getExpressionStringValue(SuspendedContext context, Value jvmObject) {
+        try {
+            if (!(jvmObject instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
+            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_EXP_STR_VALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
                                 .getThreadReference(), method.get(), Collections.singletonList(null),

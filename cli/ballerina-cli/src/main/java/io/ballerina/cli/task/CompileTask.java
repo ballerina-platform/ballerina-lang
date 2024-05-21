@@ -31,7 +31,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -87,6 +86,9 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
+        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
+            throw createLauncherException("package is empty. Please add at least one .bal file.");
+        }
         this.out.println("Compiling source");
 
         String sourceName;
@@ -230,12 +232,6 @@ public class CompileTask implements Task {
             });
             // Add tool resolution diagnostics to diagnostics
             diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
-            // Report build tool execution diagnostics
-            if (project.getToolContextMap() != null) {
-                for (ToolContext tool : project.getToolContextMap().values()) {
-                    diagnostics.addAll(tool.diagnostics());
-                }
-            }
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
@@ -323,5 +319,17 @@ public class CompileTask implements Task {
                 }
             }
         }
+    }
+
+    /**
+     * If CompileTask is triggered by `bal pack` command, and project does not have CompilerPlugin.toml or BalTool.toml,
+     * skip the compilation if project is empty. The project should be evaluated for emptiness before calling this.
+     *
+     * @param project project instance
+     * @return true if compilation should be skipped, false otherwise
+     */
+    private boolean skipCompilationForBalPack(Project project) {
+        return (!compileForBalPack || project.currentPackage().compilerPluginToml().isEmpty() &&
+                project.currentPackage().balToolToml().isEmpty());
     }
 }
