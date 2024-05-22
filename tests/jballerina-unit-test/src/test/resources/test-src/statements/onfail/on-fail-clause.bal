@@ -27,6 +27,7 @@ function testOnFailEdgeTestcases() {
     testRetryOnFailWithinObjectFunc();
     testFailExprWithinOnFail();
     testCheckExprWithinOnFail();
+    testMultipleCheckExprWithinOnFail();
     testFailPassWithinOnFail();
     testTypeNarrowingInsideOnfail();
     testBreakWithinOnfail();
@@ -262,6 +263,20 @@ function testCheckExprWithinOnFail() {
     }
 
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
+}
+
+function testMultipleCheckExprWithinOnFail() {
+    string str = "";
+    do {
+        str += "-> Before error thrown ";
+        _ = check getCheckError();
+        _ = check getCheckError();
+        str += " -> After error thrown, ";
+    } on fail error error(message) {
+        str += "Error thrown from on-fail: " + message.toString();
+    }
+
+    assertEquality("-> Before error thrown Error thrown from on-fail: Custom Error", str);
 }
 
 function testFailPassWithinOnFail() {
