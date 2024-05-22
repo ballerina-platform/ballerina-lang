@@ -20,6 +20,7 @@ package io.ballerina.types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
 
@@ -73,5 +74,23 @@ public class ComplexSemType implements SemType {
     public String toString() {
         return "ComplexSemType{all=" + all + ", some=" + some + ", subtypeDataList=" +
                 Arrays.toString(subtypeDataList) + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ComplexSemType other)) {
+            return false;
+        }
+        return Objects.equals(all, other.all) &&
+                Objects.equals(some, other.some) &&
+                Arrays.equals(subtypeDataList, other.subtypeDataList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(all, some, Arrays.hashCode(subtypeDataList));
     }
 }
