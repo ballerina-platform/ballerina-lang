@@ -712,6 +712,11 @@ public class SymbolTransformer extends SimpleBLangNodeAnalyzer<SymbolTransformer
     }
 
     @Override
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation invocation, AnalyzerData data) {
+        rewriteInvocationExpr(invocation, data);
+    }
+
+    @Override
     public void visit(BLangXMLQName xmlQName, AnalyzerData data) {
     }
 
