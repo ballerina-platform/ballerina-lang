@@ -343,7 +343,8 @@ public class PackCommandTest extends BaseCommandTest {
             packCommand.execute();
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"), getOutput("pack-empty-project-with-build-tools.txt"));
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("pack-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Pack an empty package as a tool")
