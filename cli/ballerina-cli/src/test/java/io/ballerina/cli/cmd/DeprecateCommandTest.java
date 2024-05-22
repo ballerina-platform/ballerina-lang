@@ -63,7 +63,9 @@ public class DeprecateCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replace("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: invalid request received. error occurred finding package"),
+        Assert.assertTrue(actual.contains(
+                "ballerina: error: could not connect to remote repository to find package: mynewdil/deppack:xxx. " +
+                "reason: package not found: mynewdil/deppack:xxx_java17"),
                 actual);
     }
 

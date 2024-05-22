@@ -167,7 +167,8 @@ public class ToolCommandTest extends BaseCommandTest {
             new CommandLine(toolCommand).parseArgs("use", "luhee:1.1.0", "--repository=local");
             toolCommand.execute();
             buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
             balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
             tool = balToolsManifest.getActiveTool("luhee");
@@ -181,7 +182,8 @@ public class ToolCommandTest extends BaseCommandTest {
             new CommandLine(toolCommand).parseArgs("remove", "luhee:1.2.0", "--repository=local");
             toolCommand.execute();
             buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully removed.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.2.0' successfully removed.\n"));
             balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
             tool = balToolsManifest.getTool("luhee", "1.2.0", "local");
