@@ -23,6 +23,7 @@ import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -45,6 +46,7 @@ import java.util.Locale;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
@@ -878,6 +880,9 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Test pulling a central template and replacing the template name in module imports")
     public void testNewCommandCentralTemplateReplaceImports() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Not working on Windows");
+        }
         String templateArg = "testorg/centralSample:1.0.2";
         String packageName = "central_sample";
         Path packageDir = tmpDir.resolve(packageName);

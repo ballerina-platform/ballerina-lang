@@ -26,10 +26,12 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -72,6 +74,16 @@ public class PushCommandTest extends BaseCommandTest {
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
+    }
+
+    @AfterMethod(alwaysRun = true)
+    @Override
+    public void afterMethod() throws IOException {
+        super.afterMethod();
+        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        ProjectUtils.deleteDirectory(validBalProject);
+        validBalProject = Paths.get("build").resolve("tool-gayals");
+        ProjectUtils.deleteDirectory(validBalProject);
     }
 
     @Test(description = "Push package with invalid path")
