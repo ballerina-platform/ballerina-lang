@@ -92,20 +92,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         if (!currentInvocationData.moduleIsUsed) {
             currentInvocationData.registerNodes(usedTypeDefAnalyzer, pkgNode.symbol.bir);
-
         }
+
         // All testablePkgs will be considered as root pkgs by default.
         if (pkgNode.hasTestablePackage()) {
-            // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
-            // testable and parent packages
-            BPackageSymbol testableSymbol = pkgNode.getTestablePkg().symbol;
-            currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
-
-            testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
-            // Analyzing testablePkg should be done first because it is the root of the dependency graph
-            for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
-                visitNode(node);
-            }
+            analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
         }
 
         for (BIRNode.BIRDocumentableNode node : currentInvocationData.startPointNodes) {
@@ -113,6 +104,18 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
+    }
+
+    private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
+        // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
+        // testable and parent packages
+        currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
+
+        testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
+        // Analyzing testablePkg should be done first because it is the root of the dependency graph
+        for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
+            visitNode(node);
+        }
     }
 
     private void visitNode(BIRNode nodeToVisit) {
@@ -481,6 +484,26 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             return birFunction.name.value.startsWith(MOCK_FUNCTION_PREFIX);
         }
 
+        private static boolean isExternalDependencyBIRNode(BIRNode.BIRFunction birFunction) {
+            for (BIRNode.BIRAnnotationAttachment annotAttachment : birFunction.annotAttachments) {
+                if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
+                        annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static boolean isExternalDependencyBIRNode(BIRNode.BIRTypeDefinition birTypeDefinition) {
+            for (BIRNode.BIRAnnotationAttachment annotAttachment : birTypeDefinition.annotAttachments) {
+                if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
+                        annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         protected void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
             // If the birPackage is from a langlib it will be null.
             if (birPackage == null) {
@@ -500,6 +523,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                         this.startPointNodes.add(typeDef);
                     }
                 }
+
+                if (isExternalDependencyBIRNode(typeDef)) {
+                    this.startPointNodes.add(typeDef);
+                }
             });
             this.startPointNodes.addAll(birPackage.serviceDecls);
             this.moduleIsUsed = true;
@@ -515,7 +542,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             functionPool.putIfAbsent(birFunction.originalName.value, birFunction);
 
             if (USED_FUNCTION_NAMES.contains(birFunction.name.value) || isResourceFunction(birFunction) ||
-                    isTestFunction(birFunction) || isGeneratedMockFunction(birFunction)) {
+                    isTestFunction(birFunction) || isGeneratedMockFunction(birFunction) ||
+                    isExternalDependencyBIRNode(birFunction)) {
                 this.startPointNodes.add(birFunction);
             }
         }
