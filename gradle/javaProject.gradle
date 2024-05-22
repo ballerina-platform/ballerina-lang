@@ -121,7 +121,7 @@ java {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     // Supress unknown module warning
-    options.compilerArgs << "-Xlint:-module"
+    options.compilerArgs << "-Xlint:-module,-removal"
 }
 
 checkstyle {
