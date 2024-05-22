@@ -30,10 +30,3 @@ description = 'Ballerina - Debug Adapter - Debug Adaptor CLI'
 
 ext.moduleName = 'ballerina.debug.adapter.cli'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-        classpath = files()
-    }
-}

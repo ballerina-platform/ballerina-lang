@@ -27,11 +27,3 @@ dependencies {
 description = 'Ballerina - Semver Checker CLI'
 
 ext.moduleName = 'io.ballerina.semver.checker.cli'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-        classpath = files()
-    }
-}

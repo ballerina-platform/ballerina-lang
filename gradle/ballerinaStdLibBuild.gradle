@@ -69,13 +69,6 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-        classpath = files()
-    }
-}
-
 class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = ''
     @Internal def distCache = ''

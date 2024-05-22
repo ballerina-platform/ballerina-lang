@@ -40,13 +40,6 @@ dependencies {
     balaCreat project(':lib-creator')
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-        classpath = files()
-    }
-}
-
 class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = ''
     @Internal def distCache = ''

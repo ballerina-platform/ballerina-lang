@@ -37,10 +37,8 @@ dependencies {
 compileJava {
     doFirst {
         options.compilerArgs += [
-                "-Aproject=${project.group}/${project.name}",
-                '--module-path', classpath.asPath,
+                "-Aproject=${project.group}/${project.name}"
         ]
-        classpath = files()
     }
 }
 

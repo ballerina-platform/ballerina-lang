@@ -43,6 +43,13 @@ artifacts {
     libs configurations.dependency.files
 }
 
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
 createJavadoc {
     doFirst {
         options.modulePath = classpath.toList()

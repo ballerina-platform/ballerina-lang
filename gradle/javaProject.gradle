@@ -202,10 +202,3 @@ publishing {
 }
 
 test.finalizedBy(jacocoMergeExec)
-//compileJava {
-//    doFirst {
-//        inputs.property("moduleName", moduleName)
-//        options.compilerArgs << '--module-path' << classpath.asPath
-//        classpath = files()
-//    }
-//}

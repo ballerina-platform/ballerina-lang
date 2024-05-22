@@ -54,13 +54,6 @@ tasks.register('copyToLib', Copy) {
     from configurations.testLibs
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-        classpath = files()
-    }
-}
-
 jar {
     // we omit the version since the jar is refered from ballerina.toml
     archiveBaseName = 'jballerina-benchmark-test'

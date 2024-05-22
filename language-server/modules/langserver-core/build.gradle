@@ -120,6 +120,13 @@ artifacts {
     tests testJar
 }
 
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
 createJavadoc {
     doFirst {
         logger.info(classpath.toList().toString())
