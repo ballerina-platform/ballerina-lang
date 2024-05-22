@@ -58,20 +58,16 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof MappingAtomicType other)) {
             return false;
         }
-        MappingAtomicType that = (MappingAtomicType) o;
-        return Arrays.equals(names, that.names) &&
-                Arrays.equals(types, that.types) &&
-                Objects.equals(rest, that.rest);
+        return Arrays.equals(names, other.names) &&
+                Arrays.equals(types, other.types) &&
+                Objects.equals(rest, other.rest);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(rest);
-        result = 31 * result + Arrays.hashCode(names);
-        result = 31 * result + Arrays.hashCode(types);
-        return result;
+        return Objects.hash(Arrays.hashCode(names), Arrays.hashCode(types), rest);
     }
 }

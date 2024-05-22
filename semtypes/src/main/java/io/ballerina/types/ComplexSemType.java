@@ -81,19 +81,16 @@ public class ComplexSemType implements SemType {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ComplexSemType other)) {
             return false;
         }
-        ComplexSemType that = (ComplexSemType) o;
-        return Objects.equals(all, that.all) &&
-                Objects.equals(some, that.some) &&
-                Arrays.equals(subtypeDataList, that.subtypeDataList);
+        return Objects.equals(all, other.all) &&
+                Objects.equals(some, other.some) &&
+                Arrays.equals(subtypeDataList, other.subtypeDataList);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(all, some);
-        result = 31 * result + Arrays.hashCode(subtypeDataList);
-        return result;
+        return Objects.hash(all, some, Arrays.hashCode(subtypeDataList));
     }
 }
