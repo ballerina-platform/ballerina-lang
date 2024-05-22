@@ -105,7 +105,8 @@ public class MultipleLetClauseTest {
                 "testwildcardBindingPatternInLetClause",
                 "testQueryInLetClauseAsAClosure1",
                 "testQueryInLetClauseAsAClosure2",
-                "testQueryInLetClauseAsAClosure3"
+                "testQueryInLetClauseAsAClosure3",
+                "testModuleLevelLetClause"
         };
     }
 
