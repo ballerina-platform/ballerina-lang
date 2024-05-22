@@ -31,7 +31,7 @@ ext.moduleName = 'io.ballerina.semver.checker.cli'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath << '--add-exports' << 'com.sun.tools.javac.util=ALL-UNNAMED'
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }
