@@ -79,7 +79,7 @@ compileJava {
     }
 }
 
-createJavadoc {
+javadoc {
     doFirst {
         options.modulePath = classpath.toList()
         classpath = files()
@@ -99,4 +99,4 @@ test {
 }
 
 
-tasks.createJavadoc.dependsOn(':bir-spec:kaitai')
+tasks.javadoc.dependsOn(':bir-spec:kaitai')

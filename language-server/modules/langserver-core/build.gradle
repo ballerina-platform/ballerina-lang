@@ -127,7 +127,7 @@ compileJava {
     }
 }
 
-createJavadoc {
+javadoc {
     doFirst {
         logger.info(classpath.toList().toString())
         options.modulePath = classpath.toList()
@@ -174,4 +174,4 @@ tasks.register('buildAndCopy', Copy) {
 }
 
 tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')
-tasks.createJavadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")

@@ -86,7 +86,7 @@ compileJava {
     }
 }
 
-createJavadoc {
+javadoc {
     enabled = false
 }
 

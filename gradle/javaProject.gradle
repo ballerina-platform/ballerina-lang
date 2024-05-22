@@ -177,14 +177,14 @@ jacocoTestReport {
     }
 }
 
-tasks.register('createJavadoc', Javadoc) {
+javadoc {
     source = sourceSets.main.java
     classpath = sourceSets.main.compileClasspath
     options.addBooleanOption("Xdoclint:all,-missing", true)
 }
 
 check {
-    dependsOn createJavadoc
+    dependsOn javadoc
 }
 
 tasks.register('jacocoMergeExec', JacocoReport) {

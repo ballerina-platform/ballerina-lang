@@ -50,7 +50,7 @@ compileJava {
     }
 }
 
-createJavadoc {
+javadoc {
     doFirst {
         options.modulePath = classpath.toList()
         classpath = files()
