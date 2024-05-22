@@ -41,12 +41,12 @@ public class BFloatType extends BType implements FloatType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new Double(0);
+        return (V) Double.valueOf(0);
     }
     
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new Double(0);
+        return (V) Double.valueOf(0);
     }
 
     @Override

@@ -48,12 +48,12 @@ public class BIntegerType extends BType implements IntegerType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new Long(0);
+        return (V) Long.valueOf(0);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new Long(0);
+        return (V) Long.valueOf(0);
     }
 
     @Override

@@ -41,13 +41,13 @@ public class BByteType extends BType implements ByteType {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getZeroValue() {
-        return (V) new Integer(0);
+        return (V) Integer.valueOf(0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getEmptyValue() {
-        return (V) new Integer(0);
+        return (V) Integer.valueOf(0);
     }
 
     @Override

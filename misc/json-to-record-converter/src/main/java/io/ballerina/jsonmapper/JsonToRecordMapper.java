@@ -103,6 +103,7 @@ public class JsonToRecordMapper {
      * @param isClosed To denote whether the response record is closed or not
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
+    @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordFields, String filePathUri,
                                                WorkspaceManager workspaceManager) {
