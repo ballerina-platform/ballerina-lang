@@ -44,7 +44,7 @@ public class AddCommandTest extends BaseCommandTest {
         projectPath = tmpDir.resolve("project_name");
         String[] args = {projectPath.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         modulesPath = projectPath.resolve(ProjectConstants.MODULES_ROOT);
@@ -62,6 +62,23 @@ public class AddCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(moduleDir));
         Assert.assertTrue(Files.isDirectory(moduleDir));
         Assert.assertTrue(Files.exists(moduleDir.resolve(moduleName + ".bal")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("tests").resolve(moduleName + "_test.bal")));
+        Assert.assertTrue(readOutput().contains("Added new Ballerina module"));
+    }
+
+    @Test(description = "Test add command")
+    public void testAddCommandWithServiceTemplate() throws IOException {
+        String moduleName = "module_service";
+        String[] args = {moduleName, "-t", "service"};
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
+
+        Path moduleDir = modulesPath.resolve(moduleName);
+        Assert.assertTrue(Files.exists(moduleDir));
+        Assert.assertTrue(Files.isDirectory(moduleDir));
+        Assert.assertTrue(Files.exists(moduleDir.resolve(moduleName + ".bal")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve("tests").resolve(moduleName + "_test.bal")));
         Assert.assertTrue(readOutput().contains("Added new Ballerina module"));
     }
 

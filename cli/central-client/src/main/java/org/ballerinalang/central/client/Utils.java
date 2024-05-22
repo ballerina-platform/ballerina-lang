@@ -59,21 +59,20 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_STAGE_CENTRAL;
+import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
 import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
-import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
-import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
 import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
@@ -81,13 +80,12 @@ import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INT
  */
 public class Utils {
 
+    private static final int BUFFER_SIZE = 1024;
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
-
-    public static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
 
     private Utils() {
     }
@@ -134,7 +132,7 @@ public class Utils {
         }
 
         String resolvedURI = balaDownloadResponse.header(RESOLVED_REQUESTED_URI);
-        if (resolvedURI == null || resolvedURI.equals("")) {
+        if (resolvedURI == null || resolvedURI.isEmpty()) {
             resolvedURI = newUrl;
         }
         String[] uriParts = resolvedURI.split("/");
@@ -351,7 +349,7 @@ public class Utils {
             long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter,
             Path homeRepo) throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         String remoteRepo = getRemoteRepo();
         String progressBarTask = fullPkgName + " [" + remoteRepo + " ->" + homeRepo + "] ";
         try (ProgressBar progressBar = new ProgressBar(progressBarTask, totalSizeInKB, 1000,
@@ -368,7 +366,7 @@ public class Utils {
     private static void writeAndHandleProgressQuietly(InputStream inputStream, FileOutputStream outputStream)
             throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         while ((count = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, count);
@@ -442,10 +440,9 @@ public class Utils {
             throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        byte[] hashInBytes = checkHash(balaFilePath.toString(), SHA256_ALGORITHM);
 
         // If the hash value is not matching , throw an exception.
-        if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {
+        if (!trueDigest.equals(SHA256 + checkHash(balaFilePath.toString(), SHA256_ALGORITHM))) {
             StringBuilder warning = new StringBuilder(
                     String.format("*************************************************************%n" +
         "* WARNING: Certain packages may have originated from sources other than the official distributors. *%n" +
@@ -472,33 +469,38 @@ public class Utils {
         }
     }
 
-    public static byte[] checkHash(String filePath, String algorithm) {
+    public static String checkHash(String filePath, String algorithm) throws CentralClientException {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e);
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
         }
 
         try (InputStream is = new FileInputStream(filePath);
-                DigestInputStream dis = new DigestInputStream(is, md)) {
-            while (dis.read() != -1) {
+             DigestInputStream dis = new DigestInputStream(is, md)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (dis.read(buffer) != -1) {
             }
             md = dis.getMessageDigest();
-            return md.digest();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+            return bytesToHex(md.digest());
+        } catch (RuntimeException | IOException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
         }
     }
 
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
         }
-        return sb.toString();
+        return hexString.toString();
     }
 
     static String getBearerToken(String accessToken) {

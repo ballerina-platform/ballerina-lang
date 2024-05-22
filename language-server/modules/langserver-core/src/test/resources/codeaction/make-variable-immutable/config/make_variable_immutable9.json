@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 1,
+    "character": 10
+  },
+  "source": "make_variable_immutable9.bal",
+  "description": "Make immutable of a function variable",
+  "expected": [
+    {
+      "title": "Add 'final' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "final "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

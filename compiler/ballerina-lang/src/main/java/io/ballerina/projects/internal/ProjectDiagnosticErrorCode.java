@@ -31,6 +31,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5001", "missing.package.info"),
     INVALID_PATH("BCE5002", "error.invalid.path"),
     INVALID_ICON("BCE5003", "error.invalid.icon"),
+    INVALID_PROVIDED_DEPENDENCY("BCE5004", "invalid.provided.dependency"),
+    INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
 
     // Error codes used in DependencyManifestBuilder.
     OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
@@ -58,6 +60,10 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
     // Error codes used for Jar resolving.
     CONFLICTING_PLATFORM_JAR_FILES("BCE5501", "conflicting.platform.jars.type"),
+    PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
+
+    // Error codes used for pack command
+    DEPRECATED_DOC_FILE("BCE5601", "deprecated.doc.file"),
     ;
 
     private final String diagnosticId;

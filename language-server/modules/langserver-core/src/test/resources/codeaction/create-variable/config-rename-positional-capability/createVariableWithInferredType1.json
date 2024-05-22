@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 5,
+    "character": 16
+  },
+  "source": "createVariableWithInferredType.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'anydata|mod2:ClientError2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "anydata|mod2:ClientError2 pull = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1.mod2;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

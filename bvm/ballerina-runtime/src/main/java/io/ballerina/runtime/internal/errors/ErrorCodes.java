@@ -149,7 +149,15 @@ public enum ErrorCodes implements DiagnosticCode {
     REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120"),
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
                                                                "RUNTIME_0121"),
-    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122");
+    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
+    CONFIG_ENV_VARS_AMBIGUITY("config.env.vars.ambiguity", "RUNTIME_0123"),
+    CONFIG_ENV_VARIABLE_AMBIGUITY("config.env.variable.ambiguity", "RUNTIME_0124"),
+    CONFIG_ENV_TYPE_NOT_SUPPORTED("config.env.type.not.supported", "RUNTIME_0125"),
+    CONFIG_UNUSED_ENV_VARS("config.env.unused.vars", "RUNTIME_0126"),
+    CONFIG_ENV_VAR_NAME_AMBIGUITY("config.env.variable.name.ambiguity", "RUNTIME_0127"),
+    NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0128"),
+    INVALID_METHOD_CALL("invalid.method.call", "RUNTIME_0129"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130");
 
     private final String errorMsgKey;
     private final String errorCode;

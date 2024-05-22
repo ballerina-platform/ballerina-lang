@@ -36,6 +36,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -154,7 +156,10 @@ class JMethodResolver {
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         List<JMethod> list = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
-            if (hasEqualParamCounts(jMethodRequest, jMethod) || isAcceptingBundledParams(jMethodRequest, jMethod)) {
+            if (hasEqualParamCounts(jMethodRequest, jMethod)
+                    || hasEquivalentPathAndFunctionParamCount(jMethodRequest, jMethod)
+                    || hasEquivalentPathParamCount(jMethodRequest, jMethod)
+                    || hasEquivalentFunctionParamCount(jMethodRequest, jMethod)) {
                 list.add(jMethod);
             }
         }
@@ -183,29 +188,84 @@ class JMethodResolver {
         return false;
     }
 
-    private boolean isAcceptingBundledParams(JMethodRequest jMethodRequest, JMethod jMethod) {
-        int count = jMethod.getParamTypes().length;
-        if (count < 1) {
+    private boolean hasEquivalentPathAndFunctionParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+        Class<?>[] paramTypes = jMethod.getParamTypes();
+        int count = paramTypes.length;
+        if (jMethodRequest.receiverType == null || jMethodRequest.pathParamCount == 0 || count < 3 || count > 4) {
             return false;
         }
-        int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
-        if (count < reducedParamCount || count > reducedParamCount + 2) {
+        if (!isParamAssignableToBArray(paramTypes[count - 1]) || !isParamAssignableToBArray(paramTypes[count - 2])
+                || isFirstPathParamARestParam(jMethodRequest, jMethod)
+                || isFunctionParamARestParam(jMethodRequest, jMethod)) {
+            return false;
+        }
+        if (count == 3) {
+            // This is for object interop functions when self is passed as a parameter
+            // Expected jMethod parameters are [BObject, BArray, BArray].
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return true;
+        }
+        // This is for object interop functions when both BalEnv and self is passed as parameters along with
+        // bundled path parameters and function parameters.
+        // Expected jMethod parameters are [Environment, BObject, BArray, BArray].
+        jMethod.setReceiverType(jMethodRequest.receiverType);
+        return jMethod.isBalEnvAcceptingMethod();
+    }
+
+    private boolean hasEquivalentPathParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+        if (jMethodRequest.receiverType == null || jMethodRequest.pathParamCount == 0
+                || isFirstPathParamARestParam(jMethodRequest, jMethod)) {
             return false;
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
+        int count = paramTypes.length;
+        int reducedParamCount = getBundledPathParamCount(jMethodRequest, jMethod);
+        if (count < reducedParamCount || count > reducedParamCount + 2) {
+            return false;
+        }
         if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
             return true;
         } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
                 isParamAssignableToBArray(paramTypes[1])) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
-            return jMethodRequest.receiverType != null;
+            return true;
         } else if ((count == (reducedParamCount + 2)) && paramTypes.length > 2 &&
                 isParamAssignableToBArray(paramTypes[2])) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
-            if (jMethodRequest.receiverType != null) {
-                jMethod.setReceiverType(jMethodRequest.receiverType);
-            }
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return jMethod.isBalEnvAcceptingMethod();
+        }
+        return false;
+    }
+
+    private boolean hasEquivalentFunctionParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+        // This is only applicable for resource and remote methods which have at least one function
+        // parameter other than path parameters and the bundling of path parameters is not required.
+        Class<?>[] paramTypes = jMethod.getParamTypes();
+        int count = paramTypes.length;
+        int reducedParamCount = jMethodRequest.pathParamCount + 1;
+        int functionParamCount = getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount;
+        // TODO: Remove 'Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)' check after fixing
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/42456.
+        if (jMethodRequest.receiverType == null || functionParamCount < 1
+                || count < reducedParamCount || count > reducedParamCount + 2
+                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)) {
+            return false;
+        }
+        if (!isParamAssignableToBArray(paramTypes[count - 1])
+                || isFunctionParamARestParam(jMethodRequest, jMethod)) {
+            return false;
+        }
+        if (count == reducedParamCount) {
+            return true;
+        } else if (count == (reducedParamCount + 1)) {
+            // This is for object interop functions when self is passed as a parameter
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return true;
+        } else if (count == (reducedParamCount + 2)) {
+            // This is for object interop functions when both BalEnv and self is passed as parameters.
+            jMethod.setReceiverType(jMethodRequest.receiverType);
             return jMethod.isBalEnvAcceptingMethod();
         }
         return false;
@@ -365,11 +425,14 @@ class JMethodResolver {
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
 
         Class<?>[] jParamTypes = jMethod.getParamTypes();
-        // Bundle path parameters into an anydata array if the resolved Java method accepts a BArray for path params
-        // and the first path param is not a rest param.
-        if (isAcceptingBundledParams(jMethodRequest, jMethod) &&
-                !isFirstPathParamARestParam(jMethodRequest, jMethod)) {
+        // Bundle path parameters into an anydata array and the rest of the function parameters into an any array
+        // if the resolved Java method accepts a BArray parameter for path and function parameters.
+        if (hasEquivalentPathAndFunctionParamCount(jMethodRequest, jMethod)) {
+            bundleBothPathAndFunctionParameter(jMethodRequest, jMethod);
+        } else if (hasEquivalentPathParamCount(jMethodRequest, jMethod)) {
             bundlePathParams(jMethodRequest, jMethod);
+        } else if (hasEquivalentFunctionParamCount(jMethodRequest, jMethod)) {
+            bundleFunctionParams(jMethodRequest, jMethod);
         }
         BType[] bParamTypes = jMethodRequest.bParamTypes;
         int bParamCount = bParamTypes.length;
@@ -435,7 +498,6 @@ class JMethodResolver {
     }
 
     private void bundlePathParams(JMethodRequest jMethodRequest, JMethod jMethod) {
-
         List<BVarSymbol> pathParamSymbols = jMethodRequest.pathParamSymbols;
         if (pathParamSymbols.isEmpty()) {
             return;
@@ -445,10 +507,32 @@ class JMethodResolver {
         for (BVarSymbol param : pathParamSymbols) {
             paramTypes.remove(param.type);
         }
-        BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
-        paramTypes.add(initialPathParamIndex, pathParamArrayType);
+        paramTypes.add(initialPathParamIndex, new BArrayType(symbolTable.anydataType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.bFuncParamCount = jMethodRequest.bFuncParamCount - pathParamSymbols.size() + 1;
         jMethodRequest.pathParamCount = 1;
+        jMethod.hasBundledPathParams = true;
+    }
+
+    private void bundleFunctionParams(JMethodRequest jMethodRequest, JMethod jMethod) {
+        List<BType> paramTypes = new ArrayList<>(Arrays.asList(jMethodRequest.bParamTypes));
+        if (jMethodRequest.bFuncParamCount > jMethodRequest.pathParamCount) {
+            paramTypes.subList(jMethodRequest.pathParamCount, jMethodRequest.bFuncParamCount).clear();
+        }
+        paramTypes.add(new BArrayType(symbolTable.anyType));
+        jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.bFuncParamCount = jMethodRequest.pathParamCount + 1;
+        jMethod.hasBundledFunctionParams = true;
+    }
+
+    private void bundleBothPathAndFunctionParameter(JMethodRequest jMethodRequest, JMethod jMethod) {
+        List<BType> paramTypes = new ArrayList<>();
+        paramTypes.add(new BArrayType(symbolTable.anydataType));
+        paramTypes.add(new BArrayType(symbolTable.anyType));
+        jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.bFuncParamCount = 2;
+        jMethodRequest.pathParamCount = 1;
+        jMethod.hasBundledFunctionParams = true;
         jMethod.hasBundledPathParams = true;
     }
 
@@ -950,7 +1034,7 @@ class JMethodResolver {
         return bFuncParamCount;
     }
 
-    private int getBundledParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+    private int getBundledPathParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
         return getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount + 1;
     }
 
@@ -961,6 +1045,13 @@ class JMethodResolver {
         return jMethod.isStatic() ? jMethodRequest.bParamTypes[0].tag == TypeTags.ARRAY :
                 jMethodRequest.bParamTypes[1].tag == TypeTags.ARRAY &&
                         jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
+    }
+
+    private boolean isFunctionParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
+        int funcParamCount = getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount;
+        return (jMethod.isStatic() ? jMethodRequest.bParamTypes[jMethodRequest.pathParamCount].tag == TypeTags.ARRAY :
+                jMethodRequest.bParamTypes[jMethodRequest.pathParamCount + 1].tag == TypeTags.ARRAY &&
+                        jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE) && funcParamCount == 1;
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {

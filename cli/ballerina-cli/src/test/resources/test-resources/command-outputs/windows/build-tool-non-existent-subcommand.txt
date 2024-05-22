@@ -1,0 +1,5 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(6:1,10:24)] Build tool command 'dummy_tool.nonexistent' not found
+WARNING: Execution of 'dummy_tool.nonexistent:main_dummy' is skipped due to errors
+

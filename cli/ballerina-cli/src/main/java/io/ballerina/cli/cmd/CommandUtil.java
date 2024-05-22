@@ -23,10 +23,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
@@ -67,10 +71,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -459,7 +465,7 @@ public class CommandUtil {
                 settings.getProxy().password(),
                 getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         try {
             client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
@@ -508,10 +514,12 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\n[[platform." + platform + ".dependency]]", StandardOpenOption.APPEND);
         for (Object dependencies : platformLibraries) {
             JsonObject dependenciesObj = (JsonObject) dependencies;
-            String libPath = dependenciesObj.get("path").getAsString();
-            Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
-            Path libRelPath = Paths.get("libs", libName.toString());
-            Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
+            if (null == dependenciesObj.get("scope")) {
+                String libPath = dependenciesObj.get("path").getAsString();
+                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
+                Path libRelPath = Paths.get("libs", libName.toString());
+                Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
+            }
 
             if (dependenciesObj.get("artifactId") != null) {
                 String artifactId = dependenciesObj.get("artifactId").getAsString();
@@ -526,6 +534,17 @@ public class CommandUtil {
                 String dependencyVersion = dependenciesObj.get("version").getAsString();
                 Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
                         StandardOpenOption.APPEND);
+            }
+            if (null != dependenciesObj.get("scope") && dependenciesObj.get("scope").getAsString().equals("provided")) {
+                String scope = dependenciesObj.get("scope").getAsString();
+                Files.writeString(balTomlPath, "scope = \"" + scope + "\"\n",
+                        StandardOpenOption.APPEND);
+                String artifactId = dependenciesObj.get("artifactId").getAsString();
+                printError(errStream,
+                        "WARNING: path for the platform dependency " + artifactId + " with provided scope " +
+                                "should be specified in the Ballerina.toml",
+                        null,
+                        false);
             }
         }
     }
@@ -953,9 +972,9 @@ public class CommandUtil {
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
 
-        // Create Package.md
-        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
-        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
+        // Create README.md
+        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + ProjectConstants.README_MD_FILE_NAME);
+        write(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -1169,13 +1188,16 @@ public class CommandUtil {
         if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
         }
-
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
-        Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (!backendDiagnostics.isEmpty()) {
-            printDiagnostics(backendDiagnostics);
+        if (!hasProvidedPlatformDeps(balaProject.currentPackage())) {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+            if (!backendDiagnostics.isEmpty()) {
+                printDiagnostics(backendDiagnostics);
+            }
+            return jBallerinaBackend.diagnosticResult().hasErrors();
         }
-        return jBallerinaBackend.diagnosticResult().hasErrors();
+        errStream.println("Warning: Cache generation skipped due to platform dependencies with 'provided' scope");
+        return false;
     }
 
     private static void printDiagnostics(Collection<Diagnostic> diagnostics) {
@@ -1183,4 +1205,29 @@ public class CommandUtil {
             CommandUtil.printError(errStream, diagnostic.toString(), null, false);
         }
     }
+
+    private static boolean hasProvidedPlatformDeps(Package pkg) {
+        for (PackageManifest.Platform platform: pkg.manifest().platforms().values()) {
+            for (Map<String, Object> dependency: platform.dependencies()) {
+                if (PlatformLibraryScope.PROVIDED.getStringValue().equals(dependency.get("scope"))) {
+                    return true;
+                }
+            }
+        }
+        PackageCompilation packageCompilation = pkg.getCompilation();
+        Set<Object> providedDeps = new HashSet<>();
+        packageCompilation.getResolution().allDependencies()
+                .stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .map(Package::manifest)
+                .flatMap(pkgManifest -> pkgManifest.platforms().values().stream())
+                .filter(Objects::nonNull)
+                .flatMap(pkgPlatform -> pkgPlatform.dependencies().stream())
+                .filter(dependency -> PlatformLibraryScope.PROVIDED.equals(dependency.get("scope")))
+                .forEach(providedDeps::add);
+
+        return !providedDeps.isEmpty();
+    }
+
+
 }

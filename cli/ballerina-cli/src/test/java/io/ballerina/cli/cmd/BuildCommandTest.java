@@ -24,8 +24,11 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
@@ -45,6 +48,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
@@ -365,6 +369,34 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
+    @Test(description = "Build a ballerina project with provided scope platform jars")
+    public void testBuildProjectWithProvidedJars() {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("error: compilation contains errors"));
+        }
+    }
+
+    @Test(description = "Build a valid ballerina project with provided scope platform jars in dependencies")
+    public void testBuildProjectWithProvidedWarning() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("projectWithProvidedDependency")
+                .resolve("pkg_a"), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("projectWithProvidedDependency").resolve("pkg_b");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("project-with-provided-warning.txt"));
+    }
+
     @Test(description = "Build a valid ballerina project with java imports")
     public void testBuildJavaBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJavaProject");
@@ -599,11 +631,32 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-project-with-compiler-plugin.txt"));
+        }
+    }
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-project-with-compiler-plugin.txt"));
+    @Test(description = "Build an empty package with code generator build tools")
+    public void testBuildEmptyProjectWithBuildTools() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Build an empty package with tests only")
@@ -655,10 +708,13 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-nondefault-module.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-nondefault-module.txt"));
+        }
     }
 
     @Test(description = "Build a package with an invalid user name")
@@ -775,11 +831,13 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-package.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
     }
 
     @Test(description = "Build an empty package with compiler plugin")
@@ -789,11 +847,13 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-package.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
     }
 
     @Test(description = "Build a ballerina project with the flag dump-graph")
@@ -1169,7 +1229,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 {
                         "build-tool-with-invalid-missing-toml-properties",
                         "build-tool-with-invalid-missing-toml-properties.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 },
                 {
                         "build-tool-with-invalid-missing-optional-toml-properties",
@@ -1179,12 +1239,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 {
                         "build-tool-with-diagnostics",
                         "build-tool-with-diagnostics.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 },
                 {
                         "build-tool-with-recurring-tool-properties",
                         "build-tool-with-recurring-tool-properties.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 }
         };
     }
@@ -1231,7 +1291,23 @@ public class BuildCommandTest extends BaseCommandTest {
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                     getOutput("build-bal-project-with-build-tool-not-found.txt"));
+            Assert.assertEquals("error: build tool execution contains errors", e.getDetailedMessages().get(0));
+        }
+    }
+
+    @Test(description = "Build a project with invalid fields in TOML array 'dependency'")
+    public void testBuildProjectWithInvalidDependencyArrayInBallerinaToml() throws IOException {
+        Path projectPath = this.testResources.resolve("invalid-dependency-array-project");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
             Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    getOutput("build-bal-project-with-invalid-dependency-array.txt"));
         }
     }
 

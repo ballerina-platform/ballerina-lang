@@ -5,14 +5,18 @@ import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -23,9 +27,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
@@ -210,6 +216,23 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
     }
 
+    @Test(description = "Run a valid ballerina project with provided scope platform jars")
+    public void testRunProjectWithProvidedJars() throws IOException {
+        Path resourcePath = this.testResources.resolve("projectWithProvidedDependency");
+        BCompileUtil.compileAndCacheBala(resourcePath.resolve("pkg_a"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path projectPath = resourcePath.resolve("pkg_b");
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        runCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("run-project-with-provided-dep.txt"));
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
     @Test(description = "Run a jar file")
     public void testRunJarFile() {
         Path projectPath = this.testResources.resolve("jar-file");
@@ -387,10 +410,32 @@ public class RunCommandTest extends BaseCommandTest {
 
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs();
-        runCommand.execute();
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
+    }
 
+    @Test(description = "Run an empty package with code generator build tools")
+    public void testRunEmptyProjectWithBuildTools() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs();
+            runCommand.execute();
+        }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-empty-project-with-build-tools.txt"));
     }
 
     @AfterSuite

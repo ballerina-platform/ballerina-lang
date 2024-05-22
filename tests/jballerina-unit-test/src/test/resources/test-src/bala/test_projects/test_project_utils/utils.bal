@@ -20,6 +20,10 @@ public function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
 
+public function foo() returns int {
+    return 101;
+}
+
 public function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

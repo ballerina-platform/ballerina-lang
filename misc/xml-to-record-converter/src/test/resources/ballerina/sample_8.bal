@@ -1,11 +1,27 @@
 type Ns0_Address record {
-    string ns0\:street;
-    string ns0\:city;
-    string ns0\:country;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    string street;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    string city;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    string country;
 };
 
 type Ns0_Codes record {
-    int[] ns0\:code;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    int[] code;
 };
 
 @xmldata:Name {
@@ -16,11 +32,31 @@ type Ns0_Codes record {
     uri: "http://sample.com/test"
 }
 type Ns0_BookStore record {
-    string ns0\:storeName;
-    int ns0\:postalCode;
-    boolean ns0\:isOpen;
-    Ns0_Address ns0\:address;
-    Ns0_Codes ns0\:codes;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    string storeName;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    int postalCode;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    boolean isOpen;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    Ns0_Address address;
+    @xmldata:Namespace {
+        prefix: "ns0",
+        uri: "http://sample.com/test"
+    }
+    Ns0_Codes codes;
     @xmldata:Attribute
     string status;
 };

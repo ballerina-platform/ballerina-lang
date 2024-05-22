@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.internal.scheduling.State;
@@ -40,6 +41,7 @@ public class BalEnvironment extends Environment {
     private Module currentModule;
     private String funcName;
     private Parameter[] funcPathParams;
+    private Repository repository;
 
     public BalEnvironment(Strand strand) {
         this.strand = strand;
@@ -49,12 +51,14 @@ public class BalEnvironment extends Environment {
         this.strand = strand;
         this.currentModule = currentModule;
         future = new BalFuture(this.strand);
+        this.repository = new RepositoryImpl();
     }
 
     public BalEnvironment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
         this(strand, currentModule);
         this.funcName = funcName;
         this.funcPathParams = funcPathParams;
+        this.repository = new RepositoryImpl();
     }
 
     /**
@@ -95,7 +99,7 @@ public class BalEnvironment extends Environment {
      * @return Ballerina runtime instance.
      */
     public BalRuntime getRuntime() {
-        return new BalRuntime(strand.scheduler);
+        return new BalRuntime(strand.scheduler, currentModule);
     }
 
     /**
@@ -153,5 +157,9 @@ public class BalEnvironment extends Environment {
      */
     public Object getStrandLocal(String key) {
         return strand.getProperty(key);
+    }
+
+    public Repository getRepository() {
+        return this.repository;
     }
 }

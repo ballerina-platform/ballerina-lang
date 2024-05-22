@@ -42,6 +42,7 @@ public class ImmutabilityBalaTest {
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_selectively_immutable");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_immutable");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_types");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_records");
         result = BCompileUtil.compile("test-src/bala/test_bala/readonly/test_selectively_immutable_type.bal");
         inherentlyImmutableResult = BCompileUtil.compile(

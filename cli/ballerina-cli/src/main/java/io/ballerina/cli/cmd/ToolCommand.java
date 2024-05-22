@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
@@ -495,7 +496,11 @@ public class ToolCommand implements BLauncherCmd {
         }
         try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath, StandardCharsets.UTF_8)) {
             localToolJson = gson.fromJson(bufferedReader, JsonObject.class);
-            JsonObject pkgDesc = localToolJson.get(toolId).getAsJsonObject();
+            JsonElement localTool = localToolJson.get(toolId);
+            if (localTool == null) {
+                return false;
+            }
+            JsonObject pkgDesc = localTool.getAsJsonObject();
             if (pkgDesc.isEmpty()) {
                 return false;
             }
@@ -522,7 +527,7 @@ public class ToolCommand implements BLauncherCmd {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
@@ -662,7 +667,7 @@ public class ToolCommand implements BLauncherCmd {
                     settings.getProxy().password(), getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             boolean foundTools = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(JvmTarget::code)
@@ -825,7 +830,7 @@ public class ToolCommand implements BLauncherCmd {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());

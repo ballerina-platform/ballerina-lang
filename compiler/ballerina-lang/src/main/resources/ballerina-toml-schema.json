@@ -351,6 +351,15 @@
           "type": "boolean"
         }
       }
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "configPath": {
+          "type": "string"
+        }
+      }
     }
   }
 }

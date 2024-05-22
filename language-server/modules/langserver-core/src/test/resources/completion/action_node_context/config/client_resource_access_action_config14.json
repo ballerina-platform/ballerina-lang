@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "post",
       "insertText": "/.post(${1})",
       "insertTextFormat": "Snippet",

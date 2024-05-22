@@ -17,15 +17,20 @@
  */
 package org.ballerinalang.bindgen;
 
+import java.io.IOException;
+
 /**
  * Java resources for the unit testing of superclass bindings generated.
  *
  * @since 2.0.0
  */
 public interface InterfaceTestResource {
+
     public static long TEST_FIELD = 123456;
 
     public int testMethod(int x);
+
+    public String testMethodWithException(Object obj) throws IOException;
 
     public String[] returnStringArray();
 }

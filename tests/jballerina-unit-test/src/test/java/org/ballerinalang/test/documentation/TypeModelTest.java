@@ -121,8 +121,8 @@ public class TypeModelTest {
                 "key constraint category must be key");
         Assert.assertEquals(tableTypeWithKey.get().keyConstraint.constraint.name, "firstName",
                 "key constraint name must be firstName");
-        Assert.assertEquals(tableTypeWithKey.get().keyConstraint.constraint.category, "reference",
-                "key constraint type category must be reference");
+        Assert.assertEquals(tableTypeWithKey.get().keyConstraint.constraint.category, "types",
+                "key constraint type category must be types");
     }
 
     @Test(description = "Test map type doc model")

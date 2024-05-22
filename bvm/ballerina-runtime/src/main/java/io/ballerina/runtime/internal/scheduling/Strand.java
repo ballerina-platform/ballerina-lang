@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ChannelDetails;
@@ -90,6 +91,16 @@ public class Strand {
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
+    public BMap<BString, Object> workerReceiveMap = null;
+    public int channelCount = 0;
+
+    public Strand() {
+        this.id = -1;
+        this.strandLock = null;
+        this.name = null;
+        this.metadata = null;
+        this.state = RUNNABLE;
+    }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties) {
