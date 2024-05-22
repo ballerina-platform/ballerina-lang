@@ -93,7 +93,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
 
             FieldPairs pairing = new FieldPairs(pos, neg);
             if (!Core.isEmpty(cx, Core.diff(pos.rest(), neg.rest()))) {
-                return true;
+                return mappingInhabited(cx, pos, negList.next);
             }
             for (FieldPair fieldPair : pairing) {
                 CellSemType d = (CellSemType) Core.diff(fieldPair.type1(), fieldPair.type2());

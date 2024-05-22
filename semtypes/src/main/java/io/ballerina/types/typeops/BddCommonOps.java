@@ -104,10 +104,10 @@ public abstract class BddCommonOps {
     public static Bdd bddDiff(Bdd b1, Bdd b2) {
         if (b1 == b2) {
             return BddAllOrNothing.bddNothing();
-        } else if (b2 instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b2).isAll() ? BddAllOrNothing.bddNothing() : b1;
-        } else if (b1 instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b1).isAll() ? bddComplement(b2) : BddAllOrNothing.bddNothing();
+        } else if (b2 instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? BddAllOrNothing.bddNothing() : b1;
+        } else if (b1 instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? bddComplement(b2) : BddAllOrNothing.bddNothing();
         } else {
             BddNode b1Bdd = (BddNode) b1;
             BddNode b2Bdd = (BddNode) b2;
@@ -122,7 +122,6 @@ public abstract class BddCommonOps {
                         bddDiff(b1, bddUnion(b2Bdd.left(), b2Bdd.middle())),
                         BddAllOrNothing.bddNothing(),
                         bddDiff(b1, bddUnion(b2Bdd.right(), b2Bdd.middle())));
-
             } else {
                 // There is an error in the Castagna paper for this formula.
                 // The union needs to be materialized here.

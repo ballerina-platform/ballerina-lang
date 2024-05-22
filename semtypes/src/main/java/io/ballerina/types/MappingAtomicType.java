@@ -20,6 +20,7 @@ package io.ballerina.types;
 // TODO: consider switching arrays to lists so if does the element wise comparison correctly, (or override equals)
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * MappingAtomicType node. {@code names} and {@code types} fields must be sorted.
@@ -50,5 +51,27 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
 
     public static MappingAtomicType from(String[] names, CellSemType[] types, CellSemType rest) {
         return new MappingAtomicType(names, types, rest);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MappingAtomicType that = (MappingAtomicType) o;
+        return Arrays.equals(names, that.names) &&
+                Arrays.equals(types, that.types) &&
+                Objects.equals(rest, that.rest);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(rest);
+        result = 31 * result + Arrays.hashCode(names);
+        result = 31 * result + Arrays.hashCode(types);
+        return result;
     }
 }
