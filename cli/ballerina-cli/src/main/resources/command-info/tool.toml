@@ -1,0 +1,135 @@
+[base_command]
+name = "tool"
+short = "Extend the Ballerina CLI with custom commands"
+
+[help]
+[help.base]
+examples = """Pull a tool from the Ballerina Central.
+           $ bal tool pull health
+
+       Pull a specific version of a tool from the Ballerina Central.
+           $ bal tool pull health:1.0.0
+
+       Remove a specific version of an installed tool.
+           $ bal tool remove health:1.0.0
+
+       Remove all the versions of an installed tool.
+           $ bal tool remove health
+
+       Update a tool to the latest version compatible with the current distribution.
+           $ bal tool update health
+
+       Change the active version of a tool.
+           $ bal tool use health:1.0.0
+
+       List all tools available in the local environment.
+           $ bal tool list
+
+       Search the Ballerina Central for tools.
+           $ bal tool search health"""
+long = """Register and manage custom commands for the Ballerina CLI.
+
+       This command facilitates searching, pulling, and updating tools from the
+       Ballerina Central, switching between installed versions, and listing and
+       removing installed tools."""
+synopsis = """bal tool <command> [<-h> |<--help>]
+       bal tool <command> [args]"""
+
+[help.pull]
+examples = """Pull the '1.1.0' version of the 'eod' tool from local repository.
+           $ bal tool pull eod:1.1.0 --repository=local"""
+long = """Fetch a given tool from the Ballerina Central and install it
+       as a Ballerina CLI command.
+
+       The specified tool version should be compatible with the current
+       distribution version. If the tool version is not specified,
+       the latest version compatible with the current distribution
+       will be fetched."""
+synopsis = "bal tool pull <tool-id>[:<version>]"
+
+[help.remove]
+examples = """Remove the '1.1.0' version of the 'eod' tool from local repository.
+           $ bal tool remove eod:1.1.0 --repository=local"""
+long = """Remove a tool that was installed into to the local environment.
+
+       If the tool version is specified, that specific version will be removed.
+       The active version of a tool cannot be removed.
+
+       If the version is not specified, all versions of the tool will be
+       removed including the active version."""
+synopsis = "bal tool remove <tool-id>[:<version>]"
+
+[help.update]
+long = """Fetch the latest version of a given tool that is compatible
+       with the current distribution from the Ballerina Central
+       repository and set it as the active version."""
+synopsis = "bal tool update <tool-id>"
+
+[help.use]
+examples = """Change the active version of a tool.
+          $ bal tool use health:1.0.0
+
+      Change the active version to a local repository tool.
+          $ bal tool use eod:1.1.0 --repository=local"""
+long = """Mark a specified version of a tool available in the local
+       environment as the active version.
+
+       The active version of a tool is used when the tool is invoked."""
+synopsis = "bal tool use <tool-id>:<version>"
+
+[help.list]
+long = """List the tool-id and the versions of all locally available tools.
+
+       The active tool version is marked with an asterisk (*)."""
+synopsis = "bal tool list"
+
+[help.search]
+examples = """Search by tool id.
+           $ bal tool search health"""
+long = "Search the Ballerina Central for tools using a tool-id."
+synopsis = "bal tool search [<tool-id>|<text>]"
+
+[[base_command.subcommand]]
+name = "pull"
+short = "Pull a tool from the Ballerina Central"
+
+[[base_command.subcommand]]
+name = "remove"
+short = "Remove a tool from the local environment."
+
+[[base_command.subcommand]]
+name = "update"
+short = """Update a tool to the latest version compatible
+       with the current distribution."""
+
+[[base_command.subcommand]]
+name = "use"
+short = "Set a tool version as the active version."
+
+[[base_command.subcommand]]
+name = "list"
+short = "List all tools available in the local environment."
+
+[[base_command.subcommand]]
+name = "search"
+short = "Search the Ballerina Central for tools"
+
+[[pull.flag]]
+default_val = ""
+name = "repository"
+usage = "Pull a tool from local repository."
+short = "add a meaningfull short message about flag"
+
+[[remove.flag]]
+command = "remove"
+default_val = ""
+name = "repository"
+usage = "Remove a tool from a custom repository."
+short = "add a meaningfull short message about flag"
+
+[[use.flag]]
+command = "use"
+default_val = ""
+name = "repository"
+usage = "Use a tool from a custom repository."
+short = "add a meaningfull short message about flag"

@@ -300,11 +300,17 @@ def copyResourceSpec = {
     }
 }
 
-def copyBinSpec = {
-    path -> copySpec {
+def copyBinSpec = { path ->
+    copySpec {
         from configurations.bin
-        filter { line -> line.replace('${project.version}', "$project.version") }
         into(path + 'bin')
+
+        eachFile { fileCopyDetails ->
+            if (fileCopyDetails.path.endsWith('.txt')) {
+                // Apply filter only to .txt files
+                fileCopyDetails.filter { line -> line.replace('${project.version}', "$project.version") }
+            }
+        }
     }
 }
 
@@ -335,6 +341,13 @@ def copyProfilerTools = {
     path -> copySpec {
         from('resources/profiler')
         into(path + 'resources/profiler')
+    }
+}
+
+def copyCommandInfo = {
+    path -> copySpec {
+        from "$rootDir/cli/ballerina-cli/src/main/resources/command-info"
+        into(path + 'resources/command-info')
     }
 }
 
@@ -437,6 +450,7 @@ task createZip(type: Zip) {
     with copyDebugAdapterLibsSpec(basePath)
     with copyCompletionFile(basePath)
     with copyProfilerTools(basePath)
+    with copyCommandInfo(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
@@ -460,6 +474,7 @@ task updateBalHome(type: Copy) {
     with copyDebugAdapterLibsSpec(installDir)
     with copyCompletionFile(installDir)
     with copyProfilerTools(installDir)
+    with copyCommandInfo(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
@@ -485,6 +500,7 @@ task createDistribution(type: Copy) {
     with copyDebugAdapterLibsSpec("")
     with copyCompletionFile("")
     with copyProfilerTools("")
+    with copyCommandInfo("")
     with apiDocsSpec("")
     with copyStaticSpec("")
     with copyDocerinaUi("")

@@ -1,0 +1,7 @@
+go 1.22.2
+
+use (
+	./cli/ballerina-go-cli/build/bal
+	./cli/ballerina-go-cli/executables
+	./cli/ballerina-go-cli/go_tests
+)

@@ -1,0 +1,44 @@
+[base_command]
+name = "deprecate"
+short = "Deprecates a published package"
+
+[help]
+[help.base]
+examples = """Deprecate all versions of the package ballerina/io
+           $ bal deprecate ballerina/io
+
+       Deprecate a specific version of the package ballerina/io
+           $ bal deprecate ballerina/io:1.1.1
+
+       Deprecate a specific version of the package with an optional warning message
+           $ bal deprecate ballerina/io:1.1.1 --message="deprecated due to a security vulnerability"
+
+       Undo deprecation of a package
+           $ bal deprecate ballerina/io --undo"""
+long = """Deprecate a package published in Ballerina central.
+
+       If a specific version of a package is provided, that version will be deprecated.
+       If no version is specified, all versions of the package will be deprecated.
+
+       A deprecated package will not be used as a dependency of a package unless the deprecated package is already recorded in
+       the `Dependencies.toml` and the `--sticky` option is used to build the package. Also, a deprecated package will be used as
+       a dependency of a package if there are no other versions that can satisfy dependency constraints.
+
+       A warning diagnostic will be issued whenever a deprecated package is used as a dependency.
+
+       This command does not delete the package from Ballerina central, and the package deprecation can be undone using the `--undo` option.
+    """
+synopsis = "bal deprecate [OPTIONS] <org-name>/<package-name>[:<version>]"
+
+[[base_command.flag]]
+default_val = ""
+name = "message"
+param = "msg"
+usage = "Use the given <msg> as the deprecation message"
+short = "add a meaningfull short message about flag"
+
+[[base_command.flag]]
+default_val = false
+name = "undo"
+usage = "Undo deprecation of a package"
+short = "add a meaningfull short message about flag"

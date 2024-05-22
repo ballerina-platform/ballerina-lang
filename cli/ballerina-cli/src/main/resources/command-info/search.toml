@@ -1,0 +1,13 @@
+[base_command]
+name = "search"
+short = "Search Ballerina Central for packages"
+
+[help]
+[help.base]
+examples = """Search for packages.
+           $ bal search gmail"""
+long = """Search Ballerina Central for the given keyword appearing
+       in the organization name or package name.
+
+       The keyword is treated as case-insensitive when the search is executed."""
+synopsis = "bal search <keyword>"

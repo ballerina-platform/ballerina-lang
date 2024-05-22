@@ -1,0 +1,97 @@
+[base_command]
+function = "utils.RunCommand(cmd, args, javaCmdPass, cmdLineArgsPass)"
+name = "run"
+short = "Compile and run the current package"
+
+[help]
+[help.base]
+examples = """
+    Run the 'main' function and service(s) in the 'app.bal' file.
+           $ bal run app.bal
+
+       Run the 'main' function and service(s) in the `app` executable JAR.
+           $ bal run app.jar
+
+       Run the 'main' function and service(s) in the current package.
+           $ bal run
+
+       Run the 'main' function in the current package with three program args:
+       add, 10, and 5.
+           $ bal run -- add 10 5
+
+       Run the 'main' function with values provided for configurable variables:
+           $ bal run -- -Cval1=add -Cval2=10 -Cval3=5
+
+    """
+long = """Compile the current package and run it. This command does not produce
+       an executable program.
+
+       The `run` command executes the program when a JAR file produced by
+       'bal build' is given as the argument. If not, compiles and runs the given
+       package or .bal file.
+
+       A Ballerina program consists of one or more modules; one of these modules
+       is distinguished as the root module, which is the default module of
+       current package.
+
+       Ballerina program execution consists of two consecutive phases.
+       The initialization phase initializes all modules of a program one after
+       another. If a module defines a function named 'init()', it will be
+       invoked during this phase. If the root module of the program defines a
+       public function named 'main()', then it will be invoked.
+
+       If the initialization phase of program execution completes successfully,
+       then execution proceeds to the listening phase. If there are no module
+       listeners, then the listening phase immediately terminates successfully.
+       Otherwise, the listening phase initializes the module listeners.
+
+       A service declaration is the syntactic sugar for creating a service object
+       and attaching it to the module listener specified in the service
+       declaration.
+
+       Note: Running individual '.bal' files of a package is not allowed."""
+synopsis = "bal run [OPTIONS] [<package>|<source-file>|<jar-file>] [-- <args...> <(-Ckey=value)...>]"
+
+[[base_command.flag]]
+default_val = ""
+name = "debug"
+param = "port"
+short = "add a meaningfull short message about flag"
+usage = " Run in the remote debugging mode."
+
+[[base_command.flag]]
+default_val = false
+name = "offline"
+short = "add a meaningfull short message about flag"
+usage = """Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches, will fail
+           otherwise."""
+
+[[base_command.flag]]
+default_val = false
+name = "observability-included"
+short = "add a meaningfull short message about flag"
+usage = "Include the dependencies that are required to enable observability."
+
+[[base_command.flag]]
+default_val = false
+name = "sticky"
+short = "add a meaningfull short message about flag"
+usage = """Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option
+       	   is ignored."""
+
+[[base_command.flag]]
+default_val = ""
+name = "target-dir"
+param = "target-dir"
+short = "add a meaningfull short message about flag"
+usage = """Target directory path. The directory path can be absolute or relative
+           to the current package."""
+
+[[base_command.flag]]
+default_val = "false"
+name = "show-dependency-diagnostics"
+short = "add a meaningfull short message about flag"
+usage = """Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console."""

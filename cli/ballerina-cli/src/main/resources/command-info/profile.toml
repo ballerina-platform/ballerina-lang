@@ -1,0 +1,37 @@
+[base_command]
+name = "profile"
+short = "Run Ballerina Profiler on the source and generate flame graph"
+
+[help]
+[help.base]
+examples = """Run Ballerina profiler on the 'main' function and service(s) in the 'app.bal' file.
+           $ bal profile app.bal
+
+       Run the 'main' function and service(s) in the current package.
+           $ bal profile
+
+       Run the 'main' function in the current package with remote debugging enabled.
+           $ bal profile --debug 5005"""
+long = """Compile the current package and run the program with Ballerina Profiler. This command generates an html file
+       with name `ProfilerReport.html` in the target directory.
+
+       The generated `ProfilerReport.html` file contains the flame graph that visualizes the distributed Ballerina
+       functions with execution details.
+
+       Note: This is an experimental feature, which supports only a limited
+       set of functionality."""
+synopsis = "bal profile [OPTIONS] [<package>|<source-file>]"
+
+[[base_command.flag]]
+default_val = ""
+name = "debug"
+param = "port"
+short = "add a meaningfull short message about flag"
+usage = "Run Ballerina Profiler in the remote debugging mode."
+
+[[base_command.flag]]
+default_val = "false"
+name = "show-dependency-diagnostics"
+short = "add a meaningfull short message about flag"
+usage = """Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console."""

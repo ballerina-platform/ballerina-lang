@@ -1,0 +1,32 @@
+[base_command]
+name = "add"
+short = "Add a new module to the current package"
+
+[help]
+[help.base]
+long = """
+    Creates a new directory called '<directory_name>' inside the 'modules'
+       directory of the package.
+
+       Any top-level directory inside the 'modules' directory becomes a
+       Ballerina module and its name can be derived as:
+
+           module-name := <package-name>.<directory_name>
+
+       Use the 'module-name' when importing the module. The organization name
+       is optional if the module is imported within the current package.
+
+           import module-name;
+           import org-name/module-name;
+
+       Module names can contain only alphanumerics, underscores,
+       and periods, and the maximum length is 256 characters."""
+
+examples = """
+    Add module 'app.core' to the current package 'app'.
+           $ bal add core
+
+       Add module 'app.core.db' to the current package 'app'.
+           $ bal add core.db
+"""
+synopsis = "bal add <directory_name>"

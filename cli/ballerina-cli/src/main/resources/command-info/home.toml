@@ -1,0 +1,11 @@
+[base_command]
+name = "home"
+short = "Print the path of the current Ballerina distribution"
+
+[help]
+[help.base]
+examples = """Print the Ballerina distribution, which is currently configured.
+          $ bal home"""
+long = "Print the path of current Ballerina Distribution in use."
+synopsis = "bal home"
+short = "add a meaningfull short message about flag"

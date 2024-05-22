@@ -1,0 +1,58 @@
+[base_command]
+name = "doc"
+short = "Build the documentation of a Ballerina package"
+
+[help]
+[help.base]
+examples = """Generate API documentation for the current package.
+           $ bal doc
+
+       Generate API documentation for a Ballerina package in a given path.
+       The file path can be relative or absolute.
+           $ bal doc <package-path>"""
+long = """Generates the documentation of the current package and writes it to
+       the 'target/apidocs' directory."""
+synopsis = "bal build [OPTIONS] [<package>]"
+
+[[base_command.flag]]
+default_val = ""
+name = "output"
+short = "add a meaningfull short message about flag"
+shorthand = "o"
+usage = "Write the output to the given directory."
+
+[[base_command.flag]]
+default_val = ""
+name = "exclude"
+short = "add a meaningfull short message about flag"
+shorthand = "e"
+usage = "Exclude the given list of modules."
+
+[[base_command.flag]]
+default_val = false
+name = "offline"
+short = "add a meaningfull short message about flag"
+usage = """Proceed without accessing the network. Attempt to proceed
+ with the previously downloaded dependencies in local caches, will fail otherwise."""
+
+[[base_command.flag]]
+default_val = false
+name = "sticky"
+short = "add a meaningfull short message about flag"
+usage = """Attempt to stick to the dependency versions available
+in the 'Dependencies.toml' file.
+If the file doesn't exist, this option is ignored."""
+
+[[base_command.flag]]
+default_val = ""
+name = "target-dir"
+param = "path"
+short = "add a meaningfull short message about flag"
+usage = "Target directory path."
+
+[[base_command.flag]]
+default_val = false
+name = "show-dependency-diagnostics"
+short = "add a meaningfull short message about flag"
+usage = """Print the diagnostics that are related to the dependencies.
+By default, these diagnostics are not printed to the console."""

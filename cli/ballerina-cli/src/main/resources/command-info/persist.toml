@@ -1,0 +1,69 @@
+[base_command]
+name = "persist"
+short = "Manage data persistence"
+
+[help]
+[help.base]
+examples = """
+       $ bal persist init
+       $ bal persist generate
+  """
+long = """
+       Manage data persistence in a Ballerina package.
+
+       Initializing the package for persistence is the first step towards achieving
+       data persistence in a Ballerina package. This step creates the required
+       directories and configuration files.
+       For example:
+
+           $ bal persist init
+
+       Defining the application's data model is the next step. Use the generated
+       definition file in the `persist` directory to define the data model
+       with the domain-specific entities. Use the standard Ballerina record type
+       definitions to represent the entities and their relationships.
+       For example:
+
+           type Department record {|
+               readonly string deptNo;
+               string deptName;
+               Employee[] employees;
+           |};
+
+           type Employee record {|
+               readonly string empNo;
+               string firstName;
+               string lastName;
+               Department department;
+           |};
+
+       Then, generate the client API and SQL script based on the data model. Use the generated
+       API to query and manipulate the persistent data in the application and use the generated
+       SQL script to create the database tables.
+       For example:
+
+       $ bal persist generate
+  """
+synopsis = "bal persist <command> [<-h> | <--help>]"
+
+[[base_command.subcommand]]
+description = "This subcommand initializes the Ballerina package for persistence."
+name = "init"
+short = "Initialize the Ballerina package for persistence."
+
+[[init.flag]]
+default_val = ""
+name = "module"
+usage = "Initialize the Ballerina package for persistence with the given module"
+short = "add a meaningfull short message about flag"
+
+[[init.flag]]
+default_val = ""
+name = "datastore"
+usage = "The type of the datastore to be used for persistence"
+short = "add a meaningfull short message about flag"
+
+[[base_command.subcommand]]
+description = "Generate the client API and SQL script based on the data model defined in the `persist` directory"
+name = "generate"
+short = "Generate the client API based on the data model."

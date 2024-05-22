@@ -1,0 +1,40 @@
+[base_command]
+name = "pack"
+short = "Create distribution format of the current package"
+
+[help]
+[help.base]
+examples = """Pack the current package into .bala file.
+           $ bal pack"""
+long = """Compiles and packages the current package into a '.bala' file and writes
+       it to the 'target/bala' directory."""
+synopsis = "bal build [OPTIONS] [<package>]"
+
+[[base_command.flag]]
+default_val = false
+name = "offline"
+usage = """Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches, will fail
+           otherwise."""
+short = "add a meaningfull short message about flag"
+
+[[base_command.flag]]
+default_val = false
+name = "sticky"
+usage = """Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored."""
+short = "add a meaningfull short message about flag"
+
+[[base_command.flag]]
+default_val = ""
+name = "target-dir"
+usage = "Target directory path."
+short = "add a meaningfull short message about flag"
+
+[[base_command.flag]]
+default_val = false
+name = "show-dependency-diagnostics"
+usage = """Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console."""
+short = "add a meaningfull short message about flag"
