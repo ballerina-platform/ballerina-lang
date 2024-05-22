@@ -38,7 +38,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Class to test ExternalDependency annotation.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class ExternalDependencyAnnotationTest {
 

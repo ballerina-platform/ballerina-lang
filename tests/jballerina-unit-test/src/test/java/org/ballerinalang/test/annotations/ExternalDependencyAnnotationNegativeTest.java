@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Negative tests for ExternalDependency annotation.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class ExternalDependencyAnnotationNegativeTest {
 
