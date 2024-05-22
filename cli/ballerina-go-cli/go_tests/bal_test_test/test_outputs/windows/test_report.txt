@@ -1,0 +1,17 @@
+Compiling source
+                foo\winery:0.1.0
+        
+        Running Tests
+        
+                winery
+                        [pass] testRunMain
+        
+        
+                        1 passing
+                        0 failing
+                        0 skipped
+        
+        Generating Test Report
+                \tmp\run-test-resources3803555381\target\report\test_results.json
+        
+        warning: Could not find the required HTML report tools for code coverage at <ballerina.home>\lib\tools\coverage\report.zip

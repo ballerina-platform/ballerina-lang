@@ -103,7 +103,6 @@ func GetSubCommands(cmd *cobra.Command) []SubCommandInfo {
 func GetCommandData(cmd *cobra.Command, field string, configInfo ConfigFileInfo, flagfield string, name string) CommandData {
 	viper.SetConfigFile(configInfo.Path)
 	viper.SetConfigType(configInfo.FileType)
-	fmt.Println(configInfo.Path)
 	return CommandData{
 		BName:    name,
 		BShort:   cmd.Short,

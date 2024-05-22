@@ -1,0 +1,8 @@
+[package]
+org = "pabadhi"
+name = "bal_test_group"
+version = "0.1.0"
+distribution = "2201.0.9"
+
+[build-options]
+observabilityIncluded = true

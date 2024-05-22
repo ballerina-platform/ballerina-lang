@@ -1,0 +1,16 @@
+Compiling source
+        pabadhi/bal_test_group:0.1.0
+
+Running Tests
+
+        bal_test_group
+                [pass] testFunc1
+                [pass] testFunc2
+                [pass] testFunc3
+
+
+                3 passing
+                0 failing
+                0 skipped
+
+                Test execution time : 0.008s

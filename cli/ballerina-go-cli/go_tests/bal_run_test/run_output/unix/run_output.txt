@@ -1,0 +1,8 @@
+Compiling source
+        pabadhi/bal_run_sample:0.1.0
+WARNING [main.bal:(9:4,9:58)] unused variable 'isSuccess'
+
+Running executable
+
+13
+

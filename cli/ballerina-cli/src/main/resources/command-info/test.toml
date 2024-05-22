@@ -211,3 +211,10 @@ name = "show-dependency-diagnostics"
 short = "add a meaningfull short message about flag"
 usage = """Print the diagnostics that are related to the dependencies. By default, these
            diagnostics are not printed to the console."""
+
+[[base_command.flag]]
+default_val = ""
+name = "includes"
+short = "add a meaningfull short message about flag"
+usage = """Include a specific Ballerina source files or folders for code coverage
+            calculation by providing a comma-separated list of file paths. """
