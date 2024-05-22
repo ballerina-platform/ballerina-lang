@@ -15,6 +15,8 @@ module io.ballerina.lang {
     requires io.ballerina.central.client;
     requires io.ballerina.identifier;
     requires java.semver;
+    requires io.ballerina.maven.resolver;
+    requires org.apache.commons.lang3;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;

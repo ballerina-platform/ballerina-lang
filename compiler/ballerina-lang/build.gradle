@@ -30,10 +30,13 @@ dependencies {
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
+    implementation "org.apache.maven:maven-artifact:${project.apacheMavenArtifactVersion}"
+    implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
+    implementation "org.apache.maven:maven-artifact:${project.mavenArtifactVersion}"
     testImplementation ("guru.nidi:graphviz-java") {
         because("We use this library to execute package resolution tests")
     }

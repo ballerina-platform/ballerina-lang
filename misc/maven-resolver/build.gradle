@@ -35,7 +35,9 @@ jar {
 }
 
 dependencies {
-    implementation "org.apache.maven:maven-resolver-provider:${project.apacheMavenProviderVersion}"
+    implementation ("org.apache.maven:maven-resolver-provider:${project.apacheMavenProviderVersion}") {
+        exclude group: 'org.apache.maven', module: 'maven-model-builder'
+    }
     implementation "org.apache.maven.resolver:maven-resolver-api:${project.apacheMavenApiVersion}"
     implementation "org.apache.maven.resolver:maven-resolver-spi:${project.apacheMavenSpiVersion}"
     implementation "org.apache.maven.resolver:maven-resolver-util:${project.apacheMavenUtilVersion}"
@@ -50,3 +52,19 @@ dependencies {
 
 description = 'Ballerina - Maven dependency resolver'
 
+ext.moduleName = 'io.ballerina.maven.resolver'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
