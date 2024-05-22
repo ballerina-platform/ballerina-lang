@@ -5395,6 +5395,7 @@ public class Desugar extends BLangNodeVisitor {
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
                 : (currentOnFailIndex - 1);
         this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        onFailBody.scope = new Scope(env.scope.owner);
         onFailBody = rewrite(onFailBody, env);
         BLangFail failToEndBlock = new BLangFail();
         if (onFailClause.isInternal && fail.exprStmt != null) {
