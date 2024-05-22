@@ -45,9 +45,7 @@ compileJava {
     //println 'Compiler args: ' + options.compilerArgs
     doFirst {
         generatedOutputDir.exists() || generatedOutputDir.mkdirs()
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }

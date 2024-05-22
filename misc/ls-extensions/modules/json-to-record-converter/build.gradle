@@ -62,9 +62,7 @@ ext.moduleName = 'json-to-record-converter'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }

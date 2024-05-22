@@ -75,9 +75,7 @@ build {
 compileJava {
     dependsOn 'kaitai'
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
     }
 }
 

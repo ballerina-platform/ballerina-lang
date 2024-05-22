@@ -28,9 +28,7 @@ ext.moduleName = 'compiler.plugin.test.event.logger'
 
 compileJava {
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }

@@ -120,6 +120,8 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    // Supress unknown module warning
+    options.compilerArgs << "-Xlint:-module"
 }
 
 checkstyle {
@@ -203,9 +205,7 @@ test.finalizedBy(jacocoMergeExec)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//        ]
+//        options.compilerArgs << '--module-path' << classpath.asPath
 //        classpath = files()
 //    }
 //}

@@ -31,9 +31,7 @@ ext.moduleName = 'compiler.plugin.test.init.balfilediagnostic'
 
 compileJava {
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }

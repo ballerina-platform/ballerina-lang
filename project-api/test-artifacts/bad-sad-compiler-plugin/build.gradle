@@ -32,9 +32,7 @@ ext.moduleName = 'bad.sad.compiler.plugin'
 
 compileJava {
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
         classpath = files()
     }
 }
