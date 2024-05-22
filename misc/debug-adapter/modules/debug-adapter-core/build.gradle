@@ -44,8 +44,10 @@ artifacts {
 }
 
 createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
 }
 
 test {

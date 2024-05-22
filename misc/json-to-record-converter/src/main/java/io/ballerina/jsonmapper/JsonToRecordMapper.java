@@ -93,7 +93,8 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager)}}
+     * <p> Use {@link
+     * JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager, boolean)}}
      * instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record

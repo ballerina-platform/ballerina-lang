@@ -128,7 +128,6 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
  * This class is responsible for reading the compiled package file (bir) and creating a package symbol.
- * <p>
  *
  * @since 0.995.0
  */

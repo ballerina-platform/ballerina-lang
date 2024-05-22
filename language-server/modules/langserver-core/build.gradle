@@ -121,8 +121,11 @@ artifacts {
 }
 
 createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+    doFirst {
+        logger.info(classpath.toList().toString())
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
 }
 
 tasks.register('deleteGeneratedModules', Delete) {
@@ -164,3 +167,4 @@ tasks.register('buildAndCopy', Copy) {
 }
 
 tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')
+tasks.createJavadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
