@@ -5,6 +5,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -624,13 +625,18 @@ public class Package {
         }
 
         private Package createNewPackage() {
+            Set<String> oldPackageImports = ProjectUtils.getPackageImports(this.project.currentPackage());
+            PackageResolution oldResolution = this.project.currentPackage().getResolution();;
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
                     this.packageMdContext, this.compilationOptions, this.moduleContextMap,
                     DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
-
+            Set<String> currentPackageImports = ProjectUtils.getPackageImports(this.project.currentPackage());
+            if (oldPackageImports.equals(currentPackageImports)) {
+                this.project.currentPackage().packageContext().getResolution(oldResolution);
+            }
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
             offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().packageContext()

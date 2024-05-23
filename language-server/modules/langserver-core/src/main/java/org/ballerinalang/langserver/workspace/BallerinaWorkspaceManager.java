@@ -1268,7 +1268,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 // Update project instance
                 projectContext.setProject(updatedDoc.module().project());
             }
-        } finally {
+        } catch (Exception e) {
+            String message = e.getMessage();
+            throw new WorkspaceDocumentException("Error occurred while updating document: " + filePath.toString(), e);
+        }
+        finally {
             // Unlock Project Instance
             lock.unlock();
         }

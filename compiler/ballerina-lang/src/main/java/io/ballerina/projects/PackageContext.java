@@ -58,8 +58,8 @@ class PackageContext {
      */
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
-    private Set<PackageDependency> packageDependencies;
-    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
+    private Set<PackageDependency> packageDependencies; // This is added during getResolution() method
+    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph; // This is added during resolveResolution() method
     private PackageResolution packageResolution;
     private PackageCompilation packageCompilation;
 
@@ -261,6 +261,13 @@ class PackageContext {
     PackageResolution getResolution(CompilationOptions compilationOptions, boolean isCacheEnabled) {
         if (!isCacheEnabled || packageResolution == null) {
                 packageResolution = PackageResolution.from(this, compilationOptions);
+        }
+        return packageResolution;
+    }
+
+   PackageResolution getResolution(PackageResolution oldResolution) {
+        if (packageResolution == null) {
+            packageResolution = PackageResolution.from(oldResolution, this, this.compilationOptions);
         }
         return packageResolution;
     }
