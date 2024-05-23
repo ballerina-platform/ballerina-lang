@@ -164,7 +164,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
             return packagesMap;
         }
         for (File file : orgDirs) {
-            if (!file.isDirectory() || file.isHidden() || file.getName().startsWith(".")) {
+            if (!file.isDirectory() || file.isHidden()) {
                 continue;
             }
             String orgName = file.getName();

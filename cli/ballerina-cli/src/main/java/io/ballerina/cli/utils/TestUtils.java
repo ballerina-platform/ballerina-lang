@@ -106,11 +106,11 @@ public class TestUtils {
 
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
         // Following lists will hold the coverage information needed for the coverage XML file generation.
-        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList<>();
-        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList<>();
-        List<IClassCoverage> packageBalClassCoverageList = new ArrayList<>();
-        List<ExecutionData> packageExecData = new ArrayList<>();
-        List<SessionInfo> packageSessionInfo = new ArrayList<>();
+        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList();
+        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList();
+        List<IClassCoverage> packageBalClassCoverageList = new ArrayList();
+        List<ExecutionData> packageExecData = new ArrayList();
+        List<SessionInfo> packageSessionInfo = new ArrayList();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
@@ -120,9 +120,9 @@ public class TestUtils {
                     coverageModules.get(module.moduleName().toString()), exclusionClassList);
         }
         // Traverse coverage map and add module wise coverage to test report
-        for (var mapElement : moduleCoverageMap.entrySet()) {
-            String moduleName = mapElement.getKey();
-            ModuleCoverage moduleCoverage = mapElement.getValue();
+        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = (String) mapElement.getKey();
+            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
         if (CodeCoverageUtils.isRequestedReportFormat(coverageReportFormat,
@@ -159,7 +159,7 @@ public class TestUtils {
         if (!project.buildOptions().testReport() && !project.buildOptions().codeCoverage()) {
             return;
         }
-        if (testReport.getModuleStatus().isEmpty()) {
+        if (testReport.getModuleStatus().size() <= 0) {
             return;
         }
 

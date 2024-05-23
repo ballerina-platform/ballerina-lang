@@ -38,17 +38,17 @@ public class Lists {
 
         switch (TypeUtils.getImpliedType(((BArrayType) array.getType()).getElementType()).getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                return array.getBoolean(index);
+                return Boolean.valueOf(array.getBoolean(index));
             case TypeTags.BYTE_TAG:
-                return (long) array.getByte(index);
+                return new Long(array.getByte(index));
             case TypeTags.FLOAT_TAG:
-                return array.getFloat(index);
+                return new Double(array.getFloat(index));
             case TypeTags.DECIMAL_TAG:
                 return array.getRefValue(index);
             case TypeTags.INT_TAG:
-                return (long) (int) array.getInt(index);
+                return new Long((int) array.getInt(index));
             case TypeTags.STRING_TAG:
-                return String.valueOf(array.getString(index));
+                return new String(array.getString(index));
             default:
                 return array.getRefValue(index);
         }

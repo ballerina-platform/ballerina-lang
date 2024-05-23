@@ -509,7 +509,7 @@ public class PushCommand implements BLauncherCmd {
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
-                if (null != errorMessage && !errorMessage.trim().isEmpty()) {
+                if (null != errorMessage && !"".equals(errorMessage.trim())) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

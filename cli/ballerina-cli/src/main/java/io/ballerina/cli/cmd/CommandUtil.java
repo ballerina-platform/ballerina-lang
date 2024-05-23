@@ -117,7 +117,10 @@ public class CommandUtil {
     public static final String MAIN_TEMPLATE = "main";
     public static final String FILE_STRING_SEPARATOR = ", ";
     private static FileSystem jarFs;
+    private static Map<String, String> env;
     private static PrintStream errStream;
+    private static PrintStream outStream;
+    private static Path homeCache;
     private static boolean exitWhenFinish;
     private static String platform;
 
@@ -126,12 +129,14 @@ public class CommandUtil {
     }
 
     public static void initJarFs() {
+        URI uri = null;
         try {
-            URI uri = CommandUtil.class.getClassLoader().getResource(CREATE_CMD_TEMPLATES).toURI();
+            uri = CommandUtil.class.getClassLoader().getResource(CREATE_CMD_TEMPLATES).toURI();
             if (uri.toString().contains("!")) {
                 final String[] array = uri.toString().split("!");
                 if (null == jarFs) {
-                    jarFs = FileSystems.newFileSystem(URI.create(array[0]), new HashMap<>());
+                    env = new HashMap<>();
+                    jarFs = FileSystems.newFileSystem(URI.create(array[0]), env);
                 }
             }
         } catch (URISyntaxException | IOException e) {
@@ -863,14 +868,10 @@ public class CommandUtil {
      * @return list of templates
      */
     public static List<String> getTemplates() {
-        Path templateDir;
         try {
-            templateDir = getTemplatePath();
-        } catch (URISyntaxException e) {
-            return new ArrayList<>();
-        }
-        
-        try (Stream<Path> walk = Files.walk(templateDir, 1)) {
+            Path templateDir = getTemplatePath();
+            Stream<Path> walk = Files.walk(templateDir, 1);
+
             List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
                     .map(directory -> directory.getFileName())
@@ -886,9 +887,9 @@ public class CommandUtil {
                 return templates;
             }
 
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             // we will return an empty list if error.
-            return new ArrayList<>();
+            return new ArrayList<String>();
         }
     }
 
@@ -1081,22 +1082,20 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        try (Stream<Path> paths = Files.list(templateDir)) {
-            List<Path> templateFilePathList = paths.toList();
-            
-            StringBuilder existingFiles = new StringBuilder();
-            for (Path path : templateFilePathList) {
-                Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);
-                if (fileNameOptional.isPresent()) {
-                    String fileName = fileNameOptional.get();
-                    if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
-                            Files.exists(packagePath.resolve(fileName))) {
-                        existingFiles.append(fileName).append(FILE_STRING_SEPARATOR);
-                    }
+        Stream<Path> paths = Files.list(templateDir);
+        List<Path> templateFilePathList = paths.toList();
+        StringBuilder existingFiles = new StringBuilder();
+        for (Path path : templateFilePathList) {
+            Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);
+            if (fileNameOptional.isPresent()) {
+                String fileName = fileNameOptional.get();
+                if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
+                        Files.exists(packagePath.resolve(fileName))) {
+                    existingFiles.append(fileName).append(FILE_STRING_SEPARATOR);
                 }
             }
-            return existingFiles.toString();
         }
+        return existingFiles.toString();
     }
 
     /**

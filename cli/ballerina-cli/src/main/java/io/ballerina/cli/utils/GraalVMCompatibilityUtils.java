@@ -162,7 +162,7 @@ public class GraalVMCompatibilityUtils {
         // List all dependencies that are not GraalVM compatible
         String dependencyWarning = getWarningForDependencies(pkg, isTestExec);
         if (dependencyWarning != null) {
-            if (!warnings.isEmpty()) {
+            if (warnings.length() > 0) {
                 warnings.append(System.lineSeparator());
             }
             warnings.append(dependencyWarning);

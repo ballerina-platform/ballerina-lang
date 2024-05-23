@@ -114,7 +114,7 @@ public class CentralUtils {
         try {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
-            throw createLauncherException("Error occurred when reading file for token " + path);
+            throw createLauncherException("Error occurred when reading file for token " + path.toString());
         }
     }
 

@@ -152,7 +152,7 @@ public class SearchCommand implements BLauncherCmd {
                                                             settings.getCentral().getMaxRetries());
             boolean foundSearch = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(JvmTarget::code)
+                    .map(target -> target.code())
                     .collect(Collectors.joining(","));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
                     supportedPlatform, RepoUtils.getBallerinaVersion());
@@ -165,7 +165,7 @@ public class SearchCommand implements BLauncherCmd {
             }
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
+            if (null != errorMessage && !"".equals(errorMessage.trim())) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

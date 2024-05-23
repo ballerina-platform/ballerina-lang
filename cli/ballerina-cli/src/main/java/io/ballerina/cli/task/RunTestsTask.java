@@ -324,7 +324,7 @@ public class RunTestsTask implements Task {
         }
 
         if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
-            if (!this.excludesInCoverage.isEmpty()) {
+            if (!this.excludesInCoverage.equals("")) {
                 List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
                         split(",")));
                 getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
@@ -336,10 +336,7 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths;
-        try (var files = Files.walk(Paths.get(projectRootString), 3)) {
-            paths = files.toList();
-        }
+        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
@@ -459,7 +456,7 @@ public class RunTestsTask implements Task {
                 unMatchedPatterns.add(unModifiedSourcePattern);
                 continue;
             }
-            filteredPaths.forEach(validSourceFileSet::remove);
+            validSourceFileSet.removeAll(filteredPaths);
         }
         if (!unMatchedPatterns.isEmpty()) {
             out.println("WARNING: No matching sources found for " + String.join(", ", unMatchedPatterns));

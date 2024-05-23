@@ -266,7 +266,7 @@ public class BalToolsUtil {
         if (oldTools.isEmpty()) {
             return;
         }
-        oldTools.values().forEach(tool -> {
+        oldTools.values().stream().forEach(tool -> {
             Path toolCachePath = balaCacheDirPath.resolve(Path.of(tool.org(), tool.name()));
             if (toolCachePath.toFile().isDirectory()) {
                 List<String> versions = Arrays.stream(toolCachePath.toFile().listFiles((dir, name) -> {
@@ -279,7 +279,7 @@ public class BalToolsUtil {
                 })).map(File::getName).collect(Collectors.toList());
 
                 Optional<String> latestVersion = getLatestVersion(versions);
-                versions.forEach(version -> {
+                versions.stream().forEach(version -> {
                     // If there is no current active version in balToolsManifest, we set the latest version in the
                     // central cache as active. This is because in U6, U7, the latest is automatically picked as active.
                     boolean isActive = balToolsManifest.getActiveTool(tool.id()).isEmpty()
