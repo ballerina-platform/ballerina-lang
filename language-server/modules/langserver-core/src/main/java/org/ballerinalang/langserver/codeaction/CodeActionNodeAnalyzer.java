@@ -205,14 +205,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(TypeDefinitionNode node) {
         checkAndSetCodeActionNode(node);
-
-        // If cursor was outside object/record type desc, we have to manually check for the type
-        Node typeDescriptor = node.typeDescriptor();
-        if (typeDescriptor.kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            checkAndSetSyntaxKind(typeDescriptor.kind());
-        } else if (typeDescriptor.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            checkAndSetSyntaxKind(typeDescriptor.kind());
-        }
+        checkAndSetSyntaxKind(node.typeDescriptor().kind());
 
         Optional<Token> qualifier = node.visibilityQualifier();
         int startOffset = qualifier.isEmpty() ?
