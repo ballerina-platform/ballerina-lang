@@ -37,7 +37,7 @@ public final class DiagnosticAnnotation {
     private static final String COLON = ":";
     private static final String ELLIPSIS = "...";
     private static final int PIPE_AND_PADDING_LENGTH = " | ".length();
-    private static final int MAX_LINES_BEFORE_HIDING = 2;
+    private static final int MAX_LINES_BEFORE_HIDING = 3;
     private static final String INTERNAL_COLOR = "blue";
     private static final String HINT_COLOR = "green";
     private static final String INFO_COLOR = "blue";
@@ -94,10 +94,23 @@ public final class DiagnosticAnnotation {
             int maxLength = terminalWidth - digitsNum - PIPE_AND_PADDING_LENGTH;
             TruncateResult result = truncate(lines.get(0), maxLength, start, length);
             outputBuilder.append(padding).append(PIPE).append(NEW_LINE)
-                    .append(getLineNumberString(digitsNum, startLineNumber)).append(PIPE).append(" ")
-                    .append(result.line).append(NEW_LINE)
-                    .append(padding).append(PIPE).append(" ")
-                    .append(getUnderline(result.diagnosticStart, result.diagnosticLength)).append(NEW_LINE);
+                    .append(getLineNumberString(digitsNum, startLineNumber)).append(PIPE).append(" ");
+            if (result.needsWrap) {
+                int firstUnderlineLength = Math.min(result.diagnosticLength, maxLength - result.diagnosticStart);
+                String underlineFirstHalf = getUnderline(result.diagnosticStart, firstUnderlineLength);
+                String underlineSecondHalf =
+                        getUnderline(0, result.diagnosticLength - maxLength + result.diagnosticStart);
+                outputBuilder.append(result.line, 0, maxLength).append(NEW_LINE)
+                        .append(padding).append(PIPE).append(" ")
+                        .append(underlineFirstHalf).append(NEW_LINE)
+                        .append(result.line, maxLength, result.line.length()).append(NEW_LINE)
+                        .append(underlineSecondHalf);
+            } else {
+                String underline = getUnderline(result.diagnosticStart, result.diagnosticLength);
+                outputBuilder.append(result.line).append(NEW_LINE)
+                        .append(padding).append(PIPE).append(" ")
+                        .append(underline).append(NEW_LINE);
+            }
             return outputBuilder.toString();
         }
         String startLine = lines.get(0);
@@ -119,30 +132,71 @@ public final class DiagnosticAnnotation {
         TruncateResult endLineResult = truncate(endLine, maxLength, 0,
                 endOffset + 3 * tabsInLastLine);
 
+        int firstUnderlineLength =
+                Math.min(startLineResult.diagnosticLength, maxLength - startLineResult.diagnosticStart);
+        String underlineFirstHalf = getUnderline(startLineResult.diagnosticStart, firstUnderlineLength);
+        String underlineSecondHalf =
+                getUnderline(0, startLineResult.diagnosticLength - maxLength + startLineResult.diagnosticStart);
+
         outputBuilder.append(padding).append(PIPE).append(NEW_LINE)
-                .append(getLineNumberString(endDigitsNum, startLineNumber)).append(PIPE).append(" ")
-                .append(startLineResult.line).append(NEW_LINE);
+                .append(getLineNumberString(endDigitsNum, startLineNumber)).append(PIPE).append(" ");
+        if (startLineResult.needsWrap) {
+            outputBuilder.append(startLineResult.line, 0, maxLength).append(NEW_LINE);
+        } else {
+            outputBuilder.append(startLineResult.line).append(NEW_LINE);
+        }
 
         if (lines.size() <= MAX_LINES_BEFORE_HIDING) {
-            outputBuilder.append(padding).append(PIPE).append(" ")
-                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
-                    .append(NEW_LINE);
+            outputBuilder.append(padding).append(PIPE).append(" ");
+            if (startLineResult.needsWrap) {
+                outputBuilder.append(underlineFirstHalf).append(NEW_LINE)
+                        .append(startLineResult.line, maxLength, startLineResult.line.length()).append(NEW_LINE)
+                        .append(underlineSecondHalf).append(NEW_LINE);
+            } else {
+                outputBuilder
+                        .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
+                        .append(NEW_LINE);
+            }
             for (int i = 1; i < lines.size() - 1; i++) {
                 String line = replaceTabs(lines.get(i), 0);
                 TruncateResult lineResult = truncate(line, maxLength, 0, line.length());
-                outputBuilder.append(getLineNumberString(endDigitsNum, startLineNumber + i)).append(PIPE).append(" ")
-                        .append(lineResult.line).append(NEW_LINE)
-                        .append(padding).append(PIPE).append(" ")
-                        .append(getUnderline(lineResult.diagnosticStart, lineResult.diagnosticLength)).append(NEW_LINE);
+                outputBuilder.append(getLineNumberString(endDigitsNum, startLineNumber + i)).append(PIPE).append(" ");
+                if (lineResult.needsWrap) {
+                    int midFirstUnderlineLength =
+                            Math.min(lineResult.diagnosticLength, maxLength - lineResult.diagnosticStart);
+                    String midUnderlineFirstHalf = getUnderline(lineResult.diagnosticStart, midFirstUnderlineLength);
+                    String midUnderlineSecondHalf =
+                            getUnderline(0, lineResult.diagnosticLength - maxLength + lineResult.diagnosticStart);
+                    outputBuilder.append(lineResult.line, 0, maxLength).append(NEW_LINE)
+                            .append(padding).append(PIPE).append(" ")
+                            .append(midUnderlineFirstHalf).append(NEW_LINE)
+                            .append(lineResult.line, maxLength, lineResult.line.length()).append(NEW_LINE)
+                            .append(midUnderlineSecondHalf).append(NEW_LINE);
+
+                } else {
+                    outputBuilder.append(lineResult.line).append(NEW_LINE)
+                            .append(padding).append(PIPE).append(" ")
+                            .append(getUnderline(lineResult.diagnosticStart, lineResult.diagnosticLength))
+                            .append(NEW_LINE);
+                }
             }
 
         } else {
             String paddingToMiddleColon = " ".repeat(Math.min(terminalWidth, maxLineLength) / 2);
             String hiddenLinesPlaceholder = paddingWithColon + PIPE + " " + paddingToMiddleColon + COLON + NEW_LINE;
-            outputBuilder.append(paddingWithColon).append(PIPE).append(" ")
-                    .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
-                    .append(NEW_LINE)
-                    .append(hiddenLinesPlaceholder).append(hiddenLinesPlaceholder);
+            outputBuilder.append(paddingWithColon).append(PIPE).append(" ");
+            if (startLineResult.needsWrap) {
+                outputBuilder.append(underlineFirstHalf).append(NEW_LINE)
+                        .append(startLineResult.line, maxLength, startLineResult.line.length()).append(NEW_LINE)
+                        .append(underlineSecondHalf).append(NEW_LINE);
+            }
+            else {
+
+                outputBuilder
+                        .append(getUnderline(startLineResult.diagnosticStart, startLineResult.diagnosticLength))
+                        .append(NEW_LINE)
+                        .append(hiddenLinesPlaceholder).append(hiddenLinesPlaceholder);
+            }
 
         }
         return outputBuilder.append(getLineNumberString(endDigitsNum, startLineNumber + lines.size() - 1))
@@ -165,6 +219,9 @@ public final class DiagnosticAnnotation {
     }
 
     private String getUnderline(int offset, int length) {
+        if (length <= 0) {
+            return "";
+        }
         String symbol = "^";
         if (this.type == DiagnosticAnnotationType.MISSING) {
             symbol = "+";
@@ -185,28 +242,41 @@ public final class DiagnosticAnnotation {
 
     protected static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
         if (line.length() <= maxLength) {
-            return new TruncateResult(line, diagnosticStart, diagnosticLength);
+            return new TruncateResult(line, diagnosticStart, diagnosticLength, false);
         }
 
         StringBuilder truncatedLineBuilder = new StringBuilder();
         if (diagnosticStart + diagnosticLength <= maxLength - ELLIPSIS.length()) {
             truncatedLineBuilder.append(line, 0, maxLength - ELLIPSIS.length()).append(ELLIPSIS);
-            return new TruncateResult(truncatedLineBuilder.toString(), diagnosticStart, diagnosticLength);
+            return new TruncateResult(truncatedLineBuilder.toString(), diagnosticStart, diagnosticLength, false);
+        }
+
+        if (diagnosticStart == 0 && diagnosticLength > maxLength - ELLIPSIS.length()) {
+            // TODO: Handle the case where diagnostic spans the entire terminal
+            truncatedLineBuilder.append(line, 0, diagnosticLength).append(ELLIPSIS);
+            return new TruncateResult(truncatedLineBuilder.toString(), 0, diagnosticLength, true);
+        } else if (diagnosticStart + diagnosticLength == line.length()) {
+            if (diagnosticLength > maxLength - ELLIPSIS.length()) {
+                truncatedLineBuilder.append(ELLIPSIS).append(line, diagnosticStart, diagnosticStart + diagnosticLength);
+                return new TruncateResult(truncatedLineBuilder.toString(), ELLIPSIS.length(), diagnosticLength, true);
+            }
+        } else if (diagnosticLength > maxLength - ELLIPSIS.length() * 2) {
+            truncatedLineBuilder.append(ELLIPSIS).append(line, diagnosticStart, diagnosticStart + diagnosticLength)
+                    .append(ELLIPSIS);
+            return new TruncateResult(truncatedLineBuilder.toString(), ELLIPSIS.length(), diagnosticLength, true);
         }
 
         int diagnosticMid = diagnosticStart + (diagnosticLength / 2);
         int stepsToMoveWindow = Math.max(0, diagnosticMid - (maxLength / 2));
         int border = Math.min(line.length(), stepsToMoveWindow + maxLength - ELLIPSIS.length());
-        int newDiagnosticStart = Math.max(ELLIPSIS.length(), diagnosticStart - stepsToMoveWindow);
-        int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - ELLIPSIS.length());
+        int newDiagnosticStart = diagnosticStart - stepsToMoveWindow;
         int stringStart = Math.min(stepsToMoveWindow + ELLIPSIS.length(), border);
 
         truncatedLineBuilder.append(ELLIPSIS).append(line, stringStart, border);
         if (border < line.length()) {
             truncatedLineBuilder.append(ELLIPSIS);
         }
-        return new TruncateResult(truncatedLineBuilder.toString(), newDiagnosticStart,
-                Math.max(0, newDiagnosticLength));
+        return new TruncateResult(truncatedLineBuilder.toString(), newDiagnosticStart, diagnosticLength, false);
     }
 
     private static String replaceTabs(String line, int end) {
@@ -221,7 +291,7 @@ public final class DiagnosticAnnotation {
      * @param diagnosticStart  The start of the diagnostic in the truncated line
      * @param diagnosticLength The length of the diagnostic in the truncated line
      */
-    protected record TruncateResult(String line, int diagnosticStart, int diagnosticLength) {
+    protected record TruncateResult(String line, int diagnosticStart, int diagnosticLength, boolean needsWrap) {
 
     }
 }
