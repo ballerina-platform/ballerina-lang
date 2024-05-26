@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
@@ -40,19 +39,18 @@ public class SelectDescendants {
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
-            int size = qnames.length;
-            for (int i = 0; i < size; i++) {
-                String strQname = qnames[i].getValue();
+            for (BString qname : qnames) {
+                String strQname = qname.getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);
                 }
                 qnameList.add(strQname);
             }
-            if (xml.getItemType().equals(XmlNodeType.SEQUENCE.value())) {
-                return ((XmlSequence) xml).rootSequenceDescendants(qnameList);
+            if (xml instanceof XmlSequence xmlSequence) {
+                return xmlSequence.rootSequenceDescendants(qnameList);
             }
-            return (BXml) xml.children().descendants(qnameList);
+            return xml.children().descendants(qnameList);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }
