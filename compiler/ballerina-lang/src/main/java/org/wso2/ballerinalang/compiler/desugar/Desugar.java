@@ -6664,7 +6664,8 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.xmlType)) {
-            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos,
+                    createTypeCastExpr(indexAccessExpr.expr, symTable.xmlType),
                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = types.addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
