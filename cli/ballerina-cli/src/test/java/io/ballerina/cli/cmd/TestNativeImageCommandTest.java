@@ -72,7 +72,12 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-H:Name=foo");
         new CommandLine(testCommand).parseArgs();
-        testCommand.execute();
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            readOutput(false);
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"));
     }
@@ -81,7 +86,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     public void testNativeFunctionMockTests() throws IOException {
         Path projectPath = this.testResources.resolve("mockFunctionNative");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
+        TestCommand testCommand = new TestCommand(projectPath, System.out, System.out, false, true, "");
         // non existing bal file
         new CommandLine(testCommand).parseArgs();
         try {
@@ -117,7 +122,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
 
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with additional args")
-    public void testTestBalFileWithAdditionalArgs() throws IOException {
+    public void testTestBalFileWithAdditionalArgs() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
@@ -126,12 +131,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
-            boolean testResult = e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
-                                "standalone Ballerina files containing resources");
-            if (!testResult) {
-                readOutput(false);
-                Assert.fail(e.getDetailedMessages().get(0));
-            }
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
+                    "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
         }
     }
 
