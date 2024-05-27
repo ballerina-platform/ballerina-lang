@@ -122,6 +122,7 @@ public final class SemTypeHelper {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {

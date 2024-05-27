@@ -517,7 +517,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private BRecordType createNewRecordType(BRecordTypeSymbol symbol, LinkedHashMap<String, BField> inferredFields,
                                             AnalyzerData data) {
-        BRecordType recordType = new BRecordType(symbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), symbol);
         recordType.restFieldType = symTable.noType;
         recordType.fields = inferredFields;
         symbol.type = recordType;
@@ -2292,8 +2292,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         public void visit(BMapType bMapType) {
             BRecordTypeSymbol recordSymbol = constantTypeChecker.createRecordTypeSymbol(data.constantSymbol.pkgID,
                     data.constantSymbol.pos, VIRTUAL, data);
-            recordSymbol.type = new BRecordType(recordSymbol);
-            BRecordType resultRecordType = new BRecordType(recordSymbol);
+            recordSymbol.type = new BRecordType(symTable.typeEnv(), recordSymbol);
+            BRecordType resultRecordType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordSymbol.type = resultRecordType;
             resultRecordType.tsymbol = recordSymbol;
             resultRecordType.sealed = true;
@@ -2411,7 +2411,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return;
                 }
             }
-            BRecordType resultRecordType = new BRecordType(recordSymbol);
+            BRecordType resultRecordType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordSymbol.type = resultRecordType;
             resultRecordType.tsymbol = recordSymbol;
             resultRecordType.sealed = true;

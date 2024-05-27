@@ -1447,7 +1447,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             recordSymbol.scope.define(field.name, field.symbol);
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordType.fields = inferredFields.stream().collect(getFieldCollector());
 
         recordSymbol.type = recordType;
@@ -2455,7 +2455,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol, recordSymbol.flags);
         if (refType.tag == TypeTags.MAP) {
             recordType.sealed = false;
             recordType.restFieldType = ((BMapType) refType).constraint;
@@ -3277,7 +3277,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        BRecordType bRecordType = new BRecordType(recordSymbol);
+        BRecordType bRecordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name, recordSymbol.getOriginalName(),
@@ -4654,7 +4654,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType, AnalyzerData data) {
-        BRecordType recordType = new BRecordType(null, Flags.ANONYMOUS);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), null, Flags.ANONYMOUS);
         recordType.restFieldType = symTable.noType;
         recordType.sealed = true;
 
@@ -4911,7 +4911,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BRecordType getWaitForAllExprReturnType(BLangWaitForAllExpr waitExpr,
                                                     Location pos, AnalyzerData data) {
-        BRecordType retType = new BRecordType(null, Flags.ANONYMOUS);
+        BRecordType retType = new BRecordType(symTable.typeEnv(), null, Flags.ANONYMOUS);
         List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals = waitExpr.keyValuePairs;
 
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
@@ -7409,7 +7409,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             PackageID pkgID = data.env.enclPkg.symbol.pkgID;
             List<BTupleMember> tupleMembers = new ArrayList<>();
             BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, null, VIRTUAL, data);
-            mappingTypeRestArg = new BRecordType(recordSymbol);
+            mappingTypeRestArg = new BRecordType(symTable.typeEnv(), recordSymbol);
             LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
             BType tupleRestType = null;
             BVarSymbol fieldSymbol;
@@ -9479,7 +9479,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordType.fields = fields;
 
         if (restFieldTypes.contains(symTable.semanticError)) {

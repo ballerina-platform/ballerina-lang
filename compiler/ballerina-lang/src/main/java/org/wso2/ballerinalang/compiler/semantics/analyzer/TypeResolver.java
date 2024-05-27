@@ -1052,7 +1052,7 @@ public class TypeResolver {
                 symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos,
                 td.isAnonymous ? VIRTUAL : BUILTIN);
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         resolvingStructureTypes.add(recordType);
         recordSymbol.type = recordType;
         td.symbol = recordSymbol;

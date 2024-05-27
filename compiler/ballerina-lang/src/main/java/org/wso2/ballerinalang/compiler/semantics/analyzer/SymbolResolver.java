@@ -1330,7 +1330,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     data.env.enclPkg.symbol.pkgID, null,
                     data.env.scope.owner, recordTypeNode.pos,
                     recordTypeNode.isAnonymous ? VIRTUAL : SOURCE);
-            BRecordType recordType = new BRecordType(recordSymbol);
+            BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
 

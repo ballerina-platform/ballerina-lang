@@ -845,7 +845,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                    constantSymbol.pkgID,
                                                                    null, constantSymbol.owner, pos, VIRTUAL);
         recordTypeSymbol.scope = constantSymbol.scope;
-        BRecordType recordType = new BRecordType(recordTypeSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordTypeSymbol);
         recordType.tsymbol.name = genName;
         recordType.sealed = true;
         recordType.restFieldType = new BNoType(TypeTags.NONE);

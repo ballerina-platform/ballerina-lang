@@ -9824,7 +9824,7 @@ public class Desugar extends BLangNodeVisitor {
                 recordSymbol.scope.define(fieldName, fieldSymbol);
             }
 
-            BRecordType recordVarType = new BRecordType(recordSymbol);
+            BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordVarType.fields = fields;
 
             // if rest param is null we treat it as an open record with anydata rest param
@@ -9920,7 +9920,7 @@ public class Desugar extends BLangNodeVisitor {
                 env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
 
-        BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
+        BRecordType detailRecordType = new BRecordType(symTable.typeEnv(), detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
         return detailRecordType;
     }

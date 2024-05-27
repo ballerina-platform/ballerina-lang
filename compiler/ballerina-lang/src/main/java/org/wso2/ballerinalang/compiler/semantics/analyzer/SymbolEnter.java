@@ -2815,7 +2815,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             unmappedMembers.putAll(optionalFields);
 
-            BRecordType restRecord = new BRecordType(null);
+            BRecordType restRecord = new BRecordType(symTable.typeEnv(), null);
             restRecord.fields = unmappedMembers;
             restRecord.restFieldType = restFieldType;
             restFieldType = restRecord;
@@ -3083,7 +3083,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<String> variableList,
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
-        BRecordType recordVarType = new BRecordType(recordSymbol);
+        BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordSymbol.type = recordVarType;
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
@@ -3400,7 +3400,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (detailType.getKind() == TypeKind.RECORD) {
             return (BRecordType) detailType;
         }
-        BRecordType detailRecord = new BRecordType(null);
+        BRecordType detailRecord = new BRecordType(symTable.typeEnv(), null);
         BMapType detailMap = (BMapType) detailType;
         detailRecord.sealed = false;
         detailRecord.restFieldType = detailMap.constraint;

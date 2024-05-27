@@ -134,7 +134,7 @@ public class SymbolTable {
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
     public final BType tupleType;
-    public final BType recordType = new BRecordType(null);
+    public final BType recordType;
     public final BType stringArrayType;
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
@@ -310,6 +310,7 @@ public class SymbolTable {
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
         tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
+        recordType = new BRecordType(typeEnv(), null);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         defineCyclicUnionBasedInternalTypes();
 

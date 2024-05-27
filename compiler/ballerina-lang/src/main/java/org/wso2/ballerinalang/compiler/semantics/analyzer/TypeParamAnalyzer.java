@@ -984,7 +984,7 @@ public class TypeParamAnalyzer {
             recordSymbol.scope.define(expField.name, field.symbol);
         }
 
-        BRecordType bRecordType = new BRecordType(recordSymbol);
+        BRecordType bRecordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
         bRecordType.flags = expType.flags;

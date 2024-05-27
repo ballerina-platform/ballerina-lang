@@ -593,7 +593,7 @@ public class ImmutableTypeCloner {
 
         recordSymbol.scope = new Scope(recordSymbol);
 
-        BRecordType immutableRecordType = new BRecordType(recordSymbol, origRecordType.flags | Flags.READONLY);
+        BRecordType immutableRecordType = new BRecordType(symTable.typeEnv(), recordSymbol, origRecordType.flags | Flags.READONLY);
 
         BIntersectionType immutableRecordIntersectionType = createImmutableIntersectionType(env, originalType,
                                                                                             immutableRecordType,

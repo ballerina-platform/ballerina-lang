@@ -5417,7 +5417,7 @@ public class Types {
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.scope = new Scope(recordSymbol);
 
-        BRecordType recordType = new BRecordType(recordSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordType.tsymbol = recordSymbol;
         recordSymbol.type = recordType;
 
@@ -5425,7 +5425,7 @@ public class Types {
     }
 
     private BRecordType getEquivalentRecordType(BMapType mapType) {
-        BRecordType equivalentRecordType = new BRecordType(null);
+        BRecordType equivalentRecordType = new BRecordType(symTable.typeEnv(), null);
         equivalentRecordType.sealed = false;
         equivalentRecordType.restFieldType = mapType.constraint;
         return equivalentRecordType;

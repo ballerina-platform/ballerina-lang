@@ -3054,7 +3054,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             fields.put(fieldName.getValue(), field);
             mappingMatchPattern.declaredVars.putAll(fieldMatchPattern.declaredVars);
         }
-        BRecordType recordVarType = new BRecordType(recordSymbol);
+        BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordVarType.fields = fields;
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
@@ -3062,7 +3062,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     symbolEnter.createAnonRecordSymbol(currentEnv, mappingMatchPattern.pos);
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
             BType restType = restMatchPattern.getBType();
-            BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
+            BRecordType matchPatternRecType = new BRecordType(symTable.typeEnv(), matchPattenRecordSym);
             matchPatternRecType.restFieldType = restType != null ? restType : symTable.anyOrErrorType;
             recordVarType.restFieldType = matchPatternRecType.restFieldType;
             restMatchPattern.setBType(matchPatternRecType);
@@ -3591,7 +3591,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             fields.put(fieldName.getValue(), field);
             mappingBindingPattern.declaredVars.putAll(fieldBindingPattern.declaredVars);
         }
-        BRecordType recordVarType = new BRecordType(recordSymbol);
+        BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordVarType.fields = fields;
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingBindingPattern.restBindingPattern != null) {
@@ -3599,7 +3599,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BType restType = restBindingPattern.getBType();
             BRecordTypeSymbol matchPattenRecordSym =
                                                  symbolEnter.createAnonRecordSymbol(currentEnv, restBindingPattern.pos);
-            BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
+            BRecordType matchPatternRecType = new BRecordType(symTable.typeEnv(), matchPattenRecordSym);
             matchPatternRecType.restFieldType = restType != null ? restType : symTable.anyOrErrorType;
             recordVarType.restFieldType = matchPatternRecType.restFieldType;
             restBindingPattern.setBType(matchPatternRecType);

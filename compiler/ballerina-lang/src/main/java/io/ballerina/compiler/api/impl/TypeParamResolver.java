@@ -218,7 +218,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         BType newRestType = resolve(typeInSymbol.restFieldType, boundType);
-        BRecordType newRecordType = new BRecordType(typeInSymbol.tsymbol, typeInSymbol.flags);
+        BRecordType newRecordType = new BRecordType(typeInSymbol.env, typeInSymbol.tsymbol, typeInSymbol.flags);
 
         newRecordType.fields = newRecordFields;
         newRecordType.restFieldType = newRestType;

@@ -1320,7 +1320,7 @@ public class BIRPackageSymbolEnter {
                                                                                 COMPILED_SOURCE);
                     recordSymbol.scope = new Scope(recordSymbol);
 
-                    BRecordType recordType = new BRecordType(recordSymbol, flags);
+                    BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol, flags);
                     recordSymbol.type = recordType;
 
                     compositeStack.push(recordType);
