@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -50,7 +49,6 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  *
  * @since 2201.9.0
  */
-@Ignore
 public class RunBuildToolsTaskTest extends BaseCommandTest {
     private Path buildToolResources;
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();

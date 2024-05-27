@@ -50,7 +50,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test a valid ballerina project", enabled = false)
+    @Test(description = "Test a valid ballerina project")
     public void testNativeImageTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
@@ -61,7 +61,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("1 passing"));
     }
 
-    @Test(description = "Test a valid ballerina project", enabled = false)
+    @Test(description = "Test a valid ballerina project")
     public void testNativeImageTestsWithAdditionalArgs() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
@@ -72,7 +72,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"));
     }
 
-    @Test(description = "Test function mocking", enabled = false)
+    @Test(description = "Test function mocking")
     public void testNativeFunctionMockTests() throws IOException {
         Path projectPath = this.testResources.resolve("mockFunctionNative");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
@@ -91,7 +91,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
 
 
     //TODO: Change the output once the resource generation plugin is disabled
-    @Test(description = "Test a valid ballerina file", enabled = false)
+    @Test(description = "Test a valid ballerina file")
     public void testTestBalFile() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
@@ -106,7 +106,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     }
 
     //TODO: Change the output once the resource generation plugin is disabled
-    @Test(description = "Test a valid ballerina file with additional args", enabled = false)
+    @Test(description = "Test a valid ballerina file with additional args")
     public void testTestBalFileWithAdditionalArgs() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
@@ -122,7 +122,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     }
 
     //TODO: Change the output once the resource generation plugin is disabled
-    @Test(description = "Test a valid ballerina file with periods in the file name", enabled = false)
+    @Test(description = "Test a valid ballerina file with periods in the file name")
     public void testTestBalFileWithPeriods() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
 
