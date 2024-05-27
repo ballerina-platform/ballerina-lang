@@ -18,6 +18,15 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+// SEMTYPE-TODO: revisit this after fully implementing semtypes. Added this to match nBallerina where this is just a
+//   type alias to int. Maybe not needed here due to the way we have modeled type hierarchy (need to check if doing
+//   instancof checks on this is faster than checking if some is 0)
+
+/**
+ * Represents a union of basic types.
+ *
+ * @since 2201.10.0
+ */
 public interface BasicTypeBitSet {
 
     default int some() {

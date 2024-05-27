@@ -217,16 +217,18 @@ public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
         return this.cachedImpliedType;
     }
 
-    void resetSemTypeCache() {
+    // If any child class allow mutation that will affect the SemType, it must call this method.
+    final void resetSemTypeCache() {
         cachedSemType = null;
     }
 
+    // If any child class partially implement SemType it must override this method.
     SemType createSemType() {
         return BTypeConverter.wrapAsPureBType(this);
     }
 
     @Override
-    public SemType get() {
+    public final SemType get() {
         if (cachedSemType == null) {
             cachedSemType = createSemType();
         }

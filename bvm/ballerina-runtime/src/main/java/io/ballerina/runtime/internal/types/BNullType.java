@@ -30,8 +30,6 @@ import io.ballerina.runtime.api.types.semtype.SemType;
  */
 public class BNullType extends BSemTypeWrapper implements NullType {
 
-    protected final String typeName;
-
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
      *
@@ -48,7 +46,6 @@ public class BNullType extends BSemTypeWrapper implements NullType {
 
     private BNullType(BNullTypeImpl bNullType, SemType semType) {
         super(bNullType, semType);
-        this.typeName = bNullType.typeName;
     }
 
     private static final class BNullTypeImpl extends BType implements NullType {

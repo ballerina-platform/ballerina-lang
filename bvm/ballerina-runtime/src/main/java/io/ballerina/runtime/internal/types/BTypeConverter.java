@@ -20,23 +20,26 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
-import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-// NOTE: this is so that we don't have to expose any utility constructors as public to builder
+/**
+ * This is a utility class for {@code Builder} class so that BTypes don't need to expose their internal structure as
+ * public to create semtypes from them.
+ *
+ * @since 2201.10.0
+ */
 final class BTypeConverter {
 
     private BTypeConverter() {
@@ -61,24 +64,18 @@ final class BTypeConverter {
         if (type instanceof SemType semType) {
             return semType;
         } else if (type instanceof BType bType) {
-            return from(bType);
+            return fromBType(bType);
         }
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
-    // TODO: ideally this should be only called by BTypes (ie. no need for this to be public) and they should call
-    //  the correct method (ie. no need for this instance of thing)
-    public static SemType from(BType innerType) {
+    private static SemType fromBType(BType innerType) {
         return innerType.get();
     }
 
     static SemType fromReadonly(BReadonlyType readonlyType) {
         SemType bTypePart = wrapAsPureBType(readonlyType);
         return Core.union(READONLY_SEMTYPE_PART, bTypePart);
-    }
-
-    static SemType fromTypeReference(ReferenceType referenceType) {
-        return from(referenceType.getReferredType());
     }
 
     static SemType fromTupleType(BTupleType tupleType) {
@@ -135,7 +132,7 @@ final class BTypeConverter {
     }
 
     private static BTypeParts split(Type type) {
-        if (isSemType(type)) {
+        if (type instanceof SemType) {
             return new BTypeParts(from(type), Collections.emptyList());
         } else if (type instanceof BUnionType unionType) {
             return splitUnion(unionType);
@@ -163,18 +160,9 @@ final class BTypeConverter {
         SemType semTypePart = Builder.neverType();
         for (var each : finiteType.valueSpace) {
             // TODO: lift this to Builder (Object) -> Type
-            if (each == null) {
-                semTypePart = Core.union(semTypePart, Builder.nilType());
-            } else if (each instanceof DecimalValue decimalValue) {
-                semTypePart = Core.union(semTypePart, Builder.decimalConst(decimalValue.value()));
-            } else if (each instanceof Double doubleValue) {
-                semTypePart = Core.union(semTypePart, Builder.floatConst(doubleValue));
-            } else if (each instanceof Number intValue) {
-                semTypePart = Core.union(semTypePart, Builder.intConst(intValue.longValue()));
-            } else if (each instanceof Boolean booleanValue) {
-                semTypePart = Core.union(semTypePart, Builder.booleanConst(booleanValue));
-            } else if (each instanceof BString stringValue) {
-                semTypePart = Core.union(semTypePart, Builder.stringConst(stringValue.getValue()));
+            Optional<SemType> semType = Builder.typeOf(each);
+            if (semType.isPresent()) {
+                semTypePart = Core.union(semTypePart, semType.get());
             } else {
                 newValueSpace.add(each);
             }
@@ -201,9 +189,5 @@ final class BTypeConverter {
             bTypeMembers.addAll(memberParts.bTypeParts());
         }
         return new BTypeParts(semTypePart, Collections.unmodifiableList(bTypeMembers));
-    }
-
-    private static boolean isSemType(Type type) {
-        return type instanceof SemType;
     }
 }

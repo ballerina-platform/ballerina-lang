@@ -19,19 +19,27 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
+import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 
+/**
+ * Utility class for creating semtypes.
+ *
+ * @since 2201.10.0
+ */
 public final class Builder {
 
     private static final String[] EMPTY_STRING_ARR = new String[0];
@@ -98,7 +106,7 @@ public final class Builder {
     private static final SemType NEVER = SemType.from(0);
 
     public static SemType basicTypeUnion(int bitset) {
-        // TODO: may be cache single type bit sets as well as well
+        // TODO: may be cache single type bit sets as well
         if (bitset == 0) {
             return NEVER;
         } else if (Integer.bitCount(bitset) == 1) {
@@ -163,6 +171,25 @@ public final class Builder {
         return new SubType[CODE_B_TYPE + 2];
     }
 
+    public static Optional<SemType> typeOf(Object object) {
+        if (object == null) {
+            return Optional.of(nilType());
+        } else if (object instanceof DecimalValue decimalValue) {
+            return Optional.of(decimalConst(decimalValue.value()));
+        } else if (object instanceof Double doubleValue) {
+            return Optional.of(floatConst(doubleValue));
+        } else if (object instanceof Number intValue) {
+            long value =
+                    intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
+            return Optional.of(intConst(value));
+        } else if (object instanceof Boolean booleanValue) {
+            return Optional.of(booleanConst(booleanValue));
+        } else if (object instanceof BString stringValue) {
+            return Optional.of(stringConst(stringValue.getValue()));
+        }
+        return Optional.empty();
+    }
+
     private static final class IntTypeCache {
 
         private static final int CACHE_MAX_VALUE = 127;
@@ -184,7 +211,6 @@ public final class Builder {
         private static SemType createBooleanSingletonType(boolean value) {
             return basicSubType(BasicTypeCode.BT_BOOLEAN, BBooleanSubType.from(value));
         }
-
     }
 
     private static final class StringTypeCache {
