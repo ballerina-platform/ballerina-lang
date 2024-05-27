@@ -22,6 +22,11 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Iterator;
 
+/**
+ * Implements the iterable for `SubtypePairIteratorImpl`.
+ *
+ * @since 2201.10.0
+ */
 public class SubtypePairs implements Iterable<SubtypePair> {
 
     private final SemType t1;

@@ -32,8 +32,6 @@ import io.ballerina.runtime.api.types.semtype.SemType;
  */
 public final class BBooleanType extends BSemTypeWrapper implements BooleanType {
 
-    protected final String typeName;
-
     private static final BBooleanType TRUE =
             new BBooleanType(new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
                     Builder.booleanConst(true));
@@ -56,7 +54,6 @@ public final class BBooleanType extends BSemTypeWrapper implements BooleanType {
 
     private BBooleanType(BBooleanTypeImpl bType, SemType semType) {
         super(bType, semType);
-        this.typeName = bType.typeName;
     }
 
     private static final class BBooleanTypeImpl extends BType implements BooleanType {

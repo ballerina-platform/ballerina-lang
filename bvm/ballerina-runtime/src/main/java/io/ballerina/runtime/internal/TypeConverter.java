@@ -83,7 +83,7 @@ import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
-import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
+import static io.ballerina.runtime.internal.FallbackTypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
@@ -397,7 +397,7 @@ public final class TypeConverter {
             if (inputValue == valueSpaceItem) {
                 return inputValueType;
             }
-            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
+            if (FallbackTypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
                 return TypeChecker.getType(valueSpaceItem);
             }
         }
@@ -407,7 +407,7 @@ public final class TypeConverter {
 
         // if not we check whether it can be converted into a member of the finite type
         for (Object valueSpaceItem : finiteTypeValueSpace) {
-            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
+            if (FallbackTypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
                 return TypeChecker.getType(valueSpaceItem);
             }
         }
