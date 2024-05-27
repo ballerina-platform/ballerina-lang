@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 @SuppressWarnings("unchecked")
 public final class BStringType extends BSemTypeWrapper implements StringType {
 
-    protected final String typeName;
     // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
     // dependencies.
     private static final BStringTypeImpl DEFAULT_B_TYPE =
@@ -54,7 +53,6 @@ public final class BStringType extends BSemTypeWrapper implements StringType {
 
     private BStringType(BStringTypeImpl bType, SemType semType) {
         super(bType, semType);
-        this.typeName = bType.typeName;
     }
 
     public static BStringType singletonType(String value) {

@@ -38,7 +38,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  */
 public final class BDecimalType extends BSemTypeWrapper implements DecimalType {
 
-    protected final String typeName;
     private static final BDecimalTypeImpl DEFAULT_B_TYPE =
             new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
 
@@ -61,7 +60,6 @@ public final class BDecimalType extends BSemTypeWrapper implements DecimalType {
 
     private BDecimalType(BDecimalTypeImpl bType, SemType semType) {
         super(bType, semType);
-        this.typeName = bType.typeName;
     }
 
     private static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {

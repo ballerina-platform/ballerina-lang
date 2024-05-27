@@ -43,7 +43,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
 @SuppressWarnings("unchecked")
 public final class BIntegerType extends BSemTypeWrapper implements IntegerType {
 
-    protected final String typeName;
     private static final BIntegerTypeImpl DEFAULT_B_TYPE =
             new BIntegerTypeImpl(TypeConstants.INT_TNAME, PredefinedTypes.EMPTY_MODULE, TypeTags.INT_TAG);
 
@@ -62,7 +61,6 @@ public final class BIntegerType extends BSemTypeWrapper implements IntegerType {
 
     private BIntegerType(BIntegerTypeImpl bType, SemType semType) {
         super(bType, semType);
-        typeName = bType.typeName;
     }
 
     private static SemType pickSemType(int tag) {

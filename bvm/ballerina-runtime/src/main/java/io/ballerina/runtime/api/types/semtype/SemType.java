@@ -21,6 +21,11 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
+/**
+ * Runtime representation of SemType.
+ *
+ * @since 2201.10.0
+ */
 public abstract sealed class SemType implements BasicTypeBitSet permits BSemTypeWrapper, PureSemType {
 
     final int all;

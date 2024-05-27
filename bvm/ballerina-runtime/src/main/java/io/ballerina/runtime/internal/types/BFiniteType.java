@@ -61,8 +61,6 @@ public class BFiniteType extends BType implements FiniteType {
     BFiniteType cloneWithValueSpace(Set<Object> valueSpace) {
         BFiniteType newFiniteType = new BFiniteType(typeName, originalName, valueSpace, typeFlags);
         newFiniteType.valueSpace = valueSpace;
-        newFiniteType.typeFlags = typeFlags;
-        newFiniteType.originalName = originalName;
 
         newFiniteType.typeName = typeName;
         newFiniteType.pkg = pkg;

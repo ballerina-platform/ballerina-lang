@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Context in which semtype was defined in.
+ *
+ * @since 2201.10.0
+ */
 public class Context {
-
+    // SEMTYPE-TODO: Fill this in as needed, currently just a placeholder since basic types don't need it
 }

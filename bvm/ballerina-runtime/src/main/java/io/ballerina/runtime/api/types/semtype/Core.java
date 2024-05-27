@@ -27,6 +27,11 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 
+/**
+ * Contain functions defined in `core.bal` file.
+ *
+ * @since 2201.10.0
+ */
 public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
