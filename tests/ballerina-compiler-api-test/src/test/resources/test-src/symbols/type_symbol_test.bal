@@ -64,6 +64,15 @@ function otherTypes() {
     distinct error err;
 }
 
+function fn() {
+    _ = arr;
+    _ = mp;
+    _ = tuple;
+    _ = rec;
+    _ = row;
+    _ = tbl;
+}
+
 // utils
 const FOO = "foo";
 const TEN = 10;
@@ -78,3 +87,11 @@ type ErrorData record {|
     string message;
     error cause?;
 |};
+
+int[] arr = [];
+map<string> mp = {};
+[int, string] tuple = [1, "a"];
+record {|string id; int val;|} rec = {val: 0, id: ""};
+type Row record {|int id; boolean flag;|};
+Row row = {id: 0, flag: false};
+table<Row> tbl = table [];
