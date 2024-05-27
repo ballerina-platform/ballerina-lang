@@ -570,8 +570,7 @@ public function testWorkerEarlyReturnWithinIf() {
         test:assertEquals(err1.detail().toString(), "{\"message\":\"no message received from worker 'w3' to worker 'w5'\"}", "Invalid error detail");
     }
 
-    wait w4;
-    wait w5;
+    _ = wait {w4, w5};
 }
 
 function foo(int i) returns int {
