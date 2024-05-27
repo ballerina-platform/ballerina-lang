@@ -184,7 +184,8 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
-    private void putAll(Map<String, TransactionLogRecord> trxRecords) {
+    @Override
+    public void putAll(Map<String, TransactionLogRecord> trxRecords) {
         for (TransactionLogRecord trxRecord : trxRecords.values()) {
             writeToFile(trxRecord.getTransactionLogRecordString(), true);
         }

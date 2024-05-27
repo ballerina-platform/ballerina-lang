@@ -42,6 +42,12 @@ public class InMemoryRecoveryLog implements RecoveryLog {
     public void put(TransactionLogRecord trxRecord) {
         transactionLogs.put(trxRecord.getCombinedId(), trxRecord);
         writeCheckpointIfNeeded();
+        numOfPutsSinceLastCheckpoint++;
+    }
+
+    @Override
+    public void putAll(Map<String, TransactionLogRecord> trxRecords) {
+        transactionLogs.putAll(trxRecords);
     }
 
     /**

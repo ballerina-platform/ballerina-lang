@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.transactions;
 
+import java.util.Map;
+
 /**
  * The RecoveryLog interface for the recovery logs.
  *
@@ -31,6 +33,13 @@ public interface RecoveryLog {
      * @param trxRecord the transaction log record
      */
     void put(TransactionLogRecord trxRecord);
+
+    /**
+     * Inserts all the transaction log records into the current map.
+     *
+     * @param trxRecords A map of transaction log records to be inserted
+     */
+    void putAll(Map<String, TransactionLogRecord> trxRecords);
 
     /**
      * Close the recovery log file.

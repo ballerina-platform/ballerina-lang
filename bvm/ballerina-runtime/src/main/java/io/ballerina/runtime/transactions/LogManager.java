@@ -48,12 +48,7 @@ public class LogManager {
     private void init() {
         // Read pending transactions from the file recovery log and add them to the in-memory log.
         Map<String, TransactionLogRecord> pendingTransactions = fileRecoveryLog.getPendingLogs();
-        if (pendingTransactions == null) {
-            return;
-        }
-        for (Map.Entry<String, TransactionLogRecord> entry : pendingTransactions.entrySet()) {
-            inMemoryRecoveryLog.put(entry.getValue());
-        }
+        inMemoryRecoveryLog.putAll(pendingTransactions);
     }
 
     /**
