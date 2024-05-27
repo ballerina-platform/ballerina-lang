@@ -1013,3 +1013,117 @@ function testNamespaces() {
     xml:Element element4 = xml:createElement("{http://sample.com/test}bookStore", attributes4, xml ``);
     assertEquals(element4.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
 }
+
+function testIterableOperationsOnUnionType() {
+    xml x;
+    int index = 0;
+    xml result;
+
+    xml:Element|xml:Comment x1 = xml `<item><name>book</name><price>10</price></item>`;
+    x = <xml>x1;
+    assertEquals(xml:map(xml:elements(x),
+                    v => xml:getChildren(v)), xml `<name>book</name><price>10</price>`);
+    assertEquals(xml:filter(xml:elements(x),
+                    v => xml:length(xml:getChildren(v)) > 0), xml `<item><name>book</name><price>10</price></item>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml:Element|xml:ProcessingInstruction x2 = xml `<?data?>`;
+    x = <xml>x2;
+    string s = "";
+    assertEquals(xml:map(x, v => v), xml `<?data?>`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v) == "data").get(0), xml `<?data?>`);
+    xml:forEach(x, function(xml v) {
+                s += xml:getTarget(<xml:ProcessingInstruction>v);
+            });
+    assertEquals(s, "data");
+
+    xml:Element|xml:Text x3 = xml `this is a text in xml`;
+    x = <xml>x3;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:concat(v, "new")).get(0), xml `this is a text in xmlnew`);
+    assertEquals(xml:filter(x, v => xml:length(<xml>v) > 0).get(0), xml `this is a text in xml`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml:Text|xml:Comment x4 = xml `<!--comment-->`;
+    x = <xml>x4;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:concat(v, xml `<a/>`)), xml `<!--comment--><a/>`);
+    assertEquals(xml:filter(x, v => xml:data(<xml>v).length() == 0).get(0), xml `<!--comment-->`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Element>|xml<xml:ProcessingInstruction> x5 = xml `<item><name>book</name><price>10</price></item>`;
+    x = <xml>x5;
+    index = 0;
+    result = xml:map(xml:elements(x), v => xml:getDescendants(v));
+    assertEquals(result.get(0), xml `<name>book</name>`);
+    assertEquals(result.get(1), xml `book`);
+    assertEquals(result.get(2), xml `<price>10</price>`);
+    assertEquals(result.get(3), xml `10`);
+    assertEquals(xml:filter(xml:elements(x), v => xml:length(xml:getDescendants(v)) > 0),
+            xml `<item><name>book</name><price>10</price></item>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction>|xml<xml:Comment> x6 = xml `<!--comment-->`;
+    x = <xml>x6;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:children(<xml>v)), xml ``);
+    assertEquals(xml:filter(x, v => xml:getContent(<xml:Comment>v).length() > 0).get(0), xml `<!--comment-->`);
+    xml:forEach(x, function(xml v) {
+                index += xml:length(v);
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction>|xml<xml:Comment>|xml:Text x7 = xml `An xml text`;
+    x = <xml>x7;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:text(<xml>v)), xml `An xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0).get(0), xml `An xml text`);
+    xml:forEach(x, function(xml v) {
+                index += xml:length(xml:text(v));
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction|xml:Element>|xml<xml:Comment|xml:Text> x8 = xml `<?data2 descending?>`;
+    x = <xml>x8;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:createText(xml:getContent(<xml:ProcessingInstruction>v))), xml `descending`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v).length() > 0).get(0), xml `<?data2 descending?>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Comment|xml:Element>|xml<xml:ProcessingInstruction|xml:Text> x9 = xml `<box><!--comment--><width>10</width><height>5</height></box>`;
+    x = <xml>x9;
+    index = 0;
+    result = xml:map(xml:elements(x), v => xml:elementChildren(v));
+    assertEquals(result.get(0), xml `<width>10</width>`);
+    assertEquals(result.get(1), xml `<height>5</height>`);
+    assertEquals(xml:filter(xml:elements(x), v => xml:getName(v) == "box"), xml `<box><!--comment--><width>10</width><height>5</height></box>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Text|xml:ProcessingInstruction>|xml<xml:Comment|xml:Text> x10 = xml `A second xml text`;
+    x = <xml>x10;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:createText(xml:data(<xml>v))), xml `A second xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0).get(0), xml `A second xml text`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+}
