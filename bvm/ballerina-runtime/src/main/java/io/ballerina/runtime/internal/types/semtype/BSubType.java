@@ -21,6 +21,11 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BType;
 
+/**
+ * Runtime representation of BType part of a semtype.
+ *
+ * @since 2201.10.0
+ */
 public class BSubType extends SubType {
 
     private final BType data;

@@ -23,13 +23,21 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+/**
+ * Decorator on {@code BTypes} allowing them to behave as {@code SemType}. All {@code Types} that needs to behave as
+ * both a {@code BType} and a {@code SemType} should extend this class.
+ *
+ * @since 2201.10.0
+ */
 public non-sealed class BSemTypeWrapper extends SemType implements Type {
 
     private final BType bType;
+    protected final String typeName; // Debugger uses this field to show the type name
 
     BSemTypeWrapper(BType bType, SemType semType) {
         super(semType);
         this.bType = bType;
+        this.typeName = bType.typeName;
     }
 
     public <V extends Object> Class<V> getValueClass() {
