@@ -107,14 +107,4 @@ public class RunExecutableTask implements Task {
             throw createLauncherException("Error occurred while running the executable ", e.getCause());
         }
     }
-
-    private String getAllClassPaths(JarResolver jarResolver) {
-
-        StringJoiner cp = new StringJoiner(File.pathSeparator);
-        jarResolver.getJarFilePathsRequiredForExecution(false).stream()
-                .map(JarLibrary::path).map(Path::toString)
-                .forEach(cp::add);
-        return cp.toString();
-    }
 }
-

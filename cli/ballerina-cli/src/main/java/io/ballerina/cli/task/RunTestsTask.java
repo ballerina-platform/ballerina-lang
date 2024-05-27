@@ -465,61 +465,6 @@ public class RunTestsTask implements Task {
         return new ArrayList<>(validSourceFileSet);
     }
 
-    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> dependencies = new ArrayList<>();
-        JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-
-            // Skip getting file paths for execution if module doesnt contain a testable jar
-            if (!module.testDocumentIds().isEmpty() || module.project().kind()
-                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
-                    dependencies.add(jarLibs.path());
-                }
-            }
-        }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-
-        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
-        dependencies.removeAll(jarList);
-        dependencies.removeAll(jarResolver.duplicateJarPaths);
-
-        StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(classPath::add);
-        return classPath.toString();
-    }
-
-    private List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> moduleJarPaths = new ArrayList<>();
-
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-
-            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
-                    module.moduleName());
-            moduleJarPaths.add(generatedJarLibrary.path());
-
-            if (!module.testDocumentIds().isEmpty()) {
-                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
-                        currentPackage.packageId(), module.moduleName());
-                moduleJarPaths.add(codeGeneratedTestLibrary.path());
-            }
-        }
-
-        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
-            Package pkg = resolvedPackageDependency.packageInstance();
-            for (ModuleId moduleId : pkg.moduleIds()) {
-                Module module = pkg.module(moduleId);
-                moduleJarPaths.add(
-                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
-            }
-        }
-
-        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
-    }
-
     private List<URL> getModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
             throws MalformedURLException {
         List<Path> moduleJarPaths = getModuleJarPaths(jBallerinaBackend, currentPackage);
