@@ -76,7 +76,6 @@ public class PackageResolution {
     private final PackageContext rootPackageContext;
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
-    private final DependencyGraph<DependencyNode> dependencyNodeGraph;
     private final CompilationOptions compilationOptions;
     private final ResolutionOptions resolutionOptions;
     private final PackageResolver packageResolver;
@@ -101,9 +100,7 @@ public class PackageResolution {
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
-        this.dependencyNodeGraph = createDependencyNodeGraph();
-        this.dependencyGraph = buildDependencyGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver);
+        this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -122,10 +119,11 @@ public class PackageResolution {
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
-        getModuleLoadRequestsOfDirectDependencies();
-        this.dependencyNodeGraph = packageResolution.dependencyNodeGraph;
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
         this.dependencyGraph = cloneDependencyGraphReplacingRoot(packageResolution.dependencyGraph,
                 rootPackageContext.project().currentPackage());
+        this.dependencyGraphDump = packageResolution.dependencyGraphDump;
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -277,13 +275,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<DependencyNode> createDependencyNodeGraph() {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return createDependencyNodeGraphForBala(
-                    rootPackageContext.dependencyGraph());
+            return resolveBALADependencies();
         } else {
-            return createDependencyNodeGraphForSource();
+            return resolveSourceDependencies();
         }
     }
 
@@ -325,15 +322,15 @@ public class PackageResolution {
 
     private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies() {
         // 1) Convert package descriptor graph to DependencyNode graph
-        DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraphForBala(
+        DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraph(
                 rootPackageContext.dependencyGraph());
 
         //2 ) Create the package dependency graph by downloading packages if necessary.
-        return buildDependencyGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
+        return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
                 packageResolver);
     }
 
-    private DependencyGraph<DependencyNode> createDependencyNodeGraphForSource() {
+    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -345,11 +342,10 @@ public class PackageResolution {
         this.dependencyGraphDump = resolutionEngine.dumpGraphs();
 
         diagnosticList.addAll(resolutionEngine.diagnosticResult().allDiagnostics);
-        return dependencyNodeGraph;
 
-//        //3 ) Create the package dependency graph by downloading packages if necessary.
-//        return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-//                packageResolver);
+        //3 ) Create the package dependency graph by downloading packages if necessary.
+        return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
+                packageResolver);
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -373,9 +369,9 @@ public class PackageResolution {
         return Optional.of(resolvedModule);
     }
 
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(DependencyGraph<DependencyNode> depGraph,
-                                                                            Package rootPackage,
-                                                                            PackageResolver packageResolver) {
+    private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
+                                                                         Package rootPackage,
+                                                                         PackageResolver packageResolver) {
         PackageContainer<ResolvedPackageDependency> resolvedPkgContainer = new PackageContainer<>();
 
         // Add root node to the container
@@ -448,7 +444,7 @@ public class PackageResolution {
                 resolutionOptions.packageLockingMode());
     }
 
-    private DependencyGraph<DependencyNode> createDependencyNodeGraphForBala(
+    private DependencyGraph<DependencyNode> createDependencyNodeGraph(
             DependencyGraph<PackageDescriptor> pkgDescDepGraph) {
         DependencyNode rootNode = new DependencyNode(rootPackageContext.descriptor());
 
