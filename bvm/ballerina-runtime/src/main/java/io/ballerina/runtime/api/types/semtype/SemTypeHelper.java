@@ -39,7 +39,12 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TYPEDESC
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_XML;
 
-public final class SemTypeHelper {
+/**
+ * Collection of utility function on {@code SemType}.
+ *
+ * @since 2201.10.0
+ */
+final class SemTypeHelper {
 
     private SemTypeHelper() {
     }

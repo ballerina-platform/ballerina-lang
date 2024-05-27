@@ -24,8 +24,14 @@ import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.Iterator;
 
-public final class SubtypePairIterator implements Iterator<SubtypePair> {
+/**
+ * Iteration implementation of `SubtypePairIterator`.
+ *
+ * @since 2201.10.0
+ */
+final class SubtypePairIterator implements Iterator<SubtypePair> {
 
+    // NOTE: this needs to be very efficient since pretty much all type operations depends on it
     private int index = 0;
     private static final int maxIndex = BasicTypeCode.CODE_B_TYPE + 1;
     private final int bits;
