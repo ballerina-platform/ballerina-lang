@@ -485,6 +485,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         private static boolean isExternalDependencyBIRNode(BIRNode.BIRFunction birFunction) {
+            if (birFunction.annotAttachments == null) {
+                return false;
+            }
+
             for (BIRNode.BIRAnnotationAttachment annotAttachment : birFunction.annotAttachments) {
                 if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
                         annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
@@ -495,6 +499,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         private static boolean isExternalDependencyBIRNode(BIRNode.BIRTypeDefinition birTypeDefinition) {
+            if (birTypeDefinition.annotAttachments == null) {
+                return false;
+            }
+
             for (BIRNode.BIRAnnotationAttachment annotAttachment : birTypeDefinition.annotAttachments) {
                 if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
                         annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
