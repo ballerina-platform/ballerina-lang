@@ -31,8 +31,7 @@ public class BCompileUtil {
     public static String readFileAsString(String path) throws IOException {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(ClassLoader.getSystemResourceAsStream(path), StandardCharsets.UTF_8))
-        ) {
+                new InputStreamReader(ClassLoader.getSystemResourceAsStream(path), StandardCharsets.UTF_8))) {
             String content = br.readLine();
             if (content == null) {
                 return sb.toString();
