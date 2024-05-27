@@ -484,7 +484,9 @@ public final class TestUtils {
         Set<Path> jars = new HashSet<>(getModuleJarPaths(jBallerinaBackend, currentPackage));
 
         List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver)
-                .stream().filter(dependency -> !jars.contains(dependency)).toList();
+                .stream()
+                .filter(dependency -> !jars.contains(dependency) || jarResolver.duplicateJarPaths.contains(dependency))
+                .toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();
