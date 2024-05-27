@@ -449,7 +449,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         private static final HashSet<String> WHITELSITED_FILE_NAMES =
                 new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
         private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
-                Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
+                Arrays.asList("ballerinax/mysql", "ballerina/sql", "ballerinax/persist.sql"));
         private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
         private static final String MOCK_FUNCTION_PREFIX = "$MOCK_";
         protected final Set<BIRNode.BIRFunction> usedFunctions = new LinkedHashSet<>();
@@ -519,14 +519,14 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
 
             birPackage.functions.forEach(this::initializeFunction);
-            this.interopDependencies = INTEROP_DEPENDENCIES.get(birPackage.packageID.toString());
+            this.interopDependencies = INTEROP_DEPENDENCIES.get(birPackage.packageID.getPackageNameWithOrg());
             typeDefAnalyzer.populateTypeDefPool(birPackage, interopDependencies);
             birPackage.typeDefs.forEach(typeDef -> {
                 unusedTypeDefs.add(typeDef);
                 typeDef.markSelfAsUnused();
                 typeDef.attachedFuncs.forEach(birFunction -> initializeAttachedFunction(typeDef, birFunction));
 
-                if (PKGS_WITH_WHITELSITED_FILES.contains(birPackage.packageID.toString())) {
+                if (PKGS_WITH_WHITELSITED_FILES.contains(birPackage.packageID.getPackageNameWithOrg())) {
                     if (isInWhiteListedBalFile(typeDef)) {
                         this.startPointNodes.add(typeDef);
                     }
@@ -633,7 +633,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 out.write(typeDef.originalName.value);
                 out.newLine();
             }
-
         }
     }
 
