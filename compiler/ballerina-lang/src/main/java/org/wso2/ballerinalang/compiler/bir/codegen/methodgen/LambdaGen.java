@@ -343,11 +343,9 @@ public class LambdaGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-
         if (!isSamePkg) {
             mv.visitLdcInsn(lambdaDetails.encodedFuncName);
         }
-
         if ((ins.getKind() == InstructionKind.FP_LOAD) && ((BIRNonTerminator.FPLoad) ins).isWorker) {
             mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
             mv.visitInsn(ICONST_1);
@@ -355,7 +353,6 @@ public class LambdaGen {
             mv.visitTypeInsn(CHECKCAST, INT_VALUE);
             mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
         }
-
         if (lambdaDetails.isExternFunction) {
             generateBlockedOnExtern(lambdaDetails.closureMapsCount, mv);
         }
