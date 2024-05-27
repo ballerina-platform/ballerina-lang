@@ -79,7 +79,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             Assert.fail(e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"));
+        Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"), buildLog);
     }
 
     @Test(description = "Test function mocking")
