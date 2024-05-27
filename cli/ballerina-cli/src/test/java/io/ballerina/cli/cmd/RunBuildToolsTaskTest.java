@@ -28,7 +28,10 @@ import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
