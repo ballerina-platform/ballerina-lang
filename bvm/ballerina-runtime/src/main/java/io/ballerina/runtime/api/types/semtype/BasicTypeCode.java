@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent bit field that indicate which basic type a semType belongs to.
+ *
+ * @since 2201.10.0
+ */
 public final class BasicTypeCode {
 
     public static final int CODE_NIL = 0x00;

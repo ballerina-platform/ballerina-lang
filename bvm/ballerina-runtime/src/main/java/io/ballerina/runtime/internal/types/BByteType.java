@@ -35,7 +35,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
  */
 public final class BByteType extends BSemTypeWrapper implements ByteType {
 
-    protected final String typeName;
     private static final BByteTypeImpl DEFAULT_B_TYPE = new BByteTypeImpl(TypeConstants.BYTE_TNAME, EMPTY_MODULE);
 
     /**
@@ -49,7 +48,6 @@ public final class BByteType extends BSemTypeWrapper implements ByteType {
 
     private BByteType(BByteTypeImpl bType, SemType semType) {
         super(bType, semType);
-        this.typeName = bType.typeName;
     }
 
     public static BByteType singletonType(long value) {
