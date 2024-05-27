@@ -19,6 +19,10 @@ OPTIONS
        --debug <port>
            Run Ballerina Profiler in the remote debugging mode.
 
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
 EXAMPLES
        Run Ballerina profiler on the 'main' function and service(s) in the 'app.bal' file.
            $ bal profile app.bal

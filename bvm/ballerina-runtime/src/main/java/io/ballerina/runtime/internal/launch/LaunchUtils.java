@@ -158,6 +158,9 @@ public class LaunchUtils {
     public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
         Path testConfigPath = Paths.get(sourceRoot);
+        if (!Files.exists(testConfigPath)) {
+            testConfigPath = getSourceRootInContainer();
+        }
         if (!moduleName.equals(pkgName)) {
             testConfigPath = testConfigPath.resolve(MODULES_ROOT)
                     .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
@@ -170,4 +173,8 @@ public class LaunchUtils {
         }
     }
 
+    private static Path getSourceRootInContainer() {
+        // Since we are inside a docker container, it's current working directory is the source root.
+        return Paths.get(RuntimeUtils.USER_DIR);
+    }
 }
