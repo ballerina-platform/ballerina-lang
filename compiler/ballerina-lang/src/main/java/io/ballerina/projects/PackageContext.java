@@ -58,8 +58,8 @@ class PackageContext {
      */
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
-    private Set<PackageDependency> packageDependencies; // This is added during getResolution() method
-    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph; // This is added during resolveResolution() method
+    private Set<PackageDependency> packageDependencies;
+    private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
     private PackageCompilation packageCompilation;
 
