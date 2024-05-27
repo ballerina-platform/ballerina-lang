@@ -74,6 +74,7 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
                 {"singleDocGeneration16.json"},
                 {"singleDocGeneration17.json"},
                 {"singleDocGeneration18.json"},
+                {"singleDocGeneration19.json"},
         };
     }
 

@@ -83,7 +83,8 @@ public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider 
                 SyntaxKind.TUPLE_TYPE_DESC,
                 SyntaxKind.READONLY_TYPE_DESC,
                 SyntaxKind.FUTURE_TYPE_DESC,
-                SyntaxKind.SINGLETON_TYPE_DESC
+                SyntaxKind.SINGLETON_TYPE_DESC,
+                SyntaxKind.INTERSECTION_TYPE_DESC
         );
     }
 

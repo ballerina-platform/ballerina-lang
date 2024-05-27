@@ -106,3 +106,5 @@ type Nil ();
 type IntArray int[];
 
 type Pi 3.14285714286d;
+
+type ReadonlyInt readonly & int;
