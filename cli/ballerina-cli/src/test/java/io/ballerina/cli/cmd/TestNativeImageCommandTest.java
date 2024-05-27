@@ -84,7 +84,12 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
         // non existing bal file
         new CommandLine(testCommand).parseArgs();
-        testCommand.execute();
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            readOutput(false);
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("[pass] intAddTest"));
         Assert.assertTrue(buildLog.contains("[pass] intAddTest2"));
@@ -112,7 +117,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
 
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with additional args")
-    public void testTestBalFileWithAdditionalArgs() {
+    public void testTestBalFileWithAdditionalArgs() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
@@ -121,8 +126,12 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
-                    "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
+            boolean testResult = e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
+                                "standalone Ballerina files containing resources");
+            if (!testResult) {
+                readOutput(false);
+                Assert.fail(e.getDetailedMessages().get(0));
+            }
         }
     }
 
