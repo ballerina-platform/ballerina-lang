@@ -6,6 +6,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -30,10 +31,14 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
+    private static final Path LOG_FILE = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+            "log_creator_combined_plugin/compiler-plugin.txt");
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
+        Files.createDirectories(LOG_FILE.getParent());
+        Files.writeString(LOG_FILE, "");
         try {
             this.testResources = super.tmpDir.resolve("test-cmd-test-resources");
             Path testBuildDirectory = Paths.get("build").toAbsolutePath();
@@ -136,5 +141,12 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
                     "standalone Ballerina files containing resources"), e.getDetailedMessages().get(0));
         }
+    }
+    
+    @AfterClass
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(LOG_FILE);
+        Files.deleteIfExists(LOG_FILE.getParent());
+        Files.deleteIfExists(LOG_FILE.getParent().getParent());
     }
 }
