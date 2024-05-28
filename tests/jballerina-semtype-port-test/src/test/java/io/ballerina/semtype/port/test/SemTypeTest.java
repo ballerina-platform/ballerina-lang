@@ -103,23 +103,25 @@ public class SemTypeTest {
 
         List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
         for (File file : balFiles) {
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions = getTypeAssertions(file);
+            TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(file);
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions = getTypeAssertions(file,
+                    utils.resolver(), utils.context(), utils.pair());
             tests.addAll(assertions);
         }
         return tests.toArray();
     }
 
     @NotNull
-    private static List<SemTypeAssertionTransformer.TypeAssertion> getTypeAssertions(File file) {
+    private static <Cx> List<SemTypeAssertionTransformer.TypeAssertion> getTypeAssertions(File file,
+                                                                                          SemTypeResolver<Cx> typeResolver,
+                                                                                          Cx typeCheckContext,
+                                                                                          BCompileUtil.PackageSyntaxTreePair pair) {
         String fileName = file.getAbsolutePath();
-        BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
         BLangPackage pkgNode = pair.bLangPackage;
 
         List<BLangNode> typeAndClassDefs = new ArrayList<>();
         typeAndClassDefs.addAll(pkgNode.constants);
         typeAndClassDefs.addAll(pkgNode.typeDefinitions);
-        SemTypeResolver<Context> typeResolver = new CompilerSemTypeResolver();
-        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
 
         List<SemTypeAssertionTransformer.TypeAssertion> assertions;
         try {
@@ -205,14 +207,30 @@ public class SemTypeTest {
     @Test(expectedExceptions = AssertionError.class)
     public void shouldFailForIncorrectTestStructure() {
         File wrongAssertionFile = resolvePath("test-src/type-rel-wrong.bal").toFile();
-        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile);
+        TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
+        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile,
+                utils.resolver(), utils.context(), utils.pair());
         testSemTypeAssertions(typeAssertions.get(0));
+    }
+
+    private static TypeCheckData<Context> compilerTypeResolverUtilsFromFile(File file) {
+        String fileName = file.getAbsolutePath();
+        BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
+        BLangPackage pkgNode = pair.bLangPackage;
+        return new TypeCheckData<>(pair, Context.from(pkgNode.semtypeEnv), new CompilerSemTypeResolver());
+    }
+
+    private record TypeCheckData<Cx>(BCompileUtil.PackageSyntaxTreePair pair, Cx context,
+                                     SemTypeResolver<Cx> resolver) {
+
     }
 
     @Test(expectedExceptions = AssertionError.class)
     public void shouldFailForTooLargeLists() {
         File wrongAssertionFile = resolvePath("test-src/fixed-length-array-too-large-te.bal").toFile();
-        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile);
+        TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
+        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile,
+                utils.resolver(), utils.context(), utils.pair());
         testSemTypeAssertions(typeAssertions.get(0));
     }
 
