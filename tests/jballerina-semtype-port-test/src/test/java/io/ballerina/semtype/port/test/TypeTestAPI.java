@@ -18,11 +18,22 @@
 
 package io.ballerina.semtype.port.test;
 
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+public interface TypeTestAPI<SemType> {
 
-import java.util.List;
+    boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2);
 
-public interface SemTypeResolver<SemType> {
+    // TODO: may be introduce is mapping and is list
+    boolean isSubtypeSimple(SemType t1, SemType t2);
 
-    void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx);
+    boolean isListType(SemType t);
+
+    boolean isMapType(SemType t);
+
+    SemType intConst(long l);
+
+    SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType type, SemType m);
+
+    SemType listProj(TypeTestContext<SemType> context, SemType t, SemType key);
+
+    SemType listMemberType(TypeTestContext<SemType> context, SemType t, SemType key);
 }

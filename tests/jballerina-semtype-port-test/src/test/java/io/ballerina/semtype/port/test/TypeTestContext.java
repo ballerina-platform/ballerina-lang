@@ -18,11 +18,11 @@
 
 package io.ballerina.semtype.port.test;
 
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+public interface TypeTestContext<SemType> {
 
-import java.util.List;
+    TypeTestEnv<SemType> getEnv();
 
-public interface SemTypeResolver<SemType> {
+    Object getInnerEnv();
 
-    void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx);
+    Object getInnerContext();
 }
