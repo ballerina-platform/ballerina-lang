@@ -53,63 +53,6 @@ tasks.register('createCacheEntries') {
     dependsOn copyTomlFiles
 }
 
-
-tasks.register('createBirJar') {
-//    dependsOn configurations.birJarCompile
-//    dependsOn configurations.bir
-//    dependsOn configurations.interopImports
-//    dependsOn createBir
-//    dependsOn createBirCache
-//    dependsOn copyExternalMappingNextToBir
-//    dependsOn ':ballerina-libs:copyDependencies'
-//
-//    workingDir "$buildDir/generated-bir-jar"
-//
-//    onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
-//
-//    doFirst {
-//        Set jarsToBeLoaded = []
-//        def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
-//        if (!sourceSets.main.allJava.isEmpty()) {
-//            def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
-//            if (file(generatedMapPath).exists()) {
-//                mapPath = generatedMapPath
-//            }
-//        }
-//
-//        configurations.interopImports.each {
-//            jarsToBeLoaded.addAll(it)
-//        }
-//        jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar")
-//        new File("$projectDir/src/main/ballerina/Ballerina.toml").readLines().
-//                findAll({x -> x ==~ /.*path = ".\/lib\/.*/ }).
-//                collect {
-//                    def jarPath = it.split(/"/)[1].replace('@project.version@', "${project.version}").
-//                            replace('./lib', "")
-//                    jarsToBeLoaded.add("$rootDir" + "/distribution/libs/libs" + jarPath)
-//        }
-//
-//        configurations.birJarCompile.each {
-//            printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
-//            createClassPathJar("$buildDir/classpath/" + project.ext.moduleName + ".jar", jarsToBeLoaded)
-//            commandLine getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
-//        }
-//    }
-//
-//    doLast {
-//        if(!file("$buildDir/generated-bir-jar/${project.ext.moduleName}.jar").exists()){
-//            println "$buildDir/generated-bir-jar/${project.ext.moduleName}.jar not created."
-//            throw new GradleException("error in creating bir jar")
-//        }
-//    }
-//
-//    inputs.files(configurations.bir).withPathSensitivity(PathSensitivity.RELATIVE)
-//    inputs.property("bootstrapVersion", project.bootstrappedOn)
-//    inputs.dir("$buildDir/generated-bir").withPathSensitivity(PathSensitivity.RELATIVE)
-//    outputs.dir "$buildDir/generated-bir-jar"
-//    outputs.cacheIf { true }
-}
-
 tasks.register('copySelfToBirCache', Copy) {
     dependsOn createCacheEntries
     from "$buildDir/generated-bir"
