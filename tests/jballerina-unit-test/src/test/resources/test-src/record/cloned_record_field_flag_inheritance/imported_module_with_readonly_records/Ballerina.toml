@@ -1,4 +1,4 @@
 [package]
-org = "thushara_piyasekara"
+org = "test_org"
 name = "ReadonlyRecord"
 version = "0.1.0"

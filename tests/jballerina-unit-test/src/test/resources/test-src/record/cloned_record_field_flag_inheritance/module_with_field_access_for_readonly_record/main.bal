@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import thushara_piyasekara/ReadonlyRecord;
+import test_org/ReadonlyRecord;
 
 ReadonlyRecord:RecB rec = {
     recArr: []
