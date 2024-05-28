@@ -110,8 +110,8 @@ public class NativeDependencyOptimizer {
         return false;
     }
 
-    private static LinkedHashSet<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry)
-            throws IOException {
+    private static LinkedHashSet<String> getServiceProviderImplementations(ZipFile originalJarFile,
+                                                                           ZipArchiveEntry entry) throws IOException {
         String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
         String[] serviceImplClassesArr = allImplString.split("\n");
         LinkedHashSet<String> serviceProviderDependencies = new LinkedHashSet<>();
