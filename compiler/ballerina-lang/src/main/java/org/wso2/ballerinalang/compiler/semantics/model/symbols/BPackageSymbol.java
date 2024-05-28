@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -58,9 +57,6 @@ public class BPackageSymbol extends BTypeSymbol {
     public Boolean shouldGenerateDuplicateBIR = false;
     public BIRNode.BIRPackage duplicateBir;
     public BIRPackageFile birPackageFile;
-
-    // kep code generated jar binary content in memory
-    public CompiledJarFile compiledJarFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;

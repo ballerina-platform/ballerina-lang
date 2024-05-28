@@ -45,7 +45,9 @@ public class NativeDependencyOptimizationReportEmitter {
 
         if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
             projectDirectoryPath = projectDirectoryPath.toAbsolutePath().getParent();
-            reportParentDirectoryPath = projectDirectoryPath;
+            if (projectDirectoryPath != null) {
+                reportParentDirectoryPath = projectDirectoryPath;
+            }
         }
 
         if (!Files.exists(reportParentDirectoryPath)) {
