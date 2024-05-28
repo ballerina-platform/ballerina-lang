@@ -102,7 +102,9 @@ public class CodeGenOptimizationReportEmitter {
 
         if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
             projectDirectoryPath = projectDirectoryPath.toAbsolutePath().getParent();
-            reportParentDirectoryPath = projectDirectoryPath;
+            if (projectDirectoryPath != null) {
+                reportParentDirectoryPath = projectDirectoryPath;
+            }
         }
 
         if (!Files.exists(reportParentDirectoryPath)) {
@@ -114,9 +116,7 @@ public class CodeGenOptimizationReportEmitter {
         }
 
         Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>();
-        invocationDataMap.forEach((key, value) -> {
-            reports.put(key.toString(), getCodegenOptimizationReport(value));
-        });
+        invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
 
         Path jsonFilePath = reportParentDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
         File jsonFile = new File(jsonFilePath.toString());
