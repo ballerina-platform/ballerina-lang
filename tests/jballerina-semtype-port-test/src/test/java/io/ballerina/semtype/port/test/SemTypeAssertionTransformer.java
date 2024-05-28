@@ -28,9 +28,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.types.Context;
 import io.ballerina.types.Env;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.testng.Assert;
 
 import java.nio.file.Paths;
@@ -49,11 +47,13 @@ import java.util.Map;
  * @since 3.0.0
  */
 public class SemTypeAssertionTransformer extends NodeVisitor {
+
     private final String fileName;
     private final SyntaxTree syntaxTree;
     private final Env semtypeEnv;
     private final Context context;
     private final List<String> list;
+    private final TypeTestAPI<Context, SemType> semtypes;
 
     private SemTypeAssertionTransformer(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
         this.fileName = fileName;
@@ -61,6 +61,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         this.semtypeEnv = semtypeEnv;
         this.context = Context.from(semtypeEnv);
         list = new ArrayList<>();
+        semtypes = CompilerTypeTestAPI.getInstance();
     }
 
     public static List<TypeAssertion> getTypeAssertionsFrom(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
@@ -101,27 +102,27 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         String memberAccessExpr = typeExpr.substring(leftBracketPos + 1, rightBracketPos);
 
         SemType type = typeNameSemTypeMap.get(typeRef);
-        if (SemTypes.isSubtypeSimple(type, PredefinedType.LIST)) {
+        if (semtypes.isListType(type)) {
             SemType m;
             try {
                 long l = Long.parseLong(memberAccessExpr);
-                m = SemTypes.intConst(l);
+                m = semtypes.intConst(l);
             } catch (Exception e) {
                 // parsing number failed, access must be a type-reference
                 m = typeNameSemTypeMap.get(memberAccessExpr);
             }
             return listProj(context, type, m);
-        } else if (SemTypes.isSubtypeSimple(type, PredefinedType.MAPPING)) {
+        } else if (semtypes.isMapType(type)) {
             SemType m = typeNameSemTypeMap.get(memberAccessExpr);
-            return SemTypes.mappingMemberTypeInnerVal(context, type, m);
+            return semtypes.mappingMemberTypeInnerVal(context, type, m);
         }
         throw new IllegalStateException("Unsupported type test: " + typeExpr);
     }
 
     private SemType listProj(Context context, SemType t, SemType m) {
-        SemType s1 = SemTypes.listProj(context, t, m);
-        SemType s2 = SemTypes.listMemberType(context, t, m);
-        if (!SemTypes.isSubtype(context, s1, s2)) {
+        SemType s1 = semtypes.listProj(context, t, m);
+        SemType s2 = semtypes.listMemberType(context, t, m);
+        if (!semtypes.isSubtype(context, s1, s2)) {
             Assert.fail("listProj result is not a subtype of listMemberType");
         }
         return s1;
