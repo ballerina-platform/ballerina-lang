@@ -46,7 +46,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -156,10 +158,10 @@ public class SemTypeTest {
     public final HashSet<String> typeRelDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
         // intersection with negative (!) atom
-        hashSet.add("proj7-t.bal");
-        hashSet.add("proj8-t.bal");
-        hashSet.add("proj9-t.bal");
-        hashSet.add("proj10-t.bal");
+        hashSet.add("proj7-tv.bal");
+        hashSet.add("proj8-tv.bal");
+        hashSet.add("proj9-tv.bal");
+        hashSet.add("proj10-tv.bal");
 
         // Not a type test. This is an error test
         hashSet.add("xml-te.bal");
@@ -216,13 +218,96 @@ public class SemTypeTest {
         testSemTypeAssertions(typeAssertions.get(0));
     }
 
-    @Test()
-    public void testRuntimeSemTypes() {
-        File file = resolvePath("test-src/type-rel/float-tv.bal").toFile();
+    @DataProvider(name = "runtimeFileNameProviderFunc")
+    public Object[] runtimeFileNameProviderFunc() {
+        File dataDir = resolvePath("test-src/type-rel").toFile();
+        List<File> balFiles = new ArrayList<>();
+        listAllBalFiles(dataDir, balFiles);
+        Collections.sort(balFiles);
+        Predicate<File> tableFilter = createRuntimeFileNameFilter(Set.of(
+                "anydata-tv.bal",
+                "table2-t.bal",
+                "table3-t.bal",
+                "table-readonly-t.bal",
+                "table-t.bal"
+        ));
+        Predicate<File> listFilter = createRuntimeFileNameFilter(Set.of(
+                "bdddiff1-tv.bal",
+                "fixed-length-array-t.bal",
+                "fixed-length-array2-t.bal",
+                "fixed-length-array-large-t.bal",
+                "fixed-length-array-tuple-t.bal",
+                "list1-tv.bal",
+                "proj1-tv.bal",
+                "proj2-tv.bal",
+                "proj3-tv.bal",
+                "proj4-tv.bal",
+                "proj5-tv.bal",
+                "proj6-tv.bal",
+                "proj7-tv.bal",
+                "proj8-tv.bal",
+                "proj9-tv.bal",
+                "proj10-tv.bal",
+                "test_test.bal",
+                "tuple1-tv.bal",
+                "tuple2-tv.bal",
+                "tuple3-tv.bal",
+                "tuple4-tv.bal"
+        ));
+        Predicate<File> functionFilter = createRuntimeFileNameFilter(Set.of(
+                "function2-tv.bal",
+                "function-intersection-tv.bal",
+                "function-param-tv.bal",
+                "function-rec-tv.bal",
+                "function-rest-tv.bal",
+                "function-tv.bal",
+                "function-union-tv.bal"
+        ));
+        Predicate<File> mappingFilter = createRuntimeFileNameFilter(Set.of(
+                "mapping1-t.bal",
+                "mapping2-t.bal",
+                "mapping3-t.bal",
+                "mapping-record-tv.bal",
+                "mapping-t.bal",
+                "mappingIntersect-tv.bal",
+                "mutable-record-t.bal",
+                "optional-field-record1-t.bal",
+                "optional-field-record2-t.bal",
+                "optional-field-record3-t.bal",
+                "record-proj-tv.bal",
+                "record-t.bal",
+                "recursive-record-t.bal",
+                "test_test.bal"
+        ));
+        Predicate<File> xmlFilter = createRuntimeFileNameFilter(Set.of(
+                "xml-complex-ro-tv.bal",
+                "xml-complex-rw-tv.bal",
+                "xml-never-tv.bal",
+                "xml-readonly-tv.bal",
+                "xml-sequence-tv.bal",
+                "xml-te.bal"
+        ));
+        return balFiles.stream()
+                .filter(listFilter)
+                .filter(tableFilter)
+                .filter(functionFilter)
+                .filter(mappingFilter)
+                .filter(xmlFilter)
+                .map(File::getAbsolutePath).toArray();
+    }
+
+    private static Predicate<File> createRuntimeFileNameFilter(Set<String> skipList) {
+        return file -> file.getName().endsWith(".bal") && !skipList.contains(file.getName());
+    }
+
+    @Test(dataProvider = "runtimeFileNameProviderFunc")
+    public void testRuntimeSemTypes(String fileName) {
+        File file = resolvePath(fileName).toFile();
         var utils = runtimeTypeResolverUtilsFromFile(file);
-        List<TypeAssertion<io.ballerina.runtime.api.types.semtype.SemType>> assertions = getTypeAssertions(file,
-                utils.resolver(), utils.context(), utils.env(), RuntimeTypeTestAPI.getInstance(), utils.pair());
-        testAssertion(assertions.get(0), RuntimeTypeTestAPI.getInstance());
+        RuntimeTypeTestAPI api = RuntimeTypeTestAPI.getInstance();
+        getTypeAssertions(file,
+                utils.resolver(), utils.context(), utils.env(), api, utils.pair())
+                .forEach(a -> testAssertion(a, api));
     }
 
     private static TypeCheckData<SemType> compilerTypeResolverUtilsFromFile(File file) {
