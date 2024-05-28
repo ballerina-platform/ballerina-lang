@@ -181,9 +181,9 @@ public final class PredefinedType {
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO)
     );
 
-    protected static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
+    public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
     public static final CellAtomicType CELL_ATOMIC_INNER_RO = CellAtomicType.from(
-            PredefinedType.INNER_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
+            INNER_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
     );
     public static final TypeAtom ATOM_CELL_INNER_RO = createTypeAtom(7, CELL_ATOMIC_INNER_RO);
     public static final CellSemType CELL_SEMTYPE_INNER_RO = (CellSemType) basicSubtype(
