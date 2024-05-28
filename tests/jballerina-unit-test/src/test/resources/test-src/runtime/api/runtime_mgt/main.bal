@@ -38,6 +38,7 @@ function testListenerFunctionality() {
     test:assertTrue(result == ());
     test:assertEquals(counter, 7);
     validateArtifactCount();
+    validateIsRemoteEnabled();
 }
 
 service /s1 on l1 {
@@ -88,5 +89,9 @@ public class Listener {
 }
 
 function validateArtifactCount() = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function validateIsRemoteEnabled() = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
