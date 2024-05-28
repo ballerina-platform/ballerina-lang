@@ -733,7 +733,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private String getAllClassPaths(JarResolver jarResolver) {
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        for (JarLibrary lib : jarResolver.getJarFilePathsRequiredForExecution(false)) {
+        for (JarLibrary lib : jarResolver.getJarFilePathsRequiredForExecution()) {
             cp.add(lib.path().toString());
         }
         return cp.toString();

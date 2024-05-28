@@ -119,6 +119,6 @@ public class CompileResult {
     }
 
     public Collection<JarLibrary> getJarPathRequiredForExecution() {
-        return jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(false);
+        return jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
     }
 }

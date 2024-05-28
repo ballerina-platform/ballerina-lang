@@ -1115,21 +1115,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest(false);
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution(false);
-        try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
-        } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package '" +
-                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
-        }
-        return executableFilePath;
-    }
-
-    private Path emitOptimizedExecutable(Path executableFilePath) {
-        Manifest manifest = createManifest(true);
-        Collection<JarLibrary> jarLibraries =
-                jarResolver.getJarFilePathsRequiredForExecution(true);
-
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {

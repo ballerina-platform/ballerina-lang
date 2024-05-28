@@ -94,6 +94,10 @@ public class JarResolver {
         return providedPlatformLibs;
     }
 
+    public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
+        return getJarFilePathsRequiredForExecution(false);
+    }
+
     // TODO These method names are too long. Refactor them soon
     public Collection<JarLibrary> getJarFilePathsRequiredForExecution(boolean optimizeFinalExecutable) {
         // 1) Add this root package related jar files
@@ -303,7 +307,7 @@ public class JarResolver {
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies
-        Set<JarLibrary> allJarFileForTestExec = new HashSet<>(getJarFilePathsRequiredForExecution(false));
+        Set<JarLibrary> allJarFileForTestExec = new HashSet<>(getJarFilePathsRequiredForExecution());
 
         // 2) Replace given modules thin jar with it's test-thin jar
         if (!rootPackageContext.packageManifest().org().anonymous()) {
@@ -346,7 +350,7 @@ public class JarResolver {
             return classLoaderWithAllJars;
         }
 
-        classLoaderWithAllJars = createClassLoader(getJarFilePathsRequiredForExecution(false));
+        classLoaderWithAllJars = createClassLoader(getJarFilePathsRequiredForExecution());
         return classLoaderWithAllJars;
     }
 
