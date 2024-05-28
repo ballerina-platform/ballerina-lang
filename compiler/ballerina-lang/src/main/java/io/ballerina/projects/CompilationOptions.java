@@ -141,7 +141,7 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(optimizeCodegen);
     }
 
-    public boolean verbose(){
+    public boolean verbose() {
         return toBooleanDefaultIfNull(verbose);
     }
 
