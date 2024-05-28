@@ -141,7 +141,7 @@ public class BuildOptions {
         return this.compilationOptions.optimizeCodegen();
     }
 
-    public boolean verbose(){
+    public boolean verbose() {
         return this.compilationOptions.verbose();
     }
 
