@@ -6665,6 +6665,7 @@ public class Desugar extends BLangNodeVisitor {
                                                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             BLangExpression indexAccessExprExpr = indexAccessExpr.expr;
+            // TODO: Remove the casting after fixing the xml union type representation in runtime.
             if (Types.getImpliedType(indexAccessExprExpr.getBType()).tag == TypeTags.UNION) {
                 indexAccessExprExpr = createTypeCastExpr(indexAccessExprExpr, symTable.xmlType);
             }
