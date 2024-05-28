@@ -205,7 +205,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
             typeStr = unionType.tsymbol.getName().getValue();
-            if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
+            if (Symbols.isFlagOn(unionType.getFlags(), Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
             return typeStr;

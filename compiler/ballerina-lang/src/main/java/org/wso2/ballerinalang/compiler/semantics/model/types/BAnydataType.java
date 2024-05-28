@@ -40,7 +40,7 @@ public class BAnydataType extends BUnionType {
     public BAnydataType(Env env, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
-        this.flags = flags;
+        this.setFlags(flags);
         this.name = name;
         this.isCyclic = true;
         this.nullable = nullable;
@@ -48,19 +48,19 @@ public class BAnydataType extends BUnionType {
 
     public BAnydataType(BUnionType type) {
         super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
-                Symbols.isFlagOn(type.flags, Flags.READONLY));
+                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
         this.name = type.name;
-        this.flags = type.flags;
+        this.setFlags(type.getFlags());
         this.nullable = type.isNullable();
         mergeUnionType(type);
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
         super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
-                Symbols.isFlagOn(type.flags, Flags.READONLY));
-        this.flags = type.flags;
+                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
+        this.setFlags(type.getFlags());
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
         this.nullable = nullable;
@@ -69,7 +69,7 @@ public class BAnydataType extends BUnionType {
 
     @Override
     public String toString() {
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
     }
 

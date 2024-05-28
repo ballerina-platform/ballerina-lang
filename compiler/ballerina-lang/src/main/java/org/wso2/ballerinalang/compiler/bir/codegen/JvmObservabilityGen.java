@@ -181,7 +181,7 @@ class JvmObservabilityGen {
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && bType.tag == TypeTags.OBJECT) {
                 continue;
             }
-            boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
+            boolean isService = (bType.getFlags() & Flags.SERVICE) == Flags.SERVICE;
             String serviceName = null;
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {

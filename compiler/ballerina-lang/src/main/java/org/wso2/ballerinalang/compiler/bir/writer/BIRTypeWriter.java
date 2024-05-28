@@ -133,7 +133,7 @@ public class BIRTypeWriter extends TypeVisitor {
         writeSemType(type.semType());
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
-        buff.writeLong(type.flags);
+        buff.writeLong(type.getFlags());
         type.accept(this);
     }
 
@@ -204,7 +204,7 @@ public class BIRTypeWriter extends TypeVisitor {
 
     @Override
     public void visit(BInvokableType bInvokableType) {
-        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
+        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.getFlags(), Flags.ANY_FUNCTION);
         buff.writeBoolean(isAnyFunction); // write 1 if it’s an any function if not write 0
 
         if (isAnyFunction) {

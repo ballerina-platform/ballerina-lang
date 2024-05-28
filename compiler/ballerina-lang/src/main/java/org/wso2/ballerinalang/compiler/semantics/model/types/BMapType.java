@@ -58,6 +58,14 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         this.env = env;
     }
 
+    /**
+     * It is required to reset {@link #md} when the type gets mutated.
+     * This method is used for that. e.g. When changing Flags.READONLY
+     */
+    protected void restMd() {
+        md = null;
+    }
+
     @Override
     public BType getConstraint() {
         return constraint;
@@ -78,7 +86,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
             stringRep = super.toString() + "<" + constraint + ">";
         }
 
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override
@@ -106,7 +114,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         if (elementTypeSemType == null) {
             elementTypeSemType = NEVER;
         }
-        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         return md.defineMappingTypeWrapped(env, List.of(), elementTypeSemType, mut);
     }

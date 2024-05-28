@@ -2110,7 +2110,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRNonTerminator.NewXMLElement newXMLElement =
                 new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos, toVarRef, startTagNameIndex,
                                                    defaultNsURIVarRef,
-                                                   Symbols.isFlagOn(xmlElementLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlElementLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLElement);
 
@@ -2176,7 +2176,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLComment newXMLComment =
                 new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex,
-                                                   Symbols.isFlagOn(xmlCommentLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlCommentLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLComment);
         this.env.targetOperand = toVarRef;
@@ -2197,7 +2197,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLProcIns newXMLProcIns =
                 new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex,
-                                                   Symbols.isFlagOn(xmlProcInsLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlProcInsLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLProcIns);
         this.env.targetOperand = toVarRef;

@@ -45,10 +45,10 @@ public class BAttachedFunction {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(type.getFlags(), Flags.ISOLATED)) {
             sb.append("isolated ");
         }
-        if (Symbols.isFlagOn(type.flags, Flags.TRANSACTIONAL)) {
+        if (Symbols.isFlagOn(type.getFlags(), Flags.TRANSACTIONAL)) {
             sb.append("transactional ");
         }
         sb.append("function ").append(funcName).append(" ").append(type.getTypeSignature());

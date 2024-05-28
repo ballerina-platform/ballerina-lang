@@ -222,7 +222,7 @@ public class AnnotationDesugar {
                     owner);
             if (lambdaFunction != null) {
                 BType type = classDef.getBType();
-                if (Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
+                if (Symbols.isFlagOn(type.getFlags(), Flags.OBJECT_CTOR)) {
                     if (normalMode) {
                         // Add the lambda/invocation in a temporary block.
                         BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -503,7 +503,7 @@ public class AnnotationDesugar {
 
                 int index;
                 if (function.attachedFunction
-                        && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
+                        && Symbols.isFlagOn(function.receiver.getBType().getFlags(), Flags.OBJECT_CTOR)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {

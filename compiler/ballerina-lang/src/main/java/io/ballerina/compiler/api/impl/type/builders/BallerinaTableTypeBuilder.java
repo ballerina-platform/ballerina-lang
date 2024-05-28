@@ -147,7 +147,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         if (typeDescriptor instanceof AbstractTypeSymbol) {
             BType bType = ((AbstractTypeSymbol) typeDescriptor).getBType();
 
-            return Symbols.isFlagOn(bType.flags, Flags.READONLY);
+            return Symbols.isFlagOn(bType.getFlags(), Flags.READONLY);
         }
 
         return false;
@@ -193,7 +193,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     private boolean isValidKeyConstraintType(TypeSymbol fieldType, TypeSymbol keyType) {
         if ((fieldType.typeKind() == keyType.typeKind() || keyType.subtypeOf(fieldType))
                 && fieldType instanceof AbstractTypeSymbol) {
-            return Symbols.isFlagOn(((AbstractTypeSymbol) fieldType).getBType().flags, Flags.READONLY);
+            return Symbols.isFlagOn(((AbstractTypeSymbol) fieldType).getBType().getFlags(), Flags.READONLY);
         }
 
         return false;

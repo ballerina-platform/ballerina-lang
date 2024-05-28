@@ -649,7 +649,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void setInvokableTypeSymbol(BInvokableType invokableType) {
-        if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+        if (Symbols.isFlagOn(invokableType.getFlags(), Flags.ANY_FUNCTION)) {
             return;
         }
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
@@ -975,7 +975,7 @@ public class BIRPackageSymbolEnter {
             defineAnnotAttachmentSymbols(dataInStream, restParam);
         }
 
-        if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
+        if (Symbols.isFlagOn(invokableSymbol.retType.getFlags(), Flags.PARAMETERIZED)) {
             Map<Name, BVarSymbol> paramsMap = new HashMap<>();
             for (BVarSymbol param : invokableSymbol.params) {
                 if (paramsMap.put(param.getName(), param) != null) {
@@ -1077,7 +1077,7 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
-                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                if (Symbols.isFlagOn(invokableType.getFlags(), Flags.ANY_FUNCTION)) {
                     break;
                 }
                 for (BType t : invokableType.paramTypes) {
@@ -1292,7 +1292,7 @@ public class BIRPackageSymbolEnter {
                     BType constraintType = readTypeFromCp();
                     BXMLType mutableXmlType = new BXMLType(constraintType, symTable.xmlType.tsymbol);
                     if (Symbols.isFlagOn(flags, Flags.PARAMETERIZED)) {
-                        mutableXmlType.flags |= Flags.PARAMETERIZED;
+                        mutableXmlType.setFlags(mutableXmlType.getFlags() | Flags.PARAMETERIZED);
                     }
                     return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:
@@ -1373,7 +1373,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
-                    typedescType.flags = flags;
+                    typedescType.setFlags(flags);
                     return typedescType;
                 case TypeTags.TYPEREFDESC:
                     int pkgIndex = inputStream.readInt();
@@ -1398,14 +1398,14 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.PARAMETERIZED_TYPE:
                     BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
-                    type.flags = flags;
+                    type.setFlags(flags);
                     type.paramIndex = inputStream.readInt();
                     return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
                     bStreamType.completionType = readTypeFromCp();
-                    bStreamType.flags = flags;
+                    bStreamType.setFlags(flags);
                     return bStreamType;
                 case TypeTags.TABLE:
                     BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);
@@ -1444,7 +1444,7 @@ public class BIRPackageSymbolEnter {
                             env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner, symTable.builtinPos,
                             COMPILED_SOURCE);
-                    bInvokableType.flags = flags;
+                    bInvokableType.setFlags(flags);
                     if (inputStream.readBoolean()) {
                         // Return if an any function
                         return bInvokableType;
@@ -1510,7 +1510,7 @@ public class BIRPackageSymbolEnter {
                     addShapeCP(unionType, cpI);
                     compositeStack.push(unionType);
 
-                    unionType.flags = flags;
+                    unionType.setFlags(flags);
                     unionType.isCyclic = isCyclic;
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
@@ -1595,7 +1595,7 @@ public class BIRPackageSymbolEnter {
                     String errorName = getStringCPEntryValue(inputStream);
                     BType detailsType = readTypeFromCp();
                     errorType.detailType = detailsType;
-                    errorType.flags = flags;
+                    errorType.setFlags(flags);
                     errorSymbol.type = errorType;
                     errorSymbol.pkgID = pkgId;
                     errorSymbol.originalName = errorSymbol.name = names.fromString(errorName);
@@ -1635,7 +1635,7 @@ public class BIRPackageSymbolEnter {
                         tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
                     BTupleType bTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleMembers);
-                    bTupleType.flags = flags;
+                    bTupleType.setFlags(flags);
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();
@@ -1645,7 +1645,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
-                    bFutureType.flags = flags;
+                    bFutureType.setFlags(flags);
                     return bFutureType;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
@@ -1661,7 +1661,7 @@ public class BIRPackageSymbolEnter {
                         valueSpace[i] = readSemNamedType();
                     }
                     BFiniteType finiteType = new BFiniteType(symbol, valueSpace);
-                    finiteType.flags = flags;
+                    finiteType.setFlags(flags);
                     symbol.type = finiteType;
                     return finiteType;
                 case TypeTags.OBJECT:
@@ -1686,7 +1686,7 @@ public class BIRPackageSymbolEnter {
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
                     objectType = new BObjectType(objectSymbol);
-                    objectType.flags = flags;
+                    objectType.setFlags(flags);
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);
                     compositeStack.push(objectType);
@@ -1868,7 +1868,7 @@ public class BIRPackageSymbolEnter {
 
             setInvokableTypeSymbol(attachedFuncType);
 
-            if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
+            if (!Symbols.isFlagOn(attachedFuncType.getFlags(), Flags.ANY_FUNCTION)) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
                 attachedFuncSymbol.params = tsymbol.params;
                 attachedFuncSymbol.restParam = tsymbol.restParam;

@@ -35,7 +35,7 @@ public class BJSONType extends BUnionType {
     private static final int INITIAL_CAPACITY = 8;
 
     public BJSONType(BJSONType type, boolean nullable) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.flags,
+        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.getFlags(),
                 Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
@@ -45,7 +45,7 @@ public class BJSONType extends BUnionType {
 
     public BJSONType(BUnionType type) {
         super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(),
-                Symbols.isFlagOn(type.flags, Flags.READONLY));
+                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
         this.nullable = type.isNullable();
@@ -54,7 +54,7 @@ public class BJSONType extends BUnionType {
     public BJSONType(Env env, BTypeSymbol typeSymbol, boolean nullable, long flags) {
         super(env, typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
                 Symbols.isFlagOn(flags, Flags.READONLY));
-        this.flags = flags;
+        this.setFlags(flags);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
         this.nullable = nullable;
@@ -62,7 +62,7 @@ public class BJSONType extends BUnionType {
 
     @Override
     public String toString() {
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
     }
 

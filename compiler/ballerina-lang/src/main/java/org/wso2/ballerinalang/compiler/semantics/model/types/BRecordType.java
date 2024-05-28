@@ -73,6 +73,14 @@ public class BRecordType extends BStructureType implements RecordType {
         this.env = env;
     }
 
+    /**
+     * It is required to reset {@link #md} when the type gets mutated.
+     * This method is used for that. e.g. When changing Flags.READONLY
+     */
+    protected void restMd() {
+        md = null;
+    }
+
     @Override
     public TypeKind getKind() {
         return TypeKind.RECORD;
@@ -114,11 +122,12 @@ public class BRecordType extends BStructureType implements RecordType {
             }
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
-                return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() :
+                return !Symbols.isFlagOn(this.getFlags(), Flags.READONLY) ? sb.toString() :
                         sb.toString().concat(" & readonly");
             }
             sb.append(SPACE).append(restFieldType).append(REST).append(SEMI).append(SPACE).append(CLOSE_RIGHT);
-            return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() : sb.toString().concat(" & readonly");
+            return !Symbols.isFlagOn(this.getFlags(), Flags.READONLY) ? sb.toString() :
+                    sb.toString().concat(" & readonly");
         }
         return this.tsymbol.toString();
     }
@@ -177,7 +186,7 @@ public class BRecordType extends BStructureType implements RecordType {
             restFieldSemType = restFieldType.semType();
         }
 
-        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         return md.defineMappingTypeWrapped(env, semFields, restFieldSemType, mut);
     }

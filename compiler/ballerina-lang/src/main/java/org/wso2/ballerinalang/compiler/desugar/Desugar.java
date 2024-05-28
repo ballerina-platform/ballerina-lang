@@ -2012,7 +2012,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol), typeCastExpr.getBType());
         String entriesVarName = "$map$ref$entries$" + UNDERSCORE + restNum;
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, null, null, constraintType, null,
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.getFlags(), null, null, constraintType, null,
                 null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
@@ -4328,7 +4328,7 @@ public class Desugar extends BLangNodeVisitor {
                                    BType targetType, BLangBlockStmt blockStmt,
                                    BLangSimpleVarRef restMatchPatternVarRef) {
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags,  null, null, constraintType, null,
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.getFlags(),  null, null, constraintType, null,
                 null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
@@ -4644,7 +4644,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BType restType = ((BRecordType) restMatchPattern.getBType()).restFieldType;
-            BVarSymbol varSymbol = new BVarSymbol(restType.flags, null, null, restType, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(restType.getFlags(), null, null, restType, null, null, null);
             BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                     symTable.stringType, null, symTable.builtinPos, VIRTUAL);
             BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
@@ -6163,7 +6163,7 @@ public class Desugar extends BLangNodeVisitor {
             BInvokableSymbol invokableSymbol = entry.getValue();
             BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
 
-            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
+            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.getFlags(), Flags.READONLY)) {
                 expression = visitCloneReadonly(expression, invokableSymbol.retType);
             }
             if (env.enclInvokable != null) {
@@ -6199,7 +6199,7 @@ public class Desugar extends BLangNodeVisitor {
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
         Location pos = recordLiteral.pos;
         BRecordType recordType = (BRecordType) type;
-        boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(recordType.getFlags(), Flags.READONLY);
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
     }
 
@@ -6836,7 +6836,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Add `@strand {thread: "any"}` annotation to an isolated start-action.
         if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
-                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+                Symbols.isFlagOn(actionInvocation.symbol.type.getFlags(), Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
             actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
             ((BInvokableSymbol) actionInvocation.symbol)
@@ -7069,7 +7069,7 @@ public class Desugar extends BLangNodeVisitor {
         result = invRef;
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
-        if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
+        if (Symbols.isFlagOn(invSym.retType.getFlags(), Flags.PARAMETERIZED)) {
             BType retType = unifier.build(invSym.retType);
             invocation.setBType(invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType);
         }
@@ -7106,7 +7106,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void populateOCEInvocation(BLangInvocation invocation,
                                        BLangInvocation invRef) {
-        if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
+        if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().getFlags(), Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             BLangClassDefinition classDef = initializingObject.classDef;
             if (classDef.hasClosureVars) {
@@ -8078,8 +8078,8 @@ public class Desugar extends BLangNodeVisitor {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         BLangFunction function = bLangLambdaFunction.function;
         // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
-        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
-                Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
+        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.getFlags(), Flags.ISOLATED)
+                && Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(function.pos);
             function.addAnnotationAttachment(this.strandAnnotAttachement);
             BInvokableSymbol funcSymbol = function.symbol;

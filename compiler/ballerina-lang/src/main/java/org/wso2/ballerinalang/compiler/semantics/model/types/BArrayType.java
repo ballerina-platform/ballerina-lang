@@ -81,6 +81,14 @@ public class BArrayType extends BType implements ArrayType {
         this.env = env;
     }
 
+    /**
+     * It is required to reset {@link #ld} when the type gets mutated.
+     * This method is used for that. e.g. When changing Flags.READONLY
+     */
+    protected void restLd() {
+        ld = null;
+    }
+
     @Override
     public int getSize() {
         return size;
@@ -123,7 +131,7 @@ public class BArrayType extends BType implements ArrayType {
                 sb.append("[]");
             }
         }
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
     }
 
     private boolean hasTypeHoles() {
@@ -146,7 +154,7 @@ public class BArrayType extends BType implements ArrayType {
         if (elementTypeSemType == null) {
             elementTypeSemType = NEVER;
         }
-        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         // Not entirely sure if I understand this correctly,
         //   if size == -1 it means T[]

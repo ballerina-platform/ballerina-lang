@@ -167,7 +167,7 @@ class TypeEmitter {
     }
 
     private static String emitTableType(BTableType bType, int tabs) {
-        boolean readonly = Symbols.isFlagOn(bType.flags, Flags.READONLY);
+        boolean readonly = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY);
         if (bType.constraint == null) {
             return readonly ? bType.toString().concat(" & readonly") : bType.toString();
         }
@@ -297,7 +297,7 @@ class TypeEmitter {
         for (BField bField : bType.fields.values()) {
             if (bField != null) {
                 recordStr.append(emitTabs(tabs + 1));
-                String flags = emitFlags(bField.type.flags);
+                String flags = emitFlags(bField.type.getFlags());
                 recordStr.append(flags);
                 if (!flags.equals("")) {
                     recordStr.append(emitSpaces(1));
@@ -314,7 +314,7 @@ class TypeEmitter {
     }
 
     private static String emitBObjectType(BObjectType bType, int tabs) {
-        boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
+        boolean isService = (bType.getFlags() & Flags.SERVICE) == Flags.SERVICE;
 
         StringBuilder str = new StringBuilder();
         str.append(isService ? "service object" : "object");
@@ -324,7 +324,7 @@ class TypeEmitter {
         for (BField bField : bType.fields.values()) {
             if (bField != null) {
                 str.append(emitTabs(tabs + 1));
-                String flags = emitFlags(bField.type.flags);
+                String flags = emitFlags(bField.type.getFlags());
                 str.append(flags);
                 if (!flags.equals("")) {
                     str.append(emitSpaces(1));

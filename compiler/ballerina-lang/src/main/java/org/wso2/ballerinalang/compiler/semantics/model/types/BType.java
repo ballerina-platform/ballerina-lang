@@ -54,7 +54,7 @@ public class BType implements ValueType {
     // sometimes we loose type param information down the line. which is a problem.
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
-    public long flags;
+    private long flags;
 
     // SemType related properties
     protected SemType semType;
@@ -160,6 +160,23 @@ public class BType implements ValueType {
 
     public String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
+    }
+
+    public long getFlags() {
+        return flags;
+    }
+
+    public void setFlags(long flags) {
+        this.flags = flags;
+        if (this instanceof BMapType map) {
+            map.restMd();
+        } else if (this instanceof BRecordType rec) {
+            rec.restMd();
+        } else if (this instanceof BArrayType arr) {
+            arr.restLd();
+        } else if (this instanceof BTupleType tuple) {
+            tuple.restLd();
+        }
     }
 
     /**

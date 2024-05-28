@@ -411,7 +411,7 @@ public class MethodGen {
 
     private BType getReturnType(BIRFunction func) {
         BType retType = func.type.retType;
-        if (JvmCodeGenUtil.isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+        if (JvmCodeGenUtil.isExternFunc(func) && Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
             retType = JvmCodeGenUtil.UNIFIER.build(func.type.retType);
         }
         return retType;

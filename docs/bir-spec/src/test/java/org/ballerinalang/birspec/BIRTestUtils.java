@@ -647,7 +647,7 @@ class BIRTestUtils {
         Bir.TypeInfo typeInfo = ((Bir.ShapeCpInfo) constantPoolEntry.cpInfo()).shape();
         Assert.assertEquals(typeInfo.typeTag().id(), expectedValue.tag);
         Assert.assertEquals(typeInfo.nameAsStr(), expectedValue.name.getValue());
-        assertFlags(typeInfo.typeFlag(), expectedValue.flags);
+        assertFlags(typeInfo.typeFlag(), expectedValue.getFlags());
         KaitaiStruct typeStructure = typeInfo.typeStructure();
 
         if (typeStructure instanceof Bir.TypeObjectOrService) {

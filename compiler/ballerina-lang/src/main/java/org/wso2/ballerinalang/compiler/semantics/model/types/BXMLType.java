@@ -54,7 +54,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
             stringRep = Names.XML.value;
         }
 
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override

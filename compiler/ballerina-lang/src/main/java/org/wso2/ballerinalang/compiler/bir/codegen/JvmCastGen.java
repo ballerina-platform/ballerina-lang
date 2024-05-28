@@ -1275,7 +1275,7 @@ public class JvmCastGen {
     public void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getImpliedType(type);
         if (sourceType.tag == TypeTags.UNION || (types.isAssignable(sourceType, symbolTable.anyType) &&
-                        !Symbols.isFlagOn(sourceType.flags, Flags.READONLY))) {
+                        !Symbols.isFlagOn(sourceType.getFlags(), Flags.READONLY))) {
             checkCast(mv, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction

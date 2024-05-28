@@ -112,7 +112,7 @@ public class JvmAnnotationsGen {
             }
             BType bType = optionalTypeDef.type;
             // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = (bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR;
+            boolean constructorsPopulated = (bType.getFlags() & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR;
             if (!constructorsPopulated) {
                 loadAnnotations(mv, typePkgName, optionalTypeDef, jvmTypeGen);
             }

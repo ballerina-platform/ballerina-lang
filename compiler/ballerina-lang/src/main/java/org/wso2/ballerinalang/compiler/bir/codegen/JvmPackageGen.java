@@ -326,7 +326,7 @@ public class JvmPackageGen {
         BIRVariableDcl receiver = currentFunc.receiver;
 
         BType retType = functionTypeDesc.retType;
-        if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+        if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
             retType = unifier.build(retType);
         }
 

@@ -106,7 +106,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType typeInSymbol, BType boundType) {
-        if (Symbols.isFlagOn(Flags.TYPE_PARAM, typeInSymbol.flags)
+        if (Symbols.isFlagOn(Flags.TYPE_PARAM, typeInSymbol.getFlags())
                 && types.isAssignable(typeInSymbol, this.typeParam)) {
             return boundType;
         }
@@ -138,7 +138,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         return new BMapType(typeInSymbol.env, typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
-                typeInSymbol.flags);
+                typeInSymbol.getFlags());
     }
 
     @Override
@@ -149,7 +149,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
+        return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.getFlags());
     }
 
     @Override
@@ -166,7 +166,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         return new BArrayType(typeInSymbol.env, boundElemType, typeInSymbol.tsymbol, typeInSymbol.size,
-                typeInSymbol.state, typeInSymbol.flags);
+                typeInSymbol.state, typeInSymbol.getFlags());
     }
 
     @Override
@@ -198,7 +198,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         BObjectTypeSymbol newTypeSymbol = new BObjectTypeSymbol(objectTypeSymbol.tag, objectTypeSymbol.flags,
                 objectTypeSymbol.name, objectTypeSymbol.pkgID, objectTypeSymbol.getType(), objectTypeSymbol.owner,
                 objectTypeSymbol.pos, objectTypeSymbol.origin);
-        BObjectType newObjectType = new BObjectType(newTypeSymbol, typeInSymbol.flags);
+        BObjectType newObjectType = new BObjectType(newTypeSymbol, typeInSymbol.getFlags());
 
         newObjectType.fields = newObjectFields;
         newTypeSymbol.attachedFuncs = newAttachedFuncs;
@@ -218,7 +218,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         BType newRestType = resolve(typeInSymbol.restFieldType, boundType);
-        BRecordType newRecordType = new BRecordType(typeInSymbol.env, typeInSymbol.tsymbol, typeInSymbol.flags);
+        BRecordType newRecordType = new BRecordType(typeInSymbol.env, typeInSymbol.tsymbol, typeInSymbol.getFlags());
 
         newRecordType.fields = newRecordFields;
         newRecordType.restFieldType = newRestType;
@@ -245,8 +245,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.env, typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
-                              typeInSymbol.isCyclic);
+        return new BTupleType(typeInSymbol.env, typeInSymbol.tsymbol, newTupleMembers, newRestType,
+                typeInSymbol.getFlags(), typeInSymbol.isCyclic);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         BTableType bTableType = new BTableType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
-                                               typeInSymbol.flags);
+                typeInSymbol.getFlags());
         bTableType.keyTypeConstraint = typeInSymbol.keyTypeConstraint;
         return bTableType;
     }

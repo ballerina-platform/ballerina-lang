@@ -310,7 +310,7 @@ public class QueryTypeChecker extends TypeChecker {
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
                     actualType = new BMapType(symTable.typeEnv(), TypeTags.MAP, mapConstraintType, null);
-                    if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
+                    if (Symbols.isFlagOn(resolvedTypes.get(0).getFlags(), Flags.READONLY)) {
                         actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
                                 symTable, anonymousModelHelper, names, null);
                     }
@@ -415,7 +415,7 @@ public class QueryTypeChecker extends TypeChecker {
                 case TypeTags.INTERSECTION:
                     type = ((BIntersectionType) type).effectiveType;
                     solveSelectTypeAndResolveType(queryExpr, selectExp, List.of(type), collectionType, selectTypes,
-                            resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY));
+                            resolvedTypes, env, data, Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
                     return;
                 case TypeTags.NONE:
                 default:
@@ -499,7 +499,7 @@ public class QueryTypeChecker extends TypeChecker {
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         }
-        if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(resolvedType.getFlags(), Flags.READONLY)) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types,
                     tableType, env, symTable, anonymousModelHelper, names, null);
         }
@@ -529,7 +529,7 @@ public class QueryTypeChecker extends TypeChecker {
             }
         }
         if (recordType.sealed) {
-            recordType.flags |= Flags.READONLY;
+            recordType.setFlags(recordType.getFlags() | Flags.READONLY);
             recordType.tsymbol.flags |= Flags.READONLY;
         }
     }
@@ -648,7 +648,7 @@ public class QueryTypeChecker extends TypeChecker {
 
     private BType getResolvedType(BType initType, BType expType, boolean isReadonly, SymbolEnv env) {
         if (initType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
-                Symbols.isFlagOn(expType.flags, Flags.READONLY))) {
+                Symbols.isFlagOn(expType.getFlags(), Flags.READONLY))) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types, initType, env,
                     symTable, anonymousModelHelper, names, null);
         }
