@@ -118,7 +118,7 @@ public class SemTypeTest {
         List<BLangNode> typeAndClassDefs = new ArrayList<>();
         typeAndClassDefs.addAll(pkgNode.constants);
         typeAndClassDefs.addAll(pkgNode.typeDefinitions);
-        SemTypeResolver typeResolver = new SemTypeResolver();
+        SemTypeResolver<Context> typeResolver = new CompilerSemTypeResolver();
         Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
 
         List<SemTypeAssertionTransformer.TypeAssertion> assertions;
@@ -274,7 +274,7 @@ public class SemTypeTest {
         typeAndClassDefs.addAll(pkgNode.constants);
         typeAndClassDefs.addAll(pkgNode.typeDefinitions);
 
-        SemTypeResolver typeResolver = new SemTypeResolver();
+        SemTypeResolver<Context> typeResolver = new CompilerSemTypeResolver();
         Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
         typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
         Map<String, SemType> typeMap = pkgNode.semtypeEnv.getTypeNameSemTypeMap();
