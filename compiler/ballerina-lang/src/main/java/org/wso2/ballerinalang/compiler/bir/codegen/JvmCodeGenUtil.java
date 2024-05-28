@@ -903,4 +903,8 @@ public class JvmCodeGenUtil {
                             Utils.decodeIdentifier(className) + "'", e);
         }
     }
+
+    public static void markIsRootPackage() {
+        isRootPkgCodeGen = true;
+    }
 }
