@@ -69,7 +69,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
     // To check whether a given FP is "USED" or not, we have to keep track of the existing FPs of a given scope.
     // Variable Declarations holding an FPs are needed to be tracked to achieve that.
-    private static HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
+    private HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
     // pkgWiseInvocationData is used for debugging purposes
     public final Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new LinkedHashMap<>();
     protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
@@ -291,6 +291,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 lookupBirFunction(fpLoadInstruction.pkgId, fpLoadInstruction.funcName.value);
 
         FunctionPointerData fpData = new FunctionPointerData(fpLoadInstruction, currentInstructionArr, pointedFunction);
+        initializeFpData(fpLoadInstruction.lhsOp.variableDcl, pointedFunction, fpData);
 
         // Used to detect,
         // 1. Record default fields containing function pointers
@@ -313,6 +314,19 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         localFpHolders.put(fpLoadInstruction.lhsOp.variableDcl, fpData);
         getInvocationData(currentPkgID).functionPointerDataPool.put(fpData.lambdaPointerVar, fpData);
+    }
+
+    private void initializeFpData(BIRNode.BIRVariableDcl lambdaPointerVar, BIRNode.BIRFunction lambdaFunction,
+                                  FunctionPointerData fpData) {
+        if (lambdaPointerVar.getUsedState() == UsedState.UNEXPOLORED) {
+            lambdaPointerVar.markSelfAsUnused();
+        }
+        localFpHolders.put(lambdaPointerVar, fpData);
+
+        lambdaPointerVar.childNodes.add(lambdaFunction);
+        if (lambdaFunction != null) {
+            lambdaFunction.parentNodes.add(lambdaPointerVar);
+        }
     }
 
     /*
@@ -666,20 +680,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             this.instructionArray = instructionArray;
             this.lambdaPointerVar = fpLoadInstruction.lhsOp.variableDcl;
             this.lambdaFunction = lambdaFunction;
-
-            initializeFpData();
-        }
-
-        private void initializeFpData() {
-            if (lambdaPointerVar.getUsedState() == UsedState.UNEXPOLORED) {
-                lambdaPointerVar.markSelfAsUnused();
-            }
-            localFpHolders.put(lambdaPointerVar, this);
-
-            lambdaPointerVar.childNodes.add(lambdaFunction);
-            if (lambdaFunction != null) {
-                lambdaFunction.parentNodes.add(lambdaPointerVar);
-            }
         }
 
         // functions with default parameters will desugar into a new lambda function that gets invoked through an
