@@ -61,8 +61,12 @@ public class FileSystemCache extends CompilationCache {
         super(project);
         this.cacheDirPath = cacheDirPath;
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            buildProjectCacheDirPath = cacheDirPath;
+            updateBuildProjectCachePath(cacheDirPath);
         }
+    }
+
+    public static void updateBuildProjectCachePath(Path cacheDirPath) {
+        buildProjectCacheDirPath = cacheDirPath;
     }
 
     @Override
