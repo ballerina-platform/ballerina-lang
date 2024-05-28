@@ -18,11 +18,30 @@
 
 package io.ballerina.semtype.port.test;
 
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface SemTypeResolver<SemType> {
+class RuntimeTypeTestEnv implements TypeTestEnv<SemType> {
 
-    void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx);
+    private final Map<String, SemType> typeMap = new HashMap<>();
+
+    private RuntimeTypeTestEnv() {
+
+    }
+
+    public static synchronized RuntimeTypeTestEnv from() {
+        return new RuntimeTypeTestEnv();
+    }
+
+    @Override
+    public Map<String, SemType> getTypeNameSemTypeMap() {
+        return typeMap;
+    }
+
+    @Override
+    public void addTypeDef(String value, SemType semtype) {
+        typeMap.put(value, semtype);
+    }
 }
