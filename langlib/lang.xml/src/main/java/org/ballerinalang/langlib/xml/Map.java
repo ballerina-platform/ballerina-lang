@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,13 @@ public class Map {
         AtomicInteger index = new AtomicInteger(-1);
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                 () -> new Object[]{x.getItem(index.incrementAndGet()), true},
-                result -> elements.add((BXml) result), () -> ValueCreator.createXmlSequence(elements),
+                result -> {
+                    if (result instanceof XmlSequence xmlSequence) {
+                        elements.addAll(xmlSequence.getChildrenList());
+                    } else {
+                        elements.add((BXml) result);
+                    }
+                }, () -> ValueCreator.createXmlSequence(elements),
                 Scheduler.getStrand().scheduler);
         return ValueCreator.createXmlSequence(elements);
     }
