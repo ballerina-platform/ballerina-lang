@@ -829,4 +829,7 @@ public final class JvmCodeGenUtil {
             }
         }
     }
+    public static void markIsRootPackage() {
+        isRootPkgCodeGen = true;
+    }
 }
