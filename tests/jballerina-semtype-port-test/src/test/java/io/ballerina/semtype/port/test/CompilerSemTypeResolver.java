@@ -20,6 +20,7 @@ package io.ballerina.semtype.port.test;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
+import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -67,10 +68,10 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.get
  *
  * @since 2201.10.0
  */
-public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
+public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
 
     @Override
-    public void defineSemTypes(List<BLangNode> moduleDefs, Context cx) {
+    public void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx) {
         Map<String, BLangNode> modTable = new LinkedHashMap<>();
         for (BLangNode typeAndClassDef : moduleDefs) {
             modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
@@ -89,10 +90,10 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         }
     }
 
-    private void resolveConstant(Context cx, Map<String, BLangNode> modTable, BLangConstant constant) {
+    private void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable, BLangConstant constant) {
         SemType semtype = evaluateConst(constant);
         addSemTypeBType(constant.getTypeNode(), semtype);
-        cx.env.addTypeDef(constant.name.value, semtype);
+        cx.getEnv().addTypeDef(constant.name.value, semtype);
     }
 
     private SemType evaluateConst(BLangConstant constant) {
@@ -110,7 +111,8 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         }
     }
 
-    private SemType resolveTypeDefn(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
+    private SemType resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth) {
         if (defn.semType != null) {
             return defn.semType;
         }
@@ -124,7 +126,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         if (defn.semType == null) {
             defn.semType = s;
             defn.semCycleDepth = -1;
-            cx.env.addTypeDef(defn.name.value, s);
+            cx.getEnv().addTypeDef(defn.name.value, s);
             return s;
         } else {
             return s;
@@ -137,7 +139,8 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         }
     }
 
-    public SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+    public SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                   int depth,
                                    BLangType td) {
         if (td == null) {
             return null;
@@ -174,13 +177,13 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         }
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
-                                    BLangFunctionTypeNode td) {
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth, BLangFunctionTypeNode td) {
         if (isFunctionTop(td)) {
             return PredefinedType.FUNCTION;
         }
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType((Env) cx.getInnerEnv());
         }
         FunctionDefinition fd = new FunctionDefinition();
         td.defn = fd;
@@ -197,18 +200,20 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         SemType returnType = td.returnTypeNode != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.returnTypeNode) :
                 PredefinedType.NIL;
         ListDefinition paramListDefinition = new ListDefinition();
-        return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
-                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
+        Env env = (Env) cx.getInnerEnv();
+        return fd.define(env,
+                paramListDefinition.defineListTypeWrapped(env, params, params.size(), rest,
+                        CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
     }
 
     private boolean isFunctionTop(BLangFunctionTypeNode td) {
         return td.params.isEmpty() && td.restParam == null && td.returnTypeNode == null;
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
-                                    BLangArrayType td) {
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth, BLangArrayType td) {
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType((Env) cx.getInnerEnv());
         }
         ListDefinition ld = new ListDefinition();
         td.defn = ld;
@@ -245,25 +250,28 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         return size.intValue();
     }
 
-    private SemType resolveListInner(Context cx, int size, SemType eType) {
+    private SemType resolveListInner(TypeTestContext<SemType> cx, int size, SemType eType) {
         ListDefinition ld = new ListDefinition();
         return resolveListInner(cx, ld, size, eType);
     }
 
-    private static SemType resolveListInner(Context cx, ListDefinition ld, int size, SemType eType) {
+    private static SemType resolveListInner(TypeTestContext<SemType> cx, ListDefinition ld, int size, SemType eType) {
+        Env env = (Env) cx.getInnerEnv();
         if (size != -1) {
-            return ld.defineListTypeWrapped(cx.env, List.of(eType), Math.abs(size), PredefinedType.NEVER,
+            return ld.defineListTypeWrapped(env, List.of(eType), Math.abs(size), PredefinedType.NEVER,
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         } else {
-            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType,
+            return ld.defineListTypeWrapped(env, List.of(), 0, eType,
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         }
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth,
                                     BLangTupleTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType(env);
         }
         ListDefinition ld = new ListDefinition();
         td.defn = ld;
@@ -272,10 +280,11 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
                         .toList();
         SemType rest = td.restParamType != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.restParamType) :
                 PredefinedType.NEVER;
-        return ld.defineListTypeWrapped(cx.env, memberSemTypes, memberSemTypes.size(), rest);
+        return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), rest);
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangValueType td) {
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangValueType td) {
+        Context innerContext = (Context) cx.getInnerContext();
         switch (td.typeKind) {
             case NIL:
                 return PredefinedType.NIL;
@@ -304,9 +313,9 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
             case READONLY:
                 return PredefinedType.VAL_READONLY;
             case ANYDATA:
-                return Core.createAnydata(cx);
+                return Core.createAnydata(innerContext);
             case JSON:
-                return Core.createJson(cx);
+                return Core.createJson(innerContext);
             default:
                 throw new IllegalStateException("Unknown type: " + td);
         }
@@ -320,7 +329,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         };
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangConstrainedType td, Map<String, BLangNode> mod,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangConstrainedType td, Map<String, BLangNode> mod,
                                     int depth, BLangTypeDefinition defn) {
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
         return switch (typeKind) {
@@ -330,31 +339,33 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         };
     }
 
-    private SemType resolveMapTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
-                                       BLangTypeDefinition typeDefinition) {
+    private SemType resolveMapTypeDesc(BLangConstrainedType td, TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                       int depth, BLangTypeDefinition typeDefinition) {
+        Env env = (Env) cx.getInnerEnv();
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType(env);
         }
 
         MappingDefinition d = new MappingDefinition();
         td.defn = d;
 
         SemType rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.constraint);
-        return d.defineMappingTypeWrapped(cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped(env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
     }
 
-    private SemType resolveXmlTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
-                                       BLangTypeDefinition defn) {
+    private SemType resolveXmlTypeDesc(BLangConstrainedType td, TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                       int depth, BLangTypeDefinition defn) {
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType((Env) cx.getInnerEnv());
         }
         return SemTypes.xmlSequence(resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint));
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangRecordTypeNode td, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangRecordTypeNode td, Map<String, BLangNode> mod,
+                                    int depth,
                                     BLangTypeDefinition typeDefinition) {
         if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
+            return td.defn.getSemType((Env) cx.getInnerEnv());
         }
 
         MappingDefinition d = new MappingDefinition();
@@ -371,15 +382,16 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
 
         SemType rest;
         if (!td.isSealed() && td.getRestFieldType() == null) {
-            rest = Core.createAnydata(cx);
+            rest = Core.createAnydata((Context) cx.getInnerContext());
         } else {
             rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.restFieldType);
         }
 
-        return d.defineMappingTypeWrapped(cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped((Env) cx.getInnerEnv(), fields, rest == null ? PredefinedType.NEVER : rest);
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangUnionTypeNode td, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangUnionTypeNode td, Map<String, BLangNode> mod,
+                                    int depth,
                                     BLangTypeDefinition defn) {
         Iterator<BLangType> iterator = td.memberTypeNodes.iterator();
         SemType u = resolveTypeDesc(cx, mod, defn, depth, iterator.next());
@@ -389,7 +401,8 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         return u;
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangIntersectionTypeNode td, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangIntersectionTypeNode td,
+                                    Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition defn) {
         Iterator<BLangType> iterator = td.constituentTypeNodes.iterator();
         SemType i = resolveTypeDesc(cx, mod, defn, depth, iterator.next());
@@ -399,7 +412,8 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         return i;
     }
 
-    private SemType resolveTypeDesc(Context cx, BLangUserDefinedType td, Map<String, BLangNode> mod, int depth) {
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangUserDefinedType td, Map<String, BLangNode> mod,
+                                    int depth) {
         String name = td.typeName.value;
         // Need to replace this with a real package lookup
         if (td.pkgAlias.value.equals("int")) {
@@ -505,16 +519,18 @@ public class CompilerSemTypeResolver implements SemTypeResolver<Context> {
         };
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, int depth, BLangTableTypeNode td) {
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, int depth,
+                                    BLangTableTypeNode td) {
         if (td.tableKeySpecifier != null || td.tableKeyTypeConstraint != null) {
             throw new UnsupportedOperationException("table key constraint not supported yet");
         }
 
         SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
-        return SemTypes.tableContaining(cx.env, memberType);
+        return SemTypes.tableContaining((Env) cx.getInnerEnv(), memberType);
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+    private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth,
                                     BLangErrorType td) {
         if (td.detailType == null) {
             return PredefinedType.ERROR;

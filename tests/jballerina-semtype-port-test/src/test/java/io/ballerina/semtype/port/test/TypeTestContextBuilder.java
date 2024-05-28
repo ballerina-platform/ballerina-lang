@@ -18,22 +18,7 @@
 
 package io.ballerina.semtype.port.test;
 
-public interface TypeTestAPI<SemType> {
+public interface TypeTestContextBuilder<SemType, Context> {
 
-    boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2);
-
-    // TODO: may be introduce is mapping and is list
-    boolean isSubtypeSimple(SemType t1, SemType t2);
-
-    boolean isListType(SemType t);
-
-    boolean isMapType(SemType t);
-
-    SemType intConst(long l);
-
-    SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType type, SemType m);
-
-    SemType listProj(TypeTestContext<SemType> context, SemType t, SemType key);
-
-    SemType listMemberType(TypeTestContext<SemType> context, SemType t, SemType key);
+    Context createFrom(TypeTestEnv<SemType> env);
 }

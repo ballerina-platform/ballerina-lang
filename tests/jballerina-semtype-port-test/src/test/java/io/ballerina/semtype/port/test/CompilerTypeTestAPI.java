@@ -24,7 +24,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 
-public final class CompilerTypeTestAPI implements TypeTestAPI<Context, SemType> {
+public final class CompilerTypeTestAPI implements TypeTestAPI<SemType> {
 
     private static final CompilerTypeTestAPI INSTANCE = new CompilerTypeTestAPI();
 
@@ -36,8 +36,12 @@ public final class CompilerTypeTestAPI implements TypeTestAPI<Context, SemType> 
     }
 
     @Override
-    public boolean isSubtype(Context cx, SemType t1, SemType t2) {
-        return SemTypes.isSubtype(cx, t1, t2);
+    public boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2) {
+        return SemTypes.isSubtype(form(cx), t1, t2);
+    }
+
+    private static Context form(TypeTestContext<SemType> cx) {
+        return (Context) cx.getInnerContext();
     }
 
     @Override
@@ -61,17 +65,17 @@ public final class CompilerTypeTestAPI implements TypeTestAPI<Context, SemType> 
     }
 
     @Override
-    public SemType mappingMemberTypeInnerVal(Context context, SemType semType, SemType m) {
-        return SemTypes.mappingMemberTypeInnerVal(context, semType, m);
+    public SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType semType, SemType m) {
+        return SemTypes.mappingMemberTypeInnerVal((Context) context.getInnerContext(), semType, m);
     }
 
     @Override
-    public SemType listProj(Context context, SemType t, SemType key) {
-        return SemTypes.listProj(context, t, key);
+    public SemType listProj(TypeTestContext<SemType> context, SemType t, SemType key) {
+        return SemTypes.listProj((Context) context.getInnerContext(), t, key);
     }
 
     @Override
-    public SemType listMemberType(Context context, SemType t, SemType key) {
-        return SemTypes.listMemberType(context, t, key);
+    public SemType listMemberType(TypeTestContext<SemType> context, SemType t, SemType key) {
+        return SemTypes.listMemberType((Context) context.getInnerContext(), t, key);
     }
 }

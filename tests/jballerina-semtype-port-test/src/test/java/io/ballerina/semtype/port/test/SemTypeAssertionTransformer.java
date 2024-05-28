@@ -26,12 +26,8 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.types.Context;
-import io.ballerina.types.Env;
-import io.ballerina.types.SemType;
 import org.testng.Assert;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,32 +42,38 @@ import java.util.Map;
  *
  * @since 3.0.0
  */
-public class SemTypeAssertionTransformer extends NodeVisitor {
+public final class SemTypeAssertionTransformer<SemType> extends NodeVisitor {
 
     private final String fileName;
     private final SyntaxTree syntaxTree;
-    private final Env semtypeEnv;
-    private final Context context;
+    private final TypeTestEnv<SemType> semtypeEnv;
+    private final TypeTestContext<SemType> context;
     private final List<String> list;
-    private final TypeTestAPI<Context, SemType> semtypes;
+    private final TypeTestAPI<SemType> semtypeAPI;
 
-    private SemTypeAssertionTransformer(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
+    private SemTypeAssertionTransformer(String fileName, SyntaxTree syntaxTree, TypeTestEnv<SemType> semtypeEnv,
+                                        TypeTestContext<SemType> context, TypeTestAPI<SemType> semtypeAPI) {
         this.fileName = fileName;
         this.syntaxTree = syntaxTree;
         this.semtypeEnv = semtypeEnv;
-        this.context = Context.from(semtypeEnv);
+        this.context = context;
         list = new ArrayList<>();
-        semtypes = CompilerTypeTestAPI.getInstance();
+        this.semtypeAPI = semtypeAPI;
     }
 
-    public static List<TypeAssertion> getTypeAssertionsFrom(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
-        final SemTypeAssertionTransformer t = new SemTypeAssertionTransformer(fileName, syntaxTree, semtypeEnv);
+    public static <SemType> List<TypeAssertion<SemType>> getTypeAssertionsFrom(String fileName,
+                                                                               SyntaxTree syntaxTree,
+                                                                               TypeTestEnv<SemType> semtypeEnv,
+                                                                               TypeTestContext<SemType> context,
+                                                                               TypeTestAPI<SemType> api) {
+        final SemTypeAssertionTransformer<SemType> t =
+                new SemTypeAssertionTransformer<>(fileName, syntaxTree, semtypeEnv, context, api);
         return t.getTypeAssertions();
     }
 
-    private List<TypeAssertion> getTypeAssertions() {
+    private List<TypeAssertion<SemType>> getTypeAssertions() {
         syntaxTree.rootNode().accept(this);
-        List<TypeAssertion> assertions = new ArrayList<>();
+        List<TypeAssertion<SemType>> assertions = new ArrayList<>();
         for (String str : list) {
             String[] parts = splitAssertion(str);
             if (parts == null) {
@@ -81,7 +83,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
             RelKind kind = RelKind.fromString(parts[1], str);
             SemType rhs = toSemType(parts[2]);
             String text = parts[0] + " " + parts[1] + " " + parts[2];
-            assertions.add(new TypeAssertion(this.context, this.fileName, lhs, rhs, kind, text));
+            assertions.add(new TypeAssertion<>(this.context, this.fileName, lhs, rhs, kind, text));
         }
         return assertions;
     }
@@ -102,27 +104,27 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         String memberAccessExpr = typeExpr.substring(leftBracketPos + 1, rightBracketPos);
 
         SemType type = typeNameSemTypeMap.get(typeRef);
-        if (semtypes.isListType(type)) {
+        if (semtypeAPI.isListType(type)) {
             SemType m;
             try {
                 long l = Long.parseLong(memberAccessExpr);
-                m = semtypes.intConst(l);
+                m = semtypeAPI.intConst(l);
             } catch (Exception e) {
                 // parsing number failed, access must be a type-reference
                 m = typeNameSemTypeMap.get(memberAccessExpr);
             }
             return listProj(context, type, m);
-        } else if (semtypes.isMapType(type)) {
+        } else if (semtypeAPI.isMapType(type)) {
             SemType m = typeNameSemTypeMap.get(memberAccessExpr);
-            return semtypes.mappingMemberTypeInnerVal(context, type, m);
+            return semtypeAPI.mappingMemberTypeInnerVal(context, type, m);
         }
         throw new IllegalStateException("Unsupported type test: " + typeExpr);
     }
 
-    private SemType listProj(Context context, SemType t, SemType m) {
-        SemType s1 = semtypes.listProj(context, t, m);
-        SemType s2 = semtypes.listMemberType(context, t, m);
-        if (!semtypes.isSubtype(context, s1, s2)) {
+    private SemType listProj(TypeTestContext<SemType> context, SemType t, SemType m) {
+        SemType s1 = semtypeAPI.listProj(context, t, m);
+        SemType s2 = semtypeAPI.listMemberType(context, t, m);
+        if (!semtypeAPI.isSubtype(context, s1, s2)) {
             Assert.fail("listProj result is not a subtype of listMemberType");
         }
         return s1;
@@ -188,32 +190,6 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
             member.accept(this);
         }
         modulePartNode.eofToken().accept(this);
-    }
-
-    /**
-     * Subtype test.
-     *
-     * @param context  Type context under which {@code SemTypes} were defined.
-     * @param fileName Name of the file in which types were defined in.
-     * @param lhs      Resolved {@code SemType} for the Left-hand side of the subtype test.
-     * @param rhs      Resolved {@code SemType} for the Right-hand side of the subtype test.
-     * @param kind     Relationship between the two types.
-     * @param text     Text that will be shown in case of assertion failure.
-     * @since 3.0.0
-     */
-    record TypeAssertion(Context context, String fileName, SemType lhs, SemType rhs, RelKind kind, String text) {
-
-        TypeAssertion {
-            if (kind != null) {
-                assert lhs != null;
-                assert rhs != null;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return Paths.get(fileName).getFileName().toString() + ": " + text;
-        }
     }
 
     /**

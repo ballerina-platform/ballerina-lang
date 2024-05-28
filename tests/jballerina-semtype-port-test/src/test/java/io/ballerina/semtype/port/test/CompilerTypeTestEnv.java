@@ -18,22 +18,30 @@
 
 package io.ballerina.semtype.port.test;
 
-public interface TypeTestAPI<SemType> {
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
 
-    boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2);
+import java.util.Map;
 
-    // TODO: may be introduce is mapping and is list
-    boolean isSubtypeSimple(SemType t1, SemType t2);
+public class CompilerTypeTestEnv implements TypeTestEnv<SemType> {
 
-    boolean isListType(SemType t);
+    private final Env env;
 
-    boolean isMapType(SemType t);
+    private CompilerTypeTestEnv(Env env) {
+        this.env = env;
+    }
 
-    SemType intConst(long l);
+    public static synchronized CompilerTypeTestEnv from(Env env) {
+        return new CompilerTypeTestEnv(env);
+    }
 
-    SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType type, SemType m);
+    @Override
+    public Map<String, SemType> getTypeNameSemTypeMap() {
+        return env.getTypeNameSemTypeMap();
+    }
 
-    SemType listProj(TypeTestContext<SemType> context, SemType t, SemType key);
-
-    SemType listMemberType(TypeTestContext<SemType> context, SemType t, SemType key);
+    @Override
+    public void addTypeDef(String value, SemType semtype) {
+        env.addTypeDef(value, semtype);
+    }
 }

@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 
-public interface SemTypeResolver<Cx> {
+public interface SemTypeResolver<SemType> {
 
-    void defineSemTypes(List<BLangNode> moduleDefs, Cx cx);
+    void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx);
 }

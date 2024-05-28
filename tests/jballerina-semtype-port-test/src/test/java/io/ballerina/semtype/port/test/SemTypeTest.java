@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -101,21 +102,22 @@ public class SemTypeTest {
         listAllBalFiles(dataDir, balFiles);
         Collections.sort(balFiles);
 
-        List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
+        Collection<TypeAssertion<SemType>> tests = new ArrayList<>();
         for (File file : balFiles) {
-            TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(file);
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions = getTypeAssertions(file,
-                    utils.resolver(), utils.context(), utils.pair());
+            TypeCheckData<SemType> utils = compilerTypeResolverUtilsFromFile(file);
+            List<TypeAssertion<SemType>> assertions = getTypeAssertions(file,
+                    utils.resolver(), utils.context(), utils.env(), utils.pair());
             tests.addAll(assertions);
         }
         return tests.toArray();
     }
 
     @NotNull
-    private static <Cx> List<SemTypeAssertionTransformer.TypeAssertion> getTypeAssertions(File file,
-                                                                                          SemTypeResolver<Cx> typeResolver,
-                                                                                          Cx typeCheckContext,
-                                                                                          BCompileUtil.PackageSyntaxTreePair pair) {
+    private static <SemType> List<TypeAssertion<SemType>> getTypeAssertions(File file,
+                                                                            SemTypeResolver<SemType> typeResolver,
+                                                                            TypeTestContext<SemType> typeCheckContext,
+                                                                            TypeTestEnv<SemType> typeTestEnv,
+                                                                            BCompileUtil.PackageSyntaxTreePair pair) {
         String fileName = file.getAbsolutePath();
         BLangPackage pkgNode = pair.bLangPackage;
 
@@ -123,13 +125,16 @@ public class SemTypeTest {
         typeAndClassDefs.addAll(pkgNode.constants);
         typeAndClassDefs.addAll(pkgNode.typeDefinitions);
 
-        List<SemTypeAssertionTransformer.TypeAssertion> assertions;
+        List<TypeAssertion<SemType>> assertions;
         try {
             typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
-            assertions = SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
-                    pkgNode.semtypeEnv);
+
+            assertions =
+                    SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
+                            typeTestEnv, typeCheckContext,
+                            (TypeTestAPI<SemType>) CompilerTypeTestAPI.getInstance());
         } catch (Exception e) {
-            assertions = new ArrayList<>(List.of(new SemTypeAssertionTransformer.TypeAssertion(
+            assertions = new ArrayList<>(List.of(new TypeAssertion<>(
                     null, fileName, null, null, null, e.getMessage()
             )));
         }
@@ -207,35 +212,38 @@ public class SemTypeTest {
     @Test(expectedExceptions = AssertionError.class)
     public void shouldFailForIncorrectTestStructure() {
         File wrongAssertionFile = resolvePath("test-src/type-rel-wrong.bal").toFile();
-        TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
-        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile,
-                utils.resolver(), utils.context(), utils.pair());
+        TypeCheckData<SemType> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
+        List<TypeAssertion<SemType>> typeAssertions = getTypeAssertions(wrongAssertionFile,
+                utils.resolver(), utils.context(), utils.env(), utils.pair());
         testSemTypeAssertions(typeAssertions.get(0));
     }
 
-    private static TypeCheckData<Context> compilerTypeResolverUtilsFromFile(File file) {
+    private static TypeCheckData<SemType> compilerTypeResolverUtilsFromFile(File file) {
         String fileName = file.getAbsolutePath();
         BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
         BLangPackage pkgNode = pair.bLangPackage;
-        return new TypeCheckData<>(pair, Context.from(pkgNode.semtypeEnv), new CompilerSemTypeResolver());
+        TypeTestContext<SemType> context = ComplierTypeTestContext.from(Context.from(pkgNode.semtypeEnv));
+        TypeTestEnv<SemType> env = CompilerTypeTestEnv.from(pkgNode.semtypeEnv);
+        SemTypeResolver<SemType> resolver = new CompilerSemTypeResolver();
+        return new TypeCheckData<>(pair, context, env, resolver);
     }
 
-    private record TypeCheckData<Cx>(BCompileUtil.PackageSyntaxTreePair pair, Cx context,
-                                     SemTypeResolver<Cx> resolver) {
+    private record TypeCheckData<SemType>(BCompileUtil.PackageSyntaxTreePair pair, TypeTestContext<SemType> context,
+                                          TypeTestEnv<SemType> env, SemTypeResolver<SemType> resolver) {
 
     }
 
     @Test(expectedExceptions = AssertionError.class)
     public void shouldFailForTooLargeLists() {
         File wrongAssertionFile = resolvePath("test-src/fixed-length-array-too-large-te.bal").toFile();
-        TypeCheckData<Context> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
-        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile,
-                utils.resolver(), utils.context(), utils.pair());
+        TypeCheckData<SemType> utils = compilerTypeResolverUtilsFromFile(wrongAssertionFile);
+        List<TypeAssertion<SemType>> typeAssertions = getTypeAssertions(wrongAssertionFile,
+                utils.resolver(), utils.context(), utils.env(), utils.pair());
         testSemTypeAssertions(typeAssertions.get(0));
     }
 
     @Test(dataProvider = "type-rel-provider")
-    public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+    public void testSemTypeAssertions(TypeAssertion typeAssertion) {
         if (typeAssertion.kind() == null) {
             Assert.fail(
                     "Exception thrown in " + typeAssertion.fileName() + System.lineSeparator() + typeAssertion.text());
@@ -243,8 +251,8 @@ public class SemTypeTest {
         testAssertion(typeAssertion, CompilerTypeTestAPI.getInstance());
     }
 
-    private void testAssertion(SemTypeAssertionTransformer.TypeAssertion typeAssertion,
-                               TypeTestAPI<Context, SemType> semTypes) {
+    private void testAssertion(TypeAssertion<SemType> typeAssertion,
+                               TypeTestAPI<SemType> semTypes) {
         switch (typeAssertion.kind()) {
             case NON:
                 Assert.assertFalse(
@@ -270,7 +278,7 @@ public class SemTypeTest {
     }
 
     @NotNull
-    private String formatFailingAssertionDescription(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+    private String formatFailingAssertionDescription(TypeAssertion typeAssertion) {
         return typeAssertion.text() + "\n in: " + typeAssertion.fileName();
     }
 
@@ -296,11 +304,12 @@ public class SemTypeTest {
         typeAndClassDefs.addAll(pkgNode.constants);
         typeAndClassDefs.addAll(pkgNode.typeDefinitions);
 
-        SemTypeResolver<Context> typeResolver = new CompilerSemTypeResolver();
-        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+        SemTypeResolver<SemType> typeResolver = new CompilerSemTypeResolver();
+        TypeTestContext<SemType> typeCheckContext =
+                ComplierTypeTestContext.from(Context.from(pkgNode.semtypeEnv));
         typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
         Map<String, SemType> typeMap = pkgNode.semtypeEnv.getTypeNameSemTypeMap();
-
+        TypeTestAPI<SemType> api = CompilerTypeTestAPI.getInstance();
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
                 .filter(n -> !n.startsWith("$anon"))
@@ -314,10 +323,10 @@ public class SemTypeTest {
 
                 SemType t1 = typeMap.get(name1);
                 SemType t2 = typeMap.get(name2);
-                if (SemTypes.isSubtype(typeCheckContext, t1, t2)) {
+                if (api.isSubtype(typeCheckContext, t1, t2)) {
                     subtypeRelations.add(TypeRel.rel(name1, name2));
                 }
-                if (SemTypes.isSubtype(typeCheckContext, t2, t1)) {
+                if (api.isSubtype(typeCheckContext, t2, t1)) {
                     subtypeRelations.add(TypeRel.rel(name2, name1));
                 }
             }
