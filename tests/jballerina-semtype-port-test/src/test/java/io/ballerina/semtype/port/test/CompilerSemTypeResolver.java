@@ -140,8 +140,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
     }
 
     public SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                   int depth,
-                                   BLangType td) {
+                                   int depth, BLangType td) {
         if (td == null) {
             return null;
         }
@@ -362,8 +361,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
     }
 
     private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangRecordTypeNode td, Map<String, BLangNode> mod,
-                                    int depth,
-                                    BLangTypeDefinition typeDefinition) {
+                                    int depth, BLangTypeDefinition typeDefinition) {
         if (td.defn != null) {
             return td.defn.getSemType((Env) cx.getInnerEnv());
         }
