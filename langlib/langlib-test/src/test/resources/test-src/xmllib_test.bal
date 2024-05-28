@@ -1126,4 +1126,13 @@ function testIterableOperationsOnUnionType() {
                 index += 1;
             });
     assertEquals(index, 1);
+
+    xml<xml:Element|xml:ProcessingInstruction>|xml<xml:Comment|xml:Text> x11 = xml `<a><b/><c/></a>`;
+    index = 0;
+    assertEquals(xml:map(xml:elements(<xml>x11), v => xml:getChildren(v)), xml `<b/><c/>`);
+    assertEquals(xml:filter(<xml>x11, v => xml:getAttributes(<xml:Element>v).length() > 0), xml ``);
+    xml:forEach(<xml>x11, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
 }
