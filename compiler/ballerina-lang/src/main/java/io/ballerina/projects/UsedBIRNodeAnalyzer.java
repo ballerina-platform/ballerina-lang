@@ -37,7 +37,18 @@ import org.wso2.ballerinalang.util.Flags;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
@@ -458,7 +469,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected final Set<BIRNode.BIRTypeDefinition> unusedTypeDefs = new LinkedHashSet<>();
         protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
         private final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
-        private final Map<BIRNode.BIRVariableDcl, FunctionPointerData> functionPointerDataPool = new IdentityHashMap<>();
+        private final Map<BIRNode.BIRVariableDcl, FunctionPointerData> functionPointerDataPool =
+                new IdentityHashMap<>();
         private final HashMap<BIRNode.BIRGlobalVariableDcl, FunctionPointerData> globalVarFPDataPool =
                 new HashMap<>();
         private final HashMap<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
