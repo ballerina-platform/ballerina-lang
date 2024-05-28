@@ -399,7 +399,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private boolean isFunctionKindType(BType bType) {
         if (bType.getKind() == TypeKind.TYPEREFDESC) {
-            return ((BTypeReferenceType) bType).referredType.getKind() == TypeKind.FUNCTION;
+            if (bType instanceof BTypeReferenceType referenceType) {
+                return referenceType.referredType.getKind() == TypeKind.FUNCTION;
+            }
         }
         return bType.getKind() == TypeKind.FUNCTION;
     }

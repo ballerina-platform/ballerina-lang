@@ -27,11 +27,11 @@ import java.util.Set;
  */
 public class CodegenOptimizationReport {
 
-    FunctionNames usedFunctionNames;
-    FunctionNames unusedFunctionNames;
-    TypeDefinitions usedTypeDefNames;
-    TypeDefinitions unusedTypeDefNames;
-    Set<String> usedNativeClassPaths;
+    private final FunctionNames usedFunctionNames;
+    private final FunctionNames unusedFunctionNames;
+    private final TypeDefinitions usedTypeDefNames;
+    private final TypeDefinitions unusedTypeDefNames;
+    private final Set<String> usedNativeClassPaths;
 
     public CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
                                      TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
@@ -41,6 +41,26 @@ public class CodegenOptimizationReport {
         this.usedTypeDefNames = usedTypeDefNames;
         this.unusedTypeDefNames = unusedTypeDefNames;
         this.usedNativeClassPaths = usedNativeClassPaths;
+    }
+
+    public FunctionNames getUsedFunctionNames() {
+        return usedFunctionNames;
+    }
+
+    public FunctionNames getUnusedFunctionNames() {
+        return unusedFunctionNames;
+    }
+
+    public TypeDefinitions getUsedTypeDefNames() {
+        return usedTypeDefNames;
+    }
+
+    public TypeDefinitions getUnusedTypeDefNames() {
+        return unusedTypeDefNames;
+    }
+
+    public Set<String> getUsedNativeClassPaths() {
+        return usedNativeClassPaths;
     }
 
     protected record FunctionNames(Set<String> sourceFunctions, Set<String> virtualFunctions) {
