@@ -870,7 +870,7 @@ public class Types {
             return isParameterizedTypeAssignable(source, target, unresolvedTypes);
         }
 
-        if (source.isBTypeComponent || target.isBTypeComponent) {
+        if (source.isBTypeComponentEmpty || target.isBTypeComponentEmpty) {
             return isAssignableInternal(SemTypeHelper.bTypeComponent(source),
                     SemTypeHelper.bTypeComponent(target), unresolvedTypes);
         }

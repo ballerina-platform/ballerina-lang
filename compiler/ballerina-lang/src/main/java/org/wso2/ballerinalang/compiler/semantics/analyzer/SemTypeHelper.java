@@ -138,20 +138,14 @@ public final class SemTypeHelper {
      */
     @Deprecated
     public static BType bTypeComponent(BType t) {
-        if (t == null) {
+        if (t == null || isFullSemType(t.tag) || t.tag == TypeTags.NEVER) {
             BType neverType = BType.createNeverType();
-            neverType.isBTypeComponent = true;
+            neverType.isBTypeComponentEmpty = true;
             return neverType;
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
             return bTypeComponent(((BTypeReferenceType) t).referredType);
-        }
-
-        if (isFullSemType(t.tag)) {
-            BType neverType = BType.createNeverType();
-            neverType.isBTypeComponent = true;
-            return neverType;
         }
 
         return t;

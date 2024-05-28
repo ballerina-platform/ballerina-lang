@@ -24,6 +24,7 @@ import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.MappingDefinition;
 import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -150,12 +151,22 @@ public class BRecordType extends BStructureType implements RecordType {
 
         List<Field> semFields = new ArrayList<>(this.fields.size());
         for (BField field : this.fields.values()) {
-            SemType ty = field.type.semType();
-            if (ty == null) {
-                ty = NEVER;
+            boolean optional = Symbols.isOptional(field.symbol);
+            BType bType = field.type;
+            SemType ty = bType.semType();
+            if (ty == null || NEVER.equals(ty) && SemTypeHelper.bTypeComponent(bType).isBTypeComponentEmpty) {
+                if (optional) {
+                    // ignore the field
+                    continue;
+                } else {
+                    // if there is a non-optional field with `never` type(BType Component + SemType Component),
+                    // it is not possible to create a value. Hence, the whole record type is considered as `never`.
+                    md.setSemTypeToNever();
+                    return NEVER;
+                }
             }
             Field semField = Field.from(field.name.value, ty, Symbols.isFlagOn(field.symbol.flags, Flags.READONLY),
-                    Symbols.isOptional(field.symbol));
+                    optional);
             semFields.add(semField);
         }
 

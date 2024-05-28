@@ -58,7 +58,7 @@ public class BType implements ValueType {
 
     // SemType related properties
     protected SemType semType;
-    public boolean isBTypeComponent = false; // TODO: This is temporary workaround until we migrate all types
+    public boolean isBTypeComponentEmpty = false; // TODO: This is temporary workaround until we migrate all types
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this(tag, tsymbol, Names.EMPTY, 0, null);
