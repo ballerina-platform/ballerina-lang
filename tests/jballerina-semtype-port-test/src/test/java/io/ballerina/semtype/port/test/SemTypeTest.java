@@ -240,28 +240,32 @@ public class SemTypeTest {
             Assert.fail(
                     "Exception thrown in " + typeAssertion.fileName() + System.lineSeparator() + typeAssertion.text());
         }
+        testAssertion(typeAssertion, CompilerTypeTestAPI.getInstance());
+    }
 
+    private void testAssertion(SemTypeAssertionTransformer.TypeAssertion typeAssertion,
+                               TypeTestAPI<Context, SemType> semTypes) {
         switch (typeAssertion.kind()) {
             case NON:
                 Assert.assertFalse(
-                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
-                                   formatFailingAssertionDescription(typeAssertion));
+                        semTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
+                        formatFailingAssertionDescription(typeAssertion));
                 Assert.assertFalse(
-                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
-                                   formatFailingAssertionDescription(typeAssertion));
+                        semTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
+                        formatFailingAssertionDescription(typeAssertion));
                 break;
             case SUB:
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
-                                  formatFailingAssertionDescription(typeAssertion));
+                Assert.assertTrue(semTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
+                        formatFailingAssertionDescription(typeAssertion));
                 Assert.assertFalse(
-                        SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
+                        semTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
                         formatFailingAssertionDescription(typeAssertion));
                 break;
             case SAME:
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
-                                  formatFailingAssertionDescription(typeAssertion));
-                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
-                                  formatFailingAssertionDescription(typeAssertion));
+                Assert.assertTrue(semTypes.isSubtype(typeAssertion.context(), typeAssertion.lhs(), typeAssertion.rhs()),
+                        formatFailingAssertionDescription(typeAssertion));
+                Assert.assertTrue(semTypes.isSubtype(typeAssertion.context(), typeAssertion.rhs(), typeAssertion.lhs()),
+                        formatFailingAssertionDescription(typeAssertion));
         }
     }
 
