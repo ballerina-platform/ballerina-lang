@@ -1074,7 +1074,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest(false);
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution(false);
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
