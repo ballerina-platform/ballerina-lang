@@ -39,10 +39,10 @@ public class ModuleCoverage {
     /**
      * Adds the code snippet from the source file highlighted with covered and missed lines.
      *
-     * @param document     source file
-     * @param coveredLines list of lines covered
-     * @param missedLines  list of lines missed
-     * @param emptyLines   list of empty lines
+     * @param document     Source file
+     * @param coveredLines List of lines covered
+     * @param missedLines  List of lines missed
+     * @param emptyLines   List of empty lines
      */
     public void addSourceFileCoverage(Document document, List<Integer> coveredLines,
                                       List<Integer> missedLines, List<Integer> emptyLines) {
@@ -56,8 +56,8 @@ public class ModuleCoverage {
     /**
      * Check if given source file is already added to module coverage.
      *
-     * @param fileName String
-     * @return boolean
+     * @param fileName File name of the source file
+     * @return    If source file is already added, return true. Otherwise, return false.
      */
     public boolean containsSourceFile(String fileName) {
         boolean isAvailable = false;
@@ -74,12 +74,12 @@ public class ModuleCoverage {
      * Update coverage information for a given source file.
      *
      * @param document               Updated source file
-     * @param coveredLines           latest covered lines
-     * @param missedLines            latest missed lines
-     * @param emptyLines             latest empty lines
-     * @param coveredMissedLineCount latest covered line count for previously missed lines
-     * @param coveredEmptyLineCount  latest covered line count for previously empty lines
-     * @param missedEmptyLineCount
+     * @param coveredLines           Latest covered lines
+     * @param missedLines            Latest missed lines
+     * @param emptyLines             Latest empty lines
+     * @param coveredMissedLineCount Latest covered line count for previously missed lines
+     * @param coveredEmptyLineCount  Latest covered line count for previously empty lines
+     * @param missedEmptyLineCount   Latest missed line count for previously empty lines
      */
     public void updateCoverage(Document document, List<Integer> coveredLines,
                                List<Integer> missedLines, List<Integer> emptyLines, int coveredMissedLineCount,
@@ -105,9 +105,9 @@ public class ModuleCoverage {
      * Replace coverage information for a given source file.
      *
      * @param document               Updated source file
-     * @param coveredLines           latest covered lines
-     * @param missedLines            latest missed lines
-     * @param emptyLines             latest empty lines
+     * @param coveredLines           Latest covered lines
+     * @param missedLines            Latest missed lines
+     * @param emptyLines             Latest empty lines
      */
     public void replaceCoverage(Document document, List<Integer> coveredLines,
                                 List<Integer> missedLines, List<Integer> emptyLines) {
@@ -164,8 +164,8 @@ public class ModuleCoverage {
     /**
      * Get the missed lines list for a source file.
      *
-     * @param sourceFileName String
-     * @return list of missed lines
+     * @param sourceFileName File name of the source file
+     * @return List of missed lines
      */
     public Optional<List<Integer>> getMissedLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
@@ -179,8 +179,8 @@ public class ModuleCoverage {
     /**
      * Get the covered lines list for a source file.
      *
-     * @param sourceFileName String
-     * @return list of covered lines
+     * @param sourceFileName File name of the source file
+     * @return List of covered lines
      */
     public Optional<List<Integer>> getCoveredLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
@@ -191,6 +191,12 @@ public class ModuleCoverage {
         return Optional.empty();
     }
 
+    /**
+     * Get the covered lines list for a source file.
+     *
+     * @param sourceFileName File name of the source file
+     * @return List of empty lines
+     */
     public Optional<List<Integer>> getEmptyLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
             if (sourceFile.getName().equals(sourceFileName)) {
