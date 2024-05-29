@@ -710,21 +710,35 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
 }
 
 function testShiftOnTupleWithVariableInherentTypes() {
-    [int, int, string...] tupleWithVariableInherentTypes = [0, 1, "hello"];
-    [anydata, anydata, anydata...] tempTuple = tupleWithVariableInherentTypes;
+    [int, int, string...] tupleWithVariableInherentTypes1 = [0, 1, "hello"];
+    [anydata, anydata, anydata...] tempTuple1 = tupleWithVariableInherentTypes1;
 
-    var fn = function() {
-        var x = tempTuple.shift();
+    [int, string, string...] tupleWithVariableInherentTypes2 = [0, "hello", "world"];
+    [anydata, anydata, anydata...] tempTuple2 = tupleWithVariableInherentTypes2;
+
+    var fn1 = function() {
+        var x = tempTuple1.shift();
     };
 
-    error? res = trap fn();
-    assertTrue(res is error);
+    var fn2 = function() {
+        var y = tempTuple2.shift();
+    };
 
-    error err = <error>res;
-    var message = err.detail()["message"];
-    string detailMessage = message is error ? message.toString() : message.toString();
-    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
+    error? res1 = trap fn1();
+    error? res2 = trap fn2();
+    assertTrue(res1 is error);
+    assertTrue(res2 is error);
+
+    error err1 = <error>res1;
+    error err2 = <error>res2;
+    var message1 = err1.detail()["message"];
+    var message2 = err1.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage1);
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
 }
 
 function testShiftOnTupleWithProperConditions() {
