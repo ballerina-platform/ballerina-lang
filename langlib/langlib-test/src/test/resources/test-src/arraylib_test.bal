@@ -688,6 +688,8 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
 function testShiftOperation() {
     testShiftOnTupleWithoutValuesForRestParameter();
+    testShiftOnTupleWithVariableInherentTypes();
+    testShiftOnTupleWithProperConditions();
 }
 
 function testShiftOnTupleWithoutValuesForRestParameter() {
@@ -705,6 +707,33 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
     assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
+}
+
+function testShiftOnTupleWithVariableInherentTypes() {
+    [int, int, string...] tupleWithVariableInherentTypes = [0, 1, "hello"];
+    [anydata, anydata, anydata...] tempTuple = tupleWithVariableInherentTypes;
+
+    var fn = function() {
+        var x = tempTuple.shift();
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
+}
+
+function testShiftOnTupleWithProperConditions() {
+    [int, int, int...] properTuple = [0, 1, 3];
+
+    int x = properTuple.shift();
+    assertTrue(x is int);
+    assertValueEquality(0, x);
+    assertValueEquality([1, 3], properTuple);
 }
 
 type Student record {|
