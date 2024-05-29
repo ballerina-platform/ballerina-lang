@@ -421,7 +421,6 @@ public class BuildOptions {
             return this;
         }
 
-
         public BuildOptionsBuilder setRemoteManagement(Boolean value) {
             compilationOptionsBuilder.setRemoteManagement(value);
             return this;

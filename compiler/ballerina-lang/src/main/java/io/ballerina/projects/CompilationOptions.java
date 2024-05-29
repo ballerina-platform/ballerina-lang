@@ -74,6 +74,11 @@ public class CompilationOptions {
         this.remoteManagement = remoteManagement;
     }
 
+    public static void resetStaticCompilationOptions() {
+        optimizeCodegen = null;
+        verbose = null;
+    }
+
     public boolean offlineBuild() {
         return toBooleanDefaultIfNull(this.offlineBuild);
     }

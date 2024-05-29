@@ -75,6 +75,8 @@ public class CodeGenOptimizationReportEmitter {
         out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
         birOptimizationDurations.forEach((key, value) -> out.printf("    %s : %dms%n", key, value));
         out.println();
+        // TODO make this class a singleton
+        birOptimizationDurations.clear();
     }
 
     protected static void emitNativeOptimizationDuration() {
