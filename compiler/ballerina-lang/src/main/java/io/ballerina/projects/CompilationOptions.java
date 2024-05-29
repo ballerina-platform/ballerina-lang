@@ -77,6 +77,11 @@ public class CompilationOptions {
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
     }
 
+    public static void resetStaticCompilationOptions() {
+        optimizeCodegen = null;
+        verbose = null;
+    }
+
     public boolean offlineBuild() {
         return toBooleanDefaultIfNull(this.offlineBuild);
     }
