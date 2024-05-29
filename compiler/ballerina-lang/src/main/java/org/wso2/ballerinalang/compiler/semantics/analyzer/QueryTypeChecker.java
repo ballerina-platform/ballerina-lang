@@ -550,7 +550,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 memberTypes.add(mapType);
             }
-            return new BUnionType(types.typeEnv(), null, memberTypes, false, false);
+            return new BUnionType(types.typeEnv(), null, memberTypes, false);
         } else {
             return getQueryMapConstraintType(referredType, pos);
         }

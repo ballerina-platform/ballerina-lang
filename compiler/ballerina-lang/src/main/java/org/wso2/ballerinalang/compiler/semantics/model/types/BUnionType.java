@@ -71,23 +71,22 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
     public final Env env;
 
-    public BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
-                      boolean readonly) {
-        this(env, tsymbol, memberTypes, memberTypes, nullable, readonly, false);
+    public BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean readonly) {
+        this(env, tsymbol, memberTypes, memberTypes, readonly, false);
     }
 
     private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
-                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
-        this(env, tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
+                       LinkedHashSet<BType> memberTypes, boolean readonly) {
+        this(env, tsymbol, originalMemberTypes, memberTypes, readonly, false);
     }
 
-    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
+    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes,
                        boolean readonly, boolean isCyclic) {
-        this(env, tsymbol, null, memberTypes, nullable, readonly, isCyclic);
+        this(env, tsymbol, null, memberTypes, readonly, isCyclic);
     }
 
     private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
-                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly, boolean isCyclic) {
+                       LinkedHashSet<BType> memberTypes, boolean readonly, boolean isCyclic) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -162,8 +161,7 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
         boolean isImmutable = true;
-        boolean hasNilableType = false;
-        return new BUnionType(env, tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
+        return new BUnionType(env, tsymbol, memberTypes, isImmutable, isCyclic);
     }
 
     /**
@@ -179,7 +177,7 @@ public class BUnionType extends BType implements UnionType {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
         if (types.isEmpty()) {
-            return new BUnionType(env, tsymbol, memberTypes, false, true);
+            return new BUnionType(env, tsymbol, memberTypes, true);
         }
 
         boolean isImmutable = true;
@@ -194,7 +192,7 @@ public class BUnionType extends BType implements UnionType {
         }
         if (memberTypes.isEmpty()) {
             memberTypes.add(BType.createNeverType());
-            return new BUnionType(env, tsymbol, memberTypes, false, isImmutable);
+            return new BUnionType(env, tsymbol, memberTypes, isImmutable);
         }
 
         boolean hasNilableType = false;
@@ -215,13 +213,7 @@ public class BUnionType extends BType implements UnionType {
             memberTypes = bTypes;
         }
 
-        for (BType memberType : memberTypes) {
-            if (memberType.isNullable()) {
-                return new BUnionType(env, tsymbol, types, memberTypes, true, isImmutable);
-            }
-        }
-
-        return new BUnionType(env, tsymbol, types, memberTypes, false, isImmutable);
+        return new BUnionType(env, tsymbol, types, memberTypes, isImmutable);
     }
 
     /**

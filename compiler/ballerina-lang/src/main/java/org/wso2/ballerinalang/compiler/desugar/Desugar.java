@@ -7816,7 +7816,7 @@ public class Desugar extends BLangNodeVisitor {
         LinkedHashSet<BType> members = new LinkedHashSet<>(2);
         members.add(exprType);
         members.add(symTable.nilType);
-        BUnionType unionType = new BUnionType(types.typeEnv(), null, members, true, false);
+        BUnionType unionType = new BUnionType(types.typeEnv(), null, members, false);
         return createTypeCastExpr(expr, unionType);
     }
 

@@ -35,7 +35,7 @@ public class BJSONType extends BUnionType {
     private static final int INITIAL_CAPACITY = 8;
 
     public BJSONType(BJSONType type, boolean nullable) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(type.getFlags(),
+        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), Symbols.isFlagOn(type.getFlags(),
                 Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
@@ -44,7 +44,7 @@ public class BJSONType extends BUnionType {
     }
 
     public BJSONType(BUnionType type) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(),
+        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY),
                 Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
@@ -52,8 +52,7 @@ public class BJSONType extends BUnionType {
     }
 
     public BJSONType(Env env, BTypeSymbol typeSymbol, boolean nullable, long flags) {
-        super(env, typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
-                Symbols.isFlagOn(flags, Flags.READONLY));
+        super(env, typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), Symbols.isFlagOn(flags, Flags.READONLY));
         this.setFlags(flags);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;

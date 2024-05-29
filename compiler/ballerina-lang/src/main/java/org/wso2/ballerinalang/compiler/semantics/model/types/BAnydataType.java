@@ -38,7 +38,7 @@ public class BAnydataType extends BUnionType {
     private static final int INITIAL_CAPACITY = 10;
 
     public BAnydataType(Env env, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-        super(env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
+        super(env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), false);
         this.tag = TypeTags.ANYDATA;
         this.setFlags(flags);
         this.name = name;
@@ -47,7 +47,7 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BUnionType type) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
+        super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()),
                 Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
@@ -58,7 +58,7 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
+        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY),
                 Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         this.setFlags(type.getFlags());
         this.tag = TypeTags.ANYDATA;

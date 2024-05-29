@@ -1803,8 +1803,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
 
-                BUnionType unionType =
-                        new BUnionType(types.typeEnv(), null, new LinkedHashSet<>(broadTypes), false, false);
+                BUnionType unionType = new BUnionType(types.typeEnv(), null, new LinkedHashSet<>(broadTypes), false);
                 return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;

@@ -1329,7 +1329,7 @@ public class TypeResolver {
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
-        BUnionType unionType = new BUnionType(types.typeEnv(), unionTypeSymbol, memberTypes, false, false);
+        BUnionType unionType = new BUnionType(types.typeEnv(), unionTypeSymbol, memberTypes, false);
         unionTypeSymbol.type = unionType;
         td.setBType(unionType);
         resolvingTypes.push(unionType);
