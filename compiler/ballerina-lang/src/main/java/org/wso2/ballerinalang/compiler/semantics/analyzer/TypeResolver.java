@@ -1344,17 +1344,16 @@ public class TypeResolver {
             memberTypes.add(resolvedType);
         }
 
-        updateReadOnlyAndNullableFlag(unionType);
+        updateReadOnlyFlag(unionType);
         symResolver.markParameterizedType(unionType, memberTypes);
         resolvingTypes.pop();
         return unionType;
     }
 
-    private void updateReadOnlyAndNullableFlag(BUnionType type) {
+    private void updateReadOnlyFlag(BUnionType type) {
         LinkedHashSet<BType> memberTypes = type.getMemberTypes();
         LinkedHashSet<BType> flattenMemberTypes = new LinkedHashSet<>(memberTypes.size());
         boolean isImmutable = true;
-        boolean hasNilableType = false;
 
         for (BType memBType : BUnionType.toFlatTypeSet(memberTypes)) {
             if (Types.getImpliedType(memBType).tag != TypeTags.NEVER) {
@@ -1371,23 +1370,6 @@ public class TypeResolver {
             if (type.tsymbol != null) {
                 type.tsymbol.flags |= Flags.READONLY;
             }
-        }
-
-        for (BType memberType : flattenMemberTypes) {
-            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
-                hasNilableType = true;
-                break;
-            }
-        }
-
-        if (hasNilableType) {
-            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(flattenMemberTypes.size());
-            for (BType t : flattenMemberTypes) {
-                if (t.tag != TypeTags.NIL) {
-                    bTypes.add(t);
-                }
-            }
-            flattenMemberTypes = bTypes;
         }
 
         type.setOriginalMemberTypes(memberTypes);

@@ -190,27 +190,10 @@ public class BUnionType extends BType implements UnionType {
                 isImmutable = false;
             }
         }
+
         if (memberTypes.isEmpty()) {
             memberTypes.add(BType.createNeverType());
             return new BUnionType(env, tsymbol, memberTypes, isImmutable);
-        }
-
-        boolean hasNilableType = false;
-        for (BType memberType : memberTypes) {
-            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
-                hasNilableType = true;
-                break;
-            }
-        }
-
-        if (hasNilableType) {
-            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(memberTypes.size());
-            for (BType t : memberTypes) {
-                if (t.tag != TypeTags.NIL) {
-                    bTypes.add(t);
-                }
-            }
-            memberTypes = bTypes;
         }
 
         return new BUnionType(env, tsymbol, types, memberTypes, isImmutable);
@@ -531,8 +514,10 @@ public class BUnionType extends BType implements UnionType {
         }
 
         if (memberType.tag == TypeTags.UNION) {
-            memberSemTypes.addAll(((BUnionType) memberType).memberSemTypes);
-            memberNonSemTypes.addAll(((BUnionType) memberType).memberNonSemTypes);
+            BUnionType bUnionType = (BUnionType) memberType;
+            bUnionType.populateMemberSemTypesAndNonSemTypes();
+            memberSemTypes.addAll(bUnionType.memberSemTypes);
+            memberNonSemTypes.addAll(bUnionType.memberNonSemTypes);
             return;
         }
 

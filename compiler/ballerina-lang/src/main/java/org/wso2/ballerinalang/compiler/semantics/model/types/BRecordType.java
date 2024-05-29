@@ -192,7 +192,7 @@ public class BRecordType extends BStructureType implements RecordType {
     }
 
     // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
-    // this will have an invalid list type since parent union type call this while it is filling its members
+    // this will have an invalid record type since parent union type call this while it is filling its members
     @Override
     public boolean isNullable() {
         return false;

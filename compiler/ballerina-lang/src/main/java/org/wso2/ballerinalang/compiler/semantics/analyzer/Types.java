@@ -3287,11 +3287,15 @@ public class Types {
             LinkedHashSet<BType> sourceTypes = sUnionType.getMemberTypes();
             LinkedHashSet<BType> targetTypes = target.getMemberTypes();
 
-            if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) &&
-                    checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
-                BType type = target.getMemberTypes().iterator().next();
-                return checkValueSpaceHasSameOrderedType(((BFiniteType) getImpliedType(type)),
-                        sUnionType.getMemberTypes().iterator().next());
+            if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) && checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
+                BType type = getImpliedType(target.getMemberTypes().iterator().next());
+                BFiniteType finiteType;
+                if (type.tag == TypeTags.NIL) {
+                    finiteType = BFiniteType.newSingletonBFiniteType(null, PredefinedType.NIL);
+                } else {
+                    finiteType = (BFiniteType) type;
+                }
+                return checkValueSpaceHasSameOrderedType(finiteType, sUnionType.getMemberTypes().iterator().next());
             }
 
             return checkSameOrderedTypesInUnionMembers(sourceTypes, targetTypes);
