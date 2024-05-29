@@ -69,6 +69,7 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -578,7 +579,15 @@ public class ValueCreator {
      * @return         xml sequence
      */
     public static BXmlSequence createXmlSequence(List<BXml> sequence) {
-        return XmlFactory.createXmlSequence(sequence);
+        List<BXml> flattenedSequence = new ArrayList<>();
+        for (BXml item : sequence) {
+            if (item instanceof XmlSequence xmlSequence) {
+                flattenedSequence.addAll(xmlSequence.getChildrenList());
+            } else {
+                flattenedSequence.add(item);
+            }
+        }
+        return XmlFactory.createXmlSequence(flattenedSequence);
     }
 
     /**

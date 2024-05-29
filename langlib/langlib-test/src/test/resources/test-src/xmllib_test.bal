@@ -1182,16 +1182,62 @@ function testXmlMapOnXmlElementSequence() {
     assertEquals(result, xml ``);
 }
 
+function testErrorsOnNXmlMapResult() {
+    xml x1 = xml `<?data?><a><!--comment--><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x1), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError", "incompatible types: 'lang.xml:Comment' cannot be cast to 'lang.xml:Element'");
+
+    xml x2 = xml `<?data?><a>xml text<b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x2), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError", "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
+
+    xml x3 = xml `<?data?><a><?data?><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x3), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Element'");
+
+    xml x4 = xml `<?data?><a><?data?><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createProcessingInstruction("data", xml:getContent(<xml:ProcessingInstruction>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Element' cannot be cast to 'lang.xml:ProcessingInstruction'");
+
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createComment(xml:getContent(<xml:Comment>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Comment'");
+
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createComment(xml:data(<xml:Text>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Text'");
+}
+
 function assertXmlSequenceItems(xml actual, xml[] expected) {
     int expectedLen = expected.length();
     int actualLen = actual.length();
     if actualLen != expectedLen {
         string reason = "expected xml sequence with items " + expected.toString() + " of size " + expectedLen.toString()
                             + ", but found xml sequence " + actual.toString() + " of size " + actualLen.toString();
-        error e = error(reason);
-        panic e;
+        panic error(reason);
     }
     foreach int i in 0 ... expectedLen - 1 {
         assertEquals(actual.get(i), expected[i]);
     }
+}
+
+type Error error<record {string message;}>;
+
+function assertError(any|error value, string errorMessage, string expDetailMessage) {
+    if value is Error {
+        if value.message() != errorMessage {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+
+        if value.detail().message == expDetailMessage {
+            return;
+        }
+        panic error("Expected error detail message: " + expDetailMessage + " found: " + value.detail().message);
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
 }

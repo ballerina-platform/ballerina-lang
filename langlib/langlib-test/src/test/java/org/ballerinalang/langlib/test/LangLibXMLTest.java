@@ -358,6 +358,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testErrorsOnNXmlMapResult() {
+        BRunUtil.invoke(compileResult, "testErrorsOnNXmlMapResult");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;

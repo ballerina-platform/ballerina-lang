@@ -61,13 +61,7 @@ public class Map {
         AtomicInteger index = new AtomicInteger(-1);
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                 () -> new Object[]{x.getItem(index.incrementAndGet()), true},
-                result -> {
-                    if (result instanceof XmlSequence xmlSequence) {
-                        elements.addAll(xmlSequence.getChildrenList());
-                    } else {
-                        elements.add((BXml) result);
-                    }
-                }, () -> ValueCreator.createXmlSequence(elements),
+                result -> elements.add((BXml) result), () -> ValueCreator.createXmlSequence(elements),
                 Scheduler.getStrand().scheduler);
         return ValueCreator.createXmlSequence(elements);
     }
