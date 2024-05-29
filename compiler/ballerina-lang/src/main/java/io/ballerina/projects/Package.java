@@ -625,16 +625,15 @@ public class Package {
         }
 
         private Package createNewPackage() {
-            Set<String> oldPackageImports = ProjectUtils.getPackageImports(this.project.currentPackage());
-            PackageResolution oldResolution = this.project.currentPackage().getResolution();;
+            Package oldPackage = this.project.currentPackage();
+            PackageResolution oldResolution = oldPackage.getResolution();;
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
                     this.packageMdContext, this.compilationOptions, this.moduleContextMap,
                     DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
-            Set<String> currentPackageImports = ProjectUtils.getPackageImports(this.project.currentPackage());
-            if (oldPackageImports.equals(currentPackageImports)) {
+            if (isOldDependencyGraphValid(oldPackage, this.project.currentPackage())) {
                 this.project.currentPackage().packageContext().getResolution(oldResolution);
             }
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
@@ -643,6 +642,22 @@ public class Package {
                     .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             return this.project.currentPackage();
+        }
+
+        private static boolean isOldDependencyGraphValid(Package oldPackage, Package currentPackage) {
+            Set<String> oldPackageImports = ProjectUtils.getPackageImports(oldPackage);
+            Set<String> currentPackageImports = ProjectUtils.getPackageImports(currentPackage);
+            String oldDependencyTomlContent = oldPackage.packageContext.dependenciesTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String currentDependencyTomlContent = currentPackage.packageContext.dependenciesTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String oldBallerinaTomlContent = oldPackage.packageContext.ballerinaTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String currentBallerinaTomlContent = currentPackage.packageContext.ballerinaTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            return oldPackageImports.equals(currentPackageImports) &&
+                    oldDependencyTomlContent.equals(currentDependencyTomlContent) &&
+                    oldBallerinaTomlContent.equals(currentBallerinaTomlContent);
         }
 
         private void cleanPackageCache(DependencyGraph<ResolvedPackageDependency> oldGraph,
