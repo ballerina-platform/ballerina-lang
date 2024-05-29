@@ -855,7 +855,6 @@ public class TupleValueImpl extends AbstractArrayValue {
                 throw ErrorHelper.getRuntimeException(
                         getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         ErrorCodes.INCOMPATIBLE_TYPE, tupleTypes.get(numberOfTypes - 1), this.tupleType.getRestType());
-            }
         }
     }
 }
