@@ -190,6 +190,14 @@ public final class Builder {
         return Optional.empty();
     }
 
+    public static SemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
+        // TODO:Cache this for pure basic types + never
+        CellAtomicType atomicCell = new CellAtomicType(ty, mut);
+        TypeAtom atom = env.cellAtom(atomicCell);
+        BddNode bdd = BddNode.bddAtom(atom);
+        return basicSubType(BasicTypeCode.BT_CELL, bdd);
+    }
+
     private static final class IntTypeCache {
 
         private static final int CACHE_MAX_VALUE = 127;
