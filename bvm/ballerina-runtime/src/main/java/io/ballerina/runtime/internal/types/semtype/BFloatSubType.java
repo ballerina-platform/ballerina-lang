@@ -50,7 +50,6 @@ public final class BFloatSubType extends SubType {
                 return NOTHING;
             }
         }
-        Arrays.sort(values);
         return new BFloatSubType(new FloatSubTypeData(allowed, values));
     }
 
@@ -128,7 +127,43 @@ public final class BFloatSubType extends SubType {
 
         private FloatSubTypeData(boolean allowed, Double[] values) {
             this.allowed = allowed;
-            this.values = values;
+            this.values = filteredValues(values);
+        }
+
+        private static Double[] filteredValues(Double[] values) {
+            for (int i = 0; i < values.length; i++) {
+                values[i] = canon(values[i]);
+            }
+            if (values.length < 2) {
+                return values;
+            }
+            Arrays.sort(values);
+            Double[] buffer = new Double[values.length];
+            buffer[0] = values[0];
+            int bufferLen = 1;
+            for (int i = 1; i < values.length; i++) {
+                Double value = values[i];
+                Double prevValue = values[i - 1];
+                if (isSame(value, prevValue)) {
+                    continue;
+                }
+                buffer[bufferLen++] = value;
+            }
+            return Arrays.copyOf(buffer, bufferLen);
+        }
+
+        private static Double canon(Double d) {
+            if (d.equals(0.0) || d.equals(-0.0)) {
+                return 0.0;
+            }
+            return d;
+        }
+
+        private static boolean isSame(double f1, double f2) {
+            if (Double.isNaN(f1)) {
+                return Double.isNaN(f2);
+            }
+            return f1 == f2;
         }
 
         @Override
