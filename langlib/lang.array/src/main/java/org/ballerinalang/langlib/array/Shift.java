@@ -36,6 +36,5 @@ public class Shift {
 
     public static Object shift(BArray arr) {
         return arr.shift(0);
-
     }
 }
