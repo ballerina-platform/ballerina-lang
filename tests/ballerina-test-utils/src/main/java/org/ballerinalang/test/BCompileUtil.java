@@ -18,6 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -128,6 +129,8 @@ public final class BCompileUtil {
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         jBallerinaBackend.diagnosticResult().hasErrors();
 
+        // TODO Do not use static compilation options. It causes issues with JBallerina unit tests
+        CompilationOptions.resetStaticCompilationOptions();
         return new CompileResult(currentPackage, jBallerinaBackend);
     }
 
