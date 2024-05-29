@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.List;
