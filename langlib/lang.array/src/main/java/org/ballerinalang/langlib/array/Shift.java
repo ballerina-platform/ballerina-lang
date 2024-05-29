@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:shift((any|error)[]).

@@ -51,6 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
@@ -831,14 +832,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void checkIfRestElementPresent (long length) {
-        if (this.tupleType.getRestType() == null) {
+        if (this.tupleType.getTupleTypes().size() >= length) {
             throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    ErrorCodes.ILLEGAL_TUPLE_SIZE, size, length);
-        } else if (this.tupleType.getTupleTypes().size() >= length) {
-            throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    ErrorCodes.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, this.tupleType.getTupleTypes().size(), length - 1);
+                    getModulePrefixedReason(ARRAY_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                    ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, "shift()", this.getType());
         }
     }
 
