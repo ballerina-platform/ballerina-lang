@@ -98,7 +98,6 @@ public class PackageResolution {
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
                 this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
-
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
@@ -117,11 +116,10 @@ public class PackageResolution {
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
                 this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
-
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
         moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
-        this.dependencyGraph = cloneDependencyGraphReplacingRoot(packageResolution.dependencyGraph,
+        this.dependencyGraph = cloneDependencyGraphNewRoot(packageResolution.dependencyGraph,
                 rootPackageContext.project().currentPackage());
         this.dependencyGraphDump = packageResolution.dependencyGraphDump;
         DependencyResolution dependencyResolution = new DependencyResolution(
@@ -129,7 +127,7 @@ public class PackageResolution {
         resolveDependencies(dependencyResolution);
     }
 
-    private DependencyGraph<ResolvedPackageDependency> cloneDependencyGraphReplacingRoot
+    private DependencyGraph<ResolvedPackageDependency> cloneDependencyGraphNewRoot
             (DependencyGraph<ResolvedPackageDependency> depGraph, Package rootPackage) {
         ResolvedPackageDependency oldRoot = depGraph.getRoot();
         ResolvedPackageDependency newRoot = new ResolvedPackageDependency(rootPackage,
