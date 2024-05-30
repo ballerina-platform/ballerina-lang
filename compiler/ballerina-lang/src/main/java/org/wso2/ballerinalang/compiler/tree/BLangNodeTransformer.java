@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -1132,6 +1133,10 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangXMLFilterStepExtend node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangXMLMethodCallStepExtend node, T data) {
         return transformNode(node, data);
     }
 }
