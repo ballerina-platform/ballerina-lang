@@ -20,7 +20,9 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
-public abstract class Bdd extends SubType {
+import static io.ballerina.runtime.api.types.semtype.Conjunction.and;
+
+public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNode {
 
     protected Bdd(boolean all, boolean nothing) {
         super(all, nothing);
@@ -164,7 +166,7 @@ public abstract class Bdd extends SubType {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(Context cx) {
         throw new IllegalStateException("Unimplemented");
     }
 
@@ -172,4 +174,29 @@ public abstract class Bdd extends SubType {
     public SubTypeData data() {
         throw new IllegalStateException("Unimplemented");
     }
+
+    public static boolean bddEvery(Context cx, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing == BddAllOrNothing.NOTHING || predicate.apply(cx, pos, neg);
+        }
+        BddNode bn = (BddNode) b;
+        return bddEvery(cx, bn.left(), and(bn.atom(), pos), neg, predicate)
+                && bddEvery(cx, bn.middle(), pos, neg, predicate)
+                && bddEvery(cx, bn.right(), pos, and(bn.atom(), neg), predicate);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
