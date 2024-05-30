@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 public class CoreTests {
 
     @Test
-    public void testCellContaining() {
+    public void testCellTypes() {
         Env env = Env.getInstance();
         Context cx = new Context();
         SemType intTy = Builder.intType();
@@ -38,5 +38,6 @@ public class CoreTests {
         SemType mutableInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         assert Core.isSubType(cx, mutableInt, mutableInt);
         assert Core.isSubType(cx, readonlyInt, mutableInt);
+        assert !Core.isSubType(cx, mutableInt, readonlyInt);
     }
 }

@@ -19,6 +19,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.math.BigDecimal;
@@ -113,7 +114,7 @@ public final class BDecimalSubType extends SubType {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(Context cx) {
         return data == AllOrNothing.NOTHING;
     }
 
