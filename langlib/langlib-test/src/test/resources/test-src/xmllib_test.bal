@@ -1226,6 +1226,30 @@ function assertXmlSequenceItems(xml actual, xml[] expected) {
     }
 }
 
+function testXmlFilterValueAndErrorWithNonElementSingletonValues() {
+    xml<xml:ProcessingInstruction> x1 = xml `<?data?>`;
+    assertEquals(xml:filter(x1, v => true), xml `<?data?>`);
+    assertEquals(xml:filter(xml:filter(x1, v => true), v => v is xml:ProcessingInstruction), xml `<?data?>`);
+    assertError(trap xml:filter(xml:filter(x1, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Comment> x2 = xml `<!--comment-->`;
+    assertEquals(xml:filter(xml:filter(x2, v => true), v => v is xml:Comment), xml `<!--comment-->`);
+    assertEquals(xml:filter(x2, v => true), xml `<!--comment-->`);
+
+    assertError(trap xml:filter(xml:filter(x2, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Comment' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Text> x3 = xml `this is a text`;
+    assertEquals(xml:filter(x3, v => true), xml `this is a text`);
+    assertEquals(xml:filter(xml:filter(x3, v => true), v => v is xml:Text), xml `this is a text`);
+    assertError(trap xml:filter(xml:filter(x3, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
+}
+
 type Error error<record {string message;}>;
 
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
