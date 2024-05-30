@@ -148,3 +148,140 @@ function testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
         }
         panic error("Assertion error, expected: `<baz>1</baz>`, found: " + s);
 }
+
+function testXMLNavigationWithEscapeCharacter() {
+    xmlns "foo" as ns;
+    xml x1 = xml `<person><name>John</name><home-address>some address</home-address></person>`;
+    xml x2 = xml `<ns:root><ns:child-node></ns:child-node></ns:root>`;
+
+    xml x3 = x1/<home\-address>;
+    assert(x3, xml `<home-address>some address</home-address>`);
+
+    xml x4 = x2/<ns:child\-node>;
+    assert(x4, xml `<ns:child-node xmlns:ns="foo"/>`);
+
+    xml x5 = x1/**/<person>/<home\-address>;
+    assert(x5, xml `<home-address>some address</home-address>`);
+
+    xml x6 = x1/**/<person>/<name|home\-address>;
+    assert(x6, xml `<name>John</name><home-address>some address</home-address>`);
+
+    xml x7 = x1/**/<person>/<name|home\-address>.<home\-address>;
+    assert(x7, xml `<home-address>some address</home-address>`);
+}
+
+type XC xml:Comment;
+type XE xml:Element;
+type XCE XC|XE;
+
+function testXmlNavigationWithUnionType() {
+    xml<xml:Element>|xml<xml:Comment> x1 = xml `<a><b><c><e>foo</e></c></b><d><g>bar</g></d></a>`;
+    assert(x1.<a>, xml `<a><b><c><e>foo</e></c></b><d><g>bar</g></d></a>`);
+    assert(x1/*, xml `<b><c><e>foo</e></c></b><d><g>bar</g></d>`);
+    assert(x1/*.<b>, xml `<b><c><e>foo</e></c></b>`);
+    assert(x1/**/<c>, xml `<c><e>foo</e></c>`);
+    assert((x1/**/<c>)/*.<e>, xml `<e>foo</e>`);
+    assert(x1/<d>, xml `<d><g>bar</g></d>`);
+    assert((x1/<d>)/*.<g>, xml `<g>bar</g>`);
+
+    xml:Element|xml:Comment x2 = xml `<!-- comment node-->`;
+    assert(x2/*, xml ``);
+    assert(x2/*.<a>, xml ``);
+    assert(x2/**/<a>, xml ``);
+    assert(x2/<b>, xml ``);
+
+    xml:Element|xml:ProcessingInstruction x3 = xml `<?target data?>`;
+    assert(x3/*, xml ``);
+    assert(x3/*.<b>, xml ``);
+    assert(x3/**/<c>, xml ``);
+    assert(x3/<d>, xml ``);
+
+    xml:Text|xml:ProcessingInstruction x4 = xml `test xml text`;
+    assert(x4/*, xml ``);
+    assert(x4/*.<d>, xml ``);
+    assert(x4/**/<e>, xml ``);
+    assert(x4/<f>, xml ``);
+
+    XCE x5 = xml `<foo><bar>b</bar></foo>`;
+    assert(x5.<foo>, xml `<foo><bar>b</bar></foo>`);
+    assert(x5/*, xml `<bar>b</bar>`);
+    assert(x5/*.<bar>, xml `<bar>b</bar>`);
+    assert(x5/**/<bar>, xml `<bar>b</bar>`);
+
+    xml<xml:Element>|xml<xml:Comment>|xml<xml:ProcessingInstruction>|xml:Text x6 = xml `<l><m><n></n></m></l>`;
+    assert(x6/*, xml `<m><n></n></m>`);
+    assert(x6/*.<m>, xml `<m><n></n></m>`);
+    assert(x6/**/<n>, xml `<n></n>`);
+    assert(x6/<m>, xml `<m><n></n></m>`);
+}
+
+function testXmlNavigationWithDefaultNamespaceDefinedAfter() {
+    xml[] results = [];
+    xml x1 = xml `<a>a<b>b<c>c</c></b><d>d</d></a><f/>`;
+    results[0] = x1.<a>;
+    results[1] = x1/*;
+    results[2] = x1/<b>;
+    results[3] = x1/<*>;
+    results[4] = x1/**/<c>;
+
+    xmlns "http://example2.com/" as p1;
+    xml x2 = xml `<l>l<m>m<n>n</n></m><p1:q>q1</p1:q><q>q2</q></l>`;
+    {
+        xmlns "http://example2.com/";
+    }
+    results[5] = x2.<l>;
+    results[6] = x2/<m>;
+    results[7] = x2/<q>;
+    results[8] = x2/**/<n>;
+
+    {
+        xmlns "http://example2.com/";
+        {
+            results[9] = x2.<l>;
+            results[10] = x2/<q>;
+        }
+    }
+    xmlns "http://example.com/" as p2;
+    xml x3 = xml `<e>no-ns</e><f/><p2:e>with-ns</p2:e>`;
+    results[11] = x3.<e>;
+
+    xml x4 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
+    xmlns "http://example.com/";
+    results[12] = x3.<e>;
+    results[13] = x4.<e>;
+    results[14] = x4/*;
+    results[15] = x4/<f>;
+    results[16] = x4/<*>;
+    results[17] = x4/**/<g>;
+
+    assertXmlNavigationWithDefaultNamespaceDefinedAfter(results);
+}
+
+function assertXmlNavigationWithDefaultNamespaceDefinedAfter(xml[] results) {
+    assert(results[0], xml `<a>a<b>b<c>c</c></b><d>d</d></a>`);
+    assert(results[1], xml `a<b>b<c>c</c></b><d>d</d>`);
+    assert(results[2], xml `<b>b<c>c</c></b>`);
+    assert(results[3], xml `<b>b<c>c</c></b><d>d</d>`);
+    assert(results[4], xml `<c>c</c>`);
+    assert(results[5], xml `<l>l<m>m<n>n</n></m><p1:q xmlns:p1="http://example2.com/">q1</p1:q><q>q2</q></l>`);
+    assert(results[6], xml `<m>m<n>n</n></m>`);
+    assert(results[7], xml `<q>q2</q>`);
+    assert(results[8], xml `<n>n</n>`);
+    assert(results[9], xml ``);
+    assert(results[10], xml `<p1:q xmlns:p1="http://example2.com/">q1</p1:q>`);
+    assert(results[11], xml `<e>no-ns</e>`);
+    assert(results[12], xml `<p2:e xmlns:p2="http://example.com/">with-ns</p2:e>`);
+    assert(results[13], xml ``);
+    assert(results[14], xml `e<f><g>f</g></f><h>h</h>`);
+    assert(results[15], xml ``);
+    assert(results[16], xml `<f><g>f</g></f><h>h</h>`);
+    assert(results[17], xml ``);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
+        error e = error(reason);
+        panic e;
+    }
+}

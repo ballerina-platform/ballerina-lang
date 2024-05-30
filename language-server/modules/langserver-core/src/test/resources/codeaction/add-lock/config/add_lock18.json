@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 39
+  },
+  "source": "add_lock18.bal",
+  "description": "Wrap in a lock statement for a isolated variable within a query",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 6,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    int[] listResult = from var el in arr\n\t        where el > 10\n\t        select el;\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

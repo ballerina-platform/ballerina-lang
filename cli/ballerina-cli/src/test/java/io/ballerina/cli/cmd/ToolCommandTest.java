@@ -18,12 +18,27 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 
@@ -33,6 +48,144 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  * @since 2201.6.0
  */
 public class ToolCommandTest extends BaseCommandTest {
+
+    private Path testResources;
+
+    @BeforeClass
+    public void setup() throws IOException {
+        super.setup();
+        try {
+            this.testResources = super.tmpDir.resolve("build-test-resources");
+            URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
+                    .toURI();
+            Files.walkFileTree(Paths.get(testResourcesURI),
+                    new BuildCommandTest.Copy(Paths.get(testResourcesURI), this.testResources));
+        } catch (URISyntaxException e) {
+            Assert.fail("error loading resources");
+        }
+    }
+
+    @Test(description = "Pull a tool from local repository")
+    public void testPullToolFromLocal() throws IOException {
+        Path mockHomeRepo = testResources.resolve("local-tool-test").resolve("ballerina-cache");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockHomeRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.9.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+
+            ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("pull", "luhee:1.1.0", "--repository=local");
+            toolCommand.execute();
+        }
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog, "tool 'luhee:1.1.0' successfully set as the active version.\n");
+        Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
+        BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool("luhee");
+        Assert.assertTrue(tool.isPresent());
+        Assert.assertEquals(tool.get().version(), "1.1.0");
+        Assert.assertEquals(tool.get().repository(), "local");
+        Assert.assertEquals(tool.get().org(), "gayaldassanayake");
+        Assert.assertEquals(tool.get().name(), "tool_gayal");
+    }
+
+    @Test(description = "Switch active version from local")
+    public void testUseToolFromLocal() throws IOException {
+        Path mockHomeRepo = testResources.resolve("local-tool-test").resolve("ballerina-cache");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockHomeRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.9.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+
+            ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("pull", "luhee:1.1.0", "--repository=local");
+            toolCommand.execute();
+            new CommandLine(toolCommand).parseArgs("pull", "luhee:1.2.0", "--repository=local");
+            toolCommand.execute();
+
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully set as the active version.\n"));
+            Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
+            BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
+            BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool("luhee");
+            Assert.assertTrue(tool.isPresent());
+            Assert.assertEquals(tool.get().version(), "1.2.0");
+            Assert.assertEquals(tool.get().repository(), "local");
+            Assert.assertEquals(tool.get().org(), "gayaldassanayake");
+            Assert.assertEquals(tool.get().name(), "tool_gayal");
+
+            toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("use", "luhee:1.1.0", "--repository=local");
+            toolCommand.execute();
+            buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
+            balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
+            balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            tool = balToolsManifest.getActiveTool("luhee");
+            Assert.assertTrue(tool.isPresent());
+            Assert.assertEquals(tool.get().version(), "1.1.0");
+            Assert.assertEquals(tool.get().repository(), "local");
+            Assert.assertEquals(tool.get().org(), "gayaldassanayake");
+            Assert.assertEquals(tool.get().name(), "tool_gayal");
+        }
+    }
+
+    @Test(description = "Remove a tool from local repository")
+    public void testRemoveToolFromLocal() throws IOException {
+        Path mockHomeRepo = testResources.resolve("local-tool-test").resolve("ballerina-cache");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockHomeRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.9.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+
+            ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("pull", "luhee:1.1.0", "--repository=local");
+            toolCommand.execute();
+            new CommandLine(toolCommand).parseArgs("pull", "luhee:1.2.0", "--repository=local");
+            toolCommand.execute();
+
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully set as the active version.\n"));
+            Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
+            BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config")
+                    .resolve("bal-tools.toml"));
+            BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool("luhee");
+            Assert.assertTrue(tool.isPresent());
+            Assert.assertEquals(tool.get().version(), "1.2.0");
+            Assert.assertEquals(tool.get().repository(), "local");
+            Assert.assertEquals(tool.get().org(), "gayaldassanayake");
+            Assert.assertEquals(tool.get().name(), "tool_gayal");
+
+            toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("use", "luhee:1.1.0", "--repository=local");
+            toolCommand.execute();
+            buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
+            balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
+            balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            tool = balToolsManifest.getActiveTool("luhee");
+            Assert.assertTrue(tool.isPresent());
+            Assert.assertEquals(tool.get().version(), "1.1.0");
+            Assert.assertEquals(tool.get().repository(), "local");
+            Assert.assertEquals(tool.get().org(), "gayaldassanayake");
+            Assert.assertEquals(tool.get().name(), "tool_gayal");
+
+            toolCommand = new ToolCommand(printStream, printStream, false);
+            new CommandLine(toolCommand).parseArgs("remove", "luhee:1.2.0", "--repository=local");
+            toolCommand.execute();
+            buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully removed.\n"));
+            balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
+            balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            tool = balToolsManifest.getTool("luhee", "1.2.0", "local");
+            Assert.assertTrue(tool.isEmpty());
+        }
+    }
+
     @Test(description = "Test tool command with the help flag")
     public void testToolCommandWithHelpFlag() throws IOException {
         String expected = getOutput("tool-help.txt");

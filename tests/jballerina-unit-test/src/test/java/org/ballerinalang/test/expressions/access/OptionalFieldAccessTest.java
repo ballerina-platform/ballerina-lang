@@ -110,7 +110,10 @@ public class OptionalFieldAccessTest {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
                 { "testUnavailableIntermediateAccessInNestedAccess" },
-                { "testNilValuedFinalAccessInNestedAccess" }
+                { "testNilValuedFinalAccessInNestedAccess" },
+                { "testSubtypeAssignment" },
+                { "testUnionAssignment" },
+                { "testNullableAssignment" }
         };
     }
 
@@ -167,9 +170,32 @@ public class OptionalFieldAccessTest {
         BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 
+    @Test(dataProvider = "optionalFieldRemovalFunctions")
+    public void testOptionalFieldRemoval(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalFieldRemovalFunctions")
+    public Object[][] optionalFieldRemovalFunctions() {
+        return new Object[][]{
+                {"testOptionalFieldRemovalBasicType"},
+                {"testOptionalFieldRemovalIndirect"},
+                {"testOptionalFieldRemovalComplex"}
+        };
+    }
+
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
+    }
+
+    @Test
+    public void testOptionalFieldAccessOnRecordsWithOnlyOptionalFields() {
+        Object return1 = BRunUtil.invoke(result, "getOptionalField1");
+        Assert.assertNull(return1);
+
+        Object return2 = BRunUtil.invoke(result, "getOptionalField2");
+        Assert.assertEquals(return2, 5L);
     }
 
     @AfterClass

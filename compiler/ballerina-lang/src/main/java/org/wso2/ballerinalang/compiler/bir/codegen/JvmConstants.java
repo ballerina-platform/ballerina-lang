@@ -181,7 +181,7 @@ public class JvmConstants {
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
-    public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
+    public static final String CONFIG_DETAILS = "io/ballerina/runtime/internal/configurable/providers/ConfigDetails";
     public static final String CLI_TEST_ARGS = "io/ballerina/runtime/internal/configurable/providers/cli/CliTestArgs";
     public static final String TEST_ARGUMENTS = "io/ballerina/runtime/internal/testable/TestArguments";
     public static final String TEST_CONFIG_ARGS = "io/ballerina/runtime/internal/testable/TestConfigArguments";
@@ -226,6 +226,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
+    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -252,6 +253,7 @@ public class JvmConstants {
     public static final String SYSTEM = "java/lang/System";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
     public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
+    public static final String RECEIVE_FIELD = "io/ballerina/runtime/internal/scheduling/WDChannels$ReceiveField";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -263,6 +265,7 @@ public class JvmConstants {
     // types related constants
     public static final String TYPES_ERROR = "TYPE_ERROR";
     public static final String TYPE_ANYDATA_ARRAY = "TYPE_ANYDATA_ARRAY";
+    public static final String TYPE_ANY_ARRAY = "TYPE_ANY_ARRAY";
 
     // error related constants
     public static final String PANIC_FIELD = "panic";
@@ -289,6 +292,7 @@ public class JvmConstants {
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
+    public static final String HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT = "handleRuntimeErrorReturns";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -344,8 +348,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
-    public static final String ENCODED_DOT_CHARACTER = "$0046";
-    public static final String ENCODED_JAVA_MODULE = "jballerina$0046java";
+    public static final String ENCODED_DOT_CHARACTER = "&0046";
+    public static final String ENCODED_JAVA_MODULE = "jballerina&0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
@@ -429,6 +433,16 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String GET_ELEMENT_OR_NIL = "getElementOrNil";
+    public static final String GET_ELEMENT = "getElement";
+    public static final String FILL_AND_GET = "fillAndGet";
+    public static final String GET_BOXED_VALUE = "get";
+    public static final String GET_UNBOXED_INT_VALUE = "getUnboxedIntValue";
+    public static final String GET_UNBOXED_FLOAT_VALUE = "getUnboxedFloatValue";
+    public static final String GET_STRING_VALUE = "getStringValue";
+    public static final String GET_UNBOXED_BOOLEAN_VALUE = "getUnboxedBooleanValue";
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

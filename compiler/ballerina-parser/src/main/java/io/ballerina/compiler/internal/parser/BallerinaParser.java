@@ -9978,9 +9978,9 @@ public class BallerinaParser extends AbstractParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] [transactional] worker worker-name return-type-descriptor { sequence-stmt }
-     * </code>
+     * [on-fail-clause]</code>
      *
-     * @param annots Annotations attached to the worker decl
+     * @param annots     Annotations attached to the worker decl
      * @param qualifiers Preceding transactional keyword in a list
      * @return Parsed node
      */
@@ -9992,8 +9992,9 @@ public class BallerinaParser extends AbstractParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode workerBody = parseBlockNode();
         endContext();
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createNamedWorkerDeclarationNode(annots, transactionalKeyword, workerKeyword, workerName,
-                returnTypeDesc, workerBody);
+                returnTypeDesc, workerBody, onFailClause);
     }
 
     private STNode getTransactionalKeyword(List<STNode> qualifierList) {
@@ -11949,10 +11950,11 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && 
+                (!isNestedQueryExpr() || (selectClause == null && collectClause == null))) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause, collectClause);
         }
 
         if (selectClause == null && collectClause == null) {
@@ -13068,7 +13070,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse receive action.
      * <p>
-     * <code>receive-action := single-receive-action | multiple-receive-action</code>
+     * <code>receive-action := single-receive-action | multiple-receive-action | alternate-receive-action</code>
+     * <p><code>
+     * single-receive-action := <- peer-worker
+     * <br></br>
+     * multiple-receive-action := <-  { receive-field (, receive-field)* }
+     * <br></br>
+     * alternate-receive-action := <- peer-worker (| peer-worker)*
+     * </code>
      *
      * @return Receive action
      */
@@ -13082,13 +13091,39 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
-                return parsePeerWorkerName();
+                return parseSingleOrAlternateReceiveWorkers();
             case OPEN_BRACE_TOKEN:
                 return parseMultipleReceiveWorkers();
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
                 return parseReceiveWorkers();
         }
+    }
+
+    private STNode parseSingleOrAlternateReceiveWorkers() {
+        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER);
+        List<STNode> workers = new ArrayList<>();
+        // Parse first peer worker name, that has no leading comma
+        STNode peerWorker = parsePeerWorkerName();
+        workers.add(peerWorker);
+
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
+            endContext();
+            return peerWorker;
+        }
+
+        // Parse the remaining peer worker names
+        while (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
+            STNode pipeToken = consume();
+            workers.add(pipeToken);
+            peerWorker = parsePeerWorkerName();
+            workers.add(peerWorker);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createAlternateReceiveNode(STNodeFactory.createNodeList(workers));
     }
 
     /**
@@ -13177,21 +13212,22 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
-                return createQualifiedReceiveField(identifier);
+                return createReceiveField(identifier);
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_FIELD);
                 return parseReceiveField();
         }
     }
 
-    private STNode createQualifiedReceiveField(STNode identifier) {
+    private STNode createReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
+        identifier = STNodeFactory.createSimpleNameReferenceNode(identifier);
         STNode colon = parseColon();
         STNode peerWorker = parsePeerWorkerName();
-        return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
+        return STNodeFactory.createReceiveFieldNode(identifier, colon, peerWorker);
     }
 
     /**
@@ -13553,7 +13589,8 @@ public class BallerinaParser extends AbstractParser {
      * @param selectClause       Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
+                                    STNode collectClause) {
         if (queryConstructType != null) {
             queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
                     DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
@@ -13561,6 +13598,10 @@ public class BallerinaParser extends AbstractParser {
         if (selectClause != null) {
             queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
                     DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
+        }
+        if (collectClause != null) {
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, collectClause,
+                    DiagnosticErrorCode.ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);

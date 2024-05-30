@@ -1,0 +1,10 @@
+[package]
+name = "winery"
+org = "foo"
+version = "0.1.0"
+
+[[platform.java17.dependency]]
+path = "../dummy-jars/ibm.mq.txt"
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+scope = "provided"

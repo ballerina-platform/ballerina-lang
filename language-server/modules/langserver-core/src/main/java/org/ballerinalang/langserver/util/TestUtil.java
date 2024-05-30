@@ -832,6 +832,7 @@ public class TestUtil {
         private OutputStream outputStream;
         private InitializeParams initializeParams;
         private final Map<String, Object> initOptions = new HashMap<>();
+        private ExtendedLanguageClient client;
 
         public LanguageServerBuilder withLanguageServer(BallerinaLanguageServer languageServer) {
             this.languageServer = languageServer;
@@ -853,6 +854,11 @@ public class TestUtil {
             return this;
         }
 
+        public LanguageServerBuilder withClient(ExtendedLanguageClient client) {
+            this.client = client;
+            return this;
+        }
+
         public Endpoint build() {
             if (languageServer == null) {
                 languageServer = new BallerinaLanguageServer();
@@ -866,9 +872,12 @@ public class TestUtil {
                 outputStream = OutputStream.nullOutputStream();
             }
 
-            Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
-                    ExtendedLanguageClient.class, inputStream, outputStream);
-            ExtendedLanguageClient client = launcher.getRemoteProxy();
+            if (client == null) {
+                Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
+                        ExtendedLanguageClient.class, inputStream, outputStream);
+                this.client = launcher.getRemoteProxy();
+            }
+
             languageServer.connect(client);
 
             if (initializeParams == null) {
@@ -923,6 +932,8 @@ public class TestUtil {
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
+            } else {
+                initializationOptions.put(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES, false);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
 

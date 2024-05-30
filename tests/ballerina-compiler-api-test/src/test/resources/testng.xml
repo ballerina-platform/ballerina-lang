@@ -125,6 +125,7 @@
             <class name="io.ballerina.semantic.api.test.expectedtype.QueryExpressionTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.FunctionCallExpressionTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.ClientResourceAccessActionNodeTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.AnnotationNodeTest" />
 
             <!--Expressions-->
             <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
@@ -174,6 +175,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInTupleTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.TypeDefPackageIdTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeDefSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.UnionTypeSymbolTest" />
@@ -199,6 +201,7 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
 
             <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfConditionalExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfNegativeTest" />

@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	dataproviders
 
+	intArrayDataProviderTest:0 has failed.
+
+
+	intArrayDataProviderTest:1 has failed.
+
+
 		[fail] intArrayDataProviderTest#0:
 
 		    error {ballerina/test:0}TestError ("The sum is not correct
@@ -36,10 +42,14 @@ Running Tests with Coverage
 		2 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****s
 
 Generating Test Report
 	data-providers\target\report\test_results.json

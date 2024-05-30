@@ -80,10 +80,13 @@ dependencies {
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+    testRuntimeOnly project(':project-api-test-artifact:sample-openapi-build-tool')
 
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -95,6 +98,11 @@ task createTestDistributionCache(type: Copy) {
 task copyCompilerPluginJars(type: Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
+}
+
+task copyProfilerResources(type: Copy) {
+    from project(':jballerina-tools').file('resources/profiler')
+    into "$buildDir/resources/profiler"
 }
 
 task createTestBre(type: Copy) {
@@ -109,6 +117,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
     dependsOn copyCompilerPluginJars
+    dependsOn copyProfilerResources
 
     systemProperty "ballerina.home", "$buildDir"
 

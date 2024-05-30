@@ -6,7 +6,7 @@ Compiling source
 Running Tests
 
 	failed-before-groups-test.bal
-	[fail] beforeGroupsFunc1[before test group function for the test]:
+	[fail] beforeGroupsFunc1[before groups function for the test]:
 	    error("Failed before group for g1")
 			callableName: beforeGroupsFunc1  fileName: failed-before-groups-test.bal lineNumber: 28
 			callableName: beforeGroupsFunc1$lambda1$  fileName: failed-before-groups-test.bal lineNumber: 96
@@ -19,4 +19,6 @@ Running Tests
 		3 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

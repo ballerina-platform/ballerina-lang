@@ -5,6 +5,12 @@ Running Tests with Coverage
 
 	rerun_failed
 
+	testFunctionFail1: has failed.
+
+
+	testFunctionFail2: has failed.
+
+
 		[fail] testFunctionFail1:
 
 		    error {ballerina/test:0}TestError ("Failed!")
@@ -27,6 +33,8 @@ Running Tests with Coverage
 		0 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	rerun-failed-tests\target\report\test_results.json

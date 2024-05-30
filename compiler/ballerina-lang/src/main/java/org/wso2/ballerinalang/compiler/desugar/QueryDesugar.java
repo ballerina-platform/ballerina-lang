@@ -20,6 +20,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -80,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -106,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -217,6 +220,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
     private static final Name QUERY_CREATE_COLLECT_FUNCTION = new Name("createCollectFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
+    private static final Name QUERY_CREATE_ON_CONFLICT_FUNCTION = new Name("createOnConflictFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
@@ -226,8 +230,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
+    private static final Name QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION = new Name("addToTableForOnConflict");
     private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
+    private static final Name QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION = new Name("addToMapForOnConflict");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
+    private static final Name QUERY_GET_STREAM_FOR_ON_CONFLICT_FROM_PIPELINE_FUNCTION = 
+            new Name("getStreamForOnConflictFromPipeline");
     private static final Name QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION = new Name("getQueryErrorRootCause");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final Name QUERY_BODY_DISTINCT_ERROR_NAME = new Name("Error");
@@ -295,23 +303,21 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();
         } else if (queryExpr.isTable) {
-            onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
-                    : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
+            Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_TABLE_FUNCTION
+                    : QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION;
             result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
+                        internalFuncName, Lists.of(streamRef, tableRef, isReadonly), pos);
             resultType = tableRef.getBType();
             onConflictExpr = null;
         } else if (queryExpr.isMap) {
-            onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
-                    : onConflictExpr;
             BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
+            Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_MAP_FUNCTION
+                    : QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION;
             result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
+                        internalFuncName, Lists.of(streamRef, mapLiteral, isReadonly), pos);
             onConflictExpr = null;
         } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
@@ -559,6 +565,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 case ON_CONFLICT:
                     final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;
                     onConflictExpr = onConflict.expression;
+                    BLangVariableReference onConflictRef = addOnConflictFunction(block, onConflict, 
+                            stmtsToBePropagated);
+                    addStreamFunction(block, initPipeline, onConflictRef);
                     break;
             }
         }
@@ -925,6 +934,28 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
+     * Desugar onConflictClause to below and return a reference to created onConflict _StreamFunction.
+     * _StreamFunction onConflictFunc = createOnConflictFunction
+     * @param blockStmt parent block to write to.
+     * @param onConflictClause  to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
+     * @return variableReference to created onConflict _StreamFunction.
+     */
+    BLangVariableReference addOnConflictFunction(BLangBlockStmt blockStmt, BLangOnConflictClause onConflictClause,
+                                                 List<BLangStatement> stmtsToBePropagated) {
+        Location pos = onConflictClause.pos;
+        BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
+        BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        // $frame#[$error$] = on-conflict-expr;
+        BLangStatement assignment = getAddToFrameStmt(pos, frame, "$error$", onConflictClause.expression);
+        body.stmts.add(body.stmts.size() - 1, assignment);
+        lambda = rewrite(lambda);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ON_CONFLICT_FUNCTION, Lists.of(lambda), pos);
+    }
+    /**
      * Desugar doClause to below and return a reference to created do _StreamFunction.
      * _StreamFunction doFunc = createDoFunction(function(_Frame frame) {
      * int x2 = <int> frame["x2"];
@@ -993,8 +1024,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         Location pos = pipelineRef.pos;
+        if (onConflictExpr == null) {
+            return getStreamFunctionVariableRef(blockStmt,
+                    QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
+        }
         return getStreamFunctionVariableRef(blockStmt,
-                QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
+                QUERY_GET_STREAM_FOR_ON_CONFLICT_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
     }
 
     /**
@@ -1903,19 +1938,23 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
+        if (symbol == null) {
+            result = bLangSimpleVarRef;
+            return;
+        }
+        if (symbol.kind == SymbolKind.VARIABLE || symbol.kind == SymbolKind.FUNCTION) {
+            BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+            if (originalSymbol != null) {
+                symbol = originalSymbol;
+            }
+        }
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol);
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
-        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
-                Names.fromString(identifier), SymTag.VARIABLE);
+
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
-        if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (symbol instanceof BVarSymbol) {
-                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
-                if (originalSymbol != null) {
-                    symbol = originalSymbol;
-                }
-            }
+        if (symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
             if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1960,15 +1999,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
             }
-        } else if (resolvedSymbol != symTable.notFoundSymbol && symbol != null) {
+        } else if (!resolvedSymbol.closure && resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
-            // When there's a type guard, there can be a enclSymbol before type narrowing.
-            // So, we have to mark that as a closure as well.
-            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
-                    Names.fromString(identifier), SymTag.VARIABLE);
-            if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
-                enclSymbol.closure = true;
-            }
         }
         result = bLangSimpleVarRef;
     }
@@ -2066,6 +2098,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (errorConstructorExpr.namedArgs != null) {
             rewrite(errorConstructorExpr.namedArgs);
         }
+        if (errorConstructorExpr.positionalArgs != null) {
+            rewrite(errorConstructorExpr.positionalArgs);
+        }
         errorConstructorExpr.errorDetail = rewrite(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
     }
@@ -2105,8 +2140,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        letExpr.expr = rewrite(letExpr.expr);
         letExpr.letVarDeclarations.forEach(var -> this.acceptNode((BLangNode) var.definitionNode));
+        letExpr.expr = rewrite(letExpr.expr);
         result = letExpr;
     }
 
@@ -2591,8 +2626,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     void updateIdentifiers(SymbolEnv env) {
         for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
-            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()),
-                    SymTag.SEQUENCE);
+            BSymbol symbol =
+                    symResolver.lookupSymbolInGivenScope(env, Names.fromString(identifier.getKey()), SymTag.SEQUENCE);
             if (symbol != symTable.notFoundSymbol && !identifier.getValue().closure) {
                     identifiers.put(identifier.getKey(), symbol);
             }
@@ -2716,8 +2751,24 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        for (BLangWorkerReceive bLangWorkerReceive : altWorkerReceive.getWorkerReceives()) {
+            acceptNode(bLangWorkerReceive);
+        }
+        result = altWorkerReceive;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : multipleWorkerReceive.getReceiveFields()) {
+            acceptNode(rvField.getKey());
+            acceptNode(rvField.getWorkerReceive());
+        }
+        result = multipleWorkerReceive;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.sendExpression = rewrite(workerReceiveNode.sendExpression);
         result = workerReceiveNode;
     }
 

@@ -39,15 +39,20 @@ public class TestFunctionVisitor extends NodeVisitor {
 
     static final List<String> TEST_STATIC_ANNOTATION_NAMES = List.of(
             "Config", "BeforeSuite", "AfterSuite", "BeforeGroups", "AfterGroups", "BeforeEach", "AfterEach");
+    static final String CONFIG_ANNOTATION = "Config";
     private static final String TEST_DYNAMIC_ANNOTATION_NAME = "Factory";
     private static final String TEST_MODULE_NAME = "test";
 
-    private final List<FunctionDefinitionNode> testStaticFunctions;
+    private final List<FunctionDefinitionNode> testSetUpTearDownFunctions;
     private final List<FunctionDefinitionNode> testDynamicFunctions;
+    private final List<FunctionDefinitionNode> testFunctions;
+    private final List<FunctionDefinitionNode> normalFunctions;
 
     public TestFunctionVisitor() {
-        this.testStaticFunctions = new ArrayList<>();
+        this.testSetUpTearDownFunctions = new ArrayList<>();
         this.testDynamicFunctions = new ArrayList<>();
+        this.testFunctions = new ArrayList<>();
+        this.normalFunctions = new ArrayList<>();
     }
 
     @Override
@@ -73,17 +78,29 @@ public class TestFunctionVisitor extends NodeVisitor {
                 String identifier = qualifiedNameReferenceNode.identifier().text();
                 if (TEST_MODULE_NAME.equals(modulePrefix)) {
                     if (TEST_STATIC_ANNOTATION_NAMES.contains(identifier)) {
-                        testStaticFunctions.add(functionDefinitionNode);
+                        if (CONFIG_ANNOTATION.equals(identifier)) {
+                            testFunctions.add(functionDefinitionNode);
+                        } else {
+                            testSetUpTearDownFunctions.add(functionDefinitionNode);
+                        }
                     } else if (TEST_DYNAMIC_ANNOTATION_NAME.equals(identifier)) {
                         testDynamicFunctions.add(functionDefinitionNode);
                     }
                 }
             }
+        } else {
+            normalFunctions.add(functionDefinitionNode);
         }
     }
 
     public List<FunctionDefinitionNode> getTestStaticFunctions() {
-        return this.testStaticFunctions;
+        List<FunctionDefinitionNode> testStaticFunctions = new ArrayList<>(testSetUpTearDownFunctions);
+        testStaticFunctions.addAll(testFunctions);
+        return testStaticFunctions;
+    }
+
+    public List<FunctionDefinitionNode> getNormalFunctions() {
+        return normalFunctions;
     }
 
     public List<FunctionDefinitionNode> getTestDynamicFunctions() {

@@ -22,6 +22,7 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -141,7 +142,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILL_AND_GET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_BOXED_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ELEMENT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ELEMENT_OR_NIL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_FLOAT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
@@ -157,6 +166,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_I
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
@@ -239,6 +249,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.JSON_SET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_STREAM_RANGE_CLOSED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_DUPLICATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_B_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
@@ -1469,32 +1483,62 @@ public class JvmInstructionGen {
 
         // visit key_expr
         this.loadVar(mapLoadIns.keyOp.variableDcl);
-
+        BType targetType = mapLoadIns.lhsOp.variableDcl.type;
+        this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        boolean shouldUnbox = true;
         if (varRefType.tag == TypeTags.JSON) {
-
             if (mapLoadIns.optionalFieldAccess) {
-                this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                                        JSON_GET_ELEMENT,
-                                        false);
+                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, GET_ELEMENT_OR_NIL, JSON_GET_ELEMENT, false);
             } else {
-                this.mv.visitTypeInsn(CHECKCAST , B_STRING_VALUE);
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement", JSON_GET_ELEMENT, false);
+                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, GET_ELEMENT, JSON_GET_ELEMENT, false);
             }
         } else {
             if (mapLoadIns.fillingRead) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, FILL_AND_GET,
                         PASS_OBJECT_RETURN_OBJECT, true);
             } else {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                        PASS_OBJECT_RETURN_OBJECT, true);
+                shouldUnbox = generateMapGet(varRefType, targetType);
             }
         }
 
         // store in the target reg
-        BType targetType = mapLoadIns.lhsOp.variableDcl.type;
-        jvmCastGen.addUnboxInsn(this.mv, targetType);
+        if (shouldUnbox) {
+            jvmCastGen.addUnboxInsn(this.mv, targetType);
+        }
         this.storeToVar(mapLoadIns.lhsOp.variableDcl);
+    }
+
+    boolean generateMapGet(BType mapType, BType expectedType) {
+        if (mapType.getKind() != TypeKind.RECORD) {
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, GET_BOXED_VALUE, PASS_OBJECT_RETURN_OBJECT, true);
+            return true;
+        }
+        return switch (expectedType.getKind()) {
+            case INT -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_INT_VALUE,
+                        PASS_B_STRING_RETURN_UNBOXED_LONG, false);
+                yield false;
+            }
+            case FLOAT -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_FLOAT_VALUE,
+                        PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false);
+                yield false;
+            }
+            case STRING -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_STRING_VALUE, PASS_B_STRING_RETURN_B_STRING,
+                        false);
+                yield true;
+            }
+            case BOOLEAN -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_BOOLEAN_VALUE,
+                        PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false);
+                yield false;
+            }
+            default -> {
+                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, GET_BOXED_VALUE, PASS_OBJECT_RETURN_OBJECT, true);
+                yield true;
+            }
+        };
     }
 
     void generateObjectLoadIns(BIRNonTerminator.FieldAccess objectLoadIns) {
@@ -1505,7 +1549,7 @@ public class JvmInstructionGen {
         this.loadVar(objectLoadIns.keyOp.variableDcl);
 
         // invoke get() method, and unbox if needed
-        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "get", BOBJECT_GET, true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, GET_BOXED_VALUE, BOBJECT_GET, true);
         BType targetType = objectLoadIns.lhsOp.variableDcl.type;
         jvmCastGen.addUnboxInsn(this.mv, targetType);
 
@@ -1683,7 +1727,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
         BType bType = inst.lhsOp.variableDcl.type;
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "get",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, GET_BOXED_VALUE,
                 PASS_OBJECT_RETURN_OBJECT, true);
 
         String targetTypeClass = getTargetClass(bType);

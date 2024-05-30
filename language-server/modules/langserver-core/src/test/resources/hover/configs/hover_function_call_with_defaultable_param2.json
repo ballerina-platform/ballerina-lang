@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "This is function4 with input parameters\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***param1*** : param1 Parameter Description   \n`int` ***param2*** : param2 Parameter Description  \n`string` ***param3*** : param3 Parameter Description  \n`float[]...` ***param4*** : param4 Parameter Description  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/module1/0.1.0#function4)"
+        "value": "This is function4 with input parameters\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***param1*** : param1 Parameter Description   \n`int` ***param2*** : param2 Parameter Description  \n`string` ***param3*** : param3 Parameter Description  \n`float...` ***param4*** : param4 Parameter Description  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/module1/0.1.0#function4)"
       }
     },
     "id": {

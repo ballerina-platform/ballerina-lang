@@ -67,6 +67,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -249,6 +250,19 @@ public class CommonUtil {
     }
 
     /**
+     * Whether the given module is a langlib module or the Ballerina test module.
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} <code>true</code> if the given module is either a langlib module or
+     * the Ballerina test module. <code>false</code> otherwise.
+     */
+    public static boolean isLangLibOrLangTest(ModuleID moduleID) {
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return orgName.equals("ballerina") && (moduleName.startsWith("lang.") ||  moduleName.equals("test"));
+    }
+
+    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier
@@ -328,6 +342,63 @@ public class CommonUtil {
             return rawType;
         }
         return typeDescriptor;
+    }
+
+    /**
+     * Check whether the given type is an error type or union of error types.
+     *
+     * @param type type descriptor to evaluate
+     * @return {@link Boolean} is error type or union or error types
+     */
+    public static boolean isErrorOrUnionOfErrors(TypeSymbol type) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            return true;
+        }
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .allMatch(CommonUtil::isErrorOrUnionOfErrors);
+            }
+            return isErrorOrUnionOfErrors(rawType);
+        }
+        return false;
+    }
+    
+    private static void getErrorTypes(TypeSymbol type, TypeSymbol typeRef, List<TypeSymbol> errorTypes) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            errorTypes.add(Objects.requireNonNullElse(typeRef, type));
+        } else if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                UnionTypeSymbol unionRawType = (UnionTypeSymbol) rawType;
+                if (unionRawType.memberTypeDescriptors().stream().allMatch(CommonUtil::isErrorOrUnionOfErrors)) { 
+                    errorTypes.add(type);    
+                } else {
+                    for (TypeSymbol memberType : unionRawType.userSpecifiedMemberTypes()) {
+                        getErrorTypes(memberType, memberType, errorTypes);
+                    }
+                }
+            } else {
+                getErrorTypes(rawType, type, errorTypes);
+            }
+        }
+    }
+
+    /**
+     * Extract member error types from the union type.
+     *
+     * @param unionType union type descriptor to evaluate
+     * @return {@link List<TypeSymbol>} member error types
+     */
+    public static List<TypeSymbol> extractErrorTypesFromUnion(UnionTypeSymbol unionType) {
+        List<TypeSymbol> exactErrorTypes = new ArrayList<>();
+        for (TypeSymbol memType : unionType.userSpecifiedMemberTypes()) {
+            getErrorTypes(memType, null, exactErrorTypes);
+        }
+        return exactErrorTypes;
     }
 
     /**

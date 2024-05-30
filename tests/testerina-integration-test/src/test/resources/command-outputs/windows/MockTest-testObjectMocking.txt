@@ -1,11 +1,32 @@
 Compiling source
 	intg_tests/object_mocking:0.0.0
-WARNING [modules\TestHttpClient\main.bal:(54:45,54:82)] this function should explicitly return a value
-WARNING [main.bal:(47:5,47:47)] unused variable 'closeErr'
+WARNING [modules\TestHttpClient\main.bal:(64:45,64:82)] this function should explicitly return a value
+WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr'
 
 Running Tests with Coverage
 
 	object_mocking
+
+	testDefaultIncompatibleArgs has failed.
+
+
+	testDefaultInvalidMemberReturnValue has failed.
+
+
+	testDefaultMockInvalidFieldName has failed.
+
+
+	testDefaultMockInvalidReturnValue has failed.
+
+
+	testDefaultMockWrongAction has failed.
+
+
+	testDefaultTooManyArgs has failed.
+
+
+	testMockInvalidStream has failed.
+
 		[pass] testDependentlyTypedFunctions_testDouble
 		[pass] testDependentlyTypedFunctions_thenReturn
 		[pass] testMockMemberVariable
@@ -19,8 +40,8 @@ Running Tests with Coverage
 		[fail] testDefaultIncompatibleArgs:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '1' to mock the function 'get()'")
-				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 346
-				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 132
+				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 535
+				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 160
 				callableName: testDefaultIncompatibleArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 56
 				callableName: testDefaultIncompatibleArgs$lambda3$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 7
 			
@@ -28,8 +49,8 @@ Running Tests with Coverage
 		[fail] testDefaultInvalidMemberReturnValue:
 
 		    error {ballerina/test:0}InvalidMemberFieldError ("return value provided does not match the type of 'url'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 212
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 373
 				callableName: testDefaultInvalidMemberReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 74
 				callableName: testDefaultInvalidMemberReturnValue$lambda5$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
@@ -37,8 +58,8 @@ Running Tests with Coverage
 		[fail] testDefaultMockInvalidFieldName:
 
 		    error {ballerina/test:0}InvalidMemberFieldError ("invalid field name 'invalidField' provided")
-				callableName: validateFieldNameExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 337
-				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 95
+				callableName: validateFieldNameExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 526
+				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 123
 				callableName: testDefaultMockInvalidFieldName moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 65
 				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 8
 			
@@ -46,8 +67,8 @@ Running Tests with Coverage
 		[fail] testDefaultMockInvalidReturnValue:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get()'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 176
 				callableName: testDefaultMockInvalidReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 35
 				callableName: testDefaultMockInvalidReturnValue$lambda0$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
@@ -55,8 +76,8 @@ Running Tests with Coverage
 		[fail] testDefaultMockWrongAction:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get()'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: doNothing moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 180
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: doNothing moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 208
 				callableName: testDefaultMockWrongAction moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 42
 				callableName: testDefaultMockWrongAction$lambda1$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 5
 			
@@ -64,8 +85,8 @@ Running Tests with Coverage
 		[fail] testDefaultTooManyArgs:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("too many argument provided to mock the function 'get()'")
-				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 346
-				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 132
+				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 535
+				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 160
 				callableName: testDefaultTooManyArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 49
 				callableName: testDefaultTooManyArgs$lambda2$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
 			
@@ -73,8 +94,8 @@ Running Tests with Coverage
 		[fail] testMockInvalidStream:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get_stream()'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 176
 				callableName: testMockInvalidStream moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 81
 				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
 			
@@ -83,6 +104,8 @@ Running Tests with Coverage
 		9 passing
 		7 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	object-mocking-tests\target\report\test_results.json

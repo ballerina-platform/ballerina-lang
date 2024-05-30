@@ -18,6 +18,16 @@
 
 package io.ballerina.cli.utils;
 
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.Schema;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -87,5 +97,35 @@ public class FileUtils {
             int lastWindowsPos = filename.lastIndexOf(92);
             return Math.max(lastUnixPos, lastWindowsPos);
         }
+    }
+
+    public static String readSchema(String toolName, ClassLoader classLoader) throws IOException {
+        String schemaFilePath = toolName + "-options-schema.json";
+        InputStream inputStream = classLoader.getResourceAsStream(schemaFilePath);
+
+        if (inputStream == null) {
+            throw new FileNotFoundException("Schema file for tool options inputStream not found: " + schemaFilePath);
+        }
+        StringBuilder sb = new StringBuilder();
+        try (
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                BufferedReader br = new BufferedReader(inputStreamReader);
+        ) {
+            String content;
+            while ((content = br.readLine()) != null) {
+                if (sb.length() > 0) {
+                    sb.append('\n');
+                }
+                sb.append(content);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static void validateToml(Toml optionsToml, String toolName, ClassLoader classLoader) throws IOException {
+        Schema schema = Schema.from(FileUtils.readSchema(toolName, classLoader));
+        TomlValidator tomlValidator = new TomlValidator(schema);
+        tomlValidator.validate(optionsToml);
     }
 }

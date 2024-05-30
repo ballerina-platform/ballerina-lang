@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -135,7 +136,23 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public Long getIntValue(BString key) {
-        return (Long) get(key);
+        Object value = get(key);
+        if (value instanceof Integer) { // field is an int subtype
+            return ((Integer) value).longValue();
+        }
+        return (Long) value;
+    }
+
+    public long getUnboxedIntValue(BString key) {
+        return getIntValue(key);
+    }
+
+    public double getUnboxedFloatValue(BString key) {
+        return getFloatValue(key);
+    }
+
+    public boolean getUnboxedBooleanValue(BString key) {
+        return getBooleanValue(key);
     }
 
     public Double getFloatValue(BString key) {
@@ -289,6 +306,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
+    public V putForcefully(K key, V value) {
+        return putValue(key, value);
+    }
+
+    public void setTypeForcefully(Type type) {
+        this.type = type;
+        this.referredType = getImpliedType(type);
+    }
+
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -361,22 +387,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair)) {
+                return true;
+            }
         }
+        visitedValues.add(compValuePair);
 
-        if (o == null || getClass() != o.getClass()) {
-           return false;
-        }
-
-        MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
-
-        if (mapValue.type.getTag() != this.type.getTag()) {
-            return false;
-        }
-
-        if (mapValue.referredType.getTag() != this.referredType.getTag()) {
+        if (!(o instanceof MapValueImpl<?, ?> mapValue)) {
             return false;
         }
 
@@ -384,7 +404,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return false;
         }
 
-        return entrySet().equals(mapValue.entrySet());
+        if (!this.keySet().containsAll(mapValue.keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<K, V>> mapIterator = this.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<K, V> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), mapValue.get(lhsMapEntry.getKey()), visitedValues)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

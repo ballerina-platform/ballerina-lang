@@ -22,6 +22,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	depends-on\target\report\test_results.json
-
+

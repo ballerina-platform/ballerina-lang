@@ -13,14 +13,16 @@
           "type": "string",
           "pattern": "^[a-zA-Z0-9_.]*$",
           "maxLength": 256,
+          "minLength": 1,
           "message": {
             "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
-            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters"
+            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters",
+            "minLength": "invalid 'name' under [package]: 'name' cannot be empty"
           },
           "allOf": [
             {
               "type": "string",
-              "pattern": "^(?!_).+",
+              "pattern": "^(?!_).*",
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have initial underscore characters"
               }
@@ -41,7 +43,7 @@
             },
             {
               "type": "string",
-              "pattern": "^(?![0-9]).+",
+              "pattern": "^(?![0-9]).*",
               "message": {
                 "pattern": "invalid 'name' under [package]: 'name' cannot have initial numeric characters"
               }
@@ -52,14 +54,16 @@
           "type": "string",
           "pattern": "^[a-zA-Z0-9_]*$",
           "maxLength": 256,
+          "minLength": 1,
           "message": {
             "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics and underscores",
-            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters"
+            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters",
+            "minLength": "invalid 'org' under [package]: 'org' cannot be empty"
           },
           "allOf": [
             {
               "type": "string",
-              "pattern": "^(?!_).+",
+              "pattern": "^(?!_).*",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have initial underscore characters"
               }
@@ -80,7 +84,7 @@
             },
             {
               "type": "string",
-              "pattern": "^(?![0-9]).+",
+              "pattern": "^(?![0-9]).*",
               "message": {
                 "pattern": "invalid 'org' under [package]: 'org' cannot have initial numeric characters"
               }
@@ -345,6 +349,15 @@
         },
         "taintCheck": {
           "type": "boolean"
+        }
+      }
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "configPath": {
+          "type": "string"
         }
       }
     }

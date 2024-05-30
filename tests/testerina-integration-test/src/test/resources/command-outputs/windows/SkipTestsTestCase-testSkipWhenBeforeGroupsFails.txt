@@ -7,7 +7,7 @@ WARNING [skip-when-beforeGroups-fails.bal:(32:5,32:17)] unused variable 'b'
 Running Tests
 
 	skip-when-beforeGroups-fails.bal
-	[fail] beforeGroupsFunc2[before test group function for the test]:
+	[fail] beforeGroupsFunc2[before groups function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeGroupsFunc2  fileName: skip-when-beforeGroups-fails.bal lineNumber: 32
 			callableName: beforeGroupsFunc2$lambda2$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 86
@@ -31,7 +31,7 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuiteFunc  fileName: skip-when-beforeGroups-fails.bal lineNumber: 81
-			callableName: afterSuiteFunc$lambda9$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 93
+			callableName: afterSuiteFunc$lambda4$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 88
 		
 		[pass] testFunction
 		[pass] testFunction2
@@ -40,4 +40,6 @@ Running Tests
 		2 passing
 		0 failing
 		3 skipped
+
+		Test execution time :*****s
 error: there are test failures

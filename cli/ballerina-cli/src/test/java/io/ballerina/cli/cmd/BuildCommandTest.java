@@ -24,8 +24,11 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
@@ -45,6 +48,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
@@ -53,6 +57,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 
@@ -92,7 +97,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // name of the file as argument
@@ -120,7 +125,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalFileWithOutputFlag() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "foo.jar");
         // name of the file as argument
@@ -257,7 +262,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
@@ -348,7 +353,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a ballerina project with conflicted jars")
     public void testBuildBalProjectWithJarConflicts() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -364,10 +369,38 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
+    @Test(description = "Build a ballerina project with provided scope platform jars")
+    public void testBuildProjectWithProvidedJars() {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("error: compilation contains errors"));
+        }
+    }
+
+    @Test(description = "Build a valid ballerina project with provided scope platform jars in dependencies")
+    public void testBuildProjectWithProvidedWarning() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("projectWithProvidedDependency")
+                .resolve("pkg_a"), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("projectWithProvidedDependency").resolve("pkg_b");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("project-with-provided-warning.txt"));
+    }
+
     @Test(description = "Build a valid ballerina project with java imports")
     public void testBuildJavaBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJavaProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
@@ -401,7 +434,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project")
     public void testBuildProjectWithTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
@@ -418,7 +451,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project")
     public void testBuildMultiModuleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
@@ -442,7 +475,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project with build options in toml")
     public void testBuildProjectWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
@@ -462,7 +495,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project with build options in toml")
     public void testBuildProjectOverrideBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
@@ -493,7 +526,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project with build options in toml")
     public void testSingleFileWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
@@ -518,7 +551,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid Standalone ballerina file with build options")
     public void testSingleFileOverrideBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
@@ -540,7 +573,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildBalFileNoWritePermission() {
         Path balFilePath = this.testResources.resolve("valid-bal-file-no-permission").resolve("hello_world.bal");
 
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file-no-permission").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file-no-permission").toString());
         balFilePath.getParent().toFile().setWritable(false, false);
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
@@ -558,7 +591,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithNoWritePermission() {
         Path balFilePath = this.testResources.resolve("validProject-no-permission");
 
-        System.setProperty("user.dir", this.testResources.resolve("validProject-no-permission").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("validProject-no-permission").toString());
         balFilePath.getParent().toFile().setWritable(false, false);
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
@@ -576,7 +609,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithEmptyBallerinaToml() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
 
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         System.setProperty(USER_NAME, "john");
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -594,21 +627,42 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package with compiler plugin")
     public void testBuildEmptyProjectWithCompilerPlugin() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-project-with-compiler-plugin.txt"));
+        }
+    }
 
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-project-with-compiler-plugin.txt"));
+    @Test(description = "Build an empty package with code generator build tools")
+    public void testBuildEmptyProjectWithBuildTools() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Build an empty package with tests only")
     public void testBuildEmptyProjectWithTestsOnly() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
@@ -622,7 +676,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package with Non Default modules")
     public void testBuildEmptyProjectWithNonDefaultModules() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
@@ -636,7 +690,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package with Non Default modules with Tests only")
     public void testBuildEmptyProjectWithNonDefaultModulesTestOnly() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
@@ -650,20 +704,23 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package with empty Non Default")
     public void testBuildEmptyNonDefaultModule() throws IOException {
         Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-nondefault-module.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-nondefault-module.txt"));
+        }
     }
 
     @Test(description = "Build a package with an invalid user name")
     public void testBuildWithInvalidOrgName() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         System.setProperty("user.name", "$org");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
@@ -686,7 +743,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("correctJarPackage"), testDistCacheDirectory, projectEnvironmentBuilder);
 
         Path projectPath = this.testResources.resolve("inconsistentConflictedJars").resolve("conflictedJarsProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         // Check build output which contains conflicted jars for 10 consecutive builds
         for (int i = 0; i < 10; i++) {
@@ -701,7 +758,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test
     public void testDumpBuildTimeForPackage() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , true);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -718,7 +775,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testDumpBuildTimeForStandaloneFile() throws IOException {
         Path balFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
-        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false , true);
         new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         buildCommand.execute();
@@ -736,7 +793,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testCustomTargetDir() {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path customTargetDir = projectPath.resolve("customTargetDir");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parseArgs();
@@ -752,7 +809,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testCustomTargetDirWithTests() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         Path customTargetDir = projectPath.resolve("customTargetDir2");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parseArgs();
@@ -770,29 +827,33 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package")
     public void testBuildEmptyPackage() throws IOException {
         Path projectPath = this.testResources.resolve("emptyPackage");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-package.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
     }
 
     @Test(description = "Build an empty package with compiler plugin")
     public void testBuildEmptyPackageWithCompilerPlugin() throws IOException {
         Path projectPath = this.testResources.resolve("emptyPackageWithCompilerPlugin");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-package.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
     }
 
     @Test(description = "Build a ballerina project with the flag dump-graph")
@@ -804,7 +865,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectEnvironmentBuilder);
 
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-graph");
@@ -828,7 +889,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectEnvironmentBuilder);
 
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
@@ -846,7 +907,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Test bir cached project build performance")
     public void testBirCachedProjectBuildPerformance() {
         Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         cleanTarget(projectPath);
 
@@ -867,7 +928,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Test bir cached project build performance followed by a test command")
     public void testBirCachedProjectBuildPerformanceAfterTestCommand() {
         Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         cleanTarget(projectPath);
 
@@ -928,7 +989,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a new ballerina project without sticky flag", groups = {"proj-with-deps-update-policy"})
     public void testBuildNewBalProjectWithoutStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
@@ -951,7 +1012,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build a new ballerina project with sticky flag", groups = {"proj-with-deps-update-policy"})
     public void testBuildNewBalProjectWithStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
@@ -976,7 +1037,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectPrecompiledWithOlderDistWithoutStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
@@ -1009,7 +1070,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
@@ -1042,7 +1103,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(
                 projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
@@ -1076,7 +1137,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(
                 projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
@@ -1109,7 +1170,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
@@ -1139,7 +1200,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
@@ -1160,6 +1221,94 @@ public class BuildCommandTest extends BaseCommandTest {
         replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
                 "**INSERT_DISTRIBUTION_VERSION_HERE**");
         deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @DataProvider(name = "toolPropertiesDiagnostics")
+    public Object[][] provideToolPropertiesDiagnostics() {
+        return new Object[][] {
+                {
+                        "build-tool-with-invalid-missing-toml-properties",
+                        "build-tool-with-invalid-missing-toml-properties.txt",
+                        "error: build tool execution contains errors"
+                },
+                {
+                        "build-tool-with-invalid-missing-optional-toml-properties",
+                        "build-tool-with-invalid-missing-optional.txt",
+                        "error: compilation contains errors"
+                },
+                {
+                        "build-tool-with-diagnostics",
+                        "build-tool-with-diagnostics.txt",
+                        "error: build tool execution contains errors"
+                },
+                {
+                        "build-tool-with-recurring-tool-properties",
+                        "build-tool-with-recurring-tool-properties.txt",
+                        "error: build tool execution contains errors"
+                }
+        };
+    }
+
+    @Test(description = "Build a project with invalid or missing toml entries for build tools",
+        dataProvider = "toolPropertiesDiagnostics")
+    public void testBuildProjectWithBuildToolTomlPropertyDiagnostics(String projectName, String outputFile,
+        String error) throws IOException {
+        Path projectPath = this.testResources.resolve(projectName);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput(outputFile));
+            Assert.assertEquals(error, e.getDetailedMessages().get(0));
+        }
+    }
+
+    @Test(description = "Build a project with a build tool execution")
+    public void testBuildProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+            getOutput("build-bal-project-with-build-tool.txt"));
+    }
+
+    @Test(description = "Build a project with a build tool not found")
+    public void testBuildProjectWithBuildToolNotFound() throws IOException {
+        Path projectPath = this.testResources.resolve("build-tool-not-found");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    getOutput("build-bal-project-with-build-tool-not-found.txt"));
+            Assert.assertEquals("error: build tool execution contains errors", e.getDetailedMessages().get(0));
+        }
+    }
+
+    @Test(description = "Build a project with invalid fields in TOML array 'dependency'")
+    public void testBuildProjectWithInvalidDependencyArrayInBallerinaToml() throws IOException {
+        Path projectPath = this.testResources.resolve("invalid-dependency-array-project");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    getOutput("build-bal-project-with-invalid-dependency-array.txt"));
+        }
     }
 
     private String getNewVersionForOldDistWarning() {
@@ -1256,7 +1405,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testGraalVMCompatibilityOfJavaImportedProject() throws IOException {
         // Project contains only dist provided Java dependencies
         Path projectPath = this.testResources.resolve("validJavaProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs("--graalvm");
@@ -1285,7 +1434,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testGraalVMCompatibilityOfJavaProject(String projectName, String warning) throws IOException {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve(projectName);
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs("--graalvm");
@@ -1303,7 +1452,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testGraalVMCompatibilityOfAnyProject() throws IOException {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("validApplicationProject");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs("--graalvm");

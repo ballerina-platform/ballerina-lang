@@ -345,6 +345,10 @@ public class TestSuite {
         return this.testExecutionDependencies;
     }
 
+    public void removeAllTestExecutionDependencies() {
+        this.testExecutionDependencies.clear();
+    }
+
     public boolean isSingleDDTExecution() {
         return this.isSingleDDTExecution;
     }

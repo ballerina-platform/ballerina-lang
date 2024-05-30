@@ -862,6 +862,26 @@ function testJoinedQueryActionWithRegExp() {
     "(?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??AAAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??A)|)|^|PQ?)|)|^|PQ?");
 }
 
+function testQueryActionWithCollectClauseInsideLeClause1() {
+    int[][] arr = [[1, 2], [3, 4], [5, 6]];
+    int total = 0;
+    from var i in arr
+        let int tot = from var j in i collect sum(j)
+        do {
+            total += tot;
+        };
+    assertEquality(21, total);
+}
+
+function testQueryActionWithCollectClauseInsideLeClause2() {
+    float[][] items = [[1.1, 2.1], [3.1, 4.1], [5.2, 6.2]];
+    from var i in items
+    let float tot = from var j in i collect sum(j)
+    do {
+        
+    };
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

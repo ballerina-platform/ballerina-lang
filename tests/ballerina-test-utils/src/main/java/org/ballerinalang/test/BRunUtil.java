@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -323,6 +323,7 @@ public class BRunUtil {
         String classPathString = System.getProperty("java.class.path") + classPath;
         // Create an argument file for Windows to mitigate the long classpath issue.
         if (IS_WINDOWS) {
+            classPathString = classPathString.replace(" ", "%20");
             String classPathArgs = "classPathArgs";
             try {
                 File classPathArgsFile = File.createTempFile(classPathArgs, ".txt");
@@ -369,12 +370,12 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+        ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
                 new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
+        runOnSchedule(initClazz, "$moduleInit", scheduler);
+        runOnSchedule(initClazz, "$moduleStart", scheduler);
 //        if (temp) {
 //            scheduler.immortal = true;
 //            new Thread(scheduler::start).start();
@@ -395,6 +396,26 @@ public class BRunUtil {
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
+    }
+
+    public static void runOnSchedule(CompileResult compileResult, String functionName, Scheduler scheduler) {
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
+                getClassName(function.pos.lineRange().fileName()));
+        Class<?> funcClass = null;
+        try {
+            funcClass = compileResult.getClassLoader().loadClass(funcClassName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+        }
+        runOnSchedule(funcClass, functionName, scheduler);
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler) {
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), scheduler);
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
@@ -418,6 +439,7 @@ public class BRunUtil {
             };
             final FutureValue out = scheduler
                     .schedule(new Object[1], func, null, null, null, PredefinedTypes.TYPE_ANY, null, null);
+            Scheduler.setDaemonStrand(out.strand);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

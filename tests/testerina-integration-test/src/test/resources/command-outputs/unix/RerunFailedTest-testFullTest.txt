@@ -4,6 +4,12 @@ Compiling source
 Running Tests with Coverage
 
 	rerun_failed
+
+	testFunctionFail1: has failed.
+
+
+	testFunctionFail2: has failed.
+
 		[pass] testFunctionPass1
 		[pass] testFunctionPass2
 
@@ -29,6 +35,8 @@ Running Tests with Coverage
 		2 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	rerun-failed-tests/target/report/test_results.json

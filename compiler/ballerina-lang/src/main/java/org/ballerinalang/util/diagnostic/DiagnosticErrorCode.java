@@ -119,8 +119,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("BCE2082", "worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("BCE2083", "worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("BCE2084", "worker.interactions.only.allowed.between.peers"),
-    WORKER_SEND_AFTER_RETURN("BCE2085", "worker.send.after.return"),
-    WORKER_RECEIVE_AFTER_RETURN("BCE2086", "worker.receive.after.return"),
+    INVALID_WORKER_SEND_NO_MATCHING_WORKER_RECEIVE("BCE2085", "invalid.worker.send.no.matching.worker.receive"),
+    INVALID_WORKER_RECEIVE_NO_MATCHING_WORKER_SEND("BCE2086", "invalid.worker.receive.no.matching.worker.send"),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("BCE2087", "explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("BCE2088", "worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("BCE2089", "incompatible.type.reference"),
@@ -174,6 +174,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
             "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
     CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED("BCE2138", "cyclic.type.reference.not.yet.supported"),
+    INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD("BCE2139",
+            "invalid.spread.field.to.create.closed.record.from.open.record"),
+    INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH("BCE2140", "invalid.spread.field.rest.field.mismatch"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -584,9 +587,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("BCE3840", "invalid.type.for.receive"),
     INVALID_TYPE_FOR_SEND("BCE3841", "invalid.type.for.send"),
-
-    INVALID_USAGE_OF_RECEIVE_EXPRESSION("BCE3842", "invalid.usage.of.receive.expression"),
+    RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR("BCE3842", "receive.action.not.supported.with.var.type"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
+    MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND("BCE3844", "multiple.receive.compatible.type.not.found"),
+    DUPLICATE_KEY_IN_MULTIPLE_RECEIVE("BCE3845", "duplicate.key.in.multiple.receive"),
+    WORKER_RECEIVE_AFTER_NON_ERROR_RETURN("BCE3846", "worker.receive.after.non.error.return"),
 
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("BCE3900", "type.param.outside.lang.module"),
@@ -722,14 +727,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD(
             "BCE3988", "mismatched.visibility.qualifiers.in.object.field"),
     INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS("BCE3989", "invalid.inclusion.of.object.with.private.members"),
-
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3990", "multiple.receive.action.not.yet.supported"),
 
     INVALID_READONLY_FIELD_TYPE("BCE3991", "invalid.readonly.field.type"),
 
     CONTINUE_NOT_ALLOWED("BCE3992", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3993", "break.not.allowed"),
-    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3994", "type.does.not.support.xml.navigation.access"),
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3995", "xml.function.does.not.support.argument.type"),
 
     INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3996", "intersection.not.allowed.with.type"),
@@ -815,7 +818,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
-    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail")
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
     ;
 
     private String diagnosticId;

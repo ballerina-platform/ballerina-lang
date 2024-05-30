@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
@@ -214,23 +215,36 @@ public class ClientResourceAccessActionNodeContext
         Optional<TypeSymbol> parameterSymbol = getParameterTypeSymbol(context);
         for (int i = 0; i < completionItems.size(); i++) {
             LSCompletionItem completionItem = completionItems.get(i);
-            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+            LSCompletionItem.CompletionItemType type = completionItem.getType();
+            if (type == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 sortNamedArgCompletionItem(context, completionItem);
             } else if (parameterSymbol.isEmpty()) {
-                sortParameterlessCompletionItem(context, completionItem);
-            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-                if (symbolCompletionItem.getSymbol().isPresent() &&
-                        symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
-                    completionItem.getCompletionItem().setSortText(
-                            SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()) +
-                                    SortingUtil.genSortText(i + 1));
-                }
-                sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
+                sortParameterlessCompletionItem(context, i, completionItem);
+            } else if (type == LSCompletionItem.CompletionItemType.SYMBOL) {
+                sortSymbolCompletionItem(context, parameterSymbol.get(), i, completionItem);
             } else {
                 sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
             }
         }
+    }
+
+    private static void sortParameterlessCompletionItem(BallerinaCompletionContext context, int rank,
+                                                          LSCompletionItem completionItem) {
+        completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                SortingUtil.toRank(context, completionItem)) + SortingUtil.genSortText(rank + 1));
+    }
+
+    private static void sortSymbolCompletionItem(BallerinaCompletionContext context, TypeSymbol parameterSymbol,
+                                                   int rank, LSCompletionItem completionItem) {
+        SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+        Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
+        if (symbol.isPresent() && symbol.get().kind() == SymbolKind.RESOURCE_METHOD) {
+            completionItem.getCompletionItem().setSortText(
+                    SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol) +
+                            SortingUtil.genSortText(rank + 1));
+            return;
+        }
+        sortDefaultCompletionItem(context, parameterSymbol, completionItem);
     }
 
     private List<LSCompletionItem> getPathSegmentCompletionItems(ClientResourceAccessActionNode node,
@@ -343,9 +357,10 @@ public class ClientResourceAccessActionNodeContext
                     return Pair.of(Collections.emptyList(), false);
                 }
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
-                    Optional<TypeSymbol> exprType =
-                            semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
-                    if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
+                    ExpressionNode exprNode = ((ComputedResourceAccessSegmentNode) node).expression();
+                    Optional<TypeSymbol> exprType = semanticModel.get().typeOf(exprNode);
+                    if (exprType.isEmpty() || !ResourcePathCompletionUtil.checkSubtype(typeSymbol, exprType.get(),
+                            exprNode.toString())) {
                         return Pair.of(Collections.emptyList(), false);
                     }
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
@@ -353,8 +368,9 @@ public class ClientResourceAccessActionNodeContext
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
-                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
-                        && semanticModel.get().types().STRING.subtypeOf(typeSymbol)) {
+                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN &&
+                        ResourcePathCompletionUtil.checkSubtype(typeSymbol, semanticModel.get().types().STRING,
+                                "\"" + ((IdentifierToken) node).text() + "\"")) {
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
                             && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;

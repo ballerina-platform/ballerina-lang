@@ -25,7 +25,7 @@ package org.ballerinalang.test.runtime.util;
  */
 public class TesterinaConstants {
 
-    public static final String DOT_REPLACER = "$0046";
+    public static final String DOT_REPLACER = "&0046";
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
     public static final String TESTERINA_TEMP_DIR = ".testerina";
     public static final String TESTERINA_TEST_SUITE = "test_suit.json";
@@ -100,5 +100,29 @@ public class TesterinaConstants {
 
     public static final int IDENTIFIER_START_INDEX = 1;
     public static final int IDENTIFIER_END_INDEX = 5;
+    public static final int DEFAULT_TEST_WORKERS = 1;
+    public static final String MODIFIED_JAR_SUFFIX = HYPHEN + MODIFIED + JAR_EXTENSION;
 
+    private TesterinaConstants() {
+    }
+
+    /**
+     * RuntimeArgs identifies the indices of the BTestMain arg.
+     *
+     * @since 2201.9.0
+     */
+    public static class RunTimeArgs {
+        public static final int IS_FAT_JAR_EXECUTION = 0;
+        public static final int TEST_SUITE_JSON_PATH = 1;
+        public static final int TARGET_DIR = 2;
+        public static final int JACOCO_AGENT_PATH = 3;
+        public static final int REPORT = 4;
+        public static final int COVERAGE = 5;
+        public static final int GROUP_LIST = 6;
+        public static final int DISABLE_GROUP_LIST = 7;
+        public static final int SINGLE_EXEC_TESTS = 8;
+        public static final int IS_RERUN_TEST_EXECUTION = 9;
+        public static final int LIST_GROUPS = 10;
+        public static final int IS_PARALLEL_EXECUTION = 11;
+    }
 }

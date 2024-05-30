@@ -14,6 +14,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	predeclared-import-tests\target\report\test_results.json
-
+

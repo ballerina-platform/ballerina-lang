@@ -78,7 +78,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
                         settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout());
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
                 JsonElement triggerSearchResult = client.getTriggers(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
                 CentralTriggerListResult centralTriggerListResult = new Gson().fromJson(
@@ -111,7 +111,7 @@ public class BallerinaTriggerService implements ExtendedLanguageServerService {
                     getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             if (request.getTriggerId() != null) {
                 trigger = client.getTrigger(request.getTriggerId(), "any", RepoUtils.getBallerinaVersion());
                 return Optional.of(trigger);

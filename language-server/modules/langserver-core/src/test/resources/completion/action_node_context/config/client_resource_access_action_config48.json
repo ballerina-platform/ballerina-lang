@@ -1,0 +1,138 @@
+{
+  "position": {
+    "line": 21,
+    "character": 30
+  },
+  "source": "action_node_context/source/client_resource_access_action_source39.bal",
+  "description": "Test completions after a resource path with the same prefix",
+  "items": [
+    {
+      "label": "/[string second]",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GA",
+      "filterText": "|get",
+      "insertText": "/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 29
+            },
+            "end": {
+              "line": 21,
+              "character": 30
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/<second>",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GB",
+      "filterText": "|get",
+      "insertText": "/${1:path};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 29
+            },
+            "end": {
+              "line": 21,
+              "character": 30
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/[string second]/Third(string val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GC",
+      "filterText": "Third|get",
+      "insertText": "/[${1:\"path\"}]/Third(${2});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 29
+            },
+            "end": {
+              "line": 21,
+              "character": 30
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/<second>/Third(string val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GD",
+      "filterText": "Third|get",
+      "insertText": "/${1:path}/Third(${2});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 29
+            },
+            "end": {
+              "line": 21,
+              "character": 30
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

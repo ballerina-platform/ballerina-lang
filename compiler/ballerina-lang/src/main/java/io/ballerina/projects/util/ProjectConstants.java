@@ -16,8 +16,6 @@
  *  under the License.
  */
 package io.ballerina.projects.util;
-
-
 /**
  * Defines constants related to the project directory.
  *
@@ -44,6 +42,7 @@ public class ProjectConstants {
     public static final String DEVCONTAINER = ".devcontainer.json";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
+    public static final String README_MD_FILE_NAME = "README.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
@@ -51,6 +50,7 @@ public class ProjectConstants {
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
+    public static final String JAVA_CLASS_EXT = ".class";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -85,6 +85,7 @@ public class ProjectConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TESTS_CACHE_DIR_NAME = "tests_cache";
     public static final String TEST_DIR_NAME = "tests";
+    public static final String USER_DIR_PROPERTY = "user.dir";
 
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".bala";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
@@ -111,7 +112,13 @@ public class ProjectConstants {
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
+    public static final String TEST_UBER_JAR_SUFFIX = "-testable";
+    public static final String FAT_JAR_ROOT_DIR = "/";
+    public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
+    public static final String EXCLUDED_CLASSES_FILE = "excludedClasses.txt";
+
     public static final String TEST_SUITE = "test_suite";
+    public static final String TEST_SUITE_JSON = "test_suit.json";
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
     public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
@@ -131,4 +138,10 @@ public class ProjectConstants {
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
+    public static final String PROFILER_DIR_NAME = "profiler";
+    public static final String TOOL_CACHE_DIR = "tool-cache";
+    public static final String TOOL_DIAGNOSTIC_CODE_PREFIX = "BCE53";
+    public static final String ORG = "org";
+    public static final String PACKAGE_NAME = "name";
+    public static final String LOCAL_TOOLS_JSON = "local-tools.json";
 }

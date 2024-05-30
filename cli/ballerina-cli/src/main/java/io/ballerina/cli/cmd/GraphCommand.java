@@ -23,6 +23,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CreateDependencyGraphTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -30,7 +31,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -64,7 +64,7 @@ public class GraphCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--offline"}, description = "Print the dependency graph offline without downloading " +
-            "dependencies.", defaultValue = "false")
+            "dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)",
@@ -99,16 +99,11 @@ public class GraphCommand implements BLauncherCmd {
             return;
         }
 
-        if (ProjectUtils.isProjectEmpty(this.project)) {
-            printErrorAndExit("package is empty. Please add at least one .bal file.");
-            return;
-        }
-
         validateSettingsToml();
-
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(true, false), isSingleFileProject())
+                .addTask(new RunBuildToolsTask(outStream), isSingleFileProject())
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CreateDependencyGraphTask(outStream, errStream))
                 .build();

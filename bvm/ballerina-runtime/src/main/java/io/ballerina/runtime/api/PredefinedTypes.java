@@ -151,6 +151,10 @@ public class PredefinedTypes {
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
 
     public static final Type TYPE_READONLY_XML = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_XML);
+    public static final Type TYPE_XML_ELEMENT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
+    public static final Type TYPE_XML_COMMENT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
+    public static final Type TYPE_XML_PI_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
+    public static final Type TYPE_XML_TEXT_SEQUENCE = new BXmlType(PredefinedTypes.TYPE_TEXT, false);
 
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
@@ -166,6 +170,7 @@ public class PredefinedTypes {
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
     public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, TYPE_NULL,
             EMPTY_MODULE);
+    public static final ArrayType TYPE_ANY_ARRAY = new BArrayType(TYPE_ANY);
 
     public static final JsonType TYPE_JSON;
     public static final JsonType TYPE_READONLY_JSON;

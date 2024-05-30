@@ -163,9 +163,8 @@ public class XMLAccessTest {
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
                         "xmlns:k=\"bar\">C</k:child><it-child xmlns=\"foo\">D</it-child>TEXT");
         Assert.assertEquals(returns.get(2).toString(),
-                "<child xmlns=\"foo\">A</child>" +
-                        "<child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
-                        "<it-child xmlns=\"foo\">D</it-child>");
+                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
+                        "xmlns:k=\"bar\">C</k:child><it-child xmlns=\"foo\">D</it-child>");
         Assert.assertEquals(returns.get(3).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>");
         Assert.assertEquals(returns.get(4).toString(),
@@ -180,8 +179,8 @@ public class XMLAccessTest {
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns.get(2).toString(),
-                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
-                        "<child2 xmlns=\"foo\">D</child2>");
+                "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
+                        "xmlns:k=\"bar\">C</k:child><child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns.get(3).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child><k:child xmlns=\"foo\" " +
                         "xmlns:k=\"bar\">C</k:child><child2 xmlns=\"foo\">D</child2>");
@@ -225,6 +224,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLNavigationWithEscapeCharacter() {
+        BRunUtil.invoke(navigation, "testXMLNavigationWithEscapeCharacter");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 5);
@@ -255,6 +259,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testInvalidXMLUnionAccessWithNegativeIndex() {
+        BRunUtil.invoke(result, "testInvalidXMLUnionAccessWithNegativeIndex");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithNegativeIndex() {
         BRunUtil.invoke(result, "testInvalidXMLAccessWithNegativeIndex");
     }
@@ -262,6 +271,21 @@ public class XMLAccessTest {
     @Test
     public void testXmlAccessWithLargerIndex() {
         BRunUtil.invoke(result, "testXmlAccessWithLargerIndex");
+    }
+
+    @Test
+    public void testXmlIndexedAccessWithUnionType() {
+        BRunUtil.invoke(result, "testXmlIndexedAccessWithUnionType");
+    }
+
+    @Test
+    public void testXmlNavigationWithUnionType() {
+        BRunUtil.invoke(navigation, "testXmlNavigationWithUnionType");
+    }
+
+    @Test
+    public void testXmlNavigationWithDefaultNamespaceDefinedAfter() {
+        BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
     }
 
     @Test
@@ -307,6 +331,42 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationFilterNegative, index++,
                 "cannot find xml namespace prefix 'foo'", 13, 16);
         Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
+    }
+
+    @Test
+    void testXmlStepExprWithUnionTypeNegative() {
+        CompileResult navigationStepExprNegative =
+                BCompileUtil.compile("test-src/types/xml/xml_step_expr_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml<xml:Element>|int)'", 23, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml<xml:Element>|int)'", 24, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Comment|string)'", 27, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Comment|string)'", 28, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Element|xml:ProcessingInstruction|record {| xml x; " +
+                        "|})'", 31, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Element|xml:ProcessingInstruction|record {| xml x; " +
+                        "|})'", 32, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Text|xml:ProcessingInstruction|boolean)'", 35, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '(xml:Text|xml:ProcessingInstruction|boolean)'", 36, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found 'XCE'", 39, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found 'XCE'", 40, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '" +
+                        "(xml<xml:Element>|xml<xml:Comment>|xml<xml:ProcessingInstruction>|xml:Text|int)'", 43, 9);
+        BAssertUtil.validateError(navigationStepExprNegative, index++,
+                "incompatible types: expected 'xml', found '" +
+                        "(xml<xml:Element>|xml<xml:Comment>|xml<xml:ProcessingInstruction>|xml:Text|int)'", 44, 9);
+        Assert.assertEquals(navigationStepExprNegative.getErrorCount(), index);
     }
 
     @AfterClass

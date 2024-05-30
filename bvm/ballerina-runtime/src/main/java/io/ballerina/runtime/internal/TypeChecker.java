@@ -30,7 +30,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -75,6 +74,7 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.ValuePair;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
@@ -376,7 +376,7 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
-        return isEqual(lhsValue, rhsValue, new ArrayList<>());
+        return isEqual(lhsValue, rhsValue, new HashSet<>());
     }
 
     /**
@@ -416,7 +416,7 @@ public class TypeChecker {
 
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
-     * result as {@link #isEqual(Object, Object, List)}
+     * result as {@link #isEqual(Object, Object, Set)}
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
@@ -471,7 +471,7 @@ public class TypeChecker {
                         lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
             default:
                 if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
-                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                    return ((RegExpValue) lhsValue).equals(rhsValue, new HashSet<>());
                 }
                 return false;
         }
@@ -552,10 +552,10 @@ public class TypeChecker {
      *
      * @param sourceType type to check
      * @param targetType type to compare with
-     * @return flag indicating the the equivalence of the two types
+     * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return checkIsType(sourceType, targetType, (List<TypePair>) null);
+        return checkIsType(sourceType, targetType, null);
     }
 
     @Deprecated
@@ -1953,6 +1953,7 @@ public class TypeChecker {
             case TypeTags.TYPEDESC_TAG:
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
+            case TypeTags.REG_EXP_TYPE_TAG:    
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
@@ -2473,11 +2474,10 @@ public class TypeChecker {
 
     private static boolean checkIsLikeTupleType(Object sourceValue, BTupleType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
 
-        ArrayValue source = (ArrayValue) sourceValue;
         List<Type> targetTypes = targetType.getTupleTypes();
         int sourceTypeSize = source.size();
         int targetTypeSize = targetTypes.size();
@@ -2932,7 +2932,7 @@ public class TypeChecker {
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues) {
+    public static boolean isEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -2944,7 +2944,7 @@ public class TypeChecker {
         return checkValueEquals(lhsValue, rhsValue, checkedValues, getType(lhsValue), getType(rhsValue));
     }
 
-    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues,
+    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues,
                                             Type lhsValType, Type rhsValType) {
         lhsValType = getImpliedType(lhsValType);
         rhsValType = getImpliedType(rhsValType);
@@ -2980,40 +2980,37 @@ public class TypeChecker {
                 return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
-                if (lhsValue instanceof XmlText) {
-                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                if (lhsValue instanceof XmlText xmlText) {
+                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && xmlText.equals(rhsValue, checkedValues);
                 }
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlSequence) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlSequence) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.XML_ELEMENT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlItem) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlItem) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.XML_COMMENT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlComment) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlComment) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.XML_TEXT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlText) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.XML_PI_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlPi) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlPi) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((MapValueImpl) lhsValue, (MapValueImpl) rhsValue,
-                        checkedValues);
+                return isMappingType(rhsValTypeTag) && ((MapValueImpl) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) &&
-                        isEqual((ArrayValue) lhsValue, (ArrayValue) rhsValue, checkedValues);
+                return isListType(rhsValTypeTag) && ((ArrayValue) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.ERROR_TAG:
-                return rhsValTypeTag == TypeTags.ERROR_TAG &&
-                        isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
+                return rhsValTypeTag == TypeTags.ERROR_TAG && ((ErrorValue) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
-                        isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+                        ((TableValueImpl) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return checkValueEquals(lhsValue, rhsValue, checkedValues,
                         ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
             case TypeTags.SERVICE_TAG:
             default:
-                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
-                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                if (lhsValue instanceof RegExpValue) {
+                    return ((RegExpValue) lhsValue).equals(rhsValue, checkedValues);
                 }
                 return false;
         }
@@ -3027,242 +3024,7 @@ public class TypeChecker {
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
     }
 
-    /**
-     * Deep equality check for an array/tuple.
-     *
-     * @param lhsList The array/tuple on the left hand side
-     * @param rhsList The array/tuple on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the array/tuple values are equal, else false.
-     */
-    private static boolean isEqual(ArrayValue lhsList, ArrayValue rhsList, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsList.size() != rhsList.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.get(i), rhsList.get(i), checkedValues)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Deep equality check for a map.
-     *
-     * @param lhsMap Map on the left hand side
-     * @param rhsMap Map on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the map values are equal, else false.
-     */
-    private static boolean isEqual(MapValueImpl lhsMap, MapValueImpl rhsMap, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsMap.size() != rhsMap.size()) {
-            return false;
-        }
-
-        if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
-            return false;
-        }
-
-        Iterator<Map.Entry<BString, Object>> mapIterator = lhsMap.entrySet().iterator();
-        while (mapIterator.hasNext()) {
-            Map.Entry<BString, Object> lhsMapEntry = mapIterator.next();
-            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Deep equality check for a table.
-     *
-     * @param lhsTable      Table on the left hand side
-     * @param rhsTable      Table on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the table values are equal, else false.
-     */
-    private static boolean isEqual(TableValueImpl lhsTable, TableValueImpl rhsTable, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsTable, rhsTable);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsTable.size() != rhsTable.size()) {
-            return false;
-        }
-
-        boolean isLhsKeyedTable =
-                ((BTableType) getImpliedType(lhsTable.getType())).getFieldNames().length > 0;
-        boolean isRhsKeyedTable =
-                ((BTableType) getImpliedType(rhsTable.getType())).getFieldNames().length > 0;
-
-        Object[] lhsTableValues = lhsTable.values().toArray();
-        Object[] rhsTableValues = rhsTable.values().toArray();
-
-        if (isLhsKeyedTable == isRhsKeyedTable) {
-            for (int i = 0; i < lhsTableValues.length; i++) {
-                if (!isEqual(lhsTableValues[i], rhsTableValues[i], checkedValues)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Deep equality check for regular expressions.
-     *
-     * @param lhsRegExp Regular expression on the left hand side
-     * @param rhsRegExp Regular expression on the right hand side
-     * @return True if the regular expression values are equal, else false.
-     */
-    private static boolean isEqual(RegExpValue lhsRegExp, RegExpValue rhsRegExp) {
-        return lhsRegExp.stringValue(null).equals(rhsRegExp.stringValue(null));
-    }
-
-    /**
-     * Deep equality check for error.
-     *
-     * @param lhsError The error on the left hand side
-     * @param rhsError The error on the right hand side
-     * @param checkedValues Errors already compared or being compared
-     * @return True if the error values are equal, else false.
-     */
-    private static boolean isEqual(ErrorValue lhsError, ErrorValue rhsError, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsError, rhsError);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
-                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
-    }
-
-    /**
-     * Deep equality check for XML Sequence.
-     *
-     * @param lhsXMLSequence The XML sequence on the left hand side
-     * @param rhsXml The XML on the right hand side
-     * @return True if the XML values are equal, else false.
-     */
-    private static boolean isEqual(XmlSequence lhsXMLSequence, XmlValue rhsXml) {
-        if (rhsXml instanceof XmlSequence) {
-            XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
-            return isXMLSequenceChildrenEqual(lhsXMLSequence.getChildrenList(), rhsXMLSequence.getChildrenList());
-        }
-        if (rhsXml instanceof XmlItem) {
-            return lhsXMLSequence.getChildrenList().size() == 1 &&
-                    isEqual(lhsXMLSequence.getChildrenList().get(0), rhsXml);
-        }
-        return lhsXMLSequence.getChildrenList().isEmpty() &&
-                TypeUtils.getType(rhsXml) == PredefinedTypes.TYPE_XML_NEVER;
-    }
-
-    /**
-     * Deep equality check for XML item.
-     *
-     * @param lhsXMLItem The XML item on the left hand side
-     * @param rhsXml The XML on the right hand side
-     * @return True if the XML values are equal, else false.
-     */
-    private static boolean isEqual(XmlItem lhsXMLItem, XmlValue rhsXml) {
-        if (rhsXml instanceof XmlItem) {
-            XmlItem rhsXMLItem = (XmlItem) rhsXml;
-            if (!(rhsXMLItem.getQName().equals(lhsXMLItem.getQName()))) {
-                return false;
-            }
-            if (!(rhsXMLItem.getAttributesMap().entrySet().equals(lhsXMLItem.getAttributesMap().entrySet()))) {
-                return false;
-            }
-            return isEqual(rhsXMLItem.getChildrenSeq(), lhsXMLItem.getChildrenSeq());
-        }
-        if (rhsXml instanceof XmlSequence) {
-            XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
-            return rhsXMLSequence.getChildrenList().size() == 1 &&
-                    isEqual(lhsXMLItem, rhsXMLSequence.getChildrenList().get(0));
-        }
-        return false;
-    }
-
-    /**
-     * Deep equality check for XML Text.
-     *
-     * @param lhsXMLText The XML text on the left hand side
-     * @param rhsXml The XML on the right hand side
-     * @return True if the XML values are equal, else false.
-     */
-    private static boolean isEqual(XmlText lhsXMLText, XmlValue rhsXml) {
-        if (rhsXml instanceof XmlText) {
-            XmlText rhsXMLText = (XmlText) rhsXml;
-            return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
-        }
-        return lhsXMLText.getType() == PredefinedTypes.TYPE_XML_NEVER && rhsXml instanceof XmlSequence &&
-                ((XmlSequence) rhsXml).getChildrenList().isEmpty();
-    }
-
-    /**
-     * Deep equality check for XML Comment.
-     *
-     * @param lhsXMLComment The XML comment on the left hand side
-     * @param rhsXml The XML on the right hand side
-     * @return True if the XML values are equal, else false.
-     */
-    private static boolean isEqual(XmlComment lhsXMLComment, XmlValue rhsXml) {
-        if (!(rhsXml instanceof XmlComment)) {
-            return false;
-        }
-        XmlComment rhXMLComment = (XmlComment) rhsXml;
-        return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
-    }
-
-    /**
-     * Deep equality check for XML Processing Instruction.
-     *
-     * @param lhsXMLPi The XML processing instruction on the left hand side
-     * @param rhsXml The XML on the right hand side
-     * @return True if the XML values are equal, else false.
-     */
-    private static boolean isEqual(XmlPi lhsXMLPi, XmlValue rhsXml) {
-        if (!(rhsXml instanceof XmlPi)) {
-            return false;
-        }
-        XmlPi rhsXMLPi = (XmlPi) rhsXml;
-        return lhsXMLPi.getData().equals(rhsXMLPi.getData()) && lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
-    }
-
-    private static boolean isXMLSequenceChildrenEqual(List<BXml> lhsList, List<BXml> rhsList) {
-        if (lhsList.size() != rhsList.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.get(i), rhsList.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    static boolean isRegExpType(Type targetType) {
+    public static boolean isRegExpType(Type targetType) {
         if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type referredType = ((BTypeReferenceType) targetType).getReferredType();
             Module referredTypePackage = referredType.getPackage();
@@ -3278,16 +3040,15 @@ public class TypeChecker {
 
     static boolean isStructuredType(Type type) {
         Type referredType = getImpliedType(type);
-        switch (referredType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.TABLE_TAG:
-                return true;
-            default:
-                return false;
-        }
+        return switch (referredType.getTag()) {
+            case TypeTags.ARRAY_TAG,
+                    TypeTags.TUPLE_TAG,
+                    TypeTags.MAP_TAG,
+                    TypeTags.RECORD_TYPE_TAG,
+                    TypeTags.TABLE_TAG ->
+                    true;
+            default -> false;
+        };
     }
 
     /**
@@ -3306,11 +3067,9 @@ public class TypeChecker {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof TypePair)) {
+            if (!(obj instanceof TypePair other)) {
                 return false;
             }
-
-            TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
         }
     }
@@ -3326,42 +3085,6 @@ public class TypeChecker {
         HandleValue lhsHandle = (HandleValue) lhsValue;
         HandleValue rhsHandle = (HandleValue) rhsValue;
         return lhsHandle.getValue() == rhsHandle.getValue();
-    }
-
-    /**
-     * Unordered value vector of size two, to hold two values being compared.
-     *
-     * @since 0.995.0
-     */
-    private static class ValuePair {
-        ArrayList<Object> valueList = new ArrayList<>(2);
-
-        ValuePair(Object valueOne, Object valueTwo) {
-            valueList.add(valueOne);
-            valueList.add(valueTwo);
-        }
-
-        @Override
-        public boolean equals(Object otherPair) {
-            if (!(otherPair instanceof ValuePair)) {
-                return false;
-            }
-
-            ArrayList otherList = ((ValuePair) otherPair).valueList;
-            ArrayList currentList = valueList;
-
-            if (otherList.size() != currentList.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < otherList.size(); i++) {
-                if (!otherList.get(i).equals(currentList.get(i))) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 
     /**
@@ -3397,6 +3120,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return checkFillerValue((BObjectType) type);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkFillerValue((BRecordType) type, unanalyzedTypes);
@@ -3442,7 +3166,7 @@ public class TypeChecker {
 
     private static boolean isSameBasicTypeWithFillerValue(List<Type> memberTypes) {
 
-        // here finite types and non finite types are separated
+        // here finite types and non-finite types are separated
         // for finite types only all their value space items are collected
         List<Type> nonFiniteTypes = new ArrayList<>();
         Set<Object> combinedValueSpace = new HashSet<>();
@@ -3459,11 +3183,11 @@ public class TypeChecker {
             // only finite types are there, so the check narrows to one finite type like case
             return hasFillerValueInValueSpace(combinedValueSpace);
         } else {
-            // non finite types are available
+            // non-finite types are available
             Iterator<Type> iterator = nonFiniteTypes.iterator();
             Type firstMember = iterator.next();
 
-            // non finite types are checked whether they are the same type
+            // non-finite types are checked whether they are the same type
             Type nextMember;
             while (iterator.hasNext()) {
                 nextMember = iterator.next();
@@ -3477,8 +3201,8 @@ public class TypeChecker {
                 return hasFillerValue(firstMember);
             }
 
-            // both finite and non finite types are available
-            // finite types are checked whether they are the type of non finite types
+            // both finite and non-finite types are available
+            // finite types are checked whether they are the type of non-finite types
             if (!containsSameBasicType(firstMember, combinedValueSpace)) {
                 return false;
             }
@@ -3514,15 +3238,10 @@ public class TypeChecker {
     }
 
     private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {
-        switch (value.toString()) {
-            case "0":
-            case "0.0":
-            case "false":
-            case "":
-                return true;
-            default:
-                return false;
-        }
+        return switch (value.toString()) {
+            case "0", "0.0", "false", "" -> true;
+            default -> false;
+        };
     }
 
     private static boolean containsSameBasicType (Type nonFiniteType, Set<Object> finiteTypeValueSpace) {
@@ -3556,20 +3275,16 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BObjectType type) {
-        if (type.getTag() == TypeTags.SERVICE_TAG) {
+        MethodType generatedInitMethod = type.getGeneratedInitMethod();
+        if (generatedInitMethod == null) {
+            // abstract objects doesn't have a filler value.
             return false;
-        } else {
-            MethodType generatedInitMethod = type.getGeneratedInitMethod();
-            if (generatedInitMethod == null) {
-                // abstract objects doesn't have a filler value.
-                return false;
-            }
-            FunctionType initFuncType = generatedInitMethod.getType();
-            // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameters().length == 0;
-            boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
-            return noParams && nilReturn;
         }
+        FunctionType initFuncType = generatedInitMethod.getType();
+        boolean noParams = initFuncType.getParameters().length == 0;
+        boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
+        return noParams && nilReturn;
+
     }
 
     private static boolean checkFillerValue(BFiniteType type) {

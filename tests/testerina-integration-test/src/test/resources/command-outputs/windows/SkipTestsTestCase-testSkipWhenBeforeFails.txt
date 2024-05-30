@@ -31,7 +31,7 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuite  fileName: skip-when-before-fails.bal lineNumber: 54
-			callableName: afterSuite$lambda5$  fileName: skip-when-before-fails.bal lineNumber: 62
+			callableName: afterSuite$lambda2$  fileName: skip-when-before-fails.bal lineNumber: 59
 		
 		[pass] test3
 
@@ -39,4 +39,6 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

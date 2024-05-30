@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 2,
+    "character": 43
+  },
+  "source": "make_variable_immutable22.bal",
+  "description": "Make immutable of a variable within an expression-bodied function",
+  "expected": [
+    {
+      "title": "Add 'final' and 'readonly' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "final "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 5
+            },
+            "end": {
+              "line": 0,
+              "character": 5
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

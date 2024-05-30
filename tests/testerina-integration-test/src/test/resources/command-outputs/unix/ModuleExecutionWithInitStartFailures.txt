@@ -16,6 +16,9 @@ error: Error from start of moduleC
 	at wso2.moduleExecutionInitStartFailure.moduleC.0.Listener:start(main.bal:32)
 
 	moduleExecutionInitStartFailure.moduleB
+
+	test2: has failed.
+
 		[pass] test1
 		[pass] test3
 
@@ -35,4 +38,6 @@ error: Error from start of moduleC
 		2 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

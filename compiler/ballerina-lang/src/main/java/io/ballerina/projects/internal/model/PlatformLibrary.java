@@ -28,6 +28,7 @@ public class PlatformLibrary {
     String artifactId; //?
     String groupId; //?
     String version; //?
+    String scope;
 
     public void setPath(String path) {
         this.path = path;
@@ -45,6 +46,15 @@ public class PlatformLibrary {
         this.version = version;
     }
 
+    /**
+     * Sets the platform library scope.
+     *
+     * @param scope scope of the platform library
+     */
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
     public String getPath() {
         return path;
     }
@@ -59,5 +69,14 @@ public class PlatformLibrary {
 
     public String getVersion() {
         return version;
+    }
+
+    /**
+     * Returns the platform library scope.
+     *
+     * @return scope
+     */
+    public String getScope() {
+        return scope;
     }
 }

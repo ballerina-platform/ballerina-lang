@@ -89,6 +89,96 @@ public class XMLToRecordConverterTests {
     private final Path sample9Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_9.bal");
 
+    private final Path sample10XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_10.xml");
+    private final Path sample10Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_10.bal");
+
+    private final Path sample11XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_11.xml");
+    private final Path sample11Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_11.bal");
+
+    private final Path sample12XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_12.xml");
+    private final Path sample12Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_12.bal");
+
+    private final Path sample13XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_13.xml");
+    private final Path sample13Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_13.bal");
+
+    private final Path sample14XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_14.xml");
+    private final Path sample14Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_14.bal");
+
+    private final Path sample15XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_15.xml");
+    private final Path sample15Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_15.bal");
+
+    private final Path sample16XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_16.xml");
+    private final Path sample16Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_16.bal");
+
+    private final Path sample17XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_17.xml");
+    private final Path sample17Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_17.bal");
+
+    private final Path sample18XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_18.xml");
+    private final Path sample18Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_18.bal");
+
+    private final Path sample19XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_19.xml");
+    private final Path sample19Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_19.bal");
+
+    private final Path sample20XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_20.xml");
+    private final Path sample20Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_20.bal");
+
+    private final Path sample21XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_21.xml");
+    private final Path sample21Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_21.bal");
+
+    private final Path sample22XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_22.xml");
+    private final Path sample22Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_22.bal");
+
+    private final Path sample23XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_23.xml");
+    private final Path sample23Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_23.bal");
+
+    private final Path sample24XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_24.xml");
+    private final Path sample24Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_24.bal");
+
+    private final Path sample25XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_25.xml");
+    private final Path sample25Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_25.bal");
+
+    private final Path sample26XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_26.xml");
+    private final Path sample26Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_26.bal");
+
+    private final Path sample27XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_27.xml");
+    private final Path sample27Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_27.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -182,16 +272,183 @@ public class XMLToRecordConverterTests {
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
+    @Test(description = "testXMLWithOptionalFields1")
+    public void testXMLWithOptionalFields1() throws IOException {
+        String xmlFileContent = Files.readString(sample10XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample10Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithOptionalFields2")
+    public void testXMLWithOptionalFields2() throws IOException {
+        String xmlFileContent = Files.readString(sample11XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample11Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithOptionalFieldsInNestedNodes")
+    public void testXMLWithOptionalFieldsInNestedNodes() throws IOException {
+        String xmlFileContent = Files.readString(sample12XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample12Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithOptionalFieldsInMultipleNestedNodes")
+    public void testXMLWithOptionalFieldsInMultipleNestedNodes() throws IOException {
+        String xmlFileContent = Files.readString(sample13XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample13Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleNamespaces")
+    public void testXMLWithMultipleNamespaces() throws IOException {
+        String xmlFileContent = Files.readString(sample14XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample14Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testComplexXMLWithMultipleNamespaces")
+    public void testComplexXMLWithMultipleNamespaces() throws IOException {
+        String xmlFileContent = Files.readString(sample15XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample15Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testComplexXMLWithMultipleNamespacesAndRecurringNodes")
+    public void testComplexXMLWithMultipleNamespacesAndRecurringNodes() throws IOException {
+        String xmlFileContent = Files.readString(sample16XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample16Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testWithAttribute")
+    public void testWithAttribute() throws IOException {
+        String xmlFileContent = Files.readString(sample17XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample17Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testWithMultipleAttributes")
+    public void testWithMultipleAttributes() throws IOException {
+        String xmlFileContent = Files.readString(sample18XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample18Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithNamespacesWithoutNamespaceAnnotation")
+    public void testXMLWithNamespacesWithoutNamespaceAttribute() throws IOException {
+        String xmlFileContent = Files.readString(sample19XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                        "amount", false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample19Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleAttributesAndNamespacesWithoutAnnotations")
+    public void testXMLWithMultipleAttributesAndNamespacesWithoutAnnotations() throws IOException {
+        String xmlFileContent = Files.readString(sample20XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample20Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleAttributesAndNamespacesWithAnnotations")
+    public void testXMLWithMultipleAttributesAndNamespacesWithAnnotations() throws IOException {
+        String xmlFileContent = Files.readString(sample21XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample21Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespacePrefix")
+    public void testXMLWithoutNamespacePrefix() throws IOException {
+        String xmlFileContent = Files.readString(sample22XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample22Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithConflictingElementAndAttributeNames")
+    public void testXMLWithConflictingElementAndAttributeNames() throws IOException {
+        String xmlFileContent = Files.readString(sample23XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample23Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespaces")
+    public void testXMLWithoutNamespaces() throws IOException {
+        String xmlFileContent = Files.readString(sample24XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample24Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
     @Test(description = "testXMLToRecordService")
     public void testXMLToRecordService() throws IOException, ExecutionException, InterruptedException {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         String xmlValue = Files.readString(sample0XML);
 
-        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false);
+        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false, null, true);
         CompletableFuture<?> result = serviceEndpoint.request(XMLToRecordServiceEP, request);
         XMLToRecordResponse response = (XMLToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test xml record request with text field name and without namespace")
+    public void testXMLToRecordServiceWithFieldNameAndWithoutNamespace()
+            throws IOException, ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+        String xmlValue = Files.readString(sample25XML);
+
+        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false, "__text", false);
+        CompletableFuture<?> result = serviceEndpoint.request(XMLToRecordServiceEP, request);
+        XMLToRecordResponse response = (XMLToRecordResponse) result.get();
+        String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample25Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleAttributes")
+    public void testXMLWithMultipleAttributes() throws IOException {
+        String xmlFileContent = Files.readString(sample26XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample26Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespaceAnnotations")
+    public void testXMLWithoutNamespaceAnnotations() throws IOException {
+        String xmlFileContent = Files.readString(sample27XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample27Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }

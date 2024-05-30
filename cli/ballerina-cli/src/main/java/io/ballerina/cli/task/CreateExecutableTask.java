@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.BuildUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.projects.EmitResult;
@@ -29,8 +30,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,10 +37,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -57,9 +52,13 @@ public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
+    private Target target;
+    private final boolean isHideTaskOutput;
 
-    public CreateExecutableTask(PrintStream out, String output) {
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
         this.out = out;
+        this.target = target;
+        this.isHideTaskOutput = isHideTaskOutput;
         if (output != null) {
             this.output = Paths.get(output);
         }
@@ -67,34 +66,18 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
-
-        if (!project.buildOptions().nativeImage()) {
-            this.out.println("Generating executable");
+        if (!isHideTaskOutput) {
+            this.out.println();
+            if (!project.buildOptions().nativeImage()) {
+                this.out.println("Generating executable");
+            }
         }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
-        Target target;
-
-        try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.targetDir());
-            } else {
-                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
-                target.setOutputPath(getExecutablePath(project));
-            }
-        } catch (IOException e) {
-            throw createLauncherException("unable to resolve target path:" + e.getMessage());
-        } catch (ProjectException e) {
-            throw createLauncherException("unable to create executable:" + e.getMessage());
+        if (target == null) {
+            target = getTarget(project);
         }
-
-        Path executablePath;
-        try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
+        Path executablePath = getExecutablePath(project, target);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
@@ -127,23 +110,16 @@ public class CreateExecutableTask implements Task {
                 }
             }
 
-            List<Diagnostic> diagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
-            if (!diagnostics.isEmpty()) {
-                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
-                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
-                diagnostics = diagnostics.stream()
-                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
-                        .collect(Collectors.toList());
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
-                }
+            // Print diagnostics found during emit executable
+            if (!emitResult.diagnostics().diagnostics().isEmpty() && !isHideTaskOutput) {
+                emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
 
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage()) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {
@@ -160,13 +136,30 @@ public class CreateExecutableTask implements Task {
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
-        notifyPlugins(project, target);
+        BuildUtils.notifyPlugins(project, target);
     }
 
-    private void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
+    private Target getTarget(Project project) {
+        Target target;
+        try {
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+                target = new Target(project.targetDir());
+            } else {
+                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
+                target.setOutputPath(getExecutablePath(project));
+            }
+        } catch (IOException e) {
+            throw createLauncherException("unable to resolve target path:" + e.getMessage());
+        } catch (ProjectException e) {
+            throw createLauncherException("unable to create executable:" + e.getMessage());
+        }
+        return target;
+    }
+    private Path getExecutablePath(Project project, Target target) {
+        try {
+            return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw createLauncherException(e.getMessage());
         }
     }
 
