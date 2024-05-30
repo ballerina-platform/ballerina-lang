@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
+import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
@@ -195,7 +196,7 @@ public final class Builder {
         CellAtomicType atomicCell = new CellAtomicType(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = BddNode.bddAtom(atom);
-        return basicSubType(BasicTypeCode.BT_CELL, bdd);
+        return basicSubType(BasicTypeCode.BT_CELL, BCellSubType.createDelegate(bdd));
     }
 
     private static final class IntTypeCache {
