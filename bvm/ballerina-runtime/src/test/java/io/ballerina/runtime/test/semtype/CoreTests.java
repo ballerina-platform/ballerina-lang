@@ -20,6 +20,8 @@ package io.ballerina.runtime.test.semtype;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import org.testng.annotations.Test;
@@ -29,8 +31,12 @@ public class CoreTests {
     @Test
     public void testCellContaining() {
         Env env = Env.getInstance();
+        Context cx = new Context();
         SemType intTy = Builder.intType();
         SemType readonlyInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        assert Core.isSubType(cx, readonlyInt, readonlyInt);
         SemType mutableInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+        assert Core.isSubType(cx, mutableInt, mutableInt);
+        assert Core.isSubType(cx, readonlyInt, mutableInt);
     }
 }
