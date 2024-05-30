@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.internal;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -707,7 +707,7 @@ public abstract class StateMachine {
         }
 
         private char extractUnicodeChar(StateMachine sm) {
-            return StringEscapeUtils.unescapeJava("\\u" + sm.hexBuilder).charAt(0);
+            return Utils.unescapeJava("\\u" + sm.hexBuilder).charAt(0);
         }
     }
 
