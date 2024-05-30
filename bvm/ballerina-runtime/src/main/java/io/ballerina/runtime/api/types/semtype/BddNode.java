@@ -18,9 +18,7 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.types.semtype.SubTypeData;
-
-public final class BddNode extends SubType implements Bdd {
+public final class BddNode extends Bdd {
 
     private final Atom atom;
     private final Bdd left;
@@ -55,28 +53,4 @@ public final class BddNode extends SubType implements Bdd {
         return right;
     }
 
-    @Override
-    public SubType union(SubType other) {
-        throw new IllegalStateException("Unimplemented");
-    }
-
-    @Override
-    public SubType intersect(SubType other) {
-        throw new IllegalStateException("Unimplemented");
-    }
-
-    @Override
-    public SubType complement() {
-        throw new IllegalStateException("Unimplemented");
-    }
-
-    @Override
-    public boolean isEmpty() {
-        throw new IllegalStateException("Unimplemented");
-    }
-
-    @Override
-    public SubTypeData data() {
-        throw new IllegalStateException("Unimplemented");
-    }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,15 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
+ *
  */
 
 package io.ballerina.runtime.api.types.semtype;
 
-public final class BddAllOrNothing extends Bdd {
+public class RecAtom implements Atom {
 
-    public static BddAllOrNothing ALL = new BddAllOrNothing(true);
-    public static BddAllOrNothing NOTHING = new BddAllOrNothing(false);
-
-    private BddAllOrNothing(boolean all) {
-        super(all, !all);
+    @Override
+    public int index() {
+        throw new IllegalStateException("unimplemented");
     }
 }
