@@ -51,7 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
@@ -423,8 +423,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public Object shift(long index) {
         handleImmutableArrayValue();
-        checkIfRestElementPresent(this.getLength());
-        checkAdjacentElementInherentType();
+        validateTupleSizeAndInherentType();
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -831,31 +830,24 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void checkIfRestElementPresent (long length) {
-        if (this.tupleType.getTupleTypes().size() >= length) {
+    private void validateTupleSizeAndInherentType() {
+        int numOfMandatoryTypes = this.tupleType.getTupleTypes().size();
+        // Check if tuple has at least one more members than the number of mandatory type to compensate the
+        // removed member
+        if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                    ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, "shift()", this.getType());
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                    ErrorCodes.INVALID_MEMBER_SIZE, numOfMandatoryTypes + 1, this.getLength());
         }
-    }
-
-    private void checkAdjacentElementInherentType () {
-        // Check if the i th member has a suitable value to replace the i-1 th member (Checking done by value, not type)
-        List<Type> tupleTypes = this.tupleType.getTupleTypes();
-        int numberOfTypes = tupleTypes.size();
-        for (int i = 1; i < numberOfTypes; i++) {
-            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypes.get(i - 1))) {
+        // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
+        for (int i = 1; i <= numOfMandatoryTypes; i++) {
+            if (!TypeChecker.checkIsType(this.getRefValue(i), this.tupleType.getTupleTypes().get(i - 1))) {
                 throw ErrorHelper.getRuntimeException(
                         getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        ErrorCodes.INCOMPATIBLE_TYPE, tupleTypes.get(i - 1), tupleTypes.get(i));
+                        ErrorCodes.INCOMPATIBLE_TYPE, this.tupleType.getTupleTypes().get(i - 1),
+                        (i == numOfMandatoryTypes) ?
+                                this.tupleType.getRestType() : this.tupleType.getTupleTypes().get(i));
             }
-            continue;
-        }
-        if (this.hasRestElement && !TypeChecker.checkIsType(
-                        this.getRefValue(this.getLength() - 1), tupleTypes.get(numberOfTypes - 1))) {
-                throw ErrorHelper.getRuntimeException(
-                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        ErrorCodes.INCOMPATIBLE_TYPE, tupleTypes.get(numberOfTypes - 1), this.tupleType.getRestType());
         }
     }
 }
