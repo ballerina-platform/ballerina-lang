@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
 /**
@@ -120,7 +121,7 @@ public final class BBooleanSubType extends SubType {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(Context cx) {
         return data.isNothing();
     }
 

@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BType;
 
@@ -62,7 +63,7 @@ public class BSubType extends SubType {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(Context cx) {
         throw new IllegalArgumentException("BSubType don't support semType operations");
     }
 

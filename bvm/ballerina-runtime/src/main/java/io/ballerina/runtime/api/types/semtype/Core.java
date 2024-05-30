@@ -207,7 +207,7 @@ public final class Core {
             if (subType == null) {
                 continue;
             }
-            if (!subType.isEmpty()) {
+            if (!subType.isEmpty(cx)) {
                 return false;
             }
         }
