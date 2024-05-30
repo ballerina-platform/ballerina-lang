@@ -180,6 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -2881,7 +2882,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangXMLNavigationAccess xmlNavigation, AnalyzerData data) {
         analyzeExpr(xmlNavigation.expr, data);
         xmlNavigation.extensions.forEach(extension -> analyzeNode(extension, data));
-        validateMethodInvocationsInXMLNavigationExpression(xmlNavigation);
     }
 
     @Override
@@ -2893,19 +2893,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend, AnalyzerData data) {
         /* ignore */
     }
+   
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend, AnalyzerData data) {
+        analyzeExpr(xmlMethodCallStepExtend.invocation, data);
+//        validateMethodInvocationsInXMLNavigationExpression(xmlMethodCallStepExtend.invocation);
+    }
 
-    private void validateMethodInvocationsInXMLNavigationExpression(BLangXMLNavigationAccess expression) {
-        if (!expression.methodInvocationAnalyzed && expression.parent.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) expression.parent;
-            // avoid langlib invocations re-written to have the receiver as first argument.
-            if (invocation.argExprs.contains(expression)
-                    && ((invocation.symbol.flags & Flags.LANG_LIB) != Flags.LANG_LIB)) {
-                return;
-            }
-
-            dlog.error(invocation.pos, DiagnosticErrorCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+    private void validateMethodInvocationsInXMLNavigationExpression(BLangInvocation invocation) {
+        // avoid langlib invocations re-written to have the receiver as first argument.
+        if ((invocation.symbol.flags & Flags.LANG_LIB) != Flags.LANG_LIB) {
+            return;
         }
-        expression.methodInvocationAnalyzed = true;
     }
 
     @Override

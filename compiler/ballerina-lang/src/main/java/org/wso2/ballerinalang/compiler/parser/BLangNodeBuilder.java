@@ -135,7 +135,6 @@ import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
@@ -258,6 +257,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.XmlFactory;
@@ -430,6 +430,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -4449,10 +4450,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         List<BLangXMLStepExtend> extensions = new ArrayList<>();
         for (Node node : xmlStepExpressionNode.xmlStepExtend()) {
-            BLangXMLStepExtend extension = createBLangXMLStepExtend(node);
-            if (extension != null) {
-                extensions.add(extension);
-            }
+            extensions.add(createBLangXMLStepExtend(node));
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
@@ -7085,12 +7083,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private BLangXMLStepExtend createBLangXMLStepExtend(Node node) {
         SyntaxKind kind = node.kind();
-        NodeLocation location = node.location();
         if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
             return new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
         } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
-            dlog.error(location, DiagnosticErrorCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
-            return null;
+            XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
+            FunctionCallExpressionNode funcCallExpr = xmlStepMethodCallExtendNode.functionCallExpression();
+            BLangInvocation bLangInvocation =
+                    createBLangInvocation(funcCallExpr.functionName(), funcCallExpr.arguments(),
+                            funcCallExpr.location(), false);
+            return new BLangXMLMethodCallStepExtend(bLangInvocation);
         } else {
             XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
             List<BLangXMLElementFilter> filters = new ArrayList<>();

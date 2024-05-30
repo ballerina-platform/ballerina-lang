@@ -230,6 +230,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -10662,7 +10663,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol symbol =
                 new BVarSymbol(0, Names.fromString(parameterName), owner.pkgID, xmlElementType, owner, pos, SOURCE);
         param.symbol = symbol;
-        param.typeNode = ASTBuilderUtil.createTypeNode(xmlType);
+        param.typeNode = ASTBuilderUtil.createTypeNode(xmlElementType);
         param.setBType(xmlElementType);
         arrowFunction.params.add(param);
 
@@ -10697,6 +10698,18 @@ public class Desugar extends BLangNodeVisitor {
                 ArrayList<BLangExpression> filterExtensions = expandFilters(filterStepExtend.filters);
                 expression = createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, new ArrayList<>(),
                         filterExtensions);
+            } else {
+                BLangXMLMethodCallStepExtend methodCallStepExtend = (BLangXMLMethodCallStepExtend) extension;
+                BLangInvocation invocation = methodCallStepExtend.invocation;
+                if (invocation.requiredArgs.size() > 0) {
+                    invocation.requiredArgs.remove(0);
+                }
+                BLangInvocation invoc = createLanglibXMLInvocation(pos, invocation.name.value, expression,
+                        (ArrayList<BLangExpression>) invocation.requiredArgs,
+                        (ArrayList<BLangExpression>) invocation.restArgs);
+                expression = invoc;
+                expression = rewrite(expression, env);
+                expression = types.addConversionExprIfRequired(expression, symTable.xmlType);
             }
             expression.setBType(xmlType);
         }
