@@ -278,10 +278,207 @@ function assertXmlNavigationWithDefaultNamespaceDefinedAfter(xml[] results) {
     assert(results[17], xml ``);
 }
 
+function testXmlIndexedStepExtend() {
+    xml x1 = xml
+            `<item><!--comment--><name>T-shirt</name><price>19.99</price></item>
+            <item><?data?><name>Backpack</name><price>34.99</price></item>
+            <item>text<name>Watch</name><price>49.99</price></item>`;
+
+    assert(x1/*[0], xml `<!--comment--><?data?>text`);
+    assert(x1/*[1], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*[3], xml ``);
+    assertError(trap x1/*[-1], "xml sequence index out of range. Length: '3' requested: '-1'");
+
+    assert(x1/*[0][0], xml `<!--comment--><?data?>text`);
+    assert(x1/*[1][0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*[1][1], xml ``);
+    assert(x1/*[3][3], xml ``);
+    assertError(trap x1/*[0][-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+    assertError(trap x1/*[-1], "xml sequence index out of range. Length: '3' requested: '-1'");
+
+    assert(x1/<price>[0], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<price>[5], xml ``);
+    assertError(trap x1/<price>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    assert(x1/<price>[0][0], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<price>[0][1], xml ``);
+    assert(x1/<price>[5][4], xml ``);
+    assertError(trap x1/<price>[0][-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    assert(x1/**/<name>[0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/**/<name>[5], xml ``);
+    assertError(trap x1/**/<name>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    assert(x1/**/<name>[0][0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/**/<name>[0][1], xml ``);
+    assert(x1/**/<name>[5][4], xml ``);
+    assertError(trap x1/**/<name>[0][-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    xml x2 = xml
+            `<item><!--comment--><name>T-shirt</name><price>19.99</price><name>T-shirt2</name></item>
+            <item><?data?><name>Backpack</name><price>34.99</price><name>Backpack2</name></item>
+            <item>text<name>Watch</name><price>49.99</price><name>Watch2</name></item>`;
+
+    assert(x2/**/<name>[0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x2/**/<name>[1], xml `<name>T-shirt2</name><name>Backpack2</name><name>Watch2</name>`);
+    assert(x2/**/<name>[2], xml ``);
+    assertError(trap x1/**/<name>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    assert(x2/<name>[0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x2/<name>[1], xml `<name>T-shirt2</name><name>Backpack2</name><name>Watch2</name>`);
+    assert(x2/<name>[2], xml ``);
+    assertError(trap x1/<name>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    xml:Element x3 = xml `<a>xml text<b><c>c</c><d>d</d></b><b><c>d</c></b><!--comment--></a>`;
+    assert(x3/*[0], xml `xml text`);
+    assert(x3/*[1], xml `<b><c>c</c><d>d</d></b>`);
+    assert(x3/*[2], xml `<b><c>d</c></b>`);
+    assert(x3/*[3], xml `<!--comment-->`);
+    assert(x3/*[4], xml ``);
+    assertError(trap x3/*[-1], "xml sequence index out of range. Length: '4' requested: '-1'");
+
+    assert(x3/<b>[0], xml `<b><c>c</c><d>d</d></b>`);
+    assert(x3/<b>[1], xml `<b><c>d</c></b>`);
+    assert(x3/<b>[2], xml ``);
+    assertError(trap x3/<b>[-1], "xml sequence index out of range. Length: '2' requested: '-1'");
+
+    assert(x3/**/<c>[0], xml `<c>c</c>`);
+    assert(x3/**/<c>[1], xml `<c>d</c>`);
+    assert(x3/**/<c>[2], xml ``);
+    assertError(trap x3/**/<c>[-1], "xml sequence index out of range. Length: '2' requested: '-1'");
+
+    xml:Comment x4 = xml `<!--comment-->`;
+    assert(x4/*[0], xml ``);
+    assert(x4/*[-1], xml ``);
+    assert(x4/<c>[0], xml ``);
+    assert(x4/<c>[-1], xml ``);
+    assert(x4/**/<c>[0], xml ``);
+    assert(x4/**/<c>[-1], xml ``);
+
+    xml:ProcessingInstruction x5 = xml `<?pi?>`;
+    assert(x5/*[0], xml ``);
+    assert(x5/*[-1], xml ``);
+    assert(x5/<b>[0], xml ``);
+    assert(x5/<b>[-1], xml ``);
+    assert(x5/**/<c>[0], xml ``);
+    assert(x5/**/<c>[-1], xml ``);
+
+    xml:Text x6 = xml `xml text`;
+    assert(x6/*[0], xml ``);
+    assert(x6/*[-1], xml ``);
+    assert(x6/<b>[0], xml ``);
+    assert(x6/<b>[-1], xml ``);
+    assert(x6/**/<c>[0], xml ``);
+    assert(x6/**/<c>[-1], xml ``);
+}
+
+function testXmlFilterStepExtend() {
+    xml x1 = xml
+            `<item><name>T-shirt</name><price>19.99</price><count>1</count><brand><name>nike</name><local>no</local></brand></item>
+            <item><?data?><name>Backpack</name><price>34.99</price><count>3</count><brand><name>adidas</name><local>yes</local></brand></item>
+            <item>text<name>Watch</name><price>49.99</price><count>2</count><brand><name>samsung</name><local>no</local></brand></item>`;
+
+    assert(x1/*.<name>, xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/*.<amount>, xml ``);
+    assert(x1/*.<name>.<name>, xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*.<name>.<price>, xml ``);
+    assert(x1/*.<name|price>,
+            xml `<name>T-shirt</name><price>19.99</price><name>Backpack</name><price>34.99</price><name>Watch</name><price>49.99</price>`);
+    assert(x1/*.<name|price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+
+    assert(x1/<name>.<name>, xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/<price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<name|price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<name|price|count>.<name|count>,
+            xml `<name>T-shirt</name><count>1</count><name>Backpack</name><count>3</count><name>Watch</name><count>2</count>`);
+    assert(x1/<name|price|count>.<name|count>.<count>, xml `<count>1</count><count>3</count><count>2</count>`);
+    assert(x1/<count>.<amount>, xml ``);
+    assert(x1/<amount>.<name>, xml ``);
+    assert(x1/<amount>.<name|price>, xml ``);
+
+    assert(x1/**/<name>.<name>, xml `<name>T-shirt</name><name>nike</name><name>Backpack</name><name>adidas</name><name>Watch</name><name>samsung</name>`);
+    assert(x1/**/<price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/**/<name|local>.<local>, xml `<local>no</local><local>yes</local><local>no</local>`);
+    assert(x1/**/<brand|local>.<brand>, xml `<brand><name>nike</name><local>no</local></brand><brand><name>adidas</name><local>yes</local></brand><brand><name>samsung</name><local>no</local></brand>`);
+    assert(x1/**/<price|local|name>.<name|price>.<name>, xml `<name>T-shirt</name><name>nike</name><name>Backpack</name><name>adidas</name><name>Watch</name><name>samsung</name>`);
+    assert(x1/**/<brand|amount>.<amount>, xml ``);
+    assert(x1/**/<total|amount>.<amount>, xml ``);
+
+    xml:Element x2 = xml `<items>
+                            xml text
+                            <pen><price>10</price></pen>
+                            <pen><price>15</price></pen>
+                            <book><price>30</price></book>
+                            <paper><price>4</price></paper>
+                            <price>40</price>
+                            <!--comment-->
+                          </items>`;
+    assert(x2/*.<pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen>`);
+    assert(x2/*.<book>, xml `<book><price>30</price></book>`);
+    assert(x2/*.<book|pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen><book><price>30</price></book>`);
+    assert(x2/*.<book|pen>.<book>, xml `<book><price>30</price></book>`);
+    assert(x2/*.<pencil>, xml ``);
+    assert(x2/*.<pencil>.<pen|book>, xml ``);
+
+    assert(x2/<pen>.<pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen>`);
+    assert(x2/<pen|book>.<book>, xml `<book><price>30</price></book>`);
+    assert(x2/<pen|book|paper>.<paper|pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen><paper><price>4</price></paper>`);
+    assert(x2/<pen|book|paper>.<paper|pen>.<paper>, xml `<paper><price>4</price></paper>`);
+    assert(x2/<stationary>.<paper>, xml ``);
+    assert(x2/<pencil>.<name>, xml ``);
+    assert(x1/*.<pencil>.<name|price>, xml ``);
+
+    assert(x2/**/<price>.<price>, xml `<price>10</price><price>15</price><price>30</price><price>4</price><price>40</price>`);
+    assert(x2/**/<pen>.<pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen>`);assert(x2/**/<book|price>.<book>, xml `<book><price>30</price></book>`);
+    assert(x2/**/<book|price>.<book>, xml `<book><price>30</price></book>`);
+    assert(x2/**/<price|pen|book>.<pen|price>, xml `<pen><price>10</price></pen><price>10</price><pen><price>15</price></pen><price>15</price><price>30</price><price>4</price><price>40</price>`);
+    assert(x2/**/<price|pen|book>.<pen|price>.<price>, xml `<price>10</price><price>15</price><price>30</price><price>4</price><price>40</price>`);
+    assert(x2/**/<pen|pencil>.<pencil>, xml ``);
+    assert(x2/**/<total|pencil>.<total>, xml ``);
+
+    xml:Comment x3 = xml `<!--comment-->`;
+    assert(x3/*.<name>, xml ``);
+    assert(x3/*.<name|price>, xml ``);
+    assert(x3/*.<name>.<price>, xml ``);
+    assert(x3/<name>.<price>, xml ``);
+    assert(x3/<name>.<price|pen>, xml ``);
+    assert(x3/**/<name>.<name>, xml ``);
+    assert(x3/**/<price|name>.<name>, xml ``);
+
+    xml:ProcessingInstruction x4 = xml `<?pi?>`;
+    assert(x4/*.<name>, xml ``);
+    assert(x4/*.<name|price>, xml ``);
+    assert(x4/*.<name>.<price>, xml ``);
+    assert(x4/<name>.<price>, xml ``);
+    assert(x4/<name>.<price|pen>, xml ``);
+    assert(x4/**/<name>.<name>, xml ``);
+    assert(x4/**/<price|name>.<name>, xml ``);
+
+    xml:Text x5 = xml `xml text`;
+    assert(x5/*.<name>, xml ``);
+    assert(x5/*.<name|price>, xml ``);
+    assert(x5/*.<name>.<price>, xml ``);
+    assert(x5/<name>.<price>, xml ``);
+    assert(x5/<name>.<price|pen>, xml ``);
+    assert(x5/**/<name>.<name>, xml ``);
+    assert(x5/**/<price|name>.<name>, xml ``);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
         error e = error(reason);
         panic e;
     }
+}
+
+function assertError(any|error value, string errorMessage) {
+    if value is error {
+        if (value.message() != errorMessage) {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+        return;
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
 }
