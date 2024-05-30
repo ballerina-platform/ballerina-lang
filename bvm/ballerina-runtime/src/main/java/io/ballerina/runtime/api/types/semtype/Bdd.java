@@ -18,6 +18,158 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-public interface Bdd {
+import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
+public abstract class Bdd extends SubType {
+
+    protected Bdd(boolean all, boolean nothing) {
+        super(all, nothing);
+    }
+
+    @Override
+    public SubType union(SubType other) {
+        return bddUnion((Bdd) other);
+    }
+
+    private Bdd bddUnion(Bdd other) {
+        if (other == this) {
+            return this;
+        } else if (this == BddAllOrNothing.ALL || other == BddAllOrNothing.ALL) {
+            return BddAllOrNothing.ALL;
+        } else if (other == BddAllOrNothing.NOTHING) {
+            return this;
+        } else if (this == BddAllOrNothing.NOTHING) {
+            return other;
+        }
+        BddNode b1Bdd = (BddNode) this;
+        BddNode b2Bdd = (BddNode) other;
+        int cmp = atomCmp(b1Bdd.atom(), b2Bdd.atom());
+        if (cmp < 0) {
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left(),
+                    b1Bdd.middle().bddUnion(other),
+                    b1Bdd.right());
+        } else if (cmp > 0) {
+            return bddCreate(b2Bdd.atom(),
+                    b2Bdd.left(),
+                    this.bddUnion(b2Bdd.middle()),
+                    b2Bdd.right());
+        } else {
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left().bddUnion(b2Bdd.left()),
+                    b1Bdd.middle().bddUnion(b2Bdd.middle()),
+                    b1Bdd.right().bddUnion(b2Bdd.right()));
+        }
+    }
+
+    private int atomCmp(Atom a1, Atom a2) {
+        if (a1 instanceof RecAtom r1) {
+            if (a2 instanceof RecAtom r2) {
+                return r1.index() - r2.index();
+            } else {
+                return -1;
+            }
+        } else if (a2 instanceof RecAtom) {
+            return 1;
+        } else {
+            return a1.index() - a2.index();
+        }
+    }
+
+    @Override
+    public SubType intersect(SubType other) {
+        return bddIntersect((Bdd) other);
+    }
+
+    private Bdd bddIntersect(Bdd other) {
+        if (other == this) {
+            return this;
+        } else if (this == BddAllOrNothing.NOTHING || other == BddAllOrNothing.NOTHING) {
+            return BddAllOrNothing.NOTHING;
+        } else if (other == BddAllOrNothing.ALL) {
+            return this;
+        } else if (this == BddAllOrNothing.ALL) {
+            return other;
+        }
+        BddNode b1Bdd = (BddNode) this;
+        BddNode b2Bdd = (BddNode) other;
+        int cmp = atomCmp(b1Bdd.atom(), b2Bdd.atom());
+        if (cmp < 0) {
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left().bddIntersect(other),
+                    b1Bdd.middle().bddIntersect(other),
+                    b1Bdd.right().bddIntersect(other));
+        } else if (cmp > 0) {
+            return bddCreate(b2Bdd.atom(),
+                    this.bddIntersect(b2Bdd.left()),
+                    this.bddIntersect(b2Bdd.middle()),
+                    this.bddIntersect(b2Bdd.right()));
+        } else {
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left().bddUnion(b1Bdd.middle()).bddIntersect(b2Bdd.left().bddUnion(b2Bdd.middle())),
+                    BddAllOrNothing.NOTHING,
+                    b1Bdd.right().bddUnion(b1Bdd.middle()).bddIntersect(b2Bdd.right().bddUnion(b2Bdd.middle())));
+        }
+    }
+
+    @Override
+    public SubType complement() {
+        return bddComplement();
+    }
+
+    private Bdd bddComplement() {
+        if (this == BddAllOrNothing.ALL) {
+            return BddAllOrNothing.NOTHING;
+        } else if (this == BddAllOrNothing.NOTHING) {
+            return BddAllOrNothing.ALL;
+        }
+        // TODO: may be factor this out
+        Bdd nothing = BddAllOrNothing.NOTHING;
+        BddNode b = (BddNode) this;
+        if (b.right() == nothing) {
+            return bddCreate(b.atom(),
+                    nothing,
+                    b.left().bddUnion(b.middle()).bddComplement(),
+                    b.middle().bddComplement());
+        } else if (b.left() == nothing) {
+            return bddCreate(b.atom(),
+                    b.middle().bddComplement(),
+                    b.right().bddUnion(b.middle()).bddComplement(),
+                    nothing);
+        } else if (b.middle() == nothing) {
+            return bddCreate(b.atom(),
+                    b.left().bddComplement(),
+                    b.left().bddUnion(b.right()).bddComplement(),
+                    b.right().bddComplement());
+        } else {
+            // There is a typo in the Frisch PhD thesis for this formula.
+            // (It has left and right swapped.)
+            // Castagna (the PhD supervisor) confirms that this is the correct formula.
+            return bddCreate(b.atom(),
+                    b.left().bddUnion(b.middle()).bddComplement(),
+                    nothing,
+                    b.right().bddUnion(b.middle()).bddComplement());
+        }
+    }
+
+    private Bdd bddCreate(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        if (middle == BddAllOrNothing.ALL) {
+            return middle;
+        }
+        if (left.equals(right)) {
+            return left.bddUnion(right);
+        }
+
+        return new BddNode(atom, left, middle, right);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        throw new IllegalStateException("Unimplemented");
+    }
+
+    @Override
+    public SubTypeData data() {
+        throw new IllegalStateException("Unimplemented");
+    }
 }
