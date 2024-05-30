@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 
 /**
  * Utility class for creating semtypes.
@@ -105,18 +106,22 @@ public final class Builder {
     }
 
     private static final SemType NEVER = SemType.from(0);
+    private static final SemType VAL = SemType.from(VT_MASK);
 
     public static SemType basicTypeUnion(int bitset) {
-        // TODO: may be cache single type bit sets as well
-        if (bitset == 0) {
-            return NEVER;
-        } else if (Integer.bitCount(bitset) == 1) {
-            int code = Integer.numberOfTrailingZeros(bitset);
-            if (BasicTypeCache.isCached(code)) {
-                return BasicTypeCache.cache[code];
+        return switch (bitset) {
+            case 0 -> NEVER;
+            case VT_MASK -> VAL;
+            default -> {
+                if (Integer.bitCount(bitset) == 1) {
+                    int code = Integer.numberOfTrailingZeros(bitset);
+                    if (BasicTypeCache.isCached(code)) {
+                        yield BasicTypeCache.cache[code];
+                    }
+                }
+                yield SemType.from(bitset);
             }
-        }
-        return SemType.from(bitset);
+        };
     }
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
@@ -197,6 +202,10 @@ public final class Builder {
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = BddNode.bddAtom(atom);
         return basicSubType(BasicTypeCode.BT_CELL, BCellSubType.createDelegate(bdd));
+    }
+
+    public static SemType val() {
+        return basicTypeUnion(VT_MASK);
     }
 
     private static final class IntTypeCache {

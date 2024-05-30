@@ -19,6 +19,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public final class BFloatSubType extends SubType {
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(Context cx) {
         return data == AllOrNothing.NOTHING;
     }
 
