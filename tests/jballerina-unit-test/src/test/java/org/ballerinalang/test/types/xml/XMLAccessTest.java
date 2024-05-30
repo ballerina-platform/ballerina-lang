@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -286,6 +287,16 @@ public class XMLAccessTest {
     @Test
     public void testXmlNavigationWithDefaultNamespaceDefinedAfter() {
         BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
+    }
+
+    @Test(dataProvider = "xmlStepExtension")
+    public void testXmlStepExtension(String function) {
+        BRunUtil.invoke(navigation, function);
+    }
+
+    @DataProvider
+    private Object[] xmlStepExtension() {
+        return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend"};
     }
 
     @Test(enabled = false) // disabling until providing semantic support for step extension
