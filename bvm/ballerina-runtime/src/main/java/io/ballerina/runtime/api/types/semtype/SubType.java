@@ -45,7 +45,7 @@ public abstract class SubType {
 
     public abstract SubType complement();
 
-    public abstract boolean isEmpty();
+    public abstract boolean isEmpty(Context cx);
 
     public final boolean isAll() {
         return all;

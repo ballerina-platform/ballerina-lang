@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-public class BddNode extends Bdd {
+public final class BddNode extends Bdd {
 
     private final Atom atom;
     private final Bdd left;
