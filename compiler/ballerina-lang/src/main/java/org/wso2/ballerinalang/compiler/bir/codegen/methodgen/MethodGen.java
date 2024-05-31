@@ -757,7 +757,7 @@ public class MethodGen {
             } else if (bType.tag == TypeTags.NEVER) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_OBJECT);
                 mv.visitVarInsn(ASTORE, index);
-            } else if (types.isAssignable(bType, symbolTable.xmlType)) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                         GET_XML);
                 mv.visitVarInsn(ASTORE, index);
