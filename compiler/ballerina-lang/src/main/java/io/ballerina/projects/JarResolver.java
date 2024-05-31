@@ -190,8 +190,9 @@ public class JarResolver {
                 packageContext.packageId(), moduleContext.moduleName());
         for (PackageID duplicatePkgID : JvmCodeGenUtil.duplicatePkgsMap.values()) {
             if (duplicatePkgID.getName().value.equals(moduleId.moduleName())) {
-                Path duplicatePath = Paths.get(
-                        generatedOptimizedLibrary.path().toAbsolutePath().toString().replace(".jar", "_OPTIMIZED.jar"));
+                Path duplicatePath = Paths.get(generatedOptimizedLibrary.path().toAbsolutePath().toString()
+                        .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
+                                ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
                 libraryPaths.add(new JarLibrary(duplicatePath, scope, getPackageName(packageContext)));
                 duplicateJarPaths.add(duplicatePath);
                 break;
