@@ -27,6 +27,7 @@ import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -145,6 +146,8 @@ public class CentralAPIClient {
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
     private static final int DEFAULT_CALL_TIMEOUT = 0;
+    private static final int MAX_RETRY = 1;
+    public static final String CONNECTION_RESET = "Connection reset";
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -157,6 +160,7 @@ public class CentralAPIClient {
     private final int readTimeout;
     private final int writeTimeout;
     private final int callTimeout;
+    private final int maxRetries;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -170,11 +174,28 @@ public class CentralAPIClient {
         this.readTimeout = DEFAULT_READ_TIMEOUT;
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
+        this.maxRetries = MAX_RETRY;
+    }
+
+    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
+                            PrintStream outStream) {
+        this.outStream = outStream;
+        this.baseUrl = baseUrl;
+        this.proxy = proxy;
+        this.accessToken = accessToken;
+        this.verboseEnabled = verboseEnabled;
+        this.proxyUsername = "";
+        this.proxyPassword = "";
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
+        this.maxRetries = maxRetries;
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
             String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
-            int callTimeout) {
+            int callTimeout, int maxRetries) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -186,6 +207,7 @@ public class CentralAPIClient {
         this.readTimeout = readTimeout;
         this.writeTimeout = writeTimeout;
         this.callTimeout = callTimeout;
+        this.maxRetries = maxRetries;
     }
 
     /**
@@ -492,6 +514,31 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+        int retryCount = 0;
+        while (retryCount <= this.maxRetries) {
+            try {
+                pullPackageInternal(org, name, version, packagePathInBalaCache, supportedPlatform, ballerinaVersion,
+                        isBuild);
+                break;
+            } catch (CentralClientException centralClientException) {
+                if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the package: " + org + "/" + name + ":" + version +
+                                " due to: " + centralClientException.getMessage() + ". Retry attempt: "
+                                + (retryCount + 1));
+                        outStream.println();
+                    }
+                    retryCount++;
+                    continue;
+                }
+                throw centralClientException;
+            }
+        }
+    }
+
+    private void pullPackageInternal(String org, String name, String version, Path packagePathInBalaCache,
             String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         String resourceUrl = PACKAGE_PATH_PREFIX + org + SEPARATOR + name;
@@ -644,6 +691,31 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
+                             String ballerinaVersion, boolean isBuild) throws CentralClientException {
+        int retryCount = 0;
+        String[] result = new String[0];
+        while (retryCount <= this.maxRetries) {
+            try {
+                result = pullToolInternal(toolId, version, balaCacheDirPath, supportedPlatform, ballerinaVersion,
+                        isBuild);
+                break;
+            } catch (CentralClientException centralClientException) {
+                if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    if (verboseEnabled) {
+                        outStream.println("* Retrying to pull the tool: " + toolId + ":" + version + " due to: "
+                                + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
+                        outStream.println();
+                    }
+                    retryCount++;
+                    continue;
+                }
+                throw centralClientException;
+            }
+        }
+        return result;
+    }
+
+    private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
             String ballerinaVersion, boolean isBuild) throws CentralClientException {
         String resourceUrl = TOOL_PATH_PREFIX + toolId;
         boolean enableOutputStream = Boolean
@@ -1526,6 +1598,7 @@ public class CentralAPIClient {
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
+                .addInterceptor(new CustomRetryInterceptor(this.maxRetries))
                 .build();
 
         if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
@@ -1852,5 +1925,53 @@ public class CentralAPIClient {
             }
             this.outStream.println(">");
         }
+    }
+
+     class CustomRetryInterceptor implements Interceptor {
+        private final int maxRetries;
+        CustomRetryInterceptor(int maxRetry) {
+            this.maxRetries = maxRetry;
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            int retryCount = 0;
+            Request request = chain.request();
+            Response response = null;
+            while (retryCount <= maxRetries) {
+                response = chain.proceed(request);
+                if (response.code() < 500 || retryCount == maxRetries) {
+                    return response;
+                }
+                retryCount++;
+                Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                String responseBodyString = null;
+                if (body.isPresent()) {
+                    responseBodyString = body.get().string();
+                }
+                logRetryVerbose(response, responseBodyString, request, retryCount);
+                response.close();
+            }
+            return response;
+        }
+
+         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
+             if (verboseEnabled) {
+                 Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                 outStream.println("< HTTP " + response.code() + " " + response.message());
+                 if (body.isPresent()) {
+                     for (String headerName : response.headers().names()) {
+                         outStream.println("> " + headerName + ": " + response.header(headerName));
+                     }
+                     outStream.println("< ");
+                     if (bodyContent != null && !bodyContent.isEmpty()) {
+                         outStream.println(bodyContent);
+                     }
+                     outStream.println("* Connection to host " + baseUrl + " left intact \n");
+                 }
+                 outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
+                         " response code. Retry attempt: " + retryCount);
+             }
+         }
     }
 }
