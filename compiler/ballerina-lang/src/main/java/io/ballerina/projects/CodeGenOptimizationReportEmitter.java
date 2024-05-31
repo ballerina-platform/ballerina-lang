@@ -87,9 +87,7 @@ public class CodeGenOptimizationReportEmitter {
 
     protected static void emitOptimizedExecutableSize(Path executableFilePath) {
         try {
-            float optimizedJarSize =
-                    Files.size(Path.of(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar"))) /
-                            (1024f * 1024f);
+            float optimizedJarSize = Files.size(executableFilePath) / (1024f * 1024f);
             System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
         } catch (IOException e) {
             throw new ProjectException("Failed to emit optimized executable size ", e);
