@@ -274,29 +274,26 @@ public class JBallerinaBackend extends CompilerBackend {
         return this.packageContext.project().sourceRoot;
     }
 
-    //TODO optimize the logic here
     private void markTestDependenciesForDuplicateBIRGen() {
         for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
             ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
-            if (isRootModule(moduleContext)) {
-                BLangPackage bLangPackage = moduleContext.bLangPackage();
+            BLangPackage bLangPackage = moduleContext.bLangPackage();
+
+            if (isRootModule(moduleContext) && bLangPackage.hasTestablePackage()) {
                 Set<BPackageSymbol> buildPkgDependencies = new HashSet<>();
                 Set<BPackageSymbol> testablePkgDependencies = new HashSet<>();
+                collectDependencies(bLangPackage.symbol, buildPkgDependencies);
+                collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
 
-                if (bLangPackage.hasTestablePackage()) {
-                    collectDependencies(bLangPackage.symbol, buildPkgDependencies);
-                    collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
-
-                    buildPkgDependencies.stream()
-                            .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
-                            .forEach(pkgSymbol -> {
-                                pkgSymbol.shouldGenerateDuplicateBIR = true;
-                                // Have to use a hashmap because the pkgIds get mutated later
-                                JvmCodeGenUtil.duplicatePkgsMap.put(
-                                        pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
-                                        pkgSymbol.pkgID);
-                            });
-                }
+                buildPkgDependencies.stream()
+                        .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
+                        .forEach(pkgSymbol -> {
+                            pkgSymbol.shouldGenerateDuplicateBIR = true;
+                            // Have to use a hashmap because the pkgIds get mutated later
+                            JvmCodeGenUtil.duplicatePkgsMap.put(
+                                    pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
+                                    pkgSymbol.pkgID);
+                        });
                 return;
             }
         }
@@ -345,10 +342,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
-    // Build project module and testable modules are considered root module
     private boolean isRootModule(ModuleContext moduleContext) {
-        return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId() ||
-                hasTests(moduleContext);
+        return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId();
     }
 
     private boolean hasTests(ModuleContext moduleContext) {
