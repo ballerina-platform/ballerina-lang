@@ -831,7 +831,11 @@ public class JBallerinaBackend extends CompilerBackend {
         // service loader related information should be merged together in the final executable jar creation.
         HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
 
-        String birOptimizedJarPath = executableFilePath.toString().replace(".jar", "_BIR_OPTIMIZED.jar");
+        String birOptimizedJarPath = executableFilePath.toString()
+                .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT, ProjectConstants.BIR_OPTIMIZED_JAR_SUFFIX);
+        String bytecodeOptimizedJarPath = executableFilePath.toString()
+                .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT, ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX);
+
         ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
                 new BufferedOutputStream(new FileOutputStream(birOptimizedJarPath)));
         try {
@@ -847,7 +851,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 
-            // Clean optimzied JAR byte streams
+            // Clean optimized JAR byte streams
             optimizedJarStreams.clear();
 
             // Copy merged spi services.
@@ -867,8 +871,8 @@ public class JBallerinaBackend extends CompilerBackend {
 
             Set<String> startPoints = new LinkedHashSet<>();
             startPoints.add(getMainClassFileName(this.packageContext()));
-            ZipArchiveOutputStream optimizedJarStream = new ZipArchiveOutputStream(
-                    new FileOutputStream(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar")));
+            ZipArchiveOutputStream optimizedJarStream =
+                    new ZipArchiveOutputStream(new FileOutputStream(bytecodeOptimizedJarPath));
 
             NativeDependencyOptimizer nativeDependencyOptimizer =
                     new NativeDependencyOptimizer(startPoints, birOptimizedFatJar, optimizedJarStream);
@@ -880,8 +884,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
             CodeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
-            CodeGenOptimizationReportEmitter.emitOptimizedExecutableSize(executableFilePath);
-
+            CodeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
             if (this.packageContext.project().buildOptions().verbose()) {
                 NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
                         nativeDependencyOptimizer.getNativeDependencyOptimizationReport(), getOptimizationReportPath(),
