@@ -204,8 +204,7 @@ public class LambdaGen {
 
     private void handleLambdaVirtual(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv) {
         List<BIROperand> paramTypes = ins.args;
-        genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes
-        );
+        genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes);
         int paramIndex = 1;
         for (int paramTypeIndex = 1; paramTypeIndex < paramTypes.size(); paramTypeIndex++) {
             generateObjectArgs(mv, paramIndex);
