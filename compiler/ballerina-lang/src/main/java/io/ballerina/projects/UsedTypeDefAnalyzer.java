@@ -100,7 +100,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         if (invocationData == null) {
             return null;
         }
-        if (!invocationData.moduleIsUsed) {
+        if (!invocationData.moduleIsUsed && !usedBIRNodeAnalyzer.isTestablePkgAnalysis) {
             invocationData.registerNodes(this, pkgCache.getBirPkg(bType.tsymbol.pkgID));
         }
 
