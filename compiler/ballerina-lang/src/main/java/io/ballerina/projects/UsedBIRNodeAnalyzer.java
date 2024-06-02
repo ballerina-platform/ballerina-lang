@@ -73,6 +73,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     // pkgWiseInvocationData is used for debugging purposes
     public final Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new LinkedHashMap<>();
     protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
+    protected boolean isTestablePkgAnalysis = false;
     protected PackageID currentPkgID;
     private final PackageCache pkgCache;
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
@@ -118,6 +119,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
+        isTestablePkgAnalysis = true;
         // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
         // testable and parent packages
         currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
@@ -127,6 +129,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
             visitNode(node);
         }
+        isTestablePkgAnalysis = false;
     }
 
     private void visitNode(BIRNode nodeToVisit) {
@@ -204,7 +207,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                     rhsVar.parentNodes.add(currentParentFunction);
 
                     // TODO Refactor following logic
-                    if (!rhsVar.isInSamePkg(currentPkgID)) {
+                    if (!rhsVar.isInSamePkg(currentPkgID) && !isTestablePkgAnalysis) {
                         getInvocationData(rhsVar.getPackageID())
                                 .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(rhsVar.getPackageID()));
                     } else if (isFunctionKindType(rhsVar.type)) {
@@ -275,7 +278,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         if (fpData == null) {
-            if (!fpPointer.isInSamePkg(currentPkgID)) {
+            if (!fpPointer.isInSamePkg(currentPkgID) && !isTestablePkgAnalysis) {
                 getInvocationData(fpPointer.getPackageID())
                         .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(fpPointer.getPackageID()));
             }
@@ -408,7 +411,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private BIRNode.BIRFunction lookupBirFunction(PackageID pkgId, String funcName) {
         UsedBIRNodeAnalyzer.InvocationData invocationData = getInvocationData(pkgId);
-        if (!invocationData.moduleIsUsed) {
+        if (!invocationData.moduleIsUsed && !isTestablePkgAnalysis) {
             invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(pkgId));
         }
         return invocationData.functionPool.get(funcName);
@@ -454,6 +457,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         childFunction.parentNodes.add(parentNode);
         if (childPkgId.equals(currentPkgID)) {
             visitNode(childFunction);
+            return;
+        }
+
+        // Testable pkg dependencies should not be analysed because the unoptimized duplicates will be referenced.
+        if (isTestablePkgAnalysis) {
             return;
         }
 
