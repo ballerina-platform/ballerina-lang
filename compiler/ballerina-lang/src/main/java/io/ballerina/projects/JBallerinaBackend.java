@@ -131,6 +131,7 @@ public class JBallerinaBackend extends CompilerBackend {
     List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
     private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
+    private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
     protected final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
     protected final HashSet<PackageId> unusedPackageIds = new HashSet<>();
     protected final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
@@ -167,6 +168,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.conflictedJars = new ArrayList<>();
         this.symbolTable = SymbolTable.getInstance(compilerContext);
+        this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
         performCodeGen(shrink);
     }
 
@@ -246,8 +248,6 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void registerUnusedBIRNodes() {
-        UsedBIRNodeAnalyzer usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
-
         // Reversed the for loop because used BIRNode analysis should start from the root module.
         // Root module is usually found last in the topologicallySortedModuleList.
         for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
@@ -257,7 +257,7 @@ public class JBallerinaBackend extends CompilerBackend {
             // Its immediate dependent modules are marked as "used" and they are optimized after that.
             // This process happens till all "used" modules are exhausted.
             if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
-                usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                this.usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
                 updateNativeDependencyMap(moduleContext);
             }
         }
@@ -265,13 +265,18 @@ public class JBallerinaBackend extends CompilerBackend {
         CodeGenOptimizationReportEmitter.emitBirOptimizationDuration();
 
         if (this.packageContext.project().buildOptions().verbose()) {
-            CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(usedBIRNodeAnalyzer.pkgWiseInvocationData,
-                    getOptimizationReportPath(), packageContext.project().kind());
+            CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
+                    this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportPath(),
+                    packageContext.project().kind());
         }
     }
 
     private Path getOptimizationReportPath() {
         return this.packageContext.project().sourceRoot;
+    }
+
+    protected Set<PackageID> getOptimizedPackageIDs() {
+        return this.usedBIRNodeAnalyzer.pkgWiseInvocationData.keySet();
     }
 
     private void markTestDependenciesForDuplicateBIRGen() {

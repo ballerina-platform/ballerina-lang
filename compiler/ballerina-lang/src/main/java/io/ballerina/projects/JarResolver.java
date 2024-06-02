@@ -68,7 +68,7 @@ public class JarResolver {
     private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
-    public HashSet<Path> duplicateJarPaths = new HashSet<>();
+    public HashSet<Path> OptimizedJarLibraryPaths = new HashSet<>();
 
     JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
@@ -173,31 +173,36 @@ public class JarResolver {
             if (jBalBackend.unusedModuleIds.contains(moduleId)) {
                 continue;
             }
-            PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
-                    packageContext.packageId(), packageContext.moduleContext(moduleId).moduleName());
-            libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
+            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+            PackageID pkgID = moduleContext.descriptor().moduleCompilationId();
 
-            if (packageContext.project().buildOptions().optimizeCodegen()) {
-                addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, moduleId);
+            if (this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
+                addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, pkgID);
+            } else {
+                PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
+                        packageContext.packageId(), moduleContext.moduleName());
+                libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
             }
         }
     }
 
     private void addOptimizedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                           Set<JarLibrary> libraryPaths, ModuleContext moduleContext,
-                                          ModuleId moduleId) {
+                                          PackageID pkgID) {
         PlatformLibrary generatedOptimizedLibrary = jBalBackend.codeGeneratedOptimizedLibrary(
                 packageContext.packageId(), moduleContext.moduleName());
-        for (PackageID duplicatePkgID : JvmCodeGenUtil.duplicatePkgsMap.values()) {
-            if (duplicatePkgID.getName().value.equals(moduleId.moduleName())) {
-                Path duplicatePath = Paths.get(generatedOptimizedLibrary.path().toAbsolutePath().toString()
-                        .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
-                                ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
-                libraryPaths.add(new JarLibrary(duplicatePath, scope, getPackageName(packageContext)));
-                duplicateJarPaths.add(duplicatePath);
-                break;
-            }
+        Path optimizedJarLibraryPath = Paths.get(generatedOptimizedLibrary.path().toAbsolutePath().toString());
+
+        if (JvmCodeGenUtil.duplicatePkgsMap.containsKey(pkgID.orgName + pkgID.getNameComps().toString())) {
+            // Package is an optimized duplicated pkg.
+            // This means the package is a common dependency of both testable and build projects.
+            optimizedJarLibraryPath =
+                    Path.of(optimizedJarLibraryPath.toString().replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
+                            ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
         }
+
+        libraryPaths.add(new JarLibrary(optimizedJarLibraryPath, scope, getPackageName(packageContext)));
+        OptimizedJarLibraryPaths.add(optimizedJarLibraryPath);
     }
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
