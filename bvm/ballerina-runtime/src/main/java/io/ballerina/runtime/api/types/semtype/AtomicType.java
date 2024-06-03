@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Marker type representing AtomicType.
+ *
+ * @since 2201.10.0
+ */
 public interface AtomicType {
 
 }

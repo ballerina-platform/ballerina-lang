@@ -25,9 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
+ * environments with each other in undefined.
+ *
+ * @since 2201.10.0
+ */
 public final class Env {
 
-    private final static Env INSTANCE = new Env();
+    private static final Env INSTANCE = new Env();
 
     private final Map<AtomicType, TypeAtom> atomTable;
     private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();

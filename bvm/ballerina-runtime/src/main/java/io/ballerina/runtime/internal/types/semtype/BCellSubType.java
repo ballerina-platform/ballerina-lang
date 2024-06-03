@@ -35,6 +35,12 @@ import java.util.function.Predicate;
 // TODO: would making this a child class of say BddNode be faster than making this a delegate
 //   -- Problem with this is modeling type operations (union, intersect, complement) since parent must return a Cell
 //   as well
+
+/**
+ * Runtime representation of CellSubType.
+ *
+ * @since 2201.10.0
+ */
 public class BCellSubType extends SubType {
 
     private final Bdd inner;
@@ -47,16 +53,13 @@ public class BCellSubType extends SubType {
     public static BCellSubType createDelegate(SubType inner) {
         if (inner instanceof Bdd bdd) {
             return new BCellSubType(bdd);
-        } else if (inner.isAll() || inner.isNothing()) {
-            // FIXME: if all or nothing do the same thing as cellSubtypeDataEnsureProper
-            throw new IllegalStateException("unimplemented");
         } else if (inner instanceof BCellSubType bCell) {
             return new BCellSubType(bCell.inner);
         }
         throw new IllegalArgumentException("Unexpected inner type");
     }
 
-    public static CellAtomicType cellAtomType(Atom atom) {
+    private static CellAtomicType cellAtomType(Atom atom) {
         return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
