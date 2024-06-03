@@ -36,6 +36,7 @@ import java.util.Map;
 
 /**
  * Extract semtype assertions in the below form.
+ * @param <SemType> which semtype (runtime or compiler) used in the assertions.
  * // @type A < B
  * // @type B = C
  * // @type c <> D
