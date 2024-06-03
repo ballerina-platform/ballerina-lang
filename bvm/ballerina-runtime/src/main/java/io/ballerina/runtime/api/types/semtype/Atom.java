@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent the BDD atom.
+ *
+ * @since 2201.10.0
+ */
 public interface Atom {
 
     int index();
