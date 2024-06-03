@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import org.testng.annotations.Test;
 
+// These are temporary sanity checks until we have actual types using cell types are implemented
 public class CoreTests {
 
     @Test
@@ -39,5 +40,14 @@ public class CoreTests {
         assert Core.isSubType(cx, mutableInt, mutableInt);
         assert Core.isSubType(cx, readonlyInt, mutableInt);
         assert !Core.isSubType(cx, mutableInt, readonlyInt);
+    }
+
+    @Test
+    public void testCellTypeCaching() {
+        Env env = Env.getInstance();
+        SemType intTy = Builder.intType();
+        SemType readonlyInt1 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        SemType readonlyInt2 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
+        assert readonlyInt1 == readonlyInt2;
     }
 }
