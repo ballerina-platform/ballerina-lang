@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -52,6 +52,11 @@ import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
+/**
+ * Analyses the BIR and marks unused functions and type definitions.
+ *
+ * @since 2201.10.0
+ */
 public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
