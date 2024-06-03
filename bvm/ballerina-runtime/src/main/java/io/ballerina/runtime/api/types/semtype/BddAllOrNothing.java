@@ -18,10 +18,15 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent the leaf node of a Bdd.
+ *
+ * @since 2201.10.0
+ */
 public final class BddAllOrNothing extends Bdd {
 
-    public static BddAllOrNothing ALL = new BddAllOrNothing(true);
-    public static BddAllOrNothing NOTHING = new BddAllOrNothing(false);
+    public static final BddAllOrNothing ALL = new BddAllOrNothing(true);
+    public static final BddAllOrNothing NOTHING = new BddAllOrNothing(false);
 
     private BddAllOrNothing(boolean all) {
         super(all, !all);

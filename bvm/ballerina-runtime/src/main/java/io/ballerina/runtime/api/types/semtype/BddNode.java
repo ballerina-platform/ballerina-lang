@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
+ *
+ * @since 2201.10.0
+ */
 public final class BddNode extends Bdd {
 
     private final Atom atom;
@@ -25,7 +30,7 @@ public final class BddNode extends Bdd {
     private final Bdd middle;
     private final Bdd right;
 
-    public BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
+    BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
         super(false, false);
         this.atom = atom;
         this.left = left;
