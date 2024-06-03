@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 /**
  * Subtype test.
  *
- * @param <SemType> Actual semtype definition on which assertion is defined on (runtime or compile time)
+ * @param <SemType> Which semtype (runtime or compiler) is used for type assertion.
  * @param context   Type context under which {@code SemTypes} were defined.
  * @param fileName  Name of the file in which types were defined in.
  * @param lhs       Resolved {@code SemType} for the Left-hand side of the subtype test.

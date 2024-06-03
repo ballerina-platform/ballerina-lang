@@ -82,7 +82,7 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.get
  *
  * @since 2201.10.0
  */
-public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
+public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
 
     private final Map<BLangFunction, Definition> attachedDefinitions = new HashMap<>();
 
@@ -105,7 +105,9 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
         }
     }
 
-    private void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable, BLangConstant constant) {
+    @Override
+    protected void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
+                                   BLangConstant constant) {
         SemType semtype = evaluateConst(constant);
         addSemTypeBType(constant.getTypeNode(), semtype);
         cx.getEnv().addTypeDef(constant.name.value, semtype);
@@ -124,6 +126,12 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
             default:
                 throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         }
+    }
+
+    @Override
+    protected void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                   BLangTypeDefinition defn) {
+        resolveTypeDefn(cx, mod, defn, 0);
     }
 
     private SemType resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
@@ -155,7 +163,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
     }
 
     public SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                   int depth, BLangType td) {
+                                   int depth, TypeNode td) {
         if (td == null) {
             return null;
         }
@@ -252,8 +260,7 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
 
     // TODO: should we make definition part of BLangFunction as well?
     private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                    int depth,
-                                    BLangFunction functionType) {
+                                    int depth, BLangFunction functionType) {
         Definition attached = attachedDefinitions.get(functionType);
         Env env = (Env) cx.getInnerEnv();
         if (attached != null) {
