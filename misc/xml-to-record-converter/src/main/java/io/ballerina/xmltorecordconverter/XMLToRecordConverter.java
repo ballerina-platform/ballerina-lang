@@ -360,17 +360,15 @@ public class XMLToRecordConverter {
         Map<String, Boolean> prefixMap = new HashMap<>();
         for (int i = 0; i < xmlNodeList.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlNodeList.item(i);
-            if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element xmlElementNode = (Element) xmlNode;
-                if (xmlElementNode.getLocalName().equals(fieldName)) {
-                    String prefix = xmlElementNode.getPrefix() == null ? defaultNamespace : xmlElementNode.getPrefix();
-                    if (prefixMap.keySet().contains(prefix)) {
-                        prefixMap.put(prefix, true);
-                    } else {
-                        prefixMap.put(prefix, false);
-                    }
-                }
+            if (xmlNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+                continue;
             }
+            Element xmlElementNode = (Element) xmlNode;
+            if (!xmlNode.getLocalName().equals(fieldName)) {
+                continue;
+            }
+            String prefix = xmlElementNode.getPrefix() == null ? defaultNamespace : xmlElementNode.getPrefix();
+            prefixMap.put(prefix, prefixMap.containsKey(prefix));
         }
         return prefixMap;
     }
