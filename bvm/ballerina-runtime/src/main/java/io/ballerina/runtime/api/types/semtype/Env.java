@@ -20,12 +20,15 @@ package io.ballerina.runtime.api.types.semtype;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class Env {
 
     private final static Env INSTANCE = new Env();
 
     private final Map<AtomicType, TypeAtom> atomTable;
+    private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private Env() {
         this.atomTable = new HashMap<>();
@@ -51,5 +54,17 @@ public final class Env {
                 return result;
             }
         }
+    }
+
+    Optional<SemType> getCachedCellType(SemType ty, CellAtomicType.CellMutability mut) {
+        return Optional.ofNullable(this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut)));
+    }
+
+    void cacheCellType(SemType ty, CellAtomicType.CellMutability mut, SemType semType) {
+        this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), semType);
+    }
+
+    private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
+
     }
 }
