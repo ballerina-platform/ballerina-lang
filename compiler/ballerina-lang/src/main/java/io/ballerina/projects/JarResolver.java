@@ -68,7 +68,7 @@ public class JarResolver {
     private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
-    public HashSet<Path> OptimizedJarLibraryPaths = new HashSet<>();
+    public HashSet<Path> optimizedJarLibraryPaths = new HashSet<>();
 
     JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
@@ -204,7 +204,7 @@ public class JarResolver {
 
         libraryPaths.add(new JarLibrary(optimizedJarLibraryPath, scope,
                 getPackageName(packageContext) + ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
-        OptimizedJarLibraryPaths.add(optimizedJarLibraryPath);
+        optimizedJarLibraryPaths.add(optimizedJarLibraryPath);
     }
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
