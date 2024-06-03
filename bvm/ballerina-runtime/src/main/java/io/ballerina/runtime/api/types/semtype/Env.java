@@ -22,12 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class Env {
 
     private final static Env INSTANCE = new Env();
 
     private final Map<AtomicType, TypeAtom> atomTable;
+    private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private Env() {
@@ -43,8 +46,19 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        // FIXME: use a rw lock?
-        synchronized (this.atomTable) {
+        this.atomTableLock.readLock().lock();
+        try {
+            TypeAtom ta = this.atomTable.get(atomicType);
+            if (ta != null) {
+                return ta;
+            }
+        } finally {
+            this.atomTableLock.readLock().unlock();
+        }
+
+        this.atomTableLock.writeLock().lock();
+        try {
+            // we are double-checking since there may be 2 trying to add at the same time
             TypeAtom ta = this.atomTable.get(atomicType);
             if (ta != null) {
                 return ta;
@@ -53,6 +67,8 @@ public final class Env {
                 this.atomTable.put(result.atomicType(), result);
                 return result;
             }
+        } finally {
+            this.atomTableLock.writeLock().unlock();
         }
     }
 
