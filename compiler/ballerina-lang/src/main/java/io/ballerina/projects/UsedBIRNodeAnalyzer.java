@@ -108,7 +108,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         // All testablePkgs will be considered as root pkgs by default.
         if (pkgNode.hasTestablePackage()) {
-            analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
+//            analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
         }
 
         for (BIRNode.BIRDocumentableNode node : currentInvocationData.startPointNodes) {
