@@ -484,7 +484,7 @@ public class TestUtils {
 
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
-        dependencies.removeAll(jarResolver.OptimizedJarLibraryPaths);
+        dependencies.removeAll(jarResolver.optimizedJarLibraryPaths);
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();
