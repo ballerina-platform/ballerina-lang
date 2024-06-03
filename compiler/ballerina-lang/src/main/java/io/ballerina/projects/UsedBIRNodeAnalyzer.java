@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -78,6 +79,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
     private List<BIRNonTerminator> currentInstructionArr;
     private BIRNode.BIRFunction currentParentFunction;
+    private final boolean disableTestablePkgAnalysis = true;
 
     private UsedBIRNodeAnalyzer(CompilerContext context) {
         context.put(USED_BIR_NODE_ANALYZER_KEY, this);
@@ -106,9 +108,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         // All testablePkgs will be considered as root pkgs by default.
-//        if (pkgNode.hasTestablePackage()) {
-//            analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
-//        }
+        if (pkgNode.hasTestablePackage() && !disableTestablePkgAnalysis) {
+            analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
+        }
 
         for (BIRNode.BIRDocumentableNode node : currentInvocationData.startPointNodes) {
             visitNode(node);
@@ -117,19 +119,19 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
     }
 
-//    private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
-//        isTestablePkgAnalysis = true;
-//        // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
-//        // testable and parent packages
-//        currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
-//
-//        testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
-//        // Analyzing testablePkg should be done first because it is the root of the dependency graph
-//        for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
-//            visitNode(node);
-//        }
-//        isTestablePkgAnalysis = false;
-//    }
+    private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
+        isTestablePkgAnalysis = true;
+        // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
+        // testable and parent packages
+        currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
+
+        testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
+        // Analyzing testablePkg should be done first because it is the root of the dependency graph
+        for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
+            visitNode(node);
+        }
+        isTestablePkgAnalysis = false;
+    }
 
     private void visitNode(BIRNode nodeToVisit) {
         BIRNode.BIRFunction prevParentFunction = currentParentFunction;
