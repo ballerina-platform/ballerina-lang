@@ -197,7 +197,15 @@ public final class Builder {
     }
 
     public static SemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
-        // TODO:Cache this for pure basic types + never
+        Optional<SemType> cachedSemType = env.getCachedCellType(ty, mut);
+        return cachedSemType.orElseGet(() -> {
+            SemType semType = createCellSemType(env, ty, mut);
+            env.cacheCellType(ty, mut, semType);
+            return semType;
+        });
+    }
+
+    private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
         CellAtomicType atomicCell = new CellAtomicType(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = BddNode.bddAtom(atom);
