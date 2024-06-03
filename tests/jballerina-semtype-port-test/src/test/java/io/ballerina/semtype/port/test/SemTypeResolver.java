@@ -18,11 +18,42 @@
 
 package io.ballerina.semtype.port.test;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-public interface SemTypeResolver<SemType> {
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
-    void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx);
+public abstract class SemTypeResolver<SemType> {
+
+    public void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx) {
+        Map<String, BLangNode> modTable = new LinkedHashMap<>();
+        for (BLangNode typeAndClassDef : moduleDefs) {
+            modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
+        }
+        modTable = Collections.unmodifiableMap(modTable);
+
+        for (BLangNode def : moduleDefs) {
+            if (def.getKind() == NodeKind.CLASS_DEFN) {
+                throw new UnsupportedOperationException("Semtype are not supported for class definitions yet");
+            } else if (def.getKind() == NodeKind.CONSTANT) {
+                resolveConstant(cx, modTable, (BLangConstant) def);
+            } else {
+                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
+                resolveTypeDefn(cx, modTable, typeDefinition);
+            }
+        }
+    }
+
+    protected abstract void resolveConstant(TypeTestContext<SemType> cx,
+                                            Map<String, BLangNode> modTable, BLangConstant constant);
+
+    protected abstract void resolveTypeDefn(TypeTestContext<SemType> cx,
+                                            Map<String, BLangNode> mod, BLangTypeDefinition defn);
 }

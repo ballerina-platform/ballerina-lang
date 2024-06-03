@@ -22,7 +22,6 @@ public interface TypeTestAPI<SemType> {
 
     boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2);
 
-    // TODO: may be introduce is mapping and is list
     boolean isSubtypeSimple(SemType t1, SemType t2);
 
     boolean isListType(SemType t);

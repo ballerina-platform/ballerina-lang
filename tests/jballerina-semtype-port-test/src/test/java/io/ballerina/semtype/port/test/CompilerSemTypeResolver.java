@@ -57,40 +57,19 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
 /**
  * Resolves sem-types for module definitions.
  *
  * @since 2201.10.0
  */
-public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
+public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
 
     @Override
-    public void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx) {
-        Map<String, BLangNode> modTable = new LinkedHashMap<>();
-        for (BLangNode typeAndClassDef : moduleDefs) {
-            modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
-        }
-        modTable = Collections.unmodifiableMap(modTable);
-
-        for (BLangNode def : moduleDefs) {
-            if (def.getKind() == NodeKind.CLASS_DEFN) {
-                throw new UnsupportedOperationException("Semtype are not supported for class definitions yet");
-            } else if (def.getKind() == NodeKind.CONSTANT) {
-                resolveConstant(cx, modTable, (BLangConstant) def);
-            } else {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                resolveTypeDefn(cx, modTable, typeDefinition, 0);
-            }
-        }
-    }
-
-    private void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable, BLangConstant constant) {
+    protected void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
+                                   BLangConstant constant) {
         SemType semtype = evaluateConst(constant);
         addSemTypeBType(constant.getTypeNode(), semtype);
         cx.getEnv().addTypeDef(constant.name.value, semtype);
@@ -109,6 +88,12 @@ public class CompilerSemTypeResolver implements SemTypeResolver<SemType> {
             default:
                 throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         }
+    }
+
+    @Override
+    protected void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                   BLangTypeDefinition defn) {
+        resolveTypeDefn(cx, mod, defn, 0);
     }
 
     private SemType resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,

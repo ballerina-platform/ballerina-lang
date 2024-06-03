@@ -36,11 +36,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,38 +50,23 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
-public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
+class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     Map<BLangType, SemType> attachedSemType = new HashMap<>();
     Map<BLangTypeDefinition, SemType> semTypeMemo = new HashMap<>();
 
-    // TODO: may be we need an abstract class
     @Override
-    public void defineSemTypes(List<BLangNode> moduleDefs, TypeTestContext<SemType> cx) {
-        Map<String, BLangNode> modTable = new LinkedHashMap<>();
-        // TODO: stream
-        for (BLangNode typeAndClassDef : moduleDefs) {
-            modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
-        }
-        modTable = Collections.unmodifiableMap(modTable);
-
-        for (BLangNode def : moduleDefs) {
-            if (def.getKind() == NodeKind.CLASS_DEFN) {
-                throw new UnsupportedOperationException("Semtype are not supported for class definitions yet");
-            } else if (def.getKind() == NodeKind.CONSTANT) {
-                resolveConstant(cx, modTable, (BLangConstant) def);
-            } else {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                resolveTypeDefn(cx, modTable, typeDefinition);
-            }
-        }
+    public void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
+                                BLangTypeDefinition typeDefinition) {
+        resolveTypeDefnRec(cx, modTable, typeDefinition, 0);
     }
 
-    private void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
-                                 BLangTypeDefinition typeDefinition) {
-        resolveTypeDefnRec(cx, modTable, typeDefinition, 0);
+    @Override
+    public void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable, BLangConstant constant) {
+        SemType semtype = evaluateConst(constant);
+        attachToBType(constant.typeNode, semtype);
+        cx.getEnv().addTypeDef(constant.name.value, semtype);
     }
 
     private SemType resolveTypeDefnRec(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -115,22 +97,15 @@ public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
         if (td == null) {
             return null;
         }
-        switch (td.getKind()) {
-            case VALUE_TYPE:
-                return resolveTypeDesc(cx, (BLangValueType) td);
-            case BUILT_IN_REF_TYPE:
-                return resolveTypeDesc((BLangBuiltInRefTypeNode) td);
-            case INTERSECTION_TYPE_NODE:
-                return resolveTypeDesc(cx, (BLangIntersectionTypeNode) td, mod, depth, defn);
-            case UNION_TYPE_NODE:
-                return resolveTypeDesc(cx, (BLangUnionTypeNode) td, mod, depth, defn);
-            case USER_DEFINED_TYPE:
-                return resolveTypeDesc(cx, (BLangUserDefinedType) td, mod, depth);
-            case FINITE_TYPE_NODE:
-                return resolveSingletonType((BLangFiniteTypeNode) td);
-            default:
-                throw new UnsupportedOperationException("type not implemented: " + td.getKind());
-        }
+        return switch (td.getKind()) {
+            case VALUE_TYPE -> resolveTypeDesc(cx, (BLangValueType) td);
+            case BUILT_IN_REF_TYPE -> resolveTypeDesc((BLangBuiltInRefTypeNode) td);
+            case INTERSECTION_TYPE_NODE -> resolveTypeDesc(cx, (BLangIntersectionTypeNode) td, mod, depth, defn);
+            case UNION_TYPE_NODE -> resolveTypeDesc(cx, (BLangUnionTypeNode) td, mod, depth, defn);
+            case USER_DEFINED_TYPE -> resolveTypeDesc(cx, (BLangUserDefinedType) td, mod, depth);
+            case FINITE_TYPE_NODE -> resolveSingletonType((BLangFiniteTypeNode) td);
+            default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
+        };
     }
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td) {
@@ -139,7 +114,6 @@ public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
                 .reduce(Builder.neverType(), Core::union);
     }
 
-    // TODO: common code?
     private Optional<SemType> resolveSingletonType(Object value, TypeKind targetTypeKind) {
         return switch (targetTypeKind) {
             case NIL -> Optional.of(Builder.nilType());
@@ -160,22 +134,17 @@ public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
                     try {
                         doubleVal = Double.parseDouble((String) value);
                     } catch (NumberFormatException e) {
-                        // We reach here when there is a syntax error. Mock the flow with default float value.
                         yield Optional.empty();
                     }
                 }
                 yield Optional.of(Builder.floatConst(doubleVal));
-                // literal value will be a string if it wasn't within the bounds of what is supported by Java Long
-                // or Double when it was parsed in BLangNodeBuilder.
-                // We reach here when there is a syntax error. Mock the flow with default float value.
             }
             case DECIMAL -> {
                 String repr = (String) value;
                 if (repr.contains("d") || repr.contains("D")) {
                     repr = repr.substring(0, repr.length() - 1);
                 }
-                BigDecimal d = new BigDecimal(repr);
-                yield Optional.of(Builder.decimalConst(d));
+                yield Optional.of(Builder.decimalConst(new BigDecimal(repr)));
             }
             case STRING -> Optional.of(Builder.stringConst((String) value));
             default -> Optional.empty();
@@ -249,24 +218,16 @@ public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
     }
 
     private SemType resolveTypeDesc(TypeTestContext<SemType> cx, BLangValueType td) {
-        switch (td.typeKind) {
-            case NIL:
-                return Builder.nilType();
-            case BOOLEAN:
-                return Builder.booleanType();
-            case BYTE:
-                return Builder.intRange(0, UNSIGNED8_MAX_VALUE);
-            case INT:
-                return Builder.intType();
-            case FLOAT:
-                return Builder.floatType();
-            case DECIMAL:
-                return Builder.decimalType();
-            case STRING:
-                return Builder.stringType();
-            default:
-                throw new IllegalStateException("Unknown type: " + td);
-        }
+        return switch (td.typeKind) {
+            case NIL -> Builder.nilType();
+            case BOOLEAN -> Builder.booleanType();
+            case BYTE -> Builder.intRange(0, UNSIGNED8_MAX_VALUE);
+            case INT -> Builder.intType();
+            case FLOAT -> Builder.floatType();
+            case DECIMAL -> Builder.decimalType();
+            case STRING -> Builder.stringType();
+            default -> throw new IllegalStateException("Unknown type: " + td);
+        };
     }
 
     private SemType evaluateConst(BLangConstant constant) {
@@ -277,12 +238,6 @@ public class RuntimeSemTypeResolver implements SemTypeResolver<SemType> {
             case FLOAT -> Builder.floatConst((double) constant.symbol.value.value);
             default -> throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         };
-    }
-
-    private void resolveConstant(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable, BLangConstant constant) {
-        SemType semtype = evaluateConst(constant);
-        attachToBType(constant.typeNode, semtype);
-        cx.getEnv().addTypeDef(constant.name.value, semtype);
     }
 
     private void attachToBType(BLangType bType, SemType semType) {
