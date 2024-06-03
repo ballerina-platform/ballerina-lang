@@ -46,6 +46,8 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -194,10 +196,18 @@ public class ProjectUtils {
     private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
         for (DocumentId docId : documentIds) {
             Document document = module.document(docId);
-
             ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-
             for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                boolean isErrorInImport = false;
+                for (Diagnostic diagnostic : importDcl.diagnostics()) {
+                    if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        isErrorInImport = true;
+                        break;
+                    }
+                }
+                if (isErrorInImport) {
+                    continue;
+                }
                 String orgName = "";
                 if (importDcl.orgName().isPresent()) {
                     orgName = importDcl.orgName().get().orgName().text();
