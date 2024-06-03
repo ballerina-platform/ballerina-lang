@@ -19,6 +19,11 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+/**
+ * Represent a recursive type atom.
+ *
+ * @since 2201.10.0
+ */
 public class RecAtom implements Atom {
 
     @Override
