@@ -125,7 +125,6 @@ public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNod
         } else if (this == BddAllOrNothing.NOTHING) {
             return BddAllOrNothing.ALL;
         }
-        // TODO: may be factor this out
         Bdd nothing = BddAllOrNothing.NOTHING;
         BddNode b = (BddNode) this;
         if (b.right() == nothing) {
@@ -167,12 +166,14 @@ public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNod
 
     @Override
     public boolean isEmpty(Context cx) {
-        throw new IllegalStateException("Unimplemented");
+        // Basic types that uses Bdd as a delegate should implement isEmpty instead.
+        throw new IllegalStateException("Bdd don't support isEmpty");
     }
 
     @Override
     public SubTypeData data() {
-        throw new IllegalStateException("Unimplemented");
+        // Basic types that uses Bdd (and has a meaningful data part) as a delegate should implement data instead.
+        throw new IllegalStateException("Bdd don't support data");
     }
 
     public static boolean bddEvery(Context cx, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate) {
