@@ -176,13 +176,14 @@ public class JarResolver {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PackageID pkgID = moduleContext.descriptor().moduleCompilationId();
 
-            if (this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
+            if (!this.rootPackageContext.project().buildOptions().skipTests() &&
+                    this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
                 addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, pkgID);
-            } else {
-                PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
-                        packageContext.packageId(), moduleContext.moduleName());
-                libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
             }
+
+            PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
+                    packageContext.packageId(), moduleContext.moduleName());
+            libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
         }
     }
 
@@ -201,7 +202,8 @@ public class JarResolver {
                             ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
         }
 
-        libraryPaths.add(new JarLibrary(optimizedJarLibraryPath, scope, getPackageName(packageContext)));
+        libraryPaths.add(new JarLibrary(optimizedJarLibraryPath, scope,
+                getPackageName(packageContext) + ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX));
         OptimizedJarLibraryPaths.add(optimizedJarLibraryPath);
     }
 
