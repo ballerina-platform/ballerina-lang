@@ -261,7 +261,8 @@ public class SemTypeTest {
                 "function-rec-tv.bal",
                 "function-rest-tv.bal",
                 "function-tv.bal",
-                "function-union-tv.bal"
+                "function-union-tv.bal",
+                "func-quals-tv.bal"
         ));
         Predicate<File> mappingFilter = createRuntimeFileNameFilter(Set.of(
                 "mapping1-t.bal",
@@ -287,12 +288,20 @@ public class SemTypeTest {
                 "xml-sequence-tv.bal",
                 "xml-te.bal"
         ));
+        Predicate<File> objectFilter = createRuntimeFileNameFilter(Set.of(
+                "object-binaryops-tv.bal",
+                "object-qulifiers-tv.bal",
+                "object-rec-tv.bal",
+                "object-simple-tv.bal",
+                "object-distinct-tv.bal"
+        ));
         return balFiles.stream()
                 .filter(listFilter)
                 .filter(tableFilter)
                 .filter(functionFilter)
                 .filter(mappingFilter)
                 .filter(xmlFilter)
+                .filter(objectFilter)
                 .map(File::getAbsolutePath).toArray();
     }
 
