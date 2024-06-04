@@ -24,11 +24,13 @@ import static org.objectweb.asm.Opcodes.ASM9;
 
 /**
  * A visitor class used to visit signatures and collect used class types.
+ *
+ * @since 2201.10.0
  */
 public class SignatureNodeVisitor extends SignatureVisitor {
 
     String signatureClassName;
-    private DependencyCollector collector;
+    private final DependencyCollector collector;
 
     public SignatureNodeVisitor(DependencyCollector collector) {
         super(ASM9);

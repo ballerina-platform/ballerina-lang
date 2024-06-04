@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 
 /**
  * Collects the dependent classes used by a particular class.
+ *
+ * @since 2201.10.0
  */
 public class DependencyCollector {
 
@@ -109,8 +111,8 @@ public class DependencyCollector {
         }
         addType(Type.getReturnType(desc));
         Type[] types = Type.getArgumentTypes(desc);
-        for (int i = 0; i < types.length; i++) {
-            addType(types[i]);
+        for (Type type : types) {
+            addType(type);
         }
     }
 

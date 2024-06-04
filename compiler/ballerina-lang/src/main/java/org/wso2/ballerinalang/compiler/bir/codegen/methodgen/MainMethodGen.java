@@ -293,9 +293,7 @@ public class MainMethodGen {
         MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
-
         mv.visitVarInsn(ALOAD, futureIndex);
-
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
@@ -304,7 +302,6 @@ public class MainMethodGen {
         int schedulerIndex = indexMap.get("newSchedulerVar");
         mv.visitVarInsn(ALOAD, schedulerIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
-
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {

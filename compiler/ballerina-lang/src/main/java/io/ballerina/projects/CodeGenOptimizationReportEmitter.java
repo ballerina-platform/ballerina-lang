@@ -43,7 +43,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DI
 /**
  * Emits time durations and optimized node details for codegen optimization.
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public class CodeGenOptimizationReportEmitter {
 

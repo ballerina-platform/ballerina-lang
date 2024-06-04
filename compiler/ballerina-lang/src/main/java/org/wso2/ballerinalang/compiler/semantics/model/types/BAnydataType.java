@@ -95,7 +95,6 @@ public class BAnydataType extends BUnionType {
         analyzer.visit(this, data);
     }
 
-
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
