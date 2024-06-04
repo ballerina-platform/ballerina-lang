@@ -51,7 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.SIZE_MISMATCH_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
@@ -837,7 +837,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         // removed member
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                    getModulePrefixedReason(ARRAY_LANG_LIB, SIZE_MISMATCH_ERROR_IDENTIFIER),
                     ErrorCodes.INVALID_MEMBER_SIZE, numOfMandatoryTypes + 1, this.getLength());
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
