@@ -278,29 +278,32 @@ function assertXmlNavigationWithDefaultNamespaceDefinedAfter(xml[] results) {
     assert(results[17], xml ``);
 }
 
+const i = 0;
+
 function testXmlIndexedStepExtend() {
+    int k = 1;
     xml x1 = xml
             `<item><!--comment--><name>T-shirt</name><price>19.99</price></item>
             <item><?data?><name>Backpack</name><price>34.99</price></item>
             <item>text<name>Watch</name><price>49.99</price></item>`;
 
     assert(x1/*[0], xml `<!--comment--><?data?>text`);
-    assert(x1/*[1], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*[k], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
     assert(x1/*[3], xml ``);
     assertError(trap x1/*[-1], "xml sequence index out of range. Length: '3' requested: '-1'");
 
     assert(x1/*[0][0], xml `<!--comment--><?data?>text`);
-    assert(x1/*[1][0], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
+    assert(x1/*[k][i], xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
     assert(x1/*[1][1], xml ``);
     assert(x1/*[3][3], xml ``);
     assertError(trap x1/*[0][-1], "xml sequence index out of range. Length: '1' requested: '-1'");
     assertError(trap x1/*[-1], "xml sequence index out of range. Length: '3' requested: '-1'");
 
-    assert(x1/<price>[0], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<price>[i], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
     assert(x1/<price>[5], xml ``);
     assertError(trap x1/<price>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
 
-    assert(x1/<price>[0][0], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/<price>[i][0], xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
     assert(x1/<price>[0][1], xml ``);
     assert(x1/<price>[5][4], xml ``);
     assertError(trap x1/<price>[0][-1], "xml sequence index out of range. Length: '1' requested: '-1'");
@@ -358,7 +361,7 @@ function testXmlIndexedStepExtend() {
     xml:ProcessingInstruction x5 = xml `<?pi?>`;
     assert(x5/*[0], xml ``);
     assert(x5/*[-1], xml ``);
-    assert(x5/<b>[0], xml ``);
+    assert(x5/<b>[i], xml ``);
     assert(x5/<b>[-1], xml ``);
     assert(x5/**/<c>[0], xml ``);
     assert(x5/**/<c>[-1], xml ``);
@@ -463,6 +466,72 @@ function testXmlFilterStepExtend() {
     assert(x5/<name>.<price|pen>, xml ``);
     assert(x5/**/<name>.<name>, xml ``);
     assert(x5/**/<price|name>.<name>, xml ``);
+}
+
+function testXmlIndexedAndFilterStepExtend() {
+    int k = 1;
+    xml x1 = xml
+            `<item><!--comment--><name>T-shirt</name><price>19.99</price><brand><name>nike</name><local>no</local></brand></item>
+            <item><?data?><iname>Backpack</iname><iname>IBackpack</iname><price>34.99</price><brand><name>adidas</name><local>yes</local></brand></item>
+            <item>text<name>Watch</name><price>49.99</price><brand><name>samsung</name><local>no</local></brand></item>`;
+
+    assert(x1/*[1].<name>, xml `<name>T-shirt</name><name>Watch</name>`);
+    assert(x1/*[k].<name|iname>, xml `<name>T-shirt</name><iname>Backpack</iname><name>Watch</name>`);
+    assert(x1/*[0].<count>, xml ``);
+    assert(x1/*.<name>[0][0], xml `<name>T-shirt</name><name>Watch</name>`);
+    assert(x1/*.<name>[1][0], xml ``);
+    assert(x1/*.<name|iname>[0].<iname>, xml `<iname>Backpack</iname>`);
+    assert(x1/*.<name|iname>[k].<iname>, xml `<iname>IBackpack</iname>`);
+    assertError(trap x1/*.<name>[-1], "xml sequence index out of range. Length: '1' requested: '-1'");
+    assertError(trap x1/*.<name|iname>[k].<iname>[-1], "xml sequence index out of range. Length: '0' requested: '-1'");
+
+    assert(x1/<brand|name>[0].<brand>, xml `<brand><name>adidas</name><local>yes</local></brand>`);
+    assert(x1/<brand|name>.<name>[0], xml `<name>T-shirt</name><name>Watch</name>`);
+    assert(x1/<price>.<brand>[5], xml ``);
+    assert(x1/<brand|iname>[0].<brand>.<brand>[0], xml `<brand><name>nike</name><local>no</local></brand><brand><name>samsung</name><local>no</local></brand>`);
+
+    assert(x1/**/<name|iname>[i].<name>, xml `<name>T-shirt</name><name>Watch</name>`);
+    assert(x1/**/<name|iname>[k].<name>, xml `<name>nike</name><name>samsung</name>`);
+    assert(x1/**/<name|iname>[0].<name>[0], xml `<name>T-shirt</name><name>Watch</name>`);
+    assertError(trap x1/<price>[-1].<count>, "xml sequence index out of range. Length: '1' requested: '-1'");
+
+    xml:Element x2 = xml `<a>xml text<b><c>c</c><d>d</d></b><b><c>d</c></b><!--comment--></a>`;
+    assert(x2/*.<b>[i], xml `<b><c>c</c><d>d</d></b>`);
+    assert(x2/*[2].<b>, xml `<b><c>d</c></b>`);
+    assert(x2/*[2].<b>[0].<b>, xml `<b><c>d</c></b>`);
+    assertError(trap x2/*.<b>[-1].<c>, "xml sequence index out of range. Length: '2' requested: '-1'");
+
+    assert(x2/<b>[0].<b>, xml `<b><c>c</c><d>d</d></b>`);
+    assert(x2/<b>[1].<b>, xml `<b><c>d</c></b>`);
+    assert(x2/<b>[1].<b>[k], xml ``);
+    assertError(trap x2/<b>.<c>[-1], "xml sequence index out of range. Length: '0' requested: '-1'");
+
+    assert(x2/**/<b|c>.<c>[0], xml `<c>c</c>`);
+    assert(x2/**/<b|c>.<c>[k], xml `<c>d</c>`);
+    assertError(trap x2/**/<c>[-1].<b>, "xml sequence index out of range. Length: '2' requested: '-1'");
+
+    xml:Comment x3 = xml `<!--comment-->`;
+    assert(x3/*.<a>[0], xml ``);
+    assert(x3/*[-1].<a>, xml ``);
+    assert(x3/<c>[i].<b>, xml ``);
+    assert(x3/**/<c>.<d>[0].<e>, xml ``);
+    assert(x3/**/<c>[-1].<a>, xml ``);
+
+    xml:ProcessingInstruction x4 = xml `<?pi?>`;
+    assert(x4/*.<a>[0], xml ``);
+    assert(x4/*[-1].<c>, xml ``);
+    assert(x4/<b>[0].<a>.<b>[i], xml ``);
+    assert(x4/<b>.<a>[-1], xml ``);
+    assert(x4/**/<c>.<c>[0], xml ``);
+    assert(x4/**/<c>[-1].<a>.<b>, xml ``);
+
+    xml:Text x5 = xml `xml text`;
+    assert(x5/*.<a>[0], xml ``);
+    assert(x5/*.<b>[-1], xml ``);
+    assert(x5/<b>[0].<c>, xml ``);
+    assert(x5/<b>[-1].<b>, xml ``);
+    assert(x5/**/<c>.<d>[0], xml ``);
+    assert(x5/**/<c>[-1].<e>, xml ``);
 }
 
 function assert(anydata actual, anydata expected) {
