@@ -60,6 +60,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.TestparallelizationTest"/>
             <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
             <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
         </classes>
     </test>
 </suite>
