@@ -273,7 +273,8 @@ public class XMLToRecordConverter {
                                 (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
                         RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
                         if (prefixMap.size() > 1) {
-                            generateRecordFieldForSameLocalNameElements(recordFields, xmlElementNode, updatedRecordField);
+                            generateRecordFieldForSameLocalNameElements(recordFields, xmlElementNode,
+                                    updatedRecordField);
                         } else {
                             recordFields.add(indexOfRecordFieldNode, updatedRecordField);
                         }
