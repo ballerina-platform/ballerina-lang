@@ -331,7 +331,7 @@ public class XMLToRecordConverter {
             for (int j = 0; j < xmlElement.getAttributes().getLength(); j++) {
                 org.w3c.dom.Node xmlAttributeNode = xmlElement.getAttributes().item(j);
                 if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
-                    RecordFieldNode recordField = (RecordFieldNode) getRecordField(xmlAttributeNode);
+                    Node recordField = getRecordField(xmlAttributeNode);
                     recordFields.add(recordField);
                 }
             }
