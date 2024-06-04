@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -117,7 +118,7 @@ import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 public final class TypeChecker {
 
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final Context cx = new Context();
+    private static final Context cx = Context.from(Env.getInstance());
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
