@@ -299,23 +299,15 @@ public class XMLAccessTest {
         return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend", "testXmlIndexedAndFilterStepExtend"};
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLNavExpressionNegative() {
-        String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to invoke the method on the result of the navigation expression.";
-
-        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
-                "expressions, use a grouping expression (parenthesis) " +
-                "if you intend to member-access the result of the navigation expression.";
         int i = 0;
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "cannot find xml namespace prefix 'ns'", 6, 15);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 7, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 8, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
     }
 
