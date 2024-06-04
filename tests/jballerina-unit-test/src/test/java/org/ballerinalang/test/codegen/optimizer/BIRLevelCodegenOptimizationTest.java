@@ -33,6 +33,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+/**
+ * Test cases to verify optimized BIRNodes from `bal build --optimize` command.
+ *
+ *  @since 2201.10.0
+ */
 public class BIRLevelCodegenOptimizationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BIRLevelCodegenOptimizationTest.class);
