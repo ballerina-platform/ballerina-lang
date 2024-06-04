@@ -47,6 +47,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
+/**
+ * This is simplified node visitor of the {@link BTypeAnalyzer}.
+ *
+ * @param <T> the type of data class that passed along with transform methods.
+ * @since 2201.10.0
+ */
 public abstract class SimpleBTypeAnalyzer<T> extends BTypeAnalyzer<T> {
 
     public abstract void analyzeType(BType bType, T data);

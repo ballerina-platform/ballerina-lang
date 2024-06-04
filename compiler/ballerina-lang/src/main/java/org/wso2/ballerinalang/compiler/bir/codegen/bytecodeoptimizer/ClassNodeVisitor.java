@@ -37,6 +37,8 @@ import static org.objectweb.asm.Opcodes.ASM9;
 /**
  * A class node visitor to visit the class attributes and annotations of a graph node.
  * Also adds the names of all the methods in the class to the method list.
+ *
+ * @since 2201.10.0
  */
 public class ClassNodeVisitor extends ClassNode {
 
