@@ -44,4 +44,9 @@ public class CompilerTypeTestEnv implements TypeTestEnv<SemType> {
     public void addTypeDef(String value, SemType semtype) {
         env.addTypeDef(value, semtype);
     }
+
+    @Override
+    public Object getInnerEnv() {
+        return env;
+    }
 }
