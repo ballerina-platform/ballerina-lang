@@ -18,6 +18,7 @@
 
 package io.ballerina.semtype.port.test;
 
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.HashMap;
@@ -26,13 +27,14 @@ import java.util.Map;
 class RuntimeTypeTestEnv implements TypeTestEnv<SemType> {
 
     private final Map<String, SemType> typeMap = new HashMap<>();
+    private final Env env;
 
-    private RuntimeTypeTestEnv() {
-
+    private RuntimeTypeTestEnv(Env env) {
+        this.env = env;
     }
 
-    public static synchronized RuntimeTypeTestEnv from() {
-        return new RuntimeTypeTestEnv();
+    public static synchronized RuntimeTypeTestEnv from(Env env) {
+        return new RuntimeTypeTestEnv(env);
     }
 
     @Override
@@ -43,5 +45,10 @@ class RuntimeTypeTestEnv implements TypeTestEnv<SemType> {
     @Override
     public void addTypeDef(String value, SemType semtype) {
         typeMap.put(value, semtype);
+    }
+
+    @Override
+    public Object getInnerEnv() {
+        return env;
     }
 }
