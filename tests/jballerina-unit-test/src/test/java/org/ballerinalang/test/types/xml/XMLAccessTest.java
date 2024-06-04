@@ -296,7 +296,7 @@ public class XMLAccessTest {
 
     @DataProvider
     private Object[] xmlStepExtension() {
-        return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend"};
+        return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend", "testXmlIndexedAndFilterStepExtend"};
     }
 
     @Test(enabled = false) // disabling until providing semantic support for step extension
