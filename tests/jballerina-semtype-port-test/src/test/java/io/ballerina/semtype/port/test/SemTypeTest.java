@@ -17,6 +17,7 @@
  */
 package io.ballerina.semtype.port.test;
 
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -231,29 +232,6 @@ public class SemTypeTest {
                 "table-readonly-t.bal",
                 "table-t.bal"
         ));
-        Predicate<File> listFilter = createRuntimeFileNameFilter(Set.of(
-                "bdddiff1-tv.bal",
-                "fixed-length-array-t.bal",
-                "fixed-length-array2-t.bal",
-                "fixed-length-array-large-t.bal",
-                "fixed-length-array-tuple-t.bal",
-                "list1-tv.bal",
-                "proj1-tv.bal",
-                "proj2-tv.bal",
-                "proj3-tv.bal",
-                "proj4-tv.bal",
-                "proj5-tv.bal",
-                "proj6-tv.bal",
-                "proj7-tv.bal",
-                "proj8-tv.bal",
-                "proj9-tv.bal",
-                "proj10-tv.bal",
-                "test_test.bal",
-                "tuple1-tv.bal",
-                "tuple2-tv.bal",
-                "tuple3-tv.bal",
-                "tuple4-tv.bal"
-        ));
         Predicate<File> functionFilter = createRuntimeFileNameFilter(Set.of(
                 "function2-tv.bal",
                 "function-intersection-tv.bal",
@@ -278,7 +256,11 @@ public class SemTypeTest {
                 "record-proj-tv.bal",
                 "record-t.bal",
                 "recursive-record-t.bal",
-                "test_test.bal"
+                "test_test.bal",
+                "proj1-tv.bal",
+                "proj3-tv.bal",
+                "tuple1-tv.bal",
+                "tuple3-tv.bal"
         ));
         Predicate<File> xmlFilter = createRuntimeFileNameFilter(Set.of(
                 "xml-complex-ro-tv.bal",
@@ -296,7 +278,6 @@ public class SemTypeTest {
                 "object-distinct-tv.bal"
         ));
         return balFiles.stream()
-                .filter(listFilter)
                 .filter(tableFilter)
                 .filter(functionFilter)
                 .filter(mappingFilter)
@@ -333,7 +314,7 @@ public class SemTypeTest {
             File file) {
         String fileName = file.getAbsolutePath();
         BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-        TypeTestEnv<io.ballerina.runtime.api.types.semtype.SemType> env = RuntimeTypeTestEnv.from();
+        TypeTestEnv<io.ballerina.runtime.api.types.semtype.SemType> env = RuntimeTypeTestEnv.from(Env.getInstance());
         TypeTestContext<io.ballerina.runtime.api.types.semtype.SemType> context = RuntimeTypeTestContext.from(env);
         SemTypeResolver<io.ballerina.runtime.api.types.semtype.SemType> resolver = new RuntimeSemTypeResolver();
         return new TypeCheckData<>(pair, context, env, resolver);
