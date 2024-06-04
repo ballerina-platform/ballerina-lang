@@ -82,6 +82,7 @@ public class ErrorReasons {
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
+    public static final String SIZE_MISMATCH_ERROR_IDENTIFIER = "SizeMismatch";
     public static final String UNORDERED_TYPES = "UnorderedTypesError";
     public static final String LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED =
             "length greater that '2147483647' not yet supported";
