@@ -19,14 +19,17 @@
 package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 public final class RuntimeTypeTestContext implements TypeTestContext<SemType> {
 
     private final TypeTestEnv<SemType> env;
+    private final Context cx;
 
     private RuntimeTypeTestContext(TypeTestEnv<SemType> env) {
         this.env = env;
+        this.cx = Context.from((Env) env.getInnerEnv());
     }
 
     public static synchronized RuntimeTypeTestContext from(TypeTestEnv<SemType> env) {
@@ -40,11 +43,11 @@ public final class RuntimeTypeTestContext implements TypeTestContext<SemType> {
 
     @Override
     public Object getInnerEnv() {
-        throw new IllegalStateException("not implemented");
+        return env.getInnerEnv();
     }
 
     @Override
     public Object getInnerContext() {
-        return new Context();
+        return cx;
     }
 }
