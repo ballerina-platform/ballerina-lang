@@ -25,4 +25,6 @@ public interface TypeTestEnv<SemType> {
     Map<String, SemType> getTypeNameSemTypeMap();
 
     void addTypeDef(String value, SemType semtype);
+
+    Object getInnerEnv();
 }

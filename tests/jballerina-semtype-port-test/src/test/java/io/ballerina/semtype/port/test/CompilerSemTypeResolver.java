@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -213,25 +212,6 @@ public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
             }
         }
         return accum;
-    }
-
-    private static int from(Map<String, BLangNode> mod, BLangNode expr) {
-        if (expr instanceof BLangLiteral literal) {
-            return listSize((Number) literal.value);
-        } else if (expr instanceof BLangSimpleVarRef varRef) {
-            String varName = varRef.variableName.value;
-            return from(mod, mod.get(varName));
-        } else if (expr instanceof BLangConstant constant) {
-            return listSize((Number) constant.symbol.value.value);
-        }
-        throw new UnsupportedOperationException("Unsupported expr kind " + expr.getKind());
-    }
-
-    private static int listSize(Number size) {
-        if (size.longValue() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("list sizes greater than " + Integer.MAX_VALUE + " not yet supported");
-        }
-        return size.intValue();
     }
 
     private SemType resolveListInner(TypeTestContext<SemType> cx, int size, SemType eType) {

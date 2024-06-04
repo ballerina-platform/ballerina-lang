@@ -21,6 +21,7 @@ package io.ballerina.semtype.port.test;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.ListProj;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
@@ -36,10 +37,10 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public boolean isSubtype(TypeTestContext<SemType> cx, SemType t1, SemType t2) {
-        return Core.isSubType(form(cx), t1, t2);
+        return Core.isSubType(from(cx), t1, t2);
     }
 
-    private static Context form(TypeTestContext<SemType> cx) {
+    private static Context from(TypeTestContext<SemType> cx) {
         return (Context) cx.getInnerContext();
     }
 
@@ -50,7 +51,7 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public boolean isListType(SemType t) {
-        throw new IllegalArgumentException("list type not implemented");
+        return Core.isSubtypeSimple(t, Builder.listType());
     }
 
     @Override
@@ -70,11 +71,11 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public SemType listProj(TypeTestContext<SemType> context, SemType t, SemType key) {
-        throw new IllegalArgumentException("list proj not implemented");
+        return ListProj.listProjInnerVal(from(context), t, key);
     }
 
     @Override
     public SemType listMemberType(TypeTestContext<SemType> context, SemType t, SemType key) {
-        throw new IllegalArgumentException("list member type not implemented");
+        return Core.listMemberTypeInnerVal(from(context), t, key);
     }
 }

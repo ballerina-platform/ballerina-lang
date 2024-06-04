@@ -20,16 +20,21 @@ package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.Definition;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -50,11 +55,14 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 
 class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
+    private static final SemType[] EMPTY_SEMTYPE_ARR = {};
     Map<BLangType, SemType> attachedSemType = new HashMap<>();
     Map<BLangTypeDefinition, SemType> semTypeMemo = new HashMap<>();
+    Map<BLangType, Definition> attachedDefinitions = new HashMap<>();
 
     @Override
     public void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
@@ -104,9 +112,68 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case UNION_TYPE_NODE -> resolveTypeDesc(cx, (BLangUnionTypeNode) td, mod, depth, defn);
             case USER_DEFINED_TYPE -> resolveTypeDesc(cx, (BLangUserDefinedType) td, mod, depth);
             case FINITE_TYPE_NODE -> resolveSingletonType((BLangFiniteTypeNode) td);
+            case ARRAY_TYPE -> resolveArrayTypeDesc(cx, mod, defn, depth, (BLangArrayType) td);
+            case TUPLE_TYPE_NODE -> resolveTupleTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
     }
+
+    private SemType resolveTupleTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                         BLangTypeDefinition defn, int depth, BLangTupleTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType(env);
+        }
+        ListDefinition ld = new ListDefinition();
+        attachedDefinitions.put(td, ld);
+        SemType[] memberSemTypes = td.members.stream()
+                .map(member -> resolveTypeDesc(cx, mod, defn, depth + 1, member.typeNode))
+                .toArray(SemType[]::new);
+        SemType rest =
+                td.restParamType != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.restParamType) :
+                        Builder.neverType();
+        return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.length, rest, CELL_MUT_LIMITED);
+    }
+
+    private SemType resolveArrayTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                         BLangTypeDefinition defn, int depth, BLangArrayType td) {
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType((Env) cx.getInnerEnv());
+        }
+
+        ListDefinition ld = new ListDefinition();
+        attachedDefinitions.put(td, ld);
+
+        int dimensions = td.dimensions;
+        SemType accum = resolveTypeDesc(cx, mod, defn, depth + 1, td.elemtype);
+        for (int i = 0; i < dimensions; i++) {
+            int size = from(mod, td.sizes.get(i));
+            if (i == dimensions - 1) {
+                accum = resolveListInner(cx, ld, size, accum);
+            } else {
+                accum = resolveListInner(cx, size, accum);
+            }
+        }
+        return accum;
+    }
+
+    private SemType resolveListInner(TypeTestContext<SemType> cx, int size, SemType eType) {
+        ListDefinition ld = new ListDefinition();
+        return resolveListInner(cx, ld, size, eType);
+    }
+
+    private static SemType resolveListInner(TypeTestContext<SemType> cx, ListDefinition ld, int size, SemType eType) {
+        Env env = (Env) cx.getInnerEnv();
+        if (size != -1) {
+            SemType[] members = {eType};
+            return ld.defineListTypeWrapped(env, members, Math.abs(size), Builder.neverType(), CELL_MUT_LIMITED);
+        } else {
+            return ld.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, eType, CELL_MUT_LIMITED);
+        }
+    }
+
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td) {
         return td.valueSpace.stream().map(each -> (BLangLiteral) each)
