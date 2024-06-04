@@ -57,7 +57,7 @@ public class Filter {
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return ValueCreator.createXmlSequence(x);
+                              return x;
                           }
                           return ValueCreator.createXmlSequence();
                       }, METADATA);

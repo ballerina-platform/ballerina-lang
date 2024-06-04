@@ -363,6 +363,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXmlFilterValueAndErrorWithNonElementSingletonValues() {
+        BRunUtil.invoke(compileResult, "testXmlFilterValueAndErrorWithNonElementSingletonValues");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
