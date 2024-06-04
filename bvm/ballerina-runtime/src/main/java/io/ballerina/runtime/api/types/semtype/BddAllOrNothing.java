@@ -31,4 +31,10 @@ public final class BddAllOrNothing extends Bdd {
     private BddAllOrNothing(boolean all) {
         super(all, !all);
     }
+
+    @Override
+    public int hashCode() {
+        return 0xa11084 + (this == ALL ? 1 : 0);
+    }
+
 }

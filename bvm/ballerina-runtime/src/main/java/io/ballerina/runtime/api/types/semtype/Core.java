@@ -19,13 +19,23 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
+import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
 import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
 
+import java.util.Optional;
+
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
+import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
+import static io.ballerina.runtime.api.types.semtype.Builder.undef;
+import static io.ballerina.runtime.api.types.semtype.Builder.val;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.intersectCellAtomicType;
+import static io.ballerina.runtime.internal.types.semtype.BCellSubType.cellAtomType;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -36,6 +46,11 @@ public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
     public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
+
+    // TODO: move to builder
+    private static final CellAtomicType CELL_ATOMIC_VAL = new CellAtomicType(
+            val(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
+    );
 
     private Core() {
     }
@@ -92,7 +107,19 @@ public final class Core {
     }
 
     public static SubType getComplexSubtypeData(SemType t, BasicTypeCode code) {
-        throw new IllegalStateException("Unimplemented");
+//        int c = code.code();
+//        c = 1 << c;
+//        if ((t.all & c) != 0) {
+//            return AllOrNothingSubtype.createAll();
+//        }
+//        if ((t.some & c) == 0) {
+//            return AllOrNothingSubtype.createNothing();
+//        }
+        SubType subType = t.subTypeData()[code.code()];
+        if (subType instanceof BCellSubType cellSubType) {
+            return cellSubType.inner;
+        }
+        return subType;
     }
 
     public static SemType union(SemType t1, SemType t2) {
@@ -270,4 +297,54 @@ public final class Core {
         int all = t.all | t.some;
         return Builder.basicTypeUnion(all);
     }
+
+    public static SemType cellContainingInnerVal(Env env, SemType t) {
+        CellAtomicType cat =
+                cellAtomicType(t).orElseThrow(() -> new IllegalArgumentException("t is not a cell semtype"));
+        return cellContaining(env, diff(cat.ty(), undef()), cat.mut());
+    }
+
+    public static SemType intersectMemberSemTypes(Env env, SemType t1, SemType t2) {
+        CellAtomicType c1 =
+                cellAtomicType(t1).orElseThrow(() -> new IllegalArgumentException("t1 is not a cell semtype"));
+        CellAtomicType c2 =
+                cellAtomicType(t2).orElseThrow(() -> new IllegalArgumentException("t2 is not a cell semtype"));
+
+        CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
+        return cellContaining(env, atomicType.ty(), undef().equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
+    }
+
+    private static Optional<CellAtomicType> cellAtomicType(SemType t) {
+        SemType cell = Builder.cell();
+        if (t.some == 0) {
+            return cell.equals(t) ? Optional.of(CELL_ATOMIC_VAL) : Optional.empty();
+        } else {
+            if (!isSubtypeSimple(t, cell)) {
+                return Optional.empty();
+            }
+            return bddCellAtomicType((Bdd) getComplexSubtypeData(t, BT_CELL), CELL_ATOMIC_VAL);
+        }
+    }
+
+    private static Optional<CellAtomicType> bddCellAtomicType(Bdd bdd, CellAtomicType top) {
+        if (bdd instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
+                return Optional.of(top);
+            }
+            return Optional.empty();
+        }
+        BddNode bddNode = (BddNode) bdd;
+        return bddNode.isSimple() ? Optional.of(cellAtomType(bddNode.atom())) : Optional.empty();
+    }
+
+    public static SemType cellInnerVal(SemType t) {
+        return diff(cellInner(t), undef());
+    }
+
+    private static SemType cellInner(SemType t) {
+        CellAtomicType cat =
+                cellAtomicType(t).orElseThrow(() -> new IllegalArgumentException("t is not a cell semtype"));
+        return cat.ty();
+    }
+
 }

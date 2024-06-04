@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import org.testng.annotations.Test;
 
 // These are temporary sanity checks until we have actual types using cell types are implemented
@@ -32,7 +33,7 @@ public class CoreTests {
     @Test
     public void testCellTypes() {
         Env env = Env.getInstance();
-        Context cx = new Context();
+        Context cx = Context.from(env);
         SemType intTy = Builder.intType();
         SemType readonlyInt = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert Core.isSubType(cx, readonlyInt, readonlyInt);
@@ -49,5 +50,26 @@ public class CoreTests {
         SemType readonlyInt1 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         SemType readonlyInt2 = Builder.cellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         assert readonlyInt1 == readonlyInt2;
+    }
+
+    @Test
+    public void testSimpleList() {
+        Env env = Env.getInstance();
+        SemType intTy = Builder.intType();
+        // int[]
+        ListDefinition ld = new ListDefinition();
+        SemType intListTy =
+                ld.defineListTypeWrapped(env, new SemType[0], 0, intTy,
+                        CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+
+        // int[1]
+        ListDefinition ld1 = new ListDefinition();
+        SemType[] members = {intTy};
+        SemType intListTy1 =
+                ld1.defineListTypeWrapped(env, members, 1, Builder.neverType(),
+                        CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+
+        Context cx = Context.from(env);
+        assert Core.isSubType(cx, intListTy1, intListTy);
     }
 }

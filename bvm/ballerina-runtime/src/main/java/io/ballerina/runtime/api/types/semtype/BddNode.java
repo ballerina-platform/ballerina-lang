@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.util.Objects;
+
 /**
  * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
  *
@@ -38,7 +40,7 @@ public final class BddNode extends Bdd {
         this.right = right;
     }
 
-    static BddNode bddAtom(TypeAtom atom) {
+    public static BddNode bddAtom(Atom atom) {
         return new BddNode(atom, BddAllOrNothing.ALL, BddAllOrNothing.NOTHING, BddAllOrNothing.NOTHING);
     }
 
@@ -58,4 +60,25 @@ public final class BddNode extends Bdd {
         return right;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BddNode other)) {
+            return false;
+        }
+        return atom.equals(other.atom) && left.equals(other.left) && middle.equals(other.middle) &&
+                right.equals(other.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(atom, left, middle, right);
+    }
+
+    boolean isSimple() {
+        return left.equals(BddAllOrNothing.ALL) && middle.equals(BddAllOrNothing.NOTHING) &&
+                right.equals(BddAllOrNothing.NOTHING);
+    }
 }
