@@ -22,6 +22,14 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 public record FixedLengthArray(SemType[] initial, int fixedLength) {
 
+    public FixedLengthArray {
+        for (SemType semType : initial) {
+            if (semType == null) {
+                throw new IllegalArgumentException("initial members can't be null");
+            }
+        }
+    }
+
     private static final FixedLengthArray EMPTY = new FixedLengthArray(new SemType[0], 0);
 
     static FixedLengthArray normalized(SemType[] initial, int fixedLength) {
@@ -37,8 +45,13 @@ public record FixedLengthArray(SemType[] initial, int fixedLength) {
             }
             i -= 1;
         }
-        SemType[] buffer = new SemType[i + 2];
-        System.arraycopy(initial, 0, buffer, 0, i + 1);
+        int length = Integer.max(1, i + 2);
+        SemType[] buffer = new SemType[length];
+        if (length == 1) {
+            buffer[0] = last;
+        } else {
+            System.arraycopy(initial, 0, buffer, 0, length);
+        }
         return new FixedLengthArray(buffer, fixedLength);
     }
 

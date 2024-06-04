@@ -20,9 +20,15 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 
+import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER;
+import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER_RO;
+
 // TODO: move this to internal along with cell atomic type
 public record ListAtomicType(FixedLengthArray members, SemType rest) implements AtomicType {
 
     public static final ListAtomicType LIST_ATOMIC_INNER = new ListAtomicType(
-            FixedLengthArray.empty(), Builder.CELL_SEMTYPE_INNER);
+            FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
+
+    public static final ListAtomicType LIST_ATOMIC_RO = new ListAtomicType(
+            FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
 }

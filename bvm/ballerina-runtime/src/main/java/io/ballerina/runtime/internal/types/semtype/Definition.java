@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,12 +18,10 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-/**
- * Marker interface for SubTypeData.
- *
- * @since 2201.10.0
- */
-// TODO: move this to api
-public interface SubTypeData {
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
+public interface Definition {
+
+    SemType getSemType(Env env);
 }

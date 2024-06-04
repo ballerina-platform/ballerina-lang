@@ -30,7 +30,7 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 
     private static final AtomicType CELL_ATOMIC_VAL = new CellAtomicType(
-            Builder.val(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
+            Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
     public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
 
