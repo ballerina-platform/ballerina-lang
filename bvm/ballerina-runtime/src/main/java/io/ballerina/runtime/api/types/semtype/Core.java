@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
+import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
 import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
@@ -28,14 +29,18 @@ import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_INT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
+import static io.ballerina.runtime.api.types.semtype.Builder.listType;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
-import static io.ballerina.runtime.api.types.semtype.Builder.val;
+import static io.ballerina.runtime.api.types.semtype.Builder.valType;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.intersectCellAtomicType;
 import static io.ballerina.runtime.internal.types.semtype.BCellSubType.cellAtomType;
+import static io.ballerina.runtime.internal.types.semtype.BListSubType.bddListMemberTypeInnerVal;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -49,7 +54,7 @@ public final class Core {
 
     // TODO: move to builder
     private static final CellAtomicType CELL_ATOMIC_VAL = new CellAtomicType(
-            val(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
+            valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
 
     private Core() {
@@ -116,10 +121,30 @@ public final class Core {
 //            return AllOrNothingSubtype.createNothing();
 //        }
         SubType subType = t.subTypeData()[code.code()];
+        // FIXME: introduce an interface for this
         if (subType instanceof BCellSubType cellSubType) {
             return cellSubType.inner;
+        } else if (subType instanceof BListSubType listSubType) {
+            return listSubType.inner;
         }
         return subType;
+    }
+
+    // This computes the spec operation called "member type of K in T",
+    // for the case when T is a subtype of list, and K is either `int` or a singleton int.
+    // This is what Castagna calls projection.
+    // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
+    // If `t` is not a list, NEVER is returned
+    public static SemType listMemberTypeInnerVal(Context cx, SemType t, SemType k) {
+        if (t.some == 0) {
+            return (t.all & listType().all) != 0 ? Builder.valType() : Builder.neverType();
+        } else {
+            SubTypeData keyData = intSubtype(k);
+            if (isNothingSubtype(keyData)) {
+                return Builder.neverType();
+            }
+            return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData(t, BT_LIST), keyData, Builder.valType());
+        }
     }
 
     public static SemType union(SemType t1, SemType t2) {
@@ -259,6 +284,15 @@ public final class Core {
         return (bits & ~t2.all()) == 0;
     }
 
+    public static boolean isNothingSubtype(SubTypeData data) {
+        return data == AllOrNothing.NOTHING;
+    }
+
+    // Describes the subtype of int included in the type: true/false mean all or none of string
+    public static SubTypeData intSubtype(SemType t) {
+        return subTypeData(t, BT_INT);
+    }
+
     public static SubTypeData subTypeData(SemType s, BasicTypeCode code) {
         if ((s.all & (1 << code.code())) != 0) {
             return AllOrNothing.ALL;
@@ -341,7 +375,7 @@ public final class Core {
         return diff(cellInner(t), undef());
     }
 
-    private static SemType cellInner(SemType t) {
+    public static SemType cellInner(SemType t) {
         CellAtomicType cat =
                 cellAtomicType(t).orElseThrow(() -> new IllegalArgumentException("t is not a cell semtype"));
         return cat.ty();

@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_RO;
+
 /**
  * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
  * environments with each other in undefined.
@@ -47,7 +49,7 @@ public final class Env {
     private Env() {
         this.atomTable = new HashMap<>();
         this.recListAtoms = new ArrayList<>();
-        // FIXME: add LIST_ATOMIC_RO
+        recListAtoms.add(LIST_ATOMIC_RO);
     }
 
     public static Env getInstance() {

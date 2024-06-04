@@ -106,7 +106,7 @@ public final class BCellSubType extends SubType {
     private static boolean cellFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         CellAtomicType combined;
         if (posList == null) {
-            combined = new CellAtomicType(Builder.val(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+            combined = new CellAtomicType(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         } else {
             combined = cellAtomType(posList.atom());
             Conjunction p = posList.next();
@@ -134,7 +134,7 @@ public final class BCellSubType extends SubType {
         Conjunction neg = negList;
         while (neg != null) {
             if (cellAtomType(neg.atom()).mut() == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
-                    Core.isSameType(cx, Builder.val(), cellAtomType(neg.atom()).ty())) {
+                    Core.isSameType(cx, Builder.valType(), cellAtomType(neg.atom()).ty())) {
                 return false;
             }
             neg = neg.next();

@@ -35,11 +35,12 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 
-public class ListDefinition {
+public class ListDefinition implements Definition {
 
     private RecAtom rec = null;
     private SemType semType = null;
 
+    @Override
     public SemType getSemType(Env env) {
         SemType s = this.semType;
         if (s == null) {
