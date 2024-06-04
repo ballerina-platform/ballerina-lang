@@ -793,6 +793,8 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants = removeDuplicateConstants(pkgNode);
 
+        rewrite(pkgNode.typeDefinitions, env);
+
         pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
@@ -805,7 +807,6 @@ public class Desugar extends BLangNodeVisitor {
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
-        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
