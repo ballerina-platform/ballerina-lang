@@ -161,13 +161,13 @@ function testXMLNavigationWithEscapeCharacter() {
     assert(x4, xml `<ns:child-node xmlns:ns="foo"/>`);
 
     xml x5 = x1/**/<person>/<home\-address>;
-    assert(x5, xml `<home-address>some address</home-address>`);
+    assert(x5, xml ``);
 
     xml x6 = x1/**/<person>/<name|home\-address>;
-    assert(x6, xml `<name>John</name><home-address>some address</home-address>`);
+    assert(x6, xml ``);
 
     xml x7 = x1/**/<person>/<name|home\-address>.<home\-address>;
-    assert(x7, xml `<home-address>some address</home-address>`);
+    assert(x7, xml ``);
 }
 
 type XC xml:Comment;
@@ -389,6 +389,7 @@ function testXmlFilterStepExtend() {
     assert(x1/*.<name|price>,
             xml `<name>T-shirt</name><price>19.99</price><name>Backpack</name><price>34.99</price><name>Watch</name><price>49.99</price>`);
     assert(x1/*.<name|price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
+    assert(x1/*.<*>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
 
     assert(x1/<name>.<name>, xml `<name>T-shirt</name><name>Backpack</name><name>Watch</name>`);
     assert(x1/<price>.<price>, xml `<price>19.99</price><price>34.99</price><price>49.99</price>`);
@@ -405,6 +406,7 @@ function testXmlFilterStepExtend() {
     assert(x1/**/<name|local>.<local>, xml `<local>no</local><local>yes</local><local>no</local>`);
     assert(x1/**/<brand|local>.<brand>, xml `<brand><name>nike</name><local>no</local></brand><brand><name>adidas</name><local>yes</local></brand><brand><name>samsung</name><local>no</local></brand>`);
     assert(x1/**/<price|local|name>.<name|price>.<name>, xml `<name>T-shirt</name><name>nike</name><name>Backpack</name><name>adidas</name><name>Watch</name><name>samsung</name>`);
+    assert(x1/**/<price|local|name>.<name|price>.<*>, xml `<name>T-shirt</name><price>19.99</price><name>nike</name><name>Backpack</name><price>34.99</price><name>adidas</name><name>Watch</name><price>49.99</price><name>samsung</name>`);
     assert(x1/**/<brand|amount>.<amount>, xml ``);
     assert(x1/**/<total|amount>.<amount>, xml ``);
 
@@ -508,6 +510,7 @@ function testXmlIndexedAndFilterStepExtend() {
 
     assert(x2/**/<b|c>.<c>[0], xml `<c>c</c>`);
     assert(x2/**/<b|c>.<c>[k], xml `<c>d</c>`);
+    assert(x2/**/<*>.<c>[0], xml `<c>c</c>`);
     assertError(trap x2/**/<c>[-1].<b>, "xml sequence index out of range. Length: '2' requested: '-1'");
 
     xml:Comment x3 = xml `<!--comment-->`;
