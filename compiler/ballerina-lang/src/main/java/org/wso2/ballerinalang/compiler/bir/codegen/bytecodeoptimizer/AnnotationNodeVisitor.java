@@ -25,10 +25,12 @@ import static org.objectweb.asm.Opcodes.ASM9;
 
 /**
  * A visitor class used to visit annotations and collect used class types.
+ *
+ * @since 2201.10.0
  */
 public class AnnotationNodeVisitor extends AnnotationVisitor {
 
-    private DependencyCollector collector;
+    private final DependencyCollector collector;
 
     public AnnotationNodeVisitor(DependencyCollector collector) {
         super(ASM9);

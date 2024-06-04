@@ -28,7 +28,7 @@ import java.util.Set;
  * @param usedClasses used classes present in the executable JAR
  * @param unusedClasses unused classes present in the executable JAR
  *
- * @since 2201.9.0
+ * @since 2201.10.0
  */
 public record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
                                                  Set<String> usedClasses, Set<String> unusedClasses) {

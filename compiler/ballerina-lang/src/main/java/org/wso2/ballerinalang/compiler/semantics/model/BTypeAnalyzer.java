@@ -47,6 +47,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
+/**
+ * The {@link BTypeAnalyzer} is a {@link BType} visitor.
+ *
+ * @param <T> the type of data class that passed along with visit methods.
+ * @since 2201.10.0
+ */
 public abstract class BTypeAnalyzer<T> {
 
     public abstract void visit(BAnnotationType bAnnotationType, T data);
@@ -106,5 +112,4 @@ public abstract class BTypeAnalyzer<T> {
     public abstract void visit(BFutureType bFutureType, T data);
 
     public abstract void visit(BHandleType bHandleType, T data);
-
 }
