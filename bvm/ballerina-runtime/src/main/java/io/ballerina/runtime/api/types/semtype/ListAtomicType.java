@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,35 +14,15 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.api.types.semtype;
 
-/**
- * Represent a recursive type atom.
- *
- * @since 2201.10.0
- */
-public class RecAtom implements Atom {
+import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 
-    public final int index;
-    private static final int BDD_REC_ATOM_READONLY = 0;
-    public static final RecAtom ZERO = new RecAtom(BDD_REC_ATOM_READONLY);
+// TODO: move this to internal along with cell atomic type
+public record ListAtomicType(FixedLengthArray members, SemType rest) implements AtomicType {
 
-    private RecAtom(int index) {
-        this.index = index;
-    }
-
-    public static RecAtom createRecAtom(int index) {
-        if (index == BDD_REC_ATOM_READONLY) {
-            return ZERO;
-        }
-        return new RecAtom(index);
-    }
-
-    @Override
-    public int index() {
-        return index;
-    }
+    public static final ListAtomicType LIST_ATOMIC_INNER = new ListAtomicType(
+            FixedLengthArray.empty(), Builder.CELL_SEMTYPE_INNER);
 }
