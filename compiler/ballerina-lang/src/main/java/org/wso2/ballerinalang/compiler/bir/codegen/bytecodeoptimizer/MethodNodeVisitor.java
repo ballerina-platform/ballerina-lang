@@ -29,10 +29,12 @@ import static org.objectweb.asm.Opcodes.ASM9;
 
 /**
  * A visitor class used to visit methods collect used class types.
+ *
+ * @since 2201.10.0
  */
 public class MethodNodeVisitor extends MethodVisitor {
 
-    private DependencyCollector collector;
+    private final DependencyCollector collector;
 
     public MethodNodeVisitor(DependencyCollector collector) {
         super(ASM9);

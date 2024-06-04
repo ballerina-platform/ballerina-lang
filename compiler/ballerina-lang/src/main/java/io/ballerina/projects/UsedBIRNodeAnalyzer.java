@@ -84,7 +84,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
     private List<BIRNonTerminator> currentInstructionArr;
     private BIRNode.BIRFunction currentParentFunction;
-    private final boolean disableTestablePkgAnalysis = true;
+    public static final boolean disableTestablePkgAnalysis = true;
 
     private UsedBIRNodeAnalyzer(CompilerContext context) {
         context.put(USED_BIR_NODE_ANALYZER_KEY, this);

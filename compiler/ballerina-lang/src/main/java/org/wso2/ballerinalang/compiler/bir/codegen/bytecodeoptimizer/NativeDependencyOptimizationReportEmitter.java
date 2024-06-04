@@ -34,6 +34,11 @@ import java.nio.file.Path;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
+/**
+ * Emits optimized class file details for native dependency optimization.
+ *
+ * @since 2201.10.0
+ */
 public class NativeDependencyOptimizationReportEmitter {
 
     private static final String NATIVE_DEPENDENCY_OPTIMIZATION_REPORT = "native_dependency_optimization_report.json";
