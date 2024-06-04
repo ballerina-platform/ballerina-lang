@@ -34,8 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
+import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
+import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 
 /**
  * Utility class for creating semtypes.
@@ -44,7 +47,12 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
  */
 public final class Builder {
 
+    private static final SemType NEVER = SemType.from(0);
+    private static final SemType VAL = SemType.from(VT_MASK);
     private static final String[] EMPTY_STRING_ARR = new String[0];
+    static final SemType CELL_SEMTYPE_INNER = basicSubType(BT_CELL,
+            BCellSubType.createDelegate(bddAtom(createTypeAtom(2, CellAtomicType.CELL_ATOMIC_INNER))));
+    private static final SemType INNER = basicTypeUnion(val().all() | undef().all);
 
     private Builder() {
     }
@@ -77,6 +85,22 @@ public final class Builder {
         return from(BasicTypeCode.BT_NIL);
     }
 
+    public static SemType undef() {
+        return from(BasicTypeCode.BT_UNDEF);
+    }
+
+    public static SemType cell() {
+        return from(BT_CELL);
+    }
+
+    protected static SemType cellSemTypeInner() {
+        return CELL_SEMTYPE_INNER;
+    }
+
+    public static SemType inner() {
+        return INNER;
+    }
+
     public static SemType intType() {
         return from(BasicTypeCode.BT_INT);
     }
@@ -104,9 +128,6 @@ public final class Builder {
     public static SemType charType() {
         return StringTypeCache.charType;
     }
-
-    private static final SemType NEVER = SemType.from(0);
-    private static final SemType VAL = SemType.from(VT_MASK);
 
     public static SemType basicTypeUnion(int bitset) {
         return switch (bitset) {
@@ -208,8 +229,8 @@ public final class Builder {
     private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
         CellAtomicType atomicCell = new CellAtomicType(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
-        BddNode bdd = BddNode.bddAtom(atom);
-        return basicSubType(BasicTypeCode.BT_CELL, BCellSubType.createDelegate(bdd));
+        BddNode bdd = bddAtom(atom);
+        return basicSubType(BT_CELL, BCellSubType.createDelegate(bdd));
     }
 
     public static SemType val() {
