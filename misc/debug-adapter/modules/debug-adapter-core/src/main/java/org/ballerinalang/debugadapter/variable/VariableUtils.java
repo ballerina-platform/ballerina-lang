@@ -45,6 +45,8 @@ public class VariableUtils {
     public static final String FIELD_PACKAGE = "pkg";
     public static final String FIELD_PKG_ORG = "org";
     public static final String FIELD_PKG_NAME = "name";
+    public static final String FIELD_REFERRED_TYPE = "referredType";
+    public static final String FIELD_EFFECTIVE_TYPE = "effectiveType";
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
@@ -54,6 +56,7 @@ public class VariableUtils {
     static final String INTERNAL_VALUE_PREFIX = "io.ballerina.runtime.internal.values.";
     public static final String INTERNAL_TYPE_PREFIX = "io.ballerina.runtime.internal.types.";
     public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
+    public static final String INTERNAL_TYPE_INTERSECTION_TYPE = "BIntersectionType";
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -63,10 +66,9 @@ public class VariableUtils {
      */
     public static String getBType(Value value) {
         try {
-            if (!(value instanceof ObjectReference)) {
+            if (!(value instanceof ObjectReference valueRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference valueRef = (ObjectReference) value;
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
             Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
@@ -111,10 +113,10 @@ public class VariableUtils {
      */
     public static Map.Entry<String, String> getPackageOrgAndName(Value bValue) {
         try {
-            if (!(bValue instanceof ObjectReference)) {
+            if (!(bValue instanceof ObjectReference valueRef)) {
                 return null;
             }
-            ObjectReference valueRef = (ObjectReference) bValue;
+
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
             Field typePkgField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_PACKAGE);
@@ -141,10 +143,9 @@ public class VariableUtils {
      */
     public static String getStringFrom(Value stringValue) {
         try {
-            if (!(stringValue instanceof ObjectReference)) {
+            if (!(stringValue instanceof ObjectReference stringRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference stringRef = (ObjectReference) stringValue;
             if (!stringRef.referenceType().name().equals(JVMValueType.BMP_STRING.getString())
                     && !stringRef.referenceType().name().equals(JVMValueType.NON_BMP_STRING.getString())) {
                 // Additional filtering is required, as some ballerina variable type names may contain redundant
@@ -241,8 +242,76 @@ public class VariableUtils {
         }
     }
 
-    private static boolean isRecordType(Value typeValue) {
-        return typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
+    private static boolean isRecordType(Value typeValue) throws DebugVariableException {
+        if (isTypeReferenceType(typeValue) || isIntersectionType(typeValue)) {
+            typeValue = getEffectiveType(typeValue);
+        }
+
+        return typeValue != null && typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
+    }
+
+    /**
+     * Retrieves the effective type of given Ballerina runtime type instance. This includes resolving type references
+     * and intersection types.
+     */
+    private static Value getEffectiveType(Value typeValue) throws DebugVariableException {
+        if (isTypeReferenceType(typeValue)) {
+            typeValue = getReferredTypeFromTypeRefType(typeValue);
+        }
+
+        if (isIntersectionType(typeValue)) {
+            typeValue = getEffectiveTypeFromIntersectionType(typeValue);
+        }
+
+        return typeValue;
+    }
+
+    /**
+     * Verifies whether a given Ballerina runtime type is a type reference type.
+     *
+     * @param runtimeType JDI value instance.
+     * @return true if the given JDI value is a ballerina type reference type.
+     */
+    public static boolean isTypeReferenceType(Value runtimeType) {
+        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_REF_TYPE);
+    }
+
+    /**
+     * Verifies whether a given Ballerina runtime type is an intersection type.
+     *
+     * @param runtimeType JDI value instance.
+     * @return true if the given JDI value is a ballerina intersection type.
+     */
+    private static boolean isIntersectionType(Value runtimeType) {
+        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_INTERSECTION_TYPE);
+    }
+
+    /**
+     * Gets the referred type from a given Ballerina runtime TypeReferenceType instance.
+     *
+     * @param typeValue JDI value instance.
+     * @return referred type value.
+     */
+    private static Value getReferredTypeFromTypeRefType(Value typeValue) throws DebugVariableException {
+        while (typeValue != null && isTypeReferenceType(typeValue)) {
+            typeValue = getFieldValue(typeValue, FIELD_REFERRED_TYPE).orElse(null);
+        }
+
+        return typeValue;
+    }
+
+    /**
+     * Gets the effective type from a given Ballerina runtime IntersectionType instance.
+     *
+     * @param typeValue JDI value instance.
+     * @return effective type value.
+     */
+    private static Value getEffectiveTypeFromIntersectionType(Value typeValue) throws DebugVariableException {
+        while (typeValue != null && isIntersectionType(typeValue)) {
+            typeValue = getFieldValue(typeValue, FIELD_EFFECTIVE_TYPE).orElse(null);
+        }
+
+        return typeValue;
     }
 
     /**
@@ -300,10 +369,9 @@ public class VariableUtils {
      * @return JDI value of a given field, for a given JDI object reference (class instance).
      */
     public static Optional<Value> getFieldValue(Value parent, String fieldName) throws DebugVariableException {
-        if (!(parent instanceof ObjectReference)) {
+        if (!(parent instanceof ObjectReference parentRef)) {
             return Optional.empty();
         }
-        ObjectReference parentRef = (ObjectReference) parent;
         Field field = parentRef.referenceType().fieldByName(fieldName);
         if (field == null) {
             throw new DebugVariableException(
@@ -334,10 +402,9 @@ public class VariableUtils {
     public static Optional<Method> getMethod(Value parent, String methodName, String signature)
             throws DebugVariableException {
         List<Method> methods = new ArrayList<>();
-        if (!(parent instanceof ObjectReference)) {
+        if (!(parent instanceof ObjectReference parentRef)) {
             return Optional.empty();
         }
-        ObjectReference parentRef = (ObjectReference) parent;
 
         if (signature.isEmpty()) {
             methods = parentRef.referenceType().methodsByName(methodName);

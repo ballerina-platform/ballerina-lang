@@ -189,7 +189,7 @@ public function main() {
         "course": "ballerina"
     };
 
-    Pet pet2 = {
+    Pet readonlyRecordVar = {
         id: 2,
         name: "Rova",
         'type: { 
