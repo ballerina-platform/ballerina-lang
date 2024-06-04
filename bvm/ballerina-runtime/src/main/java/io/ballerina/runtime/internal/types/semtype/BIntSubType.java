@@ -143,13 +143,40 @@ public final class BIntSubType extends SubType {
         return data;
     }
 
-    record Range(long min, long max) {
+    public record Range(long min, long max) {
 
     }
 
-    static final class IntSubTypeData implements SubTypeData {
+    public static long intSubtypeMax(IntSubTypeData subtype) {
+        return subtype.ranges[subtype.ranges.length - 1].max;
+    }
 
-        private final Range[] ranges;
+    static boolean intSubtypeOverlapRange(IntSubTypeData subtype, Range range) {
+        IntSubTypeData subTypeData = subtype.intersect(new IntSubTypeData(range));
+        return subTypeData.ranges.length != 0;
+    }
+
+    public static boolean intSubtypeContains(SubTypeData d, long n) {
+        if (d instanceof AllOrNothing allOrNothingSubtype) {
+            return d == AllOrNothing.ALL;
+        }
+        IntSubTypeData v = (IntSubTypeData) d;
+        // FIXME: move the rest to int subtype data
+        for (Range r : v.ranges) {
+            if (r.min <= n && n <= r.max) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static final class IntSubTypeData implements SubTypeData {
+
+        public final Range[] ranges;
+
+        private IntSubTypeData(Range range) {
+            this.ranges = new Range[]{range};
+        }
 
         private IntSubTypeData(Range[] ranges) {
             this.ranges = ranges;
