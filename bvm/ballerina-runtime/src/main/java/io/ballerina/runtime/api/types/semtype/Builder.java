@@ -26,6 +26,7 @@ import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
+import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
@@ -35,9 +36,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 
 /**
@@ -47,12 +52,28 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
  */
 public final class Builder {
 
+    private static final String[] EMPTY_STRING_ARR = new String[0];
     private static final SemType NEVER = SemType.from(0);
     private static final SemType VAL = SemType.from(VT_MASK);
-    private static final String[] EMPTY_STRING_ARR = new String[0];
+    private static final SemType UNDEF = from(BasicTypeCode.BT_UNDEF);
+    private static final SemType INNER = basicTypeUnion(valType().all() | undef().all);
+
     static final SemType CELL_SEMTYPE_INNER = basicSubType(BT_CELL,
             BCellSubType.createDelegate(bddAtom(createTypeAtom(2, CellAtomicType.CELL_ATOMIC_INNER))));
-    private static final SemType INNER = basicTypeUnion(val().all() | undef().all);
+
+    public static final int BDD_REC_ATOM_READONLY = 0;
+    // represents both readonly & map<readonly> and readonly & readonly[]
+    private static final BddNode BDD_SUBTYPE_RO = bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));
+
+    public static final SemType VAL_READONLY = Core.union(SemType.from(VT_INHERENTLY_IMMUTABLE),
+            basicSubType(BT_LIST, BListSubType.createDelegate(BDD_SUBTYPE_RO)));
+    private static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
+    private static final CellAtomicType CELL_ATOMIC_INNER_RO = new CellAtomicType(
+            INNER_READONLY, CELL_MUT_NONE);
+    private static final TypeAtom ATOM_CELL_INNER_RO = createTypeAtom(7, CELL_ATOMIC_INNER_RO);
+    static final SemType CELL_SEMTYPE_INNER_RO = basicSubType(
+            BT_CELL, BCellSubType.createDelegate(bddAtom(ATOM_CELL_INNER_RO)));
+    private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
 
     private Builder() {
     }
@@ -86,7 +107,7 @@ public final class Builder {
     }
 
     public static SemType undef() {
-        return from(BasicTypeCode.BT_UNDEF);
+        return UNDEF;
     }
 
     public static SemType cell() {
@@ -127,6 +148,10 @@ public final class Builder {
 
     public static SemType charType() {
         return StringTypeCache.charType;
+    }
+
+    public static SemType listType() {
+        return from(BT_LIST);
     }
 
     public static SemType basicTypeUnion(int bitset) {
@@ -217,6 +242,14 @@ public final class Builder {
         return Optional.empty();
     }
 
+    public static SemType roCellContaining(Env env, SemType ty) {
+        return cellContaining(env, ty, CELL_MUT_NONE);
+    }
+
+    public static SemType cellContaining(Env env, SemType ty) {
+        return cellContaining(env, ty, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+    }
+
     public static SemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
         Optional<SemType> cachedSemType = env.getCachedCellType(ty, mut);
         return cachedSemType.orElseGet(() -> {
@@ -233,8 +266,12 @@ public final class Builder {
         return basicSubType(BT_CELL, BCellSubType.createDelegate(bdd));
     }
 
-    public static SemType val() {
+    public static SemType valType() {
         return basicTypeUnion(VT_MASK);
+    }
+
+    public static SemType anyType() {
+        return ANY;
     }
 
     private static final class IntTypeCache {
