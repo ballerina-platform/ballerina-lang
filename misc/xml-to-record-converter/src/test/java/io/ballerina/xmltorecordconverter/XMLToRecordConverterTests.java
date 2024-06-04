@@ -199,6 +199,11 @@ public class XMLToRecordConverterTests {
     private final Path sample31Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_31.bal");
 
+    private final Path sample32XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_32.xml");
+    private final Path sample32Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_32.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -427,42 +432,6 @@ public class XMLToRecordConverterTests {
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
-    @Test(description = "testXMLWithMultipleNamespacesAndSameElement")
-    public void testXMLWithMultipleNamespacesAndSameElement() throws IOException {
-        String xmlFileContent = Files.readString(sample28XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
-                null, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample28Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
-
-    @Test(description = "testXMLWithMultipleNamespaces2")
-    public void testXMLWithMultipleNamespaces2() throws IOException {
-        String xmlFileContent = Files.readString(sample29XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
-                null, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample29Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
-
-    @Test(description = "testXMLWithMultipleNamespaces3")
-    public void testXMLWithMultipleNamespaces3() throws IOException {
-        String xmlFileContent = Files.readString(sample30XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
-                null, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample30Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
-
-    @Test(description = "testXMLWithoutNamespaceAnnotation")
-    public void testXMLWithoutNamespaceAnnotation() throws IOException {
-        String xmlFileContent = Files.readString(sample31XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
-                null, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample31Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
-
     @Test(description = "testXMLToRecordService")
     public void testXMLToRecordService() throws IOException, ExecutionException, InterruptedException {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -505,6 +474,51 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 null, false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample27Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleNamespacesAndSameElement")
+    public void testXMLWithMultipleNamespacesAndSameElement() throws IOException {
+        String xmlFileContent = Files.readString(sample28XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample28Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleNamespaces2")
+    public void testXMLWithMultipleNamespaces2() throws IOException {
+        String xmlFileContent = Files.readString(sample29XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample29Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithMultipleNamespaces3")
+    public void testXMLWithMultipleNamespaces3() throws IOException {
+        String xmlFileContent = Files.readString(sample30XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample30Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespaceAnnotation")
+    public void testXMLWithoutNamespaceAnnotation() throws IOException {
+        String xmlFileContent = Files.readString(sample31XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample31Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithSameElementAndWithoutMultipleNamespaces")
+    public void testXMLWithSameElementAndWithoutMultipleNamespaces() throws IOException {
+        String xmlFileContent = Files.readString(sample32XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                null, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample32Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
