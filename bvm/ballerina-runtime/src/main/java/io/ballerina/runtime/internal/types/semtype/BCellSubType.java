@@ -41,9 +41,9 @@ import java.util.function.Predicate;
  *
  * @since 2201.10.0
  */
-public class BCellSubType extends SubType {
+public final class BCellSubType extends SubType {
 
-    private final Bdd inner;
+    public final Bdd inner;
 
     private BCellSubType(Bdd inner) {
         super(inner.isAll(), inner.isNothing());
@@ -59,7 +59,7 @@ public class BCellSubType extends SubType {
         throw new IllegalArgumentException("Unexpected inner type");
     }
 
-    private static CellAtomicType cellAtomType(Atom atom) {
+    public static CellAtomicType cellAtomType(Atom atom) {
         return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
@@ -90,6 +90,15 @@ public class BCellSubType extends SubType {
     }
 
     @Override
+    public SubType diff(SubType other) {
+        if (!(other instanceof BCellSubType otherCell)) {
+            throw new IllegalArgumentException("diff of different subtypes");
+        }
+
+        return createDelegate(inner.diff(otherCell.inner));
+    }
+
+    @Override
     public SubTypeData data() {
         throw new IllegalStateException("unimplemented");
     }
@@ -102,7 +111,7 @@ public class BCellSubType extends SubType {
             combined = cellAtomType(posList.atom());
             Conjunction p = posList.next();
             while (p != null) {
-                combined = intersectCellAtomicType(combined, cellAtomType(p.atom()));
+                combined = CellAtomicType.intersectCellAtomicType(combined, cellAtomType(p.atom()));
                 p = p.next();
             }
         }
@@ -173,14 +182,4 @@ public class BCellSubType extends SubType {
         return negUnion;
     }
 
-    private static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
-        SemType ty = Core.intersect(c1.ty(), c2.ty());
-        CellAtomicType.CellMutability mut = min(c1.mut(), c2.mut());
-        return new CellAtomicType(ty, mut);
-    }
-
-    private static CellAtomicType.CellMutability min(CellAtomicType.CellMutability m1,
-                                                     CellAtomicType.CellMutability m2) {
-        return m1.compareTo(m2) <= 0 ? m1 : m2;
-    }
 }

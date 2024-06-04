@@ -18,7 +18,9 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,10 +39,15 @@ public final class Env {
 
     private final Map<AtomicType, TypeAtom> atomTable;
     private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();
+
+    private final List<ListAtomicType> recListAtoms;
+
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private Env() {
         this.atomTable = new HashMap<>();
+        this.recListAtoms = new ArrayList<>();
+        // FIXME: add LIST_ATOMIC_RO
     }
 
     public static Env getInstance() {
@@ -84,6 +91,32 @@ public final class Env {
 
     void cacheCellType(SemType ty, CellAtomicType.CellMutability mut, SemType semType) {
         this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), semType);
+    }
+
+    public RecAtom recListAtom() {
+        // TODO: do we have seperate read and write operations, if so use rw lock
+        synchronized (this.recListAtoms) {
+            int result = this.recListAtoms.size();
+            // represents adding () in nballerina
+            this.recListAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        }
+    }
+
+    public void setRecListAtomType(RecAtom rec, ListAtomicType atomicType) {
+        synchronized (this.recListAtoms) {
+            this.recListAtoms.set(rec.index(), atomicType);
+        }
+    }
+
+    public Atom listAtom(ListAtomicType atomicType) {
+        return this.typeAtom(atomicType);
+    }
+
+    public ListAtomicType getRecListAtomType(RecAtom ra) {
+        synchronized (this.recListAtoms) {
+            return this.recListAtoms.get(ra.index);
+        }
     }
 
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
