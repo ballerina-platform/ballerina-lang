@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.Bdd;
+import io.ballerina.runtime.api.types.semtype.BddAllOrNothing;
+import io.ballerina.runtime.api.types.semtype.BddNode;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Conjunction;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -36,14 +39,18 @@ import java.util.List;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 import static io.ballerina.runtime.api.types.semtype.Core.cellContainingInnerVal;
+import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInnerVal;
 import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
 import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_INNER;
+import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
+import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeMax;
+import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeOverlapRange;
 
 // TODO: this has lot of common code with cell (and future mapping), consider refact
 public class BListSubType extends SubType {
 
-    private final Bdd inner;
+    public final Bdd inner;
 
     private BListSubType(Bdd inner) {
         super(inner.isAll(), inner.isNothing());
@@ -214,8 +221,8 @@ public class BListSubType extends SubType {
         }
     }
 
-    private static Pair<SemType[], Integer> listSampleTypes(Context cx, FixedLengthArray members,
-                                                            SemType rest, Integer[] indices) {
+    public static Pair<SemType[], Integer> listSampleTypes(Context cx, FixedLengthArray members,
+                                                           SemType rest, Integer[] indices) {
         List<SemType> memberTypes = new ArrayList<>(indices.length);
         int nRequired = 0;
         for (int i = 0; i < indices.length; i++) {
@@ -243,7 +250,7 @@ public class BListSubType extends SubType {
     // which sample we choose, but (this is the key point) we need at least as many samples
     // as there are negatives in N, so that for each negative we can freely choose a type for the sample
     // to avoid being matched by that negative.
-    private static Integer[] listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
+    public static Integer[] listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
         int maxInitialLength = members.initial().length;
         List<Integer> fixedLengths = new ArrayList<>();
         fixedLengths.add(members.fixedLength());
@@ -305,7 +312,7 @@ public class BListSubType extends SubType {
         return indices.toArray(arr);
     }
 
-    private static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
+    public static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
         for (var t : array.initial()) {
             if (Core.isEmpty(cx, t)) {
                 return true;
@@ -314,8 +321,8 @@ public class BListSubType extends SubType {
         return false;
     }
 
-    private static Pair<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, SemType rest1,
-                                                                     FixedLengthArray members2, SemType rest2) {
+    public static Pair<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, SemType rest1,
+                                                                    FixedLengthArray members2, SemType rest2) {
 
         if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
             return null;
@@ -357,12 +364,62 @@ public class BListSubType extends SubType {
         return members.initial()[i];
     }
 
-    private static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
+    // FIXME: move this to FixedLengthArray
+    public static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
         return new FixedLengthArray(array.initial().clone(), array.fixedLength());
     }
 
-    private static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, SemType rest, int index) {
+    public static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, SemType rest, int index) {
         return cellInnerVal(listMemberAt(fixedArray, rest, index));
+    }
+
+    public static SemType bddListMemberTypeInnerVal(Context cx, Bdd b, SubTypeData key, SemType accum) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? accum : Builder.neverType();
+        } else {
+            BddNode bddNode = (BddNode) b;
+            return Core.union(bddListMemberTypeInnerVal(cx, bddNode.left(), key,
+                            Core.intersect(listAtomicMemberTypeInnerVal(cx.listAtomType(bddNode.atom()), key), accum)),
+                    Core.union(bddListMemberTypeInnerVal(cx, bddNode.middle(), key, accum),
+                            bddListMemberTypeInnerVal(cx, bddNode.right(), key, accum)));
+        }
+    }
+
+    private static SemType listAtomicMemberTypeInnerVal(ListAtomicType atomic, SubTypeData key) {
+        return Core.diff(listAtomicMemberTypeInner(atomic, key), Builder.undef());
+    }
+
+    private static SemType listAtomicMemberTypeInner(ListAtomicType atomic, SubTypeData key) {
+        return listAtomicMemberTypeAtInner(atomic.members(), atomic.rest(), key);
+    }
+
+    static SemType listAtomicMemberTypeAtInner(FixedLengthArray fixedArray, SemType rest, SubTypeData key) {
+        if (key instanceof BIntSubType.IntSubTypeData intSubtype) {
+            SemType m = Builder.neverType();
+            int initLen = fixedArray.initial().length;
+            int fixedLen = fixedArray.fixedLength();
+            if (fixedLen != 0) {
+                for (int i = 0; i < initLen; i++) {
+                    if (intSubtypeContains(key, i)) {
+                        m = Core.union(m, cellInner(fixedArrayGet(fixedArray, i)));
+                    }
+                }
+                if (intSubtypeOverlapRange(intSubtype, new BIntSubType.Range(initLen, fixedLen - 1))) {
+                    m = Core.union(m, cellInner(fixedArrayGet(fixedArray, fixedLen - 1)));
+                }
+            }
+            if (fixedLen == 0 || intSubtypeMax(intSubtype) > fixedLen - 1) {
+                m = Core.union(m, cellInner(rest));
+            }
+            return m;
+        }
+        SemType m = cellInner(rest);
+        if (fixedArray.fixedLength() > 0) {
+            for (SemType ty : fixedArray.initial()) {
+                m = Core.union(m, cellInner(ty));
+            }
+        }
+        return m;
     }
 
     @Override
