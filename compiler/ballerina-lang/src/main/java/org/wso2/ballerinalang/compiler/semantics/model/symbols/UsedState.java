@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 /**
  * This enum indicates whether the function will be used in the execution chain or not.
+ *
+ * @since 2201.10.0
  */
 public enum UsedState {
     // Indicates a function is connected to the invocation chain of init or main functions.
