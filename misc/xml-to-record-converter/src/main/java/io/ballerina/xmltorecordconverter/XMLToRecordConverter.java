@@ -264,7 +264,7 @@ public class XMLToRecordConverter {
                                     && prefixMap.get(xmlElementNode.getPrefix())).findFirst().orElse(-1);
                     if (indexOfRecordFieldNode == -1) {
                         if (prefixMap.size() > 1) {
-                            addRecordField(recordFields, xmlElementNode, recordField);
+                            generateRecordFieldForSameLocalNameElements(recordFields, xmlElementNode, recordField);
                         } else {
                             recordFields.add(recordField);
                         }
@@ -273,7 +273,7 @@ public class XMLToRecordConverter {
                                 (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
                         RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
                         if (prefixMap.size() > 1) {
-                            addRecordField(recordFields, xmlElementNode, updatedRecordField);
+                            generateRecordFieldForSameLocalNameElements(recordFields, xmlElementNode, updatedRecordField);
                         } else {
                             recordFields.add(indexOfRecordFieldNode, updatedRecordField);
                         }
@@ -339,7 +339,8 @@ public class XMLToRecordConverter {
         return recordFields;
     }
 
-    private static void addRecordField(List<Node> recordFields, Element xmlElementNode, RecordFieldNode recordField) {
+    private static void generateRecordFieldForSameLocalNameElements(List<Node> recordFields, Element xmlElementNode,
+                                                                    RecordFieldNode recordField) {
         recordFields.add(recordField.modify().withFieldName(
                 AbstractNodeFactory.createIdentifierToken(
                         xmlElementNode.getPrefix() +
