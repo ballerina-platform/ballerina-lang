@@ -38,6 +38,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Test cases to verify optimized class files from `bal build --optimize` command.
+ *
+ *  @since 2201.10.0
+ */
 public class NativeDependencyOptimizationTests extends BaseTest {
 
     private static final String NATIVE_DEPENDENCY_OPTIMIZATION_REPORT = "native_dependency_optimization_report.json";
