@@ -148,7 +148,18 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo&0046math/0",
                 "testerina_report/foo&0046bar/0/constants",
                 "test-report-tests/modules/bar",
-                "testerina_report/foo$test/0/creators"
+                "testerina_report/foo$test/0/creators",
+                "testerina_report/foo&0046annot$test/0/constants",
+                "testerina_report/foo&0046annot/0/creators",
+                "testerina_report/foo&0046annot/0/annotations",
+                "testerina_report/foo&0046annot/0/types",
+                "testerina_report/foo&0046annot/0",
+                "testerina_report/foo&0046annot/0/constants",
+                "testerina_report/foo&0046annot$test/0/annotations",
+                "testerina_report/foo&0046annot$test/0/creators",
+                "testerina_report/foo&0046annot$test/0/types",
+                "testerina_report/foo&0046annot$test/0",
+                "test-report-tests/modules/annot"
         );
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
@@ -191,6 +202,9 @@ public class CodeCoverageReportTest extends BaseTestCase {
                         "/modules/math/divide", multiModuleTestRoot + "/modules/math/foo$$$math"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/bar.tests",
                 List.of(multiModuleTestRoot + "/modules/bar.tests/foo$$$bar$$$tests"));
+        coverageClassMap.put(multiModuleTestRoot + "modules/annot",
+                Arrays.asList(multiModuleTestRoot + "/modules/annot/main",
+                multiModuleTestRoot + "/modules/annot/$value$ZeroDiffAnnot"));
         return coverageClassMap;
     }
 
