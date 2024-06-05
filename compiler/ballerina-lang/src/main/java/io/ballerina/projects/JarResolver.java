@@ -47,6 +47,10 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINAI_OBSERVE;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINAX;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINA_OBSERVE;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.DOT_DRIVER;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 
@@ -288,13 +292,13 @@ public class JarResolver {
     }
 
     private boolean isWhiteListedPkg(String pkgName) {
-        return pkgName.equals("ballerina/observe") || pkgName.equals("ballerinai/observe") || isDriverPkg(pkgName);
+        return pkgName.equals(BALLERINA_OBSERVE) || pkgName.equals(BALLERINAI_OBSERVE) || isDriverPkg(pkgName);
     }
 
     // Driver pkgs are pkgs such as "ballerinax/mysql.driver".
     // These pkgs contain only native jars without any source code.
     private boolean isDriverPkg(String pkgName) {
-        return pkgName.startsWith("ballerinax/") && pkgName.endsWith(".driver");
+        return pkgName.startsWith(BALLERINAX) && pkgName.endsWith(DOT_DRIVER);
     }
 
     private void reportDiagnostic(JarLibrary existingEntry, JarLibrary newEntry) {
