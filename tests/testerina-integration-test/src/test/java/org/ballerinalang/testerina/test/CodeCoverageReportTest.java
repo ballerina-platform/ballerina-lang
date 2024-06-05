@@ -155,11 +155,14 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo&0046annot/0/types",
                 "testerina_report/foo&0046annot/0",
                 "testerina_report/foo&0046annot/0/constants",
+                "testerina_report/foo&0046annot/0/functions",
+                "testerina_report/foo&0046annot/0/lambdas",
                 "testerina_report/foo&0046annot$test/0/annotations",
                 "testerina_report/foo&0046annot$test/0/creators",
                 "testerina_report/foo&0046annot$test/0/types",
                 "testerina_report/foo&0046annot$test/0",
                 "test-report-tests/modules/annot",
+                "test-report-tests/modules/annot/lambdas",
                 "testerina_report/foo/0/functions",
                 "testerina_report/foo/0/lambdas"
         );
