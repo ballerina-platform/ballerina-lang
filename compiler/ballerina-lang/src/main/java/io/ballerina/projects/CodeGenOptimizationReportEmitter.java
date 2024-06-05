@@ -71,7 +71,6 @@ public class CodeGenOptimizationReportEmitter {
 
     protected static void emitBirOptimizationDuration() {
         long totalDuration = birOptimizationDurations.values().stream().mapToLong(Long::longValue).sum();
-
         out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
         birOptimizationDurations.forEach((key, value) -> out.printf("    %s : %dms%n", key, value));
         out.println();
@@ -97,7 +96,6 @@ public class CodeGenOptimizationReportEmitter {
     protected static void emitCodegenOptimizationReport(
             Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap, Path projectDirectoryPath,
             ProjectKind projectKind) {
-
         Path reportParentDirectoryPath = projectDirectoryPath.resolve(TARGET_DIR_NAME).toAbsolutePath().normalize();
 
         if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -117,7 +115,6 @@ public class CodeGenOptimizationReportEmitter {
 
         Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>();
         invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
-
         Path jsonFilePath = reportParentDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
         File jsonFile = new File(jsonFilePath.toString());
 
@@ -172,5 +169,4 @@ public class CodeGenOptimizationReportEmitter {
         });
         return typeDefNames;
     }
-
 }

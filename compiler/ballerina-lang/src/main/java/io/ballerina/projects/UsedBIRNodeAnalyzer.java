@@ -50,6 +50,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINA_JBALLERINA_JAVA;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.CLASS;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.DOT_CLASS;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.EXTERNAL_DEPENDENCY_ANNOT;
+import static io.ballerina.projects.util.CodegenOptimizationConstants.INTEROP_DEPENDENCIES_PROPERTIES_FILE;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
@@ -72,6 +77,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
+    private static final String EXECUTE_TEST_REGISTRAR = "executeTestRegistrar";
     // To check whether a given FP is "USED" or not, we have to keep track of the existing FPs of a given scope.
     // Variable Declarations holding an FPs are needed to be tracked to achieve that.
     private HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
@@ -312,7 +318,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         // 1. Record default fields containing function pointers
         // 2. Testerina related TestRegistrars (These global function pointers are called from testerina side)
         if (currentParentFunction.name.value.contains(RECORD_DELIMITER) ||
-                currentParentFunction.name.value.startsWith("executeTestRegistrar")) {
+                currentParentFunction.name.value.startsWith(EXECUTE_TEST_REGISTRAR)) {
             fpData.lambdaPointerVar.markAsUsed();
         }
 
@@ -440,7 +446,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         Properties prop = new Properties();
 
         try {
-            InputStream stream = getClass().getClassLoader().getResourceAsStream("interop-dependencies.properties");
+            InputStream stream = getClass().getClassLoader().getResourceAsStream(INTEROP_DEPENDENCIES_PROPERTIES_FILE);
             prop.load(stream);
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
                 HashSet<String> usedRecordNames = new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
@@ -457,8 +463,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (annot.annotTagRef.value.equals(EXTERNAL_METHOD_ANNOTATION_TAG)) {
                 BIRNode.ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annot).annotValue;
                 String filePath =
-                        ((HashMap<String, BIRNode.ConstValue>) constValue.value).get("class").value.toString();
-                currentInvocationData.usedNativeClassPaths.add(filePath.replace(".", "/") + ".class");
+                        ((HashMap<String, BIRNode.ConstValue>) constValue.value).get(CLASS).value.toString();
+                currentInvocationData.usedNativeClassPaths.add(filePath.replace(".", "/") + DOT_CLASS);
             }
         });
     }
@@ -537,13 +543,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 return false;
             }
 
-            for (BIRNode.BIRAnnotationAttachment annotAttachment : birFunction.annotAttachments) {
-                if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
-                        annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
-                    return true;
-                }
-            }
-            return false;
+            return containsExternalDependencyAnnot(birFunction.annotAttachments);
         }
 
         private static boolean isExternalDependencyBIRNode(BIRNode.BIRTypeDefinition birTypeDefinition) {
@@ -551,9 +551,13 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 return false;
             }
 
-            for (BIRNode.BIRAnnotationAttachment annotAttachment : birTypeDefinition.annotAttachments) {
-                if (annotAttachment.annotPkgId.toString().equals("ballerina/jballerina.java:0.0.0") &&
-                        annotAttachment.annotTagRef.toString().equals("ExternalDependency")) {
+            return containsExternalDependencyAnnot(birTypeDefinition.annotAttachments);
+        }
+
+        private static boolean containsExternalDependencyAnnot(List<BIRNode.BIRAnnotationAttachment> annotAttachments) {
+            for (BIRNode.BIRAnnotationAttachment annotAttachment : annotAttachments) {
+                if (annotAttachment.annotPkgId.getPackageNameWithOrg().equals(BALLERINA_JBALLERINA_JAVA) &&
+                        annotAttachment.annotTagRef.toString().equals(EXTERNAL_DEPENDENCY_ANNOT)) {
                     return true;
                 }
             }

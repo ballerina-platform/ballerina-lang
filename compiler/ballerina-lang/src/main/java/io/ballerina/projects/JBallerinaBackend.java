@@ -94,6 +94,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import static io.ballerina.projects.util.CodegenOptimizationConstants.WHITE_LISTED_PKG_NAMES;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -305,9 +306,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private boolean isNotWhiteListedPkg(BPackageSymbol pkgSymbol) {
-        HashSet<String> whiteListedPkgNames =
-                new HashSet<>(Arrays.asList("ballerina/observe", "ballerina/jballerina", "ballerina/lang"));
-        for (String pkgName : whiteListedPkgNames) {
+            for (String pkgName : WHITE_LISTED_PKG_NAMES) {
             if (pkgSymbol.pkgID.toString().contains(pkgName)) {
                 return false;
             }
