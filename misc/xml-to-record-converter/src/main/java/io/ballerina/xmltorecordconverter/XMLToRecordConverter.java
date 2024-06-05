@@ -323,8 +323,8 @@ public class XMLToRecordConverter {
             }
         }
         if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
-            if (xmlElement.getAttributes().getLength() == 1 && xmlElement.getAttributes().item(0).getPrefix() != null &&
-                    XMLNS_PREFIX.equals(xmlElement.getAttributes().item(0).getPrefix())) {
+            if (xmlElement.getAttributes().getLength() == 1 && xmlElement.getAttributes().item(0).getPrefix() != null
+                    && XMLNS_PREFIX.equals(xmlElement.getAttributes().item(0).getPrefix())) {
                 return recordFields;
             }
             Token fieldType = getPrimitiveTypeName(xmlElement.getFirstChild().getNodeValue());
