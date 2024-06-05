@@ -89,7 +89,7 @@ public class BJSONType extends BUnionType {
 
     @Override
     public SemType semType() {
-        // Ideally this shouldn't be needed but somehow in nBallerina code base, there was an edge case where members
+        // Ideally this shouldn't be needed but somehow in jBallerina code base, there was an edge case where members
         // got changed without going via any of the exposed methods in BUnionType. This is a temporary fix to handle
         // that edge case. In the future when we switch to the semtype resolver this should no longer be a problem.
         semType = null;
