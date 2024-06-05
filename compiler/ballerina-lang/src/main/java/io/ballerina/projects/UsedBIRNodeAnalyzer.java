@@ -84,7 +84,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
     private List<BIRNonTerminator> currentInstructionArr;
     private BIRNode.BIRFunction currentParentFunction;
-    public static final boolean disableTestablePkgAnalysis = true;
 
     private UsedBIRNodeAnalyzer(CompilerContext context) {
         context.put(USED_BIR_NODE_ANALYZER_KEY, this);
@@ -113,7 +112,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         // All testablePkgs will be considered as root pkgs by default.
-        if (pkgNode.hasTestablePackage() && !disableTestablePkgAnalysis) {
+        if (pkgNode.hasTestablePackage()) {
             analyzeTestablePkg(pkgNode.getTestablePkg().symbol);
         }
 
@@ -208,12 +207,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
             for (BIRNode.BIRVariableDcl rhsVar : rhsVars) {
                 if (rhsVar instanceof BIRNode.BIRGlobalVariableDcl) {
+                    if (!rhsVar.isInSamePkg(currentPkgID) && isTestablePkgAnalysis) {
+                        continue;
+                    }
                     rhsVar.markAsUsed();
                     currentParentFunction.childNodes.add(rhsVar);
                     rhsVar.parentNodes.add(currentParentFunction);
 
                     // TODO Refactor following logic
-                    if (!rhsVar.isInSamePkg(currentPkgID) && !isTestablePkgAnalysis) {
+                    if (!rhsVar.isInSamePkg(currentPkgID)) {
                         getInvocationData(rhsVar.getPackageID())
                                 .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(rhsVar.getPackageID()));
                     } else if (isFunctionKindType(rhsVar.type)) {
@@ -269,6 +271,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.FPCall fpCall) {
         BIRNode.BIRVariableDcl fpPointer = fpCall.fp.variableDcl;
+
+        if (!fpPointer.isInSamePkg(currentPkgID) && isTestablePkgAnalysis) {
+            return;
+        }
 
         fpPointer.markAsUsed();
         currentParentFunction.childNodes.add(fpPointer);
