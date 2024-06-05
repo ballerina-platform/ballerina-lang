@@ -61,6 +61,10 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             return;
         }
 
+        if (isTestablePkgImportedModuleDependency(bType)) {
+            return;
+        }
+
         BIRNode.BIRDocumentableNode prevParentNode = data.currentParentNode;
         boolean prevShouldAnalyzeChildren = data.shouldAnalyzeChildren;
 
@@ -163,6 +167,15 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             attachedFunc.parentNodes.add(childTypeDefNode);
             attachedFunc.accept(usedBIRNodeAnalyzer);
         });
+    }
+
+    public boolean isTestablePkgImportedModuleDependency(BType bType) {
+        if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
+            return false;
+        }
+
+        return usedBIRNodeAnalyzer.isTestablePkgAnalysis &&
+                !bType.tsymbol.pkgID.equals(usedBIRNodeAnalyzer.currentPkgID);
     }
 
     public static class AnalyzerData {
