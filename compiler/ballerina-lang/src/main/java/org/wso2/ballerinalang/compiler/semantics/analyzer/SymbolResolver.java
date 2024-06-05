@@ -2596,8 +2596,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 if (symbol.tag == SymTag.TYPE_DEF) {
                     symbol = symbol.type.tsymbol;
                 }
-                if (symbol != null && symbol.tag == SymTag.VARIABLE
-                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                if (symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
                     configVars.add((BVarSymbol) symbol);
                 }
             }
