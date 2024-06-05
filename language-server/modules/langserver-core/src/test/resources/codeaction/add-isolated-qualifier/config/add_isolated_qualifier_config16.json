@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 11,
+    "character": 16
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source6.bal",
+  "description": "Add isolated qualifier to a readonly class variable",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'readonlyClass'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

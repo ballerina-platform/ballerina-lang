@@ -567,7 +567,9 @@ public class JBallerinaBackend extends CompilerBackend {
             if (entryName.equals("META-INF/MANIFEST.MF")) {
                 return false;
             }
-
+            if (entryName.equals("module-info.class")) {
+                return false;
+            }
             if (entryName.startsWith("META-INF/services")) {
                 StringBuilder s = services.get(entryName);
                 if (s == null) {

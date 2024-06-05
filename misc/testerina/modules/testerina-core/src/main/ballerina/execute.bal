@@ -68,11 +68,11 @@ public function startSuite() returns int {
 function executeTests() returns error? {
     decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        if !testFunction.serialExecution {
+        if testFunction.serialExecution {
+            executionManager.addInitialSerialTest(testFunction);
+        } else {
             executionManager.addInitialParallelTest(testFunction);
-            continue;
         }
-        executionManager.addInitialSerialTest(testFunction);
     }
     while !executionManager.isExecutionDone() {
         if executionManager.getSerialQueueLength() != 0 && executionManager.countTestInExecution() == 0 {
@@ -111,7 +111,7 @@ function executeAfterSuiteFunctions() {
 function orderTests() returns error? {
     string[] descendants = [];
     foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
-        if (!executionManager.isVisited(testFunction.name) && executionManager.isEnabled(testFunction.name)) {
+        if !executionManager.isVisited(testFunction.name) && executionManager.isEnabled(testFunction.name) {
             check restructureTest(testFunction, descendants);
         }
     }
@@ -150,7 +150,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
 
 isolated function printExecutionError(ExecutionError err, string functionSuffix) {
     println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " +
-    formatFailedError(err.message(), 2));
+            formatFailedError(err.message(), 2));
 }
 
 isolated function getErrorMessage(error err) returns string {
@@ -218,7 +218,7 @@ isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderRe
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType =
-        getTestType(testFunctionArgs));
+                getTestType(testFunctionArgs));
         println(string `${"\n\t"}${testFunction.name} has failed.${"\n"}`);
         enableExit();
         executionManager.setExecutionSuspended(testFunction.name);
@@ -284,8 +284,8 @@ isolated function handleDataDrivenTestOutput(ExecutionError|boolean err, TestFun
         TestType testType) {
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, suffix = suffix, message =
-        string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(err)}`,
-        testType = testType);
+                string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(err)}`,
+                testType = testType);
         println(string `${"\n\t"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         enableExit();
     }
@@ -310,11 +310,11 @@ isolated function handleAfterFunctionOutput(ExecutionError? err) returns boolean
 }
 
 isolated function handleTestFuncOutput(any|error output, TestFunction testFunction, string suffix, TestType testType)
-returns ExecutionError|boolean {
+        returns ExecutionError|boolean {
     if output is TestError {
         enableExit();
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output),
-        testType = testType);
+                testType = testType);
         println(string `${"\n\t"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         return true;
     }
@@ -326,8 +326,8 @@ returns ExecutionError|boolean {
     return error(getErrorMessage(output), functionName = testFunction.name);
 }
 
-isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys,
-        AnyOrError[][] values) returns TestType {
+isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys, AnyOrError[][] values) 
+        returns TestType {
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
     if testFunctionArgs is map<AnyOrError[]> {
         foreach [string, AnyOrError[]] [k, v] in testFunctionArgs.entries() {
@@ -366,12 +366,9 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
         // get the matching wildcard
         prefixMatch = true;
         foreach string filter in testOptions.getFilterTests() {
-            if filter.includes(WILDCARD) {
-                boolean|error wildCardMatch = matchWildcard(functionKey, filter);
-                if wildCardMatch is boolean && wildCardMatch && matchModuleName(filter) {
-                    functionKey = filter;
-                    break;
-                }
+            if filter.includes(WILDCARD) && matchWildcard(functionKey, filter) == true && matchModuleName(filter) {
+                functionKey = filter;
+                break;
             }
         }
     }
@@ -384,22 +381,20 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
         string[] subTests = testOptions.getFilterSubTest(functionKey);
         foreach string subFilter in subTests {
             string updatedSubFilter = subFilter;
-            if testType == DATA_DRIVEN_MAP_OF_TUPLE {
-                if subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE) {
-                    updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
-                }
+            if testType == DATA_DRIVEN_MAP_OF_TUPLE && subFilter.startsWith(SINGLE_QUOTE) 
+                    && subFilter.endsWith(SINGLE_QUOTE) {
+                updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
             }
             string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
             updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;
             string|error decodedSuffix = escapeSpecialCharacters(suffix);
             string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
 
-            boolean wildCardMatchBoolean = false;
+            boolean wildCardMatch = false;
             if updatedSubFilter.includes(WILDCARD) {
-                boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
-                wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+                wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter) == true;
             }
-            if (updatedSubFilter == updatedSuffix) || wildCardMatchBoolean {
+            if (updatedSubFilter == updatedSuffix) || wildCardMatch {
                 suffixMatch = true;
                 break;
             }
