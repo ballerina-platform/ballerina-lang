@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
@@ -92,10 +93,12 @@ public class ModuleStopMethodGen {
     public static final String ARR_VAR = "arrVar";
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
+    private final String strandMetadataClass;
 
-    public ModuleStopMethodGen(JvmTypeGen jvmTypeGen) {
+    public ModuleStopMethodGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
+        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
     }
 
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
@@ -154,7 +157,7 @@ public class ModuleStopMethodGen {
         // no parent strand
         mv.visitInsn(ACONST_NULL);
         jvmTypeGen.loadType(mv, new BNilType());
-        MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         mv.visitVarInsn(ASTORE, 1);
 
         mv.visitVarInsn(ALOAD, 1);

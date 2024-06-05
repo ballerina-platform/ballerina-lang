@@ -610,7 +610,7 @@ class BindgenNodeFactory {
         List<StatementNode> statementNodes = new LinkedList<>();
         FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
                 jField.getExternalFunctionName(), getParameterArgumentList(jField));
-        statementNodes.add(createReturnToStringStatement(jField.getEnv(),
+        statementNodes.add(createStringReturnStatement(jField.getEnv(),
                 Collections.singletonList(innerFunctionCall.toSourceCode())));
 
         return statementNodes;
@@ -698,7 +698,7 @@ class BindgenNodeFactory {
                 jMethod.getExternalFunctionName(), getParameterArgumentList(jMethod));
         PositionalArgumentNode positionalArgNode = createPositionalArgumentNode(innerFunctionCall.toSourceCode());
 
-        return createReturnToStringStatement(jMethod.getEnv(),
+        return createStringReturnStatement(jMethod.getEnv(),
                 Collections.singletonList(positionalArgNode.toSourceCode()));
     }
 
@@ -830,8 +830,7 @@ class BindgenNodeFactory {
                 createBracedExpressionNode(createSimpleNameReferenceNode("externalObj is error")),
                 getCheckExceptionBlock(jMethod.getExceptionName(), jMethod.getExceptionConstName()),
                 createElseBlockNode(createBlockStatementNode(AbstractNodeFactory.createNodeList(
-                        createReturnStatementNode(createFunctionCallExpressionNode(
-                                "java:toString", Collections.singletonList("externalObj"))))))));
+                        createStringReturnStatement(jMethod.getEnv(), Collections.singletonList("externalObj")))))));
 
         return statementNodes;
     }
@@ -989,7 +988,7 @@ class BindgenNodeFactory {
         );
     }
 
-    private static ReturnStatementNode createReturnToStringStatement(BindgenEnv env, List<String> argNodes) {
+    private static ReturnStatementNode createStringReturnStatement(BindgenEnv env, List<String> argNodes) {
         FunctionCallExpressionNode funcCallExprNode = createFunctionCallExpressionNode("java:toString", argNodes);
 
         if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {

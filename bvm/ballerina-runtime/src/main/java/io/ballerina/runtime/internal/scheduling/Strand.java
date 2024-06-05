@@ -94,6 +94,14 @@ public class Strand {
     public BMap<BString, Object> workerReceiveMap = null;
     public int channelCount = 0;
 
+    public Strand() {
+        this.id = -1;
+        this.strandLock = null;
+        this.name = null;
+        this.metadata = null;
+        this.state = RUNNABLE;
+    }
+
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties) {
         this.id = nextStrandId.incrementAndGet();

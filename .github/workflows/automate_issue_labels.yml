@@ -8,7 +8,7 @@ jobs:
   Add-label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check for Type label inclusion
         if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}

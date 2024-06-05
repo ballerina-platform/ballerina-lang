@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -73,14 +72,12 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    public static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
+    public static void submitToScheduler(MethodVisitor mv, String strandMetadataClass, String workerName,
                                   AsyncDataCollector asyncDataCollector) {
-        String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(MAIN_METHOD);
-        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(MAIN_METHOD));
+        String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
         mv.visitLdcInsn(workerName);
-        mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                SCHEDULE_LOCAL, false);
+        mv.visitFieldInsn(GETSTATIC, strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD, SCHEDULE_LOCAL, false);
     }
 
     public static void visitReturn(MethodVisitor mv, String funcName, String className) {

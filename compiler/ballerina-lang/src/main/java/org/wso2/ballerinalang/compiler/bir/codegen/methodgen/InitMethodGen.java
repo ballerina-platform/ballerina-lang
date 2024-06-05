@@ -418,8 +418,8 @@ public class InitMethodGen {
         BIROperand retVarRef = new BIROperand(retVar);
 
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(null, new Name(funcName), 0, funcType, null, 0,
-                                                                  VIRTUAL);
+        BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(symbolTable.builtinPos, new Name(funcName), 0,
+                funcType, null, 0, VIRTUAL);
         modInitFunc.localVars.add(retVar);
         addAndGetNextBasicBlock(modInitFunc);
 

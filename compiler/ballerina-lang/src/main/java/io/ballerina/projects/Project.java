@@ -41,7 +41,7 @@ public abstract class Project {
     private BuildOptions buildOptions;
     protected ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
-    private Map<String, ToolContext> toolContextMap;
+    private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
     private List<CompilerPluginContextIml> compilerPluginContexts;
 
     protected Project(ProjectKind projectKind,
@@ -106,7 +106,7 @@ public abstract class Project {
      *
      * @return map of {@code ToolContext}
      */
-    public Map<String, ToolContext> getToolContextMap() {
+    public Map<PackageManifest.Tool.Field, ToolContext> getToolContextMap() {
         return toolContextMap;
     }
 
@@ -114,7 +114,7 @@ public abstract class Project {
      * Assigns a map of build tools.
      * @param toolContextMap map of {@code ToolContext}
      */
-    public void setToolContextMap(Map<String, ToolContext> toolContextMap) {
+    public void setToolContextMap(Map<PackageManifest.Tool.Field, ToolContext> toolContextMap) {
         this.toolContextMap = toolContextMap;
     }
 

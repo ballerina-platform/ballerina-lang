@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 50,
+    "character": 18
+  },
+  "source": "source2.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'Rec1|Rec2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 50,
+              "character": 4
+            },
+            "end": {
+              "line": 50,
+              "character": 4
+            }
+          },
+          "newText": "Rec1|Rec2 targetType = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'Rec1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 50,
+              "character": 4
+            },
+            "end": {
+              "line": 50,
+              "character": 4
+            }
+          },
+          "newText": "Rec1 targetType = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'Rec2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 50,
+              "character": 4
+            },
+            "end": {
+              "line": 50,
+              "character": 4
+            }
+          },
+          "newText": "Rec2 targetType = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -90,7 +90,7 @@ public class BuildToolResolution {
 
     private void resolveToolDependencies() {
         Project currentProject = packageContext.project();
-        Map<String, ToolContext> toolContextMap = currentProject.getToolContextMap();
+        Map<PackageManifest.Tool.Field, ToolContext> toolContextMap = currentProject.getToolContextMap();
         if (toolContextMap == null || toolContextMap.isEmpty()) {
             return;
         }
@@ -237,7 +237,7 @@ public class BuildToolResolution {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));

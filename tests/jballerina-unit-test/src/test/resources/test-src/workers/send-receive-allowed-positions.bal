@@ -90,7 +90,12 @@ public function testReceiveAllowedLocations(boolean b) returns error? {
             _ = <- function; // OK
         }
     } on fail {
-        _ = <- function; // OK
+        _ = <- function; // error: position not allowed
+        _ = <- w2|function; // error: position not allowed
+    }
+
+    worker w2 {
+        1 -> w1;
     }
 
     1 -> w1;
