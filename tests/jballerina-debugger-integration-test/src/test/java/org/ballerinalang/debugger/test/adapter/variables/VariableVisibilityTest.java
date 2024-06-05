@@ -263,8 +263,11 @@ public class VariableVisibilityTest extends BaseTestCase {
         // map variable visibility test
         debugTestRunner.assertVariable(localVariables, "mapVar", "map (size = 4)", "map");
 
-        // record variable visibility test (Student record)
+        // record variable visibility test
         debugTestRunner.assertVariable(localVariables, "recordVar", " /:@[`{~π_123_ƮέŞŢ_Student", "record");
+
+        // readonly record variable visibility test
+        debugTestRunner.assertVariable(localVariables, "readonlyRecordVar", "Pet", "record");
 
         // anonymous record variable visibility test
         debugTestRunner.assertVariable(localVariables, "anonRecord", "record {| string city; string country; |}",
