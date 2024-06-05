@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -267,7 +268,7 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = Builder.from(getType(sourceVal));
-        return switch (isSubTypeInner(sourceSemType, targetSemType)) {
+        return switch (isSubTypeInner(sourceVal, sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
             case MAYBE -> FallbackTypeChecker.checkIsType(null, sourceVal, bTypePart(sourceSemType),
@@ -285,7 +286,7 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        return switch (isSubType(sourceType, targetType)) {
+        return switch (isSubType(sourceVal, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
             case MAYBE ->
@@ -503,7 +504,7 @@ public final class TypeChecker {
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return switch (isSubType(sourceType, targetType)) {
+        return switch (isSubType(sourceVal, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
             case MAYBE -> FallbackTypeChecker.checkIsType(sourceVal, bTypePart(sourceType), bTypePart(targetType),
@@ -540,6 +541,14 @@ public final class TypeChecker {
         MAYBE
     }
 
+    private static TypeCheckResult isSubType(Object sourceValue, Type source, Type target) {
+        TypeCheckResult result = isSubType(source, target);
+        if (result != TypeCheckResult.FALSE || !source.isReadOnly()) {
+            return result;
+        }
+        return isSubTypeImmutableValue(sourceValue, Builder.from(target));
+    }
+
     private static TypeCheckResult isSubType(Type source, Type target) {
         if (source instanceof ParameterizedType sourceParamType) {
             if (target instanceof ParameterizedType targetParamType) {
@@ -548,6 +557,24 @@ public final class TypeChecker {
             return isSubType(sourceParamType.getParamValueType(), target);
         }
         return isSubTypeInner(Builder.from(source), Builder.from(target));
+    }
+
+    private static TypeCheckResult isSubTypeInner(Object sourceValue, SemType source, SemType target) {
+        TypeCheckResult result = isSubTypeInner(source, target);
+        if (result != TypeCheckResult.FALSE ||
+                !Core.isSubType(cx, Core.intersect(source, SEMTYPE_TOP), Builder.readonlyType())) {
+            return result;
+        }
+        return isSubTypeImmutableValue(sourceValue, target);
+    }
+
+    private static TypeCheckResult isSubTypeImmutableValue(Object sourceValue, SemType target) {
+        Optional<SemType> sourceSingletonType = Builder.typeOf(sourceValue);
+        if (sourceSingletonType.isEmpty()) {
+            return Core.containsBasicType(target, B_TYPE_TOP) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
+        }
+        SemType singletonType = sourceSingletonType.get();
+        return isSubTypeInner(singletonType, target);
     }
 
     private static TypeCheckResult isSubTypeInner(SemType source, SemType target) {
@@ -575,6 +602,8 @@ public final class TypeChecker {
             return Builder.booleanType();
         } else if (value instanceof DecimalValue) {
             return Builder.decimalType();
+        } else if (value instanceof ArrayValue) {
+            return Builder.listType();
         } else {
             return Builder.bType();
         }

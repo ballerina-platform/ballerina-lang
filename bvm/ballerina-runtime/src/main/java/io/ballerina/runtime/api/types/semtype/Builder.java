@@ -19,6 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
@@ -28,6 +29,7 @@ import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -74,6 +76,8 @@ public final class Builder {
     static final SemType CELL_SEMTYPE_INNER_RO = basicSubType(
             BT_CELL, BCellSubType.createDelegate(bddAtom(ATOM_CELL_INNER_RO)));
     private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
+
+    private static final Env env = Env.getInstance();
 
     private Builder() {
     }
@@ -152,6 +156,10 @@ public final class Builder {
 
     public static SemType listType() {
         return from(BT_LIST);
+    }
+
+    public static SemType readonlyType() {
+        return VAL_READONLY;
     }
 
     public static SemType basicTypeUnion(int bitset) {
@@ -238,8 +246,25 @@ public final class Builder {
             return Optional.of(booleanConst(booleanValue));
         } else if (object instanceof BString stringValue) {
             return Optional.of(stringConst(stringValue.getValue()));
+        } else if (object instanceof BArray arrayValue) {
+            return typeOfArray(arrayValue);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfArray(BArray arrayValue) {
+        int size = arrayValue.size();
+        SemType[] memberTypes = new SemType[size];
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = typeOf(arrayValue.get(i));
+            if (memberType.isEmpty()) {
+                return Optional.empty();
+            }
+            memberTypes[i] = memberType.get();
+        }
+        ListDefinition ld = new ListDefinition();
+        return Optional.of(
+                ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
     }
 
     public static SemType roCellContaining(Env env, SemType ty) {
