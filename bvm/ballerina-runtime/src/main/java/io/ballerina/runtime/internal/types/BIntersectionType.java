@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
@@ -223,6 +224,6 @@ public class BIntersectionType extends BType implements IntersectionType {
         if (effectiveType instanceof SemType semType) {
             return semType;
         }
-        return ((BType) effectiveType).createSemType();
+        return Builder.from(effectiveType);
     }
 }

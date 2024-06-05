@@ -121,6 +121,44 @@ public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNod
     }
 
     @Override
+    public SubType diff(SubType other) {
+        return bddDiff((Bdd) other);
+    }
+
+    private Bdd bddDiff(Bdd other) {
+        if (this == other || other == BddAllOrNothing.ALL || this == BddAllOrNothing.NOTHING) {
+            return BddAllOrNothing.NOTHING;
+        } else if (other == BddAllOrNothing.NOTHING) {
+            return this;
+        } else if (this == BddAllOrNothing.ALL) {
+            return other.bddComplement();
+        }
+        BddNode b1Bdd = (BddNode) this;
+        BddNode b2Bdd = (BddNode) other;
+        int cmp = atomCmp(b1Bdd.atom(), b2Bdd.atom());
+        if (cmp < 0L) {
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left().bddUnion(b1Bdd.middle()).bddDiff(other),
+                    BddAllOrNothing.NOTHING,
+                    b1Bdd.right().bddUnion(b1Bdd.middle()).bddDiff(other));
+        } else if (cmp > 0L) {
+            return bddCreate(b2Bdd.atom(),
+                    this.bddDiff(b2Bdd.left().bddUnion(b2Bdd.middle())),
+                    BddAllOrNothing.NOTHING,
+                    this.bddDiff(b2Bdd.right().bddUnion(b2Bdd.middle())));
+        } else {
+            // There is an error in the Castagna paper for this formula.
+            // The union needs to be materialized here.
+            // The original formula does not work in a case like (a0|a1) - a0.
+            // Castagna confirms that the following formula is the correct one.
+            return bddCreate(b1Bdd.atom(),
+                    b1Bdd.left().bddUnion(b1Bdd.middle()).bddDiff(b2Bdd.left().bddUnion(b2Bdd.middle())),
+                    BddAllOrNothing.NOTHING,
+                    b1Bdd.right().bddUnion(b1Bdd.middle()).bddDiff(b2Bdd.right().bddUnion(b2Bdd.middle())));
+        }
+    }
+
+    @Override
     public SubType complement() {
         return bddComplement();
     }

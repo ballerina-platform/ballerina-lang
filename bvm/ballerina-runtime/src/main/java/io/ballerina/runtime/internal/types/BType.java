@@ -22,6 +22,8 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -41,6 +43,8 @@ import java.util.function.Supplier;
  * @since 0.995.0
  */
 public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
+
+    private static final SemType READONLY_WITH_B_TYPE = Core.union(Builder.readonlyType(), Core.B_TYPE_TOP);
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -231,6 +235,9 @@ public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
     public final SemType get() {
         if (cachedSemType == null) {
             cachedSemType = createSemType();
+            if (isReadOnly()) {
+                cachedSemType = Core.intersect(cachedSemType, READONLY_WITH_B_TYPE);
+            }
         }
         return cachedSemType;
     }

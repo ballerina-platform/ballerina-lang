@@ -24,7 +24,12 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -41,6 +46,7 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BAnnotatableType implements TupleType {
 
+    private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
@@ -51,6 +57,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     private boolean resolving;
     private boolean resolvingReadonly;
     private String cachedToString;
+    private ListDefinition defn;
+    private final Env env = Env.getInstance();
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -166,6 +174,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
             this.restType = restType;
         }
         checkAllMembers();
+        defn = null;
+        resetSemTypeCache();
     }
 
     @Override
@@ -301,6 +311,47 @@ public class BTupleType extends BAnnotatableType implements TupleType {
 
     @Override
     SemType createSemType() {
-        return BTypeConverter.fromTupleType(this);
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        defn = new ListDefinition();
+        SemType[] memberTypes = new SemType[tupleTypes.size()];
+        boolean hasBTypePart = false;
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            SemType memberType = Builder.from(tupleTypes.get(i));
+            if (Core.isNever(memberType)) {
+                // TODO:  This is not correct and blow up if this is recursive. But current jBal type implementation
+                //  treats these as never while nBal don't. Revisit this once all types are done
+                return Builder.neverType();
+//            } else if (Core.isSubtypeSimple(memberType, Core.B_TYPE_TOP)) {
+//                SemType semTypePart = defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, Builder.neverType(),
+//                        CellAtomicType.CellMutability.CELL_MUT_NONE);
+//                SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+//                return Core.union(semTypePart, bTypePart);
+            } else if (!Core.isNever(Core.intersect(memberType, Core.B_TYPE_TOP))) {
+                hasBTypePart = true;
+                memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
+            }
+            memberTypes[i] = memberType;
+        }
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType rest = restType != null ? Builder.from(restType) : Builder.neverType();
+//        if (Core.isSubtypeSimple(rest, Core.B_TYPE_TOP)) {
+//            SemType semTypePart =
+//                    defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, Builder.neverType(), mut);
+//            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+//            return Core.union(semTypePart, bTypePart);
+//        }
+        if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+            hasBTypePart = true;
+            rest = Core.intersect(rest, Core.SEMTYPE_TOP);
+        }
+        if (hasBTypePart) {
+            SemType semTypePart = defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(semTypePart, bTypePart);
+        }
+        return defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }
 }
