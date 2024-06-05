@@ -22,7 +22,13 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -41,6 +47,8 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class BArrayType extends BType implements ArrayType {
+
+    private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
     private int dimensions = 1;
     private int size = -1;
@@ -51,6 +59,8 @@ public class BArrayType extends BType implements ArrayType {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
+    private ListDefinition defn;
+    private final Env env = Env.getInstance();
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -87,6 +97,8 @@ public class BArrayType extends BType implements ArrayType {
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
+        defn = null;
+        resetSemTypeCache();
     }
 
     private void setFlagsBasedOnElementType() {
@@ -200,5 +212,40 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    SemType createSemType() {
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        defn = new ListDefinition();
+        SemType elementType = Builder.from(getElementType());
+//        if (Core.isSubtypeSimple(elementType, Core.B_TYPE_TOP)) {
+//            SemType semTypePart = defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, Builder.neverType(),
+//                    CellAtomicType.CellMutability.CELL_MUT_NONE);
+//            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+//            return Core.union(semTypePart, bTypePart);
+//        }
+        SemType pureBTypePart = Core.intersect(elementType, Core.B_TYPE_TOP);
+        if (!Core.isNever(pureBTypePart)) {
+            SemType pureSemTypePart = Core.intersect(elementType, Core.SEMTYPE_TOP);
+            SemType semTypePart = getSemTypePart(pureSemTypePart);
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(semTypePart, bTypePart);
+        }
+
+        return getSemTypePart(elementType);
+    }
+
+    private SemType getSemTypePart(SemType elementType) {
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        if (size == -1) {
+            return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
+        } else {
+            SemType[] initial = {elementType};
+            return defn.defineListTypeWrapped(env, initial, size, Builder.neverType(), mut);
+        }
     }
 }
