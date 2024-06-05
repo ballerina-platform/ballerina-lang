@@ -248,8 +248,8 @@ public class XMLToRecordConverter {
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element xmlElementNode = (Element) xmlNode;
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
-                if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 1 ||
-                        (xmlElementNode.getAttributes().getLength() == 1
+                if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 1
+                        || (xmlElementNode.getAttributes().getLength() == 1
                                 && !XMLNS_PREFIX.equals(xmlElementNode.getAttributes().item(0).getPrefix()))) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
                             recordToElementNodes, diagnosticMessages, textFieldName, withNameSpace);
@@ -336,8 +336,8 @@ public class XMLToRecordConverter {
             recordFields.add(recordFieldNode);
             for (int j = 0; j < xmlElement.getAttributes().getLength(); j++) {
                 org.w3c.dom.Node xmlAttributeNode = xmlElement.getAttributes().item(j);
-                if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE && !XMLNS_PREFIX
-                        .equals(xmlAttributeNode.getPrefix())) {
+                if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE
+                        && !XMLNS_PREFIX.equals(xmlAttributeNode.getPrefix())) {
                     Node recordField = getRecordField(xmlAttributeNode);
                     recordFields.add(recordField);
                 }
@@ -469,8 +469,8 @@ public class XMLToRecordConverter {
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         if (isLeafXMLElementNode(xmlElementNode) && (xmlElementNode.getAttributes().getLength() == 0 ||
-                (xmlElementNode.getAttributes().getLength() == 1 &&
-                        XMLNS_PREFIX.equals(xmlElementNode.getAttributes().item(0).getPrefix())))) {
+                (xmlElementNode.getAttributes().getLength() == 1
+                        && XMLNS_PREFIX.equals(xmlElementNode.getAttributes().item(0).getPrefix())))) {
             typeName = getPrimitiveTypeName(xmlElementNode.getFirstChild().getNodeValue());
         } else {
             // At the moment all are considered as Objects here
