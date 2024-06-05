@@ -226,6 +226,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case FLOAT -> Builder.floatType();
             case DECIMAL -> Builder.decimalType();
             case STRING -> Builder.stringType();
+            case READONLY -> Builder.readonlyType();
+            case ANY -> Builder.anyType();
             default -> throw new IllegalStateException("Unknown type: " + td);
         };
     }

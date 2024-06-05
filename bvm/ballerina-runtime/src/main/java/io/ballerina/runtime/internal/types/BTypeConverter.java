@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * This is a utility class for {@code Builder} class so that BTypes don't need to expose their internal structure as
@@ -45,12 +46,12 @@ final class BTypeConverter {
     private BTypeConverter() {
     }
 
-    private static final SemType READONLY_SEMTYPE_PART =
-            unionOf(Builder.stringType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
-                    Builder.nilType(), Builder.decimalType());
-    private static final SemType ANY_SEMTYPE_PART =
-            unionOf(Builder.stringType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
-                    Builder.nilType(), Builder.decimalType());
+    // FIXME:
+    private static final SemType implementedTypes =
+            unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
+                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), Builder.listType());
+    private static final SemType READONLY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.readonlyType());
+    private static final SemType ANY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.anyType());
 
     private static SemType unionOf(SemType... semTypes) {
         SemType result = Builder.neverType();
@@ -78,17 +79,8 @@ final class BTypeConverter {
         return Core.union(READONLY_SEMTYPE_PART, bTypePart);
     }
 
-    static SemType fromTupleType(BTupleType tupleType) {
-        for (Type type : tupleType.getTupleTypes()) {
-            if (Core.isNever(from(type))) {
-                return Builder.neverType();
-            }
-        }
-        return wrapAsPureBType(tupleType);
-    }
-
-    static SemType wrapAsPureBType(BType tupleType) {
-        return Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(tupleType));
+    static SemType wrapAsPureBType(BType bType) {
+        return Builder.basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(bType));
     }
 
     static SemType fromAnyType(BAnyType anyType) {
@@ -146,13 +138,30 @@ final class BTypeConverter {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
             return splitFiniteType(finiteType);
+        } else if (type instanceof BArrayType || type instanceof BTupleType) {
+            return splitSemTypeSupplier((Supplier<SemType>) type);
         } else {
             return new BTypeParts(Builder.neverType(), List.of(type));
         }
     }
 
+    private static BTypeParts splitSemTypeSupplier(Supplier<SemType> supplier) {
+        SemType semtype = supplier.get();
+        SemType bBTypePart = Core.intersect(semtype, Core.B_TYPE_TOP);
+        if (Core.isNever(bBTypePart)) {
+            return new BTypeParts(semtype, Collections.emptyList());
+        }
+        SemType pureSemTypePart = Core.intersect(semtype, Core.SEMTYPE_TOP);
+        BType bType = (BType) Core.subTypeData(semtype, BasicTypeCode.BT_B_TYPE);
+        return new BTypeParts(pureSemTypePart, List.of(bType));
+    }
+
     private static BTypeParts splitAnyType(BAnyType anyType) {
-        return new BTypeParts(ANY_SEMTYPE_PART, List.of(anyType));
+        SemType semTypePart = ANY_SEMTYPE_PART;
+        if (anyType.isReadOnly()) {
+            semTypePart = Core.intersect(semTypePart, Builder.readonlyType());
+        }
+        return new BTypeParts(semTypePart, List.of(anyType));
     }
 
     private static BTypeParts splitFiniteType(BFiniteType finiteType) {
