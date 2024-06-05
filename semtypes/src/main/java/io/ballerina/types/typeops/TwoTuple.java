@@ -26,8 +26,8 @@ package io.ballerina.types.typeops;
  */
 public final class TwoTuple<E1, E2> {
 
-    E1 item1;
-    E2 item2;
+    final E1 item1;
+    final E2 item2;
 
     private TwoTuple(E1 item1, E2 item2) {
         this.item1 = item1;

@@ -242,6 +242,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // `nRequired` is the number of members of `memberTypes` that are required by P.
     // `neg` represents N.
     static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired, Conjunction neg) {
+        // TODO: Way `listInhabited` method works is essentially removing negative atoms one by one until either we
+        //  run-out of negative atoms or there is nothing left in the positive (intersection) atom. While correctness
+        //  of this method is independent of the order of negative atoms, the performance of this method is dependent
+        //  on the order. For example consider positive atom is int[] and we have negative atoms int[1], int[2],
+        //  int[3], any[]. If we start with any[] we immediately know it is not inhabited whereas in any other order we
+        //  have to evaluate until we come to any[] to figure this out. We say any[] is larger than others since it
+        //  covers more values than them. According to Frisch section 7.3.1 we should use this size as an heuristic to
+        //  sort negative atoms. However it is not clear to me how to estimate the size correctly
         if (neg == null) {
             return true;
         } else {
@@ -250,9 +258,22 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
-            // Consider cases we can avoid this negative by having a sufficiently short list
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
+                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+                // Therefore, we can skip the negative
+                for (int i = 0; i < memberTypes.length; i++) {
+                    int index = indices[i];
+                    if (index >= negLen) {
+                        break;
+                    }
+                    SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                    SemType common = Core.intersect(memberTypes[i], negMemberType);
+                    if (Core.isEmpty(cx, common)) {
+                        return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                    }
+                }
+                // Consider cases we can avoid this negative by having a sufficiently short list
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
                     return listInhabited(cx, indices, memberTypes, nRequired, neg.next);

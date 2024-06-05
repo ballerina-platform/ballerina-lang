@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -84,5 +85,14 @@ public class BJSONType extends BUnionType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public SemType semType() {
+        // Ideally this shouldn't be needed but somehow in jBallerina code base, there was an edge case where members
+        // got changed without going via any of the exposed methods in BUnionType. This is a temporary fix to handle
+        // that edge case. In the future when we switch to the semtype resolver this should no longer be a problem.
+        semType = null;
+        return super.semType();
     }
 }
