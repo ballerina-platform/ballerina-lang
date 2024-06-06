@@ -28,8 +28,8 @@ import io.ballerina.runtime.internal.types.semtype.PureSemType;
  */
 public abstract sealed class SemType implements BasicTypeBitSet permits BSemTypeWrapper, PureSemType {
 
-    final int all;
-    final int some;
+    public final int all;
+    public final int some;
     private final SubType[] subTypeData;
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
 

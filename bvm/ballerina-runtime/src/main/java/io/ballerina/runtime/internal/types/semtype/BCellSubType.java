@@ -41,7 +41,7 @@ import java.util.function.Predicate;
  *
  * @since 2201.10.0
  */
-public final class BCellSubType extends SubType {
+public final class BCellSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
 
@@ -182,4 +182,8 @@ public final class BCellSubType extends SubType {
         return negUnion;
     }
 
+    @Override
+    public Bdd inner() {
+        return inner;
+    }
 }
