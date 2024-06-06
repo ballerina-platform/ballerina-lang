@@ -1,0 +1,14 @@
+<library xmlns:lib="http://example.com/library" xmlns:au="http://example.com/author" xmlns:pr="http://example.com/price">
+    <lib:book>
+        <lib:title>string</lib:title>
+        <lib:title>string</lib:title>
+    </lib:book>
+    <au:author>
+        <au:name>string</au:name>
+        <au:name>string</au:name>
+    </au:author>
+    <pr:price>
+        <pr:price>1000</pr:price>
+        <pr:price>1000.50</pr:price>
+    </pr:price>
+</library>

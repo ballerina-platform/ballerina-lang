@@ -103,6 +103,10 @@ public class CodegenErrorsTest {
         BRunUtil.runMain(testLargeMethods3Result);
     }
 
+    public void testLargeMethods4() {
+        BCompileUtil.compile("test-src/jvm/largeMethods4");
+    }
+
     @Test
     public void testLargeNumberOfListeners() {
         CompileResult compileResult = BCompileUtil.compile("test-src/jvm/large-number-of-listeners.bal");

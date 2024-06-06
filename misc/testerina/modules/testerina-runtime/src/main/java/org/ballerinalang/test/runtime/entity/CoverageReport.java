@@ -53,6 +53,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -368,13 +369,20 @@ public class CoverageReport {
                             Optional<List<Integer>> coveredLinesList =
                                     moduleCoverage.getCoveredLinesList(
                                             sourceFileCoverage.getName());
-                            if (missedLinesList.isPresent() && coveredLinesList.isPresent()) {
+                            Optional<List<Integer>> emptyLinesList = moduleCoverage.getEmptyLinesList(
+                                    sourceFileCoverage.getName());
+                            if (missedLinesList.isPresent() && coveredLinesList.isPresent() &&
+                                    emptyLinesList.isPresent()) {
                                 List<Integer> missedLines = missedLinesList.get();
                                 List<Integer> coveredLines = coveredLinesList.get();
+                                List<Integer> emptyLines = emptyLinesList.get();
                                 List<Integer> existingMissedLines = new ArrayList<>(missedLines);
+                                List<Integer> existingEmptyLines =  new ArrayList<>(emptyLines);
                                 boolean isCoverageUpdated = false;
-                                int updateMissedLineCount = 0;
-                                for (int missedLine : existingMissedLines) {
+                                int coveredMissedLineCount = 0;
+                                int coveredEmptyLineCount = 0;
+                                int missedEmptyLineCount = 0;
+                                for (Integer missedLine : existingMissedLines) {
                                     // Traverse through the missed lines of a source file and update
                                     // coverage status if it is covered in the current module.
                                     // This is to make sure multi module tests are reflected in test coverage
@@ -383,14 +391,34 @@ public class CoverageReport {
                                         isCoverageUpdated = true;
                                         missedLines.remove(missedLine);
                                         coveredLines.add(missedLine);
-                                        updateMissedLineCount++;
+                                        coveredMissedLineCount++;
+                                    }
+                                }
+                                for (Integer emptyLine : existingEmptyLines) {
+                                    // Traverse through the empty lines of a source file and update
+                                    // coverage status if it is covered/missed in the current java package.
+                                    // This is to ensure the proper coverage calculation when the original source file
+                                    // is split under multiple java packages during the code generation.
+                                    ILine line = sourceFileCoverage.getLine(emptyLine);
+                                    if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                        isCoverageUpdated = true;
+                                        emptyLines.remove(emptyLine);
+                                        coveredLines.add(emptyLine);
+                                        coveredEmptyLineCount++;
+                                    } else if (line.getStatus() == NOT_COVERED) {
+                                        isCoverageUpdated = true;
+                                        emptyLines.remove(emptyLine);
+                                        missedLines.add(emptyLine);
+                                        missedEmptyLineCount++;
                                     }
                                 }
                                 if (isCoverageUpdated) {
                                     // Update the coverage only if there is a coverage change
                                     if (document != null) {
-                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines,
-                                                updateMissedLineCount);
+                                        Collections.sort(coveredLines);
+                                        Collections.sort(missedLines);
+                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines, emptyLines,
+                                                coveredMissedLineCount, coveredEmptyLineCount, missedEmptyLineCount);
                                     }
                                 }
                             }
@@ -398,20 +426,23 @@ public class CoverageReport {
                             // Calculate coverage for new source file only if belongs to current module
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
-
-                            for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
-                                 i++) {
+                            List<Integer> emptyLines = new ArrayList<>();
+                            int firstLine = sourceFileCoverage.getFirstLine();
+                            int lastLine = sourceFileCoverage.getLastLine();
+                            for (int i = firstLine; i <= lastLine; i++) {
                                 ILine line = sourceFileCoverage.getLine(i);
                                 if (line.getStatus() == NOT_COVERED) {
                                     missedLines.add(i);
                                 } else if (line.getStatus() == PARTLY_COVERED ||
                                         line.getStatus() == FULLY_COVERED) {
                                     coveredLines.add(i);
+                                } else if (line.getStatus() == EMPTY) {
+                                    emptyLines.add(i);
                                 }
                             }
-                            if (document != null) {
+                            if (document != null && firstLine != -1) {
                                 moduleCoverage.addSourceFileCoverage(document, coveredLines,
-                                        missedLines);
+                                        missedLines, emptyLines);
                             }
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
                         }
@@ -498,6 +529,7 @@ public class CoverageReport {
 
                     List<Integer> newCoveredLines = new ArrayList<>();
                     List<Integer> newMissedLines = new ArrayList<>();
+                    List<Integer> newEmptyLines = new ArrayList<>();
 
                     // Go through line status and get the new covered and missed lines
                     for (int i = 0; i < originalDocLineStatus.size(); i++) {
@@ -505,12 +537,14 @@ public class CoverageReport {
                             newCoveredLines.add(i + 1);
                         } else if (originalDocLineStatus.get(i).equals(NOT_COVERED)) {
                             newMissedLines.add(i + 1);
+                        } else if (originalDocLineStatus.get(i).equals(EMPTY)) {
+                            newEmptyLines.add(i + 1);
                         }
                     }
 
                     // Remove previous source file module and replace it with new module coverage
                     moduleCoverageMap.remove(originalModule.moduleName().toString());
-                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines);
+                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines, newEmptyLines);
                     moduleCoverageMap.put(originalModule.moduleName().toString(), moduleCoverage);
                 }
 
