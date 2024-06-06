@@ -306,7 +306,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private boolean isNotWhiteListedPkg(BPackageSymbol pkgSymbol) {
-            for (String pkgName : WHITE_LISTED_PKG_NAMES) {
+        for (String pkgName : WHITE_LISTED_PKG_NAMES) {
             if (pkgSymbol.pkgID.toString().contains(pkgName)) {
                 return false;
             }
@@ -707,18 +707,18 @@ public class JBallerinaBackend extends CompilerBackend {
         Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
                 symbolTable.immutableTypeMaps.get(getPackageIdString(pkgID));
 
+        if (immutableTypeMap == null) {
+            return;
+        }
+
         deadTypeDefs.forEach(deadTypeDef -> {
             if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
-                if (immutableTypeMap != null) {
-                    deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
-                }
+                deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
             }
         });
 
         // Some types don't have an associated BIRTypeDefinition. These types have to be removed manually.
-        if (immutableTypeMap != null) {
-            immutableTypeMap.entrySet().removeIf(entry -> !entry.getValue().isUsed);
-        }
+        immutableTypeMap.entrySet().removeIf(entry -> !entry.getValue().isUsed);
     }
 
     public static String getPackageIdString(PackageID packageID) {
@@ -893,7 +893,6 @@ public class JBallerinaBackend extends CompilerBackend {
             startPoints.add(getMainClassFileName(this.packageContext()));
             ZipArchiveOutputStream optimizedJarStream =
                     new ZipArchiveOutputStream(new FileOutputStream(bytecodeOptimizedJarPath));
-
             NativeDependencyOptimizer nativeDependencyOptimizer =
                     new NativeDependencyOptimizer(startPoints, birOptimizedFatJar, optimizedJarStream);
 
