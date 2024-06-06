@@ -130,13 +130,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
     List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
-    private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
+    private final Map<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
-    protected final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
-    protected final HashSet<PackageId> unusedPackageIds = new HashSet<>();
-    protected final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
-    protected final HashMap<PackageId, Set<String>> pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
+    protected final Set<PackageID> unusedPackageIDs = new HashSet<>();
+    protected final Set<PackageId> unusedPackageIds = new HashSet<>();
+    protected final Set<ModuleId> unusedModuleIds = new HashSet<>();
+    protected final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -197,11 +197,12 @@ public class JBallerinaBackend extends CompilerBackend {
             if (shrink) {
                 ModuleContext.shrinkDocuments(moduleContext);
             }
+            Project project = moduleContext.project();
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
                     for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                         moduleDiagnostics.add(
-                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                     }
                     continue;
                 }
@@ -212,10 +213,10 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
-                        !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                        !ProjectKind.BALA_PROJECT.equals(project.kind()) ||
                         (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
                     moduleDiagnostics.add(
-                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                 }
             }
 
@@ -223,8 +224,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.cleanBLangPackage();
             }
             // Codegen happens later when --optimize flag is active. Therefore, we cannot clean the BlangPkgs until then.
-            if (!moduleContext.project().buildOptions().optimizeCodegen() &&
-                    moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+            if (!project.buildOptions().optimizeCodegen() &&
+                    project.kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
 
@@ -249,10 +250,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void registerUnusedBIRNodes() {
+        List<ModuleContext> topologicallySortedModuleList = pkgResolution.topologicallySortedModuleList();
         // Reversed the for loop because used BIRNode analysis should start from the root module.
         // Root module is usually found last in the topologicallySortedModuleList.
-        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
-            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+        for (int i = topologicallySortedModuleList.size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = topologicallySortedModuleList.get(i);
 
             // Default module is analyzed first to find its immediate dependencies.
             // Its immediate dependent modules are marked as "used" and they are optimized after that.
@@ -575,11 +577,7 @@ public class JBallerinaBackend extends CompilerBackend {
             cacheResources(compilationCache, moduleContext.project().buildOptions().skipTests());
         }
         // skip generation of the test jar if --with-tests option is not provided
-        if (moduleContext.project().buildOptions().skipTests()) {
-            return;
-        }
-
-        if (!bLangPackage.hasTestablePackage()) {
+        if (moduleContext.project().buildOptions().skipTests() || !bLangPackage.hasTestablePackage()) {
             return;
         }
 
@@ -651,11 +649,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // TODO merge this with performCodeGen
         // skip generation of the test jar if --with-tests option is not provided
-        if (moduleContext.project().buildOptions().skipTests()) {
-            return;
-        }
-
-        if (!bLangPackage.hasTestablePackage()) {
+        if (moduleContext.project().buildOptions().skipTests() || !bLangPackage.hasTestablePackage()) {
             return;
         }
 
@@ -703,7 +697,6 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData, PackageID pkgID) {
-        HashSet<BIRNode.BIRTypeDefinition> deadTypeDefs = new HashSet<>(invocationData.unusedTypeDefs);
         Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
                 symbolTable.immutableTypeMaps.get(getPackageIdString(pkgID));
 
@@ -711,7 +704,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
-        deadTypeDefs.forEach(deadTypeDef -> {
+        invocationData.unusedTypeDefs.forEach(deadTypeDef -> {
             if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
                 deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
             }

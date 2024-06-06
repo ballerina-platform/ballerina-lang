@@ -23,6 +23,7 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
+import io.ballerina.projects.util.CodegenOptimizationUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
@@ -57,10 +58,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINA_JBALLERINA;
-import static io.ballerina.projects.util.CodegenOptimizationConstants.BALLERINA_LANG;
-import static io.ballerina.projects.util.CodegenOptimizationConstants.DOT_DRIVER;
-import static io.ballerina.projects.util.CodegenOptimizationConstants.OBSERVE;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
 
@@ -493,27 +490,11 @@ class ModuleContext {
     }
 
     public boolean isWhiteListedModule() {
-        return isObserveModule() || isDriverModule() || isJBallerinaModule();
-    }
-
-    private boolean isObserveModule() {
-        return this.moduleId.moduleName().contains(OBSERVE);
-    }
-
-    private boolean isDriverModule() {
-        return this.moduleId.moduleName().contains(DOT_DRIVER);
-    }
-
-    private boolean isLangLibModule() {
-        return this.moduleDescriptor.moduleCompilationId().toString().startsWith(BALLERINA_LANG);
-    }
-
-    private boolean isJBallerinaModule() {
-        return this.moduleDescriptor.moduleCompilationId().toString().contains(BALLERINA_JBALLERINA);
+        return CodegenOptimizationUtils.isWhiteListedModule(this.moduleDescriptor.moduleCompilationId());
     }
 
     private boolean shouldOptimizeCodegen() {
-        return this.project().buildOptions().optimizeCodegen() && !this.isLangLibModule() && !isWhiteListedModule();
+        return this.project().buildOptions().optimizeCodegen() && !isWhiteListedModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
