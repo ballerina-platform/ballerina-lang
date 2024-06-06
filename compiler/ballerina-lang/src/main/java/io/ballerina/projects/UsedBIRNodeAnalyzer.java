@@ -66,21 +66,21 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private static final HashSet<String> USED_FUNCTION_NAMES =
+    private static final Set<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>", "__execute__"));
-    private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
-    private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
+    private static final Map<String, Set<String>> INTEROP_DEPENDENCIES = new HashMap<>();
+    private static final Set<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
             Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
                     InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD,
                     InstructionKind.NEW_TABLE, InstructionKind.NEW_ARRAY, InstructionKind.MOVE,
                     InstructionKind.NEW_ERROR));
-    private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
+    private static final Set<InstructionKind> ANALYZED_TERMINATOR_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
     private static final String EXECUTE_TEST_REGISTRAR = "executeTestRegistrar";
     // To check whether a given FP is "USED" or not, we have to keep track of the existing FPs of a given scope.
     // Variable Declarations holding an FPs are needed to be tracked to achieve that.
-    private HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
+    private Map<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
     // pkgWiseInvocationData is used for debugging purposes
     public final Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new LinkedHashMap<>();
     protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
@@ -197,7 +197,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
         currentInstructionArr = birBasicBlock.instructions;
 
-        HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> previousLocalFpHolders = localFpHolders;
+        Map<BIRNode.BIRVariableDcl, FunctionPointerData> previousLocalFpHolders = localFpHolders;
         localFpHolders = new HashMap<>();
         localFpHolders.putAll(currentInvocationData.globalVarFPDataPool);
         birBasicBlock.instructions.forEach(instruction -> {
@@ -207,8 +207,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
             // The current algorithm does not track all FP assignments.
             // If the FP is assigned inside the parent scope, the FP will have the same UsedState as the parent
-            HashSet<BIROperand> rhsOperands = new HashSet<>(Arrays.asList(instruction.getRhsOperands()));
-            HashSet<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
+            Set<BIROperand> rhsOperands = new HashSet<>(Arrays.asList(instruction.getRhsOperands()));
+            Set<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
             rhsOperands.forEach(birOperand -> rhsVars.add(birOperand.variableDcl));
 
             for (BIRNode.BIRVariableDcl rhsVar : rhsVars) {
@@ -252,7 +252,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.Call call) {
         // If function pointers are passed as parameters, they will be bound to the parent function
-        HashSet<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
+        Set<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
         call.args.forEach(birOperand -> argVars.add(birOperand.variableDcl));
         argVars.retainAll(localFpHolders.keySet());
         // TODO Refactor logic here to analyze typedefs of the fpCall parameter types
@@ -449,7 +449,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             InputStream stream = getClass().getClassLoader().getResourceAsStream(INTEROP_DEPENDENCIES_PROPERTIES_FILE);
             prop.load(stream);
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-                HashSet<String> usedRecordNames = new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
+                Set<String> usedRecordNames = new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
                 INTEROP_DEPENDENCIES.putIfAbsent(entry.getKey().toString(), usedRecordNames);
             }
 
@@ -499,9 +499,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     public static class InvocationData {
 
         // Following Sets are used to whitelist the bal types called through ValueCreator in native dependencies
-        private static final HashSet<String> WHITELSITED_FILE_NAMES =
+        private static final Set<String> WHITELSITED_FILE_NAMES =
                 new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
-        private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
+        private static final Set<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
                 Arrays.asList("ballerinax/mysql", "ballerina/sql", "ballerinax/persist.sql"));
         private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
         private static final String MOCK_FUNCTION_PREFIX = "$MOCK_";
@@ -510,16 +510,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected final Set<BIRNode.BIRTypeDefinition> usedTypeDefs = new LinkedHashSet<>();
         protected final Set<BIRNode.BIRTypeDefinition> unusedTypeDefs = new LinkedHashSet<>();
         protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
-        private final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
+        private final Map<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
         private final Map<BIRNode.BIRVariableDcl, FunctionPointerData> functionPointerDataPool =
                 new IdentityHashMap<>();
-        private final HashMap<BIRNode.BIRGlobalVariableDcl, FunctionPointerData> globalVarFPDataPool =
-                new HashMap<>();
-        private final HashMap<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
-        private final HashSet<PackageID> childPackages = new HashSet<>();
-        protected HashSet<String> usedNativeClassPaths = new HashSet<>();
+        private final Map<BIRNode.BIRGlobalVariableDcl, FunctionPointerData> globalVarFPDataPool = new HashMap<>();
+        private final Map<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
+        private final Set<PackageID> childPackages = new HashSet<>();
+        protected Set<String> usedNativeClassPaths = new HashSet<>();
         protected boolean moduleIsUsed = false;
-        private HashSet<String> interopDependencies = new HashSet<>();
+        private Set<String> interopDependencies = new HashSet<>();
         private InvocationData testablePkgInvocationData;
 
         private static boolean isResourceFunction(BIRNode.BIRFunction birFunction) {
