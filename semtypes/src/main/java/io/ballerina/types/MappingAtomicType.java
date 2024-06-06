@@ -70,4 +70,9 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
     public int hashCode() {
         return Objects.hash(Arrays.hashCode(names), Arrays.hashCode(types), rest);
     }
+
+    @Override
+    public Atom.Kind atomKind() {
+        return Atom.Kind.MAPPING_ATOM;
+    }
 }

@@ -173,4 +173,16 @@ public class BArrayType extends BType implements ArrayType {
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public void setFlags(long flags) {
+        super.setFlags(flags);
+        restLd();
+    }
+
+    @Override
+    public void addFlags(long flags) {
+        super.addFlags(flags);
+        restLd();
+    }
 }

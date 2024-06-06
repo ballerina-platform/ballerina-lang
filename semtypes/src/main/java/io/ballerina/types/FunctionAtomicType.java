@@ -29,4 +29,9 @@ public record FunctionAtomicType(SemType paramType, SemType retType) implements 
     public static FunctionAtomicType from(SemType paramType, SemType rest) {
         return new FunctionAtomicType(paramType, rest);
     }
+
+    @Override
+    public Atom.Kind atomKind() {
+        return Atom.Kind.FUNCTION_ATOM;
+    }
 }

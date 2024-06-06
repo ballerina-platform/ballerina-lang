@@ -125,4 +125,16 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public void setFlags(long flags) {
+        super.setFlags(flags);
+        restMd();
+    }
+
+    @Override
+    public void addFlags(long flags) {
+        super.addFlags(flags);
+        restMd();
+    }
 }

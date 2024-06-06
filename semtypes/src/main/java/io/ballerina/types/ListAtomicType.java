@@ -34,4 +34,9 @@ public record ListAtomicType(FixedLengthArray members, CellSemType rest) impleme
     public static ListAtomicType from(FixedLengthArray members, CellSemType rest) {
         return new ListAtomicType(members, rest);
     }
+
+    @Override
+    public Atom.Kind atomKind() {
+        return Atom.Kind.LIST_ATOM;
+    }
 }

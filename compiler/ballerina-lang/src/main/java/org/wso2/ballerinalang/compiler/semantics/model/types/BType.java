@@ -168,24 +168,10 @@ public class BType implements ValueType {
 
     public void setFlags(long flags) {
         this.flags = flags;
-        resetDefinition();
     }
 
     public void addFlags(long flags) {
         this.flags |= flags;
-        resetDefinition();
-    }
-
-    private void resetDefinition() {
-        if (this instanceof BMapType map) {
-            map.restMd();
-        } else if (this instanceof BRecordType rec) {
-            rec.restMd();
-        } else if (this instanceof BArrayType arr) {
-            arr.restLd();
-        } else if (this instanceof BTupleType tuple) {
-            tuple.restLd();
-        }
     }
 
     /**

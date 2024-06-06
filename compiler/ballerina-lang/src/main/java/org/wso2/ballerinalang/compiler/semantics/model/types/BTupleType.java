@@ -298,4 +298,16 @@ public class BTupleType extends BType implements TupleType {
         }
         return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
     }
+
+    @Override
+    public void setFlags(long flags) {
+        super.setFlags(flags);
+        restLd();
+    }
+
+    @Override
+    public void addFlags(long flags) {
+        super.addFlags(flags);
+        restLd();
+    }
 }

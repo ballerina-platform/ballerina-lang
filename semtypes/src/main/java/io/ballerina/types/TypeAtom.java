@@ -17,11 +17,6 @@
  */
 package io.ballerina.types;
 
-import static io.ballerina.types.Atom.Kind.CELL_ATOM;
-import static io.ballerina.types.Atom.Kind.FUNCTION_ATOM;
-import static io.ballerina.types.Atom.Kind.LIST_ATOM;
-import static io.ballerina.types.Atom.Kind.MAPPING_ATOM;
-
 /**
  * Represent a TypeAtom.
  *
@@ -43,16 +38,6 @@ public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
     @Override
     public Kind kind() {
-        if (atomicType instanceof ListAtomicType) {
-            return LIST_ATOM;
-        } else if (atomicType instanceof FunctionAtomicType) {
-            return FUNCTION_ATOM;
-        } else if (atomicType instanceof MappingAtomicType) {
-            return MAPPING_ATOM;
-        } else if (atomicType instanceof CellAtomicType) {
-            return CELL_ATOM;
-        } else {
-            throw new IllegalStateException("Unknown atomic type: " + atomicType);
-        }
+        return atomicType.atomKind();
     }
 }

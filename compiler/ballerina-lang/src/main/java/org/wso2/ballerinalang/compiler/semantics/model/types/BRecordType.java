@@ -197,4 +197,16 @@ public class BRecordType extends BStructureType implements RecordType {
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public void setFlags(long flags) {
+        super.setFlags(flags);
+        restMd();
+    }
+
+    @Override
+    public void addFlags(long flags) {
+        super.addFlags(flags);
+        restMd();
+    }
 }
