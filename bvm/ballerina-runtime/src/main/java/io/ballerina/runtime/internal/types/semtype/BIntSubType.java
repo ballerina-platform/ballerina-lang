@@ -147,32 +147,16 @@ public final class BIntSubType extends SubType {
 
     }
 
-    public static long intSubtypeMax(IntSubTypeData subtype) {
-        return subtype.ranges[subtype.ranges.length - 1].max;
-    }
-
-    static boolean intSubtypeOverlapRange(IntSubTypeData subtype, Range range) {
-        IntSubTypeData subTypeData = subtype.intersect(new IntSubTypeData(range));
-        return subTypeData.ranges.length != 0;
-    }
-
     public static boolean intSubtypeContains(SubTypeData d, long n) {
-        if (d instanceof AllOrNothing allOrNothingSubtype) {
+        if (!(d instanceof IntSubTypeData intSubTypeData)) {
             return d == AllOrNothing.ALL;
         }
-        IntSubTypeData v = (IntSubTypeData) d;
-        // FIXME: move the rest to int subtype data
-        for (Range r : v.ranges) {
-            if (r.min <= n && n <= r.max) {
-                return true;
-            }
-        }
-        return false;
+        return intSubTypeData.contains(n);
     }
 
-    public static final class IntSubTypeData implements SubTypeData {
+    static final class IntSubTypeData implements SubTypeData {
 
-        public final Range[] ranges;
+        final Range[] ranges;
 
         private IntSubTypeData(Range range) {
             this.ranges = new Range[]{range};
@@ -180,6 +164,24 @@ public final class BIntSubType extends SubType {
 
         private IntSubTypeData(Range[] ranges) {
             this.ranges = ranges;
+        }
+
+        public long max() {
+            return ranges[ranges.length - 1].max;
+        }
+
+        boolean isRangeOverlap(Range range) {
+            IntSubTypeData subTypeData = intersect(new IntSubTypeData(range));
+            return subTypeData.ranges.length != 0;
+        }
+
+        private boolean contains(long n) {
+            for (Range r : ranges) {
+                if (r.min <= n && n <= r.max) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private IntSubTypeData union(IntSubTypeData other) {

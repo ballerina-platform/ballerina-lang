@@ -19,8 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
-import io.ballerina.runtime.internal.types.semtype.BCellSubType;
-import io.ballerina.runtime.internal.types.semtype.BListSubType;
+import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
 import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
@@ -112,20 +111,10 @@ public final class Core {
     }
 
     public static SubType getComplexSubtypeData(SemType t, BasicTypeCode code) {
-//        int c = code.code();
-//        c = 1 << c;
-//        if ((t.all & c) != 0) {
-//            return AllOrNothingSubtype.createAll();
-//        }
-//        if ((t.some & c) == 0) {
-//            return AllOrNothingSubtype.createNothing();
-//        }
+        assert (t.some() & (1 << code.code())) != 0;
         SubType subType = t.subTypeData()[code.code()];
-        // FIXME: introduce an interface for this
-        if (subType instanceof BCellSubType cellSubType) {
-            return cellSubType.inner;
-        } else if (subType instanceof BListSubType listSubType) {
-            return listSubType.inner;
+        if (subType instanceof DelegatedSubType wrapper) {
+            return wrapper.inner();
         }
         return subType;
     }
