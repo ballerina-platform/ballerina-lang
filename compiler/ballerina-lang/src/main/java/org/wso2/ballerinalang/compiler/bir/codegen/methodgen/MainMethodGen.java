@@ -293,7 +293,7 @@ public class MainMethodGen {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass + "$SignalListener", stopFuncName);
         mv.visitInsn(ACONST_NULL);
         jvmTypeGen.loadType(mv, new BNilType());
-        MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
 
