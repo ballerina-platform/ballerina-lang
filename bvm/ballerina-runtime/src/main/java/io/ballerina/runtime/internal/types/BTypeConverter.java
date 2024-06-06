@@ -46,7 +46,6 @@ final class BTypeConverter {
     private BTypeConverter() {
     }
 
-    // FIXME:
     private static final SemType implementedTypes =
             unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
                     Builder.floatType(), Builder.decimalType(), Builder.stringType(), Builder.listType());
