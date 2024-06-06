@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 import java.util.Set;
 
 /**
- * Java record to store class level native optimization report data in json format.
+ * Java record to store class level native optimization report data to JSON.
  *
  * @param startPointClasses start points identified by the NativeDependencyOptimizer
  * @param usedExternalClasses used classes which are not present in the executable JAR (JRE classes)
