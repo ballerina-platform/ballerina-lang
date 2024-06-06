@@ -44,11 +44,9 @@ import static io.ballerina.runtime.api.types.semtype.Core.cellInnerVal;
 import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
 import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_INNER;
 import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
-import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeMax;
-import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeOverlapRange;
 
 // TODO: this has lot of common code with cell (and future mapping), consider refact
-public class BListSubType extends SubType {
+public class BListSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
 
@@ -118,7 +116,7 @@ public class BListSubType extends SubType {
             Conjunction p = pos.next();
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
-                members = fixedArrayShallowCopy(members);
+                members = members.shallowCopy();
             }
             while (true) {
                 if (p == null) {
@@ -364,11 +362,6 @@ public class BListSubType extends SubType {
         return members.initial()[i];
     }
 
-    // FIXME: move this to FixedLengthArray
-    public static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
-        return new FixedLengthArray(array.initial().clone(), array.fixedLength());
-    }
-
     public static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, SemType rest, int index) {
         return cellInnerVal(listMemberAt(fixedArray, rest, index));
     }
@@ -404,11 +397,11 @@ public class BListSubType extends SubType {
                         m = Core.union(m, cellInner(fixedArrayGet(fixedArray, i)));
                     }
                 }
-                if (intSubtypeOverlapRange(intSubtype, new BIntSubType.Range(initLen, fixedLen - 1))) {
+                if (intSubtype.isRangeOverlap(new BIntSubType.Range(initLen, fixedLen - 1))) {
                     m = Core.union(m, cellInner(fixedArrayGet(fixedArray, fixedLen - 1)));
                 }
             }
-            if (fixedLen == 0 || intSubtypeMax(intSubtype) > fixedLen - 1) {
+            if (fixedLen == 0 || intSubtype.max() > fixedLen - 1) {
                 m = Core.union(m, cellInner(rest));
             }
             return m;
@@ -427,4 +420,8 @@ public class BListSubType extends SubType {
         throw new IllegalStateException("unimplemented");
     }
 
+    @Override
+    public Bdd inner() {
+        return inner;
+    }
 }

@@ -58,4 +58,8 @@ public record FixedLengthArray(SemType[] initial, int fixedLength) {
     public static FixedLengthArray empty() {
         return EMPTY;
     }
+
+    public FixedLengthArray shallowCopy() {
+        return new FixedLengthArray(initial.clone(), fixedLength);
+    }
 }
