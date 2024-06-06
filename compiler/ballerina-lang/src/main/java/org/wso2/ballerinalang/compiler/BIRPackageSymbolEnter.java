@@ -1292,7 +1292,7 @@ public class BIRPackageSymbolEnter {
                     BType constraintType = readTypeFromCp();
                     BXMLType mutableXmlType = new BXMLType(constraintType, symTable.xmlType.tsymbol);
                     if (Symbols.isFlagOn(flags, Flags.PARAMETERIZED)) {
-                        mutableXmlType.setFlags(mutableXmlType.getFlags() | Flags.PARAMETERIZED);
+                        mutableXmlType.addFlags(Flags.PARAMETERIZED);
                     }
                     return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:

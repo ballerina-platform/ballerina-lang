@@ -2230,7 +2230,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             dupInvokableTypeSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             BInvokableType dupInvokableType = new BInvokableType(invokableType.paramTypes, invokableType.restType,
                                                                  invokableType.retType, dupInvokableTypeSymbol);
-            dupInvokableType.setFlags(dupInvokableType.getFlags() | Flags.ISOLATED);
+            dupInvokableType.addFlags(Flags.ISOLATED);
             dupInvokableTypeSymbol.type = dupInvokableType;
             argExpr.setBType(dupInvokableType);
 
@@ -3840,7 +3840,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     symbol.flags |= Flags.ISOLATED;
 
                     if (!moduleLevelVarSymbols.contains(symbol)) {
-                        symbol.type.setFlags(symbol.type.getFlags() | Flags.ISOLATED);
+                        symbol.type.addFlags(Flags.ISOLATED);
                     }
                 }
                 continue;
@@ -3863,7 +3863,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 symbol.flags |= Flags.ISOLATED;
 
                 if (isObjectType) {
-                    symbol.type.setFlags(symbol.type.getFlags() | Flags.ISOLATED);
+                    symbol.type.addFlags(Flags.ISOLATED);
                 }
             }
         }

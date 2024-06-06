@@ -529,7 +529,7 @@ public class QueryTypeChecker extends TypeChecker {
             }
         }
         if (recordType.sealed) {
-            recordType.setFlags(recordType.getFlags() | Flags.READONLY);
+            recordType.addFlags(Flags.READONLY);
             recordType.tsymbol.flags |= Flags.READONLY;
         }
     }

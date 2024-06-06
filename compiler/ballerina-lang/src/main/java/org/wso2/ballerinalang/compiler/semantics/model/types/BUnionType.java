@@ -90,7 +90,7 @@ public class BUnionType extends BType implements UnionType {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
-            this.setFlags(this.getFlags() | Flags.READONLY);
+            this.addFlags(Flags.READONLY);
 
             if (tsymbol != null) {
                 this.tsymbol.flags |= Flags.READONLY;
@@ -309,7 +309,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         if (isImmutable) {
-            this.setFlags(this.getFlags() | Flags.READONLY);
+            this.addFlags(Flags.READONLY);
         }
     }
 

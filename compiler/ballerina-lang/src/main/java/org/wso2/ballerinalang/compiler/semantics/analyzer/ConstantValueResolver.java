@@ -860,7 +860,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         createTypeDefinition(recordType, pos, env);
         updateRecordFields(recordType, pos, env);
         recordType.tsymbol.flags |= Flags.READONLY;
-        recordType.setFlags(recordType.getFlags() | Flags.READONLY);
+        recordType.addFlags(Flags.READONLY);
         return recordType;
     }
 

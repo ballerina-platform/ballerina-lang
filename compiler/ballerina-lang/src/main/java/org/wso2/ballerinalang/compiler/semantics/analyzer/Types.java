@@ -1069,7 +1069,7 @@ public class Types {
             }
         }
 
-        unionType.setFlags(unionType.getFlags() | Flags.READONLY);
+        unionType.addFlags(Flags.READONLY);
         BTypeSymbol tsymbol = unionType.tsymbol;
         if (tsymbol != null) {
             tsymbol.flags |= Flags.READONLY;
@@ -5268,7 +5268,7 @@ public class Types {
 
         if ((newType.sealed || newType.restFieldType == symTable.neverType) &&
                 (newTypeFields.isEmpty() || allReadOnlyFields(newTypeFields))) {
-            newType.setFlags(newType.getFlags() | Flags.READONLY);
+            newType.addFlags(Flags.READONLY);
             newTypeSymbol.flags |= Flags.READONLY;
         }
 
@@ -5461,7 +5461,7 @@ public class Types {
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
-        errorType.setFlags(errorType.getFlags() | errorTypeSymbol.flags);
+        errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
         errorType.typeIdSet = BTypeIdSet.emptySet();
 

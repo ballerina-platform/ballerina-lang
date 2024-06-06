@@ -460,13 +460,13 @@ public class ImmutableTypeCloner {
             BTypeSymbol immutableTupleTSymbol =
                     getReadonlyTSymbol(origTupleTypeSymbol, env, pkgId, owner, origTupleTypeSymbolName);
             effectiveTypeFromType.tsymbol = immutableTupleTSymbol;
-            effectiveTypeFromType.setFlags(effectiveTypeFromType.getFlags() | (type.getFlags() | Flags.READONLY));
+            effectiveTypeFromType.addFlags(type.getFlags() | Flags.READONLY);
 
             if (immutableTupleTSymbol != null) {
                 immutableTupleTSymbol.type = effectiveTypeFromType;
             }
         } else {
-            effectiveTypeFromType.setFlags(effectiveTypeFromType.getFlags() | (type.getFlags() | Flags.READONLY));
+            effectiveTypeFromType.addFlags(type.getFlags() | Flags.READONLY);
         }
 
         BType effectiveType = immutableTupleIntersectionType.effectiveType;
@@ -481,7 +481,7 @@ public class ImmutableTypeCloner {
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
                 effectiveType.tsymbol, tupleTypeNode, env);
         typeDefinition.pos = pos;
-        effectiveType.setFlags(effectiveType.getFlags() | Flags.EFFECTIVE_TYPE_DEF);
+        effectiveType.addFlags(Flags.EFFECTIVE_TYPE_DEF);
         return immutableTupleIntersectionType;
     }
 
@@ -831,17 +831,13 @@ public class ImmutableTypeCloner {
                                        origUnionTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
                                                getImmutableTypeName(names, getSymbolFQN(origUnionTypeSymbol)));
             immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
-            immutableType.effectiveType.setFlags(
-                    immutableType.effectiveType.getFlags() | (type.getFlags() | Flags.READONLY)
-            );
+            immutableType.effectiveType.addFlags(type.getFlags() | Flags.READONLY);
 
             if (immutableUnionTSymbol != null) {
                 immutableUnionTSymbol.type = immutableType.effectiveType;
             }
         } else {
-            immutableType.effectiveType.setFlags(
-                    immutableType.effectiveType.getFlags() | (type.getFlags() | Flags.READONLY)
-            );
+            immutableType.effectiveType.addFlags(type.getFlags() | Flags.READONLY);
         }
 
         return immutableType;

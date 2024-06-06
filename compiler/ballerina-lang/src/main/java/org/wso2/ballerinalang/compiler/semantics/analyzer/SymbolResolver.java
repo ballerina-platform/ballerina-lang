@@ -1498,7 +1498,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
-        errorType.setFlags(errorType.getFlags() | errorTypeSymbol.flags);
+        errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
 
         markParameterizedType(errorType, detailType);
@@ -1654,7 +1654,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                                           null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                                                           tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.setFlags(tSymbol.type.getFlags() | Flags.PARAMETERIZED);
+                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
 
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
@@ -1696,7 +1696,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                             tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                             tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.setFlags(tSymbol.type.getFlags() | Flags.PARAMETERIZED);
+                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
                 }
@@ -1726,7 +1726,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)
                 && !isCloneableTypeDef) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-            referenceType.setFlags(referenceType.getFlags() | symbol.type.getFlags());
+            referenceType.addFlags(symbol.type.getFlags());
             referenceType.tsymbol.flags |= symbol.type.getFlags();
             return referenceType;
         }
@@ -2151,7 +2151,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public boolean markParameterizedType(BType type, BType constituentType) {
         if (Symbols.isFlagOn(constituentType.getFlags(), Flags.PARAMETERIZED)) {
             type.tsymbol.flags |= Flags.PARAMETERIZED;
-            type.setFlags(type.getFlags() | Flags.PARAMETERIZED);
+            type.addFlags(Flags.PARAMETERIZED);
             return true;
         }
         return false;

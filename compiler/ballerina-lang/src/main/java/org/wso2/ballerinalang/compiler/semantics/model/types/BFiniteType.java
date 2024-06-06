@@ -57,7 +57,7 @@ public class BFiniteType extends BType implements ReferenceType {
 
     public BFiniteType(BTypeSymbol tsymbol, SemNamedType[] valueSpace) {
         super(TypeTags.FINITE, tsymbol);
-        this.setFlags(this.getFlags() | Flags.READONLY);
+        this.addFlags(Flags.READONLY);
         this.valueSpace = valueSpace;
         assert validValueSpace(valueSpace);
     }

@@ -98,7 +98,7 @@ public class BTupleType extends BType implements TupleType {
         super(TypeTags.TUPLE, tsymbol);
 
         if (readonly) {
-            this.setFlags(this.getFlags() | Flags.READONLY);
+            this.addFlags(Flags.READONLY);
 
             if (tsymbol != null) {
                 this.tsymbol.flags |= Flags.READONLY;

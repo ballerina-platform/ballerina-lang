@@ -162,12 +162,21 @@ public class BType implements ValueType {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
     }
 
-    public long getFlags() {
+    public final long getFlags() {
         return flags;
     }
 
     public void setFlags(long flags) {
         this.flags = flags;
+        resetDefinition();
+    }
+
+    public void addFlags(long flags) {
+        this.flags |= flags;
+        resetDefinition();
+    }
+
+    private void resetDefinition() {
         if (this instanceof BMapType map) {
             map.restMd();
         } else if (this instanceof BRecordType rec) {

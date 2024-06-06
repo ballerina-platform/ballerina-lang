@@ -938,7 +938,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (isRecordType && allReadOnlyFields) {
             type.tsymbol.flags |= Flags.READONLY;
-            type.setFlags(type.getFlags() | Flags.READONLY);
+            type.addFlags(Flags.READONLY);
         }
 
         validateDefaultable(recordTypeNode);

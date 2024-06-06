@@ -314,7 +314,7 @@ class TypeEmitter {
     }
 
     private static String emitBObjectType(BObjectType bType, int tabs) {
-        boolean isService = (bType.getFlags() & Flags.SERVICE) == Flags.SERVICE;
+        boolean isService = Symbols.isFlagOn(bType.getFlags(), Flags.SERVICE);
 
         StringBuilder str = new StringBuilder();
         str.append(isService ? "service object" : "object");

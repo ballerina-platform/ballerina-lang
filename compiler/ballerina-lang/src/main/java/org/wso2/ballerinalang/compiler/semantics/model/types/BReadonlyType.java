@@ -41,14 +41,14 @@ public class BReadonlyType extends BBuiltInRefType {
 
     private BReadonlyType(BTypeSymbol tsymbol, SemType semType) {
         super(TypeTags.READONLY, tsymbol, semType);
-        this.setFlags(this.getFlags() | Flags.READONLY);
+        this.addFlags(Flags.READONLY);
     }
 
     public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
         super(TypeTags.READONLY, tsymbol, IMPLEMENTED_VAL_READONLY);
         this.name = name;
         this.setFlags(flag);
-        this.setFlags(this.getFlags() | Flags.READONLY);
+        this.addFlags(Flags.READONLY);
     }
 
     public static BReadonlyType newNilLiftedBReadonlyType(BTypeSymbol tsymbol) {

@@ -1176,7 +1176,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                   null);
 
             if (Symbols.isFlagOn(applicableExpType.getFlags(), Flags.READONLY)) {
-                tableType.setFlags(tableType.getFlags() | Flags.READONLY);
+                tableType.addFlags(Flags.READONLY);
             }
 
             if (checkKeySpecifier(tableConstructorExpr, tableType, data)) {
@@ -2351,7 +2351,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return tupleType;
         }
 
-        tupleType.setFlags(tupleType.getFlags() | Flags.READONLY);
+        tupleType.addFlags(Flags.READONLY);
         return tupleType;
     }
 
@@ -2489,7 +2489,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             recordType.restFieldType = applicableRecordType.restFieldType;
 
             if (recordType.sealed && allReadOnlyFields) {
-                recordType.setFlags(recordType.getFlags() | Flags.READONLY);
+                recordType.addFlags(Flags.READONLY);
                 recordType.tsymbol.flags |= Flags.READONLY;
             }
 
@@ -9499,7 +9499,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         recordType.tsymbol = recordSymbol;
 
         if (expType == symTable.readonlyType || (recordType.sealed && allReadOnlyNonRestFields)) {
-            recordType.setFlags(recordType.getFlags() | Flags.READONLY);
+            recordType.addFlags(Flags.READONLY);
             recordSymbol.flags |= Flags.READONLY;
         }
 
@@ -9654,7 +9654,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void markTypeAsIsolated(BType actualType) {
-        actualType.setFlags(actualType.getFlags() | Flags.ISOLATED);
+        actualType.addFlags(Flags.ISOLATED);
         actualType.tsymbol.flags |= Flags.ISOLATED;
     }
 
@@ -9687,7 +9687,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         classDefForConstructor.flagSet.add(Flag.READONLY);
-        actualObjectType.setFlags(actualObjectType.getFlags() | Flags.READONLY);
+        actualObjectType.addFlags(Flags.READONLY);
         actualObjectType.tsymbol.flags |= Flags.READONLY;
 
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,

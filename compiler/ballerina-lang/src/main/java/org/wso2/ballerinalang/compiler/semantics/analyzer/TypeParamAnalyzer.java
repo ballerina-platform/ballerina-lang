@@ -334,7 +334,7 @@ public class TypeParamAnalyzer {
         immutableType.ifPresent(bIntersectionType ->
                 Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, bIntersectionType));
         anydataType.name = name;
-        anydataType.setFlags(anydataType.getFlags() | flags);
+        anydataType.addFlags(flags);
         return anydataType;
     }
 
@@ -1043,7 +1043,7 @@ public class TypeParamAnalyzer {
         invokableType.tsymbol.isTypeParamResolved = true;
         invokableType.tsymbol.typeParamTSymbol = expType.tsymbol;
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
-            invokableType.setFlags(invokableType.getFlags() | Flags.ISOLATED);
+            invokableType.addFlags(Flags.ISOLATED);
         }
 
         return invokableType;

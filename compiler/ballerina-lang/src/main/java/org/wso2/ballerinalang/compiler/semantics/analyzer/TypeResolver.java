@@ -392,7 +392,7 @@ public class TypeResolver {
         }
 
         if (flags.contains(Flag.CLIENT)) {
-            objectType.setFlags(objectType.getFlags() | Flags.CLIENT);
+            objectType.addFlags(Flags.CLIENT);
         }
 
         tSymbol.type = objectType;
@@ -495,7 +495,7 @@ public class TypeResolver {
             }
 
             if (!effectiveType.typeIdSet.isEmpty()) {
-                definedType.setFlags(definedType.getFlags() | Flags.DISTINCT);
+                definedType.addFlags(Flags.DISTINCT);
             }
         }
     }
@@ -652,7 +652,7 @@ public class TypeResolver {
             td.symbol = symbol;
             if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                 BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-                referenceType.setFlags(referenceType.getFlags() | symbol.type.getFlags());
+                referenceType.addFlags(symbol.type.getFlags());
                 referenceType.tsymbol.flags |= symbol.type.getFlags();
                 return referenceType;
             }
@@ -1245,7 +1245,7 @@ public class TypeResolver {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.restType = restType;
         bInvokableType.retType = retType;
-        bInvokableType.setFlags(bInvokableType.getFlags() | flags);
+        bInvokableType.addFlags(flags);
         tsymbol.params = params;
         tsymbol.restParam = restParam;
         tsymbol.returnType = retType;
@@ -1305,7 +1305,7 @@ public class TypeResolver {
             symEnter.defineSymbol(td.pos, errorTypeSymbol, data.env);
         }
 
-        errorType.setFlags(errorType.getFlags() | errorTypeSymbol.flags);
+        errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
 
         symResolver.markParameterizedType(errorType, detailType);
@@ -1366,7 +1366,7 @@ public class TypeResolver {
         }
 
         if (isImmutable) {
-            type.setFlags(type.getFlags() | Flags.READONLY);
+            type.addFlags(Flags.READONLY);
             if (type.tsymbol != null) {
                 type.tsymbol.flags |= Flags.READONLY;
             }
@@ -1413,7 +1413,7 @@ public class TypeResolver {
         intersectionType.setConstituentTypes(constituentTypes);
 
         if (hasReadonly) {
-            intersectionType.setFlags(intersectionType.getFlags() | Flags.READONLY);
+            intersectionType.addFlags(Flags.READONLY);
         }
 
         // Differ cyclic intersection between more than 2 non-readonly types.
@@ -1444,7 +1444,7 @@ public class TypeResolver {
         while (iterator.hasNext()) {
             BType bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
             if (bLangEffectiveImpliedType.tag == TypeTags.READONLY) {
-                intersectionType.setFlags(intersectionType.getFlags() | TypeTags.READONLY);
+                intersectionType.addFlags(TypeTags.READONLY);
                 effectiveType = iterator.next();
                 bLangEffectiveType = bLangTypeItr.next();
                 continue;
@@ -1453,7 +1453,7 @@ public class TypeResolver {
             BLangType bLangType = bLangTypeItr.next();
             BType typeReferenceType = Types.getImpliedType(type);
             if (typeReferenceType.tag == TypeTags.READONLY) {
-                intersectionType.setFlags(intersectionType.getFlags() | TypeTags.READONLY);
+                intersectionType.addFlags(TypeTags.READONLY);
                 continue;
             }
             effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type,
@@ -1464,7 +1464,7 @@ public class TypeResolver {
             }
         }
         intersectionType.effectiveType = effectiveType;
-        intersectionType.setFlags(intersectionType.getFlags() | effectiveType.getFlags());
+        intersectionType.addFlags(effectiveType.getFlags());
 
         if ((intersectionType.getFlags() & Flags.READONLY) == Flags.READONLY) {
             if (types.isInherentlyImmutableType(effectiveType)) {
@@ -1561,7 +1561,7 @@ public class TypeResolver {
                             null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                             tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.setFlags(tSymbol.type.getFlags() | Flags.PARAMETERIZED);
+                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
 
                     td.symbol = tSymbol;
                     return tSymbol.type;
@@ -1587,7 +1587,7 @@ public class TypeResolver {
 
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-            referenceType.setFlags(referenceType.getFlags() | symbol.type.getFlags());
+            referenceType.addFlags(symbol.type.getFlags());
             referenceType.tsymbol.flags |= symbol.type.getFlags();
             return referenceType;
         }
@@ -1622,7 +1622,7 @@ public class TypeResolver {
             td.symbol = symbol;
             if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                 BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-                referenceType.setFlags(referenceType.getFlags() | symbol.type.getFlags());
+                referenceType.addFlags(symbol.type.getFlags());
                 referenceType.tsymbol.flags |= symbol.type.getFlags();
                 return referenceType;
             }
@@ -1904,7 +1904,7 @@ public class TypeResolver {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        resolvedType.setFlags(resolvedType.getFlags() | typeDefSymbol.flags);
+        resolvedType.addFlags(typeDefSymbol.flags);
 
         typeDefinition.symbol = typeDefSymbol;
 

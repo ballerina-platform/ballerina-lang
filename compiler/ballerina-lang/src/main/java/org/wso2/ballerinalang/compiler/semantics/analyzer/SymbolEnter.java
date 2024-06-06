@@ -905,7 +905,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (flags.contains(Flag.CLIENT)) {
-            objectType.setFlags(objectType.getFlags() | Flags.CLIENT);
+            objectType.addFlags(Flags.CLIENT);
         }
 
         tSymbol.type = objectType;
@@ -1716,7 +1716,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        definedType.setFlags(definedType.getFlags() | typeDefSymbol.flags);
+        definedType.addFlags(typeDefSymbol.flags);
         typeDefinition.symbol = typeDefSymbol;
 
         if (typeDefinition.hasCyclicReference) {
@@ -1753,7 +1753,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
                 ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = distinctType;
             }
-            definedType.setFlags(definedType.getFlags() | Flags.DISTINCT);
+            definedType.addFlags(Flags.DISTINCT);
         }
     }
 
@@ -1821,7 +1821,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         intersectionType.effectiveType = alreadyDefinedErrorType;
 
         if (!errorType.typeIdSet.isEmpty()) {
-            definedType.setFlags(definedType.getFlags() | Flags.DISTINCT);
+            definedType.addFlags(Flags.DISTINCT);
         }
     }
 
@@ -1898,7 +1898,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.symbol = typeDefSymbol;
         defineTypeInMainScope(typeDefSymbol, typeDef, env);
         newTypeNode.tsymbol = typeDefSymbol;
-        newTypeNode.setFlags(newTypeNode.getFlags() | typeDefSymbol.flags);
+        newTypeNode.addFlags(typeDefSymbol.flags);
         return newTypeNode;
     }
 
@@ -4338,7 +4338,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
-                structureType.setFlags(structureType.getFlags() | Flags.READONLY);
+                structureType.addFlags(Flags.READONLY);
             }
         }
     }
@@ -4394,7 +4394,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             classDef.getBType().tsymbol.flags |= Flags.READONLY;
-            classDef.getBType().setFlags(classDef.getBType().getFlags() | Flags.READONLY);
+            classDef.getBType().addFlags(Flags.READONLY);
         }
     }
 
@@ -4406,11 +4406,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
-            funcSymbol.type.setFlags(funcSymbol.type.getFlags() | Flags.ISOLATED);
+            funcSymbol.type.addFlags(Flags.ISOLATED);
         }
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.TRANSACTIONAL)) {
-            funcSymbol.type.setFlags(funcSymbol.type.getFlags() | Flags.TRANSACTIONAL);
+            funcSymbol.type.addFlags(Flags.TRANSACTIONAL);
         }
     }
 
@@ -4583,7 +4583,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.retType = retType;
         bInvokableType.restType = restType;
-        bInvokableType.setFlags(bInvokableType.getFlags() | flags);
+        bInvokableType.addFlags(flags);
         functionTypeNode.setBType(bInvokableType);
 
         List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
@@ -5338,12 +5338,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         BInvokableType invokableType = (BInvokableType) function.symbol.type;
         if (function.flagSet.contains(Flag.ISOLATED)) {
-            invokableType.setFlags(invokableType.getFlags() | Flags.ISOLATED);
+            invokableType.addFlags(Flags.ISOLATED);
             invokableType.tsymbol.flags |= Flags.ISOLATED;
         }
 
         if (function.flagSet.contains(Flag.TRANSACTIONAL)) {
-            invokableType.setFlags(invokableType.getFlags() | Flags.TRANSACTIONAL);
+            invokableType.addFlags(Flags.TRANSACTIONAL);
             invokableType.tsymbol.flags |= Flags.TRANSACTIONAL;
         }
 
