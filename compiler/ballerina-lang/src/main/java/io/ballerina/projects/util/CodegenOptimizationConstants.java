@@ -19,7 +19,7 @@
 package io.ballerina.projects.util;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 
 /**
  * Defines constants related to the codegen optimization.
@@ -33,12 +33,11 @@ public class CodegenOptimizationConstants {
     public static final String BALLERINA_JBALLERINA_JAVA = BALLERINA_JBALLERINA + ".java";
     public static final String BALLERINA_LANG = "ballerina/lang";
     public static final String BALLERINAX = "ballerinax/";
-    public static final String OBSERVE = "observe";
     public static final String DOT_DRIVER = ".driver";
     public static final String CLASS = "class";
     public static final String DOT_CLASS = ".class";
     public static final String INTEROP_DEPENDENCIES_PROPERTIES_FILE = "interop-dependencies.properties";
     public static final String EXTERNAL_DEPENDENCY_ANNOT = "ExternalDependency";
-    public static final HashSet<String> WHITE_LISTED_PKG_NAMES = new HashSet<>(
-            Arrays.asList(BALLERINA_OBSERVE, BALLERINA_JBALLERINA, BALLERINA_LANG));
+    public static final List<String> WHITE_LISTED_PKG_NAMES =
+            Arrays.asList(BALLERINA_OBSERVE, BALLERINA_JBALLERINA, BALLERINA_LANG);
 }

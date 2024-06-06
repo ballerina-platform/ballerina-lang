@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Analyses a given type definition and marks its dependencies.
@@ -36,8 +38,8 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
 
     private static final CompilerContext.Key<UsedTypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private final HashMap<BType, BIRNode.BIRTypeDefinition> globalTypeDefPool = new HashMap<>();
-    private final HashSet<BType> visitedTypes = new HashSet<>();
+    private final Map<BType, BIRNode.BIRTypeDefinition> globalTypeDefPool = new HashMap<>();
+    private final Set<BType> visitedTypes = new HashSet<>();
     private PackageCache pkgCache;
     private UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
 
@@ -80,7 +82,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     // Since bRecordTypes can have related anon functions for default values we have to mark them as used as well
     @Override
     public void analyzeType(BType bType, AnalyzerData data) {
-        HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet =
+        Set<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet =
                 usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
         if (fpDataSet != null) {
             fpDataSet.forEach(fpData -> {
@@ -90,7 +92,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         }
     }
 
-    protected void populateTypeDefPool(BIRNode.BIRPackage birPackage, HashSet<String> interopDependencies) {
+    protected void populateTypeDefPool(BIRNode.BIRPackage birPackage, Set<String> interopDependencies) {
         birPackage.typeDefs.forEach(typeDef -> {
             // In case there are more than one reference types referencing to the same type
             if (typeDef.referenceType != null && typeDef.type.tag == TypeTags.TYPEREFDESC) {
