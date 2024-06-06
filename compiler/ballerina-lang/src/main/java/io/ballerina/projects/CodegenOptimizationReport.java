@@ -21,20 +21,32 @@ package io.ballerina.projects;
 import java.util.Set;
 
 /**
- * Java class to store codegen optimization report data in json format.
+ * Java record used to store codegen optimization report data to JSON.
+ *
+ * @param usedFunctionNames   used BIR functions identified by the UsedBIRNodeAnalyzer
+ * @param unusedFunctionNames unused BIR functions identified by the UsedBIRNodeAnalyzer
+ * @param usedTypeDefNames    used BIR type definitions identified by the UsedBIRNodeAnalyzer
+ * @param unusedTypeDefNames  unused BIR type definitions identified by the UsedBIRNodeAnalyzer
+ * @param usedNativeClassPaths native class paths used by external functions
  *
  * @since 2201.10.0
  */
-public record CodegenOptimizationReport(io.ballerina.projects.CodegenOptimizationReport.FunctionNames usedFunctionNames,
-                                        io.ballerina.projects.CodegenOptimizationReport.FunctionNames unusedFunctionNames,
-                                        io.ballerina.projects.CodegenOptimizationReport.TypeDefinitions usedTypeDefNames,
-                                        io.ballerina.projects.CodegenOptimizationReport.TypeDefinitions unusedTypeDefNames,
+public record CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
+                                        TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
                                         Set<String> usedNativeClassPaths) {
 
+    /**
+     * @param sourceFunctions  BIR functions directly derived from source
+     * @param virtualFunctions BIR functions generated during desugar
+     */
     protected record FunctionNames(Set<String> sourceFunctions, Set<String> virtualFunctions) {
 
     }
 
+    /**
+     * @param sourceTypeDefinitions  BIR type definitions directly derived from source
+     * @param virtualTypeDefinitions BIR type definitions generated during desugar
+     */
     protected record TypeDefinitions(Set<String> sourceTypeDefinitions, Set<String> virtualTypeDefinitions) {
 
     }
