@@ -24,8 +24,8 @@ import io.ballerina.runtime.transactions.LogManager;
 import io.ballerina.runtime.transactions.RecoveryState;
 import io.ballerina.runtime.transactions.TransactionLogRecord;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -40,14 +40,14 @@ public class LogManagerTests {
     private TransactionLogRecord logRecord;
     private Path recoveryLogDir = Path.of("build/tmp/test/recovery/logManagerTestLogs");
 
-    @BeforeMethod
+    @BeforeSuite
     public void setup() {
-        logManager = new LogManager("baseFileName", -1, recoveryLogDir, false);
+        logManager = LogManager.getInstance("testLog", -1, recoveryLogDir, false);
         logRecord = new TransactionLogRecord("00000000-0000-0000-0000-000000000000", "0",
                 RecoveryState.PREPARING);
     }
 
-    @Test (description = "Test adding logs records to both in-memory and file recovery logs")
+    @Test(description = "Test adding logs records to both in-memory and file recovery logs")
     public void testPut() throws Exception {
         logManager.put(logRecord);
         Field inMemoryRecoveryLogField = LogManager.class.getDeclaredField("inMemoryRecoveryLog");
@@ -63,14 +63,14 @@ public class LogManagerTests {
         Assert.assertTrue(fileLogs.containsKey(logRecord.getCombinedId()));
     }
 
-    @Test (description = "Test getting failed transaction logs from the log manager")
+    @Test(description = "Test getting failed transaction logs from the log manager")
     public void testGetFailedTransactionLogs() {
         logManager.put(logRecord);
         Map<String, TransactionLogRecord> failedTransactions = logManager.getFailedTransactionLogs();
         Assert.assertTrue(failedTransactions.containsValue(logRecord));
     }
 
-    @AfterMethod
+    @AfterSuite
     public void tearDown() throws IOException {
         logManager.close();
         if (Files.exists(recoveryLogDir)) {

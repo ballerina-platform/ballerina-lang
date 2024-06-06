@@ -124,7 +124,7 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
-            logManager = new LogManager(getRecoveryLogBaseName(), getCheckpointInterval(),
+            logManager = LogManager.getInstance(getRecoveryLogBaseName(), getCheckpointInterval(),
                     getRecoveryLogDir(), getDeleteOldLogs());
             recoveryManager = new RecoveryManager();
             if (!diagnosticLog.getDiagnosticList().isEmpty()) {

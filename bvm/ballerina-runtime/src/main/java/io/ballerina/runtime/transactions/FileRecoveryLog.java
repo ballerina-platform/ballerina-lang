@@ -21,8 +21,6 @@ package io.ballerina.runtime.transactions;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,6 +33,7 @@ import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,9 +45,8 @@ import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOI
  *
  * @since 2201.9.0
  */
-public class FileRecoveryLog implements RecoveryLog {
+public final class FileRecoveryLog implements RecoveryLog {
 
-    private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
     private static final String LOG_FILE_NUMBER = "(\\d+)";
     private static final String LOG_FILE_EXTENSION = ".log";
     private final String baseFileName;
@@ -61,6 +59,7 @@ public class FileRecoveryLog implements RecoveryLog {
     private Map<String, TransactionLogRecord> existingLogs;
     private static final PrintStream stderr = System.err;
     private final RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+    private static FileRecoveryLog instance;
 
     /**
      * Initializes a new FileRecoveryLog instance with the given base file name.
@@ -70,14 +69,23 @@ public class FileRecoveryLog implements RecoveryLog {
      * @param recoveryLogDir     The directory to store the recovery log files in.
      * @param deleteOldLogs      Whether to delete old log files when creating a new one.
      */
-    public FileRecoveryLog(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
+    private FileRecoveryLog(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
         this.baseFileName = baseFileName;
         this.recoveryLogDir = recoveryLogDir;
         this.deleteOldLogs = deleteOldLogs;
         this.checkpointInterval = checkpointInterval;
         this.existingLogs = new HashMap<>();
-        this.logFile = createNextVersion();
         this.numOfPutsSinceLastCheckpoint = 0;
+    }
+
+    public static FileRecoveryLog getInstance(String baseFileName, int checkpointInterval, Path recoveryLogDir,
+                                        boolean deleteOldLogs) {
+        if (instance != null) {
+           throw new IllegalStateException("instance already exists");
+        }
+        instance = new FileRecoveryLog(baseFileName, checkpointInterval, recoveryLogDir, deleteOldLogs);
+        instance.logFile = instance.createNextVersion();
+        return instance;
     }
 
     /**
@@ -194,9 +202,6 @@ public class FileRecoveryLog implements RecoveryLog {
     public Map<String, TransactionLogRecord> getPendingLogs() {
         Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
         Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(logFile);
-        if (transactionLogs == null) {
-            return null;
-        }
         for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
             String trxId = entry.getKey();
             TransactionLogRecord trxRecord = entry.getValue();
@@ -234,7 +239,7 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private Map<String, TransactionLogRecord> readLogsFromFile(File file) {
         if (!file.exists() || file.length() == 0) {
-            return null;
+            return Collections.emptyMap();
         }
         if (fileLockAndChannel != null) {
             closeEverything();

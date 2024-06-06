@@ -28,14 +28,20 @@ import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_C
  *
  * @since 2201.9.0
  */
-public class InMemoryRecoveryLog implements RecoveryLog {
+public final class InMemoryRecoveryLog implements RecoveryLog {
 
-    private final Map<String, TransactionLogRecord> transactionLogs;
-    private int numOfPutsSinceLastCheckpoint;
+    private final Map<String, TransactionLogRecord> transactionLogs = new ConcurrentHashMap<>();
+    private int numOfPutsSinceLastCheckpoint = 0;
+    private static InMemoryRecoveryLog instance;
 
-    public InMemoryRecoveryLog() {
-        this.transactionLogs = new ConcurrentHashMap<>();
-        this.numOfPutsSinceLastCheckpoint = 0;
+    private InMemoryRecoveryLog() {
+    }
+
+    public static InMemoryRecoveryLog getInstance() {
+        if (instance == null) {
+            instance = new InMemoryRecoveryLog();
+        }
+        return instance;
     }
 
     @Override

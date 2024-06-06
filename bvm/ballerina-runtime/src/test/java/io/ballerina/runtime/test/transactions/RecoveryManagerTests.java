@@ -60,7 +60,7 @@ public class RecoveryManagerTests {
         recoveryManager = new RecoveryManager();
         Field logManagerField = TransactionResourceManager.class.getDeclaredField("logManager");
         logManagerField.setAccessible(true);
-        LogManager logManager = new LogManager("testLog", -1,
+        LogManager logManager = LogManager.getInstance("testLog", -1,
                 Path.of("build/tmp/test/recovery/testRecoveryLogs"), true);
         logManagerField.set(transactionResourceManager, logManager);
 
@@ -338,6 +338,9 @@ public class RecoveryManagerTests {
         Assert.assertEquals(diagnosticList.get(0).diagnosticInfo().code(),
                 ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE.diagnosticId());
     }
+
+    @Test (description = "Test unable to create file")
+
 
     @AfterTest
     public void tearDown() throws IOException {

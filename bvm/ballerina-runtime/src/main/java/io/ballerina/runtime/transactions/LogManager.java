@@ -27,8 +27,10 @@ import java.util.Map;
  * @since 2201.9.0
  */
 public class LogManager {
+
     private final FileRecoveryLog fileRecoveryLog;
     private final InMemoryRecoveryLog inMemoryRecoveryLog;
+    private static LogManager instance;
 
     /**
      * Create a log manager with the given base file name, checkpoint interval, recovery log directory, and delete old
@@ -39,10 +41,19 @@ public class LogManager {
      * @param recoveryLogDir     the recovery log directory
      * @param deleteOldLogs      the delete old logs flag
      */
-    public LogManager(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
-        this.fileRecoveryLog = new FileRecoveryLog(baseFileName, checkpointInterval, recoveryLogDir, deleteOldLogs);
-        this.inMemoryRecoveryLog = new InMemoryRecoveryLog();
+    private LogManager(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
+        this.fileRecoveryLog =
+                FileRecoveryLog.getInstance(baseFileName, checkpointInterval, recoveryLogDir, deleteOldLogs);
+        this.inMemoryRecoveryLog = InMemoryRecoveryLog.getInstance();
         init();
+    }
+
+    public static LogManager getInstance(String baseFileName, int checkpointInterval, Path recoveryLogDir,
+                                         boolean deleteOldLogs) {
+        if (instance == null) {
+            instance = new LogManager(baseFileName, checkpointInterval, recoveryLogDir, deleteOldLogs);
+        }
+        return instance;
     }
 
     private void init() {
@@ -75,5 +86,6 @@ public class LogManager {
      */
     public void close() {
         fileRecoveryLog.close();
+        inMemoryRecoveryLog.close();
     }
 }
