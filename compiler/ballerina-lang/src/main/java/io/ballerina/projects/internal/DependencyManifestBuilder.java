@@ -88,7 +88,7 @@ public class DependencyManifestBuilder {
         if (parsedDependecyManifest.diagnostics().hasErrors()) {
             var diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML.diagnosticId(),
-                    "Detected corrupted 'Dependencies.toml' file. This will be updated to latest dependencies.",
+                    "Detected corrupted 'Dependencies.toml' file. Dependencies will be updated to the latest versions.",
                     DiagnosticSeverity.WARNING);
             var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo,
                     this.dependenciesToml.get().toml().rootNode().location());

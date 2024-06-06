@@ -876,6 +876,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildWithCorruptedDependenciesToml() throws IOException {
         Path projectPath = this.testResources.resolve("corrupted-dependecies-toml-file");
         cleanTarget(projectPath);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         Path sourcePath = projectPath.resolve("Dependencies-corrupt.toml");
         Path destinationPath = projectPath.resolve("Dependencies.toml");
         Files.copy(sourcePath, destinationPath);
@@ -883,8 +884,9 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand);
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING [Dependencies.toml:(6:1,18:1)] " +
-                "Detected corrupted Dependencies.toml file. This will be updated to latest dependencies."));
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
         String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
                 .replace("/r" , "");
         String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
