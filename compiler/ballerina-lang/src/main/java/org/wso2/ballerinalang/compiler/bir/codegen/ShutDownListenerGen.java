@@ -25,6 +25,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 
 import java.util.Map;
 
@@ -90,11 +91,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  * @since 2.0.0
  */
 public class ShutDownListenerGen {
-    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
+    private final String strandMetadataClass;
+
+    public ShutDownListenerGen(JvmConstantsGen jvmConstantsGen) {
+        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
+    }
+
+    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries,
+                                        AsyncDataCollector asyncDataCollector) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE , RUNTIME_REGISTRY_VARIABLE,
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE, RUNTIME_REGISTRY_VARIABLE,
                 GET_RUNTIME_REGISTRY, null, null);
         fv.visitEnd();
 
@@ -102,7 +110,7 @@ public class ShutDownListenerGen {
         genConstructor(innerClassName, cw);
 
         // implement run() method
-        genRunMethod(initClass, innerClassName, cw);
+        genRunMethod(initClass, innerClassName, cw, asyncDataCollector);
 
         cw.visitEnd();
         jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -122,7 +130,8 @@ public class ShutDownListenerGen {
         mv.visitEnd();
     }
 
-    private void genRunMethod(String initClass, String innerClassName, ClassWriter cw) {
+    private void genRunMethod(String initClass, String innerClassName, ClassWriter cw,
+                              AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", VOID_METHOD_DESC, null, null);
         mv.visitCode();
 
@@ -135,8 +144,7 @@ public class ShutDownListenerGen {
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
         mv.visitVarInsn(ASTORE, 1); // Scheduler var1
 
-        String lambdaName = generateStopDynamicLambdaBody(cw, initClass);       // OK
-        AsyncDataCollector asyncDataCollector = new AsyncDataCollector(innerClassName);
+        String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
         generateCallStopDynamicLambda(mv, lambdaName, initClass, asyncDataCollector);
 
         mv.visitVarInsn(ALOAD, 0);
@@ -170,6 +178,7 @@ public class ShutDownListenerGen {
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv, lambdaName, initClass);
     }
+
     private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
                                                AsyncDataCollector asyncDataCollector) {
         addRuntimeRegistryAsParameter(mv, moduleInitClass + "$SignalListener");
@@ -206,7 +215,7 @@ public class ShutDownListenerGen {
         mv.visitInsn(ACONST_NULL);
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
 
-        MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         mv.visitVarInsn(ASTORE, 3);
 
         mv.visitVarInsn(ALOAD, 3);
