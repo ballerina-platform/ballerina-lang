@@ -25,43 +25,11 @@ import java.util.Set;
  *
  * @since 2201.10.0
  */
-public class CodegenOptimizationReport {
-
-    private final FunctionNames usedFunctionNames;
-    private final FunctionNames unusedFunctionNames;
-    private final TypeDefinitions usedTypeDefNames;
-    private final TypeDefinitions unusedTypeDefNames;
-    private final Set<String> usedNativeClassPaths;
-
-    public CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
-                                     TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
-                                     Set<String> usedNativeClassPaths) {
-        this.usedFunctionNames = usedFunctionNames;
-        this.unusedFunctionNames = unusedFunctionNames;
-        this.usedTypeDefNames = usedTypeDefNames;
-        this.unusedTypeDefNames = unusedTypeDefNames;
-        this.usedNativeClassPaths = usedNativeClassPaths;
-    }
-
-    public FunctionNames getUsedFunctionNames() {
-        return usedFunctionNames;
-    }
-
-    public FunctionNames getUnusedFunctionNames() {
-        return unusedFunctionNames;
-    }
-
-    public TypeDefinitions getUsedTypeDefNames() {
-        return usedTypeDefNames;
-    }
-
-    public TypeDefinitions getUnusedTypeDefNames() {
-        return unusedTypeDefNames;
-    }
-
-    public Set<String> getUsedNativeClassPaths() {
-        return usedNativeClassPaths;
-    }
+public record CodegenOptimizationReport(io.ballerina.projects.CodegenOptimizationReport.FunctionNames usedFunctionNames,
+                                        io.ballerina.projects.CodegenOptimizationReport.FunctionNames unusedFunctionNames,
+                                        io.ballerina.projects.CodegenOptimizationReport.TypeDefinitions usedTypeDefNames,
+                                        io.ballerina.projects.CodegenOptimizationReport.TypeDefinitions unusedTypeDefNames,
+                                        Set<String> usedNativeClassPaths) {
 
     protected record FunctionNames(Set<String> sourceFunctions, Set<String> virtualFunctions) {
 
