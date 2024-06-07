@@ -2180,12 +2180,14 @@ public class FormattingTreeModifier extends TreeModifier {
 
     public XMLStepMethodCallExtendNode transform(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
         Token dotToken = formatToken(xMLStepMethodCallExtendNode.dotToken(), 0, 0);
-        FunctionCallExpressionNode functionCallExpressionNode =
-                (FunctionCallExpressionNode) xMLStepMethodCallExtendNode.functionCallExpression().apply(this);
+        SimpleNameReferenceNode methodName =
+                (SimpleNameReferenceNode) xMLStepMethodCallExtendNode.methodName().apply(this);
+        ParenthesizedArgList arguments = (ParenthesizedArgList) xMLStepMethodCallExtendNode.arguments().apply(this);
 
         return xMLStepMethodCallExtendNode.modify()
                 .withDotToken(dotToken)
-                .withFunctionCallExpression(functionCallExpressionNode)
+                .withMethodName(methodName)
+                .withArguments(arguments)
                 .apply();
     }
 

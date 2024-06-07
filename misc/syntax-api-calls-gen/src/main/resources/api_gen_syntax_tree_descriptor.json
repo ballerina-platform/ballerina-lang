@@ -3826,14 +3826,18 @@
         "base": "Node",
         "kind": "XML_STEP_METHOD_CALL_EXTEND",
         "attributes": [
-            {
-                "name": "dotToken",
-                "type": "Token"
-            },
-            {
-                "name": "functionCallExpression",
-                "type": "FunctionCallExpressionNode"
-            }
+          {
+            "name": "dotToken",
+            "type": "Token"
+          },
+          {
+            "name": "methodName",
+            "type": "SimpleNameReferenceNode"
+          },
+          {
+            "name": "arguments",
+            "type": "ParenthesizedArgList"
+          }
         ]
     },
     {

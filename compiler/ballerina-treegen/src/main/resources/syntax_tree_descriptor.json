@@ -3831,8 +3831,12 @@
                     "type": "Token"
                 },
                 {
-                    "name": "functionCallExpression",
-                    "type": "FunctionCallExpressionNode"
+                    "name": "methodName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "arguments",
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },

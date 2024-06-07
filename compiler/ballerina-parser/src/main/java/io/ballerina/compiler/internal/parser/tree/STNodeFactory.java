@@ -2092,11 +2092,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLStepMethodCallExtendNode(
             STNode dotToken,
-            STNode functionCallExpression) {
+            STNode methodName,
+            STNode arguments) {
 
         return new STXMLStepMethodCallExtendNode(
                 dotToken,
-                functionCallExpression);
+                methodName,
+                arguments);
     }
 
     public static STNode createXMLAtomicNamePatternNode(
