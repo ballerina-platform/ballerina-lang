@@ -28,7 +28,7 @@ public enum JInsKind {
     LARGE_ARRAY((byte) 3),
     LARGE_MAP((byte) 4);
 
-    byte value;
+    final byte value;
 
     JInsKind(byte value) {
 
