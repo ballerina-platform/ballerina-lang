@@ -264,6 +264,12 @@ public class IntersectionTypeTest {
         assertEquals(result.getErrorCount(), index);
     }
 
+    @Test
+    public void testErrorIntersectionAccessTest() {
+        CompileResult result = BCompileUtil.compile("test-src/types/intersection/error-intersection-access");
+        assertEquals(result.getDiagnostics().length, 0);
+    }
+
     @AfterClass
     public void tearDown() {
         readOnlyIntersectionResults = null;

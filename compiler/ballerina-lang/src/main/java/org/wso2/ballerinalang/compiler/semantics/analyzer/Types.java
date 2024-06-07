@@ -5695,7 +5695,8 @@ public class Types {
 
     public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, Names.fromString(name),
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS | Flags.PUBLIC,
+                                                                     Names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
