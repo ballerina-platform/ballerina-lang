@@ -6664,8 +6664,12 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.xmlType)) {
-            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
+            BLangExpression indexAccessExprExpr = indexAccessExpr.expr;
+            // TODO: Remove the casting after fixing the xml union type representation in runtime.
+            if (Types.getImpliedType(indexAccessExprExpr.getBType()).tag == TypeTags.UNION) {
+                indexAccessExprExpr = createTypeCastExpr(indexAccessExprExpr, symTable.xmlType);
+            }
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExprExpr, indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = types.addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,

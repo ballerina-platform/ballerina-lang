@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
@@ -49,17 +50,17 @@ public class JvmMethodsSplitter {
         this.moduleInitClass = moduleInitClass;
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
         this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
-        this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID, jvmTypeGen);
+        this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID, jvmTypeGen, jvmConstantsGen);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateMethods(Map<String, byte[]> jarEntries, JvmCastGen jvmCastGen,
-                                List<BIRNode.BIRFunction> sortedFunctions) {
+                                List<BIRNode.BIRFunction> sortedFunctions, AsyncDataCollector asyncDataCollector) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
                 jvmPackageGen.symbolTable);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
-                jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions);
+                jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions, asyncDataCollector);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
     }

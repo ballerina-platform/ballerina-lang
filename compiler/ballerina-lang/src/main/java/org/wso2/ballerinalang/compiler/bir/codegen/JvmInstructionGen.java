@@ -27,6 +27,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
@@ -249,8 +250,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.JSON_SET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_STREAM_RANGE_CLOSED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_DUPLICATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_B_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
@@ -283,7 +284,7 @@ public class JvmInstructionGen {
 
     public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
     public static final String ANON_METHOD_DELEGATE = "$anon$method$delegate$";
-    //this anytype is currently set from package gen class
+    //this any type is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
@@ -295,7 +296,7 @@ public class JvmInstructionGen {
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
-    private final Map<String, String> functions;
+    private final Map<String, LambdaFunction> functions;
     private final String moduleInitClass;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
@@ -1665,35 +1666,29 @@ public class JvmInstructionGen {
     }
 
     void generateFPLoadIns(BIRNonTerminator.FPLoad inst) {
-
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
-
         String name = inst.funcName.value;
 
         String funcKey = inst.pkgId.toString() + ":" + name;
-        String lambdaName = functions.get(funcKey);
-        if (lambdaName == null) {
-            lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
-                    asyncDataCollector.getLambdaIndex() + "$";
-            functions.put(funcKey, lambdaName);
-        }
 
-        asyncDataCollector.incrementLambdaIndex();
 
         BType type = JvmCodeGenUtil.getImpliedType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + type);
         }
-
         for (BIROperand operand : inst.closureMaps) {
             if (operand != null) {
                 this.loadVar(operand.variableDcl);
             }
         }
-
-        JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
-                                          inst.closureMaps.size());
+        LambdaFunction lambdaFunction = functions.get(funcKey);
+        if (lambdaFunction == null) {
+            lambdaFunction = asyncDataCollector.addAndGetLambda(name, inst, false);
+            functions.put(funcKey, lambdaFunction);
+        }
+        JvmCodeGenUtil.visitInvokeDynamic(mv, lambdaFunction.enclosingClass, lambdaFunction.lambdaName,
+                inst.closureMaps.size());
         // Need to remove once we fix #37875
         type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
 
@@ -1727,7 +1722,6 @@ public class JvmInstructionGen {
                 PROCESS_FP_ANNOTATIONS, false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
-        asyncDataCollector.add(lambdaName, inst);
     }
 
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {

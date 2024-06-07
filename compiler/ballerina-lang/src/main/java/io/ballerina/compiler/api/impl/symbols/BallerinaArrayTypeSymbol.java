@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements ArrayTypeSymbol {
+public class BallerinaArrayTypeSymbol extends AbstractStructuredTypeSymbol implements ArrayTypeSymbol {
     private Integer size;
     private TypeSymbol memberTypeDesc;
     private String signature;

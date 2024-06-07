@@ -291,6 +291,7 @@ public class JvmConstants {
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
+    public static final String MODULE_STRAND_METADATA_CLASS_NAME = "constants/$_strand_metadata";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
@@ -304,6 +305,8 @@ public class JvmConstants {
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
+    public static final String MODULE_GENERATED_FUNCTIONS_CLASS_NAME = "functions/$_generated";
+    public static final String MODULE_LAMBDAS_CLASS_NAME = "lambdas/$_generated";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
@@ -450,6 +453,8 @@ public class JvmConstants {
     public static final int MAX_STRINGS_PER_METHOD = 5000;
     public static final int VISIT_MAX_SAFE_MARGIN = 10;
     public static final int OVERFLOW_LINE_NUMBER = 0x80000000;
+    public static final int MAX_GENERATED_METHODS_PER_CLASS = 100;
+    public static final int MAX_GENERATED_LAMBDAS_PER_CLASS = 500;
 
     private JvmConstants() {
     }

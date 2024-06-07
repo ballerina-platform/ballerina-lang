@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -72,24 +71,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 public class JvmRecordCreatorGen {
 
     private final String recordsClass;
-    private final JvmValueCreatorGen jvmValueCreatorGen;
     private final JvmTypeGen jvmTypeGen;
 
-    public JvmRecordCreatorGen(JvmValueCreatorGen jvmValueCreatorGen, PackageID packageID, JvmTypeGen jvmTypeGen) {
+    public JvmRecordCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
-        this.jvmValueCreatorGen = jvmValueCreatorGen;
         this.jvmTypeGen = jvmTypeGen;
     }
 
     public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     Map<String, byte[]> jarEntries,
-                                     List<BIRTypeDefinition> recordTypeDefList) {
+                                     Map<String, byte[]> jarEntries, List<BIRTypeDefinition> recordTypeDefList) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, recordsClass, null, OBJECT, null);
-        String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-        jvmValueCreatorGen.generateStaticInitializer(module, cw, recordsClass, CREATE_RECORD_VALUE, metadataVarName);
-        generateCreateRecordMethods(cw, recordTypeDefList, recordsClass
-        );
+        generateCreateRecordMethods(cw, recordTypeDefList, recordsClass);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
         jarEntries.put(recordsClass + CLASS_FILE_SUFFIX, bytes);
@@ -105,11 +98,9 @@ public class JvmRecordCreatorGen {
             createDefaultCase(mv, new Label(), 0, "No such record: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0,
-                    CREATE_RECORD, false);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0, CREATE_RECORD, false);
             mv.visitInsn(ARETURN);
-            generateCreateRecordMethodSplits(cw, recordTypeDefList, typeOwnerClass
-            );
+            generateCreateRecordMethodSplits(cw, recordTypeDefList, typeOwnerClass);
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, recordsClass);
         mv.visitEnd();
