@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
