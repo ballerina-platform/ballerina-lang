@@ -76,8 +76,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
@@ -118,7 +120,7 @@ import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 public class TypeChecker {
 
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final Context cx = Context.from(Env.getInstance());
+    private static final Map<Long, Context> contexts = new ConcurrentHashMap<>(10);
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -145,6 +147,20 @@ public class TypeChecker {
         }
 
         throw createTypeCastError(sourceVal, targetType, errors);
+    }
+
+    private static Context context() {
+        // We are pinning each context to thread. This depends on the assumption physical thread is not going to
+        // get switched while type checking
+        Thread currentThread = Thread.currentThread();
+        long threadID = currentThread.getId();
+        Context cx = contexts.get(threadID);
+        if (cx != null) {
+            return cx;
+        }
+        cx = Context.from(Env.getInstance());
+        contexts.put(threadID, cx);
+        return cx;
     }
 
     public static long anyToInt(Object sourceVal) {
@@ -558,7 +574,7 @@ public class TypeChecker {
     private static TypeCheckResult isSubTypeInner(Object sourceValue, SemType source, SemType target) {
         TypeCheckResult result = isSubTypeInner(source, target);
         if (result != TypeCheckResult.FALSE ||
-                !Core.isSubType(cx, Core.intersect(source, SEMTYPE_TOP), Builder.readonlyType())) {
+                !Core.isSubType(context(), Core.intersect(source, SEMTYPE_TOP), Builder.readonlyType())) {
             return result;
         }
         return isSubTypeImmutableValue(sourceValue, target);
@@ -574,6 +590,7 @@ public class TypeChecker {
     }
 
     private static TypeCheckResult isSubTypeInner(SemType source, SemType target) {
+        Context cx = context();
         if (!Core.containsBasicType(source, B_TYPE_TOP)) {
             return Core.isSubType(cx, source, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
         }
