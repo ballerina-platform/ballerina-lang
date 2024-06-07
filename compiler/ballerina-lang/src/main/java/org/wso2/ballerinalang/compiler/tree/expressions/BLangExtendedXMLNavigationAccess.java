@@ -84,11 +84,6 @@ public class BLangExtendedXMLNavigationAccess extends BLangExpression implements
     }
 
     @Override
-    public BLangExpression getChildIndex() {
-        return null;
-    }
-
-    @Override
     public String toString() {
         switch (navAccessType) {
             case CHILDREN:

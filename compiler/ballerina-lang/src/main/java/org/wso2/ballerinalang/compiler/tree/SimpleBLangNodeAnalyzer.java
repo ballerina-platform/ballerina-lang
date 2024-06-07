@@ -1276,7 +1276,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangXMLNavigationAccess node, T data) {
         analyzeNode(node, data);
         visitNode(node.expr, data);
-        visitNode(node.childIndex, data);
         visitNode(node.filters, data);
     }
 
