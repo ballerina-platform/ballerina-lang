@@ -37,9 +37,9 @@ public class ExternalDependencyAnnotationNegativeTest {
                 BCompileUtil.compile("test-src/annotations/external_dependency_annotation_negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++,
-                "annotation 'ballerina/jballerina.java:0.0.0:ExternalDependency' is not allowed on var", 20, 1);
+                "annotation 'ballerina/jballerina.java:0.0.0:ExternalDependency' is not allowed on var", 19, 1);
         BAssertUtil.validateError(compileResult, i++,
-                "annotation 'ballerina/jballerina.java:0.0.0:ExternalDependency' is not allowed on const", 23, 1);
+                "annotation 'ballerina/jballerina.java:0.0.0:ExternalDependency' is not allowed on const", 22, 1);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }

@@ -16,7 +16,6 @@
 
 import ballerina/jballerina.java;
 
-// Types not allowed as sources for ExternalDependency annotation
 @java:ExternalDependency
 var varType = ();
 
