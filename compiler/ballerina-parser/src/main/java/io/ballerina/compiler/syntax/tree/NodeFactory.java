@@ -2779,13 +2779,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLStepMethodCallExtendNode createXMLStepMethodCallExtendNode(
             Token dotToken,
-            FunctionCallExpressionNode functionCallExpression) {
+            SimpleNameReferenceNode methodName,
+            ParenthesizedArgList arguments) {
         Objects.requireNonNull(dotToken, "dotToken must not be null");
-        Objects.requireNonNull(functionCallExpression, "functionCallExpression must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
 
         STNode stXMLStepMethodCallExtendNode = STNodeFactory.createXMLStepMethodCallExtendNode(
                 dotToken.internalNode(),
-                functionCallExpression.internalNode());
+                methodName.internalNode(),
+                arguments.internalNode());
         return stXMLStepMethodCallExtendNode.createUnlinkedFacade();
     }
 
