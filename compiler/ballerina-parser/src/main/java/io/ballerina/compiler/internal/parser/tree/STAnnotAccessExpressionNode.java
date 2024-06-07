@@ -62,6 +62,7 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
                 annotTagReference);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAnnotAccessExpressionNode(
                 this.expression,
@@ -88,6 +89,7 @@ public class STAnnotAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotAccessExpressionNode(this, position, parent);
     }

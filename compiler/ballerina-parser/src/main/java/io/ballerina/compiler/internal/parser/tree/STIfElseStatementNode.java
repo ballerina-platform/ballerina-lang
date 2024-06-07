@@ -68,6 +68,7 @@ public class STIfElseStatementNode extends STStatementNode {
                 elseBody);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STIfElseStatementNode(
                 this.ifKeyword,
@@ -98,6 +99,7 @@ public class STIfElseStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IfElseStatementNode(this, position, parent);
     }

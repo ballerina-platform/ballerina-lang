@@ -3108,6 +3108,7 @@ public class Types {
             return hasSameMembers(sourceValueSpace, targetValueSpace);
         }
 
+        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
             s = getImpliedType(s);
             if (s.tag != TypeTags.TYPEREFDESC) {

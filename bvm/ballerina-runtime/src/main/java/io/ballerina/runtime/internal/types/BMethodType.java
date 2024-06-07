@@ -71,6 +71,7 @@ public class BMethodType extends BFunctionType implements MethodType {
         return parentObjectType;
     }
 
+    @Override
     public FunctionType getType() {
         return type;
     }

@@ -56,6 +56,7 @@ public class STNilLiteralNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNilLiteralNode(
                 this.openParenToken,
@@ -78,6 +79,7 @@ public class STNilLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilLiteralNode(this, position, parent);
     }

@@ -153,6 +153,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.trxBlockId = currentTrxBlockIdDef;
         return result;
     }
+    @Override
     public void visit(BLangTransaction transactionNode) {
         result = desugarTransactionBody(transactionNode, env, transactionNode.pos);
     }

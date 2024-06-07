@@ -56,6 +56,7 @@ public class STQueryConstructTypeNode extends STNode {
                 keySpecifier);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryConstructTypeNode(
                 this.keyword,
@@ -78,6 +79,7 @@ public class STQueryConstructTypeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryConstructTypeNode(this, position, parent);
     }

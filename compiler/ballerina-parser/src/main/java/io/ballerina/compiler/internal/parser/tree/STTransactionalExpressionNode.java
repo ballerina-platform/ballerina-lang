@@ -50,6 +50,7 @@ public class STTransactionalExpressionNode extends STExpressionNode {
                 transactionalKeyword);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTransactionalExpressionNode(
                 this.transactionalKeyword,
@@ -68,6 +69,7 @@ public class STTransactionalExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TransactionalExpressionNode(this, position, parent);
     }

@@ -62,6 +62,7 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STParenthesisedTypeDescriptorNode(
                 this.openParenToken,
@@ -88,6 +89,7 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesisedTypeDescriptorNode(this, position, parent);
     }

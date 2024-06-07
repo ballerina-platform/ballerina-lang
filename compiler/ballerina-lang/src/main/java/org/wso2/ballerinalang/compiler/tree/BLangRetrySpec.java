@@ -37,18 +37,22 @@ public class BLangRetrySpec extends BLangNode implements RetrySpecNode {
     public BLangType retryManagerType;
     public List<BLangExpression> argExprs = new ArrayList<>();
 
+    @Override
     public BLangType getRetryManagerType() {
         return retryManagerType;
     }
 
+    @Override
     public void setRetryManagerType(TypeNode retryManagerType) {
         this.retryManagerType = (BLangType) retryManagerType;
     }
 
+    @Override
     public List<BLangExpression> getArgExprs() {
         return argExprs;
     }
 
+    @Override
     public void addArgExpr(ExpressionNode argExpr) {
         this.argExprs.add((BLangExpression) argExpr);
     }

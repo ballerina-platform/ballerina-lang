@@ -934,6 +934,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // env.scope.define(tSymbol.name, tSymbol);
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode) {
         Name annotName = names.fromIdNode(annotationNode.name);
         Name annotOrigName = names.originalNameFromIdNode(annotationNode.name);
@@ -1226,6 +1227,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return value == null || value.isEmpty();
     }
 
+    @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
@@ -3488,6 +3490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(memberVar, env);
     }
 
+    @Override
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
         if (!(bLangXMLAttribute.name.getKind() == NodeKind.XML_QNAME)) {
             return;

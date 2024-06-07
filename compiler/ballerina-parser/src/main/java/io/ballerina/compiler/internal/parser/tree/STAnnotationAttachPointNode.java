@@ -56,6 +56,7 @@ public class STAnnotationAttachPointNode extends STNode {
                 identifiers);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAnnotationAttachPointNode(
                 this.sourceKeyword,
@@ -78,6 +79,7 @@ public class STAnnotationAttachPointNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationAttachPointNode(this, position, parent);
     }

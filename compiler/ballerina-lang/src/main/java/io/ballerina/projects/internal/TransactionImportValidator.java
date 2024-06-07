@@ -85,6 +85,7 @@ public class TransactionImportValidator extends NodeVisitor {
         importTransactionPackage = true;
     }
 
+    @Override
     protected void visitSyntaxNode(Node node) {
         if (importTransactionPackage) {
             return;

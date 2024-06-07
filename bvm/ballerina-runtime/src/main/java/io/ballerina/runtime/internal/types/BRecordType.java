@@ -198,14 +198,17 @@ public class BRecordType extends BStructureType implements RecordType {
         this.intersectionType = intersectionType;
     }
 
+    @Override
     public boolean isSealed() {
         return sealed;
     }
 
+    @Override
     public Type getRestFieldType() {
         return restFieldType;
     }
 
+    @Override
     public int getTypeFlags() {
         return typeFlags;
     }

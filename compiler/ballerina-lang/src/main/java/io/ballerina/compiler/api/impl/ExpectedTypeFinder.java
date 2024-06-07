@@ -444,10 +444,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
     }
 
+    @Override
     public Optional<TypeSymbol> transform(MatchClauseNode node) {
         return node.parent().apply(this);
     }
 
+    @Override
     public Optional<TypeSymbol> transform(MatchStatementNode node) {
         return this.semanticModel.typeOf(node.condition());
     }

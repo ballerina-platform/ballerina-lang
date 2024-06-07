@@ -86,6 +86,7 @@ public class GraphCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    @Override
     public void execute() {
         if (this.helpFlag) {
             printHelpCommandInfo();
