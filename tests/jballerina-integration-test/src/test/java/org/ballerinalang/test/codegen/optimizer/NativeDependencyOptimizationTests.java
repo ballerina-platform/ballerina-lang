@@ -37,11 +37,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Test cases to verify optimized class files from `bal build --optimize` command.
  *
- *  @since 2201.10.0
+ * @since 2201.10.0
  */
 public class NativeDependencyOptimizationTests extends BaseTest {
 
@@ -80,8 +81,9 @@ public class NativeDependencyOptimizationTests extends BaseTest {
     public void buildAndCopyNativeLibs() throws IOException, InterruptedException {
         // Native lib jars are not packed with the tests. Only the source files of the native libs are packed.
         // Compiled jars of native dependencies are generated for each test run.
-        for (File balProject : nativeLibSourcePaths.toAbsolutePath().normalize().toFile().listFiles()) {
-            for (File nativeLib : balProject.listFiles()) {
+        for (File balProject : Objects.requireNonNull(
+                nativeLibSourcePaths.toAbsolutePath().normalize().toFile().listFiles())) {
+            for (File nativeLib : Objects.requireNonNull(balProject.listFiles())) {
                 Path nativeLibJarPath = buildClassesAndGetJarFilePath(nativeLib.toPath());
                 Path destPath = tempBalProjectPath.resolve(balProject.getName()).resolve("libs")
                         .resolve(nativeLibJarPath.getFileName().toString());
