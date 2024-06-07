@@ -2840,11 +2840,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
         Token dotToken =
                 modifyToken(xMLStepMethodCallExtendNode.dotToken());
-        FunctionCallExpressionNode functionCallExpression =
-                modifyNode(xMLStepMethodCallExtendNode.functionCallExpression());
+        SimpleNameReferenceNode methodName =
+                modifyNode(xMLStepMethodCallExtendNode.methodName());
+        ParenthesizedArgList arguments =
+                modifyNode(xMLStepMethodCallExtendNode.arguments());
         return xMLStepMethodCallExtendNode.modify(
                 dotToken,
-                functionCallExpression);
+                methodName,
+                arguments);
     }
 
     @Override
