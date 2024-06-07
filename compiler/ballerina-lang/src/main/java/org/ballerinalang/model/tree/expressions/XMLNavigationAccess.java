@@ -69,6 +69,4 @@ public interface XMLNavigationAccess extends  VariableReferenceNode {
     List<BLangXMLElementFilter> getFilters();
 
     BLangExpression getExpression();
-
-    BLangExpression getChildIndex();
 }
