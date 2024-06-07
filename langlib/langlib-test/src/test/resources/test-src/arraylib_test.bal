@@ -743,11 +743,22 @@ function testShiftOnTupleWithVariableInherentTypes() {
 
 function testShiftOnTupleWithProperConditions() {
     [int, int, int...] properTuple = [0, 1, 3];
+    [int|string, int|boolean, boolean|string...] properTuple2 = ["hello", 3, false];
+    [anydata, anydata, anydata...] properTuple3 = properTuple2;
+    [int|string, int|string, int|string...] properTuple4 = [1, 3, "world"];
+
+    anydata val = properTuple3.shift();
+    int|string val2 = properTuple4.shift();
 
     int x = properTuple.shift();
     assertTrue(x is int);
+    assertTrue(val2 is int|string);
     assertValueEquality(0, x);
+    assertValueEquality("hello", val);
+    assertValueEquality(val2, 1);
     assertValueEquality([1, 3], properTuple);
+    assertValueEquality([3, false], properTuple3);
+    assertValueEquality([3, "world"], properTuple4);
 }
 
 type Student record {|

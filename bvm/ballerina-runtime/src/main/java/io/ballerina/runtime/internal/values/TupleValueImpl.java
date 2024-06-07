@@ -832,8 +832,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     private void validateTupleSizeAndInherentType() {
         int numOfMandatoryTypes = this.tupleType.getTupleTypes().size();
-        // Check if tuple has at least one more members than the number of mandatory type to compensate the
-        // removed member
+        List<Type> tupleTypes = this.tupleType.getTupleTypes();
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, SIZE_MISMATCH_ERROR_IDENTIFIER),
@@ -841,12 +840,11 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
         for (int i = 1; i <= numOfMandatoryTypes; i++) {
-            if (!TypeChecker.checkIsType(this.getRefValue(i), this.tupleType.getTupleTypes().get(i - 1))) {
+            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypes.get(i - 1))) {
                 throw ErrorHelper.getRuntimeException(
                         getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        ErrorCodes.INCOMPATIBLE_TYPE, this.tupleType.getTupleTypes().get(i - 1),
-                        (i == numOfMandatoryTypes) ?
-                                this.tupleType.getRestType() : this.tupleType.getTupleTypes().get(i));
+                        ErrorCodes.INCOMPATIBLE_TYPE, tupleTypes.get(i - 1), (i == numOfMandatoryTypes) ?
+                                this.tupleType.getRestType() : tupleTypes.get(i));
             }
         }
     }
