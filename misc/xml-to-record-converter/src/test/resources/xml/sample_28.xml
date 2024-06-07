@@ -1,0 +1,7 @@
+<bk:book xmlns:bk="http://example.com/book" xmlns:au="http://example.com/author" xmlns:da="http://example.com/date">
+    <bk:title>string</bk:title>
+    <au:title>string</au:title>
+    <da:title>string</da:title>
+    <bk:chapter>1</bk:chapter>
+    <au:country>string</au:country>
+</bk:book>

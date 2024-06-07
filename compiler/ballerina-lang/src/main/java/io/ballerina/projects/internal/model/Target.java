@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal.model;
 
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -130,6 +131,24 @@ public class Target {
         return getBinPath().resolve(ProjectUtils.getExecutableName(pkg));
     }
 
+    public Path getTestExecutablePath(Module module) throws IOException {
+        if (outputPath != null) {
+            return outputPath;
+        }
+        String name = module.moduleName().toString();
+        return getTestBinPath().resolve(name +
+                ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                ProjectConstants.BLANG_COMPILED_JAR_EXT);
+    }
+
+    public Path getTestExecutableBasePath() throws IOException {
+        if (outputPath != null) {
+            return outputPath.getParent();
+        }
+
+        return getTestBinPath();
+    }
+
     /**
      * Returns the bin directory path.
      *
@@ -138,6 +157,11 @@ public class Target {
     public Path getBinPath() throws IOException {
         Files.createDirectories(binPath);
         return binPath;
+    }
+
+    public Path getTestBinPath() throws IOException {
+        Files.createDirectories(binPath.resolve(ProjectConstants.TEST_DIR_NAME));
+        return binPath.resolve(ProjectConstants.TEST_DIR_NAME);
     }
 
     public Path getReportPath() throws IOException {
@@ -242,5 +266,9 @@ public class Target {
     public Path getNativeConfigPath() throws IOException {
         Files.createDirectories(nativeConfigPath);
         return nativeConfigPath;
+    }
+
+    public void cleanBinTests() throws IOException {
+        ProjectUtils.deleteDirectory(this.binPath.resolve(ProjectConstants.TEST_DIR_NAME));
     }
 }

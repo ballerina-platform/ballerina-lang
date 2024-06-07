@@ -1893,18 +1893,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new BTypedescType(listConstructor.typedescType, null);
         }
 
-        BLangListConstructorExpr exprToLog = listConstructor;
-        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-            listConstructor.cloneAttempt++;
-            exprToLog = nodeCloner.cloneNode(listConstructor);
-        }
-
         if (referredType == symTable.semanticError) {
             // Ignore the return value, we only need to visit the expressions.
-            getInferredTupleType(exprToLog, symTable.semanticError, data);
-        } else {
+            getInferredTupleType(listConstructor, symTable.semanticError, data);
+        } else if (!data.commonAnalyzerData.nonErrorLoggingCheck) {
             dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, originalType,
-                    getInferredTupleType(exprToLog, symTable.noType, data));
+                       getInferredTupleType(listConstructor, symTable.noType, data));
         }
 
         return symTable.semanticError;
@@ -2738,7 +2732,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private void determineDefaultValues(Map<String, BType> typesOfDefaultValues, BRecordType mutableType,
                                         AnalyzerData data) {
-        if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
+        if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == data.env.enclPkg.packageID) {
             // TODO: Eliminate the need for this logic by addressing the issue identified in #41764.
             findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType, data,
                                                   typesOfDefaultValues);

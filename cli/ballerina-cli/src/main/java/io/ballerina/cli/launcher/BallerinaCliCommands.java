@@ -28,6 +28,5 @@ public class BallerinaCliCommands {
     public static final String HELP = "help";
     public static final String VERSION = "version";
     public static final String RUN = "run";
-    public static final String ENCRYPT = "encrypt";
     public static final String HOME = "home";
 }

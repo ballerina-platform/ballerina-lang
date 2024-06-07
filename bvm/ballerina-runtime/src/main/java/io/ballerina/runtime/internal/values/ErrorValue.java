@@ -66,7 +66,6 @@ import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
  */
 public class ErrorValue extends BError implements RefValue {
 
-    private static final long serialVersionUID = 1L;
     private static final PrintStream outStream = System.err;
 
     private final Type type;
@@ -75,8 +74,7 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
-    private static final String SPLIT_CLASS_SUFFIX_REGEX = "\\$split\\$\\d";
+    private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -444,7 +442,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "").replaceAll(SPLIT_CLASS_SUFFIX_REGEX, "");
+        return className.replaceAll(GENERATED_CLASS_TEXTS_REGEX, "");
     }
 
     private boolean isCompilerAddedName(String name) {

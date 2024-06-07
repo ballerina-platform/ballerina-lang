@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 13
+  },
+  "source": "make_variable_immutable19.bal",
+  "description": "Make immutable of a int variable",
+  "expected": [
+    {
+      "title": "Add 'final' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "final "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

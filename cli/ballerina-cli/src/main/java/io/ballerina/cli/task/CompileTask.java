@@ -86,6 +86,9 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
+        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
+            throw createLauncherException("package is empty. Please add at least one .bal file.");
+        }
         this.out.println("Compiling source");
 
         String sourceName;
@@ -316,5 +319,17 @@ public class CompileTask implements Task {
                 }
             }
         }
+    }
+
+    /**
+     * If CompileTask is triggered by `bal pack` command, and project does not have CompilerPlugin.toml or BalTool.toml,
+     * skip the compilation if project is empty. The project should be evaluated for emptiness before calling this.
+     *
+     * @param project project instance
+     * @return true if compilation should be skipped, false otherwise
+     */
+    private boolean skipCompilationForBalPack(Project project) {
+        return (!compileForBalPack || project.currentPackage().compilerPluginToml().isEmpty() &&
+                project.currentPackage().balToolToml().isEmpty());
     }
 }

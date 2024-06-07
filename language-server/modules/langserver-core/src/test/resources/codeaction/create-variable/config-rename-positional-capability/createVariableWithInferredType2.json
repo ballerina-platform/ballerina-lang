@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 9,
+    "character": 18
+  },
+  "source": "createVariableWithInferredType.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "stream<targetType, mod2:ClientError2?> streamResult = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1.mod2;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
