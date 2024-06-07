@@ -200,7 +200,6 @@ class BIRTestUtils {
                         instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent().id() : null);
                 scopes.put(instructionScope.id(), expectedScopeEntry);
                 putParentScopesAsWell(scopes, instructionScope.parent(), instructionOffset);
-
             }
             
             BIRTerminator terminator = bb.terminator;

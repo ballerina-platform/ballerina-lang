@@ -133,7 +133,6 @@ public class JType extends BType {
         public JType elementType;
 
         public JArrayType(JType elementType) {
-
             super(JARRAY);
             this.elementType = elementType;
         }
@@ -151,7 +150,6 @@ public class JType extends BType {
         public boolean isArray = false;
 
         public JRefType(String typeValue) {
-
             super(JREF);
             this.typeValue = typeValue;
         }
