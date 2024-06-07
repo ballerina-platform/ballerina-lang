@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
+import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -49,12 +50,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIGURATION_CLASS_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Internal implementation of the API used by the interop users to control Ballerina runtime behavior.
@@ -66,6 +69,9 @@ public class BalRuntime extends Runtime {
     private final Scheduler scheduler;
     private final Module module;
     private boolean moduleInitialized = false;
+    private boolean moduleStarted = false;
+    private boolean moduleStopped = false;
+    private Thread schedulerThread = null;
 
     public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
@@ -73,48 +79,56 @@ public class BalRuntime extends Runtime {
     }
 
     public BalRuntime(Module module) {
-        this.scheduler = new Scheduler(false);
+        this.scheduler = new Scheduler(true);
         this.module = module;
     }
 
     public void init() {
+        if (moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "init");
+        }
         invokeConfigInit();
-        invokeMethodAsync("$moduleInit", null, PredefinedTypes.TYPE_NULL, "init", new Object[1]);
+        schedulerThread = new Thread(scheduler::start);
+        schedulerThread.start();
+        invokeMethodSync("$moduleInit");
         moduleInitialized = true;
     }
 
     public void start() {
         if (!moduleInitialized) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "start");
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, "start");
         }
-        invokeMethodAsync("$moduleStart", null, PredefinedTypes.TYPE_NULL, "start", new Object[1]);
+        if (moduleStarted) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "start");
+        }
+        invokeMethodSync("$moduleStart");
+        moduleStarted = true;
     }
 
     public void invokeMethodAsync(String functionName, Callback callback, Object... args) {
         if (!moduleInitialized) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION, functionName);
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT,
+                    functionName);
         }
-        invokeMethodAsync(functionName, callback, PredefinedTypes.TYPE_ANY, functionName, args);
+        invokeMethod(functionName, callback, PredefinedTypes.TYPE_ANY, functionName, args);
     }
 
     public void stop() {
         if (!moduleInitialized) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, "stop");
         }
-        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[1]);
-    }
-
-    private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
-                                   Object... args) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
-                module.getName(), module.getMajorVersion(), module.isTestPkg()));
-        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
-        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
-        Object[] argsWithStrand = new Object[args.length + 1];
-        argsWithStrand[0] = future.strand;
-        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
-        scheduler.schedule(argsWithStrand, func, future);
-        scheduler.start();
+        if (moduleStopped) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "stop");
+        }
+        scheduler.poison();
+        try {
+            schedulerThread.join();
+        } catch (InterruptedException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("ballerina: error occurred in while waiting for " +
+                    "scheduler thread to finish"), e);
+        }
+        invokeModuleStop();
+        moduleStopped = true;
     }
 
     /**
@@ -327,18 +341,11 @@ public class BalRuntime extends Runtime {
     }
 
     private void invokeConfigInit() {
-        String configClassName = getConfigClassName(this.module);
-        Class<?> configClazz;
-        try {
-            configClazz = Class.forName(configClassName);
-        } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
-                    configClassName));
-        }
+        Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
         ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         try {
-            final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
+            final Method method = configClass.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
             method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
@@ -346,17 +353,92 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    private static String getConfigClassName(Module module) {
-        String configClassName = CONFIGURATION_CLASS_NAME;
+    private void invokeModuleStop() {
+        Class<?> initClass = loadClass(MODULE_INIT_CLASS_NAME);
+        String funcName = Utils.encodeFunctionIdentifier("$moduleStop");
+        try {
+            final Method method = initClass.getDeclaredMethod(funcName, RuntimeRegistry.class);
+            method.invoke(null, scheduler.getRuntimeRegistry());
+
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("calling module stop failed due to " +
+                    RuntimeUtils.formatErrorMessage(e)), e);
+        }
+    }
+
+    private Class<?> loadClass(String moduleInitClassName) {
+        String initClassName = getFullQualifiedClassName(this.module, moduleInitClassName);
+        Class<?> initClazz;
+        try {
+            initClazz = Class.forName(initClassName);
+        } catch (Throwable e) {
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
+                    initClassName), e);
+        }
+        return initClazz;
+    }
+
+    private static String getFullQualifiedClassName(Module module, String className) {
         String orgName = module.getOrg();
         String packageName = module.getName();
         if (!DOT.equals(packageName)) {
-            configClassName = encodeNonFunctionIdentifier(packageName) + "." + module.getMajorVersion() + "." +
-                    configClassName;
+            className = encodeNonFunctionIdentifier(packageName) + "." + module.getMajorVersion() + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
-            configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
+            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
         }
-        return configClassName;
+        return className;
+    }
+
+    private void invokeMethodSync(String functionName) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        SyncCallback callback = new SyncCallback(latch);
+        invokeMethod(functionName, callback, PredefinedTypes.TYPE_NULL, functionName, new Object[1]);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw ErrorCreator.createError(e);
+        }
+        if (callback.initError != null) {
+            throw callback.initError;
+        }
+    }
+
+    private void invokeMethod(String functionName, Callback callback, Type returnType,
+                                   String strandName, Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
+        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
+        Object[] argsWithStrand = new Object[args.length + 1];
+        argsWithStrand[0] = future.strand;
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        scheduler.schedule(argsWithStrand, func, future);
+    }
+
+    /**
+     * This class used to handle ballerina function invocation synchronously.
+     *
+     * @since 2201.9.1
+     */
+    static class SyncCallback implements Callback {
+
+        CountDownLatch latch;
+        BError initError;
+
+        public SyncCallback(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void notifySuccess(Object result) {
+            latch.countDown();
+        }
+
+        @Override
+        public void notifyFailure(BError error) {
+            latch.countDown();
+            initError = error;
+        }
     }
 }
