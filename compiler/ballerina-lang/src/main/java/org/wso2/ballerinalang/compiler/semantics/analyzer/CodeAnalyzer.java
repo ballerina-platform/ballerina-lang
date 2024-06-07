@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -2881,7 +2882,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation, AnalyzerData data) {
         analyzeExpr(xmlNavigation.expr, data);
-        xmlNavigation.extensions.forEach(extension -> analyzeNode(extension, data));
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess, AnalyzerData data) {
+        analyzeExpr(extendedXMLNavigationAccess.stepExpr, data);
+        extendedXMLNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, data));
     }
 
     @Override

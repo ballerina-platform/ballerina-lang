@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -8635,25 +8636,19 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-
-        Location pos = xmlNavigation.pos;
-        List<BLangXMLStepExtend> extensions = xmlNavigation.extensions;
-        ArrayList<BLangExpression> args = new ArrayList<>();
-        ArrayList<BLangExpression> filters = expandFilters(xmlNavigation.filters);
-        
-        // xml/**/<elemName>
-        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
-            args.add(createArrowFunctionForNavigation(pos, extensions, XML_GET_DESCENDANTS, filters));
-        } else {
-            // xml/*
-            args.add(createArrowFunctionForNavigation(pos, extensions, XML_INTERNAL_CHILDREN, filters));
+        if (xmlNavigation.parent.getKind() == NodeKind.XML_EXTENDED_NAVIGATION) {
+            result = xmlNavigation;
+            return;
         }
+        createMapFunctionForStepExpr(xmlNavigation, new ArrayList<>());
+    }
 
-        BLangInvocation elements =
-                createLanglibXMLInvocation(pos, XML_GET_ELEMENTS, xmlNavigation.expr, new ArrayList<>(),
-                        new ArrayList<>());
-        BLangInvocation invocationNode = createLanglibXMLInvocation(pos, XML_MAP, elements, args, new ArrayList<>());
-        result = rewriteExpr(invocationNode);
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        BLangXMLNavigationAccess stepExpr = extendedXmlNavigationAccess.stepExpr;
+        stepExpr.parent = extendedXmlNavigationAccess;
+        extendedXmlNavigationAccess.stepExpr = rewriteExpr(stepExpr);
+        createMapFunctionForStepExpr(extendedXmlNavigationAccess.stepExpr, extendedXmlNavigationAccess.extensions);
     }
 
     @Override
@@ -10630,14 +10625,25 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
     }
+    private void createMapFunctionForStepExpr(BLangXMLNavigationAccess xmlNavigation,
+                                              List<BLangXMLStepExtend> extensions) {
+        Location pos = xmlNavigation.pos;
+        ArrayList<BLangExpression> args = new ArrayList<>();
+        ArrayList<BLangExpression> filters = expandFilters(xmlNavigation.filters);
 
-    private BLangIndexBasedAccess createIndexBasedAccessNode(Location pos, BLangExpression indexExpr,
-                                                             BLangExpression expr) {
-        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        indexBasedAccess.pos = pos;
-        indexBasedAccess.indexExpr = indexExpr;
-        indexBasedAccess.expr = expr;
-        return indexBasedAccess;
+        // xml/**/<elemName>
+        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
+            args.add(createArrowFunctionForNavigation(pos, extensions, XML_GET_DESCENDANTS, filters));
+        } else {
+            // xml/*
+            args.add(createArrowFunctionForNavigation(pos, extensions, XML_INTERNAL_CHILDREN, filters));
+        }
+
+        BLangInvocation elements =
+                createLanglibXMLInvocation(pos, XML_GET_ELEMENTS, xmlNavigation.expr, new ArrayList<>(),
+                        new ArrayList<>());
+        BLangInvocation invocationNode = createLanglibXMLInvocation(pos, XML_MAP, elements, args, new ArrayList<>());
+        result = rewriteExpr(invocationNode);
     }
 
     public BLangLambdaFunction createArrowFunctionForNavigation(Location pos, List<BLangXMLStepExtend> extensions,
@@ -10704,10 +10710,16 @@ public class Desugar extends BLangNodeVisitor {
                 if (invocation.requiredArgs.size() > 0) {
                     invocation.requiredArgs.remove(0);
                 }
-                BLangInvocation invoc = createLanglibXMLInvocation(pos, invocation.name.value, expression,
+                for (int i = 0; i < invocation.requiredArgs.size(); i++) {
+                    if (invocation.requiredArgs.get(i).getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) invocation.requiredArgs.get(i);
+                        simpleVarRef.symbol.closure = true;
+                        arrowFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, pos));
+                    }
+                }
+                expression = createLanglibXMLInvocation(pos, invocation.name.value, expression,
                         (ArrayList<BLangExpression>) invocation.requiredArgs,
                         (ArrayList<BLangExpression>) invocation.restArgs);
-                expression = invoc;
                 expression = rewrite(expression, env);
                 expression = types.addConversionExprIfRequired(expression, symTable.xmlType);
             }
@@ -10720,5 +10732,14 @@ public class Desugar extends BLangNodeVisitor {
         arrowFunction.body.pos = arrowFunction.body.expr.pos;
         result = rewrite(arrowFunction, env);
         return (BLangLambdaFunction) result;
+    }
+
+    private BLangIndexBasedAccess createIndexBasedAccessNode(Location pos, BLangExpression indexExpr,
+                                                             BLangExpression expr) {
+        BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        indexBasedAccess.pos = pos;
+        indexBasedAccess.indexExpr = indexExpr;
+        indexBasedAccess.expr = expr;
+        return indexBasedAccess;
     }
 }

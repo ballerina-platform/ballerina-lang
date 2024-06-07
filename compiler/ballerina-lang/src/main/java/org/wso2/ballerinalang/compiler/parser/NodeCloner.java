@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -2347,7 +2348,16 @@ public class NodeCloner extends BLangNodeVisitor {
                 clone(source.expr),
                 cloneList(source.filters),
                 source.navAccessType,
-                clone(source.childIndex),
+                clone(source.childIndex));
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess source) {
+        BLangExtendedXMLNavigationAccess clone = new BLangExtendedXMLNavigationAccess(
+                source.pos,
+                clone(source.stepExpr),
+                source.navAccessType,
                 cloneList(source.extensions));
         source.cloneRef = clone;
     }

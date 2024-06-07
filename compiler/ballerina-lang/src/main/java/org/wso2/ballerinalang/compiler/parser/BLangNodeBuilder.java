@@ -359,6 +359,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -4448,14 +4449,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
-        List<BLangXMLStepExtend> extensions = new ArrayList<>();
-        for (Node node : xmlStepExpressionNode.xmlStepExtend()) {
-            extensions.add(createBLangXMLStepExtend(node));
-        }
-
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
-        return new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                XMLNavigationAccess.NavAccessType.fromInt(starCount), null, extensions);
+        BLangXMLNavigationAccess xmlNavigationAccess =
+                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
+                        XMLNavigationAccess.NavAccessType.fromInt(starCount), null);
+        if (xmlStepExpressionNode.xmlStepExtend().size() > 0) {
+            List<BLangXMLStepExtend> extensions =
+                    createBLangXMLStepExtends(xmlStepExpressionNode.xmlStepExtend(), xmlNavigationAccess);
+            return new BLangExtendedXMLNavigationAccess(getPosition(xmlStepExpressionNode), xmlNavigationAccess,
+                    XMLNavigationAccess.NavAccessType.fromInt(starCount), extensions);
+        }
+        return xmlNavigationAccess;
     }
 
     @Override
@@ -7081,24 +7085,32 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangXMLStepExtend createBLangXMLStepExtend(Node node) {
-        SyntaxKind kind = node.kind();
-        if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
-            return new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
-        } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
-            XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
-            FunctionCallExpressionNode funcCallExpr = xmlStepMethodCallExtendNode.functionCallExpression();
-            BLangInvocation bLangInvocation =
-                    createBLangInvocation(funcCallExpr.functionName(), funcCallExpr.arguments(),
-                            funcCallExpr.location(), false);
-            return new BLangXMLMethodCallStepExtend(bLangInvocation);
-        } else {
-            XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
-            List<BLangXMLElementFilter> filters = new ArrayList<>();
-            for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
-                filters.add(createXMLElementFilter(namePattern));
+    private List<BLangXMLStepExtend> createBLangXMLStepExtends(NodeList<Node> nodes, BLangExpression expr) {
+        List<BLangXMLStepExtend> extensions = new ArrayList<>();
+        BLangXMLStepExtend curExpr = null;
+        for (Node node : nodes) {
+            SyntaxKind kind = node.kind();
+            if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
+                curExpr =
+                        new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
+            } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
+                XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
+                FunctionCallExpressionNode funcCallExpr = xmlStepMethodCallExtendNode.functionCallExpression();
+                BLangInvocation bLangInvocation =
+                        createBLangInvocation(funcCallExpr.functionName(), funcCallExpr.arguments(),
+                                funcCallExpr.location(), false);
+                bLangInvocation.expr = curExpr == null ? expr : curExpr;
+                curExpr = new BLangXMLMethodCallStepExtend(bLangInvocation);
+            } else {
+                XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
+                List<BLangXMLElementFilter> filters = new ArrayList<>();
+                for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
+                    filters.add(createXMLElementFilter(namePattern));
+                }
+                curExpr = new BLangXMLFilterStepExtend(filters);
             }
-            return new BLangXMLFilterStepExtend(filters);
+            extensions.add(curExpr);
         }
+        return extensions;
     }
 }

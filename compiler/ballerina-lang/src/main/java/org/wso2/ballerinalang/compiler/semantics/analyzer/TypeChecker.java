@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -169,7 +170,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -475,42 +475,38 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation, AnalyzerData data) {
         checkXMLNamespacePrefixes(xmlNavigation.filters, data);
+        checkExpr(xmlNavigation.expr, symTable.xmlType, data);
         BType actualType = xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN
                 ? symTable.xmlType : symTable.xmlElementSeqType;
-        for (int i = 0; i < xmlNavigation.extensions.size(); i++) {
-            if (xmlNavigation.extensions.get(i).getKind() == NodeKind.XML_STEP_METHOD_CALL_EXTEND) {
-                BLangXMLMethodCallStepExtend bLangXMLStepExtend = (BLangXMLMethodCallStepExtend) xmlNavigation.extensions.get(i);
-                bLangXMLStepExtend.invocation.expr = xmlNavigation.expr;
-                xmlNavigation.extensions.set(i, bLangXMLStepExtend);
-            } else if (xmlNavigation.extensions.get(i).getKind() == NodeKind.XML_STEP_FILTER_EXTEND) {
-                actualType = symTable.xmlElementSeqType;
-            }
-        }
-
-        xmlNavigation.extensions.forEach(extension -> extension.accept(this, data));
-        checkExpr(xmlNavigation.expr, symTable.xmlType, data);
-
         types.checkType(xmlNavigation, actualType, data.expType);
-        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-            data.resultType = symTable.xmlType;
-        } else {
-            data.resultType = symTable.xmlElementSeqType;
-        }
+        data.resultType = actualType;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess, AnalyzerData data) {
+        BType expType = data.expType;
+        checkExpr(extendedXmlNavigationAccess.stepExpr, data);
+        data.expType = symTable.xmlType;
+        extendedXmlNavigationAccess.extensions.forEach(extension -> extension.accept(this, data));
+        data.resultType = types.checkType(extendedXmlNavigationAccess, data.resultType, expType);
     }
 
     @Override
     public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend, AnalyzerData data) {
+        BType prevResultType = data.resultType;
         checkExpr(xmlIndexedStepExtend.indexExpr, symTable.intType, data);
+        data.resultType = prevResultType;
     }
 
     @Override
     public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend, AnalyzerData data) {
         checkXMLNamespacePrefixes(xmlFilterStepExtend.filters, data);
+        data.resultType = symTable.xmlElementSeqType;
     }
 
     @Override
     public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend, AnalyzerData data) {
-        checkInLangLib(xmlMethodCallStepExtend.invocation, symTable.xmlType, data);
+        checkExpr(xmlMethodCallStepExtend.invocation, data.expType, data);
     }
 
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters, AnalyzerData data) {
