@@ -2247,10 +2247,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STXMLStepMethodCallExtendNode transform(
             STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
         STNode dotToken = modifyNode(xMLStepMethodCallExtendNode.dotToken);
-        STNode functionCallExpression = modifyNode(xMLStepMethodCallExtendNode.functionCallExpression);
+        STNode methodName = modifyNode(xMLStepMethodCallExtendNode.methodName);
+        STNode arguments = modifyNode(xMLStepMethodCallExtendNode.arguments);
         return xMLStepMethodCallExtendNode.modify(
                 dotToken,
-                functionCallExpression);
+                methodName,
+                arguments);
     }
 
     @Override
