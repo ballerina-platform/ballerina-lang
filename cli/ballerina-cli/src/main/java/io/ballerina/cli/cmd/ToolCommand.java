@@ -675,7 +675,7 @@ public class ToolCommand implements BLauncherCmd {
             ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
                     RepoUtils.getBallerinaVersion());
             List<Tool> tools = toolSearchResult.getTools();
-            if (tools != null && tools.size() > 0) {
+            if (tools != null && !tools.isEmpty()) {
                 foundTools = true;
                 printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
             }

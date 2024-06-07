@@ -2285,7 +2285,7 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
-        } else if (fields.size() == 0) {
+        } else if (fields.isEmpty()) {
             unionType.add(symTable.neverType);
         }
 
@@ -5951,7 +5951,7 @@ public class Types {
             return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
 
-        if (errorLiftedType.getMemberTypes().size() == 0) {
+        if (errorLiftedType.getMemberTypes().isEmpty()) {
             return symTable.semanticError;
         }
 

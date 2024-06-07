@@ -968,7 +968,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         Set<ClosureVarSymbol> closureVarSymbols = lambdaExpr.function.closureVarSymbols;
-        if (closureVarSymbols.size() == 0) {
+        if (closureVarSymbols.isEmpty()) {
             return null;
         }
 

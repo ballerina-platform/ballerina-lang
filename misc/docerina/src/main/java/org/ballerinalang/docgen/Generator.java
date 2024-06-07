@@ -816,7 +816,7 @@ public class Generator {
                     variables.addAll(originType.memberTypes.stream()
                             .map(type -> new DefaultableVariable(type.name, type.description, false,
                                     type.elementType, "")).collect(Collectors.toList()));
-                } else if (originType.memberTypes.size() > 0) {
+                } else if (!originType.memberTypes.isEmpty()) {
                     variables.add(new DefaultableVariable(originType));
                 }
             } else if (node instanceof ObjectFieldNode) {

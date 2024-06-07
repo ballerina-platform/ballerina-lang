@@ -78,7 +78,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                 .collect(Collectors.toList());
 
         // Skip, when nothing to remove and only single import pending
-        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
+        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.isEmpty())) {
             return actions;
         }
 

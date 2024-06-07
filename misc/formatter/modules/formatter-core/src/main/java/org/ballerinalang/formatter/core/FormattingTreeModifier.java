@@ -4418,7 +4418,7 @@ public class FormattingTreeModifier extends TreeModifier {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
-        if (leadingMinutiae.size() > 0 &&
+        if (!leadingMinutiae.isEmpty() &&
                 leadingMinutiae.get(leadingMinutiae.size() - 1).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
             leadingMinutiae.add(getNewline());
         }

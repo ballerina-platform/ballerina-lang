@@ -176,7 +176,7 @@ public class InteropValidator {
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
-        if (moduleDependencies == null || moduleDependencies.size() == 0) {
+        if (moduleDependencies == null || moduleDependencies.isEmpty()) {
             return Thread.currentThread().getContextClassLoader();
         }
         List<URL> dependentJars = new ArrayList<>();

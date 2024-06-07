@@ -95,7 +95,7 @@ public class SeparatorPreprocessor extends Preprocessor {
         }
 
         // Append remaining string to the statements.
-        if (builder.length() > 0) {
+        if (!builder.isEmpty()) {
             addToList(snippets, builder);
         }
 

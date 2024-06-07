@@ -216,7 +216,7 @@ public class BalStringUtils {
 
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA, false);
         BTableType tableType;
-        if (keyFieldNames.size() == 0) {
+        if (keyFieldNames.isEmpty()) {
             tableType =  (BTableType) TypeCreator.createTableType(mapType, false);
         } else {
             tableType =  (BTableType) TypeCreator.createTableType(mapType, keys, false);
@@ -302,7 +302,7 @@ public class BalStringUtils {
                 part = new StringBuilder();
             }
         }
-        if (part.length() > 0) {
+        if (!part.isEmpty()) {
             list.add(part.toString());
         }
         return list;
