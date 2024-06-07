@@ -1369,12 +1369,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1483,12 +1488,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1510,12 +1520,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1624,12 +1639,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1762,12 +1782,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1920,12 +1945,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -1972,12 +2002,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -2111,12 +2146,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -2138,12 +2178,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -2292,12 +2337,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3319,12 +3369,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3411,12 +3466,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3438,12 +3498,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3530,12 +3595,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3668,12 +3738,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3804,12 +3879,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3856,12 +3936,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -3973,12 +4058,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -4000,12 +4090,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -4132,12 +4227,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5357,12 +5457,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5471,12 +5576,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5498,12 +5608,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "length"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5612,12 +5727,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5750,12 +5870,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5908,12 +6033,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -5960,12 +6090,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -6099,12 +6234,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "foo"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -6126,12 +6266,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "bar"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
@@ -6280,12 +6425,17 @@
                               "kind": "DOT_TOKEN"
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "data"
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARENTHESIZED_ARG_LIST",
+                              "children": [
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
                                 },
