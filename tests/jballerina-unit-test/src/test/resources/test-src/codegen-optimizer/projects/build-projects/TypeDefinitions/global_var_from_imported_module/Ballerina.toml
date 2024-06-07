@@ -1,0 +1,8 @@
+[package]
+org = "thushara_piyasekara"
+name = "global_var_from_imported_module"
+version = "0.1.0"
+distribution = "2201.10.0-SNAPSHOT"
+
+[build-options]
+observabilityIncluded = true

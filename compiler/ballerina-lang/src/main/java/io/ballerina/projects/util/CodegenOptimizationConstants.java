@@ -18,7 +18,6 @@
 
 package io.ballerina.projects.util;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,5 +38,5 @@ public class CodegenOptimizationConstants {
     public static final String INTEROP_DEPENDENCIES_PROPERTIES_FILE = "interop-dependencies.properties";
     public static final String EXTERNAL_DEPENDENCY_ANNOT = "ExternalDependency";
     public static final List<String> WHITE_LISTED_PKG_NAMES =
-            Arrays.asList(BALLERINA_OBSERVE, BALLERINA_JBALLERINA, BALLERINA_LANG);
+            List.of(BALLERINA_OBSERVE, BALLERINA_JBALLERINA, BALLERINA_LANG);
 }
