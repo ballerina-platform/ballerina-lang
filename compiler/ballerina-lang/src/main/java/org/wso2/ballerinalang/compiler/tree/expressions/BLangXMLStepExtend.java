@@ -18,12 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-
 /**
  *  Represents step extensions in xml step expression.
  *
  * @since 2201.10.0
  */
-public abstract class BLangXMLStepExtend extends BLangNode {
+public abstract class BLangXMLStepExtend extends BLangExpression {
 }

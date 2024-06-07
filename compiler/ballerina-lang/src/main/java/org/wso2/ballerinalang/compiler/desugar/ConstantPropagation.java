@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -878,12 +879,17 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        List<BLangXMLStepExtend> extensions = xmlNavigation.extensions;
+        result = xmlNavigation;
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        List<BLangXMLStepExtend> extensions = extendedXmlNavigationAccess.extensions;
         for (int i = 0; i < extensions.size(); i++) {
             BLangXMLStepExtend extension = extensions.get(i);
             extensions.set(i, rewrite(extension));
         }
-        result = xmlNavigation;
+        result = extendedXmlNavigationAccess;
     }
 
     @Override
