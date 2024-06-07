@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Context in which semtype was defined in.
+ * Context in which type checking operations are performed. Note context is not thread safe, requiring external
+ * synchronization if shared between threads. Multiple contexts may share same environment without issue.
  *
  * @since 2201.10.0
  */
@@ -35,7 +36,6 @@ public final class Context {
     private final List<BddMemo> memoStack = new ArrayList<>();
     public final Env env;
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
-    // SEMTYPE-TODO: Fill this in as needed, currently just a placeholder since basic types don't need it
 
     private Context(Env env) {
         this.env = env;
