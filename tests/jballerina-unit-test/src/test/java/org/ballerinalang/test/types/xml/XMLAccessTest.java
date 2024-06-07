@@ -297,7 +297,7 @@ public class XMLAccessTest {
     @DataProvider
     private Object[] xmlStepExtension() {
         return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend", "testXmlIndexedAndFilterStepExtend",
-                "testXmlMethodCallStepExtend"};
+                "testXmlMethodCallStepExtend", "testXmlMethodCallIndexedAndFilterStepExtend"};
     }
 
     @Test
