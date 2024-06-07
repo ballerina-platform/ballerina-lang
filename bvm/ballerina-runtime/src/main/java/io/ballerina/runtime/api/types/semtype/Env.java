@@ -31,17 +31,19 @@ import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_
 
 /**
  * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
- * environments with each other in undefined.
- *
+ * environments with each other in undefined. This is safe to be shared between multiple threads.
  * @since 2201.10.0
  */
 public final class Env {
+    // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking
+    // there is not technical restriction to have multiple instances of Env.
 
     private static final Env INSTANCE = new Env();
 
     private final Map<AtomicType, TypeAtom> atomTable;
     private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();
 
+    private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
     private final List<ListAtomicType> recListAtoms;
 
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
@@ -61,17 +63,17 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        this.atomTableLock.readLock().lock();
+        atomTableLock.readLock().lock();
         try {
             TypeAtom ta = this.atomTable.get(atomicType);
             if (ta != null) {
                 return ta;
             }
         } finally {
-            this.atomTableLock.readLock().unlock();
+            atomTableLock.readLock().unlock();
         }
 
-        this.atomTableLock.writeLock().lock();
+        atomTableLock.writeLock().lock();
         try {
             // we are double-checking since there may be 2 trying to add at the same time
             TypeAtom ta = this.atomTable.get(atomicType);
@@ -83,7 +85,7 @@ public final class Env {
                 return result;
             }
         } finally {
-            this.atomTableLock.writeLock().unlock();
+            atomTableLock.writeLock().unlock();
         }
     }
 
@@ -97,11 +99,14 @@ public final class Env {
 
     public RecAtom recListAtom() {
         // TODO: do we have seperate read and write operations, if so use rw lock
-        synchronized (this.recListAtoms) {
+        recListLock.writeLock().lock();
+        try {
             int result = this.recListAtoms.size();
             // represents adding () in nballerina
             this.recListAtoms.add(null);
             return RecAtom.createRecAtom(result);
+        } finally {
+            recListLock.writeLock().unlock();
         }
     }
 
@@ -116,8 +121,11 @@ public final class Env {
     }
 
     public ListAtomicType getRecListAtomType(RecAtom ra) {
-        synchronized (this.recListAtoms) {
-            return this.recListAtoms.get(ra.index);
+        recListLock.readLock().lock();
+        try {
+            return this.recListAtoms.get(ra.index());
+        } finally {
+            recListLock.readLock().unlock();
         }
     }
 
