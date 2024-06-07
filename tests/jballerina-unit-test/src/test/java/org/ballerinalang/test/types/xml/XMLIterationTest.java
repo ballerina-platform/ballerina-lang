@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -27,6 +27,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * Test cases for XML iteration.
@@ -176,9 +178,9 @@ public class XMLIterationTest {
 
         Assert.assertNotNull(returns);
 
-        BArray resArray = (BArray) ((BXmlSequence) returns).value();
-        Assert.assertEquals(((BXmlSequence) resArray.getRefValue(0)).getTextValue().toString(), authors[0][0]);
-        Assert.assertEquals(((BXmlSequence) resArray.getRefValue(1)).getTextValue().toString(), authors[1][0]);
+        List<BXml> childrenList = ((BXmlSequence) returns).getChildrenList();
+        Assert.assertEquals(childrenList.get(0).getTextValue(), authors[0][0]);
+        Assert.assertEquals(childrenList.get(1).getTextValue(), authors[1][0]);
     }
 
     @Test(description = "Test iterating over xml elements where some elements are characters")
