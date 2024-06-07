@@ -473,7 +473,9 @@ public class LangLibValueTest {
                 { "testFromJsonStringWithTypeStringArray" },
                 { "testFromJsonStringWithTypeArrayNegative" },
                 { "testFromJsonStringWithTypeIntArray" },
-                { "testFromJsonStringWithTypeWithInferredArgument" }
+                { "testFromJsonStringWithTypeWithInferredArgument" },
+                { "testFromJsonStringWithTypeRecordWithXML" },
+                { "testFromJsonWithTypeArray" }
         };
     }
 

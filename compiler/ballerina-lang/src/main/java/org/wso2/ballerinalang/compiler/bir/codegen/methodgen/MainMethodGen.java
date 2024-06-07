@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -146,15 +147,17 @@ public class MainMethodGen {
     private final JvmTypeGen jvmTypeGen;
     private final AsyncDataCollector asyncDataCollector;
     private final boolean isRemoteMgtEnabled;
+    private final String strandMetadataClass;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector,
-                         boolean isRemoteMgtEnabled) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
+                         AsyncDataCollector asyncDataCollector, boolean isRemoteMgtEnabled) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
         this.asyncDataCollector = asyncDataCollector;
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
+        this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
     }
 
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
@@ -290,7 +293,7 @@ public class MainMethodGen {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass + "$SignalListener", stopFuncName);
         mv.visitInsn(ACONST_NULL);
         jvmTypeGen.loadType(mv, new BNilType());
-        MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -538,7 +541,7 @@ public class MainMethodGen {
 
         BType anyType = symbolTable.anyType;
         jvmTypeGen.loadType(mv, anyType);
-        MethodGenUtils.submitToScheduler(mv, initClass, MAIN_METHOD, asyncDataCollector);
+        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, MAIN_METHOD, asyncDataCollector);
         storeFuture(indexMap, mv);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
