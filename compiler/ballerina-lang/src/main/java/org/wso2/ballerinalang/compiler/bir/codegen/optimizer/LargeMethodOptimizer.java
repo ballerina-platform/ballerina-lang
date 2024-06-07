@@ -1073,7 +1073,7 @@ public class LargeMethodOptimizer {
                     tempVars);
             BIRVariableDcl valueVarDcl = valueOperand.variableDcl;
             addToSplitFuncArgsIfVarDclIsArg(splitFuncEnv, valueVarDcl);
-            BIRVariableDcl keyVarDcl = keyValueEntry.keyOp.variableDcl;;
+            BIRVariableDcl keyVarDcl = keyValueEntry.keyOp.variableDcl;
             addToSplitFuncArgsIfVarDclIsArg(splitFuncEnv, keyVarDcl);
         }
         return splitPointsContainCurrIns || globalAndArgVarKeyInsContainsCurrIns;

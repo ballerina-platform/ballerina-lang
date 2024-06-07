@@ -193,7 +193,7 @@ public class Module {
             moduleId = oldModule.moduleId();
             moduleDescriptor = oldModule.descriptor();
             srcDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.srcDocumentIds());
-            testDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.testSrcDocumentIds());;
+            testDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.testSrcDocumentIds());
             isDefaultModule = oldModule.isDefaultModule();
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;

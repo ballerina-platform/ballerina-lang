@@ -27,6 +27,6 @@ public class BddMemo {
     MemoStatus isEmpty;
 
     enum MemoStatus {
-        NOT_SET, TRUE, FALSE;
+        NOT_SET, TRUE, FALSE
     }
 }
