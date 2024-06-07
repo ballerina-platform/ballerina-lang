@@ -921,8 +921,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
         String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
                 .replace("/r" , "");
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
-                        Charset.defaultCharset()).replace("/r" , "");
+                        Charset.defaultCharset()).replace("/r" , "")
+                        .replace("DIST_VERSION", ballerinaShortVersion);
         Assert.assertEquals(depContent, corrcetDepContent);
         Files.delete(destinationPath);
     }
