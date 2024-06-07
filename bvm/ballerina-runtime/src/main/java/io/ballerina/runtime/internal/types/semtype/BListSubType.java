@@ -168,6 +168,20 @@ public class BListSubType extends SubType implements DelegatedSubType {
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
                 int len = memberTypes.length;
+                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+                // Therefore, we can skip the negative
+                for (int i = 0; i < len; i++) {
+                    int index = indices[i];
+                    if (index >= negLen) {
+                        break;
+                    }
+                    SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                    SemType common = Core.intersect(memberTypes[i], negMemberType);
+                    if (Core.isEmpty(cx, common)) {
+                        return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
+                    }
+                }
+                // Consider cases we can avoid this negative by having a sufficiently short list
                 if (len < indices.length && indices[len] < negLen) {
                     return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
                 }
@@ -176,6 +190,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
                         break;
                     }
                     // TODO: avoid creating new arrays here, maybe use an object pool for this
+                    //  -- Or use a copy on write array?
                     SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     if (listInhabited(cx, indices, t, nRequired, neg.next())) {
                         return true;
