@@ -5686,7 +5686,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode namePattern = parseXMLNamePatternChain(slashLT);
-        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern);
+        STNode xmlStepExtend = parseXMLStepExtends();
+        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern, xmlStepExtend);
         return newLhsExpr;
     }
 
@@ -14573,6 +14574,76 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse xml step extends.
+     * <p>
+     * <code>
+     * xml-step-extends := xml-step-extend*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExtends() {
+        List<STNode> xmlStepExtendList = new ArrayList<>();
+        STToken nextToken = peek();
+
+        if (isEndOfXMLStepExtend(nextToken.kind)) {
+            return STNodeFactory.createNodeList(xmlStepExtendList);
+        }
+
+        startContext(ParserRuleContext.XML_STEP_EXTEND);
+        STNode stepExtension;
+        while (!isEndOfXMLStepExtend(nextToken.kind)) {
+            if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
+                stepExtension = parserXMLStepMethodCallExtend();
+            } else if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+                stepExtension = parseXMLFilterExpressionRhs();
+            } else {
+                stepExtension = parseXMLIndexedStepExtend();
+            }
+            xmlStepExtendList.add(stepExtension);
+            nextToken = peek();
+        }
+        endContext();
+        return STNodeFactory.createNodeList(xmlStepExtendList);
+    }
+
+    /**
+     * <p>
+     * Parse the indexed step extension.
+     * <br/>
+     * <code>
+     *     xml-indexed-step-extend:= [ expression ]
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLIndexedStepExtend() {
+        STNode openBracket = parseOpenBracket();
+        STNode keyExpr = parseKeyExpr(true);
+        STNode closeBracket = parseCloseBracket();
+        return STNodeFactory.createXMLStepIndexedExtendNode(openBracket, keyExpr, closeBracket);
+    }
+
+    /**
+     * <p>
+     * Parse the method call step extension.
+     * <br/>
+     * <code>
+     *     xml-method-call-step-extend:= .method-name ( arg-list )
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parserXMLStepMethodCallExtend() {
+        STNode dotToken = parseDotToken();
+        STNode methodName = STNodeFactory.createSimpleNameReferenceNode(parseIdentifier(ParserRuleContext.IDENTIFIER));
+        STNode parenthesizedArgsList = parseParenthesizedArgList();
+        return STNodeFactory.createXMLStepMethodCallExtendNode(dotToken, methodName, parenthesizedArgsList);
+    }
+
+    /**
      * Parse <code> .< </code> token.
      *
      * @return Parsed node
@@ -14634,6 +14705,14 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private boolean isEndOfXMLStepExtend(SyntaxKind tokenKind) {
+        return switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN, DOT_LT_TOKEN -> false;
+            case DOT_TOKEN -> peek(3).kind != SyntaxKind.OPEN_PAREN_TOKEN;
+            default -> true;
+        };
     }
 
     private STNode parseXMLNamePatternSeparator() {
@@ -14703,14 +14782,15 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse xml step expression.
      * <p>
-     * <code>xml-step-expr := expression xml-step-start</code>
+     * <code>xml-step-expr := expression xml-step-start xml-step-extend*</code>
      *
      * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
      * @return Parsed node
      */
     private STNode parseXMLStepExpression(STNode lhsExpr) {
         STNode xmlStepStart = parseXMLStepStart();
-        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
+        STNode xmlStepExtend = parseXMLStepExtends();
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtend);
     }
 
     /**
