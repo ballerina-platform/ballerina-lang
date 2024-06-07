@@ -207,39 +207,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
             // The current algorithm does not track all FP assignments.
             // If the FP is assigned inside the parent scope, the FP will have the same UsedState as the parent
-            Set<BIROperand> rhsOperands = new HashSet<>(Arrays.asList(instruction.getRhsOperands()));
-            Set<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
-            rhsOperands.forEach(birOperand -> rhsVars.add(birOperand.variableDcl));
+            Set<BIRNode.BIRVariableDcl> rhsVars = getVarDeclarations(instruction);
+            analyzeGlobalVars(rhsVars);
 
-            for (BIRNode.BIRVariableDcl rhsVar : rhsVars) {
-                if (rhsVar instanceof BIRNode.BIRGlobalVariableDcl) {
-                    if (!rhsVar.isInSamePkg(currentPkgID) && isTestablePkgAnalysis) {
-                        continue;
-                    }
-                    rhsVar.markAsUsed();
-                    currentParentFunction.childNodes.add(rhsVar);
-                    rhsVar.parentNodes.add(currentParentFunction);
-
-                    // TODO Refactor following logic
-                    if (!rhsVar.isInSamePkg(currentPkgID)) {
-                        getInvocationData(rhsVar.getPackageID())
-                                .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(rhsVar.getPackageID()));
-                    } else if (isFunctionKindType(rhsVar.type)) {
-                        visitNode(currentInvocationData.globalVarFPDataPool.get(rhsVar).lambdaFunction);
-                    }
-                }
-            }
-            rhsVars.retainAll(localFpHolders.keySet());
-
-            if (!rhsVars.isEmpty() && instruction.kind != InstructionKind.RECORD_DEFAULT_FP_LOAD) {
-                for (BIRNode.BIRVariableDcl var : rhsVars) {
-                    FunctionPointerData fpData = currentInvocationData.getFPData(var);
-                    if (fpData != null && fpData.lambdaFunction != null) {
-                        visitNode(fpData.lambdaFunction);
-                    }
-                    currentParentFunction.addChildNode(var);
-                }
-            }
+            analyzeFunctionPointerReferences(rhsVars, instruction);
         });
 
         if (ANALYZED_TERMINATOR_KINDS.contains(birBasicBlock.terminator.getKind())) {
@@ -455,6 +426,47 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to load interop-dependencies : ", e);
+        }
+    }
+
+    private HashSet<BIRNode.BIRVariableDcl> getVarDeclarations(BIRNonTerminator instruction) {
+        HashSet<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
+        for (BIROperand rhsOperand : instruction.getRhsOperands()) {
+            rhsVars.add(rhsOperand.variableDcl);
+        }
+        return rhsVars;
+    }
+
+    private void analyzeGlobalVars(Set<BIRNode.BIRVariableDcl> rhsVars) {
+        for (BIRNode.BIRVariableDcl rhsVar : rhsVars) {
+            if (rhsVar instanceof BIRNode.BIRGlobalVariableDcl globalRhsVar) {
+                if (!globalRhsVar.isInSamePkg(currentPkgID) && isTestablePkgAnalysis) {
+                    continue;
+                }
+                globalRhsVar.markAsUsed();
+                currentParentFunction.childNodes.add(globalRhsVar);
+                globalRhsVar.parentNodes.add(currentParentFunction);
+
+                if (!globalRhsVar.isInSamePkg(currentPkgID)) {
+                    getInvocationData(globalRhsVar.pkgId)
+                            .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(globalRhsVar.pkgId));
+                } else if (isFunctionKindType(globalRhsVar.type)) {
+                    visitNode(currentInvocationData.globalVarFPDataPool.get(globalRhsVar).lambdaFunction);
+                }
+            }
+        }
+    }
+
+    private void analyzeFunctionPointerReferences(Set<BIRNode.BIRVariableDcl> rhsVars, BIRNonTerminator instruction) {
+        rhsVars.retainAll(localFpHolders.keySet());
+        if (!rhsVars.isEmpty() && instruction.kind != InstructionKind.RECORD_DEFAULT_FP_LOAD) {
+            for (BIRNode.BIRVariableDcl var : rhsVars) {
+                FunctionPointerData fpData = currentInvocationData.getFPData(var);
+                if (fpData != null && fpData.lambdaFunction != null) {
+                    visitNode(fpData.lambdaFunction);
+                }
+                currentParentFunction.addChildNode(var);
+            }
         }
     }
 
