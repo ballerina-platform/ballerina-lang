@@ -162,8 +162,7 @@ public final class JvmCodeGenUtil {
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     public static Boolean isOptimizedCodegen = false;
     public static Boolean isRootPkgCodeGen = false;
-    public static HashMap<String, PackageID> duplicatePkgsMap = new HashMap<>();
-    public static Boolean dontAddDuplicatePrefix = false;
+    public static Map<String, PackageID> duplicatePkgsMap = new HashMap<>();
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);

@@ -17,21 +17,29 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+
 /**
- * This enum indicates whether the function will be used in the execution chain or not.
+ * This enum indicates whether the {@link BIRNode} will be used in the execution chain or not.
  *
  * @since 2201.10.0
  */
 public enum UsedState {
-    // Indicates a function is connected to the invocation chain of init or main functions.
-    // These functions are the only ones that is needed for the execution.
+    /**
+     * Indicates a {@link BIRNode} is connected to the invocation chain of one of the root BIRNodes.
+     * These BIRNodes are the only ones that is needed for the execution.
+     */
     USED,
 
-    // Indicates a function is not used.
-    // These functions can be safely discarded to reduce execution time and final jar size.
+    /**
+     * Indicates a {@link BIRNode} is not used.
+     * These BIRNodes can be safely removed to reduce execution time and final jar size.
+     */
     UNUSED,
 
-    // Indicates a function which was not analyzed.
-    // Since it is ambiguous whether the function is used or not, these functions are treated the same way as USED.
+    /**
+     * Indicates a {@link BIRNode} was not analyzed.
+     * These BIRNodes are treated the same way as {@link UsedState#USED}.
+     */
     UNEXPOLORED
 }

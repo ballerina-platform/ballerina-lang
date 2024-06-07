@@ -288,23 +288,27 @@ public class JBallerinaBackend extends CompilerBackend {
             BLangPackage bLangPackage = moduleContext.bLangPackage();
 
             if (isRootModule(moduleContext) && bLangPackage.hasTestablePackage()) {
-                Set<BPackageSymbol> buildPkgDependencies = new HashSet<>();
-                Set<BPackageSymbol> testablePkgDependencies = new HashSet<>();
-                collectDependencies(bLangPackage.symbol, buildPkgDependencies);
-                collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
-
-                buildPkgDependencies.stream()
-                        .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
-                        .forEach(pkgSymbol -> {
-                            pkgSymbol.shouldGenerateDuplicateBIR = true;
-                            // Have to use a hashmap because the pkgIds get mutated later
-                            JvmCodeGenUtil.duplicatePkgsMap.put(
-                                    pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
-                                    pkgSymbol.pkgID);
-                        });
+                markCommonDependencies(bLangPackage);
                 return;
             }
         }
+    }
+
+    private void markCommonDependencies(BLangPackage bLangPackage) {
+        Set<BPackageSymbol> buildPkgDependencies = new HashSet<>();
+        Set<BPackageSymbol> testablePkgDependencies = new HashSet<>();
+        collectDependencies(bLangPackage.symbol, buildPkgDependencies);
+        collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
+
+        buildPkgDependencies.stream()
+                .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
+                .forEach(pkgSymbol -> {
+                    pkgSymbol.shouldGenerateDuplicateBIR = true;
+                    // Have to use a hashmap because the pkgIds get mutated later
+                    JvmCodeGenUtil.duplicatePkgsMap.put(
+                            pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
+                            pkgSymbol.pkgID);
+                });
     }
 
     private boolean isNotWhiteListedPkg(BPackageSymbol pkgSymbol) {
@@ -328,7 +332,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
         // Therefore, we had to move it into another for loop.
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            if (shouldOptimize(moduleContext) || hasTests(moduleContext)) {
+            if (shouldOptimize(moduleContext)) {
                 if (moduleContext.isUsed()) {
                     // Generate optimized thin JAR byte streams.
                     performOptimizedCodeGen(moduleContext);
@@ -350,10 +354,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private boolean isRootModule(ModuleContext moduleContext) {
         return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId();
-    }
-
-    private boolean hasTests(ModuleContext moduleContext) {
-        return platformLibraryGenerated(moduleContext) && moduleContext.bLangPackage().hasTestablePackage();
     }
 
     private boolean shouldOptimize(ModuleContext moduleContext) {

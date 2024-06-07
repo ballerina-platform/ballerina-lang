@@ -74,7 +74,6 @@ public class CodeGenerator {
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
 
-        // TODO merge this with jvmPackageGen part
         JvmCodeGenUtil.isOptimizedCodegen = isDuplicateGeneration;
 
         // Re-arrange basic blocks and error entries
