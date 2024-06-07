@@ -38,7 +38,8 @@ public class CodegenOptimizationUtils {
     }
 
     public static boolean isDriverModule(PackageID packageID) {
-        return packageID.getPackageNameWithOrg().startsWith(BALLERINAX) && packageID.getPackageNameWithOrg().endsWith(DOT_DRIVER);
+        return packageID.getPackageNameWithOrg().startsWith(BALLERINAX) &&
+                packageID.getPackageNameWithOrg().endsWith(DOT_DRIVER);
     }
 
     public static boolean isLangLibModule(PackageID packageID) {
