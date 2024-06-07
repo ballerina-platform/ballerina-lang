@@ -1,0 +1,9 @@
+
+Executing Build Tools
+	generate_file(generate_client)
+
+Compiling source
+	foo/winery:0.1.0
+
+Generating executable
+	target/bin/winery.jar

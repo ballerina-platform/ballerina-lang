@@ -35,7 +35,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -122,12 +121,6 @@ public class ProfileCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
         boolean isPackageModified = isProjectUpdated(project);
         TaskExecutor taskExecutor = createTaskExecutor(isPackageModified, args, buildOptions,
                 project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
@@ -203,7 +196,7 @@ public class ProfileCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, false, isPackageModified,
                         buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, null), false)
+                .addTask(new CreateExecutableTask(outStream, null, null, false), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
                 .addTask(new RunProfilerTask(errStream), false).build();
     }

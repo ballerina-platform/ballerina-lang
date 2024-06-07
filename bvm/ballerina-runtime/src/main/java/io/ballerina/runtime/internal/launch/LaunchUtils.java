@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import sun.misc.Signal;
 
 import java.io.File;
@@ -96,11 +95,16 @@ public class LaunchUtils {
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
-        VariableKey[] keys = configurationData.put(m, variableKeys);
-        if (keys == null) {
-            return;
+        VariableKey[] currKeys = configurationData.get(m);
+        VariableKey[] mergedKeyArray;
+        if (currKeys == null) {
+            mergedKeyArray = variableKeys;
+        } else {
+            mergedKeyArray = new VariableKey[currKeys.length + variableKeys.length];
+            System.arraycopy(currKeys, 0, mergedKeyArray, 0, currKeys.length);
+            System.arraycopy(variableKeys, 0, mergedKeyArray, currKeys.length, variableKeys.length);
         }
-        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
+        configurationData.put(m, mergedKeyArray);
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
@@ -158,6 +162,9 @@ public class LaunchUtils {
     public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
         Path testConfigPath = Paths.get(sourceRoot);
+        if (!Files.exists(testConfigPath)) {
+            testConfigPath = getSourceRootInContainer();
+        }
         if (!moduleName.equals(pkgName)) {
             testConfigPath = testConfigPath.resolve(MODULES_ROOT)
                     .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
@@ -170,4 +177,8 @@ public class LaunchUtils {
         }
     }
 
+    private static Path getSourceRootInContainer() {
+        // Since we are inside a docker container, it's current working directory is the source root.
+        return Paths.get(RuntimeUtils.USER_DIR);
+    }
 }
