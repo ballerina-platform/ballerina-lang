@@ -46,7 +46,8 @@ public class ResponseReader {
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();
         try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), StandardCharsets.UTF_8);
+            reader = new InputStreamReader(
+                    new HttpMessageDataStreamer(response).getInputStream(), StandardCharsets.UTF_8);
             while (true) {
                 int size = reader.read(buffer, 0, buffer.length);
                 if (size < 0) {
