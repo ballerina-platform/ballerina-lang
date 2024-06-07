@@ -15,7 +15,6 @@ module io.ballerina.runtime {
     requires transactions.jta;
     requires java.transaction;
     requires java.naming;
-    requires org.apache.commons.lang3;
     requires io.ballerina.identifier;
     requires jdk.unsupported;
 

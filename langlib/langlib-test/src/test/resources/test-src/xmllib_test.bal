@@ -1034,7 +1034,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x2;
     string s = "";
     assertEquals(xml:map(x, v => v), xml `<?data?>`);
-    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v) == "data").get(0), xml `<?data?>`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v) == "data"), xml `<?data?>`);
     xml:forEach(x, function(xml v) {
                 s += xml:getTarget(<xml:ProcessingInstruction>v);
             });
@@ -1044,7 +1044,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x3;
     index = 0;
     assertEquals(xml:map(x, v => xml:concat(v, "new")).get(0), xml `this is a text in xmlnew`);
-    assertEquals(xml:filter(x, v => xml:length(<xml>v) > 0).get(0), xml `this is a text in xml`);
+    assertEquals(xml:filter(x, v => xml:length(<xml>v) > 0), xml `this is a text in xml`);
     xml:forEach(x, function(xml v) {
                 index += 1;
             });
@@ -1054,7 +1054,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x4;
     index = 0;
     assertEquals(xml:map(x, v => xml:concat(v, xml `<a/>`)), xml `<!--comment--><a/>`);
-    assertEquals(xml:filter(x, v => xml:data(<xml>v).length() == 0).get(0), xml `<!--comment-->`);
+    assertEquals(xml:filter(x, v => xml:data(<xml>v).length() == 0), xml `<!--comment-->`);
     xml:forEach(x, function(xml v) {
                 index += 1;
             });
@@ -1079,7 +1079,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x6;
     index = 0;
     assertEquals(xml:map(x, v => xml:children(<xml>v)), xml ``);
-    assertEquals(xml:filter(x, v => xml:getContent(<xml:Comment>v).length() > 0).get(0), xml `<!--comment-->`);
+    assertEquals(xml:filter(x, v => xml:getContent(<xml:Comment>v).length() > 0), xml `<!--comment-->`);
     xml:forEach(x, function(xml v) {
                 index += xml:length(v);
             });
@@ -1089,7 +1089,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x7;
     index = 0;
     assertEquals(xml:map(x, v => xml:text(<xml>v)), xml `An xml text`);
-    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0).get(0), xml `An xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0), xml `An xml text`);
     xml:forEach(x, function(xml v) {
                 index += xml:length(xml:text(v));
             });
@@ -1099,7 +1099,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x8;
     index = 0;
     assertEquals(xml:map(x, v => xml:createText(xml:getContent(<xml:ProcessingInstruction>v))), xml `descending`);
-    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v).length() > 0).get(0), xml `<?data2 descending?>`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v).length() > 0), xml `<?data2 descending?>`);
     xml:forEach(x, function(xml v) {
                 index += 1;
             });
@@ -1121,7 +1121,7 @@ function testIterableOperationsOnUnionType() {
     x = <xml>x10;
     index = 0;
     assertEquals(xml:map(x, v => xml:createText(xml:data(<xml>v))), xml `A second xml text`);
-    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0).get(0), xml `A second xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0), xml `A second xml text`);
     xml:forEach(x, function(xml v) {
                 index += 1;
             });
@@ -1224,6 +1224,30 @@ function assertXmlSequenceItems(xml actual, xml[] expected) {
     foreach int i in 0 ... expectedLen - 1 {
         assertEquals(actual.get(i), expected[i]);
     }
+}
+
+function testXmlFilterValueAndErrorWithNonElementSingletonValues() {
+    xml<xml:ProcessingInstruction> x1 = xml `<?data?>`;
+    assertEquals(xml:filter(x1, v => true), xml `<?data?>`);
+    assertEquals(xml:filter(xml:filter(x1, v => true), v => v is xml:ProcessingInstruction), xml `<?data?>`);
+    assertError(trap xml:filter(xml:filter(x1, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Comment> x2 = xml `<!--comment-->`;
+    assertEquals(xml:filter(xml:filter(x2, v => true), v => v is xml:Comment), xml `<!--comment-->`);
+    assertEquals(xml:filter(x2, v => true), xml `<!--comment-->`);
+
+    assertError(trap xml:filter(xml:filter(x2, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Comment' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Text> x3 = xml `this is a text`;
+    assertEquals(xml:filter(x3, v => true), xml `this is a text`);
+    assertEquals(xml:filter(xml:filter(x3, v => true), v => v is xml:Text), xml `this is a text`);
+    assertError(trap xml:filter(xml:filter(x3, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
 }
 
 type Error error<record {string message;}>;

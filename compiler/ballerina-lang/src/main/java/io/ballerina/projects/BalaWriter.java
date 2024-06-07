@@ -78,6 +78,7 @@ public abstract class BalaWriter {
     protected static final String PLATFORM = "platform";
     protected static final String PATH = "path";
     private static final String MAIN_BAL = "main.bal";
+    private static final String UNIX_FILE_SEPARATOR = "/";
 
     // Set the target as any for default bala.
     protected String target = "any";
@@ -168,14 +169,12 @@ public abstract class BalaWriter {
         packageJson.setLanguageSpecVersion(BALLERINA_SPEC_VERSION);
         packageJson.setImplementationVendor(IMPLEMENTATION_VENDOR);
 
-        if (!platformLibs.isEmpty()) {
-            packageJson.setPlatformDependencies(platformLibs.get());
-        }
+        platformLibs.ifPresent(packageJson::setPlatformDependencies);
 
         // Set icon in bala path in the package.json
         if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
             Path iconPath = getIconPath(packageManifest.icon());
-            packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
+            packageJson.setIcon(BALA_DOCS_DIR + UNIX_FILE_SEPARATOR + iconPath.getFileName());
         }
         // Set graalvmCompatibility property in package.json
         setGraalVMCompatibilityProperty(packageJson, packageManifest);
@@ -325,7 +324,7 @@ public abstract class BalaWriter {
             }
 
             // Generate empty bal file for default module in tools
-            if (module.isDefaultModule() && !packageContext.balToolTomlContext().isEmpty() &&
+            if (module.isDefaultModule() && packageContext.balToolTomlContext().isPresent() &&
                     module.documentIds().isEmpty()) {
                 String emptyBalContent = "// AUTO-GENERATED FILE.\n" +
                         "\n" +
@@ -521,12 +520,12 @@ public abstract class BalaWriter {
             return null;
         } else {
             if (File.separatorChar == '\\') {
-                String replaced = "";
+                String replaced;
                 // Following is to evade spotbug issue if file is null
                 replaced = Optional.ofNullable(file.getFileName()).orElse(Paths.get("")).toString();
                 Path parent = file.getParent();
                 while (parent != null) {
-                    replaced = parent.getFileName() + "/" + replaced;
+                    replaced = parent.getFileName() + UNIX_FILE_SEPARATOR + replaced;
                     parent = parent.getParent();
                 }
                 return replaced;
