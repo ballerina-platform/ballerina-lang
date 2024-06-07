@@ -615,10 +615,8 @@ public class TypeChecker {
             return Builder.booleanType();
         } else if (value instanceof DecimalValue) {
             return Builder.decimalType();
-        } else if (value instanceof ArrayValue) {
-            return Builder.listType();
         } else {
-            return Builder.bType();
+            return ((BValue) value).basicType();
         }
     }
 
