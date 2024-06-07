@@ -619,6 +619,84 @@ function testXmlMethodCallStepExtend() returns error? {
     assert(x5/**/<f>.get(k), xml ``);
 }
 
+function testXmlMethodCallIndexedAndFilterStepExtend() {
+    int k = 1;
+    boolean b = false;
+    string local = "local";
+    xml x1 = xml
+            `<item><!--comment--><name>T-shirt</name><price>19.99</price><count>1</count><brand><?data2?><name>nike</name><local>no</local></brand></item>
+            <item><?data?><price>34.99</price><name>Backpack</name><count>3</count><brand><name>adidas</name><local>yes</local></brand></item>
+            <item>text<name>Watch</name><price>49.99</price><count>2</count><brand>text 2<name>samsung</name><local>no</local></brand></item>`;
+
+    assert(x1/*[0].filter(x => x is xml:Comment || x is xml:ProcessingInstruction), xml `<!--comment--><?data?>`);
+    assert(x1/*.get(k).<price>, xml `<price>34.99</price>`);
+    assert(x1/*.<brand>.children(), xml `<?data2?><name>nike</name><local>no</local><name>adidas</name><local>yes</local>text 2<name>samsung</name><local>no</local>`);
+    assert(x1/*.children().<name>, xml `<name>nike</name><name>adidas</name><name>samsung</name>`);
+    assert(x1/*.elementChildren().<*>, xml `<name>nike</name><local>no</local><name>adidas</name><local>yes</local><name>samsung</name><local>no</local>`);
+    assert(x1/*.first().<name|price>[0], xml `<name>T-shirt</name><price>34.99</price><name>Watch</name>`);
+
+    assert(x1/<brand>.children().<name>, xml `<name>nike</name><name>adidas</name><name>samsung</name>`);
+    assert(x1/<brand>.children()[0], xml `<?data2?><name>adidas</name>text 2`);
+    assert(x1/<brand>.children()[0].<name>, xml `<name>adidas</name>`);
+
+    assert(x1/**/<local|brand>.map(y => y).children().<local>, xml `<local>no</local><local>yes</local><local>no</local>`);
+    assert(x1/**/<local>.filter(y => (<xml>y).data() == "yes"), xml `<local>yes</local>`);
+    assert(x1/**/<*>.elementChildren()[0], xml `<name>nike</name><name>adidas</name><name>samsung</name>`);
+    assert(x1/**/<name|price>.slice(0, 1).<price>, xml `<price>34.99</price>`);
+
+    xml:Element x2 = xml `<items>
+                            xml text
+                            <pen><price>10</price></pen>
+                            <pen><price>15</price></pen>
+                            <book><price>30</price></book>
+                            <paper><price>4</price></paper>
+                            <price>40</price>
+                            <!--comment-->
+                          </items>`;
+
+    assert(x2/*.filter(y => y is xml:Element).<pen>, xml `<pen><price>10</price></pen><pen><price>15</price></pen>`);
+    assert(x2/*[1].clone().<pen>, xml `<pen><price>10</price></pen>`);
+    assert(x2/*.<pen>[1].clone(), xml `<pen><price>15</price></pen>`);
+
+    assert(x2/<pen>[0].children().<price>, xml `<price>10</price>`);
+    assert(x2/<paper>.map(y => y).children().<price>, xml `<price>4</price>`);
+    assert(x2/<price>.filter(function(xml y) returns boolean {
+                        int|error val = int:fromString((<xml:Element>y).data());
+                        if val is int {
+                            return val > 5;
+                        }
+                        return false;
+                    })[0],
+            xml `<price>40</price>`);
+
+    assert(x2/**/<pen>.get(1).children()[0], xml `<price>15</price>`);
+    assert(x2/**/<price>.map(y => y)[0], xml `<price>10</price>`);
+    assert(x2/**/<book>.children().<price>.filter(function(xml y) returns boolean {
+                        int|error val = int:fromString((<xml:Element>y).data());
+                        if val is int {
+                            return val > 5;
+                        }
+                        return false;
+                    }), xml `<price>30</price>`);
+
+    xml:Comment x3 = xml `<!--comment-->`;
+    assert(x3/*.map(y => y)[0].<name>, xml ``);
+    assert(x3/*.strip().<name>[1], xml ``);
+    assert(x3/<a>.children().clone(), xml ``);
+    assert(x3/**/<c>.get(k).<b>, xml ``);
+
+    xml:ProcessingInstruction x4 = xml `<?pi?>`;
+    assert(x4/*[0].map(y => y), xml ``);
+    assert(x4/*.strip()[1].<c>, xml ``);
+    assert(x4/<d>.children().clone()[1], xml ``);
+    assert(x4/**/<e>[2].get(k).<name>, xml ``);
+
+    xml:Text x5 = xml `xml text`;
+    assert(x5/*[k].first().<c>, xml ``);
+    assert(x5/<d>.last().clone()[1], xml ``);
+    assert(x5/**/<e>.get(k)[0].clone(), xml ``);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
