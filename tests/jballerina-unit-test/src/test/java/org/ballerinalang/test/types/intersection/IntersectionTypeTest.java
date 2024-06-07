@@ -267,7 +267,7 @@ public class IntersectionTypeTest {
     @Test
     public void testErrorIntersectionAccessTest() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error-intersection-access");
-        assertEquals(result.getDiagnostics().length, 0);
+        assertEquals(result.getErrorCount(), 0);
     }
 
     @AfterClass
