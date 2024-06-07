@@ -260,6 +260,11 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public PackageID getPackageID() {
+            return this.pkgId;
+        }
     }
 
     /**
