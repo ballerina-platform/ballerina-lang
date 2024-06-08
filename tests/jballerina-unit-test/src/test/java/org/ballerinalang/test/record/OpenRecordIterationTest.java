@@ -118,7 +118,7 @@ public class OpenRecordIterationTest {
         Assert.assertEquals((values.getRefValue(1)), 25L);
         Assert.assertTrue(values.getRefValue(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) values.getRefValue(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -139,7 +139,7 @@ public class OpenRecordIterationTest {
         Assert.assertTrue(values.getRefValue(2) instanceof BMap);
         Assert.assertEquals((values.getRefValue(3)), 5.9);
 
-        BMap addressRecord = (BMap) values.getRefValue(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -152,7 +152,7 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(returns.get(1), 25L);
         Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns.get(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) returns.get(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -165,7 +165,7 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(returns.get(1), 25L);
         Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns.get(2);
+        BMap<?, ?> addressRecord = (BMap<?, ?>) returns.get(2);
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
 
@@ -177,13 +177,13 @@ public class OpenRecordIterationTest {
         String[] expectedFields = new String[]{"name", "age", "address", "profession"};
         Object returns = BRunUtil.invoke(result, "testMapOpWithOpenRecords");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[0])).toString(), "john doe");
         Assert.assertEquals((person.get(StringUtils.fromString(expectedFields[1]))), 25L);
         Assert.assertTrue(person.get(StringUtils.fromString(expectedFields[2])) instanceof BMap);
         Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[3])).toString(), "software engineer");
 
-        BMap addressRecord = (BMap) person.get(StringUtils.fromString(expectedFields[2]));
+        BMap<?, ?> addressRecord = (BMap<?, ?>) person.get(StringUtils.fromString(expectedFields[2]));
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
         Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
@@ -191,7 +191,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Tests filter iterable operation on open records")
     public void testFilterOpWithOpenRecords() {
         Object returns = BRunUtil.invoke(result, "testFilterOpWithOpenRecords");
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
 
         Assert.assertNull(foo.get(StringUtils.fromString("a")));
         Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "B");
@@ -210,7 +210,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords() {
         Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
 
         Assert.assertNull(foo.get(StringUtils.fromString("a")));
         Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
@@ -224,7 +224,7 @@ public class OpenRecordIterationTest {
     public void testMapWithAllStringOpenRecord() {
         Object returns = BRunUtil.invoke(result, "testMapWithAllStringOpenRecord");
 
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "aa");
         Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
         Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "cc");
@@ -237,7 +237,7 @@ public class OpenRecordIterationTest {
         Object[] args = new Object[]{(80), (75), (65), (78)};
         Object returns = BRunUtil.invoke(result, "testMapWithAllIntOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), 90L);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), 85L);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("chemistry"))), 75L);
@@ -250,7 +250,7 @@ public class OpenRecordIterationTest {
         Object[] args = new Object[]{(a), (b), (c)};
         Object returns = BRunUtil.invoke(result, "testMapWithAllFloatOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a + 10);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b + 10);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("z"))), c + 10);
@@ -262,7 +262,7 @@ public class OpenRecordIterationTest {
         final String a = "AA", e = "EE", f = "FF";
         Object returns = BRunUtil.invoke(result, "testFilterWithAllStringOpenRecord");
 
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), a);
         Assert.assertNull(foo.get(StringUtils.fromString("b")));
         Assert.assertNull(foo.get(StringUtils.fromString("c")));
@@ -276,7 +276,7 @@ public class OpenRecordIterationTest {
         final long m = 80, p = 75, e = 78;
         Object returns = BRunUtil.invoke(result, "testFilterWithAllIntOpenRecord");
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), m);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), p);
         Assert.assertNull(gradesMap.get(StringUtils.fromString("chemistry")));
@@ -289,7 +289,7 @@ public class OpenRecordIterationTest {
         Object[] args = new Object[]{(a), (b), (c)};
         Object returns = BRunUtil.invoke(result, "testFilterWithAllFloatOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns;
+        BMap<?, ?> gradesMap = (BMap<?, ?>) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a);
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b);
         Assert.assertNull(gradesMap.get(StringUtils.fromString("z")));
@@ -313,7 +313,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords2() {
         Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords2");
-        BMap grades = (BMap) returns;
+        BMap<?, ?> grades = (BMap<?, ?>) returns;
 
         Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
         Assert.assertEquals((grades.get(StringUtils.fromString("physics"))), 4.2);
@@ -324,7 +324,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords3() {
         Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords3");
-        BMap grades = (BMap) returns;
+        BMap<?, ?> grades = (BMap<?, ?>) returns;
 
         Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
         Assert.assertEquals((grades.get(StringUtils.fromString("physics"))), 4.2);
@@ -363,7 +363,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for checking whether iterable ops mutate the original record")
     public void testMutability() {
         Object returns = BRunUtil.invoke(result, "testMutability");
-        BMap grades = (BMap) returns;
+        BMap<?, ?> grades = (BMap<?, ?>) returns;
         Assert.assertEquals(grades.size(), 4);
         Assert.assertEquals(grades.get(StringUtils.fromString("maths")), 80L);
         Assert.assertEquals(grades.get(StringUtils.fromString("physics")), 75L);

@@ -103,21 +103,21 @@ public class MapInitializerExprTest {
 
         Object adrs1 = addressArray.getRefValue(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
-        Object address = ((BMap) adrs1).get(StringUtils.fromString("address"));
+        Object address = ((BMap<?, ?>) adrs1).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Colombo");
 
         Object adrs2 = addressArray.getRefValue(1);
         Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
-        address = ((BMap) adrs2).get(StringUtils.fromString("address"));
+        address = ((BMap<?, ?>) adrs2).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Kandy");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Kandy");
 
         Object adrs3 = addressArray.getRefValue(2);
         Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
-        address = ((BMap) adrs3).get(StringUtils.fromString("address"));
+        address = ((BMap<?, ?>) adrs3).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Galle");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Galle");
     }
 
     @Test()
@@ -162,7 +162,7 @@ public class MapInitializerExprTest {
         Object returns = BRunUtil.invoke(compileResult, "testEmptyMap", new Object[]{});
 
         Assert.assertTrue(returns instanceof BMap<?, ?>, "empty map initialization with {}");
-        Assert.assertEquals(((BMap) returns).size(), 0, "incorrect empty map size");
+        Assert.assertEquals(((BMap<?, ?>) returns).size(), 0, "incorrect empty map size");
     }
 
     @Test

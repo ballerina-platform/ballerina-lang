@@ -152,7 +152,7 @@ public class JsonUtils {
      * @param bTable {@link BTable} to be converted to JSON
      * @return JSON representation of the provided bTable
      */
-    public static Object parse(BTable bTable) {
+    public static Object parse(BTable<?, ?> bTable) {
         return JsonInternalUtils.toJSON(bTable);
     }
 
@@ -338,10 +338,10 @@ public class JsonUtils {
                 newValue = convertArrayToJson((BArray) value, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
-                BTable bTable = (BTable) value;
+                BTable<?, ?> bTable = (BTable<?, ?>) value;
                 Type constrainedType = TypeUtils.getImpliedType(((TableType) sourceType).getConstrainedType());
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
-                    newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
+                    newValue = convertMapConstrainedTableToJson((BTable<?, ?>) value, unresolvedValues);
                 } else {
                     try {
                         newValue = JsonInternalUtils.toJSON(bTable);
@@ -361,12 +361,12 @@ public class JsonUtils {
         return newValue;
     }
 
-    private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
+    private static Object convertMapConstrainedTableToJson(BTable<?, ?> value, List<TypeValuePair> unresolvedValues) {
         BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
-        BIterator itr = value.getIterator();
+        BIterator<?> itr = value.getIterator();
         while (itr.hasNext()) {
             BArray tupleValue = (BArray) itr.next();
-            BMap mapValue = ((BMap) tupleValue.get(0));
+            BMap<?, ?> mapValue = ((BMap<?, ?>) tupleValue.get(0));
             Object member = convertMapToJson(mapValue, unresolvedValues);
             membersArray.append(member);
         }
@@ -376,7 +376,7 @@ public class JsonUtils {
     private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
         BMap<BString, Object> newMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
-        for (Map.Entry entry : map.entrySet()) {
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertToJsonType(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }

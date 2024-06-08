@@ -32,7 +32,7 @@ import java.util.HashMap;
  * @since 2.0.0
  */
 public class ServiceAnnotValue {
-    static HashMap<Integer, MapValue> serviceAnnotMap = new HashMap();
+    static HashMap<Integer, MapValue<?, ?>> serviceAnnotMap = new HashMap<>();
     private static BObject listener;
     private static boolean started;
     private static int serviceCount = 0;
@@ -43,7 +43,7 @@ public class ServiceAnnotValue {
         try {
             Field annotations = BAnnotatableType.class.getDeclaredField("annotations");
             annotations.setAccessible(true);
-            MapValue annotationMap = (MapValue) annotations.get(serviceType);
+            MapValue<?, ?> annotationMap = (MapValue<?, ?>) annotations.get(serviceType);
             serviceCount++;
             serviceAnnotMap.put(serviceCount, annotationMap);
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -78,7 +78,7 @@ public class ServiceAnnotValue {
         return serviceCount;
     }
 
-    public static BMap getAnnotationsAtServiceAttach(int serviceNum) {
+    public static BMap<?, ?> getAnnotationsAtServiceAttach(int serviceNum) {
         return serviceAnnotMap.get(serviceNum);
     }
 }

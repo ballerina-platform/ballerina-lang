@@ -171,7 +171,7 @@ public class WorkerSyncSendTest {
     public void testComplexTypeSend() {
         Object returns = BRunUtil.invoke(result, "testComplexType");
         Assert.assertEquals(getType(returns).getName(), "Rec");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test

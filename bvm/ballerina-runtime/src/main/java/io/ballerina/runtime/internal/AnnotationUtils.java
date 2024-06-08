@@ -47,7 +47,7 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
-    public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
+    public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
         if (!(bType instanceof BAnnotatableType)) {
             return;
         }
@@ -93,7 +93,8 @@ public class AnnotationUtils {
         }
     }
 
-    public static void processObjectCtorAnnotations(BObjectType bType, MapValue globalAnnotMap, Strand strand) {
+    public static void processObjectCtorAnnotations(BObjectType bType,
+                                                    MapValue<BString, Object> globalAnnotMap, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
@@ -113,7 +114,7 @@ public class AnnotationUtils {
         }
     }
 
-    private static void processObjectMethodLambdaAnnotation(MapValue globalAnnotMap, Strand strand,
+    private static void processObjectMethodLambdaAnnotation(MapValue<BString, Object> globalAnnotMap, Strand strand,
                                                             MethodType attachedFunction) {
         BString annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
@@ -131,7 +132,8 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param name           The function name that acts as the annotation key
      */
-    public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
+    public static void processFPValueAnnotations(FPValue<?, ?> fpValue,
+                                                 MapValue<BString, Object> globalAnnotMap, String name) {
         BAnnotatableType type = (BAnnotatableType) fpValue.getType();
         BString nameKey = StringUtils.fromString(name);
         if (globalAnnotMap.containsKey(nameKey)) {
@@ -145,7 +147,7 @@ public class AnnotationUtils {
      * @param fpValue function pointer to be invoked
      * @return true if should run concurrently
      */
-    public static boolean isConcurrent(FPValue fpValue) {
+    public static boolean isConcurrent(FPValue<?, ?> fpValue) {
         return fpValue.isConcurrent;
     }
 
@@ -156,7 +158,7 @@ public class AnnotationUtils {
      * @param defaultName default strand name
      * @return annotated strand name
      */
-    public static String getStrandName(FPValue fpValue, String defaultName) {
+    public static String getStrandName(FPValue<?, ?> fpValue, String defaultName) {
         if (fpValue.strandName != null) {
             return fpValue.strandName;
         }

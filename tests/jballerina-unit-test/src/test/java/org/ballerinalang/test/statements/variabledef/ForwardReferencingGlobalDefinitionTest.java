@@ -54,7 +54,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertEquals(diagnostics.length, 0);
 
         Object employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
-        String employeeName = ((BMap) employee).get(StringUtils.fromString("name")).toString();
+        String employeeName = ((BMap<?, ?>) employee).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employeeName, "Sumedha");
     }
 
@@ -75,11 +75,11 @@ public class ForwardReferencingGlobalDefinitionTest {
                 compile("test-src/statements/variabledef/inFunctionGlobalRefProject");
 
         Object employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
-        String employeeName = ((BMap) employee).get(StringUtils.fromString("name")).toString();
+        String employeeName = ((BMap<?, ?>) employee).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employeeName, "Sumedha");
 
         Object employee2 = BRunUtil.invoke(resultReOrdered, "getfromFuncA");
-        String employee2Name = ((BMap) employee2).get(StringUtils.fromString("name")).toString();
+        String employee2Name = ((BMap<?, ?>) employee2).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employee2Name, "Sumedha");
     }
 

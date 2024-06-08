@@ -22,6 +22,8 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
+import java.nio.file.Path;
+
 /**
  * This represents the standard Ballerina built-in system package repository provider.
  *
@@ -31,7 +33,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 public class TesterinaSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
     @Override
-    public Repo loadRepository() {
+    public Repo<Path> loadRepository() {
         return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
 

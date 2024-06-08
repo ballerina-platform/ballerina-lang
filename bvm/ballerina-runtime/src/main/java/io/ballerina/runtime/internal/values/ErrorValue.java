@@ -143,8 +143,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             if (value == null) {
                 sj.add(key + "=null");
             } else {
@@ -175,8 +175,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;

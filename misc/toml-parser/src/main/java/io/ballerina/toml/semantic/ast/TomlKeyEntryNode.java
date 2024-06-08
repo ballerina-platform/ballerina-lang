@@ -27,14 +27,14 @@ import io.ballerina.toml.syntax.tree.ValueNode;
  */
 public class TomlKeyEntryNode extends TomlNode {
 
-    private final TomlBasicValueNode name;
+    private final TomlBasicValueNode<?> name;
 
-    public TomlKeyEntryNode(ValueNode valueNode, TomlBasicValueNode name) {
+    public TomlKeyEntryNode(ValueNode valueNode, TomlBasicValueNode<?> name) {
         super(valueNode, name.kind(), name.location());
         this.name = name;
     }
 
-    public TomlBasicValueNode name() {
+    public TomlBasicValueNode<?> name() {
         return name;
     }
 
