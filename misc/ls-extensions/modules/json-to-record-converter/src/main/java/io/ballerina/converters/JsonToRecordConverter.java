@@ -173,6 +173,7 @@ public class JsonToRecordConverter {
      * @return {@link Map}  Map of Record Nodes
      * @throws JsonToRecordConverterException In case of bad record fields
      */
+    @SuppressWarnings("rawtypes")
     private static Map<String, NonTerminalNode> generateRecords(OpenAPI openApi, boolean isRecordTypeDescriptor,
                                                               boolean isClosedRecord)
             throws JsonToRecordConverterException {
@@ -282,6 +283,7 @@ public class JsonToRecordConverter {
      * @param typeDefinitionNodes Map of type definition nodes to be updated in case of object type fields
      * @throws JsonToRecordConverterException In case of bad schema entries
      */
+    @SuppressWarnings("rawtypes")
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
                                         Map.Entry<String, Schema> field,
                                         Map<String, NonTerminalNode> typeDefinitionNodes,
@@ -313,6 +315,7 @@ public class JsonToRecordConverter {
      * @return {@link TypeDescriptorNode} Type descriptor for record field
      * @throws JsonToRecordConverterException In case of invalid schema
      */
+    @SuppressWarnings("rawtypes")
     private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
                                                            Map<String, NonTerminalNode> typeDefinitionNodes,
                                                            boolean isRecordTypeDescriptor)
