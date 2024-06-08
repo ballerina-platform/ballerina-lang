@@ -116,7 +116,7 @@ public class GenericMockObjectValue implements ObjectValue {
     }
 
     @Override
-    public BMap<BString, ? extends Object> getMapValue(BString fieldName) {
+    public BMap getMapValue(BString fieldName) {
         return null;
     }
 
