@@ -40,7 +40,7 @@ public class ForEach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "forEach");
 
-    public static void forEach(BXml x, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BXml x, BFunctionPointer<Object[], Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{x, true}, METADATA);
             return;

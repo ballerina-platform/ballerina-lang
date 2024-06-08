@@ -175,7 +175,7 @@ public class BalRuntime extends Runtime {
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    Function<?, ?> func = getFunction((Object[]) result, objectVal, methodName);
+                    Function<Object[], Object> func = getFunction((Object[]) result, objectVal, methodName);
                     scheduler.scheduleToObjectGroup(new Object[1], func, future);
                 }
 
@@ -224,7 +224,7 @@ public class BalRuntime extends Runtime {
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    Function<?, ?> func = getFunction((Object[]) result, objectVal, methodName);
+                    var func = getFunction((Object[]) result, objectVal, methodName);
                     scheduler.schedule(new Object[1], func, future);
                 }
 
@@ -281,7 +281,7 @@ public class BalRuntime extends Runtime {
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    Function<?, ?> func = getFunction((Object[]) result, objectVal, methodName);
+                    var func = getFunction((Object[]) result, objectVal, methodName);
                     if (isIsolated) {
                         scheduler.schedule(new Object[1], func, future);
                     } else {
@@ -349,16 +349,17 @@ public class BalRuntime extends Runtime {
     }
 
     @Override
-    public void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
+    public void registerStopHandler(BFunctionPointer<Object[], Object> stopHandler) {
         scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
     }
 
-    private Function<?, ?> getFunction(Object[] argsWithDefaultValues, ObjectValue objectVal, String methodName) {
-        Function<?, ?> func;
+    private Function<Object[], Object> getFunction(Object[] argsWithDefaultValues,
+                                                   ObjectValue objectVal, String methodName) {
+        Function<Object[], Object> func;
         if (argsWithDefaultValues.length == 1) {
-            func = o -> objectVal.call((Strand) (((Object[]) o)[0]), methodName, argsWithDefaultValues[0]);
+            func = o -> objectVal.call((Strand) ((o)[0]), methodName, argsWithDefaultValues[0]);
         } else {
-            func = o -> objectVal.call((Strand) (((Object[]) o)[0]), methodName, argsWithDefaultValues);
+            func = o -> objectVal.call((Strand) ((o)[0]), methodName, argsWithDefaultValues);
         }
         return func;
     }
