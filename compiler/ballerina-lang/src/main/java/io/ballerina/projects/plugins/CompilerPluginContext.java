@@ -70,7 +70,7 @@ public interface CompilerPluginContext {
      *
      * @param completionProvider the {@link CompletionProvider} instance
      */
-    void addCompletionProvider(CompletionProvider<Node> completionProvider);
+    void addCompletionProvider(CompletionProvider<? extends Node> completionProvider);
 
     /**
      * Returns user data for the compiler plugin.

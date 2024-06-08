@@ -45,7 +45,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
     private Map<String, Object> compilerPluginUserData = new HashMap<>();
-    private final List<CompletionProvider<Node>> completionProviders = new ArrayList<>();
+    private final List<CompletionProvider<? extends Node>> completionProviders = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
@@ -83,7 +83,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     }
 
     @Override
-    public void addCompletionProvider(CompletionProvider<Node> completionProvider) {
+    public void addCompletionProvider(CompletionProvider<? extends Node> completionProvider) {
         completionProviders.add(completionProvider);
     }
 
@@ -107,7 +107,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return codeActions;
     }
 
-    public List<CompletionProvider<Node>> completionProviders() {
+    public List<CompletionProvider<? extends Node>> completionProviders() {
         return completionProviders;
     }
 
