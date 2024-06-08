@@ -65,7 +65,7 @@ public interface BObject extends BRefValue {
 
     boolean getBooleanValue(BString fieldName);
 
-    BMap<BString, ? extends Object> getMapValue(BString fieldName);
+    BMap getMapValue(BString fieldName);
 
     BObject getObjectValue(BString fieldName);
 
