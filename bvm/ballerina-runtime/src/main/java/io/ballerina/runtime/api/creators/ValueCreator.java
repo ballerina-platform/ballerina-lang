@@ -332,7 +332,8 @@ public class ValueCreator {
      * @param strandName name for newly creating strand which is used to run the function pointer
      * @return           function pointer
      */
-    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function, FunctionType type, String strandName) {
+    public static BFunctionPointer<?, ?> createFPValue(Function<Object[], ?> function,
+                                                       FunctionType type, String strandName) {
         return new FPValue<>(function, type, strandName, false);
     }
 
