@@ -120,7 +120,8 @@ public class AnnotationUtils {
 
         if (globalAnnotMap.containsKey(annotationKey)) {
             ((BMethodType) attachedFunction)
-                    .setAnnotations((MapValue<BString, Object>) ((FPValue<Object[], ?>) globalAnnotMap.get(annotationKey))
+                    .setAnnotations(
+                            (MapValue<BString, Object>) ((FPValue<Object[], ?>) globalAnnotMap.get(annotationKey))
                             .call(new Object[]{strand}));
         }
     }

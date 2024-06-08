@@ -119,13 +119,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         Map<String, Object> experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    new TypeToken<>() {});
+                    new TypeToken<>() {
+            });
         }
 
         Map<String, Object> initializationOptions = null;
         if (params.getInitializationOptions() != null) {
             initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(),
-                    new TypeToken<>() {});
+                    new TypeToken<>() {
+            });
         }
 
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();

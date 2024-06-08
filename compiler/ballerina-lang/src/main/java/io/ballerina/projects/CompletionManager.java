@@ -54,7 +54,7 @@ public class CompletionManager {
     private CompletionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
         completionProviders = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContextIml -> {
-            for (CompletionProvider<? extends Node> completionProvider : compilerPluginContextIml.completionProviders()) {
+            for (var completionProvider : compilerPluginContextIml.completionProviders()) {
                 for (Class<?> attachmentPoint : completionProvider.getSupportedNodes()) {
                     List<CompletionProviderDescriptor> completionProviderList =
                             completionProviders.computeIfAbsent(attachmentPoint, k -> new ArrayList<>());
@@ -199,6 +199,8 @@ public class CompletionManager {
 
     /**
      * Descriptor for a completion provider.
+     *
+     * @param <T> generic syntax tree node.
      */
     static class CompletionProviderDescriptor<T extends Node> {
 
