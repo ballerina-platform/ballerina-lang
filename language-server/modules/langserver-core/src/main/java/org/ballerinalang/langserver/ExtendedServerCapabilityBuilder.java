@@ -44,6 +44,7 @@ public final class ExtendedServerCapabilityBuilder {
         if (capabilitySetters == null) {
             capabilitySetters = new ArrayList<>();
 
+            @SuppressWarnings("rawtypes")
             ServiceLoader<BallerinaServerCapabilitySetter> loader
                     = ServiceLoader.load(BallerinaServerCapabilitySetter.class);
             for (BallerinaServerCapabilitySetter<?> capabilitySetter : loader) {

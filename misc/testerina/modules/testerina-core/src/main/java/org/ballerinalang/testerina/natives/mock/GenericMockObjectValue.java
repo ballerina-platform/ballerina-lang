@@ -115,6 +115,7 @@ public class GenericMockObjectValue implements ObjectValue {
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public BMap getMapValue(BString fieldName) {
         return null;
