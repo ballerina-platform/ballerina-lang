@@ -53,9 +53,9 @@ public final class Filter {
     private Filter() {
     }
 
-    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
+    public static BTable<Object, Object> filter(BTable<?, ?> tbl, BFunctionPointer<Object[], Boolean> func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        BTable newTable =
+        BTable<Object, Object> newTable = (BTable<Object, Object>)
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));
         int size = tbl.size();

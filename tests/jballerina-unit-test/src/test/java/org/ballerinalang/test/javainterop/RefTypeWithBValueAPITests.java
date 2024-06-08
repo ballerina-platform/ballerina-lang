@@ -90,7 +90,7 @@ public class RefTypeWithBValueAPITests {
         Object returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
 
         Assert.assertTrue(returns instanceof BMap);
-        BMap bMap = (BMap) returns;
+        BMap<?, ?> bMap = (BMap<?, ?>) returns;
         Assert.assertEquals(bMap.toString(), "{\"a\":object Person,\"b\":[5,\"hello\",object Person]," +
                 "\"c\":{\"name\":\"sameera\"},\"e\":object Person,\"f\":83,\"g\":{\"name\":\"sample\"}}");
     }
@@ -285,7 +285,7 @@ public class RefTypeWithBValueAPITests {
     // static methods
 
     // This scenario is for map value to be passed to interop and return array value.
-    public static BArray getArrayValueFromMap(BString key, BMap mapValue) {
+    public static BArray getArrayValueFromMap(BString key, BMap<?, ?> mapValue) {
         BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
@@ -293,8 +293,9 @@ public class RefTypeWithBValueAPITests {
         return arrayValue;
     }
 
-    public static BMap acceptRefTypesAndReturnMap(BObject a, BArray b, Object c, BError d, Object e, Object f, BMap g) {
-        BMap<String, Object> mapValue = new MapValueImpl();
+    public static BMap<?, ?> acceptRefTypesAndReturnMap(BObject a, BArray b, Object c, BError d, Object e, Object f,
+                                                        BMap<?, ?> g) {
+        BMap<String, Object> mapValue = new MapValueImpl<>();
         mapValue.put("a", a);
         mapValue.put("b", b);
         mapValue.put("c", c);
@@ -318,7 +319,7 @@ public class RefTypeWithBValueAPITests {
         return p;
     }
 
-    public static BMap acceptRecordAndRecordReturn(BMap e, BString newVal) {
+    public static BMap<?, ?> acceptRecordAndRecordReturn(BMap<BString, Object> e, BString newVal) {
         e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
@@ -327,8 +328,8 @@ public class RefTypeWithBValueAPITests {
         return (int) (a + 5);
     }
 
-    public static BMap acceptRecordAndRecordReturnWhichThrowsCheckedException(BMap e, BString newVal)
-            throws JavaInteropTestCheckedException {
+    public static BMap<?, ?> acceptRecordAndRecordReturnWhichThrowsCheckedException(
+            BMap<String, Object> e, BString newVal) throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
     }
@@ -343,8 +344,8 @@ public class RefTypeWithBValueAPITests {
         };
     }
 
-    public static BMap acceptRefTypesAndReturnMapWhichThrowsCheckedException(BObject a, BArray b, Object c, BError d,
-                                                                             Object e, Object f, BMap g)
+    public static BMap<?, ?> acceptRefTypesAndReturnMapWhichThrowsCheckedException(
+            BObject a, BArray b, Object c, BError d, Object e, Object f, BMap<?, ?> g)
             throws JavaInteropTestCheckedException {
         BMap<String, Object> mapValue = new MapValueImpl<>();
         mapValue.put("a", a);
@@ -361,7 +362,7 @@ public class RefTypeWithBValueAPITests {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static BArray getArrayValueFromMapWhichThrowsCheckedException(BString key, BMap mapValue)
+    public static BArray getArrayValueFromMapWhichThrowsCheckedException(BString key, BMap<?, ?> mapValue)
             throws JavaInteropTestCheckedException {
         BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
@@ -448,12 +449,12 @@ public class RefTypeWithBValueAPITests {
         return x;
     }
 
-    public static int useFunctionPointer(BFunctionPointer fp) {
+    public static int useFunctionPointer(BFunctionPointer<Object, Long> fp) {
         return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
     }
 
-    public static BFunctionPointer getFunctionPointer(Object fp) {
-        return (FPValue) fp;
+    public static BFunctionPointer<?, ?> getFunctionPointer(Object fp) {
+        return (FPValue<?, ?>) fp;
     }
 
     public static BString useTypeDesc(BTypedesc type) {

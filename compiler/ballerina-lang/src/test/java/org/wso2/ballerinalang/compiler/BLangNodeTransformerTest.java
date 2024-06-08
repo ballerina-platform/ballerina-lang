@@ -171,10 +171,10 @@ public class BLangNodeTransformerTest {
                                       int[] level) throws IllegalAccessException {
         if (objVal instanceof Map) {
             builder.append("{");
-            Iterator<Map.Entry> entries = ((Map) objVal).entrySet().iterator();
+            Iterator<? extends Map.Entry<?, ?>> entries = ((Map<?, ?>) objVal).entrySet().iterator();
             StringJoiner joiner = new StringJoiner(",");
             while (entries.hasNext()) {
-                Map.Entry entry = entries.next();
+                Map.Entry<?, ?> entry = entries.next();
                 StringBuilder sBuilder = new StringBuilder("\"" + entry.getKey() + "\": ");
                 joiner.add(generateFieldValueJson(entry.getValue().getClass(), entry.getValue(), skipList, visitedList,
                                                   sBuilder, referenceNode, level));
@@ -186,7 +186,7 @@ public class BLangNodeTransformerTest {
             // Lists, Sets
             builder.append("[");
             StringJoiner joiner = new StringJoiner(",");
-            for (Object item : (Collection) objVal) {
+            for (Object item : (Collection<?>) objVal) {
                 joiner.add(generateFieldValueJson(item.getClass(), item, skipList, visitedList, new StringBuilder(""),
                                                   referenceNode, level));
             }

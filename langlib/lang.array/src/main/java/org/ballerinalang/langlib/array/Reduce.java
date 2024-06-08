@@ -47,7 +47,7 @@ public final class Reduce {
     private Reduce() {
     }
 
-    public static Object reduce(BArray arr, BFunctionPointer<Object, Boolean> func, Object initial) {
+    public static Object reduce(BArray arr, BFunctionPointer<Object[], Boolean> func, Object initial) {
         Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");

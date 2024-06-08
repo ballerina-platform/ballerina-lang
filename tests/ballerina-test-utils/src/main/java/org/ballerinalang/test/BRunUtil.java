@@ -385,7 +385,7 @@ public final class BRunUtil {
 //        }
     }
 
-    private static void directRun(Class<?> initClazz, String functionName, Class[] paramTypes, Object[] args) {
+    private static void directRun(Class<?> initClazz, String functionName, Class<?>[] paramTypes, Object[] args) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(functionName);
         String errorMsg = "Failed to invoke the function '%s' due to %s";
         Object response;

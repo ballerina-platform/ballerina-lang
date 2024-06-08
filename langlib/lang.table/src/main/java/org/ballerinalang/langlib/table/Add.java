@@ -37,11 +37,11 @@ public final class Add {
     private Add() {
     }
 
-    public static void add(BTable tbl, BMap val) {
+    public static void add(BTable<?, Object> tbl, BMap<?, ?> val) {
         tbl.add(val);
     }
 
-    public static void add_bstring(Strand strand, BTable tbl, BMap val) {
+    public static void add_bstring(Strand strand, BTable<?, Object> tbl, BMap<?, ?> val) {
         add(tbl, val);
     }
 }

@@ -60,10 +60,10 @@ public final class Cast {
                     + jObjField + "` field in `" + valueObjName + "`"));
         }
         try {
-            BMap objAnnotation;
+            BMap<?, ?> objAnnotation;
             BString objClass;
             try {
-                objAnnotation = (BMap) objType.getAnnotation(StringUtils.fromString(annotationType));
+                objAnnotation = (BMap<?, ?>) objType.getAnnotation(StringUtils.fromString(annotationType));
                 objClass = objAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
@@ -86,7 +86,7 @@ public final class Cast {
                         "parameter: " + e));
             }
             try {
-                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(StringUtils.fromString(annotationType));
+                var castObjAnnotation = (BMap<?, ?>) castObjType.getAnnotation(StringUtils.fromString(annotationType));
                 castObjClass = castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +

@@ -5702,7 +5702,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return silentTypeCheckExpr(numericLiteral, referredType, data);
     }
 
-    public LinkedHashSet getIntSubtypesInUnionType(BUnionType expectedType) {
+    public LinkedHashSet<BType> getIntSubtypesInUnionType(BUnionType expectedType) {
         LinkedHashSet<BType> intTypesInUnion = new LinkedHashSet<>(expectedType.getMemberTypes().size());
         for (BType type : expectedType.getMemberTypes()) {
             BType referredType = Types.getImpliedType(type);

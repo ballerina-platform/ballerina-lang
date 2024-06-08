@@ -93,7 +93,7 @@ public final class LSExtensionTestUtil {
                                                                               Endpoint serviceEndpoint) {
         BallerinaSyntaxTreeModifyRequest astModifyRequest = new BallerinaSyntaxTreeModifyRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), astModifications);
-        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_MODIFY, astModifyRequest);
+        CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_TREE_MODIFY, astModifyRequest);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
@@ -107,7 +107,7 @@ public final class LSExtensionTestUtil {
     public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTree(String filePath, Endpoint serviceEndpoint) {
         BallerinaSyntaxTreeRequest astRequest = new BallerinaSyntaxTreeRequest(
                 TestUtil.getTextDocumentIdentifier(filePath));
-        CompletableFuture result = serviceEndpoint.request(AST, astRequest);
+        CompletableFuture<?> result = serviceEndpoint.request(AST, astRequest);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
@@ -125,7 +125,7 @@ public final class LSExtensionTestUtil {
         BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest();
         request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
         request.setLineRange(range);
-        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_RANGE, request);
+        CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_TREE_BY_RANGE, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
@@ -142,7 +142,7 @@ public final class LSExtensionTestUtil {
                                                                            Endpoint serviceEndpoint) {
         BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), range);
-        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_LOCATE, request);
+        CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_TREE_LOCATE, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
@@ -176,23 +176,23 @@ public final class LSExtensionTestUtil {
         BallerinaSyntaxTreeByNameRequest request = new BallerinaSyntaxTreeByNameRequest();
         request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
         request.setLineRange(range);
-        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_NAME, request);
+        CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_TREE_BY_NAME, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
-    private static JsonObject getResult(CompletableFuture result) {
+    private static JsonObject getResult(CompletableFuture<?> result) {
         return JsonParser.parseString(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
 
     public static BallerinaConnectorListResponse getConnectors(BallerinaConnectorListRequest request,
                                                                Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTORS, request);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_CONNECTORS, request);
         return GSON.fromJson(getResult(result), BallerinaConnectorListResponse.class);
     }
 
     public static JsonObject getConnectorById(String id, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(id);
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
         return getResult(result);
     }
 
@@ -207,7 +207,7 @@ public final class LSExtensionTestUtil {
                                                String name, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
                 version, name);
-        CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
         return getResult(result);
     }
 
@@ -232,7 +232,7 @@ public final class LSExtensionTestUtil {
         SymbolInfoRequest symbolInfoRequest = new SymbolInfoRequest();
         symbolInfoRequest.setPosition(position);
         symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
-        CompletableFuture result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
         return GSON.fromJson(getResult(result), SymbolInfoResponse.class);
     }
 

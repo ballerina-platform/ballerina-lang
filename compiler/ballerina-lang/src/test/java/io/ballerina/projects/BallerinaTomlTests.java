@@ -546,7 +546,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(frequency.longValue(), 225);
 
         // other entry table array
-        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        var userContacts = (ArrayList<Map<String, Object>>) packageManifest.getValue("userContact");
         Assert.assertEquals(userContacts.size(), 2);
         Map<String, Object> firstContact = userContacts.get(0);
         Assert.assertEquals(firstContact.get("name"), "hevayo");

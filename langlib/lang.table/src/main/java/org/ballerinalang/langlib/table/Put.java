@@ -37,11 +37,11 @@ public final class Put {
     private Put() {
     }
 
-    public static void put(BTable tbl, BMap val) {
+    public static void put(BTable<Object, Object> tbl, BMap<?, ?> val) {
         tbl.put(val);
     }
 
-    public static void put_bstring(Strand strand, BTable tbl, BMap val) {
+    public static void put_bstring(Strand strand, BTable<Object, Object> tbl, BMap<?, ?> val) {
         put(tbl, val);
     }
 }

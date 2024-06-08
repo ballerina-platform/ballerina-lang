@@ -216,7 +216,7 @@ public final class XmlFactory {
      * @param table {@link io.ballerina.runtime.internal.values.TableValue} to convert
      * @return converted {@link XmlValue}
      */
-    public static BXml tableToXML(TableValueImpl table) {
+    public static BXml tableToXML(TableValueImpl<?, ?> table) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);

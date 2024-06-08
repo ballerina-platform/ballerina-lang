@@ -36,7 +36,7 @@ public final class RemoveIfHasKey {
     private RemoveIfHasKey() {
     }
 
-    public static Object removeIfHasKey(BTable tbl, Object key) {
+    public static Object removeIfHasKey(BTable<?, ?> tbl, Object key) {
         return tbl.remove(key);
     }
 }

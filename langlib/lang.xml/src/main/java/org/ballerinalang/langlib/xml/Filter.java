@@ -54,7 +54,7 @@ public final class Filter {
     private Filter() {
     }
 
-    public static BXml filter(BXml x, BFunctionPointer<Object, Boolean> func) {
+    public static BXml filter(BXml x, BFunctionPointer<Object[], Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{x, true};
             func.asyncCall(args,

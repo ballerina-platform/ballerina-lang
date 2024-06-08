@@ -62,8 +62,8 @@ public class AnonymousTupleAnnotationTest {
         };
     }
 
-    public static BMap getAnonymousTupleAnnotations(TypedescValue typedescValue, BString annotName) {
-        return (BMap) TypeChecker.getAnnotValue(typedescValue, annotName);
+    public static BMap<?, ?> getAnonymousTupleAnnotations(TypedescValue typedescValue, BString annotName) {
+        return (BMap<?, ?>) TypeChecker.getAnnotValue(typedescValue, annotName);
     }
 
     @AfterClass

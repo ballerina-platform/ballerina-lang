@@ -62,8 +62,8 @@ public class RecordVariableReferenceTest {
         Object arr = BRunUtil.invoke(result, "testRecVarRefInsideRecVarRefInsideRecVarRef");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
-        Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
-        Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey2")), 2L);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(0)).get(StringUtils.fromString("mKey2")), 2L);
         Assert.assertEquals(returns.get(1), 12L);
         Assert.assertEquals(returns.get(2).toString(), "SomeVar1");
         Assert.assertNull(returns.get(3));
@@ -72,8 +72,8 @@ public class RecordVariableReferenceTest {
     @Test(description = "Test simple record variable definition")
     public void testRestParam() {
         Object returns = BRunUtil.invoke(result, "testRestParam");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("var3")), 12L);
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("var4")).toString(), "text");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("var3")), 12L);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("var4")).toString(), "text");
     }
 
     @Test(description = "Test simple record variable definition")
@@ -81,11 +81,11 @@ public class RecordVariableReferenceTest {
         Object arr = BRunUtil.invoke(result, "testRecordTypeInRecordVarRef");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
-        Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
-        Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey2")), 2L);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(0)).get(StringUtils.fromString("mKey2")), 2L);
         Assert.assertEquals(returns.get(1), 12L);
-        Assert.assertEquals((((BMap) returns.get(2)).get(StringUtils.fromString("var1"))).toString(), "SomeVar1");
-        Assert.assertNull(((BMap) returns.get(2)).get(StringUtils.fromString("var2")));
+        Assert.assertEquals((((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("var1"))).toString(), "SomeVar1");
+        Assert.assertNull(((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("var2")));
     }
 
     @Test(description = "Test tuple var ref inside record var ref")
@@ -112,11 +112,11 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
         Assert.assertEquals(((BArray) returns.get(0)).getString(1), "B");
         Assert.assertEquals(returns.get(1).toString(), "A");
-        BMap child = (BMap) ((BMap) returns.get(2)).get(StringUtils.fromString("child"));
+        BMap<?, ?> child = (BMap<?, ?>) ((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("child"));
         Assert.assertEquals(child.get(StringUtils.fromString("name")).toString(), "C");
         Assert.assertEquals((((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(0)), 1996L);
-        Assert.assertEquals(((BMap) ((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(1)).get(
-                        StringUtils.fromString("format")).toString(),
+        Assert.assertEquals(((BMap<?, ?>) ((BArray) child.get(StringUtils.fromString("yearAndAge")))
+                        .getRefValue(1)).get(StringUtils.fromString("format")).toString(),
                 "Z");
     }
 

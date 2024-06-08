@@ -31,7 +31,7 @@ public final class NextKey {
     private NextKey() {
     }
 
-    public static long nextKey(BTable tbl) {
+    public static long nextKey(BTable<?, ?> tbl) {
         return tbl.getNextKey();
     }
 }

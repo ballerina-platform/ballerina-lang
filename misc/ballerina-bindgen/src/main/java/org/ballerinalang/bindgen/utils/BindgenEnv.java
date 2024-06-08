@@ -104,8 +104,8 @@ public class BindgenEnv {
         return projectRoot;
     }
 
-    public void setSuperClasses(Class superClass) {
-        Class parent = superClass;
+    public void setSuperClasses(Class<?> superClass) {
+        Class<?> parent = superClass;
         while (parent != null && isPublicClass(parent)) {
             this.superClasses.add(parent.getName());
             parent = parent.getSuperclass();

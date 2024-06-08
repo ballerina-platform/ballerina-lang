@@ -37,10 +37,10 @@ public final class Length {
     private Length() {
     }
 
-    public static long length(BTable tbl) {
+    public static long length(BTable<?, ?> tbl) {
         return tbl.size();
     }
-    public static long length_bstring(Strand strand, BTable tbl) {
+    public static long length_bstring(Strand strand, BTable<?, ?> tbl) {
         return length(tbl);
     }
 }

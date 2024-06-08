@@ -51,7 +51,7 @@ public final class Reduce {
     private Reduce() {
     }
 
-    public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
+    public static Object reduce(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);

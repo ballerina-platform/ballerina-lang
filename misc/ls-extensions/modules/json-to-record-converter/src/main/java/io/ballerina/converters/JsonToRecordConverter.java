@@ -56,6 +56,7 @@ import org.ballerinalang.formatter.core.options.FormattingOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -155,7 +156,8 @@ public final class JsonToRecordConverter {
         } else {
             // Sets generated type definition code block
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
-                    new ArrayList(typeDefinitionNodes.values()));
+                    new ArrayList<>(
+                            (Collection<ModuleMemberDeclarationNode>) (Collection<?>) typeDefinitionNodes.values()));
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());

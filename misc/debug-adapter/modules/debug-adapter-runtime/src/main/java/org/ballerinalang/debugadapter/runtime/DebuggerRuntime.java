@@ -113,7 +113,7 @@ public final class DebuggerRuntime {
             final Object[] finalResult = new Object[1];
             final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
 
-            Function<?, ?> func = o -> bObject.call((Strand) (((Object[]) o)[0]), methodName, paramValues);
+            Function<Object[], ?> func = o -> bObject.call((Strand) ((o)[0]), methodName, paramValues);
             Object resultFuture = scheduler.schedule(new Object[1], func, null, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {

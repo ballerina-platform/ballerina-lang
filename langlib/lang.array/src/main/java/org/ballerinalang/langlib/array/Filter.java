@@ -47,7 +47,7 @@ public final class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "filter");
 
-    public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
+    public static BArray filter(BArray arr, BFunctionPointer<Object[], Boolean> func) {
         BArray newArr;
         Type arrType = TypeUtils.getImpliedType(arr.getType());
         newArr = switch (arrType.getTag()) {

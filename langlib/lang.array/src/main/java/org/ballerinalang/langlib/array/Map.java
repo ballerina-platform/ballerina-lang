@@ -58,7 +58,7 @@ public final class Map {
     private Map() {
     }
 
-    public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
+    public static BArray map(BArray arr, BFunctionPointer<Object[], Object> func) {
         Type elemType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         Type retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);

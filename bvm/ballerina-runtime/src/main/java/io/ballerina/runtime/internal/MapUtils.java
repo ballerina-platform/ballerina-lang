@@ -69,8 +69,9 @@ public final class MapUtils {
                                                                                expType, valuesType));
     }
 
-    public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
-                                                                  BRecordType recType, boolean initialValue) {
+    public static boolean handleInherentTypeViolatingRecordUpdate(
+            MapValue<?, ?> mapValue, BString fieldName, Object value,
+            BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
         Type recFieldType;
 

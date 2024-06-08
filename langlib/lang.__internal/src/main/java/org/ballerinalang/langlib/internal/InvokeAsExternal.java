@@ -41,7 +41,7 @@ public final class InvokeAsExternal {
 
     public static Object invokeAsExternal(Object func, Object[] args) {
 
-        BFunctionPointer function = (BFunctionPointer) func;
+        BFunctionPointer<?, ?> function = (BFunctionPointer<?, ?>) func;
         List<Object> argList = new ArrayList<>();
         for (Object arg : args) {
             argList.add(arg);

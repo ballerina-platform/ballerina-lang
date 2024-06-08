@@ -76,7 +76,7 @@ public final class MapLibUtils {
         return typeSet.size() == 1 ? typeSet.iterator().next() : TypeCreator.createUnionType(new ArrayList<>(typeSet));
     }
 
-    public static void validateRecord(BMap m) {
+    public static void validateRecord(BMap<?, ?> m) {
         Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
@@ -102,7 +102,7 @@ public final class MapLibUtils {
                         ErrorCodes.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 
-    public static void validateRequiredFieldForRecord(BMap m, String k) {
+    public static void validateRequiredFieldForRecord(BMap<?, ?> m, String k) {
         Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);

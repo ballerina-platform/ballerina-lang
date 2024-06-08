@@ -232,7 +232,7 @@ public final class ObjectMock {
      * @param pathParams path parameters map provided by the user
      * @return an optional error if a validation fails
      */
-    public static BError validatePathParams(BObject caseObj, BMap pathParams) {
+    public static BError validatePathParams(BObject caseObj, BMap<?, ?> pathParams) {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
         for (int i = 0; i < pathSegments.length; i++) {
@@ -323,7 +323,7 @@ public final class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
-                for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
+                for (BIterator<?> it = argsList.getIterator(); it.hasNext(); i++) {
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[i].type);
                     if (paramType instanceof UnionType unionType) {
                         Object arg = it.next();
@@ -398,7 +398,7 @@ public final class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int counter = 0;
-                for (BIterator bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
+                for (BIterator<?> bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
                     String detail = "incorrect type of path provided for '" + pathParamPlaceHolder[counter] +
                                 "' to mock the function '" + functionName;
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[counter].type);
@@ -478,7 +478,7 @@ public final class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int counter = 0;
-                for (BIterator bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
+                for (BIterator<?> bIterator = argsList.getIterator(); bIterator.hasNext(); counter++) {
                     String detail = "incorrect type of argument provided at position '" + (counter + 1) + "' " +
                             "to mock the function '" + functionName;
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType()

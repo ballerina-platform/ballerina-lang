@@ -50,13 +50,13 @@ public final class Map {
     private Map() {
     }
 
-    public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
+    public static BTable<?, ?> map(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
         Type newConstraintType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         TableType tblType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         TableType newTableType =
                 TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        BTable newTable = ValueCreator.createTableValue(newTableType);
+        BTable<Object, Object> newTable = (BTable<Object, Object>) ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);

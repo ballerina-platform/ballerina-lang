@@ -81,7 +81,7 @@ public final class AsyncUtils {
      * @param scheduler            The scheduler for invoking functions
      * @return Future Value
      */
-    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<Object[], ?> func, String strandName,
                                                          StrandMetadata metadata, Object[] args,
                                                          Function<Object, Object> resultHandleFunction,
                                                          Scheduler scheduler) {
@@ -130,7 +130,7 @@ public final class AsyncUtils {
      * @param returnValueSupplier  Suppler used to set the final return value for the parent function invocation.
      * @param scheduler            The scheduler for invoking functions
      */
-    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<?, ?> func, String strandName,
+    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<Object[], ?> func, String strandName,
                                                              StrandMetadata metadata, int noOfIterations,
                                                              Supplier<Object[]> argsSupplier,
                                                              Consumer<Object> futureResultConsumer,
@@ -216,7 +216,7 @@ public final class AsyncUtils {
                                                  List<Object> argsWithDefaultValues,
                                                  Parameter parameter) {
         String funcName = parameter.defaultFunctionName;
-        Function<?, ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), funcName,
+        Function<Object[], ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), funcName,
                 argsWithDefaultValues.toArray());
         Callback defaultFunctionCallback = new Callback() {
             @Override
@@ -254,7 +254,7 @@ public final class AsyncUtils {
         return methodTypesMap.get(methodName);
     }
 
-    private static void scheduleNextFunction(BFunctionPointer<?, ?> func, BFunctionType funcType, Strand parent,
+    private static void scheduleNextFunction(BFunctionPointer<Object[], ?> func, BFunctionType funcType, Strand parent,
                                              String strandName, StrandMetadata metadata, int noOfIterations,
                                              AtomicInteger callCount, Supplier<Object[]> argsSupplier,
                                              Consumer<Object> futureResultConsumer,
@@ -289,7 +289,7 @@ public final class AsyncUtils {
         }, argsSupplier.get());
     }
 
-    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent,
+    private static void invokeFunctionPointerAsync(BFunctionPointer<Object[], ?> func, Strand parent,
                                                    FutureValue future, Object[] args,
                                                    AsyncFunctionCallback callback, Scheduler scheduler) {
         future.callback = callback;

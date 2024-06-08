@@ -37,7 +37,7 @@ public final class GetIterator {
     private GetIterator() {
     }
 
-    public static BIterator iterator(BMap<?, ?> map) {
+    public static BIterator<?> iterator(BMap<?, ?> map) {
         return map.getIterator();
     }
 }

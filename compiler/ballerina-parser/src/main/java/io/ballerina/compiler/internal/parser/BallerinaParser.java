@@ -8311,7 +8311,7 @@ public class BallerinaParser extends AbstractParser {
         }
         
         // If the member type desc is an array type desc flatten the dimensions
-        List<STNode> arrayDimensions = new ArrayList();
+        List<STNode> arrayDimensions = new ArrayList<>();
         if (memberTypeDesc.kind == SyntaxKind.ARRAY_TYPE_DESC) {
             STArrayTypeDescriptorNode innerArrayType = (STArrayTypeDescriptorNode) memberTypeDesc;
             STNode innerArrayDimensions = innerArrayType.dimensions;

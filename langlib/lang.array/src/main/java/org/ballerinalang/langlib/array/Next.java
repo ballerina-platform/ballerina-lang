@@ -37,7 +37,7 @@ public final class Next {
 
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        BIterator arrIterator = (BIterator) m.getNativeData("&iterator&");
+        BIterator<?> arrIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BArray arr = (BArray) m.get(StringUtils.fromString("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();

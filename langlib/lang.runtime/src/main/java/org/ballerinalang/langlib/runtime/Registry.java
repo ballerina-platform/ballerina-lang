@@ -38,7 +38,7 @@ public final class Registry {
         env.getRuntime().deregisterListener(listener);
     }
 
-    public static void onGracefulStop(Environment env, BFunctionPointer<?, ?> stopHandler) {
+    public static void onGracefulStop(Environment env, BFunctionPointer<Object[], Object> stopHandler) {
         env.getRuntime().registerStopHandler(stopHandler);
     }
 

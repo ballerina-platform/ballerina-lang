@@ -55,7 +55,7 @@ public final class Map {
     private Map() {
     }
 
-    public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    public static BMap<BString, Object> map(BMap<?, ?> m, BFunctionPointer<Object[], Object> func) {
         MapType newMapType = TypeCreator.createMapType(
                 ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);

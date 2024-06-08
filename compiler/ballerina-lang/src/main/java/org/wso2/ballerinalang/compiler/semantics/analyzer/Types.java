@@ -6171,12 +6171,12 @@ public class Types {
         if (type.getValueSpace().size() == 1) { // For singleton types, that value is the implicit initial value
             return true;
         }
-        Iterator iterator = type.getValueSpace().iterator();
-        BLangExpression firstElement = (BLangExpression) iterator.next();
+        Iterator<BLangExpression> iterator = type.getValueSpace().iterator();
+        BLangExpression firstElement = iterator.next();
         boolean defaultFillValuePresent = isImplicitDefaultValue(firstElement);
 
         while (iterator.hasNext()) {
-            BLangExpression value = (BLangExpression) iterator.next();
+            BLangExpression value = iterator.next();
             if (!isSameBasicType(value.getBType(), firstElement.getBType())) {
                 return false;
             }
@@ -7180,9 +7180,9 @@ public class Types {
 
     public boolean isCloneableType(BUnionType type) {
         LinkedHashSet<BType> cloneableMemberTypes = symTable.cloneableType.getMemberTypes();
-        Iterator memItr = type.getMemberTypes().iterator();
+        Iterator<BType> memItr = type.getMemberTypes().iterator();
         for (BType memberType : cloneableMemberTypes) {
-            if (!memItr.hasNext() || memberType.tag != ((BType) memItr.next()).tag) {
+            if (!memItr.hasNext() || memberType.tag != memItr.next().tag) {
                 return false;
             }
         }

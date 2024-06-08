@@ -157,7 +157,7 @@ public class ArrayTest {
     @Test
     public void testArrayFieldInRecord() {
         Object retVals = BRunUtil.invoke(compileResult, "testArrayFieldInRecord");
-        BMap barRec = (BMap) retVals;
+        BMap<?, ?> barRec = (BMap<?, ?>) retVals;
         BArray arr = (BArray) barRec.get(StringUtils.fromString("fArr"));
         Assert.assertEquals(((BArrayType) arr.getType()).getState().getValue(), BArrayState.CLOSED.getValue());
         Assert.assertEquals(arr.toString(), "[1,2]");

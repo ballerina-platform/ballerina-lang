@@ -223,7 +223,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
-        Function<NonTerminalNode, SeparatedNodeList> nodeListCreator = SeparatedNodeList::new;
+        Function<NonTerminalNode, SeparatedNodeList<T>> nodeListCreator = SeparatedNodeList::new;
         if (nodeList.isEmpty()) {
             return nodeList;
         }
