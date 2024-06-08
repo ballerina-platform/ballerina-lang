@@ -149,7 +149,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     private void addData(ArrayValue data) {
-        BIterator itr = data.getIterator();
+        BIterator<?> itr = data.getIterator();
         while (itr.hasNext()) {
             Object next = itr.next();
             valueHolder.addData((V) next);
@@ -157,7 +157,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<?> getIterator() {
         return new TableIterator();
     }
 
@@ -178,7 +178,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             clone.fieldNames = fieldNames;
         }
 
-        IteratorValue itr = getIterator();
+        IteratorValue<?> itr = getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             Object value = tupleValue.get(1);
@@ -504,7 +504,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return true;
     }
 
-    private class TableIterator implements IteratorValue {
+    private class TableIterator implements IteratorValue<Object> {
         private long cursor;
 
         TableIterator() {
@@ -556,12 +556,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            checkInherentTypeViolation((MapValue) data, tableType);
+            checkInherentTypeViolation((MapValue<?, ?>) data, tableType);
 
             ArrayList<V> newData = new ArrayList<>();
             newData.add(data);
 
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>((K) data, data);
             List<Map.Entry<K, V>> entryList = new ArrayList<>();
             entryList.add(entry);
             UUID uuid = UUID.randomUUID();
@@ -601,7 +601,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public void addData(V data) {
-            MapValue dataMap = (MapValue) data;
+            MapValue<?, ?> dataMap = (MapValue<?, ?>) data;
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
@@ -614,7 +614,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
 
             if (entries.containsKey(hash)) {
@@ -643,8 +643,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(K key, V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
+            Object actualKey = this.keyWrapper.wrapKey((MapValue<?, ?>) data);
             Long actualHash = TableUtils.hash(actualKey, null);
             Long hash = TableUtils.hash(key, null);
 
@@ -671,7 +671,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            MapValue dataMap = (MapValue) data;
+            MapValue<?, ?> dataMap = (MapValue<?, ?>) data;
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
@@ -761,7 +761,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 }
             }
 
-            public K wrapKey(MapValue data) {
+            public K wrapKey(MapValue<?, ?> data) {
                 return (K) data.get(StringUtils.fromString(fieldNames[0]));
             }
         }
@@ -783,7 +783,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 keyType = new BTupleType(keyTypes);
             }
 
-            public K wrapKey(MapValue data) {
+            public K wrapKey(MapValue<?, ?> data) {
                 TupleValueImpl arr = (TupleValueImpl) ValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
@@ -816,7 +816,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     // This method checks for inherent table type violation
-    private void checkInherentTypeViolation(MapValue dataMap, TableType type) {
+    private void checkInherentTypeViolation(MapValue<?, ?> dataMap, TableType type) {
         if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
             BString reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
             BString detail = StringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +

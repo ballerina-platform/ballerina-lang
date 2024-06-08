@@ -162,7 +162,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -276,7 +276,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
      *
      * @since 0.995.0
      */
-    static class ArrayIterator implements IteratorValue {
+    static class ArrayIterator implements IteratorValue<Object> {
         ArrayValue array;
         long cursor = 0;
         long length;

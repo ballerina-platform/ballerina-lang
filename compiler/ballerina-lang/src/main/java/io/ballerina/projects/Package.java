@@ -388,7 +388,7 @@ public class Package {
         return this.packageContext.getResolution(newCompOptions, true);
     }
 
-    private static class ModuleIterable implements Iterable {
+    private static class ModuleIterable implements Iterable<Module> {
 
         private final Collection<Module> moduleList;
 
@@ -402,7 +402,7 @@ public class Package {
         }
 
         @Override
-        public Spliterator spliterator() {
+        public Spliterator<Module> spliterator() {
             return this.moduleList.spliterator();
         }
     }

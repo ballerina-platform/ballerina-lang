@@ -66,7 +66,7 @@ public class DiagnosticCodeTest {
         }
     }
 
-    private String arrayToString(List listOfStrings) {
+    private String arrayToString(List<String> listOfStrings) {
         return String.join(", ", listOfStrings);
     }
 }

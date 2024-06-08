@@ -77,7 +77,7 @@ public class Patten {
     }
 
     @SuppressWarnings("unchecked")
-    public Stream<CompilerInput> convertToSources(Converter converter, PackageID id) {
+    public <T> Stream<CompilerInput> convertToSources(Converter<T> converter, PackageID id) {
         return convert(converter, id).flatMap(t -> converter.finalize(t, id));
     }
 

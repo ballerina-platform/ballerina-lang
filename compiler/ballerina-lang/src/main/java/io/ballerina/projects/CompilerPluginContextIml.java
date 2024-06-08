@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CodeGenerator;
 import io.ballerina.projects.plugins.CodeModifier;
@@ -43,8 +44,8 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final List<CodeModifierManager.CodeModifierInfo> codeModifiers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
-    private Map<String, Object> compilerPluginUserData = new HashMap();
-    private final List<CompletionProvider> completionProviders = new ArrayList<>();
+    private Map<String, Object> compilerPluginUserData = new HashMap<>();
+    private final List<CompletionProvider<Node>> completionProviders = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
@@ -79,7 +80,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     }
 
     @Override
-    public void addCompletionProvider(CompletionProvider completionProvider) {
+    public void addCompletionProvider(CompletionProvider<Node> completionProvider) {
         completionProviders.add(completionProvider);
     }
 
@@ -103,7 +104,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return codeActions;
     }
 
-    public List<CompletionProvider> completionProviders() {
+    public List<CompletionProvider<Node>> completionProviders() {
         return completionProviders;
     }
 

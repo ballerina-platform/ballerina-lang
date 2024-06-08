@@ -199,7 +199,7 @@ public class ErrorTest {
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(((BError) returns).getMessage(), CONST_ERROR_REASON);
         Assert.assertEquals(
-                ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+                ((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
                 "error detail message");
     }
 

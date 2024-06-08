@@ -87,7 +87,7 @@ public class LangLibRecordTest {
         Object returns = BRunUtil.invoke(compileResult, "testEntries");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")).toString(), "[\"name\",\"John Doe\"]");
@@ -142,7 +142,7 @@ public class LangLibRecordTest {
         Object returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")), 8L);
@@ -160,7 +160,7 @@ public class LangLibRecordTest {
         Object returns = BRunUtil.invoke(compileResult, "testFilter");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("physics")), 75L);

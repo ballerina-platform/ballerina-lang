@@ -62,8 +62,8 @@ public class FieldsTestResource implements InterfaceTestResource {
     public StringBuilder[] getInstanceObjectArray = new StringBuilder[2];
     public Integer[] getInstanceObjectMultiArray1 = new Integer[5];
     public Object[] getInstanceObjectMultiArray2 = new Object[2];
-    public List getInstanceInterface = new ArrayList<>();
-    public AbstractList getInstanceAbstractClass = new ArrayList<>();
+    public List<?> getInstanceInterface = new ArrayList<>();
+    public AbstractList<?> getInstanceAbstractClass = new ArrayList<>();
     public Path getInstanceObject = Paths.get("/test.txt");
     public Set<File> getInstanceGenericObject = new HashSet<>();
     public System.Logger.Level getInstanceEnumeration = System.Logger.Level.ALL;
@@ -111,8 +111,8 @@ public class FieldsTestResource implements InterfaceTestResource {
     public StringBuilder[] getStaticObjectArray = new StringBuilder[2];
     public Integer[] getStaticObjectMultiArray1 = new Integer[2];
     public Object[] getStaticObjectMultiArray2 = new Object[2];
-    public static List getStaticInterface = new ArrayList<>();
-    public static AbstractList getStaticAbstractClass = new ArrayList<>();
+    public static List<?> getStaticInterface = new ArrayList<>();
+    public static AbstractList<?> getStaticAbstractClass = new ArrayList<>();
     public static Path getStaticObject = Paths.get("/test.txt");
     public static Set<File> getStaticGenericObject = new HashSet<>();
     public static System.Logger.Level getStaticEnumeration = System.Logger.Level.ALL;

@@ -73,8 +73,8 @@ public class RecordVariableDefinitionTest {
         BArray returns = (BArray) BRunUtil.invoke(result, "recordVarInRecordVar2");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
-        Assert.assertEquals((((BMap) returns.get(1)).get(StringUtils.fromString("age"))), 29L);
-        Assert.assertEquals(((BMap) returns.get(1)).get(StringUtils.fromString("format")).toString(), "Y");
+        Assert.assertEquals((((BMap<?, ?>) returns.get(1)).get(StringUtils.fromString("age"))), 29L);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(1)).get(StringUtils.fromString("format")).toString(), "Y");
     }
 
     @Test(description = "Test record variable inside record variable inside record variable")
@@ -121,13 +121,15 @@ public class RecordVariableDefinitionTest {
     public void testRestParameter() {
         Object returns = BRunUtil.invoke(result, "testRestParameter");
         Assert.assertTrue(returns instanceof BMap);
-        BMap bMap = (BMap) returns;
+        BMap<?, ?> bMap = (BMap<?, ?>) returns;
         Assert.assertEquals(bMap.size(), 2);
         Assert.assertEquals(bMap.get(StringUtils.fromString("work")).toString(), "SE");
-        Assert.assertEquals((((BMap) bMap.get(StringUtils.fromString("other"))).get(StringUtils.fromString("age"))),
+        Assert.assertEquals((((BMap<?, ?>) bMap.get(StringUtils.fromString("other")))
+                        .get(StringUtils.fromString("age"))),
                 99L);
         Assert.assertEquals(
-                ((BMap) bMap.get(StringUtils.fromString("other"))).get(StringUtils.fromString("format")).toString(),
+                ((BMap<?, ?>) bMap.get(StringUtils.fromString("other")))
+                        .get(StringUtils.fromString("format")).toString(),
                 "MM");
     }
 
@@ -135,11 +137,11 @@ public class RecordVariableDefinitionTest {
     public void testNestedRestParameter() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testNestedRestParameter");
         Assert.assertTrue(returns.get(0) instanceof BMap);
-        BMap bMap = (BMap) returns.get(0);
+        BMap<?, ?> bMap = (BMap<?, ?>) returns.get(0);
         Assert.assertEquals(bMap.size(), 1);
         Assert.assertEquals((bMap.get(StringUtils.fromString("year"))), 1990L);
 
-        BMap bMap2 = (BMap) returns.get(1);
+        BMap<?, ?> bMap2 = (BMap<?, ?>) returns.get(1);
         Assert.assertEquals(bMap2.size(), 1);
         Assert.assertEquals(bMap2.get(StringUtils.fromString("work")).toString(), "SE");
     }
@@ -152,7 +154,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns.get(1), 29L);
         Assert.assertEquals(returns.get(2).toString(), "Y");
         Assert.assertTrue((Boolean) returns.get(3));
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("work")).toString(), "SE");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("work")).toString(), "SE");
     }
 
     @Test(description = "Test rest parameter in nested record variable")
@@ -163,7 +165,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns.get(1), 30L);
         Assert.assertEquals(returns.get(2).toString(), "N");
         Assert.assertFalse((Boolean) returns.get(3));
-        Assert.assertEquals(((BMap) returns.get(4)).get(StringUtils.fromString("added")).toString(), "later");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(4)).get(StringUtils.fromString("added")).toString(), "later");
     }
 
     @Test(description = "Test tuple var def inside record var def")
@@ -188,10 +190,11 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
         Assert.assertEquals(((BArray) returns.get(0)).getString(1), "B");
         Assert.assertEquals(returns.get(1).toString(), "A");
-        BMap child = (BMap) ((BMap) returns.get(2)).get(StringUtils.fromString("child"));
+        BMap<?, ?> child = (BMap<?, ?>) ((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("child"));
         Assert.assertEquals(child.get(StringUtils.fromString("name")).toString(), "C");
         Assert.assertEquals((((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(0)), 1996L);
-        Assert.assertEquals(((BMap) ((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(1)).get(
+        Assert.assertEquals(((BMap<?, ?>) ((BArray) child.get(StringUtils.fromString("yearAndAge")))
+                        .getRefValue(1)).get(
                         StringUtils.fromString("format")).toString(),
                 "Z");
     }
@@ -213,10 +216,11 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
         Assert.assertEquals(((BArray) returns.get(0)).getString(1), "B");
         Assert.assertEquals(returns.get(1).toString(), "A");
-        BMap child = (BMap) ((BMap) returns.get(2)).get(StringUtils.fromString("child"));
+        BMap<?, ?> child = (BMap<?, ?>) ((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("child"));
         Assert.assertEquals(child.get(StringUtils.fromString("name")).toString(), "C");
         Assert.assertEquals((((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(0)), 1996L);
-        Assert.assertEquals(((BMap) ((BArray) child.get(StringUtils.fromString("yearAndAge"))).getRefValue(1)).get(
+        Assert.assertEquals(((BMap<?, ?>) ((BArray) child.get(StringUtils.fromString("yearAndAge")))
+                        .getRefValue(1)).get(
                         StringUtils.fromString("format")).toString(),
                 "Z");
     }
@@ -238,7 +242,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns.get(0), 50L);
         Assert.assertEquals(returns.get(1), 51.1);
         Assert.assertEquals(getType(returns.get(2)).getName(), "UnionOne");
-        Assert.assertEquals(((BMap) returns.get(2)).get(StringUtils.fromString("restP1")).toString(), "stringP1");
+        Assert.assertEquals(((BMap<?, ?>) returns.get(2)).get(StringUtils.fromString("restP1")).toString(), "stringP1");
     }
 
     @Test(description = "Test record variable with Union Type")
@@ -261,7 +265,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable with only a rest parameter")
     public void testRecordVariableWithOnlyRestParam() {
-        BMap returns = (BMap) BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
+        BMap<?, ?> returns = (BMap<?, ?>) BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
 
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"John\",\"age\":{\"age\":30,\"format\":\"YY\",\"year\":1990},\"married\":true," +

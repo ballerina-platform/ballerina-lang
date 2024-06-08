@@ -383,7 +383,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 StringUtils.fromString("Cycle detected"));
     }
 
-    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
+    private void mergeAdjoiningTextNodesIntoList(List<BXml> leftList, List<BXml> appendingList) {
         XmlText lastChild = (XmlText) leftList.get(leftList.size() - 1);
         String firstChildContent = appendingList.get(0).getTextValue();
         String mergedTextContent = lastChild.getTextValue() + firstChildContent;
@@ -659,9 +659,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlItem> getIterator() {
         XmlItem that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
 
             @Override
@@ -670,7 +670,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             }
 
             @Override
-            public Object next() {
+            public XmlItem next() {
                 if (read) {
                     throw new NoSuchElementException();
                 }

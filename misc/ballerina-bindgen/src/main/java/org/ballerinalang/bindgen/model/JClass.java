@@ -52,7 +52,7 @@ public class JClass {
     private String prefix;
     private String packageName;
     private String shortClassName;
-    private Class currentClass;
+    private Class<?> currentClass;
 
     private boolean modulesFlag;
     private boolean importJavaArraysModule = false;
@@ -64,7 +64,7 @@ public class JClass {
     private List<JConstructor> constructorList = new ArrayList<>();
     private Map<String, Integer> overloadedMethods = new HashMap<>();
 
-    public JClass(Class c, BindgenEnv env) {
+    public JClass(Class<?> c, BindgenEnv env) {
         this.env = env;
         currentClass = c;
         prefix = c.getName().replace(".", "_").replace("$", "_");
@@ -73,7 +73,7 @@ public class JClass {
         shortClassName = getExceptionName(c, shortClassName);
         modulesFlag = env.getModulesFlag();
 
-        Class sClass = c.getSuperclass();
+        Class<?> sClass = c.getSuperclass();
         // Iterate until a public super class is found.
         while (sClass != null && !isPublicClass(sClass)) {
             sClass = sClass.getSuperclass();
@@ -96,7 +96,7 @@ public class JClass {
         }
     }
 
-    private String getExceptionName(Class exception, String name) {
+    private String getExceptionName(Class<?> exception, String name) {
         try {
             // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
@@ -111,7 +111,7 @@ public class JClass {
         return name;
     }
 
-    private List<Method> getMethodsAsList(Class classObject) {
+    private List<Method> getMethodsAsList(Class<?> classObject) {
         Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new LinkedList<>();
         for (Method m : declaredMethods) {
@@ -122,10 +122,10 @@ public class JClass {
         return classMethods;
     }
 
-    private void populateConstructors(Constructor[] constructors) {
+    private void populateConstructors(Constructor<?>[] constructors) {
         int i = 1;
         List<JConstructor> tempList = new ArrayList<>();
-        for (Constructor constructor : constructors) {
+        for (Constructor<?> constructor : constructors) {
             if (isPublicConstructor(constructor)) {
                 tempList.add(new JConstructor(constructor, env, this, null));
             }
@@ -145,7 +145,7 @@ public class JClass {
         }
     }
 
-    private void populateMethods(Class c) {
+    private void populateMethods(Class<?> c) {
         List<JMethod> tempList = sortInheritedMethods(getMethodsAsList(c), new ArrayList<>(), c);
         for (JMethod method : tempList) {
             setMethodCount(method.getJavaMethodName());
@@ -163,7 +163,7 @@ public class JClass {
     }
 
     private List<JMethod> sortInheritedMethods(List<Method> methods, List<JMethod> sortedMethods,
-                                               Class declaringClass) {
+                                               Class<?> declaringClass) {
         if (declaringClass == null) {
             return sortedMethods;
         }
@@ -183,7 +183,7 @@ public class JClass {
         return sortInheritedMethods(methods, sortedMethods, declaringClass.getSuperclass());
     }
 
-    private List<Method> getSuperClassMethods(Class superClass, List<Method> methods) {
+    private List<Method> getSuperClassMethods(Class<?> superClass, List<Method> methods) {
         if (superClass == null) {
             return methods;
         }
@@ -251,7 +251,7 @@ public class JClass {
         return overloadedMethods.get(methodName);
     }
 
-    public Class getCurrentClass() {
+    public Class<?> getCurrentClass() {
         return currentClass;
     }
 

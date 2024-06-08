@@ -179,7 +179,7 @@ public class StackTrace {
         }
 
         @Override
-        public BMap getMapValue(BString fieldName) {
+        public BMap<?, ?> getMapValue(BString fieldName) {
             return null;
         }
 

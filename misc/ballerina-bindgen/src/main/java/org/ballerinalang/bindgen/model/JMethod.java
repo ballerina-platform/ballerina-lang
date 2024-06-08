@@ -62,7 +62,7 @@ public class JMethod extends BFunction {
     private boolean isOptionalReturnTypes;
     private String parentPrefix;
 
-    private Class parentClass;
+    private Class<?> parentClass;
     private Method method;
     private String methodName;
     private String unescapedMethodName;
@@ -77,7 +77,7 @@ public class JMethod extends BFunction {
     private final StringBuilder paramTypes = new StringBuilder();
     private final Set<String> importedPackages = new HashSet<>();
 
-    JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
+    JMethod(Method m, BindgenEnv env, String parentPrefix, Class<?> jClass, int overloaded) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         this.parentPrefix = parentPrefix;
@@ -96,7 +96,7 @@ public class JMethod extends BFunction {
         this.isOptionalReturnTypes = env.isOptionalTypes() || env.isOptionalReturnTypes();
 
         // Set the attributes required to identify different return types.
-        Class returnTypeClass = m.getReturnType();
+        Class<?> returnTypeClass = m.getReturnType();
         if (!returnTypeClass.equals(Void.TYPE)) {
             setReturnTypeAttributes(returnTypeClass);
         }
@@ -152,7 +152,7 @@ public class JMethod extends BFunction {
         }
     }
 
-    private void setReturnTypeAttributes(Class returnTypeClass) {
+    private void setReturnTypeAttributes(Class<?> returnTypeClass) {
         hasReturn = true;
         BindgenUtils.addImportedPackage(returnTypeClass, importedPackages);
 
@@ -197,14 +197,14 @@ public class JMethod extends BFunction {
         setReturnType(returnType);
     }
 
-    private String getPackageAlias(String shortClassName, Class objectType) {
+    private String getPackageAlias(String shortClassName, Class<?> objectType) {
         if (objectType.getPackage() != parentClass.getPackage()) {
             return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
         }
         return shortClassName;
     }
 
-    private String getExceptionName(Class exception, String name) {
+    private String getExceptionName(Class<?> exception, String name) {
         try {
             // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())

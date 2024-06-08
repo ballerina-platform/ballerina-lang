@@ -41,7 +41,7 @@ import io.ballerina.runtime.api.values.BTable;
 //)
 public class GetKeys {
 
-    public static BArray keys(BTable tbl) {
+    public static BArray keys(BTable<?, ?> tbl) {
         Type tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {

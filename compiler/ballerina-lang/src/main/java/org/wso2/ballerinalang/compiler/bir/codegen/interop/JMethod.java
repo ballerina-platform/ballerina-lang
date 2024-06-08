@@ -134,7 +134,7 @@ class JMethod {
 
     BArray getExceptionTypes(ClassLoader classLoader) {
 
-        List<Class> checkedExceptions = new ArrayList<>();
+        List<Class<?>> checkedExceptions = new ArrayList<>();
         try {
             Class<?> runtimeException = classLoader.loadClass(RuntimeException.class.getCanonicalName());
             for (Class<?> exceptionType : method.getExceptionTypes()) {

@@ -189,7 +189,7 @@ public interface BMap<K, V> extends BRefValue, BCollection {
 
     long getDefaultableIntValue(BString key);
 
-    Object merge(BMap v2, boolean checkMergeability);
+    Object merge(BMap<?, ?> v2, boolean checkMergeability);
 
     void populateInitialValue(K key, V value);
 }

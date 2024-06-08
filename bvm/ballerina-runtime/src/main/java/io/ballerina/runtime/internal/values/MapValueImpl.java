@@ -211,7 +211,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         // The type should be a record or map for filling read.
         if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.referredType;
-            Map fields = recordType.getFields();
+            Map<?, ?> fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
             } else {
@@ -238,7 +238,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Object merge(BMap v2, boolean checkMergeability) {
+    public Object merge(BMap<?, ?> v2, boolean checkMergeability) {
         if (checkMergeability) {
             BError errorIfUnmergeable = JsonInternalUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
@@ -595,7 +595,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
@@ -607,7 +607,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @since 0.995.0
      */
-    static class MapIterator<K, V> implements IteratorValue {
+    static class MapIterator<K, V> implements IteratorValue<Object> {
 
         Iterator<Map.Entry<K, V>> iterator;
 

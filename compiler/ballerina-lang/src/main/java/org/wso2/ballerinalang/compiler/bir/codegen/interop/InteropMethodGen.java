@@ -384,7 +384,7 @@ public class InteropMethodGen {
 
             BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
             JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
-            for (Class exception : birFunc.jMethod.getExceptionTypes()) {
+            for (Class<?> exception : birFunc.jMethod.getExceptionTypes()) {
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
                 CatchIns catchIns = new CatchIns();
                 catchIns.errorClass = exception.getName().replace(".", "/");

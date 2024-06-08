@@ -353,7 +353,7 @@ public class XMLLiteralTest {
     private String arrayToString(Object aReturn) {
         BArray ar = ((BArray) aReturn);
         StringBuilder builder = new StringBuilder();
-        BIterator bIterator = ar.getIterator();
+        BIterator<?> bIterator = ar.getIterator();
         while (bIterator.hasNext()) {
             String str = bIterator.next().toString();
             builder.append(str);

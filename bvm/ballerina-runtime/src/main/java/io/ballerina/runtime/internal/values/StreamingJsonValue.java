@@ -199,7 +199,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -208,7 +208,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      *
      * @since 0.995.0
      */
-    static class StreamingJsonIterator implements IteratorValue {
+    static class StreamingJsonIterator implements IteratorValue<Object> {
         StreamingJsonValue array;
         long cursor = 0;
 

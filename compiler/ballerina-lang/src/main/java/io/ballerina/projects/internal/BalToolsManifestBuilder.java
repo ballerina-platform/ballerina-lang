@@ -53,7 +53,7 @@ public class BalToolsManifestBuilder {
     private final Map<String, OldTool> oldTools;
 
     private BalToolsManifestBuilder(TomlDocument balToolsToml) {
-        oldTools = new HashMap();
+        oldTools = new HashMap<>();
         this.balToolsToml = Optional.ofNullable(balToolsToml);
         this.balToolsManifest = parseAsBalToolsManifest();
     }

@@ -88,7 +88,7 @@ public class TypeCastExprTest {
         Object returns = BRunUtil.invoke(result, "stringtofloat", args);
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
-        String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
+        String errorMsg = ((BMap<?, ?>) error.getDetails()).get(StringUtils.fromString("message")).toString();
         Assert.assertEquals(errorMsg, "'string' value '2222.333f' cannot be converted to 'float'");
     }
 
@@ -226,7 +226,7 @@ public class TypeCastExprTest {
         Object returns = BRunUtil.invoke(result, "testIncompatibleJsonToInt");
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
-        String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
+        String errorMsg = ((BMap<?, ?>) error.getDetails()).get(StringUtils.fromString("message")).toString();
         Assert.assertEquals(errorMsg, "'string' value '\"hello\"' cannot be converted to 'int'");
     }
 
@@ -235,7 +235,7 @@ public class TypeCastExprTest {
         Object returns = BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
-        String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
+        String errorMsg = ((BMap<?, ?>) error.getDetails()).get(StringUtils.fromString("message")).toString();
         Assert.assertEquals(errorMsg, "'string' value '\"hello\"' cannot be converted to 'float'");
     }
 

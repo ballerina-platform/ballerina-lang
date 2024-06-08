@@ -122,21 +122,21 @@ public class ArrayInitializerExprTest {
 
         Object adrs1 = arrayValue.getRefValue(0);
         Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
-        Object address = ((BMap) adrs1).get(StringUtils.fromString("address"));
+        Object address = ((BMap<?, ?>) adrs1).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Colombo");
 
         Object adrs2 = arrayValue.getRefValue(1);
         Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
-        address = ((BMap) adrs2).get(StringUtils.fromString("address"));
+        address = ((BMap<?, ?>) adrs2).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Kandy");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Kandy");
 
         Object adrs3 = arrayValue.getRefValue(2);
         Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
-        address = ((BMap) adrs3).get(StringUtils.fromString("address"));
+        address = ((BMap<?, ?>) adrs3).get(StringUtils.fromString("address"));
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        Assert.assertEquals(((BMap) address).get(StringUtils.fromString("city")).toString(), "Galle");
+        Assert.assertEquals(((BMap<?, ?>) address).get(StringUtils.fromString("city")).toString(), "Galle");
     }
 
     @Test(description = "Test float array initialization with integer values")

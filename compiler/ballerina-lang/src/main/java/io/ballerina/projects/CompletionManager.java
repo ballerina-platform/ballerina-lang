@@ -204,7 +204,7 @@ public class CompletionManager {
         private final CompletionProvider<Node> completionProvider;
         private final CompilerPluginInfo compilerPluginInfo;
 
-        public CompletionProviderDescriptor(CompletionProvider completionProvider,
+        public CompletionProviderDescriptor(CompletionProvider<Node> completionProvider,
                                             CompilerPluginInfo compilerPluginInfo) {
             this.completionProvider = completionProvider;
             this.compilerPluginInfo = compilerPluginInfo;

@@ -336,7 +336,7 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(argName)));
     }
 
-    public static void writeCacheMapAsJson(Map map, Path path, String fileName) {
+    public static void writeCacheMapAsJson(Map<?, ?> map, Path path, String fileName) {
         if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path);

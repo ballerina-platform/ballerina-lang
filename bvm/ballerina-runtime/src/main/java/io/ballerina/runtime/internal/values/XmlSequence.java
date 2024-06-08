@@ -213,7 +213,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     @Override
     public XmlValue elements() {
-        List elementsSeq = new ArrayList<XmlValue>();
+        List<BXml> elementsSeq = new ArrayList<>();
         for (BXml child : children) {
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
                 elementsSeq.add(child);
@@ -610,8 +610,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     @Override
-    public IteratorValue getIterator() {
-        return new IteratorValue() {
+    public IteratorValue<BXml> getIterator() {
+        return new IteratorValue<>() {
             Iterator<BXml> iterator = children.iterator();
 
             @Override
@@ -620,7 +620,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             }
 
             @Override
-            public Object next() {
+            public BXml next() {
                 return iterator.next();
             }
         };
