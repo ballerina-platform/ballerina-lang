@@ -254,7 +254,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         for (List<Map.Entry<K, V>> entry: entries.values()) {
             entrySet.addAll(entry);
         }
-        return new LinkedHashSet(entries.values());
+        return entrySet;
     }
 
     @Override
