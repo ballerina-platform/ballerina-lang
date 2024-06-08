@@ -133,8 +133,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public BMap<BString, Object> getMapValue(BString fieldName) {
-        return (MapValueImpl<BString, Object>) get(fieldName);
+    public BMap<BString, ? extends Object> getMapValue(BString fieldName) {
+        return (MapValueImpl<BString, ? extends Object>) get(fieldName);
     }
 
     @Override
