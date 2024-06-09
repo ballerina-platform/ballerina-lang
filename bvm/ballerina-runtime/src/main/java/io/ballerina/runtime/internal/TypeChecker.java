@@ -74,13 +74,13 @@ import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
@@ -121,7 +121,7 @@ import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 public final class TypeChecker {
 
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final Map<Long, Context> contexts = new ConcurrentHashMap<>(10);
+    private static final Map<Long, Context> contexts = new HashMap<>(10);
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -152,7 +152,7 @@ public final class TypeChecker {
 
     private static Context context() {
         // We are pinning each context to thread. This depends on the assumption physical thread is not going to
-        // get switched while type checking
+        // get switched while type checking. Also for the same reason we don't need to synchronize this method.
         Thread currentThread = Thread.currentThread();
         long threadID = currentThread.getId();
         Context cx = contexts.get(threadID);

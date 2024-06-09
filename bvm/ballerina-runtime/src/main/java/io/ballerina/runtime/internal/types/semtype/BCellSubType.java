@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.types.semtype.TypeAtom;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 // TODO: would making this a child class of say BddNode be faster than making this a delegate
@@ -185,5 +186,21 @@ public final class BCellSubType extends SubType implements DelegatedSubType {
     @Override
     public Bdd inner() {
         return inner;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BCellSubType other)) {
+            return false;
+        }
+        return Objects.equals(inner, other.inner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(inner);
     }
 }
