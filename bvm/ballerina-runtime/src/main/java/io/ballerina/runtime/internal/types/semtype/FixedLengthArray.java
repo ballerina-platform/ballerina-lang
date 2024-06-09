@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public record FixedLengthArray(SemType[] initial, int fixedLength) {
 
     public FixedLengthArray {
@@ -60,6 +63,23 @@ public record FixedLengthArray(SemType[] initial, int fixedLength) {
     }
 
     public FixedLengthArray shallowCopy() {
+        // TODO: may be create a copy of write array instead
         return new FixedLengthArray(initial.clone(), fixedLength);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FixedLengthArray that)) {
+            return false;
+        }
+        return fixedLength == that.fixedLength && Objects.deepEquals(initial, that.initial);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Arrays.hashCode(initial), fixedLength);
     }
 }

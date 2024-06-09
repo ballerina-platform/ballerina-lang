@@ -45,4 +45,20 @@ public class RecAtom implements Atom {
     public int index() {
         return index;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof RecAtom recAtom) {
+            return recAtom.index == this.index;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return index;
+    }
 }
