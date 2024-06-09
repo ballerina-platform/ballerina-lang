@@ -301,7 +301,7 @@ public final class Core {
         return isSubType(cx, t1, t2) && isSubType(cx, t2, t1);
     }
 
-    public static BasicTypeBitSet widenToBasicTypes(SemType t) {
+    public static SemType widenToBasicTypes(SemType t) {
         int all = t.all | t.some;
         if (cardinality(all) > 1) {
             throw new IllegalStateException("Cannot widen to basic type for a type with multiple basic types");
