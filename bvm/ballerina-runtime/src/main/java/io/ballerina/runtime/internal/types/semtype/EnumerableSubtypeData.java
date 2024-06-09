@@ -21,6 +21,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,6 +36,22 @@ abstract class EnumerableSubtypeData<E extends Comparable<E>> {
     abstract boolean allowed();
 
     abstract E[] values();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof EnumerableSubtypeData other)) {
+            return false;
+        }
+        return other.allowed() == this.allowed() && Arrays.equals(other.values(), this.values());
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
     boolean union(EnumerableSubtypeData<E> other, List<E> results) {
         boolean b1 = this.allowed();

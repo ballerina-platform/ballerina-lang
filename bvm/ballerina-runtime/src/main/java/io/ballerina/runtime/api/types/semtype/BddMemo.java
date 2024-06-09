@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.util.Objects;
+
 // TODO: consider moving this to inner as well
 public final class BddMemo {
 
@@ -34,5 +36,21 @@ public final class BddMemo {
         CYCLIC,
         PROVISIONAL,
         NULL
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BddMemo bddMemo)) {
+            return false;
+        }
+        return isEmpty == bddMemo.isEmpty;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(isEmpty);
     }
 }

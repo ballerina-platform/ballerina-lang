@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 import static io.ballerina.runtime.api.types.semtype.Core.cellContainingInnerVal;
@@ -438,5 +439,21 @@ public class BListSubType extends SubType implements DelegatedSubType {
     @Override
     public Bdd inner() {
         return inner;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BListSubType that)) {
+            return false;
+        }
+        return Objects.equals(inner, that.inner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(inner);
     }
 }
