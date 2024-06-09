@@ -98,6 +98,22 @@ public final class BasicTypeCode {
         return code;
     }
 
+    @Override
+    public int hashCode() {
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof BasicTypeCode other) {
+            return code == other.code;
+        }
+        return false;
+    }
+
     private static final class BasicTypeCodeCache {
 
         private static final BasicTypeCode[] cache;

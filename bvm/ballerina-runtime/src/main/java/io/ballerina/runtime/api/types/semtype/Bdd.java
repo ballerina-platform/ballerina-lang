@@ -229,19 +229,4 @@ public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNod
                 && bddEvery(cx, bn.middle(), pos, neg, predicate)
                 && bddEvery(cx, bn.right(), pos, and(bn.atom(), neg), predicate);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
