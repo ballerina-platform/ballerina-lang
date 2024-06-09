@@ -37,4 +37,8 @@ public final class BddAllOrNothing extends Bdd {
         return 0xa11084 + (this == ALL ? 1 : 0);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
 }

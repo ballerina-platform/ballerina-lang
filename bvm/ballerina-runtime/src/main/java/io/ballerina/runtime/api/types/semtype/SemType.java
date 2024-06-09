@@ -21,6 +21,9 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * Runtime representation of SemType.
  *
@@ -32,6 +35,7 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     public final int some;
     private final SubType[] subTypeData;
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
+    private Integer hashCode;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         this.all = all;
@@ -72,5 +76,34 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
 
     public final SubType[] subTypeData() {
         return subTypeData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SemType semType)) {
+            return false;
+        }
+        return all == semType.all && some == semType.some && Objects.deepEquals(subTypeData, semType.subTypeData);
+    }
+
+    @Override
+    public int hashCode() {
+        Integer result = hashCode;
+        if (result == null) {
+            synchronized (this) {
+                result = hashCode;
+                if (result == null) {
+                    hashCode = result = computeHashCode();
+                }
+            }
+        }
+        return result;
+    }
+
+    private int computeHashCode() {
+        return Objects.hash(all, some, Arrays.hashCode(subTypeData));
     }
 }
