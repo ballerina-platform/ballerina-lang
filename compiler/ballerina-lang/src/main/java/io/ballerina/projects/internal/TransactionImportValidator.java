@@ -31,7 +31,6 @@ import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class will check whether an import statement to internal transaction repo is needed or not.
