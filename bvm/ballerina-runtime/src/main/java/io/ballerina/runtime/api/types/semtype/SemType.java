@@ -22,10 +22,9 @@ import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
@@ -42,11 +41,10 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     private final SubType[] subTypeData;
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
     private Integer hashCode;
-    private static volatile AtomicInteger nextId = new AtomicInteger(0);
+    private static volatile AtomicInteger nextId = new AtomicInteger(1);
     private final Integer typeID = nextId.getAndIncrement();
-    private final Map<Integer, Boolean> cachedSubTypeRelations;
     private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
-    private static final int MAX_CACHE_LIMIT = 1000;
+    private final TypeCheckResultCache resultCache;
     private final boolean useCache;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
@@ -55,10 +53,10 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
         this.subTypeData = subTypeData;
         if ((some & CACHEABLE_TYPE_MASK) != 0) {
             useCache = true;
-            this.cachedSubTypeRelations = new ConcurrentHashMap<>();
+            this.resultCache = new TypeCheckResultCache();
         } else {
             useCache = false;
-            this.cachedSubTypeRelations = null;
+            this.resultCache = null;
         }
     }
 
@@ -124,22 +122,51 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
         return Objects.hash(all, some, Arrays.hashCode(subTypeData));
     }
 
-    Optional<Boolean> cachedSubTypeRelation(SemType other) {
+    enum CachedResult {
+        TRUE,
+        FALSE,
+        NOT_FOUND
+    }
+
+    CachedResult cachedSubTypeRelation(SemType other) {
         if (!useCache) {
-            return Optional.empty();
+            return CachedResult.NOT_FOUND;
         }
-        if (other.typeID.equals(this.typeID)) {
-            return Optional.of(true);
+        int tid = other.typeID;
+        if (tid == typeID) {
+            return CachedResult.TRUE;
         }
-        return Optional.ofNullable(cachedSubTypeRelations.get(other.typeID));
+        return resultCache.getCachedResult(tid);
     }
 
     void cacheSubTypeRelation(SemType other, boolean result) {
         if (useCache) {
-            if (cachedSubTypeRelations.size() > MAX_CACHE_LIMIT) {
-                cachedSubTypeRelations.clear();
+            resultCache.cacheResult(other.typeID, result);
+
+            CachedResult cachedResult = cachedSubTypeRelation(other);
+            if (cachedResult != CachedResult.NOT_FOUND &&
+                    cachedResult != (result ? CachedResult.TRUE : CachedResult.FALSE)) {
+                throw new IllegalStateException("Inconsistent cache state");
             }
-            cachedSubTypeRelations.put(other.typeID, result);
+        }
+    }
+
+    private static final class TypeCheckResultCache {
+
+        private static final int CACHE_LIMIT = 100;
+        // See if we can use an identity hashmap on semtypes instead of tid
+        private Map<Long, Boolean> cache = new HashMap<>();
+
+        private void cacheResult(int tid, boolean result) {
+            cache.put((long) tid, result);
+        }
+
+        private CachedResult getCachedResult(int tid) {
+            Boolean cachedData = cache.get((long) tid);
+            if (cachedData == null) {
+                return CachedResult.NOT_FOUND;
+            }
+            return cachedData ? CachedResult.TRUE : CachedResult.FALSE;
         }
     }
 }
