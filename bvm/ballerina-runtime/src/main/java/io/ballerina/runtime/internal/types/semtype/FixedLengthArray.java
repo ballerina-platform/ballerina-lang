@@ -23,14 +23,24 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import java.util.Arrays;
 import java.util.Objects;
 
-public record FixedLengthArray(SemType[] initial, int fixedLength) {
+public final class FixedLengthArray {
 
-    public FixedLengthArray {
+    private final SemType[] initial;
+    private final int fixedLength;
+    private Integer hashCode;
+
+    private FixedLengthArray(SemType[] initial, int fixedLength) {
         for (SemType semType : initial) {
             if (semType == null) {
                 throw new IllegalArgumentException("initial members can't be null");
             }
         }
+        this.initial = initial;
+        this.fixedLength = fixedLength;
+    }
+
+    static FixedLengthArray from(SemType[] initial, int fixedLength) {
+        return new FixedLengthArray(initial, fixedLength);
     }
 
     private static final FixedLengthArray EMPTY = new FixedLengthArray(new SemType[0], 0);
@@ -80,6 +90,27 @@ public record FixedLengthArray(SemType[] initial, int fixedLength) {
 
     @Override
     public int hashCode() {
+        Integer result = hashCode;
+        if (result == null) {
+            synchronized (this) {
+                result = hashCode;
+                if (result == null) {
+                    hashCode = result = computeHashCode();
+                }
+            }
+        }
+        return result;
+    }
+
+    private int computeHashCode() {
         return Objects.hash(Arrays.hashCode(initial), fixedLength);
+    }
+
+    public int fixedLength() {
+        return fixedLength;
+    }
+
+    public SemType[] initial() {
+        return initial;
     }
 }
