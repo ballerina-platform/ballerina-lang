@@ -1353,9 +1353,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         anonClass.isObjectContructorDecl = true; // not available for service
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
-        typeReference.ifPresent(typeReferenceNode -> {
-            objectCtorExpression.addTypeReference(createTypeNode(typeReferenceNode));
-        });
+        typeReference.ifPresent(typeReferenceNode ->
+                objectCtorExpression.addTypeReference(createTypeNode(typeReferenceNode))
+        );
 
         anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
 //        addToTop(anonClass);
@@ -1724,10 +1724,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         foreach.setBody(foreachBlock);
         foreach.setCollection(createExpression(forEachStatementNode.actionOrExpressionNode()));
 
-        forEachStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            foreach.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        forEachStatementNode.onFailClause().ifPresent(onFailClauseNode -> foreach.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
 
         return foreach;
     }
@@ -2947,10 +2946,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) doStatementNode.blockStatement().apply(this);
         bLBlockStmt.pos = getPosition(doStatementNode.blockStatement());
         bLDo.setBody(bLBlockStmt);
-        doStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            bLDo.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        doStatementNode.onFailClause().ifPresent(onFailClauseNode -> bLDo.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
         return bLDo;
     }
 
@@ -2971,10 +2969,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) whileStmtNode.whileBody().apply(this);
         bLBlockStmt.pos = getPosition(whileStmtNode.whileBody());
         bLWhile.setBody(bLBlockStmt);
-        whileStmtNode.onFailClause().ifPresent(onFailClauseNode -> {
-            bLWhile.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        whileStmtNode.onFailClause().ifPresent(onFailClauseNode -> bLWhile.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
         return bLWhile;
     }
 
@@ -3022,10 +3019,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         lockBlock.pos = getPosition(lockStatementNode.blockStatement());
         lockNode.setBody(lockBlock);
 
-        lockStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            lockNode.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        lockStatementNode.onFailClause().ifPresent(onFailClauseNode -> lockNode.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
 
         return lockNode;
     }
@@ -3282,10 +3278,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         transaction.setTransactionBody(transactionBlock);
         transaction.pos = getPosition(transactionStatementNode);
 
-        transactionStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            transaction.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        transactionStatementNode.onFailClause().ifPresent(onFailClauseNode -> transaction.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
 
         return transaction;
     }
@@ -4385,10 +4380,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangBlockStmt retryBlock = (BLangBlockStmt) retryBody.apply(this);
         retryNode.setRetryBody(retryBlock);
 
-        retryStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            retryNode.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        retryStatementNode.onFailClause().ifPresent(onFailClauseNode -> retryNode.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
 
         return retryNode;
     }
@@ -4507,10 +4501,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             matchStatement.addMatchClause(bLangMatchClause);
         }
 
-        matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            matchStatement.setOnFailClause(
-                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
-        });
+        matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> matchStatement.setOnFailClause(
+                (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)))
+        );
         matchStatement.pos = getPosition(matchStatementNode);
         return matchStatement;
     }
