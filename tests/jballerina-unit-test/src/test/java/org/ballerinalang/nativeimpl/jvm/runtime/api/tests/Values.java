@@ -525,11 +525,12 @@ public class Values {
     }
 
     public static BXml getXMLValueFromInputStream2() {
-        String xmlString = "<Reservation>\n" +
-                "<reservationID>1234567890123456789012345678901234567890123456789012345678901234567890" +
-                "12345678901234567890123456789exceeding100chars</reservationID>\n" +
-                "    <confirmationID>RPFABE</confirmationID>\n" +
-                "</Reservation>";
+        String xmlString = """
+                <Reservation>
+                <reservationID>1234567890123456789012345678901234567890123456789012345678901234567890\
+                12345678901234567890123456789exceeding100chars</reservationID>
+                    <confirmationID>RPFABE</confirmationID>
+                </Reservation>""";
         return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
     }
 
