@@ -178,8 +178,7 @@ public class HoverUtil {
         boolean isPublic = false;
         boolean isRemote = false;
 
-        if (symbol instanceof Qualifiable) {
-            Qualifiable qSymbol = (Qualifiable) symbol;
+        if (symbol instanceof Qualifiable qSymbol) {
             isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
             isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
             isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);

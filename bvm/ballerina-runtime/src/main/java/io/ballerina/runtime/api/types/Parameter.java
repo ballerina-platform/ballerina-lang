@@ -42,11 +42,10 @@ public class Parameter {
             return true;
         }
 
-        if (!(o instanceof Parameter)) {
+        if (!(o instanceof Parameter that)) {
             return false;
         }
 
-        Parameter that = (Parameter) o;
         return this.name.equals(that.name) && this.type.equals(that.type) && this.isDefault == that.isDefault;
     }
 

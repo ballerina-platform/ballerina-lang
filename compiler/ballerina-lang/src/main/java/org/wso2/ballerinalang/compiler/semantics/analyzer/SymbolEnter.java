@@ -5216,8 +5216,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc;
-        if (referencedFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
+        if (referencedFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
                     (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
                     resourceFunction.restPathParam, referencedFunc.pos);

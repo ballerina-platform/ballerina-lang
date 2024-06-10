@@ -114,14 +114,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BFunctionType)) {
+        if (!(o instanceof BFunctionType that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-
-        BFunctionType that = (BFunctionType) o;
 
         boolean isSourceAnyFunction = SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION);
         boolean isTargetAnyFunction = SymbolFlags.isFlagOn(that.flags, SymbolFlags.ANY_FUNCTION);

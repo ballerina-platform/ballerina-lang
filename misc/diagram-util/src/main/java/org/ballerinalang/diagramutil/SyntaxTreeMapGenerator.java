@@ -271,8 +271,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 if (semanticModel != null) {
                     Optional<Symbol> symbol = this.semanticModel.symbol(node);
 
-                    if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol)) {
-                        VariableSymbol variableSymbol = (VariableSymbol) symbol.get();
+                    if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol variableSymbol)) {
                         markVisibleEp(variableSymbol, symbolJson, node);
                     }
 
@@ -297,8 +296,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 if (semanticModel != null) {
                     Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
                             remoteMethodCallActionNode.expression());
-                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
-                        VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol variableSymbol) {
                         markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
                     }
                 }
@@ -611,8 +609,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add("moduleID", moduleIdJson);
-            } else if (prop instanceof ModuleID) {
-                ModuleID ballerinaModuleID = (ModuleID) prop;
+            } else if (prop instanceof ModuleID ballerinaModuleID) {
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
                 moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());

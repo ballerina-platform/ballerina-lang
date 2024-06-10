@@ -220,9 +220,7 @@ public class InteropValidator {
     BIRNode.BIRFunction createJInteropFunction(InteropValidationRequest jInteropValidationReq,
                                                BIRNode.BIRFunction birFunc, ClassLoader classLoader) {
 
-        if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
-            InteropValidationRequest.MethodValidationRequest methodValidationRequest =
-                    ((InteropValidationRequest.MethodValidationRequest) jInteropValidationReq);
+        if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest methodValidationRequest) {
             methodValidationRequest.restParamExist = birFunc.restParam != null;
             JMethod jMethod = validateAndGetJMethod(methodValidationRequest, classLoader);
             return new JMethodBIRFunction(birFunc, jMethod);

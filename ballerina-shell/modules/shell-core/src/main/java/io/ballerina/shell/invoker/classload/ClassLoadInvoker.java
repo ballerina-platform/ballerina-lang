@@ -230,13 +230,11 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             if (newSnippet instanceof ImportDeclarationSnippet) {
                 processImport((ImportDeclarationSnippet) newSnippet);
 
-            } else if (newSnippet instanceof VariableDeclarationSnippet) {
-                VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) newSnippet;
+            } else if (newSnippet instanceof VariableDeclarationSnippet varDclnSnippet) {
                 variableNames.addAll(varDclnSnippet.names());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
 
-            } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
-                ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
+            } else if (newSnippet instanceof ModuleMemberDeclarationSnippet moduleDclnSnippet) {
                 Identifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
                 availableModuleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);

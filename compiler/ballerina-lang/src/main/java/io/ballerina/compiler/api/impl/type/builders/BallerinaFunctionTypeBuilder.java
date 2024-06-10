@@ -122,8 +122,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         }
 
         BSymbol internalSymbol = ((BallerinaSymbol) restParam).getInternalSymbol();
-        if (internalSymbol instanceof BVarSymbol) {
-            BVarSymbol varSymbol = (BVarSymbol) internalSymbol;
+        if (internalSymbol instanceof BVarSymbol varSymbol) {
             varSymbol.type = restType;
             return varSymbol;
         }

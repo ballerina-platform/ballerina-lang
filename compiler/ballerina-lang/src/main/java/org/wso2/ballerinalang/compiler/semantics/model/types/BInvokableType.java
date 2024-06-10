@@ -93,10 +93,9 @@ public class BInvokableType extends BType implements InvokableType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BInvokableType)) {
+        if (!(o instanceof BInvokableType that)) {
             return false;
         }
-        BInvokableType that = (BInvokableType) o;
 
         if (this.flags != that.flags) {
             return false;

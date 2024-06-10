@@ -340,11 +340,9 @@ public class JvmPackageGen {
 
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
         BIRFunction func;
-        if (parentNode instanceof BIRTypeDefinition) {
-            BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
+        if (parentNode instanceof BIRTypeDefinition typeDef) {
             func = findFunction(typeDef.attachedFuncs, funcName);
-        } else if (parentNode instanceof BIRPackage) {
-            BIRPackage pkg = (BIRPackage) parentNode;
+        } else if (parentNode instanceof BIRPackage pkg) {
             func = findFunction(pkg.functions, funcName);
         } else {
             // some generated functions will not have bir function

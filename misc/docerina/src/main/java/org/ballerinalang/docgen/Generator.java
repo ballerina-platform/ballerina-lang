@@ -613,8 +613,7 @@ public class Generator {
                 optionalMetadataNode, semanticModel, module);
 
         for (Node member : typeDescriptorNode.members()) {
-            if (member instanceof MethodDeclarationNode) {
-                MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
+            if (member instanceof MethodDeclarationNode methodNode) {
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
@@ -778,8 +777,7 @@ public class Generator {
         List<DefaultableVariable> variables = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
-            if (node instanceof RecordFieldWithDefaultValueNode) {
-                RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
+            if (node instanceof RecordFieldWithDefaultValueNode recordField) {
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
                 if (doc.equals("")) {
@@ -794,8 +792,7 @@ public class Generator {
                     defaultableVariable.isReadOnly = true;
                 }
                 variables.add(defaultableVariable);
-            } else if (node instanceof RecordFieldNode) {
-                RecordFieldNode recordField = (RecordFieldNode) node;
+            } else if (node instanceof RecordFieldNode recordField) {
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
                 if (doc.equals("")) {
@@ -819,8 +816,7 @@ public class Generator {
                 } else if (!originType.memberTypes.isEmpty()) {
                     variables.add(new DefaultableVariable(originType));
                 }
-            } else if (node instanceof ObjectFieldNode) {
-                ObjectFieldNode objectField = (ObjectFieldNode) node;
+            } else if (node instanceof ObjectFieldNode objectField) {
                 if (objectField.visibilityQualifier().isPresent() && objectField.visibilityQualifier().get().kind()
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
@@ -840,15 +836,13 @@ public class Generator {
                             extractAnnotationAttachmentsFromMetadataNode(semanticModel, objectField.metadata()));
                     variables.add(defaultableVariable);
                 }
-            } else if (node instanceof RequiredParameterNode) {
-                RequiredParameterNode requiredParameter = (RequiredParameterNode) node;
+            } else if (node instanceof RequiredParameterNode requiredParameter) {
                 String paramName = requiredParameter.paramName().isPresent() ?
                         requiredParameter.paramName().get().text() : "";
                 Type type = Type.fromNode(requiredParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(requiredParameter.annotations()), type, ""));
-            } else if (node instanceof DefaultableParameterNode) {
-                DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) node;
+            } else if (node instanceof DefaultableParameterNode defaultableParameter) {
                 String paramName = defaultableParameter.paramName().isPresent() ?
                         defaultableParameter.paramName().get().text() : "";
                 Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel, module);
@@ -857,8 +851,7 @@ public class Generator {
                         type, defaultableParameter.expression().toString(),
                         extractAnnotationAttachmentsFromAnnotations(semanticModel,
                                 defaultableParameter.annotations())));
-            } else if (node instanceof RestParameterNode) {
-                RestParameterNode restParameter = (RestParameterNode) node;
+            } else if (node instanceof RestParameterNode restParameter) {
                 String paramName = restParameter.paramName().isPresent() ?
                         restParameter.paramName().get().text() : "";
                 Type type = new Type(paramName);
@@ -866,8 +859,7 @@ public class Generator {
                 type.elementType = Type.fromNode(restParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
-            } else if (node instanceof IncludedRecordParameterNode) {
-                IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
+            } else if (node instanceof IncludedRecordParameterNode includedRecord) {
                 String paramName = includedRecord.paramName().isPresent() ?
                         includedRecord.paramName().get().text() : "";
                 Type type = Type.fromNode(includedRecord.typeName(), semanticModel, module);

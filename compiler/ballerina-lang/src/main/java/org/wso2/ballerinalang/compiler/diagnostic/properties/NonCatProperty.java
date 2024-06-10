@@ -48,8 +48,7 @@ public class NonCatProperty implements DiagnosticProperty<Object> {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof NonCatProperty) {
-            NonCatProperty that = (NonCatProperty) o;
+        if (o instanceof NonCatProperty that) {
             if (kind != that.kind) {
                 return false;
             }

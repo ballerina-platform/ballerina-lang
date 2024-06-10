@@ -59,9 +59,8 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
     @Override
     public List<Value> resolve(Node typeDescriptor) throws EvaluationException {
         List<Value> resolvedTypes = new ArrayList<>();
-        if (typeDescriptor instanceof UnionTypeDescriptorNode) {
+        if (typeDescriptor instanceof UnionTypeDescriptorNode unionTypeDesc) {
             // If the type is a union, resolves sub types recursively.
-            UnionTypeDescriptorNode unionTypeDesc = (UnionTypeDescriptorNode) typeDescriptor;
             resolvedTypes.addAll(resolve(unionTypeDesc.leftTypeDesc()));
             resolvedTypes.addAll(resolve(unionTypeDesc.rightTypeDesc()));
         } else if (typeDescriptor instanceof ArrayTypeDescriptorNode) {

@@ -295,8 +295,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 modifiers = TokenTypeModifiers.DECLARATION.getId();
                 break;
             case INTERSECTION_TYPE_DESC:
-                if (typeDescriptor instanceof IntersectionTypeDescriptorNode) {
-                    IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) typeDescriptor;
+                if (typeDescriptor instanceof IntersectionTypeDescriptorNode intSecDescriptor) {
                     SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
                     SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
                     if (left == SyntaxKind.RECORD_TYPE_DESC || right == SyntaxKind.RECORD_TYPE_DESC) {
@@ -428,8 +427,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
      * @return True if a readonly typeDescriptor is present, false otherwise.
      */
     private boolean isReadonly(Node node) {
-        if (node instanceof IntersectionTypeDescriptorNode) {
-            IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) node;
+        if (node instanceof IntersectionTypeDescriptorNode intSecDescriptor) {
             SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
             SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
             return left == SyntaxKind.READONLY_TYPE_DESC || right == SyntaxKind.READONLY_TYPE_DESC;

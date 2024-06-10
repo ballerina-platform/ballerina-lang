@@ -373,8 +373,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     typeSymbol = classTypeSymbol.get();
                 }
 
-                if (typeSymbol instanceof ClassSymbol) {
-                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol;
+                if (typeSymbol instanceof ClassSymbol classSymbol) {
                     if (classSymbol.initMethod().isEmpty()) {
                         break;
                     }
@@ -397,8 +396,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
 
         List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>();
 
-        if (symbolAtCursor instanceof FunctionSymbol) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) symbolAtCursor;
+        if (symbolAtCursor instanceof FunctionSymbol functionSymbol) {
 
             if (functionSymbol.typeDescriptor().params().isPresent()) {
                 List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();

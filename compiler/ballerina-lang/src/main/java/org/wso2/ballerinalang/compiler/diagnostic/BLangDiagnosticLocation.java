@@ -62,8 +62,7 @@ public class BLangDiagnosticLocation implements Location {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BLangDiagnosticLocation) {
-            BLangDiagnosticLocation location = (BLangDiagnosticLocation) obj;
+        if (obj instanceof BLangDiagnosticLocation location) {
             return lineRange.equals(location.lineRange) && textRange.equals(location.textRange);
         }
 

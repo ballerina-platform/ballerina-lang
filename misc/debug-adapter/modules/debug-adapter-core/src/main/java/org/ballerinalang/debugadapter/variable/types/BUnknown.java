@@ -37,10 +37,9 @@ public class BUnknown extends BSimpleVariable {
 
     @Override
     public String computeValue() {
-        if (!(jvmValue instanceof ObjectReference)) {
+        if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
             return UNKNOWN_VALUE;
         }
-        ObjectReference jvmValueRef = (ObjectReference) jvmValue;
         return Optional.of(jvmValueRef).map(ObjectReference::toString).orElse(UNKNOWN_VALUE);
     }
 }

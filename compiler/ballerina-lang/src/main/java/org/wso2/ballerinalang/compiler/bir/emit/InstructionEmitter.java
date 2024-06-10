@@ -209,9 +209,7 @@ class InstructionEmitter {
         StringBuilder outStr = new StringBuilder();
         for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
             BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
-            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
-                BIRNode.BIRMappingConstructorKeyValueEntry entry =
-                        (BIRNode.BIRMappingConstructorKeyValueEntry) mappingEntry;
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry entry) {
                 outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
             } else {
                 outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))

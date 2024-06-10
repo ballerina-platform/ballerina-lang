@@ -66,8 +66,7 @@ public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMember
         } else if (rootNode instanceof ListenerDeclarationNode) {
             String listenerName = ((ListenerDeclarationNode) rootNode).variableName().text();
             return new Identifier(listenerName);
-        } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode) {
-            ModuleXMLNamespaceDeclarationNode namespaceNode = (ModuleXMLNamespaceDeclarationNode) rootNode;
+        } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode namespaceNode) {
             return namespaceNode.namespacePrefix().map(Token::text).map(Identifier::new)
                     .orElseGet(this::createAnonModuleName);
         } else if (rootNode instanceof TypeDefinitionNode) {

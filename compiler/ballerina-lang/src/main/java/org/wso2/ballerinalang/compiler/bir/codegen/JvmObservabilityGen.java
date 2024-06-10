@@ -986,8 +986,7 @@ class JvmObservabilityGen {
      */
     private boolean isErrorAssignable(BIRVariableDcl variableDcl) {
         boolean isErrorAssignable = false;
-        if (variableDcl.type instanceof BUnionType) {
-            BUnionType returnUnionType = (BUnionType) variableDcl.type;
+        if (variableDcl.type instanceof BUnionType returnUnionType) {
             boolean b = false;
             for (BType type : returnUnionType.getMemberTypes()) {
                 if (type instanceof BErrorType) {

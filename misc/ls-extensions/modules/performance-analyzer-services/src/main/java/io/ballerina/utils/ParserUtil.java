@@ -81,9 +81,7 @@ public class ParserUtil {
 
     public static boolean isURLAttrFromConfig(BLangRecordLiteral.RecordField recordField) {
 
-        if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField) {
-            BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
-                    (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+        if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
             if (recordKeyValue.key.expr instanceof BLangSimpleVarRef) {
                 String recordValue = ((BLangSimpleVarRef) recordKeyValue.key.expr).variableName.value;
                 return recordValue != null && recordValue.toLowerCase(Locale.ENGLISH).contains(CONFIG_URL_KEY);
@@ -164,8 +162,7 @@ public class ParserUtil {
 
         getReducedTree(currentNode);
 
-        if (currentNode instanceof IfStatementNode) {
-            IfStatementNode ifStatementNode = (IfStatementNode) currentNode;
+        if (currentNode instanceof IfStatementNode ifStatementNode) {
             Node ifBody = ifStatementNode.getIfBody();
             Node elseBody = ifStatementNode.getElseBody();
 
@@ -178,8 +175,7 @@ public class ParserUtil {
             }
         }
 
-        if (currentNode instanceof IfStatementNode) {
-            IfStatementNode ifStatementNode = (IfStatementNode) currentNode;
+        if (currentNode instanceof IfStatementNode ifStatementNode) {
             if (ifStatementNode.getIfBody() == null && ifStatementNode.getElseBody() == null) {
                 if (ifStatementNode.hasNext()) {
                     parentNode.setNextNode(ifStatementNode.getNextNode());
@@ -187,8 +183,7 @@ public class ParserUtil {
                     parentNode.setNextNode(null);
                 }
             }
-        } else if (currentNode instanceof ForStatementNode) {
-            ForStatementNode forStatementNode = (ForStatementNode) currentNode;
+        } else if (currentNode instanceof ForStatementNode forStatementNode) {
             if (forStatementNode.getForBody() == null) {
                 if (forStatementNode.hasNext()) {
                     parentNode.setNextNode(forStatementNode.getNextNode());

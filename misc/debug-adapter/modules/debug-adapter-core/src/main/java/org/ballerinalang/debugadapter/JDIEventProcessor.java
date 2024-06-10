@@ -105,11 +105,9 @@ public class JDIEventProcessor {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
-        } else if (event instanceof BreakpointEvent) {
-            BreakpointEvent bpEvent = (BreakpointEvent) event;
+        } else if (event instanceof BreakpointEvent bpEvent) {
             breakpointProcessor.processBreakpointEvent(bpEvent);
-        } else if (event instanceof StepEvent) {
-            StepEvent stepEvent = (StepEvent) event;
+        } else if (event instanceof StepEvent stepEvent) {
             int threadId = (int) stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);

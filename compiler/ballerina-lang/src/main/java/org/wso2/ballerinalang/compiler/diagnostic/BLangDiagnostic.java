@@ -102,8 +102,7 @@ public class BLangDiagnostic extends Diagnostic {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BLangDiagnostic) {
-            BLangDiagnostic that = (BLangDiagnostic) obj;
+        if (obj instanceof BLangDiagnostic that) {
             if (this.diagnosticCode != null) {
                 return this.location.equals(that.location) && this.msg.equals(that.message())
                         && this.diagnosticInfo.equals(that.diagnosticInfo)

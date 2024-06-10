@@ -60,10 +60,9 @@ public class BTuple extends IndexedCompoundVariable {
     @Override
     public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return Either.forRight(new ArrayList<>());
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
 
             // If count > 0, returns a sublist of the child variables

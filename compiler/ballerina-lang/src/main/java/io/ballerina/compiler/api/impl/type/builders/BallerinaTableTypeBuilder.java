@@ -218,8 +218,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
                 if (isKeyless || isValidRowRecordType((BRecordType) rowBType)) {
                     return rowBType;
                 }
-            } else if (rowBType instanceof BMapType) {
-                BMapType rowMapType = (BMapType) rowBType;
+            } else if (rowBType instanceof BMapType rowMapType) {
                 BType mapTypeConstraint = rowMapType.getConstraint();
                 if (types.isAssignable(mapTypeConstraint, symTable.pureType)) {
                     return rowBType;

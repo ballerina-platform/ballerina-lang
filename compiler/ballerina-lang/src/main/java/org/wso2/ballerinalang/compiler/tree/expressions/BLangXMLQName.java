@@ -118,11 +118,10 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
             return true;
         }
 
-        if (other == null || !(other instanceof BLangXMLQName)) {
+        if (other == null || !(other instanceof BLangXMLQName otherQname)) {
             return false;
         }
 
-        BLangXMLQName otherQname = (BLangXMLQName) other;
         return localname.equals(otherQname.localname) && prefix.equals(otherQname.prefix);
     }
 }

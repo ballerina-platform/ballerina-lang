@@ -507,13 +507,12 @@ public class JsonInternalUtils {
      *         of the JSON array. Otherwise the method will throw a {@link BError}.
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
-        if (!(json instanceof ArrayValue)) {
+        if (!(json instanceof ArrayValue jsonArray)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
         Type targetElementType = TypeUtils.getImpliedType(targetArrayType.getElementType());
-        ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonArrayToBIntArray(jsonArray);
@@ -832,11 +831,10 @@ public class JsonInternalUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof ObjectPair)) {
+            if (!(obj instanceof ObjectPair other)) {
                 return false;
             }
 
-            ObjectPair other = (ObjectPair) obj;
             return this.lhsObject == other.lhsObject && this.rhsObject == other.rhsObject;
         }
     }

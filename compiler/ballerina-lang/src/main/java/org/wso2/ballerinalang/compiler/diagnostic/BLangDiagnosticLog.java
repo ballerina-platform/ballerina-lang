@@ -265,8 +265,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             if (arg instanceof BType) {
                 TypeSymbol tsybol = typesFactory.getTypeDescriptor((BType) arg);
                 dArg = new BSymbolicProperty(tsybol);
-            } else if (arg instanceof BSymbol) {
-                BSymbol symbolArg = (BSymbol) arg;
+            } else if (arg instanceof BSymbol symbolArg) {
                 Symbol symbol = symbolFactory.getBCompiledSymbol(symbolArg, symbolArg.getOriginalName().getValue());
                 dArg = new BSymbolicProperty(symbol);
             } else if (arg instanceof String) {

@@ -302,8 +302,7 @@ public class DiffUtils {
             return "type definition";
         } else if (diff instanceof EnumDiff) {
             return "enum declaration";
-        } else if (diff instanceof FunctionDiff) {
-            FunctionDiff functionDiff = (FunctionDiff) diff;
+        } else if (diff instanceof FunctionDiff functionDiff) {
             if (functionDiff.isResource()) {
                 return "resource function";
             } else if (functionDiff.isRemote()) {
@@ -337,8 +336,7 @@ public class DiffUtils {
             return " ".repeat(6);
         } else if (diff instanceof ObjectFieldDiff) {
             return " ".repeat(6);
-        } else if (diff instanceof FunctionDiff) {
-            FunctionDiff functionDiff = (FunctionDiff) diff;
+        } else if (diff instanceof FunctionDiff functionDiff) {
             if (functionDiff.isResource()) {
                 return " ".repeat(6);
             } else if (functionDiff.isRemote()) {

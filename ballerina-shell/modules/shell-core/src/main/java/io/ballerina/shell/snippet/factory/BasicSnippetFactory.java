@@ -126,8 +126,7 @@ public class BasicSnippetFactory extends SnippetFactory {
 
     @Override
     public ImportDeclarationSnippet createImportSnippet(Node node) {
-        if (node instanceof ImportDeclarationNode) {
-            ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
+        if (node instanceof ImportDeclarationNode importDeclarationNode) {
             return new ImportDeclarationSnippet(importDeclarationNode);
         }
         return null;
@@ -145,8 +144,7 @@ public class BasicSnippetFactory extends SnippetFactory {
 
         if (node instanceof ModuleVariableDeclarationNode) {
             dclnNode = (ModuleVariableDeclarationNode) node;
-        } else if (node instanceof VariableDeclarationNode) {
-            VariableDeclarationNode varNode = (VariableDeclarationNode) node;
+        } else if (node instanceof VariableDeclarationNode varNode) {
             VariableDeclarationNode newNode = null;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
             // Only final qualifier is transferred.

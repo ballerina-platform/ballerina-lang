@@ -2553,11 +2553,10 @@ public class TypeChecker {
 
     private static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
 
-        ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
         if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
             Type sourceElementType = ((BArrayType) source.getType()).getElementType();
@@ -2768,10 +2767,9 @@ public class TypeChecker {
 
     private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof TableValueImpl)) {
+        if (!(sourceValue instanceof TableValueImpl tableValue)) {
             return false;
         }
-        TableValueImpl tableValue = (TableValueImpl) sourceValue;
         BTableType sourceType = (BTableType) getImpliedType(tableValue.getType());
         if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;

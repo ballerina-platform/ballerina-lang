@@ -381,8 +381,7 @@ public class HoverObjectResolver {
                     typeSymbol = classTypeSymbol.get();
                 }
 
-                if (typeSymbol instanceof ClassSymbol) {
-                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol;
+                if (typeSymbol instanceof ClassSymbol classSymbol) {
                     if (classSymbol.initMethod().isEmpty()) {
                         break;
                     }

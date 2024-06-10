@@ -94,8 +94,7 @@ public class JvmErrorGen {
 
         this.mv.visitLabel(endLabel);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
-        if (currentEE instanceof JErrorEntry) {
-            JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
+        if (currentEE instanceof JErrorEntry jCurrentEE) {
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
             int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
             boolean exeptionExist = false;

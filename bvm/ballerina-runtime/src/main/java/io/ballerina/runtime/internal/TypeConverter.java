@@ -450,7 +450,7 @@ public class TypeConverter {
     private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
                                                      Set<TypeValuePair> unresolvedValues,
                                                      List<String> errors, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof MapValueImpl)) {
+        if (!(sourceValue instanceof MapValueImpl sourceMapValueImpl)) {
             return false;
         }
 
@@ -468,7 +468,6 @@ public class TypeConverter {
             targetFieldTypes.put(field.getKey(), field.getValue().getFieldType());
         }
 
-        MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
@@ -640,10 +639,9 @@ public class TypeConverter {
     private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
                                                     Set<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
-        ArrayValue source = (ArrayValue) sourceValue;
         int targetSize = targetType.getSize();
         long sourceSize = source.getLength();
         if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize < sourceSize) {
@@ -689,11 +687,10 @@ public class TypeConverter {
     private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
                                                     Set<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
 
-        ArrayValue source = (ArrayValue) sourceValue;
         List<Type> targetTypes = targetType.getTupleTypes();
         int sourceTypeSize = source.size();
         int targetTypeSize = targetTypes.size();

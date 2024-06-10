@@ -227,9 +227,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField) {
-            BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral =
-                    (BLangRecordLiteral.BLangRecordVarNameField) bLangNode;
+        if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral) {
             if (bLangNodeRecLiteral.symbol != null && node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 BLangExpression bLangExpression = bLangNodeRecLiteral.impConversionExpr;
                 if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
@@ -306,11 +304,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangBinaryExpr)) {
+        if (!(bLangNode instanceof BLangBinaryExpr bLangBinaryExpr)) {
             return Optional.empty();
         }
 
-        BLangBinaryExpr bLangBinaryExpr = (BLangBinaryExpr) bLangNode;
         BLangExpression rhs = bLangBinaryExpr.rhsExpr;
         BLangExpression lhs = bLangBinaryExpr.lhsExpr;
         BType rhsExpType = rhs.expectedType;
@@ -514,16 +511,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Token closeParen = parenthesizedArgList.get().closeParenToken();
         // Check if the line position is within the parameter context.
         if (isWithinParenthesis(openParen, closeParen)) {
-            if (!(bLangNode instanceof BLangTypeInit)) {
+            if (!(bLangNode instanceof BLangTypeInit bLangTypeInit)) {
                 return getExpectedType(bLangNode);
             }
 
-            BLangTypeInit bLangTypeInit = (BLangTypeInit) bLangNode;
-            if (!(bLangTypeInit.initInvocation instanceof BLangInvocation)) {
+            if (!(bLangTypeInit.initInvocation instanceof BLangInvocation initInvocation)) {
                 return getExpectedType(bLangNode);
             }
 
-            BLangInvocation initInvocation = (BLangInvocation) bLangTypeInit.initInvocation;
             if (initInvocation.symbol == null) {
                 throw new IllegalStateException();
             }
@@ -697,11 +692,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(WaitActionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangWaitExpr)) {
+        if (!(bLangNode instanceof BLangWaitExpr waitExpr)) {
             return Optional.empty();
         }
 
-        BLangWaitExpr waitExpr = (BLangWaitExpr) bLangNode;
         for (BLangExpression bLangExpression : waitExpr.exprList) {
             if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                 return getExpectedType(bLangExpression);
@@ -748,11 +742,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(TableConstructorExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangTableConstructorExpr)) {
+        if (!(bLangNode instanceof BLangTableConstructorExpr bLangTableConstructorExpr)) {
             return Optional.empty();
         }
 
-        BLangTableConstructorExpr bLangTableConstructorExpr = (BLangTableConstructorExpr) bLangNode;
         if (node.keySpecifier().isPresent() &&
                 isWithinParenthesis(node.keySpecifier().get().openParenToken(),
                         node.keySpecifier().get().closeParenToken())) {
@@ -874,10 +867,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ParenthesizedArgList> arguments = clientResourceAccessActionNode.arguments();
         if (arguments.isPresent() && isWithinParenthesis(arguments.get().openParenToken(),
                 arguments.get().closeParenToken())) {
-            if (!(bLangNode instanceof BLangInvocation)) {
+            if (!(bLangNode instanceof BLangInvocation bLangInvocation)) {
                 return getExpectedType(bLangNode);
             }
-            BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
             if (bLangInvocation.symbol == null) {
                 return Optional.empty();
             }

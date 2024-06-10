@@ -152,8 +152,7 @@ public class InteropMethodGen {
         // the JVM method local variable index for each parameter is assigned
         List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>();
         for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
-            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
-                BIRNode.BIRFunctionParameter functionParameter = (BIRNode.BIRFunctionParameter) birLocalVarOptional;
+            if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter functionParameter) {
                 birFuncParams.add(functionParameter);
                 indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
             }

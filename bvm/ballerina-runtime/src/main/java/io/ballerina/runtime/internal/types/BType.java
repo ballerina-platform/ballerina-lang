@@ -90,8 +90,7 @@ public abstract class BType implements Type {
             return true;
         }
 
-        if (obj instanceof BType) {
-            BType other = (BType) obj;
+        if (obj instanceof BType other) {
 
             if (!this.typeName.equals(other.getName())) {
                 return false;
