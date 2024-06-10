@@ -110,7 +110,7 @@ public class Manifest {
                         Arrays.stream(library.getModules()).anyMatch(moduleName::equals);
             }).collect(Collectors.toList());
             // If not return any
-            if (deps.size() > 0) {
+            if (!deps.isEmpty()) {
                 return platform.target;
             }
         }

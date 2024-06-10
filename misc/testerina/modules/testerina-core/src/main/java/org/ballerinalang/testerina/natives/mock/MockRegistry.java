@@ -77,7 +77,7 @@ public class MockRegistry {
             if (functionName != null) {
                 caseIdBuilder.append("-").append(functionName);
             }
-            if (argsList != null && argsList.size() > 0) {
+            if (argsList != null && !argsList.isEmpty()) {
                 BIterator<?> argIterator = argsList.getIterator();
                 while (argIterator.hasNext()) {
                     caseIdBuilder.append("-").append(argIterator.next().toString());

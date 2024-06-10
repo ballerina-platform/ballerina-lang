@@ -98,7 +98,7 @@ public class ProjectDirs {
                 throw e;
             }
         }
-        return sourceFiles.size() > 0;
+        return !sourceFiles.isEmpty();
     }
 
     /**

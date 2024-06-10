@@ -29,7 +29,7 @@ package io.ballerina.runtime.internal.scheduling;
      BLOCK_ON_AND_YIELD(BLOCK_AND_YIELD.status | (1 << 3)),
      DONE(1 << 4);
 
-     private int status;
+     private final int status;
 
      public int getStatus() {
          return status;

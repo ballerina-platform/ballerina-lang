@@ -41,7 +41,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
     private static final String BBE_FILE = "index.json";
     private static final String TOPICS = "topics";
 
-    private final List<String> topicList;;
+    private final List<String> topicList;
     private static BbeTopicsProvider bbeTopicsProvider = null;
 
     private BbeTopicsProvider() {

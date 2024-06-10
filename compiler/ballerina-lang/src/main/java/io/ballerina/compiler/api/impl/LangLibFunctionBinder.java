@@ -64,7 +64,7 @@ public class LangLibFunctionBinder {
      * @return The type param resolved lang lib function symbol
      */
     public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, BType boundType) {
-        if (boundType == null || original.params.size() == 0) {
+        if (boundType == null || original.params.isEmpty()) {
             return original;
         }
 
