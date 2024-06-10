@@ -61,8 +61,8 @@ public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTer
     private Object getValidReAtom(Object reAtom) {
         // If reAtom is an instance of BString it's an insertion. Hence, we need to parse it and check whether it's a
         // valid insertion.
-        if (reAtom instanceof BString) {
-            validateInsertion((BString) reAtom);
+        if (reAtom instanceof BString bString) {
+            validateInsertion(bString);
         }
         return reAtom;
     }

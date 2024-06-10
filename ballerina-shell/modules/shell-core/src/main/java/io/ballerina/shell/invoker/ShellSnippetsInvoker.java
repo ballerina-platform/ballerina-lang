@@ -435,9 +435,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 // Unexpected runtime error
                 throw new InvokerPanicException(panic);
             }
-            if (result instanceof Throwable) {
+            if (result instanceof Throwable throwable) {
                 // Function returned error (panic)
-                throw new InvokerPanicException((Throwable) result);
+                throw new InvokerPanicException(throwable);
             }
             return result;
         } catch (ClassNotFoundException e) {

@@ -159,8 +159,8 @@ public class StringUtils {
      * @return Converted string.
      */
     public static String getErrorStringValue(Throwable error) {
-        if (error instanceof BError) {
-            return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
+        if (error instanceof BError bError) {
+            return bError.getErrorMessage() + " " + bError.getDetails();
         }
         return error.getMessage();
     }

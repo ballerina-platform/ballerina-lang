@@ -68,8 +68,7 @@ public class DiagnosticInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DiagnosticInfo) {
-            DiagnosticInfo that = (DiagnosticInfo) obj;
+        if (obj instanceof DiagnosticInfo that) {
             if (this.code != null) {
                 return this.code.equals(that.code) && this.messageFormat.equals(that.messageFormat)
                         && this.severity.equals(that.severity);

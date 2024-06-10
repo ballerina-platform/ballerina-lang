@@ -158,11 +158,10 @@ public class BTypeIdSet {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BTypeIdSet)) {
+        if (!(obj instanceof BTypeIdSet that)) {
             return false;
         }
 
-        BTypeIdSet that = (BTypeIdSet) obj;
         return this.primary.equals(that.primary) && this.secondary.equals(that.secondary);
     }
 
@@ -219,8 +218,7 @@ public class BTypeIdSet {
                 return true;
             }
 
-            if (obj instanceof BTypeId) {
-                BTypeId that = (BTypeId) obj;
+            if (obj instanceof BTypeId that) {
                 return this.name.equals(that.name) &&
                         CompilerUtils.getPackageIDStringWithMajorVersion(this.packageID).equals(
                                 CompilerUtils.getPackageIDStringWithMajorVersion(that.packageID));

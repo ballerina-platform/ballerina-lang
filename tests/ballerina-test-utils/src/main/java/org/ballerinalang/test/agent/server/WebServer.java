@@ -191,10 +191,9 @@ public class WebServer {
          */
         @Override
         protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
-            if (!(o instanceof FullHttpRequest)) {
+            if (!(o instanceof FullHttpRequest request)) {
                 return;
             }
-            final FullHttpRequest request = (FullHttpRequest) o;
 
             final HttpMethod method = request.method();
             final String uri = request.uri();

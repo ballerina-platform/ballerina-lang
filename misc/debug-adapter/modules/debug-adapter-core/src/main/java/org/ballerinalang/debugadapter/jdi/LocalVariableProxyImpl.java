@@ -76,8 +76,7 @@ public class LocalVariableProxyImpl extends JdiProxy implements LocalVariablePro
     }
 
     public boolean equals(Object o) {
-        if (o instanceof LocalVariableProxyImpl) {
-            LocalVariableProxyImpl proxy = (LocalVariableProxyImpl) o;
+        if (o instanceof LocalVariableProxyImpl proxy) {
             return proxy.myFrame.equals(myFrame) && myVariableName.equals(proxy.myVariableName);
         }
         return false;

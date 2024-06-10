@@ -179,8 +179,8 @@ public abstract class EvaluationTypeResolver<T> {
      * @return true if the given semantic API symbol has 'public' qualifier
      */
     public static boolean isPublicSymbol(Symbol symbol) {
-        if (symbol instanceof Qualifiable) {
-            return ((Qualifiable) symbol).qualifiers().stream().anyMatch(qualifier -> qualifier == Qualifier.PUBLIC);
+        if (symbol instanceof Qualifiable qualifiable) {
+            return qualifiable.qualifiers().stream().anyMatch(qualifier -> qualifier == Qualifier.PUBLIC);
         }
         return true;
     }

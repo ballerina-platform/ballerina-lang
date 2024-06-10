@@ -184,10 +184,9 @@ public class BFiniteType extends BType implements FiniteType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BFiniteType)) {
+        if (!(o instanceof BFiniteType that)) {
             return false;
         }
-        BFiniteType that = (BFiniteType) o;
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 }

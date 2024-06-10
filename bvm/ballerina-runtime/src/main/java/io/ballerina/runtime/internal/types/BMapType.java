@@ -124,11 +124,9 @@ public class BMapType extends BType implements MapType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BMapType)) {
+        if (!super.equals(obj) || !(obj instanceof BMapType other)) {
             return false;
         }
-
-        BMapType other = (BMapType) obj;
 
         if (this.readonly != other.readonly) {
             return false;

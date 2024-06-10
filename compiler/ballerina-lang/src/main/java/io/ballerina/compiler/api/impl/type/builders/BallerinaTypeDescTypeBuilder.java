@@ -72,8 +72,8 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+                return abstractTypeSymbol.getBType();
             }
             return symTable.noType;
         }

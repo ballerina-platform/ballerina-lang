@@ -649,13 +649,11 @@ class BIRTestUtils {
         assertFlags(typeInfo.typeFlag(), expectedValue.flags);
         KaitaiStruct typeStructure = typeInfo.typeStructure();
 
-        if (typeStructure instanceof Bir.TypeObjectOrService) {
-            Bir.TypeObjectOrService objectOrService = (Bir.TypeObjectOrService) typeStructure;
+        if (typeStructure instanceof Bir.TypeObjectOrService objectOrService) {
             BTypeIdSet expTypeIdSet = ((BObjectType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = objectOrService.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());
-        } else if (typeStructure instanceof Bir.TypeError) {
-            Bir.TypeError errorType = (Bir.TypeError) typeStructure;
+        } else if (typeStructure instanceof Bir.TypeError errorType) {
             BTypeIdSet expTypeIdSet = ((BErrorType) expectedValue.tsymbol.type).typeIdSet;
             Bir.TypeId actualTypeIdSet = errorType.typeIds();
             assertDistinctTypeIds(expTypeIdSet, actualTypeIdSet, constantPoolEntry._parent());

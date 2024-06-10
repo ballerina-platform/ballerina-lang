@@ -130,8 +130,8 @@ public class RuntimeUtils {
     }
 
     public static void handleBErrorAndExit(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
+        if (throwable instanceof ErrorValue errorValue) {
+            printToConsole(errorValue);
         }
         Runtime.getRuntime().exit(1);
     }
@@ -142,8 +142,8 @@ public class RuntimeUtils {
     }
 
     public static void handleAllRuntimeErrors(Throwable throwable) {
-        if (throwable instanceof ErrorValue) {
-            printToConsole((ErrorValue) throwable);
+        if (throwable instanceof ErrorValue errorValue) {
+            printToConsole(errorValue);
         } else {
             logBadSad(throwable);
         }

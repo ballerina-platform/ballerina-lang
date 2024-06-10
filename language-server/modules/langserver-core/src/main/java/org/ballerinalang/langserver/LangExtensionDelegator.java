@@ -168,8 +168,7 @@ public class LangExtensionDelegator {
                     && ext.validate(params)) {
                 List<? extends CodeAction> codeActions = ext.execute(params, context, serverContext);
                 for (CodeAction codeAction : codeActions) {
-                    if (codeAction instanceof ResolvableCodeAction) {
-                        ResolvableCodeAction action = (ResolvableCodeAction) codeAction;
+                    if (codeAction instanceof ResolvableCodeAction action) {
                         action.getData().setExtName(ext.getClass().getName());
                     }
                     actions.add(codeAction);

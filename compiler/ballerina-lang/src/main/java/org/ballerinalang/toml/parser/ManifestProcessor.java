@@ -228,11 +228,11 @@ public class ManifestProcessor {
         if (toml.containsKey("dependencies")) {
             Object tomlDepsAsObject = toml.get("dependencies");
             Map<String, Object> updatedDependencies = new HashMap<>();
-            if (tomlDepsAsObject instanceof HashMap) {
+            if (tomlDepsAsObject instanceof HashMap<?, ?> tomlDeps) {
                 // taking care of double quoted dependency names
-                Map<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
-                for (Map.Entry<String, Object> dep : tomlDeps.entrySet()) {
-                    updatedDependencies.put(dep.getKey().replaceAll("^\"|\"$", ""), dep.getValue());
+                for (Map.Entry<?, ?> dep : tomlDeps.entrySet()) {
+                    updatedDependencies.put(
+                            ((String) dep.getKey()).replaceAll("^\"|\"$", ""), dep.getValue());
                 }
                 dependencies = updatedDependencies;
             }

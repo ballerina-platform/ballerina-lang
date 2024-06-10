@@ -227,16 +227,14 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Others are processed later.
         for (Snippet newSnippet : newSnippets) {
 
-            if (newSnippet instanceof ImportDeclarationSnippet) {
-                processImport((ImportDeclarationSnippet) newSnippet);
+            if (newSnippet instanceof ImportDeclarationSnippet importSnippet) {
+                processImport(importSnippet);
 
-            } else if (newSnippet instanceof VariableDeclarationSnippet) {
-                VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) newSnippet;
+            } else if (newSnippet instanceof VariableDeclarationSnippet varDclnSnippet) {
                 variableNames.addAll(varDclnSnippet.names());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
 
-            } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
-                ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
+            } else if (newSnippet instanceof ModuleMemberDeclarationSnippet moduleDclnSnippet) {
                 Identifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
                 availableModuleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
@@ -244,8 +242,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                         .map(Identifier::new).collect(Collectors.toSet());
                 newImports.put(moduleDeclarationName, usedPrefixes);
 
-            } else if (newSnippet instanceof ExecutableSnippet) {
-                executableSnippets.add((ExecutableSnippet) newSnippet);
+            } else if (newSnippet instanceof ExecutableSnippet executableSnippet) {
+                executableSnippets.add(executableSnippet);
 
             } else {
                 throw new UnsupportedOperationException("Unimplemented snippet category.");

@@ -120,11 +120,10 @@ public class BStreamType extends BType implements StreamType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BStreamType)) {
+        if (!super.equals(obj) || !(obj instanceof BStreamType other)) {
             return false;
         }
 
-        BStreamType other = (BStreamType) obj;
         if (constraint == other.constraint && completionType == other.completionType) {
             return true;
         }

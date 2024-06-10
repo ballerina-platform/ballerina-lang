@@ -148,8 +148,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         Node functionName = functionCallExpressionNode.functionName();
-        if (functionName instanceof QualifiedNameReferenceNode) {
-            functionName = ((QualifiedNameReferenceNode) functionName).identifier();
+        if (functionName instanceof QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+            functionName = qualifiedNameReferenceNode.identifier();
         }
         this.addSemanticToken(functionName, TokenTypes.FUNCTION.getId(), 0, false, -1, -1);
         visitSyntaxNode(functionCallExpressionNode);
@@ -278,8 +278,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 case TYPE_DEFINITION:
                     Node node = markdownParameterDocumentationLineNode.parent().parent().parent();
                     type = TokenTypes.TYPE_PARAMETER.getId();
-                    if (node instanceof TypeDefinitionNode) {
-                        SyntaxKind kind = ((TypeDefinitionNode) node).typeDescriptor().kind();
+                    if (node instanceof TypeDefinitionNode typeDefinitionNode) {
+                        SyntaxKind kind = typeDefinitionNode.typeDescriptor().kind();
                         if (kind == SyntaxKind.OBJECT_TYPE_DESC || kind == SyntaxKind.RECORD_TYPE_DESC) {
                             type = TokenTypes.PROPERTY.getId();
                         }
@@ -311,8 +311,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 modifiers = TokenTypeModifiers.DECLARATION.getId();
                 break;
             case INTERSECTION_TYPE_DESC:
-                if (typeDescriptor instanceof IntersectionTypeDescriptorNode) {
-                    IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) typeDescriptor;
+                if (typeDescriptor instanceof IntersectionTypeDescriptorNode intSecDescriptor) {
                     SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
                     SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
                     if (left == SyntaxKind.RECORD_TYPE_DESC || right == SyntaxKind.RECORD_TYPE_DESC) {
@@ -454,8 +453,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
      * @return True if a readonly typeDescriptor is present, false otherwise.
      */
     private boolean isReadonly(Node node) {
-        if (node instanceof IntersectionTypeDescriptorNode) {
-            IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) node;
+        if (node instanceof IntersectionTypeDescriptorNode intSecDescriptor) {
             SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
             SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
             return left == SyntaxKind.READONLY_TYPE_DESC || right == SyntaxKind.READONLY_TYPE_DESC;

@@ -50,13 +50,10 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
         analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext -> {
             // Traverses class and service definition nodes to check if test definitions are specified within
             // the class for functions
-            if (syntaxNodeAnalysisContext.node() instanceof ClassDefinitionNode) {
-                ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) syntaxNodeAnalysisContext.node();
+            if (syntaxNodeAnalysisContext.node() instanceof ClassDefinitionNode classDefinitionNode) {
                 classDefinitionNode.members().forEach(member ->
                     validateTestAnnotation(syntaxNodeAnalysisContext, member));
-            } else if (syntaxNodeAnalysisContext.node() instanceof ServiceDeclarationNode) {
-                ServiceDeclarationNode serviceDeclarationNode =
-                        (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
+            } else if (syntaxNodeAnalysisContext.node() instanceof ServiceDeclarationNode serviceDeclarationNode) {
                 serviceDeclarationNode.members().forEach(member ->
                     validateTestAnnotation(syntaxNodeAnalysisContext, member));
             }
@@ -64,8 +61,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
     }
 
     private static void validateTestAnnotation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, Node member) {
-        if (member instanceof FunctionDefinitionNode) {
-            FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) member;
+        if (member instanceof FunctionDefinitionNode funcDefNode) {
             funcDefNode.metadata().ifPresent(metadata ->
                 metadata.annotations().forEach(annotation -> {
                     if (annotation.annotReference().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {

@@ -138,8 +138,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Throwable error) {
-        if (error instanceof BError) {
-            return (BError) error;
+        if (error instanceof BError bError) {
+            return bError;
         }
         BError bError = createError(StringUtils.fromString(error.toString()));
         bError.setStackTrace(error.getStackTrace());

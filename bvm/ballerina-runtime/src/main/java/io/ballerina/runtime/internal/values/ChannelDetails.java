@@ -46,6 +46,6 @@
 
      @Override
      public boolean equals(Object o) {
-         return (o instanceof ChannelDetails) && (((ChannelDetails) o).name.equals(this.name));
+         return (o instanceof ChannelDetails channelDetails) && (channelDetails.name.equals(this.name));
      }
  }

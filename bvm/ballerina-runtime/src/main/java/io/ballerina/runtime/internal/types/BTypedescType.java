@@ -64,8 +64,8 @@ public class BTypedescType extends BType implements TypedescType {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof BTypedescType) {
-            return constraint.equals(((BTypedescType) obj).getConstraint());
+        if (obj instanceof BTypedescType typedescType) {
+            return constraint.equals(typedescType.getConstraint());
         }
         return false;
     }
