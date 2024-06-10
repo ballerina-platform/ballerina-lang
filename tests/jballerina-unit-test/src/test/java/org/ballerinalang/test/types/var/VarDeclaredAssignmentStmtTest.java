@@ -207,7 +207,7 @@ public class VarDeclaredAssignmentStmtTest {
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString(),
                 """
-                        'map<json>' value cannot be converted to 'Person': 
+                        'map<json>' value cannot be converted to 'Person':\s
                         \t\tmissing required field 'a' of type 'anydata' in record 'Person'
                         \t\tmissing required field 'score' of type 'float' in record 'Person'
                         \t\tmissing required field 'alive' of type 'boolean' in record 'Person'

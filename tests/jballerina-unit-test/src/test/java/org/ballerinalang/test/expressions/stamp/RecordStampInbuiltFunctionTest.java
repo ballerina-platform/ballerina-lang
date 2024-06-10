@@ -488,7 +488,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(
                 ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
                         .toString(), """
-                        'Employee' value cannot be converted to 'Teacher': 
+                        'Employee' value cannot be converted to 'Teacher':\s
                         \t\tmissing required field 'school' of type 'string' in record 'Teacher'
                         \t\tmissing required field 'age' of type 'int' in record 'Teacher'""");
     }
