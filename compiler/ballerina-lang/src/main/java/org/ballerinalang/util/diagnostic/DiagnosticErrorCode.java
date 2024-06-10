@@ -821,8 +821,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
     ;
 
-    private String diagnosticId;
-    private String messageKey;
+    private final String diagnosticId;
+    private final String messageKey;
 
     DiagnosticErrorCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

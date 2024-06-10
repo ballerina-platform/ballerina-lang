@@ -207,7 +207,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 resolve("report.dtd").toString());
         File reportDTDFileCopy = new File(reportRoot.resolve("report.dtd").toString());
         try (FileOutputStream outputStream = new FileOutputStream(reportDTDFileCopy);
-             FileInputStream inputStream = new FileInputStream(reportDTDFile);) {
+             FileInputStream inputStream = new FileInputStream(reportDTDFile)) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {

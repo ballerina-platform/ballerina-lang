@@ -117,7 +117,7 @@ public class ZipConverter extends PathConverter {
                             .collect(Collectors.toList());
                 }
                 if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
-                        && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
+                        && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {
                     // <org-name>/<module-name>/<version>
                     Path modulePath = pathList.get(0);
                     packageID.version = new Name(modulePath.toFile().getName());

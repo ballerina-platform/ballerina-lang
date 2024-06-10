@@ -198,7 +198,7 @@ public class BallerinaDocGenerator {
     }
 
     private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
-        if (moduleLib.modules.size() == 0) {
+        if (moduleLib.modules.isEmpty()) {
             log.error("No modules found to create docs.");
             return;
         }

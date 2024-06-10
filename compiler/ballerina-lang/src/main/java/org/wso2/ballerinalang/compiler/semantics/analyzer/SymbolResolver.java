@@ -1174,7 +1174,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                     data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
-            if (arrayTypeNode.sizes.size() == 0) {
+            if (arrayTypeNode.sizes.isEmpty()) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = arrayTypeNode.sizes.get(i);

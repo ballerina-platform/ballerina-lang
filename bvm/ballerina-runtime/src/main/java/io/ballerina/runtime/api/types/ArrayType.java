@@ -48,7 +48,7 @@ public interface ArrayType extends SelectivelyImmutableReferenceType {
         INFERRED((byte) 2),
         OPEN((byte) 3);
 
-        byte value;
+        final byte value;
 
         ArrayState(byte value) {
             this.value = value;

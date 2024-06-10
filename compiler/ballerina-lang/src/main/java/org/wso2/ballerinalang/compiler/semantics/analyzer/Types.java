@@ -2285,7 +2285,7 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
-        } else if (fields.size() == 0) {
+        } else if (fields.isEmpty()) {
             unionType.add(symTable.neverType);
         }
 
@@ -5951,7 +5951,7 @@ public class Types {
             return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
 
-        if (errorLiftedType.getMemberTypes().size() == 0) {
+        if (errorLiftedType.getMemberTypes().isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -7036,7 +7036,7 @@ public class Types {
     }
 
     private enum ContextOption {
-        LEFT, RIGHT, NON;
+        LEFT, RIGHT, NON
     }
 
     private void populateBasicTypes(BType type, Set<BasicTypes> basicTypes) {

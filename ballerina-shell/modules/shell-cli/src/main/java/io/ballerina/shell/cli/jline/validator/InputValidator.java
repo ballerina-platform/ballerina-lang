@@ -26,7 +26,7 @@ package io.ballerina.shell.cli.jline.validator;
 public class InputValidator {
 
     public boolean isComplete(String source) {
-        if (source.length() == 0 || source.startsWith("/")) {
+        if (source.isEmpty() || source.startsWith("/")) {
             return true;
         } else {
             Validator moduleMemberValidator = new ModuleMemberValidator();

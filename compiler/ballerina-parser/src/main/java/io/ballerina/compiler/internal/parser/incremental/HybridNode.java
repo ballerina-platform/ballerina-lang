@@ -69,7 +69,7 @@ class HybridNode {
          * Represents a token retrived either from the old syntax tree
          * or from the new text document.
          */
-        TOKEN;
+        TOKEN
     }
 
     /**
@@ -81,7 +81,7 @@ class HybridNode {
      */
     enum Source {
         OLD_SYNTAX_TREE,
-        NEW_TEXT_DOCUMENT;
+        NEW_TEXT_DOCUMENT
     }
 
     /**

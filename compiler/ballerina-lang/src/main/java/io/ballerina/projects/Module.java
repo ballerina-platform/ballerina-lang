@@ -193,7 +193,7 @@ public class Module {
             moduleId = oldModule.moduleId();
             moduleDescriptor = oldModule.descriptor();
             srcDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.srcDocumentIds());
-            testDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.testSrcDocumentIds());;
+            testDocContextMap = copySrcDocs(oldModule, oldModule.moduleContext.testSrcDocumentIds());
             isDefaultModule = oldModule.isDefaultModule();
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
@@ -377,7 +377,7 @@ public class Module {
                 visited.add(updatedModuleDescriptor);
                 Collection<ModuleDescriptor> directDependents = this.project.currentPackage()
                         .moduleDependencyGraph().getDirectDependents(updatedModuleDescriptor);
-                if (directDependents.size() > 0) {
+                if (!directDependents.isEmpty()) {
                     dependants.addAll(directDependents);
                     for (ModuleDescriptor directDependent : directDependents) {
                         getAllDependants(directDependent, visited, dependants);

@@ -28,5 +28,4 @@ package io.ballerina.projects;
 enum CompilerPluginKind {
     BUILT_IN,
     PACKAGE_PROVIDED,
-    ;
 }

@@ -277,7 +277,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          * 2. The number of local variables in (1.) is less or equal to 1.
          *
          * */
-        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.size() == 0
+        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.isEmpty()
                 && localVarSymbols.size() <= 1;
 
         // Here we decide whether the selected range is extractable by the usages of symbols

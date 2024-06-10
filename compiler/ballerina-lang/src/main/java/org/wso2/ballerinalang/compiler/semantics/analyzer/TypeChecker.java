@@ -1113,7 +1113,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             // If we don't have a contextually applicable type and don't have members in the table constructor expr,
             // we cannot derive the table type
-            if (applicableExpType.tag == TypeTags.NONE && tableConstructorExpr.recordLiteralList.size() == 0) {
+            if (applicableExpType.tag == TypeTags.NONE && tableConstructorExpr.recordLiteralList.isEmpty()) {
                 dlog.error(tableConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE);
                 data.resultType = symTable.semanticError;
                 return;
@@ -4053,7 +4053,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (resourceFunctions.size() == 0) {
+        if (resourceFunctions.isEmpty()) {
             handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
                     resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE,
                     data, lhsExprType);
@@ -6325,7 +6325,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (compatibleTypes.size() == 0) {
+        if (compatibleTypes.isEmpty()) {
             return bType;
         }
 
@@ -6489,7 +6489,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BType actualType;
-        if (nonErrorTypes.size() == 0) {
+        if (nonErrorTypes.isEmpty()) {
             actualType = symTable.neverType;
         } else if (nonErrorTypes.size() == 1) {
             actualType = nonErrorTypes.get(0);
@@ -8995,7 +8995,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldTypeMembers.add(individualFieldType);
         }
 
-        if (fieldTypeMembers.size() == 0) {
+        if (fieldTypeMembers.isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -9031,7 +9031,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         possibleTypes.add(fieldType);
                     }
                 }
-                if (possibleTypes.size() == 0) {
+                if (possibleTypes.isEmpty()) {
                     return symTable.semanticError;
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
@@ -9118,7 +9118,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldTypeMembers.add(individualFieldType);
         }
 
-        if (fieldTypeMembers.size() == 0) {
+        if (fieldTypeMembers.isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -9787,15 +9787,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Set<BRecordType> nilableInRecords = new LinkedHashSet<>();
 
         boolean hasUndeclared() {
-            return undeclaredInRecords.size() > 0;
+            return !undeclaredInRecords.isEmpty();
         }
 
         boolean hasNilable() {
-            return nilableInRecords.size() > 0;
+            return !nilableInRecords.isEmpty();
         }
 
         boolean hasNilableAndUndeclared() {
-            return nilableInRecords.size() > 0 && undeclaredInRecords.size() > 0;
+            return !nilableInRecords.isEmpty() && !undeclaredInRecords.isEmpty();
         }
 
         String recordsToString(Set<BRecordType> recordTypeSet) {

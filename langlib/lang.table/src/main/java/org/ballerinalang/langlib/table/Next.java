@@ -76,7 +76,7 @@ public class Next {
                                        List<Object> returnedKeys, long initialSize) {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
-                (initialSize > 0 && table.size() == 0)) {
+                (initialSize > 0 && table.isEmpty())) {
             throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 

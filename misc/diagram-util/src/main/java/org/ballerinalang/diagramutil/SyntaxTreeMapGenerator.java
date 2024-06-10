@@ -309,9 +309,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             boolean isBlockNode = node.kind() == SyntaxKind.BLOCK_STATEMENT
                     || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK
                     || node.kind() == SyntaxKind.SERVICE_DECLARATION;
-            boolean hasVisibleEps = this.visibleEpsForEachBlock.size() > 0
-                    || this.visibleEpsForClass.size() > 0
-                    || this.visibleEpsForModule.size() > 0;
+            boolean hasVisibleEps = !this.visibleEpsForEachBlock.isEmpty()
+                    || !this.visibleEpsForClass.isEmpty()
+                    || !this.visibleEpsForModule.isEmpty();
 
             if (isBlockNode && hasVisibleEps) {
 

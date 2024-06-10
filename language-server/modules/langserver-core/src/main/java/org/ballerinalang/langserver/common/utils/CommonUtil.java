@@ -226,7 +226,7 @@ public class CommonUtil {
      * @return Extracted last Item
      */
     public static <T> Optional<T> getLastItem(List<T> list) {
-        return (list.size() == 0) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
+        return (list.isEmpty()) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
     }
 
     /**

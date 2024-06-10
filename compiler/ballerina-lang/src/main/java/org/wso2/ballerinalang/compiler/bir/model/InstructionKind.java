@@ -128,7 +128,7 @@ public enum InstructionKind {
 
     PLATFORM((byte) 128);
 
-    byte value;
+    final byte value;
 
     InstructionKind(byte value) {
         this.value = value;

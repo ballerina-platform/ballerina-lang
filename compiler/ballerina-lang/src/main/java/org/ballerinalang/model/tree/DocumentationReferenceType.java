@@ -35,7 +35,7 @@ public enum DocumentationReferenceType {
     PARAMETER("parameter"), // Match for parameter in documentation
     BACKTICK_CONTENT("function"); // This content is extracted from only backticks. Hence should validate for a function
 
-    private String value;
+    private final String value;
 
     DocumentationReferenceType(String value) {
         this.value = value;

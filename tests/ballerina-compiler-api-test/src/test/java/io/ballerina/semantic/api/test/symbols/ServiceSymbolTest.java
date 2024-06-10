@@ -127,7 +127,7 @@ public class ServiceSymbolTest {
         assertEquals(fieldAnnots.get(0).getName().get(), expAnnot);
 
         // check qualifiers
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             List<Qualifier> qualifiers = field.qualifiers();
             expQuals.forEach(qualifiers::contains);
         } else {
@@ -171,7 +171,7 @@ public class ServiceSymbolTest {
         assertEquals(methodAnnots.get(0).getName().get(), expAnnot);
 
         // check qualifiers
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             List<Qualifier> qualifiers = method.qualifiers();
             expQuals.forEach(qualifiers::contains);
         } else {

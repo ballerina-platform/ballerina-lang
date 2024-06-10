@@ -705,7 +705,7 @@ class AIDataMapperCodeActionUtil {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
                 // to check for readonly values of left schema
                 boolean readonlyCheck = false;
-                if (attribute.qualifiers().size() > 0) {
+                if (!attribute.qualifiers().isEmpty()) {
                     for (Qualifier qualifier : attribute.qualifiers()) {
                         readonlyCheck = qualifier.getValue().contains("readonly");
                         if (readonlyCheck) {

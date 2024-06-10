@@ -34,7 +34,7 @@ public class RenameTestUtil {
         if (expected == null) {
             return;
         }
-        if (expected.getAsJsonObject("changes").size() > 0) {
+        if (!expected.getAsJsonObject("changes").isEmpty()) {
             JsonObject newChanges = new JsonObject();
             for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
                 String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
@@ -73,7 +73,7 @@ public class RenameTestUtil {
         if (actual == null) {
             return;
         }
-        if (actual.getAsJsonObject("changes").size() != 0) {
+        if (!actual.getAsJsonObject("changes").isEmpty()) {
             for (Map.Entry<String, JsonElement> jEntry : actual.getAsJsonObject("changes").entrySet()) {
                 String uri = jEntry.getKey().replace("\"", "");
                 String canonicalPath = new File(URI.create(uri)).getCanonicalPath();

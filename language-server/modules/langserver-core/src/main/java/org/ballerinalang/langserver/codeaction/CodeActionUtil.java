@@ -259,7 +259,7 @@ public class CodeActionUtil {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
+            typesMap.put(recordTypeSymbol, (!recordTypeSymbol.fieldDescriptors().isEmpty()) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()

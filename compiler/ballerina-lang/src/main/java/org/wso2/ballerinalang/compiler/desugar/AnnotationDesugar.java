@@ -16,9 +16,9 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -279,7 +279,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                StringEscapeUtils.unescapeJava(classDef.name.value));
+                Utils.unescapeJava(classDef.name.value));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol);
         indexAccessNode.setBType(((BMapType) annotationMap.getBType()).constraint);
 
@@ -1020,7 +1020,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = targetPos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType,
-                StringEscapeUtils.unescapeJava(identifier));
+                Utils.unescapeJava(identifier));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
         indexAccessNode.setBType(((BMapType) mapVar.getBType()).constraint);
         assignmentStmt.varRef = indexAccessNode;

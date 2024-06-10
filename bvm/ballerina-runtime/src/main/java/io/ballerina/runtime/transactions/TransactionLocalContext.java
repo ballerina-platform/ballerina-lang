@@ -159,6 +159,7 @@ public class TransactionLocalContext {
 
     public void notifyAbortAndClearTransaction(String transactionBlockId) {
         transactionContextStore.clear();
+        transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId, true);
         transactionResourceManager.notifyAbort(globalTransactionId, transactionBlockId);
     }
 

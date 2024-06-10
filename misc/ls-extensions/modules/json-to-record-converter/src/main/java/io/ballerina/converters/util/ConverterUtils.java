@@ -37,7 +37,7 @@ public class ConverterUtils {
         String convertedType;
 
         //In the case where type is not specified return anydata by default
-        if (type == null || type.length() == 0) {
+        if (type == null || type.isEmpty()) {
             return "anydata";
         }
 
@@ -96,7 +96,7 @@ public class ConverterUtils {
                         identifier = stringBuilder.toString();
                     }
                     if (Constants.BAL_KEYWORDS.stream().anyMatch(Optional.ofNullable(identifier)
-                            .filter(sStr -> sStr.length() != 0)
+                            .filter(sStr -> !sStr.isEmpty())
                             .map(sStr -> sStr.substring(0, sStr.length() - 1))
                             .orElse(identifier)::equals)) {
                         identifier = "'" + identifier;

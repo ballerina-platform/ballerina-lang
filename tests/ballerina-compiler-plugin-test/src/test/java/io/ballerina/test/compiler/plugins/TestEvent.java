@@ -36,7 +36,7 @@ class TestEvent {
         PLUGIN_START("pluginStart"),
         PLUGIN_COMPLETE("pluginComplete");
 
-        String name;
+        final String name;
 
         Kind(String name) {
             this.name = name;

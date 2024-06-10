@@ -52,7 +52,7 @@ public class FrameClassGen {
 
         for (BIRNode.BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-            if (attachedFuncs == null || attachedFuncs.size() == 0) {
+            if (attachedFuncs == null || attachedFuncs.isEmpty()) {
                 continue;
             }
 

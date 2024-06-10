@@ -36,5 +36,4 @@ public enum DependencyVersionKind {
      * Indicates that the dependency version is resolved by the package resolver.
      */
     LATEST,
-    ;
 }

@@ -33,7 +33,7 @@ public interface JsonDataSource {
      * @param gen The {@link JsonGenerator} object to write the data to
      * @throws IOException Error occurs while serializing
      */
-    void serialize(JsonGenerator gen) throws IOException;;
+    void serialize(JsonGenerator gen) throws IOException;
 
     /**
      * Returns {@code true} if the data-source has more JSON elements.

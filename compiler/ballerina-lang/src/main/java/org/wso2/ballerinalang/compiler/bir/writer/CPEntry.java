@@ -255,7 +255,7 @@ public class CPEntry {
         CP_ENTRY_BYTE((byte) 6),
         CP_ENTRY_SHAPE((byte) 7);
 
-        byte value;
+        final byte value;
 
         Type(byte value) {
             this.value = value;

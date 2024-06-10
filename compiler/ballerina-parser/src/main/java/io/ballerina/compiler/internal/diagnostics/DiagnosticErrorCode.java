@@ -363,8 +363,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION("BCE0687", "error.collect.clause.in.query.action")
     ;
 
-    String diagnosticId;
-    String messageKey;
+    final String diagnosticId;
+    final String messageKey;
 
     DiagnosticErrorCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

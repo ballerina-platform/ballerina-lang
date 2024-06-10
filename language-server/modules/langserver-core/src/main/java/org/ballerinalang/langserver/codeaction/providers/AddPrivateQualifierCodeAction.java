@@ -89,7 +89,7 @@ public class AddPrivateQualifierCodeAction implements DiagnosticBasedCodeActionP
 
         // Get the start position of the qualifier list
         NodeList<Token> qualifiers = node.qualifierList();
-        if (qualifiers.size() > 0) {
+        if (!qualifiers.isEmpty()) {
             Position position = PositionUtil.toPosition(qualifiers.get(0).lineRange().startLine());
             return new TextEdit(new Range(position, position), privateKeyword);
         }

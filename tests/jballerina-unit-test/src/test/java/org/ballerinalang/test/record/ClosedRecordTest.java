@@ -230,11 +230,8 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, i++, "invalid token '||'", 23, 25);
         BAssertUtil.validateError(result, i++, "missing close brace token", 25, 25);
         BAssertUtil.validateError(result, i++, "missing type descriptor", 25, 27);
-        ;
         BAssertUtil.validateError(result, i++, "missing object keyword", 25, 29);
-        ;
         BAssertUtil.validateError(result, i, "missing open brace token", 25, 29);
-        ;
     }
 
     @Test(description = "Test ambiguous type resolution negative cases")

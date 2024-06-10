@@ -40,5 +40,5 @@ public enum AnnotationAttachPoint {
     EXTERNAL,
     VAR,
     CONST,
-    WORKER;
+    WORKER
 }

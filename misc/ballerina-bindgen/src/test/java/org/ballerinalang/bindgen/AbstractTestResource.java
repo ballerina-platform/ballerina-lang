@@ -22,7 +22,11 @@ package org.ballerinalang.bindgen;
  *
  * @since 2.0.0
  */
-abstract class RestrictedTestResource {
+abstract class AbstractTestResource {
+
+    AbstractTestResource() {
+    }
+
     private static long testField = 123456;
 
     int testMethod(int x) {

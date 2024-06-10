@@ -1274,7 +1274,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-        if (node.reDisjunction.sequenceList.size() == 0) {
+        if (node.reDisjunction.sequenceList.isEmpty()) {
             dlog.error(node.reDisjunction.pos, DiagnosticErrorCode.EMPTY_REGEXP_STRING_DISALLOWED, node.reDisjunction);
         } else {
             analyzeNode(node.reDisjunction, data);
@@ -2878,7 +2878,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 data.commonAnalyzerData);
 
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
-        if (matchClauses.size() == 0) {
+        if (matchClauses.isEmpty()) {
             return;
         }
         boolean onFailExists = matchStatement.onFailClause != null;
@@ -2905,7 +2905,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangMatchClause matchClause, AnalyzerData data) {
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
-        if (matchPatterns.size() == 0) {
+        if (matchPatterns.isEmpty()) {
             return;
         }
         SymbolEnv currentEnv = data.env;

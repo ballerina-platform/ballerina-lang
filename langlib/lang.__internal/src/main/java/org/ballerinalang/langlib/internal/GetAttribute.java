@@ -36,7 +36,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ER
 public class GetAttribute {
 
     public static Object getAttribute(BXml xmlVal, BString attrName, boolean optionalFiledAccess) {
-        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.size() == 0) {
+        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.isEmpty()) {
             if (!optionalFiledAccess) {
                 return createError(XML_OPERATION_ERROR, ErrorHelper.getErrorDetails(
                         ErrorCodes.EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES));

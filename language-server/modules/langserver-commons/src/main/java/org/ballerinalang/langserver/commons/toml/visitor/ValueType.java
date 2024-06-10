@@ -28,8 +28,8 @@ public enum ValueType {
     ARRAY("[", "]"),
     BOOLEAN("", "");
 
-    private String startingSeparator;
-    private String endingSeparator;
+    private final String startingSeparator;
+    private final String endingSeparator;
 
     private ValueType(String startingSeparator, String endingSeparator) {
         this.startingSeparator = startingSeparator;

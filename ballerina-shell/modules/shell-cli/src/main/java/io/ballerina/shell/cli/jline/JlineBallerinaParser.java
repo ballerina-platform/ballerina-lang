@@ -69,7 +69,7 @@ public class JlineBallerinaParser implements Parser {
         }
 
         // Add left-over from last word
-        if (currentWord.length() > 0 || cursor == line.length()) {
+        if (!currentWord.isEmpty() || cursor == line.length()) {
             words.add(currentWord.toString());
         }
         // Update indices and cursors

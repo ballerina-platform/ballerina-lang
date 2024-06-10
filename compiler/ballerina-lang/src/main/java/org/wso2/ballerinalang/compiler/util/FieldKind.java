@@ -30,5 +30,5 @@ package org.wso2.ballerinalang.compiler.util;
 public enum FieldKind {
     WITH_NS,
     SINGLE,
-    ALL;
+    ALL
 }

@@ -3828,7 +3828,7 @@ public class BallerinaParser extends AbstractParser {
 
             token = peek();
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-                if (recordFields.size() == 0) {
+                if (recordFields.isEmpty()) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
                             DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
                 } else {
@@ -4734,7 +4734,7 @@ public class BallerinaParser extends AbstractParser {
         // Invalidate public qualifier with isolated qualifier and declared with var
         if (publicQualifier != null) {
             if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
-                if (varDeclQuals.size() > 0) {
+                if (!varDeclQuals.isEmpty()) {
                     updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
                             DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
                 } else {
@@ -6623,7 +6623,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                if (metadata != null || qualifiers.size() > 0) {
+                if (metadata != null || !qualifiers.isEmpty()) {
                     return createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 }
                 return null;
@@ -7836,7 +7836,7 @@ public class BallerinaParser extends AbstractParser {
                                     STNode serviceKeyword, STNode serviceType) {
         // Invalidate public qualifier if present
         if (publicQualifier != null) {
-            if (qualList.size() > 0) {
+            if (!qualList.isEmpty()) {
                 updateFirstNodeInListWithLeadingInvalidNode(qualList, publicQualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             } else {
@@ -15472,7 +15472,7 @@ public class BallerinaParser extends AbstractParser {
                 argListMatchPatterns.add(argEnd);
                 argListMatchPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListMatchPatterns.size() == 0) {
+            } else if (argListMatchPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -16339,7 +16339,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListBindingPattern(STNode openBracket, List<STNode> bindingPatternsList) {
-        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.size() == 0) {
+        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.isEmpty()) {
             // Handle empty list binding pattern
             STNode closeBracket = parseCloseBracket();
             STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatternsList);
@@ -16804,7 +16804,7 @@ public class BallerinaParser extends AbstractParser {
                 argListBindingPatterns.add(argEnd);
                 argListBindingPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListBindingPatterns.size() == 0) {
+            } else if (argListBindingPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -19418,7 +19418,7 @@ public class BallerinaParser extends AbstractParser {
                 STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
                 STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
                 
-                if (keys.size() != 0) {
+                if (!keys.isEmpty()) {
                     return ambiguousNode;
                 }
                 

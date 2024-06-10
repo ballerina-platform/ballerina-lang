@@ -27,7 +27,7 @@ public enum AnalyzeType {
     ADVANCED("advanced"),
     REALTIME("realtime");
 
-    private String analyzeType;
+    private final String analyzeType;
     AnalyzeType(String analyzeType) {
         this.analyzeType = analyzeType;
     }

@@ -319,7 +319,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             this.type = getSequenceType(tempExprType);
             return;
         }
-        this.type = PredefinedTypes.TYPE_XML;;
+        this.type = PredefinedTypes.TYPE_XML;
     }
 
     /**

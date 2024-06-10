@@ -251,7 +251,7 @@ public class BallerinaTriggerModifyUtil {
                     if (MAIN.equalsIgnoreCase(type)) {
                         if (service.get().metadata().isPresent()
                                 && service.get().metadata().get().annotations() != null &&
-                                service.get().metadata().get().annotations().size() > 0) {
+                                !service.get().metadata().get().annotations().isEmpty()) {
                             edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
                                     "MAIN_START", service.get().metadata().get().annotations().get(0)
                                             .lineRange().startLine().line(),

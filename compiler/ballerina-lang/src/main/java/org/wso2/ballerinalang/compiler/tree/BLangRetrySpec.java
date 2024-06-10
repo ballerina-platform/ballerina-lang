@@ -78,6 +78,6 @@ public class BLangRetrySpec extends BLangNode implements RetrySpecNode {
         StringJoiner stringJoiner = new StringJoiner(",");
         argExprs.forEach(arg -> stringJoiner.add(arg.toString()));
         return (retryManagerType != null ? "<" + retryManagerType + ">" : "") +
-                (argExprs.size() > 0 ? "(" + stringJoiner.toString() + ")" : "");
+                (!argExprs.isEmpty() ? "(" + stringJoiner.toString() + ")" : "");
     }
 }

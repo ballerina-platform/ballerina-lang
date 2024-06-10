@@ -81,9 +81,9 @@ public class DocumentSymbolUtil {
      * @return isDeprecated.
      */
     public static boolean isDeprecated(MetadataNode metadata) {
-        return metadata.annotations().stream().filter(annotation ->
+        return !metadata.annotations().stream().filter(annotation ->
                 annotation.annotReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                         && ((SimpleNameReferenceNode) annotation.annotReference()).name().text()
-                        .equals("deprecated")).collect(Collectors.toList()).size() > 0;
+                        .equals("deprecated")).collect(Collectors.toList()).isEmpty();
     }
 }

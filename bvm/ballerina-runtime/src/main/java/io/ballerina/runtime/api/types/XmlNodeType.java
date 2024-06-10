@@ -30,7 +30,7 @@ public enum XmlNodeType {
     COMMENT("comment"),
     PI("pi");
 
-    String nodeType;
+    final String nodeType;
 
     XmlNodeType(String value) {
         nodeType = value;

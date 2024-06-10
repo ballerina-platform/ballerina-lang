@@ -114,7 +114,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
             Token prefix = prefixNode.prefix();
             if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
                 int startOffset = importNode.moduleName().get(importNode.moduleName().size() - 1)
-                        .textRange().endOffset();;
+                        .textRange().endOffset();
                 Range insertRange = PositionUtil.toRange(startOffset,
                         prefixNode.textRange().endOffset(), context.currentSyntaxTree().get().textDocument());
                 List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, ""));

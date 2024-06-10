@@ -423,7 +423,7 @@ public class ClientResourceAccessActionNodeContext
             return false;
         }
         return (functionTypeSymbol.params().isEmpty()
-                || functionTypeSymbol.params().get().size() == 0)
+                || functionTypeSymbol.params().get().isEmpty())
                 && functionTypeSymbol.restParam().isEmpty();
     }
 }

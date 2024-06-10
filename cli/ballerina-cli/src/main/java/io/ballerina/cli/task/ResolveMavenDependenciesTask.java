@@ -73,7 +73,7 @@ public class ResolveMavenDependenciesTask implements Task {
             mavenCustomRepos.add(repository);
         }
 
-        if (mavenCustomRepos.size() > 0) {
+        if (!mavenCustomRepos.isEmpty()) {
             for (Map<String, Object> repository : mavenCustomRepos) {
                 if (repository.get("id") != null && repository.get("url") != null &&
                         repository.get("username") != null && repository.get("password") != null) {
@@ -96,7 +96,7 @@ public class ResolveMavenDependenciesTask implements Task {
             }
         }
 
-        if (mavenDependencies.size() > 0) {
+        if (!mavenDependencies.isEmpty()) {
             out.println("Resolving Maven dependencies\n\tDownloading dependencies into " + targetRepo);
             for (Map<String, Object> library : mavenDependencies) {
                 try {
