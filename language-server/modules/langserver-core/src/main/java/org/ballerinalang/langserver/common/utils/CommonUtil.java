@@ -61,6 +61,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,8 +75,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
@@ -269,7 +268,7 @@ public class CommonUtil {
      * @return The identifier with escape characters escaped
      */
     public static String escapeEscapeCharsInIdentifier(String identifier) {
-        return identifier.replace("\\", "\\\\\\\\");
+        return identifier.replace("\\", "\\\\");
     }
 
     /**
@@ -279,8 +278,8 @@ public class CommonUtil {
      * @return Processed text
      */
     public static String escapeSpecialCharsInInsertText(String text) {
-        return text.replace("\\", "\\\\\\\\")
-                .replace("$", Matcher.quoteReplacement("\\$"));
+        return text.replace("\\", "\\\\")
+                .replace("$", "\\$");
     }
 
     /**
