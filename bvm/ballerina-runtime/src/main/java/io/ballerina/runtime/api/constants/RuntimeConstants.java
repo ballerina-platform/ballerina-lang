@@ -108,7 +108,7 @@ public class RuntimeConstants {
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775808.5",
                                                                                          MathContext.DECIMAL128);
     // runtime related error message constant values
-    public static final String INTERNAL_ERROR_MESSAGE ="""
+    public static final String INTERNAL_ERROR_MESSAGE = """
             ballerina: Oh no, something really went wrong. Bad. Sad.
 
             We appreciate it if you can report the code that broke Ballerina in
