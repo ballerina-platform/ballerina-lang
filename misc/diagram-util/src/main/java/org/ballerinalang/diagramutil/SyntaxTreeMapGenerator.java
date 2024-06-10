@@ -296,7 +296,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 if (semanticModel != null) {
                     Optional<Symbol> expressionSymbol = this.semanticModel.symbol(
                             remoteMethodCallActionNode.expression());
-                    if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol variableSymbol) {
+                    if (expressionSymbol.isPresent() &&
+                            expressionSymbol.get() instanceof VariableSymbol variableSymbol) {
                         markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
                     }
                 }

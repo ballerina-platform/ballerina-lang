@@ -88,7 +88,8 @@ public class QNameReferenceUtil {
      * @return {@link Boolean}
      */
     public static boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
-        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE || !(node instanceof QualifiedNameReferenceNode qNameRef)) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                !(node instanceof QualifiedNameReferenceNode qNameRef)) {
             return false;
         }
         int colonPos = qNameRef.colon().textRange().startOffset();
