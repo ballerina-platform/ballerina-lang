@@ -303,7 +303,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                                         + "The key sequence should only have an " +
                                                                            "Integer field."));
         }
-        return indexToKeyMap.size() == 0 ? 0 : (this.maxIntKey + 1);
+        return indexToKeyMap.isEmpty() ? 0 : (this.maxIntKey + 1);
     }
 
     public Type getKeyType() {
@@ -535,7 +535,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public boolean hasNext() {
-           return cursor < noOfAddedEntries && values.size() != 0;
+           return cursor < noOfAddedEntries && !values.isEmpty();
         }
     }
 
@@ -610,7 +610,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                         ErrorHelper.getErrorDetails(ErrorCodes.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
-            if (nextKeySupported && (indexToKeyMap.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
+            if (nextKeySupported && (indexToKeyMap.isEmpty() || maxIntKey < TypeChecker.anyToInt(key))) {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 

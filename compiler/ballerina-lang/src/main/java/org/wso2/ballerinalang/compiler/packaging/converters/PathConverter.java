@@ -93,7 +93,7 @@ public class PathConverter implements Converter<Path> {
                 }
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
-                            && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
+                            && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {
                         packageID.version = new Name(pathList.get(0).toFile().getName());
                     }
                 }

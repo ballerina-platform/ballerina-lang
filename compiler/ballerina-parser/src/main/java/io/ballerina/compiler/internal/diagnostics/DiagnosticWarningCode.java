@@ -50,8 +50,8 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     WARNING_INVALID_ESCAPE_SEQUENCE("BCE10102", "warning.invalid.escape.sequence"),
     ;
 
-    String diagnosticId;
-    String messageKey;
+    final String diagnosticId;
+    final String messageKey;
 
     DiagnosticWarningCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

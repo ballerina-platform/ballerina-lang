@@ -159,6 +159,6 @@ public class SemanticVersion {
         INCOMPATIBLE,
         EQUAL,
         LESS_THAN,
-        GREATER_THAN;
+        GREATER_THAN
     }
 }
