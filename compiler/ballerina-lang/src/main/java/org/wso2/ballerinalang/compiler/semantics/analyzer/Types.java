@@ -7036,7 +7036,7 @@ public class Types {
     }
 
     private enum ContextOption {
-        LEFT, RIGHT, NON;
+        LEFT, RIGHT, NON
     }
 
     private void populateBasicTypes(BType type, Set<BasicTypes> basicTypes) {
