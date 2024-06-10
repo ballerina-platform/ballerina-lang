@@ -160,13 +160,13 @@ function testXMLNavigationWithEscapeCharacter() {
     xml x4 = x2/<ns:child\-node>;
     assert(x4, xml `<ns:child-node xmlns:ns="foo"/>`);
 
-    xml x5 = x1/**/<person>/<home\-address>;
+    xml x5 = x1/**/<home\-address>;
     assert(x5, xml `<home-address>some address</home-address>`);
 
-    xml x6 = x1/**/<person>/<name|home\-address>;
+    xml x6 = x1/**/<name|home\-address>;
     assert(x6, xml `<name>John</name><home-address>some address</home-address>`);
 
-    xml x7 = x1/**/<person>/<name|home\-address>.<home\-address>;
+    xml x7 = x1/**/<name|home\-address>.<home\-address>;
     assert(x7, xml `<home-address>some address</home-address>`);
 }
 
@@ -276,6 +276,45 @@ function assertXmlNavigationWithDefaultNamespaceDefinedAfter(xml[] results) {
     assert(results[15], xml ``);
     assert(results[16], xml `<f><g>f</g></f><h>h</h>`);
     assert(results[17], xml ``);
+}
+
+function testXmlDescendantStepExpression() {
+    xml x1 = xml `<a><b>b</b></a><b>c</b>`;
+    assert(x1/**/<a>, xml ``);
+    assert(x1/**/<b>, xml `<b>b</b>`);
+    assert(x1[0]/**/<b>, xml `<b>b</b>`);
+    assert(x1.<a>/**/<b>, xml `<b>b</b>`);
+
+    xml x2 = xml `<b><a>a</a><c><a>b</a></c></b> `;
+    assert(x2/**/<a>, xml `<a>a</a><a>b</a>`);
+    assert(x2/**/<a|c>, xml `<a>a</a><c><a>b</a></c><a>b</a>`);
+    assert(x2/**/<c>/**/<a>, xml `<a>b</a>`);
+    assert(x2/**/<b>, xml ``);
+
+    xml x3 = xml `<b><!--Comment--><a><?data?></a><c><a>bcd</a></c></b>`;
+    assert(x3/**/<a>, xml `<a><?data?></a><a>bcd</a>`);
+    assert(x3/**/<b>, xml ``);
+    assert(x3/**/<d>, xml ``);
+    assert(x3/*/**/<a>, xml `<a>bcd</a>`);
+
+    xml:Element x4 = xml `<m><n>n</n><k><p><n/></p></k></m>`;
+    assert(x4/**/<n>, xml `<n>n</n><n/>`);
+    assert(x4/**/<p>, xml `<p><n/></p>`);
+    assert((x4/**/<p>)[0]/**/<n>, xml `<n/>`);
+    assert(x4/**/<k|m>, xml `<k><p><n/></p></k>`);
+    assert(x4.<m>[0]/**/<n|p>, xml `<n>n</n><p><n/></p><n/>`);
+
+    xml x5 = xml `Xml Text`;
+    assert(x5/**/<a>, xml ``);
+
+    xml x6 = xml `<!--Comment-->`;
+    assert(x6/**/<a>, xml ``);
+
+    xml x7 = xml `<?data?>`;
+    assert(x7/**/<a>, xml ``);
+
+    xml x8 = xml `<m/>`;
+    assert(x8/**/<m>, xml ``);
 }
 
 function assert(anydata actual, anydata expected) {
