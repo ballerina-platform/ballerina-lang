@@ -737,6 +737,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
+        validateInherentTypeOfExistingMembers(index, vals.length);
         unshiftArray(index, vals.length, getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }
@@ -806,7 +807,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
-        int lastIndex = size() + unshiftByN - 1;
+        int currSize = size();
+        int lastIndex = currSize + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
             throw ErrorHelper.getRuntimeException(
@@ -815,7 +817,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         int i = (int) index;
-        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, this.size - i);
+        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, currSize - i);
     }
 
     private int getCurrentArrayLength() {
@@ -825,6 +827,19 @@ public class TupleValueImpl extends AbstractArrayValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
+        }
+    }
+
+    private void validateInherentTypeOfExistingMembers(long index, int offset) {
+        Type targetType;
+        for (long i = index; i < this.size; i++) {
+            targetType = i + offset >= this.tupleType.getTupleTypes().size() ?
+                    this.tupleType.getRestType() : this.tupleType.getTupleTypes().get((int) (i + offset));
+            if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
+                throw ErrorHelper.getRuntimeException(
+                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                        ErrorCodes.INCOMPATIBLE_TYPE, TypeChecker.getType(this.getRefValue(i)), targetType);
+            }
         }
     }
 }

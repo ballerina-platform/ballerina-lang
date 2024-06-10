@@ -707,6 +707,72 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
+function testUnshiftOperation() {
+    testUnshiftTuplesPositives();
+    testUnshiftTuplesNegatives();
+}
+
+function testUnshiftTuplesPositives() {
+    [int, int...] tuple1 = [];
+    [int, int, int...] tuple3 = [1, 3, 4, 5, 7];
+    [int, int...] list = [];
+
+    tuple1.unshift(5, 6, 7, 8);
+    tuple3.unshift(12, 67);
+    foreach int i in 0 ..< 400 {
+        list.unshift(i);
+    }
+
+    assertValueEquality([5, 6, 7, 8, 0], tuple1);
+    assertValueEquality([12, 67, 1, 3, 4, 5, 7], tuple3);
+    assertValueEquality(401, list.length());
+    assertValueEquality(399, list[0]);
+    assertValueEquality(199, list[200]);
+    assertValueEquality(0, list[399]);
+    assertValueEquality(0, list[400]);
+}
+
+function testUnshiftTuplesNegatives() {
+    [boolean, string...] tuple1 = [];
+    [int, boolean, string...] tuple2 = [8, false, "hello"];
+    [int, boolean, string...] tuple3 = [];
+
+    var fn1 = function() {
+        tuple1.unshift("hello");
+    };
+
+    var fn2 = function() {
+        tuple2.unshift(false, 78, "world");
+    };
+
+    var fn3 = function() {
+        tuple3.unshift(10, false, "Hello", "World");
+    };
+
+    error? res1 = trap fn1();
+    error? res2 = trap fn2();
+    error? res3 = trap fn3();
+    assertTrue(res1 is error);
+    assertTrue(res2 is error);
+    assertTrue(res3 is error);
+
+    error err1 = <error>res1;
+    error err2 = <error>res2;
+    error err3 = <error>res3;
+    var message1 = err1.detail()["message"];
+    var message2 = err2.detail()["message"];
+    var message3 = err3.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
+    string detailMessage3 = message3 is error ? message3.toString() : message3.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("incompatible types: expected 'boolean', found 'string'", detailMessage1);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err3.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage3);
+}
+
 type Student record {|
     int id;
     string? fname;
