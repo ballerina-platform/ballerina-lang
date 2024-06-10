@@ -20,6 +20,10 @@ package io.ballerina.runtime.api.types.semtype;
 
 public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
+    public TypeAtom {
+        assert atomicType != null;
+    }
+
     public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
     }
