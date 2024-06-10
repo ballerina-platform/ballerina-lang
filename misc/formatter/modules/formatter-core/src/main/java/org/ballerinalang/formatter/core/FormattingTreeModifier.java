@@ -261,7 +261,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.openBraceTrailingNLs;

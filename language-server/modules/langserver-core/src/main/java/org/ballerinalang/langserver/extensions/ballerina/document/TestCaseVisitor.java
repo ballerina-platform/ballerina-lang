@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 /**
  * Visitor class for testcases.

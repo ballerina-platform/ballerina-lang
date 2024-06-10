@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.commons.SnippetContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Carries a set of utilities used in default value generation.

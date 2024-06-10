@@ -32,7 +32,6 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.semver.checker.util.SemverUtils.BAL_FILE_EXT;
 

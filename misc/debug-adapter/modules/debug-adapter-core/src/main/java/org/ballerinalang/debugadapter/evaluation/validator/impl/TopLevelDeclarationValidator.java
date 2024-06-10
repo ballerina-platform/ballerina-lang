@@ -26,7 +26,6 @@ import org.ballerinalang.debugadapter.evaluation.parser.DebugParser;
 import org.ballerinalang.debugadapter.evaluation.validator.Validator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_IMPORT;
 import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_TOPLEVEL_DCLN;

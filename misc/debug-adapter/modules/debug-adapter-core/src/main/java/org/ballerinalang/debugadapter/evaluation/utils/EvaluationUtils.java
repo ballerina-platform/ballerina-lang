@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
