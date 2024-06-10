@@ -183,7 +183,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
         }
 
         if (generateReadonly) {
-            if (result.length() > 0) {
+            if (!result.isEmpty()) {
                 result.append(" and ");
             }
             result.append("'").append(SyntaxKind.READONLY_KEYWORD.stringValue()).append("'");

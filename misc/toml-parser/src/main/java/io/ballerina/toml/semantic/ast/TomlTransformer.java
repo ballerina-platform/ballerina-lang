@@ -615,7 +615,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
      * @return TomlNodeLocation
      */
     private TomlNodeLocation getTomlNodeListLocation(List<? extends TomlNode> tomlNodes) {
-        if (tomlNodes.size() == 0) {
+        if (tomlNodes.isEmpty()) {
             return null;
         }
         TomlNode firstNode = tomlNodes.get(0);

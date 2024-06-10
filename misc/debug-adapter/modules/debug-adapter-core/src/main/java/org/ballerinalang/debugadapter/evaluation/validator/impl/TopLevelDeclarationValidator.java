@@ -63,6 +63,6 @@ public class TopLevelDeclarationValidator extends Validator {
         List<ModuleMemberDeclarationNode> members = memberNodes.stream()
                 .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL && !node.hasDiagnostics())
                 .collect(Collectors.toList());
-        failIf(members.size() > 0, UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
+        failIf(!members.isEmpty(), UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
     }
 }

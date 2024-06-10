@@ -853,7 +853,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordType.restFieldType = new BNoType(TypeTags.NONE);
         recordTypeSymbol.type = recordType;
 
-        if (constValueMap.size() != 0) {
+        if (!constValueMap.isEmpty()) {
             if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env)) {
                 return null;
             }

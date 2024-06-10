@@ -222,7 +222,7 @@ public class ServiceTemplateGenerator {
 
         //Check if the first parameter of the attach method is a subtype of service object.
         Optional<List<ParameterSymbol>> params = attachMethod.typeDescriptor().params();
-        if (params.isEmpty() || params.get().size() == 0) {
+        if (params.isEmpty() || params.get().isEmpty()) {
             return Optional.empty();
         }
         TypeSymbol typeSymbol = CommonUtil.getRawType(params.get().get(0).typeDescriptor());
@@ -274,7 +274,7 @@ public class ServiceTemplateGenerator {
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, getCurrentModuleID(context),
                 serviceSnippet.moduleID, context);
-        Boolean shouldImport = importsAcceptor.getNewImports().size() > 0;
+        Boolean shouldImport = !importsAcceptor.getNewImports().isEmpty();
         String moduleAlias = modulePrefix.replace(":", "");
         String moduleName = ModuleUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
 

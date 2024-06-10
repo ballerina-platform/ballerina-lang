@@ -631,7 +631,7 @@ public class JsonToRecordMapper {
      */
     private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames,
                                                                     boolean isOptional) {
-        if (typeNames.size() == 0) {
+        if (typeNames.isEmpty()) {
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
             return NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         } else if (typeNames.size() == 1) {

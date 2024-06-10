@@ -990,7 +990,7 @@ public class JvmTerminatorGen {
         boolean concurrent = false;
         String strandName = null;
         // check for concurrent annotation
-        if (callIns.annotAttachments.size() > 0) {
+        if (!callIns.annotAttachments.isEmpty()) {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
                         !STRAND.equals(annotationAttachment.annotTagRef.value) ||

@@ -113,7 +113,7 @@ public class FileUtils {
         ) {
             String content;
             while ((content = br.readLine()) != null) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append('\n');
                 }
                 sb.append(content);

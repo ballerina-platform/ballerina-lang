@@ -330,7 +330,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        return (bLangInvocation.symbol instanceof BInvokableSymbol && bLangInvocation.getRequiredArgs().size() > 0) ?
+        return (bLangInvocation.symbol instanceof BInvokableSymbol && !bLangInvocation.getRequiredArgs().isEmpty()) ?
                 transformFunctionOrMethod(bLangNode,
                         ((BLangNode) bLangInvocation.getRequiredArgs().get(0)).getBType(),
                         (BInvokableSymbol) bLangInvocation.symbol, node.arguments(),
@@ -475,7 +475,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
-            if (params.size() == 0) {
+            if (params.isEmpty()) {
                 throw new IllegalStateException();
             }
 
@@ -620,7 +620,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             Token openParen = node.openParenToken();
             Token closeParen = node.closeParenToken();
             if (isWithinParenthesis(openParen, closeParen)) {
-                if (bLangActionInvocation.argExprs.size() == 0) {
+                if (bLangActionInvocation.argExprs.isEmpty()) {
                     return getTypeFromBType(((BInvokableSymbol) bLangActionInvocation.symbol).
                             getParameters().get(0).getType());
                 }
@@ -1235,7 +1235,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                                                            SeparatedNodeList<FunctionArgumentNode> arguments,
                                                            Token openParenToken, Token closeParenToken,
                                                            boolean hasFirstArg) {
-        if (originalInvokable == null || originalInvokable.params.size() == 0) {
+        if (originalInvokable == null || originalInvokable.params.isEmpty()) {
             return getExpectedTypeFromFunction(bLangNode, openParenToken, closeParenToken);
         }
 

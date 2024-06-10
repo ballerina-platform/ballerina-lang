@@ -901,7 +901,7 @@ public class TypeResolver {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                     symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
             BArrayType arrType;
-            if (td.sizes.size() == 0) {
+            if (td.sizes.isEmpty()) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = td.sizes.get(i);

@@ -377,7 +377,7 @@ public class Module {
                 visited.add(updatedModuleDescriptor);
                 Collection<ModuleDescriptor> directDependents = this.project.currentPackage()
                         .moduleDependencyGraph().getDirectDependents(updatedModuleDescriptor);
-                if (directDependents.size() > 0) {
+                if (!directDependents.isEmpty()) {
                     dependants.addAll(directDependents);
                     for (ModuleDescriptor directDependent : directDependents) {
                         getAllDependants(directDependent, visited, dependants);
