@@ -178,7 +178,7 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void xmlWithDefaultNamespaceToString() {
         Object returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
-        Assert.assertEquals(returns.toString(),"""
+        Assert.assertEquals(returns.toString(), """
                         <Order xmlns="http://acme.company" xmlns:acme="http://acme.company.nondefault">
                                 <OrderLines>
                                     <OrderLine acme:lineNo="334" itemCode="334-2"/>
