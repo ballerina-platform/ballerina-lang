@@ -265,7 +265,13 @@ public final class Core {
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
         // IF t1 and t2 are not pure semtypes calling this is an undefined
-        return isEmpty(cx, diff(t1, t2));
+        Optional<Boolean> cached = t1.cachedSubTypeRelation(t2);
+        if (cached.isPresent()) {
+            return cached.get();
+        }
+        boolean result = isEmpty(cx, diff(t1, t2));
+        t1.cacheSubTypeRelation(t2, result);
+        return result;
     }
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {
