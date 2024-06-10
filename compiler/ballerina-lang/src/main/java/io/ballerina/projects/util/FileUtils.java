@@ -170,7 +170,7 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).collect(Collectors.toList())) {
+            for (Path dir : Files.list(path).toList()) {
                 deletePath(dir);
             }
         }

@@ -503,7 +503,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
                 .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
-                .collect(Collectors.toList());
+                .toList();
 
         // Copy all the jars
         for (JarLibrary library : sortedJarLibraries) {

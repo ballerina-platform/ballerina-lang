@@ -72,7 +72,7 @@ public class TransactionImportValidator extends NodeVisitor {
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
         List<String> qualifiers = functionDefinitionNode.qualifierList().stream().map(Token::text)
-                .collect(Collectors.toList());
+                .toList();
         if (qualifiers.contains(SyntaxKind.TRANSACTIONAL_KEYWORD.stringValue()) &&
                 qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
             importTransactionPackage = true;

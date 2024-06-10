@@ -174,7 +174,7 @@ public class BallerinaTreeModifyUtil {
         List<TextEdit> edits = new ArrayList<>();
         List<ASTModification> importModifications = Arrays.stream(astModifications)
                 .filter(ASTModification::isImport)
-                .collect(Collectors.toList());
+                .toList();
         for (ASTModification importModification : importModifications) {
             if (importExist(unusedSymbolsVisitor, importModification)) {
                 continue;

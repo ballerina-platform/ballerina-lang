@@ -200,7 +200,7 @@ public final class FunctionCompletionItemBuilder {
             functionParameters.addAll(functionTypeDesc.params().get());
             defaultParams.addAll(functionParameters.stream()
                     .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         MarkupContent docMarkupContent = new MarkupContent();

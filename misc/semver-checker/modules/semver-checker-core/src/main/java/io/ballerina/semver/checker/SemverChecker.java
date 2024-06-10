@@ -129,7 +129,7 @@ public class SemverChecker {
             // Todo - support toml changes validation
             List<Diagnostic> srcErrors = compilation.diagnosticResult().errors().stream()
                     .filter(diagnostic -> diagnostic.location().lineRange().fileName().endsWith(BAL_FILE_EXT))
-                    .collect(Collectors.toList());
+                    .toList();
             if (srcErrors.isEmpty()) {
                 return;
             }

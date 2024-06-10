@@ -46,7 +46,7 @@ public class TestCaseVisitor extends NodeVisitor {
             functionDefinitionNode.metadata().get().annotations().stream()
                     .filter(annotationNode -> annotationNode.annotReference().toString().trim()
                             .equals(ExecutorPositionsUtil.TEST_CONFIG))
-                    .collect(Collectors.toList())
+                    .toList()
                     .forEach(annotationNode -> {
                         JsonObject testCase = new JsonObject();
                         testCase.addProperty(ExecutorPositionsUtil.KIND, ExecutorPositionsUtil.TEST);

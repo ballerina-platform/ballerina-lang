@@ -62,7 +62,7 @@ public class TopLevelDeclarationValidator extends Validator {
         // module-level variable declaration during this validation phase.
         List<ModuleMemberDeclarationNode> members = memberNodes.stream()
                 .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL && !node.hasDiagnostics())
-                .collect(Collectors.toList());
+                .toList();
         failIf(!members.isEmpty(), UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
     }
 }

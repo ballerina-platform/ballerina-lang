@@ -1172,7 +1172,7 @@ public class Types {
                 BUnionType unionType = (BUnionType) constraintType;
                 Set<BType> memTypes = unionType.getMemberTypes();
                 List<BField> fields = memTypes.stream().map(type -> getTableConstraintField(type, fieldName))
-                        .filter(Objects::nonNull).collect(Collectors.toList());
+                        .filter(Objects::nonNull).toList();
 
                 if (fields.size() != memTypes.size()) {
                     return null;
@@ -5180,7 +5180,7 @@ public class Types {
                     .filter(t -> getImpliedType(t).tag != TypeTags.READONLY)
                     .map(t -> getIntersection(intersectionContext, t, env, finalType, visitedTypes))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
             if (types.size() == 1) {
                 BType bType = types.get(0);
 

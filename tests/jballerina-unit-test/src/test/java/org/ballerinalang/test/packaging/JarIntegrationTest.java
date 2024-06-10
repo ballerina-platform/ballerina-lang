@@ -54,7 +54,7 @@ public class JarIntegrationTest {
 
         PackageID moduleID = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
         List<CompilerInput> sources = balPatten.convertToSources(subject, moduleID)
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertEquals(sources.size(), 1);
         Assert.assertEquals(sources.get(0).getCode(), BAL_CONTENT);

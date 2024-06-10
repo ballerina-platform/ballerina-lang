@@ -126,7 +126,7 @@ public class LangLibFunctionBinder {
 
         List<BType> paramTypes = new ArrayList<>();
         if (newParams.size() == original.paramTypes.size()) {
-            paramTypes.addAll(newParams.stream().map(BSymbol::getType).collect(Collectors.toList()));
+            paramTypes.addAll(newParams.stream().map(BSymbol::getType).toList());
         } else {
             paramTypes.addAll(original.paramTypes);
         }

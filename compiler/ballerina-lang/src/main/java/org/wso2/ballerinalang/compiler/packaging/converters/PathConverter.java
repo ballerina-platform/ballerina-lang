@@ -89,7 +89,7 @@ public class PathConverter implements Converter<Path> {
                             .sorted(Comparator.reverseOrder())
                             .limit(1)
                             .map(SortablePath::getPath)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)

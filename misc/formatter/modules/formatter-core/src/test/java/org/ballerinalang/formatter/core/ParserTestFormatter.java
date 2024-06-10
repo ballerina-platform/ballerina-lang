@@ -209,7 +209,7 @@ public class ParserTestFormatter extends FormatterTest {
         try {
             return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
                     .filter(f -> f.getFileName().toString().equals(fileName))
-                    .collect(Collectors.toList()).get(0).toString());
+                    .toList().get(0).toString());
         } catch (IOException e) {
             return Optional.empty();
         }

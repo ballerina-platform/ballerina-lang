@@ -218,7 +218,7 @@ public class EvaluationUtils {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
-                compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
+                compare(method.argumentTypeNames(), argTypeNames)).toList();
         if (methods.size() != 1) {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
         }
@@ -239,7 +239,7 @@ public class EvaluationUtils {
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
-                .collect(Collectors.toList());
+                .toList();
 
         if (methods.size() != 1) {
             throw createEvaluationException(HELPER_UTIL_NOT_FOUND, methodName);
@@ -633,7 +633,7 @@ public class EvaluationUtils {
             // during the runtime code generation, such local variables should be accessed in a different manner.
             List<LocalVariableProxyImpl> lambdaParamMaps = context.getFrame().visibleVariables().stream()
                     .filter(org.ballerinalang.debugadapter.variable.VariableUtils::isLambdaParamMap)
-                    .collect(Collectors.toList());
+                    .toList();
 
             Optional<Value> localVariableMatch = lambdaParamMaps.stream()
                     .map(localVariableProxy -> {

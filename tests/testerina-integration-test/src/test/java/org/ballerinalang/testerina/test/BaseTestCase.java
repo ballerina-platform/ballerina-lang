@@ -72,7 +72,7 @@ public class BaseTestCase {
         try {
             packageDirs = Files.walk(projectBasedTestsPath, 1)
                     .filter(Files::isDirectory)
-                    .collect(Collectors.toList());
+                    .toList();
             for (Path dir : packageDirs) {
                 try {
                     FileUtils.copyBallerinaExec(dir, "");

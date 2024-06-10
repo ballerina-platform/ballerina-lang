@@ -99,7 +99,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
                 LSPackageLoader.ModuleInfo moduleInfo = getPackages(REMOTE_PROJECTS,
                         context.workspace(), context.languageServercontext()).stream()
                         .map(LSPackageLoader.ModuleInfo::new)
-                        .collect(Collectors.toList()).get(0);
+                        .toList().get(0);
                 this.remoteRepoPackages.add(moduleInfo);
                 return List.of(moduleInfo);
             }

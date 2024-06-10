@@ -140,7 +140,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                 List<ModuleSymbol> matchingModuleSymbols = visibleModuleSymbols.stream()
                         .filter(moduleSymbol -> moduleSymbol.id().orgName().equals(bImport.orgName())
                                 && moduleSymbol.id().moduleName().equals(bImport.moduleName()))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (matchingModuleSymbols.isEmpty()) {
                     capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, importAlias));
@@ -165,7 +165,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
                 .map(symbol -> ((ModuleSymbol) symbol))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private Optional<String> resolveImportOrgName(ImportDeclarationNode importNode) {

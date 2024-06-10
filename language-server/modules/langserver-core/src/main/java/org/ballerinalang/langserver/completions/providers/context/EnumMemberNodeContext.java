@@ -66,7 +66,7 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             List<Symbol> filteredSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                     .filter(filter)
-                    .collect(Collectors.toList());
+                    .toList();
             visibleSymbols.addAll(filteredSymbols);
         }
         completionItems.addAll(this.getCompletionItemList(visibleSymbols, ctx));

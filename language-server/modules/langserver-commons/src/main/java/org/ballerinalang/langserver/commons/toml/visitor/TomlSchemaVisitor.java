@@ -194,7 +194,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         for (Map.Entry<TomlNode, Map<String, CompletionItem>> entry : completions.entrySet()) {
             TomlNode key = entry.getKey();
             Map<String, CompletionItem> completionItemList = entry.getValue();
-            if (!completionItemList.entrySet().stream().filter(filter).collect(Collectors.toList()).isEmpty()) {
+            if (!completionItemList.entrySet().stream().filter(filter).toList().isEmpty()) {
                 optimizedCompletions.put(key, completionItemList);
             }
         }

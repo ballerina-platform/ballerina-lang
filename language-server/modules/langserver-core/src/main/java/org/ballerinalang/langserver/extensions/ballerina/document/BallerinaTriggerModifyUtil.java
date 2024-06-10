@@ -147,7 +147,7 @@ public class BallerinaTriggerModifyUtil {
             if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 List<String> qualifiers = functionDefinitionNode.qualifierList().stream().map(Token::text)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
                     resources.add(functionDefinitionNode);
                 }

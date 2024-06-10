@@ -251,7 +251,7 @@ public class ServiceTemplateGenerator {
             List<String> args = new ArrayList<>();
             List<ParameterSymbol> requiredParams = initMethod.get().typeDescriptor().params().get().stream()
                     .filter(parameterSymbol ->
-                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
+                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).toList();
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
                         DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())

@@ -163,7 +163,7 @@ public class ResolutionEngine {
 
     private void populateStaticDependencyGraph(Collection<DependencyNode> directDependencies) {
         List<DependencyNode> errorNodes = directDependencies.stream()
-                .filter(DependencyNode::errorNode).collect(Collectors.toList());
+                .filter(DependencyNode::errorNode).toList();
         for (DependencyNode errorNode : errorNodes) {
             graphBuilder.addErroneousDependency(
                     rootPkgDesc, errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);

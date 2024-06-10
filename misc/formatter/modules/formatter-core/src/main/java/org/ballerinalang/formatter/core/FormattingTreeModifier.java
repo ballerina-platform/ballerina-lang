@@ -4918,9 +4918,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNodeList(NodeFactory.createNodeList(thirdPartyImports), 0, 1, 0, 2);
 
         List<ImportDeclarationNode> imports = new ArrayList<>();
-        imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(moduleImportNodes.stream().toList());
+        imports.addAll(stdLibImportNodes.stream().toList());
+        imports.addAll(thirdPartyImportNodes.stream().toList());
 
         if (hasLeadingComments(firstImport)) {
             // This is to ensure license header remains at top of the file

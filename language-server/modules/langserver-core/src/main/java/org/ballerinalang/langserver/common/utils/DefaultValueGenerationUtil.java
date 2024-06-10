@@ -165,7 +165,7 @@ public class DefaultValueGenerationUtil {
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 List<String> memberDefaultValues = tupleType.memberTypeDescriptors().stream()
                         .map(member -> getDefaultValueForTypeDescKind(member).orElse(""))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (memberDefaultValues.isEmpty()) {
                     valueString = isSnippet ? "[${" + context.incrementAndGetPlaceholderCount() + "}]" : "[]";
@@ -199,7 +199,7 @@ public class DefaultValueGenerationUtil {
                 List<RecordFieldSymbol> mandatoryFieldSymbols = RecordUtil
                         .getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
                     String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
                             .typeDescriptor())).orElse("");
@@ -238,7 +238,7 @@ public class DefaultValueGenerationUtil {
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 List<TypeSymbol> nilMembers = members.stream()
-                        .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
+                        .filter(member -> member.typeKind() == TypeDescKind.NIL).toList();
                 if (nilMembers.isEmpty()) {
                     valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(members.get(0))).orElse("");
                     valueString = isSnippet ?

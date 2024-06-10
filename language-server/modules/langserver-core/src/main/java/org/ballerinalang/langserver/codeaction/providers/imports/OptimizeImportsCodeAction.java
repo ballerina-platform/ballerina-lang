@@ -141,7 +141,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         List<LineRange> reDeclaredImportLocations = context.diagnostics(context.filePath()).stream()
                 .filter(diag -> REDECLARED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
-                .collect(Collectors.toList());
+                .toList();
 
         Iterator<ImportDeclarationNode> iterator = fileImports.iterator();
         while (iterator.hasNext()) {

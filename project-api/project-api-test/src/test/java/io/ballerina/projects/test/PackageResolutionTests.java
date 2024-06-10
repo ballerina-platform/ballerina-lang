@@ -670,7 +670,7 @@ public class PackageResolutionTests extends BaseTest {
         // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
         Assert.assertEquals(diagnosticResult.errorCount(), 3);
         List<String> diagnosticMsgs = diagnosticResult.errors().stream()
-                .map(Diagnostic::message).collect(Collectors.toList());
+                .map(Diagnostic::message).toList();
         Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
     }
 

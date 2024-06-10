@@ -135,7 +135,7 @@ public class BTuple extends IndexedCompoundVariable {
         Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                 fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+                .map(Map.Entry::getKey).toList().get(0);
         tupleSize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

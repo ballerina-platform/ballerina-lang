@@ -95,7 +95,7 @@ public class TestBirAndJarCache {
 
         List<String> foundPaths = pathStream
                 .map(path -> path.getFileName().toString())
-                .collect(Collectors.toList());
+                .toList();
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
             ModuleName moduleName = module.moduleName();

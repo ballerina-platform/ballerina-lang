@@ -279,7 +279,7 @@ public class JsonToRecordMapper {
             recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
-            List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+            List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).toList();
             Map.Entry<String, NonTerminalNode> mapEntry =
                     new AbstractMap.SimpleEntry<>(recordName, recordTypeDescriptorNode);
             typeDescNodes.add(recordNames.indexOf(moveBefore), mapEntry);
@@ -335,14 +335,14 @@ public class JsonToRecordMapper {
         RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                 (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
         List<RecordFieldNode> previousRecordFields = previousRecordTypeDescriptorNode.fields().stream()
-                .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
+                .map(node -> (RecordFieldNode) node).toList();
         Map<String, RecordFieldNode> previousRecordFieldToNodes = previousRecordFields.stream()
                 .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
                         (val1, val2) -> val1, LinkedHashMap::new));
         Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
                 .map(entry ->
                         (RecordFieldNode) getRecordField(entry, existingFieldNames, updatedFieldNames, false))
-                .collect(Collectors.toList()).stream()
+                .toList().stream()
                 .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
                         (val1, val2) -> val1, LinkedHashMap::new));
         if (prepareForNestedSameField) {
@@ -519,7 +519,7 @@ public class JsonToRecordMapper {
         for (TypeDefinitionNode typeDefNode : typeDefNodes) {
             RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDefNode.typeDescriptor();
             List<RecordFieldNode> recordFieldNodes = recordTypeDescNode.fields().stream()
-                    .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
+                    .map(node -> (RecordFieldNode) node).toList();
             List<Node> intermediateRecordFieldNodes = new ArrayList<>();
             for (RecordFieldNode recordFieldNode : recordFieldNodes) {
                 TypeDescriptorNode fieldTypeName = (TypeDescriptorNode) recordFieldNode.typeName();
@@ -578,7 +578,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonNull()) {
@@ -586,7 +586,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonObject()) {
@@ -598,7 +598,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         NodeFactory.createBuiltinSimpleNameReferenceNode(tempTypeName.kind(), tempTypeName);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonArray()) {
@@ -607,7 +607,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode tempTypeNode =
                         getArrayTypeDescriptorNode(arrayEntry, existingFieldNames, updatedFieldNames);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
-                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                        .toList().contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             }

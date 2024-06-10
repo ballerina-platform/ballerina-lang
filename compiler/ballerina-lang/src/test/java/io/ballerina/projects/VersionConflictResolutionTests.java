@@ -272,7 +272,7 @@ public class VersionConflictResolutionTests {
         DependencyGraph<DependencyNode> dependencyGraph =
                 getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
         List<DependencyNode> errorNodes = dependencyGraph.getNodes().stream().filter(
-                DependencyNode::errorNode).collect(Collectors.toList());
+                DependencyNode::errorNode).toList();
         Assert.assertEquals(errorNodes.size(), 1);
         Assert.assertEquals(errorNodes.get(0).pkgDesc().toString(), "samjs/package_b:2.1.0");
         Assert.assertEquals(dependencyGraph.getDirectDependencies(errorNodes.get(0)).size(), 0);

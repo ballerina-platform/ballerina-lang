@@ -98,7 +98,7 @@ public abstract class InvocationArgProcessor {
             List<String> argNames = args.stream()
                     .filter(LocalVariable::isArgument)
                     .map(LocalVariable::name)
-                    .collect(Collectors.toList());
+                    .toList();
 
             for (int i = 0, argNamesSize = argNames.size(); i < argNamesSize; i++) {
                 String argName = argNames.get(i);

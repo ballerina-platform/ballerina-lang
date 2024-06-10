@@ -79,10 +79,10 @@ public abstract class AbstractLSTest {
         try {
             REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList()));
+                    .toList());
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList()));
+                    .toList());
             DISTRIBUTION_PACKAGES.addAll(mockDistRepoPackages(LSPackageLoader.getInstance(context)));
             mockCentralPackages();
         } catch (Exception e) {

@@ -125,7 +125,7 @@ public abstract class AbstractImplementMethodCodeAction {
         List<FunctionDefinitionNode> concreteMethods = members.stream()
                 .filter(member -> member.kind() == SyntaxKind.FUNCTION_DEFINITION)
                 .map(member -> (FunctionDefinitionNode) member)
-                .collect(Collectors.toList());
+                .toList();
 
         String offsetStr;
         int enclosingNodeOffset;
