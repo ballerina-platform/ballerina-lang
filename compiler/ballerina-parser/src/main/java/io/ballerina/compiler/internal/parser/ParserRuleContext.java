@@ -738,7 +738,7 @@ public enum ParserRuleContext {
     SINGLE_OR_ALTERNATE_WORKER_END("single-or-alternate-worker-end"),
     ;
 
-    private String value;
+    private final String value;
 
     ParserRuleContext(String value) {
         this.value = value;

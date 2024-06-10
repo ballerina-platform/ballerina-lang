@@ -852,7 +852,7 @@ public class JBallerinaBackend extends CompilerBackend {
         TEST("test")
         ;
 
-        private String value;
+        private final String value;
 
         OutputType(String value) {
             this.value = value;
