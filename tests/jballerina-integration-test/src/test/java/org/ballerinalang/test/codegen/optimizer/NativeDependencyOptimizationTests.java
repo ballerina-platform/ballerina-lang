@@ -87,6 +87,7 @@ public class NativeDependencyOptimizationTests extends BaseTest {
                 Path nativeLibJarPath = buildClassesAndGetJarFilePath(nativeLib.toPath());
                 Path destPath = tempBalProjectPath.resolve(balProject.getName()).resolve("libs")
                         .resolve(nativeLibJarPath.getFileName().toString());
+                Files.createDirectory(destPath.getParent());
                 Files.copy(nativeLibJarPath, destPath);
             }
         }
