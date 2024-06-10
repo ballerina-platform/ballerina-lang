@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import java.util.Objects;
-
 /**
  * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
  *
@@ -88,7 +86,11 @@ public final class BddNode extends Bdd {
     }
 
     private int computeHashCode() {
-        return Objects.hash(atom, left, middle, right);
+        int result = atom.hashCode();
+        result = 31 * result + left.hashCode();
+        result = 31 * result + middle.hashCode();
+        result = 31 * result + right.hashCode();
+        return result;
     }
 
     boolean isSimple() {
