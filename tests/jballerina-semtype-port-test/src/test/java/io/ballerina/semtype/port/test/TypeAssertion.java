@@ -23,12 +23,13 @@ import java.nio.file.Paths;
 /**
  * Subtype test.
  *
- * @param context  Type context under which {@code SemTypes} were defined.
- * @param fileName Name of the file in which types were defined in.
- * @param lhs      Resolved {@code SemType} for the Left-hand side of the subtype test.
- * @param rhs      Resolved {@code SemType} for the Right-hand side of the subtype test.
- * @param kind     Relationship between the two types.
- * @param text     Text that will be shown in case of assertion failure.
+ * @param <SemType> Which semtype (runtime or compiler) is used for type assertion.
+ * @param context   Type context under which {@code SemTypes} were defined.
+ * @param fileName  Name of the file in which types were defined in.
+ * @param lhs       Resolved {@code SemType} for the Left-hand side of the subtype test.
+ * @param rhs       Resolved {@code SemType} for the Right-hand side of the subtype test.
+ * @param kind      Relationship between the two types.
+ * @param text      Text that will be shown in case of assertion failure.
  * @since 3.0.0
  */
 public record TypeAssertion<SemType>(TypeTestContext<SemType> context, String fileName, SemType lhs, SemType rhs,
