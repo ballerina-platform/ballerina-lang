@@ -66,11 +66,11 @@ public class StringUtils {
         Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
 
         if (encodedFunctionPattern instanceof BError) {
-            return (BError) encodedFunctionPattern;
+            return encodedFunctionPattern;
         }
 
         if (encodedFunctionName instanceof BError) {
-            return (BError) encodedFunctionName;
+            return encodedFunctionName;
         }
 
         try {
@@ -89,12 +89,12 @@ public class StringUtils {
         }
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         return io.ballerina.runtime.api.utils.StringUtils.fromString((String) updatedKeyOrError);
     }

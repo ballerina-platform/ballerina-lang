@@ -4294,9 +4294,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     Set<Flag> flagSet;
                     if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                        flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
+                        flagSet = typeNode.flagSet;
                     } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-                        flagSet = ((BLangUserDefinedType) typeNode).flagSet;
+                        flagSet = typeNode.flagSet;
                     } else {
                         flagSet = new HashSet<>();
                     }

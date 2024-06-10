@@ -172,7 +172,7 @@ public class StringUtils {
      * @return Reformatted unicode string.
      */
     public static String convertUnicode(char character) {
-        return "\\u{" + Integer.toHexString((int) character) + "}";
+        return "\\u{" + Integer.toHexString(character) + "}";
     }
 
     /**

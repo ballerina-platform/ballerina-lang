@@ -116,7 +116,7 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String message = ((BLangTestException) expectedException).getMessage();
+        String message = expectedException.getMessage();
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
