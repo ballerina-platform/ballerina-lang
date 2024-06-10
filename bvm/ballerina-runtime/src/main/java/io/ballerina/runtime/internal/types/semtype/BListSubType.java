@@ -347,7 +347,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
             initial[i] =
                     intersectMemberSemTypes(env, listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i));
         }
-        return Pair.from(new FixedLengthArray(initial,
+        return Pair.from(FixedLengthArray.from(initial,
                         Integer.max(members1.fixedLength(), members2.fixedLength())),
                 intersectMemberSemTypes(env, rest1, rest2));
     }
