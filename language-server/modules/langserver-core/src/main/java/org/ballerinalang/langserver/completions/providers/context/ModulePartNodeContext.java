@@ -181,7 +181,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node)
                 .stream()
                 .filter(qualifier -> qualifier.lineRange().endLine().line() == cursorPos.getLine())
-                .collect(Collectors.toList());
+                .toList();
         if (qualifiers.isEmpty()) {
             return false;
         }

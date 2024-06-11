@@ -48,7 +48,7 @@ public class CodeActionModuleId implements ModuleID {
     }
 
     public static CodeActionModuleId from(String orgName, String moduleName, String version) {
-        List<String> names = Arrays.stream(moduleName.split("\\.")).collect(Collectors.toList());
+        List<String> names = Arrays.stream(moduleName.split("\\.")).toList();
         String alias = moduleName.equals(".") ? moduleName : names.get(names.size() - 1);
         return new CodeActionModuleId(orgName, moduleName, alias, version);
     }

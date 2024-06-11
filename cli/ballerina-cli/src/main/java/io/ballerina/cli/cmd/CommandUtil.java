@@ -294,7 +294,7 @@ public class CommandUtil {
         Path moduleMdDirRoot = balaPath.resolve("docs").resolve(ProjectConstants.MODULES_ROOT);
         List<Path> modulesList;
         try (Stream<Path> pathStream = Files.list(modulesRoot)) {
-            modulesList = pathStream.collect(Collectors.toList());
+            modulesList = pathStream.toList();
         }
         for (Path moduleRoot : modulesList) {
             Path moduleDir = Optional.of(moduleRoot.getFileName()).get();
@@ -326,7 +326,7 @@ public class CommandUtil {
         try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
             List<Path> icon = pathStream
                     .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!icon.isEmpty()) {
                 Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
                 Files.createDirectory(projectDocsDir);
@@ -485,7 +485,7 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\nversion = \"" + packageJson.getVersion() + "\"",
                 StandardOpenOption.APPEND);
         List<String> newModuleNames = packageJson.getExport().stream().map(module ->
-                module.replaceFirst(packageJson.getName(), packageName)).collect(Collectors.toList());
+                module.replaceFirst(packageJson.getName(), packageName)).toList();
 
         StringJoiner stringJoiner = new StringJoiner(",");
         for (String newModuleName : newModuleNames) {
@@ -1036,7 +1036,7 @@ public class CommandUtil {
             } catch (IOException e) {
                 throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
             }
-            versions.addAll(collectVersions.collect(Collectors.toList()));
+            versions.addAll(collectVersions.toList());
         }
         return pathToVersions(versions);
     }
@@ -1091,7 +1091,7 @@ public class CommandUtil {
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
         Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.collect(Collectors.toList());
+        List<Path> templateFilePathList = paths.toList();
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());

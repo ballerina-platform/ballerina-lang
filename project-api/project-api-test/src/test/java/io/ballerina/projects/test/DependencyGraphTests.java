@@ -68,7 +68,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 
@@ -133,7 +132,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageDep = dependencyGraphOld.getNodes().stream().filter(
                 resolvedPackageDependency -> resolvedPackageDependency.packageInstance().packageName().toString()
-                        .equals("package_dep")).collect(Collectors.toList()).get(0);
+                        .equals("package_dep")).toList().get(0);
         PackageID packageDepPkgID = new PackageID(new Name(packageDep.packageInstance().packageOrg().value()),
                 new Name(packageDep.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageDep.packageInstance().packageVersion().toString()));
@@ -192,7 +191,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -236,7 +235,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -286,7 +285,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -329,7 +328,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
