@@ -56,12 +56,12 @@ public class JlineTerminalAdapter extends TerminalAdapter {
         }
     }
 
+    @SuppressWarnings("resource")
     @Override
     public void println(String text) {
-        try (var writer = lineReader.getTerminal().writer()) {
-            writer.println(text);
-            writer.flush();
-        }
+        var writer = lineReader.getTerminal().writer();
+        writer.println(text);
+        writer.flush();
     }
 
     @Override
