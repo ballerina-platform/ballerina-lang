@@ -51,7 +51,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ErrorConstructorExpressionNode} context.
@@ -134,7 +133,7 @@ public class ErrorConstructorExpressionNodeContext extends
         List<Symbol> errorTypes = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(SymbolUtil.isOfType(TypeDescKind.ERROR)
                         .and(symbol -> !symbol.getName().orElse("").equals(Names.ERROR.getValue())))
-                .collect(Collectors.toList());
+                .toList();
         List<LSCompletionItem> completionItems = this.getCompletionItemList(errorTypes, ctx);
         completionItems.addAll(this.getModuleCompletionItems(ctx));
 

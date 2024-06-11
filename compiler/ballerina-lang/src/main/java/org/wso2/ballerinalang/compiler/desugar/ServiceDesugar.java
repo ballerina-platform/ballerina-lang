@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -288,8 +287,7 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
-        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType())
-                .collect(Collectors.toList());
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType()).toList();
         service.serviceClass.functions.stream()
                 .filter(fun -> Symbols.isResource(fun.symbol) || Symbols.isRemote(fun.symbol))
                 .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));

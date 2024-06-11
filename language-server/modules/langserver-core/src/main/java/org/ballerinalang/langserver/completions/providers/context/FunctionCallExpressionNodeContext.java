@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -54,7 +53,7 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
             completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
                     .getExpressionContextEntries(ctx, qNameRef), ctx));
         } else {
-            if (this.isNotInNamedArgOnlyContext(ctx, node.arguments().stream().collect(Collectors.toList()))) {
+            if (this.isNotInNamedArgOnlyContext(ctx, node.arguments().stream().toList())) {
                 completionItems.addAll(this.actionKWCompletions(ctx));
                 completionItems.addAll(this.expressionCompletions(ctx));
             }

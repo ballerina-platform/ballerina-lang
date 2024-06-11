@@ -130,7 +130,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
              */
             List<Symbol> filtered = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(predicate)
-                    .collect(Collectors.toList());
+                    .toList();
             List<LSCompletionItem> completionItems = new ArrayList<>();
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getCompletionItemList(filtered, context));
@@ -172,7 +172,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                     Arrays.asList(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                             new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get())));
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-            mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
+            mappingTypes = visibleSymbols.stream().filter(predicate).toList();
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
             completionItems.addAll(this.getModuleCompletionItems(context));
         }
@@ -213,7 +213,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             // modules and the xml sub types are suggested
             List<Symbol> filtered = visibleSymbols.stream()
                     .filter(predicate)
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getCompletionItemList(filtered, context));
             completionItems.addAll(this.getModuleCompletionItems(context));
         }

@@ -43,7 +43,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Creates a {@code PackageConfig} instance from the given {@code PackageData} instance.
@@ -144,7 +143,7 @@ public class PackageConfigCreator {
                 .stream()
                 .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
                         packageId, moduleDependencyGraph))
-                .collect(Collectors.toList());
+                .toList();
 
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
                 packageData.defaultModule(), packageId, moduleDependencyGraph));
@@ -231,7 +230,7 @@ public class PackageConfigCreator {
 
     private static List<ResourceConfig> getResourceConfigs(ModuleId moduleId, List<Path> resources, Path modulePath) {
         return resources.stream().map(resource ->
-                createResourceConfig(resource, modulePath, moduleId)).collect(Collectors.toList());
+                createResourceConfig(resource, modulePath, moduleId)).toList();
     }
 
     private static ResourceConfig createResourceConfig(Path path, Path modulePath, ModuleId moduleId) {
@@ -244,7 +243,7 @@ public class PackageConfigCreator {
                 .stream()
                 .sorted(Comparator.comparing(DocumentData::name))
                 .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {

@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -136,7 +135,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
         String orgName = this.orgName.toString();
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
-                .collect(Collectors.toList()));
+                .toList());
 
         String versionStr = (this.version.value != null) ? this.version.value : "";
         if (!versionStr.isEmpty()) {

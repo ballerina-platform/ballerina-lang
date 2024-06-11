@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -222,7 +221,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         symbolFilter = symbolFilter.or(symbol -> symbol.kind() == SymbolKind.FUNCTION);
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
-                .collect(Collectors.toList());
+                .toList();
         
         return this.getCompletionItemList(filteredList, context);
     }

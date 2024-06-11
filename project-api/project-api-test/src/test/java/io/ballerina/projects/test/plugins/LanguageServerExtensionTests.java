@@ -67,7 +67,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Tests for language server's extensions.
@@ -125,7 +124,7 @@ public class LanguageServerExtensionTests {
         List<CodeActionArgument> arguments = info.get().getArguments();
         arguments = arguments.stream()
                 .map(codeActionArgument -> CodeActionArgument.from(gson.toJsonTree(codeActionArgument)))
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertFalse(arguments.isEmpty());
 

@@ -27,7 +27,6 @@ import io.ballerina.projects.internal.PackageVersionContainer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Test implementation of the package repository.
@@ -50,6 +49,6 @@ public class LocalPackageRepository extends DefaultPackageRepository {
                 .stream()
                 .map(PackageDescWrapper::pkgDesc)
                 .map(PackageDescriptor::version)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -79,7 +79,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream() 
                 .filter(CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == WORKER))
-                .collect(Collectors.toList());
+                .toList();
         return this.getCompletionItemList(filteredList, context);
     }
     

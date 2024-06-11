@@ -42,7 +42,7 @@ public class XMLNamePatternChainingNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, XMLNamePatternChainingNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> xmlNs = visibleSymbols.stream().filter(symbol -> symbol.kind() == SymbolKind.XMLNS)
-                .collect(Collectors.toList());
+                .toList();
         List<LSCompletionItem> completionItems = this.getCompletionItemList(xmlNs, context);
         this.sort(context, node, completionItems);
 

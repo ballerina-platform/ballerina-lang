@@ -104,7 +104,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
             typeReferences = ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().stream()
                     .filter(type -> type.typeKind() == TypeDescKind.TYPE_REFERENCE)
-                    .map(type -> (TypeReferenceTypeSymbol) type).collect(Collectors.toList());
+                    .map(type -> (TypeReferenceTypeSymbol) type).toList();
         } else if (typeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
             typeReferences = List.of((TypeReferenceTypeSymbol) typeSymbol.get());
         } else {
