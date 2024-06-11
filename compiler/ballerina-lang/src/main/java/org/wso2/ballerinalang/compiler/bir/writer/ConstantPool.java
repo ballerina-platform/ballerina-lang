@@ -85,8 +85,7 @@ public class ConstantPool {
 
     private void writeToStream(DataOutputStream stream) throws IOException {
         stream.writeInt(-1);
-        for (int i = 0; i < cpEntries.size(); i++) {
-            CPEntry cpEntry = cpEntries.get(i);
+        for (CPEntry cpEntry : cpEntries) {
             stream.writeByte(cpEntry.entryType.value);
             switch (cpEntry.entryType) {
                 case CP_ENTRY_INTEGER:

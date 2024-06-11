@@ -321,8 +321,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // Visit constants first.
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        for (int i = 0; i < topLevelNodes.size(); i++) {
-            TopLevelNode constant = topLevelNodes.get(i);
+        for (TopLevelNode constant : topLevelNodes) {
             if (constant.getKind() == NodeKind.CONSTANT) {
                 analyzeNode((BLangNode) constant, data);
             }
@@ -331,9 +330,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
-        for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
-            if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeNode((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
+        for (TopLevelNode copyOfOriginalTopLevelNode : copyOfOriginalTopLevelNodes) {
+            if (copyOfOriginalTopLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeNode((BLangNode) copyOfOriginalTopLevelNode, data);
             }
         }
 

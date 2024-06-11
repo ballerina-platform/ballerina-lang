@@ -180,8 +180,7 @@ public class AnnotationDesugar {
     private void defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env2, BLangFunction initFunction) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
 
-        for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
-            TopLevelNode topLevelNode = topLevelNodes.get(i);
+        for (TopLevelNode topLevelNode : topLevelNodes) {
             if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
                 continue;
             }
