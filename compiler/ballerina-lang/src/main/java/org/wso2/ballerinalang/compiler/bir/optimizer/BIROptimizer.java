@@ -277,9 +277,8 @@ public class BIROptimizer {
             birFunction.errorTable.forEach(ee -> this.optimizeNode(ee, funcOpEnv));
 
             // Remove unused temp vars
-            birFunction.localVars = birFunction.localVars.stream()
-                    .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars
-                            .containsKey(l)).toList();
+            birFunction.localVars = new ArrayList<>(birFunction.localVars.stream()
+                    .filter(l -> l.kind != VarKind.TEMP || !funcOpEnv.tempVars.containsKey(l)).toList());
             // Reuse lhs temp vars
             Set<BIRVariableDcl> replaceableVarSet = new HashSet<>();
             reuseTempVariables(birFunction.localVars, funcOpEnv.tempVarsList, replaceableVarSet);
