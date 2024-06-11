@@ -317,7 +317,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().toList();
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());

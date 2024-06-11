@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Finds Symbols within a document.
@@ -84,6 +83,6 @@ public class DocumentSymbolUtil {
         return !metadata.annotations().stream().filter(annotation ->
                 annotation.annotReference().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                         && ((SimpleNameReferenceNode) annotation.annotReference()).name().text()
-                        .equals("deprecated")).collect(Collectors.toList()).isEmpty();
+                        .equals("deprecated")).toList().isEmpty();
     }
 }

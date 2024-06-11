@@ -1003,7 +1003,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BFiniteType> finiteTypeMembers = types.getAllTypes(unionType, true).stream()
                 .filter(memType -> Types.getImpliedType(memType).tag == TypeTags.FINITE)
                 .map(memFiniteType -> (BFiniteType) memFiniteType)
-                .collect(Collectors.toList());
+                .toList();
 
         if (finiteTypeMembers.isEmpty()) {
             return symTable.semanticError;

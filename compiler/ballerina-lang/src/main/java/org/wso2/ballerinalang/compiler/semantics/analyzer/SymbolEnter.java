@@ -1033,7 +1033,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
-                .collect(Collectors.toList());
+                .toList();
         Name moduleName = new Name(nameComps.stream().map(Name::getValue).collect(Collectors.joining(".")));
 
         if (pkgName == null) {
@@ -1513,7 +1513,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Check whether the current type node is in the unresolved list. If it is in the list, we need to
             // check it recursively.
             List<BLangNode> typeDefinitions = unresolvedTypes.stream()
-                    .filter(node -> getTypeOrClassName(node).equals(currentTypeNodeName)).collect(Collectors.toList());
+                    .filter(node -> getTypeOrClassName(node).equals(currentTypeNodeName)).toList();
 
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
@@ -3265,7 +3265,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 List<BErrorType> possibleTypes = types.getAllTypes(unionType, true).stream()
                         .filter(type -> TypeTags.ERROR == Types.getImpliedType(type).tag)
                         .map(BErrorType.class::cast)
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (possibleTypes.isEmpty()) {
                     dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN, varType);

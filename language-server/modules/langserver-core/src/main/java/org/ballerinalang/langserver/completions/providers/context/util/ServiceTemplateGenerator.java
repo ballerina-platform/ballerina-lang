@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Generates Service Template Snippet completion items.
@@ -251,7 +250,7 @@ public class ServiceTemplateGenerator {
             List<String> args = new ArrayList<>();
             List<ParameterSymbol> requiredParams = initMethod.get().typeDescriptor().params().get().stream()
                     .filter(parameterSymbol ->
-                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
+                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).toList();
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
                         DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())

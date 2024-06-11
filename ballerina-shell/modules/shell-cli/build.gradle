@@ -52,7 +52,7 @@ test {
 
 def mainCliClass = 'io.ballerina.shell.cli.ReplShellApplication'
 task run(type: JavaExec) {
-    main = mainCliClass
+    mainClass = mainCliClass
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
 }

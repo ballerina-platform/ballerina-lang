@@ -99,7 +99,7 @@ public class AssertionDiffEvaluator {
                 }
             }
         }
-        output = output.replaceAll("\n\n", " \n \n ");
+        output = output.replace("\n\n", " \n \n ");
         return StringUtils.fromString(output);
     }
 
