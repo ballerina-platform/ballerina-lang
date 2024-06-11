@@ -167,7 +167,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
                         // the posType came from the rest type
                         mt = insertField(pos, fieldPair.name(), d);
                     } else {
-                        SemType[] posTypes = pos.types();
+                        SemType[] posTypes = pos.types().clone();
                         posTypes[fieldPair.index1()] = d;
                         mt = new MappingAtomicType(pos.names(), posTypes, pos.rest());
                     }
