@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
-
 /**
  * CellAtomicType node.
  *
@@ -28,17 +26,6 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
  * @since 2201.10.0
  */
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
-
-    private static final AtomicType CELL_ATOMIC_VAL = new CellAtomicType(
-            Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
-    );
-    public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
-
-    public static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
-            Builder.neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
-    );
-    public static final CellAtomicType CELL_ATOMIC_INNER = new CellAtomicType(
-            Builder.inner(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
 
     public static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
         SemType ty = Core.intersect(c1.ty(), c2.ty());
