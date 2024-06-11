@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -46,6 +47,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
 import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
@@ -112,6 +114,13 @@ public final class Builder {
     public static final MappingAtomicType MAPPING_ATOMIC_INNER = new MappingAtomicType(
             EMPTY_STRING_ARR, EMPTY_TYPES_ARR, CELL_SEMTYPE_INNER);
 
+    public static final SemType SIMPLE_OR_STRING =
+            basicTypeUnion((1 << BasicTypeCode.BT_NIL.code())
+                    | (1 << BasicTypeCode.BT_BOOLEAN.code())
+                    | (1 << BasicTypeCode.BT_INT.code())
+                    | (1 << BasicTypeCode.BT_FLOAT.code())
+                    | (1 << BasicTypeCode.BT_DECIMAL.code())
+                    | (1 << BasicTypeCode.BT_STRING.code()));
     private static final Env env = Env.getInstance();
 
     private Builder() {
@@ -337,6 +346,34 @@ public final class Builder {
 
     public static SemType mappingType() {
         return MAPPING;
+    }
+
+    public static SemType anyDataType(Context context) {
+        SemType memo = context.anydataMemo;
+        if (memo != null) {
+            return memo;
+        }
+        Env env = context.env;
+        ListDefinition listDef = new ListDefinition();
+        MappingDefinition mapDef = new MappingDefinition();
+        // TODO: add table, xml
+        SemType accum = unionOf(SIMPLE_OR_STRING, listDef.getSemType(env), mapDef.getSemType(env));
+        listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
+        mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
+        context.anydataMemo = accum;
+        return accum;
+    }
+
+    private static SemType unionOf(SemType type1, SemType type2) {
+        return union(type1, type2);
+    }
+
+    private static SemType unionOf(SemType... types) {
+        SemType accum = types[0];
+        for (int i = 1; i < types.length; i++) {
+            accum = union(accum, types[i]);
+        }
+        return accum;
     }
 
     private static final class IntTypeCache {

@@ -38,6 +38,7 @@ public final class Context {
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
+    SemType anydataMemo;
     private Context(Env env) {
         this.env = env;
     }
