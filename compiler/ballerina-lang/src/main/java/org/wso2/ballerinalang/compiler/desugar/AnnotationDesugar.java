@@ -98,7 +98,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -570,7 +569,7 @@ public class AnnotationDesugar {
     private List<BLangAnnotationAttachment> getAnnotationList(AnnotatableNode node) {
         return node.getAnnotationAttachments().stream()
                 .map(annotAttachment -> (BLangAnnotationAttachment) annotAttachment)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments,
@@ -910,7 +909,7 @@ public class AnnotationDesugar {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
-                .collect(Collectors.toList());
+                .toList();
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
         functionSymbol.type = new BInvokableType(Collections.emptyList(),

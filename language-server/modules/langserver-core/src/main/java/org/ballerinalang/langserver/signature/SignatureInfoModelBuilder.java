@@ -186,7 +186,7 @@ public class SignatureInfoModelBuilder {
                 .subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
                 .stream()
                 .map(param -> new Parameter(param, false, false, context))
-                .collect(Collectors.toList());
+                .toList();
 
         Optional<ParameterSymbol> restParam = functionTypeSymbol.flatMap(FunctionTypeSymbol::restParam);
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
@@ -200,7 +200,7 @@ public class SignatureInfoModelBuilder {
 
         includedRecordParams = this.parameterModels.stream()
                 .filter(ParameterInfoModel::isIncludedRecordParam)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

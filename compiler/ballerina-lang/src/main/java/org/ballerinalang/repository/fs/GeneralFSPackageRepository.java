@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -258,8 +257,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public List<CompilerInput> getPackageSourceEntries() {
-            return this.getEntryNames().stream().map(e -> new FSCompilerInput(e)).collect(Collectors.toList());
+        public List<FSCompilerInput> getPackageSourceEntries() {
+            return this.getEntryNames().stream().map(e -> new FSCompilerInput(e)).toList();
         }
 
         /**

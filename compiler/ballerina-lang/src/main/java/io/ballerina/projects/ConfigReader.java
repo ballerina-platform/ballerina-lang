@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -50,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Util class to read configurable variables defined in a package.
@@ -303,11 +303,11 @@ public final class ConfigReader {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
-                List<Node> filteredVarNodes = modulePartNode.members().stream()
+                List<ModuleMemberDeclarationNode> filteredVarNodes = modulePartNode.members().stream()
                         .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
                                 node instanceof ModuleVariableDeclarationNode)
-                        .collect(Collectors.toList());
-                for (Node node : filteredVarNodes) {
+                        .toList();
+                for (ModuleMemberDeclarationNode node : filteredVarNodes) {
                     if (node.location().lineRange().startLine().line() <= position &&
                             node.location().lineRange().endLine().line() >= position) {
                         return node;

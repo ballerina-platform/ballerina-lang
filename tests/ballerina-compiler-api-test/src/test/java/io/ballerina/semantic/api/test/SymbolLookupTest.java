@@ -418,6 +418,6 @@ public class SymbolLookupTest {
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }

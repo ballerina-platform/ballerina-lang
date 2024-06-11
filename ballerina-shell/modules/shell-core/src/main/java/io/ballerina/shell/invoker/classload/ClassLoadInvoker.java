@@ -558,7 +558,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         return compilation.getSemanticModel(moduleId).moduleSymbols().stream()
                 .filter(s -> s instanceof VariableSymbol || s instanceof FunctionSymbol)
                 .map(GlobalVariableSymbol::fromSymbol)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

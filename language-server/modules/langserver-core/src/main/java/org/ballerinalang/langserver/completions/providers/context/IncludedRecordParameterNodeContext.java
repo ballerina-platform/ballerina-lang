@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link IncludedRecordParameterNode} context.
@@ -68,7 +67,7 @@ public class IncludedRecordParameterNodeContext extends AbstractCompletionProvid
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                             && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor())
                             .typeKind() == TypeDescKind.RECORD)
-                    .collect(Collectors.toList());
+                    .toList();
             // Add the keywords and snippets related to record type descriptor
             completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(ctx, Snippet.KW_RECORD.get()),

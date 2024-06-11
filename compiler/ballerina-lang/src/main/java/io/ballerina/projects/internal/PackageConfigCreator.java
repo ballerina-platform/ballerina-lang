@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a {@code PackageConfig} instance from the given {@code PackageData} instance.
@@ -150,7 +149,7 @@ public final class PackageConfigCreator {
                 .stream()
                 .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
                         packageId, moduleDependencyGraph))
-                .collect(Collectors.toList());
+                .toList();
 
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
                 packageData.defaultModule(), packageId, moduleDependencyGraph));
@@ -240,7 +239,7 @@ public final class PackageConfigCreator {
         // TODO: no need Remove duplicate paths before processing
         Set<Path> distinctResources = new HashSet<>(resources);
         return distinctResources.stream().map(
-                distinctResource -> createResourceConfig(distinctResource, packagePath)).collect(Collectors.toList());
+                distinctResource -> createResourceConfig(distinctResource, packagePath)).toList();
     }
 
     private static ResourceConfig createResourceConfig(Path path, Path packagePath) {
@@ -253,7 +252,7 @@ public final class PackageConfigCreator {
                 .stream()
                 .sorted(Comparator.comparing(DocumentData::name))
                 .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {

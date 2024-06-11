@@ -208,7 +208,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                 .filter(functionSymbol -> functionSymbol.getModule().isPresent())
                 .filter(functionSymbol -> !ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
                         !MODULE_NAME_LANG_VALUE.equals(functionSymbol.getModule().get().id().moduleName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {

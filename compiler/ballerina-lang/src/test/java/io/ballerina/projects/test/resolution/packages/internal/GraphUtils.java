@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Contains a list of utility methods to work with Ballerina dependency graphs.
@@ -84,7 +83,7 @@ public final class GraphUtils {
     }
 
     private static List<DependencyNode> getSortedCollection(Collection<DependencyNode> nodes) {
-        return nodes.stream().sorted(pkgDescComparator).collect(Collectors.toList());
+        return nodes.stream().sorted(pkgDescComparator).toList();
     }
 
     private static GraphComparisonResult reportGraphsWithDifferentNumberOfNodes(

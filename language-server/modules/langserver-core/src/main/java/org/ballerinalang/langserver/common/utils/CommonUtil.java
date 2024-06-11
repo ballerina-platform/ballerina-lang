@@ -655,7 +655,7 @@ public final class CommonUtil {
     public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
         return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

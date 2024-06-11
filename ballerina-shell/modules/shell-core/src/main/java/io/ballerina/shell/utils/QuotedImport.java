@@ -36,7 +36,7 @@ public class QuotedImport {
         this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
                 .map(Identifier::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public QuotedImport(List<String> moduleNames) {

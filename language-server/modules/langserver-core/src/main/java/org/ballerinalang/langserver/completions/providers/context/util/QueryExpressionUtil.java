@@ -78,6 +78,6 @@ public final class QueryExpressionUtil {
         langLibMethods.addAll(types.TYPEDESC.langLibMethods());
         langLibMethods.addAll(types.XML.langLibMethods());
 
-        return langLibMethods.stream().distinct().collect(Collectors.toList());
+        return langLibMethods.stream().distinct().toList();
     }
 }

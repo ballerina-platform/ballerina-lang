@@ -129,7 +129,7 @@ public class TestDidChangeWatchedFiles {
     private void sendMultipleFileChanges(Map<Path, FileChangeType> changesMap) {
         List<FileEvent> fileEvents = changesMap.entrySet().stream()
                 .map(entry -> new FileEvent(entry.getKey().toUri().toString(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList();
 
         DidChangeWatchedFilesParams params = new DidChangeWatchedFilesParams();
         params.setChanges(fileEvents);

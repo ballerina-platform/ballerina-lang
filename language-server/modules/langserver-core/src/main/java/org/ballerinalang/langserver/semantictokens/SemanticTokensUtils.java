@@ -73,7 +73,7 @@ public final class SemanticTokensUtils {
     public static List<String> getTokenTypes() {
         return Arrays.stream(SemanticTokensContext.TokenTypes.values())
                 .map(SemanticTokensContext.TokenTypes::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -84,7 +84,7 @@ public final class SemanticTokensUtils {
     public static List<String> getTokenTypeModifiers() {
         return Arrays.stream(SemanticTokensContext.TokenTypeModifiers.values())
                 .map(SemanticTokensContext.TokenTypeModifiers::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

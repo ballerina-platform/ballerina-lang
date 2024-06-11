@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -425,13 +426,13 @@ public final class CommonUtil {
      * @param symbol Endpoint variable symbol to evaluate
      * @return {@link List} List of extracted actions as Symbol Info
      */
-    public static List<Symbol> getClientActions(Symbol symbol) {
+    public static List<MethodSymbol> getClientActions(Symbol symbol) {
         if (!SymbolUtil.isObject(symbol)) {
             return new ArrayList<>();
         }
         TypeSymbol typeDescriptor = CommonUtil.getRawType(SymbolUtil.getTypeDescriptor(symbol).orElseThrow());
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

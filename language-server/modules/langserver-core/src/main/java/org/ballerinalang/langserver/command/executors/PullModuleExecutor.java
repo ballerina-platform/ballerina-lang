@@ -139,7 +139,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                                     .map(PullModuleCodeAction::getMissingModuleNameFromDiagnostic)
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .collect(Collectors.toList())
+                                    .toList()
                             );
                     if (missingModules.isEmpty()) {
                         throw new UserErrorException("Failed to pull modules!");

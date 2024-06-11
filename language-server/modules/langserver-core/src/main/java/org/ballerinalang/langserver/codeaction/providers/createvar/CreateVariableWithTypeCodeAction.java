@@ -225,7 +225,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
             typeStream = typeStream.map(type -> type + "|" + errorTypeStr);
         }
 
-        List<String> typesList = typeStream.collect(Collectors.toList());
+        List<String> typesList = typeStream.toList();
         if (unionType != null) {
             typesList.add(0, unionType);
         }

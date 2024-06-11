@@ -87,7 +87,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -558,7 +557,7 @@ public final class CodeActionUtil {
         List<TypeSymbol> errorTypeSymbolsClone = new ArrayList<>(errorTypeSymbols);
         return errorTypeSymbolsClone.stream().filter(typeSymbol ->
                 errorTypeSymbols.stream().filter(other -> !other.signature().equals(typeSymbol.signature()))
-                        .noneMatch(typeSymbol::subtypeOf)).collect(Collectors.toList());
+                        .noneMatch(typeSymbol::subtypeOf)).toList();
     }
 
     private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(

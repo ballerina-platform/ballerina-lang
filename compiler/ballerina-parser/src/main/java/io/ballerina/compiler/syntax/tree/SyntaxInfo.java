@@ -22,7 +22,6 @@ import io.ballerina.tools.text.CharReader;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A class that provides syntax related information.
@@ -34,7 +33,7 @@ public final class SyntaxInfo {
     private static final List<String> BALLERINA_KEYWORDS = Arrays.stream(SyntaxKind.values())
             .filter(syntaxKind -> SyntaxKind.RE_KEYWORD.compareTo(syntaxKind) > 0)
             .map(SyntaxKind::stringValue)
-            .collect(Collectors.toList());
+            .toList();
 
     private SyntaxInfo() {
     }

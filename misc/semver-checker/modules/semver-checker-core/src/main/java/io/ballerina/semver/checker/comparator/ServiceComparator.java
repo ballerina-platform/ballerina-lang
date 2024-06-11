@@ -145,8 +145,8 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
     private List<Diff> compareAttachPoints() {
         // TODO: implement attach point comparator
         Optional<? extends Diff> diff = new DumbNodeListComparator<>(
-                newNode.absoluteResourcePath().stream().collect(Collectors.toList()),
-                oldNode.absoluteResourcePath().stream().collect(Collectors.toList()))
+                newNode.absoluteResourcePath().stream().toList(),
+                oldNode.absoluteResourcePath().stream().toList())
                 .computeDiff();
         return diff.<List<Diff>>map(Collections::singletonList).orElseGet(ArrayList::new);
     }
@@ -160,8 +160,8 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
             new DumbNodeComparator<>(newListener, oldListener, DiffKind.SERVICE_LISTENER_EXPR).computeDiff()
                     .ifPresent(listenerDiffs::add);
         } else {
-            new DumbNodeListComparator<>(newNode.expressions().stream().collect(Collectors.toList()),
-                    oldNode.expressions().stream().collect(Collectors.toList())).computeDiff()
+            new DumbNodeListComparator<>(newNode.expressions().stream().toList(),
+                    oldNode.expressions().stream().toList()).computeDiff()
                     .ifPresent(listenerDiffs::add);
         }
 

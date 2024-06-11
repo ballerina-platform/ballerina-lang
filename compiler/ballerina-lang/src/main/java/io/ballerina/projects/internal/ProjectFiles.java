@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -126,7 +125,7 @@ public final class ProjectFiles {
                             return true;
                         })
                         .map(ProjectFiles::loadModule)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (IOException e) {
                 throw new ProjectException(e);
             }
@@ -166,7 +165,7 @@ public final class ProjectFiles {
                         return true;
                     })
                     .map(ProjectFiles::loadModule)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -261,7 +260,7 @@ public final class ProjectFiles {
         try (Stream<Path> pathStream = Files.walk(resourcesPath, 10)) {
             return pathStream
                     .filter(Files::isRegularFile)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -278,7 +277,7 @@ public final class ProjectFiles {
                     .filter(BAL_EXTENSION_MATCHER::matches)
                     .filter(Files::isRegularFile)
                     .map(ProjectFiles::loadDocument)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -294,7 +293,7 @@ public final class ProjectFiles {
             return pathStream
                     .filter(BAL_EXTENSION_MATCHER::matches)
                     .map(ProjectFiles::loadTestDocument)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException(e);
         }

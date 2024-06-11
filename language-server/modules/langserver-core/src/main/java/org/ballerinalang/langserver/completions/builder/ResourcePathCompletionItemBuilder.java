@@ -84,7 +84,7 @@ public final class ResourcePathCompletionItemBuilder {
             item.setFilterText(ResourcePathCompletionUtil
                     .getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
             return item;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private static CompletionItem buildCompletionItem(ResourceMethodSymbol resourceMethodSymbol, 

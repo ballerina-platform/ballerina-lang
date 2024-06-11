@@ -883,12 +883,12 @@ public final class CommandUtil {
                     .map(directory -> directory.getFileName())
                     .filter(Objects::nonNull)
                     .map(Path::toString)
-                    .collect(Collectors.toList());
+                    .toList();
 
                 if (null != jarFs) {
                     return templates.stream().map(t -> t
                             .replace(jarFs.getSeparator(), ""))
-                        .collect(Collectors.toList());
+                        .toList();
                 } else {
                     return templates;
                 }

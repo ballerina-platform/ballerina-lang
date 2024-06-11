@@ -69,7 +69,7 @@ public class UnionTypeSymbolTest {
         List<TypeDescKind> memberTypeDescKindList = memberTypeDescriptors
                                                             .stream()
                                                             .map(TypeSymbol::typeKind)
-                                                            .collect(Collectors.toList());
+                                                            .toList();
 
         assertList(memberTypeDescKindList, expTypeList);
     }
@@ -112,7 +112,7 @@ public class UnionTypeSymbolTest {
                                                     .stream()
                                                     .filter(member -> member.typeKind() == TypeDescKind.SINGLETON)
                                                     .map(TypeSymbol::signature)
-                                                    .collect(Collectors.toList());
+                                                    .toList();
         assertList(signatures, List.of("\"int\"", "\"string\"", "100", "\"200\"", "true"));
     }
 

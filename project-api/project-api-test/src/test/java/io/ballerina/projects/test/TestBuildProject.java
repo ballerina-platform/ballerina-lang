@@ -302,7 +302,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in packageCompilation diagnostics
         List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().toList();
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -2255,7 +2255,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().toList();
 
         List<String> expectedDiagnosticPaths = Arrays.asList(
                 "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),

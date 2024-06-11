@@ -48,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Builds package resolution test cases.
@@ -101,7 +100,7 @@ public final class PackageResolutionTestCaseBuilder {
                                                             PackageDescriptor rootPkgDes) {
         return rootPkgDescWrapper.modules().stream()
                 .map(modNameStr -> Utils.getModuleName(rootPkgDes.name(), modNameStr))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static DependencyGraph<DependencyNode> getPkgDescGraph(Path dotFilePath) {

@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Common utils that are reused within data-mapper test suits.
@@ -89,7 +88,7 @@ public final class DataMapperTestUtils {
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
                 filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
-                .collect(Collectors.toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
         Range range = new Range(pos, pos);
         String response = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range,

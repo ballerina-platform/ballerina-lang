@@ -31,7 +31,6 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.escapeSpecialCharacters;
@@ -119,9 +118,9 @@ public final class ConverterUtils {
      */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
         List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).toList();
         List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).toList();
         List<TypeDescriptorNode> membersOfArrayNodes = arrayNodes.stream()
                 .map(node -> extractArrayTypeDescNode((ArrayTypeDescriptorNode) node)).toList();
         nonArrayNodes.removeIf(node ->
@@ -135,7 +134,7 @@ public final class ConverterUtils {
                             .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
-        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).toList();
     }
 
     /**

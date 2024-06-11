@@ -154,12 +154,12 @@ public final class SemanticAPITestUtils {
     }
 
     public static List<String> getSymbolNames(List<String> mainList, String... args) {
-        return Stream.concat(mainList.stream(), Stream.of(args)).collect(Collectors.toList());
+        return Stream.concat(mainList.stream(), Stream.of(args)).toList();
     }
 
     @SafeVarargs
     public static <T> List<T> getSymbolNames(List<T>... lists) {
-        return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toList());
+        return Arrays.stream(lists).flatMap(Collection::stream).toList();
     }
 
     public static List<String> getSymbolNames(BPackageSymbol pkgSymbol, int symTag) {

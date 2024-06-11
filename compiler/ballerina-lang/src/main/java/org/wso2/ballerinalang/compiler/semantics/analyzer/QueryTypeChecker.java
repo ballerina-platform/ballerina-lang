@@ -97,7 +97,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_MAP;
@@ -283,7 +282,7 @@ public class QueryTypeChecker extends TypeChecker {
         List<BType> safeResultTypes = types.getAllTypes(targetType, true).stream()
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
-                .collect(Collectors.toList());
+                .toList();
         // resultTypes will be empty if the targetType is `error?`
         if (safeResultTypes.isEmpty()) {
             safeResultTypes.add(symTable.noType);
@@ -497,7 +496,7 @@ public class QueryTypeChecker extends TypeChecker {
             validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                    .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
+                    .map(identifier -> ((BLangIdentifier) identifier).value).toList();
         }
         if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types,
@@ -643,7 +642,7 @@ public class QueryTypeChecker extends TypeChecker {
         return clauses.stream()
                 .filter(clause -> (clause.getKind() == NodeKind.FROM || clause.getKind() == NodeKind.JOIN))
                 .map(clause -> ((BLangInputClause) clause).collection.getBType())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BType getResolvedType(BType initType, BType expType, boolean isReadonly, SymbolEnv env) {

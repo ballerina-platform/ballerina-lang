@@ -175,7 +175,7 @@ public class StrandDumpTest extends BaseTest {
 
     private static List<String> readFileNonEmptyLines(Path filePath) throws BallerinaTestException {
         try (Stream<String> fileLines = Files.lines(filePath)) {
-            return fileLines.filter(s -> !s.isBlank()).collect(Collectors.toList());
+            return fileLines.filter(s -> !s.isBlank()).toList();
         } catch (IOException e) {
             throw new BallerinaTestException("Failure to read from the file: " + filePath);
         }

@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -199,7 +198,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> listeners = visibleSymbols.stream()
                 .filter(SymbolUtil::isListener)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
         return completionItems;
@@ -221,7 +220,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Stream<Symbol> classesAndTypeDefs = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
         List<Symbol> listeners = classesAndTypeDefs
                 .filter(SymbolUtil::isListener)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
         return completionItems;
@@ -330,7 +329,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Optional<ClassSymbol> objectTypeDesc = getListenerTypeDesc(context, listenerNode);
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == VARIABLE || symbol.kind() == FUNCTION)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
         objectTypeDesc.ifPresent(tDesc -> completionItems.add(this.getImplicitNewCItemForClass(tDesc, context)));

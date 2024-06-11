@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.debugadapter.completion.context;
 
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -27,7 +28,6 @@ import org.eclipse.lsp4j.debug.CompletionItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.completion.util.CommonUtil.getClientActions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getCompletionItemList;
@@ -61,7 +61,7 @@ public class AsyncSendActionNodeContext {
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = getClientActions(expressionType.get());
+            List<MethodSymbol> clientActions = getClientActions(expressionType.get());
             completionItems.addAll(getCompletionItemList(clientActions, context));
         } else {
             /*
@@ -71,7 +71,7 @@ public class AsyncSendActionNodeContext {
              */
             List<Symbol> filteredWorkers = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(getCompletionItemList(filteredWorkers, context));
         }
 

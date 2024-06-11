@@ -106,7 +106,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -963,7 +962,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private List<BLangExpression> getVarRefs(BLangRecordVarRef varRef) {
         List<BLangExpression> varRefs = varRef.recordRefFields.stream()
-                .map(e -> e.variableReference).collect(Collectors.toList());
+                .map(e -> e.variableReference).toList();
         varRefs.add(varRef.restParam);
         return varRefs;
     }

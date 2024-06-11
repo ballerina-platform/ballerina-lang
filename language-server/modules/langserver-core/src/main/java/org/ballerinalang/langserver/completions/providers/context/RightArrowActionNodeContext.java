@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -63,7 +64,7 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = this.getClientActions(expressionType.get());
+            List<MethodSymbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else {
             /*
@@ -73,7 +74,7 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
              */
             List<Symbol> filteredWorkers = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         }
@@ -87,7 +88,7 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
      * @param symbol Endpoint variable symbol to evaluate
      * @return {@link List} List of extracted actions as Symbol Info
      */
-    public List<Symbol> getClientActions(Symbol symbol) {
+    public List<MethodSymbol> getClientActions(Symbol symbol) {
         if (!SymbolUtil.isObject(symbol)) {
             return new ArrayList<>();
         }
@@ -95,6 +96,6 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE) 
                         || method.qualifiers().contains(Qualifier.RESOURCE))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

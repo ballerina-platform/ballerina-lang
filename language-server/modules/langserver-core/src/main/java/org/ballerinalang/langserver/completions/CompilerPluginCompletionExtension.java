@@ -49,7 +49,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion extension implementation for ballerina compiler plugins.
@@ -117,10 +116,10 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
                             lsp4jTextEdit.setNewText(textEdit.text());
                             lsp4jTextEdit.setRange(range);
                             return lsp4jTextEdit;
-                        }).collect(Collectors.toList()));
+                        }).toList());
             }
             return item;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override

@@ -99,7 +99,7 @@ public class TestSourcesTest {
                     String moduleName = sym.getModule().get().id().moduleName();
                     return moduleName.equals("semapi.baz") || !moduleName.startsWith("lang.");
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(symbols.size(), expSymbols.size());
         assertList(symbols, expSymbols);

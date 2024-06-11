@@ -71,7 +71,7 @@ public final class QNameRefCompletionUtil {
                         || symbol.kind() == SymbolKind.TYPE_DEFINITION
                         || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
-                .collect(Collectors.toList())).orElseGet(ArrayList::new);
+                .toList()).orElseGet(ArrayList::new);
     }
 
     /**
@@ -110,7 +110,7 @@ public final class QNameRefCompletionUtil {
                 QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
-                .collect(Collectors.toList()))
+                .toList())
                 .orElseGet(ArrayList::new);
     }
 
@@ -127,7 +127,7 @@ public final class QNameRefCompletionUtil {
                 QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
-                .collect(Collectors.toList()))
+                .toList())
                 .orElseGet(ArrayList::new);
     }
 

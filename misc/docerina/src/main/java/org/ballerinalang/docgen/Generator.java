@@ -95,7 +95,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Generates the Page bClasses for bal packages.
@@ -579,7 +578,7 @@ public final class Generator {
                 classFunctions
                         .stream()
                         .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .collect(Collectors.toList());
+                .toList();
 
         functions.addAll(classFunctions);
 
@@ -696,7 +695,7 @@ public final class Generator {
                 objectFunctions
                         .stream()
                         .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .collect(Collectors.toList());
+                .toList();
 
         functions.addAll(objectFunctions);
 
@@ -708,7 +707,7 @@ public final class Generator {
         for (FunctionType functionType : functionTypes) {
             List<DefaultableVariable> parameters = new ArrayList<>(functionType.paramTypes.stream()
                     .map(type -> new DefaultableVariable(type.name, type.description, false,
-                            type.elementType, "")).collect(Collectors.toList()));
+                            type.elementType, "")).toList());
 
             List<Variable> returnParameters = new ArrayList<>();
             if (functionType.returnType != null) {
