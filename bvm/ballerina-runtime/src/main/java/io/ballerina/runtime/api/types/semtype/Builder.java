@@ -86,8 +86,10 @@ public final class Builder {
             BCellSubType.createDelegate(bddAtom(createTypeAtom(2, CELL_ATOMIC_INNER))));
     public static final ListAtomicType LIST_ATOMIC_INNER = new ListAtomicType(
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
-    public static final SemType VAL_READONLY = Core.union(SemType.from(VT_INHERENTLY_IMMUTABLE),
-            basicSubType(BT_LIST, BListSubType.createDelegate(BDD_SUBTYPE_RO)));
+    private static final SemType VAL_READONLY = unionOf(SemType.from(VT_INHERENTLY_IMMUTABLE),
+            basicSubType(BT_LIST, BListSubType.createDelegate(BDD_SUBTYPE_RO)),
+            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(BDD_SUBTYPE_RO))
+    );
     public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
     public static final CellAtomicType CELL_ATOMIC_INNER_RO
             = new CellAtomicType(INNER_READONLY, CELL_MUT_NONE);
@@ -277,6 +279,7 @@ public final class Builder {
     }
 
     public static Optional<SemType> typeOf(Object object) {
+        // FIXME: handle mapping values here
         if (object == null) {
             return Optional.of(nilType());
         } else if (object instanceof DecimalValue decimalValue) {

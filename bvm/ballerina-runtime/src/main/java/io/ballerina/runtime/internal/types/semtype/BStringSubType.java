@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.semtype.SubType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Runtime representation of StringSubType.
@@ -163,7 +164,82 @@ public final class BStringSubType extends SubType {
         return data;
     }
 
-    private record StringSubTypeData(ValueData chars, ValueData nonChars) implements SubTypeData {
+    // FIXME: make this an instance method
+    // Returns a description of the relationship between a StringSubtype and a list of strings
+    // `values` must be ordered.
+    static StringSubtypeListCoverage stringSubtypeListCoverage(StringSubTypeData stringData, String[] values) {
+        List<Integer> indices = new ArrayList<>();
+        ValueData ch = stringData.chars();
+        ValueData nonChar = stringData.nonChars();
+        int stringConsts = 0;
+        if (ch.allowed) {
+            stringListIntersect(values, ch.values, indices);
+            stringConsts = ch.values.length;
+        } else if (ch.values.length == 0) {
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].length() == 1) {
+                    indices.add(i);
+                }
+            }
+        }
+        if (nonChar.allowed) {
+            stringListIntersect(values, nonChar.values, indices);
+            stringConsts += nonChar.values.length;
+        } else if (nonChar.values.length == 0) {
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].length() != 1) {
+                    indices.add(i);
+                }
+            }
+        }
+        int[] inds = indices.stream().mapToInt(i -> i).toArray();
+        return new StringSubtypeListCoverage(stringConsts == indices.size(), inds);
+    }
+
+    static void stringListIntersect(String[] values, String[] target, List<Integer> indices) {
+        int i1 = 0;
+        int i2 = 0;
+        int len1 = values.length;
+        int len2 = target.length;
+        while (true) {
+            if (i1 >= len1 || i2 >= len2) {
+                break;
+            } else {
+                switch (compareStrings(values[i1], target[i2])) {
+                    case EQ:
+                        indices.add(i1);
+                        i1 += 1;
+                        i2 += 1;
+                        break;
+                    case LT:
+                        i1 += 1;
+                        break;
+                    case GT:
+                        i2 += 1;
+                        break;
+                    default:
+                        throw new AssertionError("Invalid comparison value!");
+                }
+            }
+        }
+    }
+
+    private static ComparisonResult compareStrings(String s1, String s2) {
+        return Objects.equals(s1, s2) ? ComparisonResult.EQ :
+                (Common.codePointCompare(s1, s2) ? ComparisonResult.LT : ComparisonResult.GT);
+    }
+
+    private enum ComparisonResult {
+        EQ,
+        LT,
+        GT
+    }
+
+    record StringSubTypeData(ValueData chars, ValueData nonChars) implements SubTypeData {
+
+    }
+
+    record StringSubtypeListCoverage(boolean isSubType, int[] indices) {
 
     }
 
