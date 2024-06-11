@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.Definition;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -114,8 +116,34 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case FINITE_TYPE_NODE -> resolveSingletonType((BLangFiniteTypeNode) td);
             case ARRAY_TYPE -> resolveArrayTypeDesc(cx, mod, defn, depth, (BLangArrayType) td);
             case TUPLE_TYPE_NODE -> resolveTupleTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
+            case CONSTRAINED_TYPE -> resolveConstrainedTypeDesc(cx, mod, defn, depth, (BLangConstrainedType) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
+    }
+
+    private SemType resolveConstrainedTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                               BLangTypeDefinition defn, int depth, BLangConstrainedType td) {
+        BLangBuiltInRefTypeNode refTypeNode = (BLangBuiltInRefTypeNode) td.getType();
+        return switch (refTypeNode.typeKind) {
+            case MAP -> resolveMapTypeDesc(cx, mod, defn, depth, td);
+            default -> throw new UnsupportedOperationException(
+                    "Constrained type not implemented: " + refTypeNode.typeKind);
+        };
+    }
+
+    private SemType resolveMapTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                       BLangTypeDefinition defn, int depth, BLangConstrainedType td) {
+        Env env = (Env) cx.getInnerEnv();
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType(env);
+        }
+
+        MappingDefinition md = new MappingDefinition();
+        attachedDefinitions.put(td, md);
+        SemType rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+
+        return md.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], rest, CELL_MUT_LIMITED);
     }
 
     private SemType resolveTupleTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
