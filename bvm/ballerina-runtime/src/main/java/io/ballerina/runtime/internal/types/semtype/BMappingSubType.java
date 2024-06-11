@@ -62,30 +62,6 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
         throw new IllegalArgumentException("Unexpected inner type");
     }
 
-    // FIXME: not sure this is needed (java string comparision should support unicode)
-    static boolean codePointCompare(String s1, String s2) {
-        if (s1.equals(s2)) {
-            return false;
-        }
-        int len1 = s1.length();
-        int len2 = s2.length();
-        if (len1 < len2 && s2.substring(0, len1).equals(s1)) {
-            return true;
-        }
-        int cpCount1 = s1.codePointCount(0, len1);
-        int cpCount2 = s2.codePointCount(0, len2);
-        for (int cp = 0; cp < cpCount1 && cp < cpCount2; ) {
-            int codepoint1 = s1.codePointAt(cp);
-            int codepoint2 = s2.codePointAt(cp);
-            if (codepoint1 == codepoint2) {
-                cp++;
-                continue;
-            }
-            return codepoint1 < codepoint2;
-        }
-        return false;
-    }
-
     @Override
     public Bdd inner() {
         return inner;
@@ -155,10 +131,10 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
         } else {
             MappingAtomicType neg = cx.mappingAtomType(negList.atom());
 
-            FieldPairs pairing = new FieldPairs(pos, neg);
             if (!Core.isEmpty(cx, Core.diff(pos.rest(), neg.rest()))) {
                 return mappingInhabited(cx, pos, negList.next());
             }
+            FieldPairs pairing = new FieldPairs(pos, neg);
             for (FieldPair fieldPair : pairing) {
                 SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
@@ -187,7 +163,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
         SemType[] types = shallowCopySemTypes(orgTypes, orgTypes.length + 1);
         int i = orgNames.length;
         while (true) {
-            if (i == 0 || codePointCompare(names[i - 1], name)) {
+            if (i == 0 || Common.codePointCompare(names[i - 1], name)) {
                 names[i] = name;
                 types[i] = t;
                 break;
@@ -360,10 +336,10 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
             } else {
                 String name1 = curName1();
                 String name2 = curName2();
-                if (codePointCompare(name1, name2)) {
+                if (Common.codePointCompare(name1, name2)) {
                     p = FieldPair.create(name1, curType1(), this.rest2, this.i1, null);
                     this.i1 += 1;
-                } else if (codePointCompare(name2, name1)) {
+                } else if (Common.codePointCompare(name2, name1)) {
                     p = FieldPair.create(name2, this.rest1, curType2(), null, this.i2);
                     this.i2 += 1;
                 } else {

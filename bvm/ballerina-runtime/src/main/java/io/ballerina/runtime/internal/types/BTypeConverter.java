@@ -48,7 +48,8 @@ final class BTypeConverter {
 
     private static final SemType implementedTypes =
             unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
-                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), Builder.listType());
+                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), Builder.listType(),
+                    Builder.mappingType());
     private static final SemType READONLY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.readonlyType());
     private static final SemType ANY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.anyType());
 
@@ -85,18 +86,6 @@ final class BTypeConverter {
     static SemType fromAnyType(BAnyType anyType) {
         SemType bTypePart = wrapAsPureBType(anyType);
         return Core.union(ANY_SEMTYPE_PART, bTypePart);
-    }
-
-    static SemType fromRecordType(BRecordType recordType) {
-        for (Field field : recordType.fields.values()) {
-            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
-                SemType fieldType = from(field.getFieldType());
-                if (Core.isNever(fieldType)) {
-                    return Builder.neverType();
-                }
-            }
-        }
-        return wrapAsPureBType(recordType);
     }
 
     static SemType fromFiniteType(BFiniteType finiteType) {
@@ -137,7 +126,9 @@ final class BTypeConverter {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
             return splitFiniteType(finiteType);
-        } else if (type instanceof BArrayType || type instanceof BTupleType) {
+            // FIXME: introduce a marker type for these
+        } else if (type instanceof BArrayType || type instanceof BTupleType || type instanceof BRecordType ||
+                type instanceof BMapType) {
             return splitSemTypeSupplier((Supplier<SemType>) type);
         } else {
             return new BTypeParts(Builder.neverType(), List.of(type));
