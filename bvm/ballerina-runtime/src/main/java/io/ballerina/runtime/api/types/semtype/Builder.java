@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
 import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
+import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -73,8 +74,7 @@ public final class Builder {
     public static final int BDD_REC_ATOM_READONLY = 0;
     // represents both readonly & map<readonly> and readonly & readonly[]
     private static final BddNode BDD_SUBTYPE_RO = bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));
-    // FIXME: create delegate?
-    public static final SemType MAPPING_RO = basicSubType(BT_MAPPING, BDD_SUBTYPE_RO);
+    public static final SemType MAPPING_RO = basicSubType(BT_MAPPING, BMappingSubType.createDelegate(BDD_SUBTYPE_RO));
     public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING_RO =
             new CellAtomicType(union(MAPPING_RO, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
 
@@ -108,6 +108,9 @@ public final class Builder {
     public static final ListAtomicType LIST_ATOMIC_RO = new ListAtomicType(
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
     private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
+    public static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
+    public static final MappingAtomicType MAPPING_ATOMIC_INNER = new MappingAtomicType(
+            EMPTY_STRING_ARR, EMPTY_TYPES_ARR, CELL_SEMTYPE_INNER);
 
     private static final Env env = Env.getInstance();
 
@@ -211,6 +214,7 @@ public final class Builder {
     }
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
+        assert !(subType instanceof Bdd) : "BDD should always be wrapped with a delegate";
         SubType[] subTypes = initializeSubtypeArray();
         subTypes[basicTypeCode.code()] = subType;
         return SemType.from(0, 1 << basicTypeCode.code(), subTypes);
