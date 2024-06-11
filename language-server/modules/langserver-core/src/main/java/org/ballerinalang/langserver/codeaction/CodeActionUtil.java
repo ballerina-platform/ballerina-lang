@@ -259,7 +259,7 @@ public class CodeActionUtil {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
+            typesMap.put(recordTypeSymbol, (!recordTypeSymbol.fieldDescriptors().isEmpty()) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
@@ -399,7 +399,7 @@ public class CodeActionUtil {
 
         List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
                 .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
 
@@ -519,7 +519,7 @@ public class CodeActionUtil {
                                 .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
                         memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
                                 .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL)
-                                .collect(Collectors.toList()));
+                                .toList());
                         memberTypes.addAll(errorSymbolsToAdd);
                         UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
                                 .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();

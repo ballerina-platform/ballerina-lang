@@ -255,9 +255,9 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                                 PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
                 .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
                         symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
-        if (symbolsWithinRange.size() == 0) {
+        if (symbolsWithinRange.isEmpty()) {
             return false;
         }
 

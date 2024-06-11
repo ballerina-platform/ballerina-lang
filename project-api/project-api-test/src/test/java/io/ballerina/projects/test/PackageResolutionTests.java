@@ -85,7 +85,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
@@ -670,7 +669,7 @@ public class PackageResolutionTests extends BaseTest {
         // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
         Assert.assertEquals(diagnosticResult.errorCount(), 3);
         List<String> diagnosticMsgs = diagnosticResult.errors().stream()
-                .map(Diagnostic::message).collect(Collectors.toList());
+                .map(Diagnostic::message).toList();
         Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
     }
 

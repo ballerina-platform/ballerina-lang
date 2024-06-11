@@ -974,7 +974,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (varRef.cause != null) {
             varRefs.add(varRef.cause);
         }
-        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).toList());
         varRefs.add(varRef.restVar);
         return varRefs;
     }

@@ -29,5 +29,4 @@ public enum ProjectKind {
     BUILD_PROJECT,
     SINGLE_FILE_PROJECT,
     BALA_PROJECT,
-    ;
 }

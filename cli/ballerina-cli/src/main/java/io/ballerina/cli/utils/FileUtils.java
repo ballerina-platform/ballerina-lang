@@ -109,11 +109,11 @@ public class FileUtils {
         StringBuilder sb = new StringBuilder();
         try (
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                BufferedReader br = new BufferedReader(inputStreamReader);
+                BufferedReader br = new BufferedReader(inputStreamReader)
         ) {
             String content;
             while ((content = br.readLine()) != null) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append('\n');
                 }
                 sb.append(content);
