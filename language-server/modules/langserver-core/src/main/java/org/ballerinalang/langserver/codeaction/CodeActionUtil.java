@@ -399,7 +399,7 @@ public class CodeActionUtil {
 
         List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
                 .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
 
@@ -519,7 +519,7 @@ public class CodeActionUtil {
                                 .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
                         memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
                                 .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL)
-                                .collect(Collectors.toList()));
+                                .toList());
                         memberTypes.addAll(errorSymbolsToAdd);
                         UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
                                 .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();

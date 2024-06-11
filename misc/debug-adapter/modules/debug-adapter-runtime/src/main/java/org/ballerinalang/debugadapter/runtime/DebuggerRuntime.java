@@ -366,7 +366,7 @@ public class DebuggerRuntime {
 
     private static BString[] processXMLNamePattern(String xmlNamePattern) {
         // removes LT and GT tokens if presents.
-        xmlNamePattern = xmlNamePattern.replaceAll("<", "").replaceAll(">", "");
+        xmlNamePattern = xmlNamePattern.replace("<", "").replace(">", "");
 
         if (xmlNamePattern.contains(XML_STEP_SEPARATOR)) {
             String[] stepParts = xmlNamePattern.split(XML_ALL_CHILDREN_STEP);

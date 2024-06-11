@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 /**
  * Visitor class for testcases.
@@ -46,7 +45,7 @@ public class TestCaseVisitor extends NodeVisitor {
             functionDefinitionNode.metadata().get().annotations().stream()
                     .filter(annotationNode -> annotationNode.annotReference().toString().trim()
                             .equals(ExecutorPositionsUtil.TEST_CONFIG))
-                    .collect(Collectors.toList())
+                    .toList()
                     .forEach(annotationNode -> {
                         JsonObject testCase = new JsonObject();
                         testCase.addProperty(ExecutorPositionsUtil.KIND, ExecutorPositionsUtil.TEST);

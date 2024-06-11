@@ -270,7 +270,7 @@ public class CommonUtil {
      * @return The identifier with escape characters escaped
      */
     public static String escapeEscapeCharsInIdentifier(String identifier) {
-        return identifier.replaceAll("\\\\", "\\\\\\\\");
+        return identifier.replace("\\", "\\\\");
     }
 
     /**
@@ -280,8 +280,8 @@ public class CommonUtil {
      * @return Processed text
      */
     public static String escapeSpecialCharsInInsertText(String text) {
-        return text.replaceAll("\\\\", "\\\\\\\\")
-                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+        return text.replace("\\", "\\\\")
+                .replace("$", "\\$");
     }
 
     /**

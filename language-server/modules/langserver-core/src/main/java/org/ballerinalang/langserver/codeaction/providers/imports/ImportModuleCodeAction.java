@@ -102,7 +102,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         List<ModuleSymbol> existingModules = symbolMap.values().stream()
                 .filter(moduleSymbol -> moduleSymbol.getModule().isPresent())
-                .map(moduleSymbol -> moduleSymbol.getModule().get()).collect(Collectors.toList());
+                .map(moduleSymbol -> moduleSymbol.getModule().get()).toList();
 
         List<CodeAction> actions = new ArrayList<>();
 
