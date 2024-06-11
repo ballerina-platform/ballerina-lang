@@ -36,6 +36,7 @@ public final class Context {
     private final List<BddMemo> memoStack = new ArrayList<>();
     public final Env env;
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
     private Context(Env env) {
         this.env = env;
@@ -104,6 +105,14 @@ public final class Context {
             return this.env.getRecListAtomType(recAtom);
         } else {
             return (ListAtomicType) ((TypeAtom) atom).atomicType();
+        }
+    }
+
+    public MappingAtomicType mappingAtomType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return this.env.getRecMappingAtomType(recAtom);
+        } else {
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 }
