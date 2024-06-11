@@ -43,7 +43,7 @@ import static io.ballerina.runtime.api.types.semtype.Core.cellContainingInnerVal
 import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInnerVal;
 import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
-import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_INNER;
+import static io.ballerina.runtime.api.types.semtype.Builder.LIST_ATOMIC_INNER;
 import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
 
 // TODO: this has lot of common code with cell (and future mapping), consider refact

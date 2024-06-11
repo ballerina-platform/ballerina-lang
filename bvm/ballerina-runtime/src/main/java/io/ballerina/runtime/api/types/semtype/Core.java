@@ -35,7 +35,6 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.listType;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
-import static io.ballerina.runtime.api.types.semtype.Builder.valType;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.intersectCellAtomicType;
 import static io.ballerina.runtime.internal.types.semtype.BCellSubType.cellAtomType;
@@ -50,11 +49,6 @@ public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
     public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
-
-    // TODO: move to builder
-    private static final CellAtomicType CELL_ATOMIC_VAL = new CellAtomicType(
-            valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
-    );
 
     private Core() {
     }
@@ -137,6 +131,7 @@ public final class Core {
     }
 
     public static SemType union(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
         int all1 = t1.all();
         int some1 = t1.some();
         int all2 = t2.all();
@@ -179,6 +174,7 @@ public final class Core {
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
         int all1 = t1.all;
         int some1 = t1.some;
         int all2 = t2.all;
@@ -275,6 +271,7 @@ public final class Core {
     }
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
         int bits = t1.all | t1.some;
         return (bits & ~t2.all()) == 0;
     }
@@ -346,12 +343,12 @@ public final class Core {
     private static Optional<CellAtomicType> cellAtomicType(SemType t) {
         SemType cell = Builder.cell();
         if (t.some == 0) {
-            return cell.equals(t) ? Optional.of(CELL_ATOMIC_VAL) : Optional.empty();
+            return cell.equals(t) ? Optional.of(Builder.CELL_ATOMIC_VAL) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, cell)) {
                 return Optional.empty();
             }
-            return bddCellAtomicType((Bdd) getComplexSubtypeData(t, BT_CELL), CELL_ATOMIC_VAL);
+            return bddCellAtomicType((Bdd) getComplexSubtypeData(t, BT_CELL), Builder.CELL_ATOMIC_VAL);
         }
     }
 
