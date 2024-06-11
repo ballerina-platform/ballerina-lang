@@ -46,7 +46,7 @@ import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemType
 import static io.ballerina.runtime.api.types.semtype.Builder.LIST_ATOMIC_INNER;
 import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtypeContains;
 
-// TODO: this has lot of common code with cell (and future mapping), consider refact
+// TODO: this has lot of common code with cell (and future mapping), consider refactoring (problem is createDelegate)
 public class BListSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
