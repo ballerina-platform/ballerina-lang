@@ -661,8 +661,9 @@ public class BallerinaDocGenerator {
         Path resourcesDirPath = absolutePkgPath.resolve("resources");
         List<Path> resources = new ArrayList<>();
         if (resourcesDirPath.toFile().exists()) {
-            resources = Files.walk(resourcesDirPath).filter(path -> !path.equals(resourcesDirPath)).collect(Collectors
-                    .toList());
+            try (var paths = Files.walk(resourcesDirPath)) {
+                resources = paths.filter(path -> !path.equals(resourcesDirPath)).toList();
+            }
         }
         return resources;
     }

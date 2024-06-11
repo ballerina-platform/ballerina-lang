@@ -93,8 +93,8 @@ public class PackageRepositoryBuilder {
             return DefaultPackageRepository.EMPTY_REPO;
         }
 
-        try {
-            return buildLocalRepo(Files.list(localRepoDirPath).collect(Collectors.toList()));
+        try (var paths = Files.list(localRepoDirPath)) {
+            return buildLocalRepo(paths.collect(Collectors.toList()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

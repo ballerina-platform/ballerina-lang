@@ -79,11 +79,12 @@ class BIRTestUtils {
     }
 
     private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
-        return Files.walk(testSourcesPath)
-                .filter(file -> Files.isRegularFile(file))
-                .map(file -> file.toAbsolutePath().normalize().toString())
-                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+        try (var paths = Files.walk(testSourcesPath)) {
+            return paths.filter(file -> Files.isRegularFile(file))
+                    .map(file -> file.toAbsolutePath().normalize().toString())
+                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                    .collect(Collectors.toList());
+        }
     }
 
     static void validateBIRSpec(String testSource) {

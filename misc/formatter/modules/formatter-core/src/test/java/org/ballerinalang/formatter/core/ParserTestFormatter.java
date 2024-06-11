@@ -205,9 +205,8 @@ public class ParserTestFormatter extends FormatterTest {
     }
 
     private Optional<String> getFilePath(String fileName, String directoryPath) {
-        try {
-            return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
-                    .filter(f -> f.getFileName().toString().equals(fileName))
+        try (var paths = Files.walk(Paths.get(directoryPath))) {
+            return Optional.ofNullable(paths.filter(f -> f.getFileName().toString().equals(fileName))
                     .toList().get(0).toString());
         } catch (IOException e) {
             return Optional.empty();

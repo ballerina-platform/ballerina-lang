@@ -518,6 +518,7 @@ public class TestCommandTest extends BaseCommandTest {
             Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
                                     .map(Path::toFile).toList().size(), 1);
         }
+        }
     }
 
     @Test(description = "Test the execution of testable fat jar for a project with tests and mocks",
@@ -601,7 +602,7 @@ public class TestCommandTest extends BaseCommandTest {
         //should exist only one testable jar
         try (var files = Files.list(mainArgsFile.getParent())) {
             List<File> testableJars = files.filter(path -> path.toString().endsWith(".jar"))
-                            .map(Path::toFile).toList();
+                    .map(Path::toFile).toList();
             Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
             List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
                     "projectWithMocks.mod1-testable.jar");

@@ -58,9 +58,8 @@ public class ParserTestRunner {
     @DataProvider(name = "parser-test-file-provider")
     public Object[][] dataProvider() {
         HashSet<String> skippedTests = skipList();
-        try {
-            return Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))
-                    .filter(path -> {
+        try (var paths = Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))) {
+            return paths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());

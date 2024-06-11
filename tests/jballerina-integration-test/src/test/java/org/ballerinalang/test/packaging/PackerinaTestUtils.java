@@ -45,15 +45,16 @@ public class PackerinaTestUtils {
         if (dirPath == null) {
             return;
         }
-        Files.walk(dirPath)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
+        try (var paths = Files.walk(dirPath)) {
+            paths.sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        Assert.fail(e.getMessage(), e);
+                    }
+                });
+        }
     }
 
     /**
@@ -76,7 +77,9 @@ public class PackerinaTestUtils {
      * @throws IOException throw if there is any error occur while copying directories.
      */
     public static void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        try (var paths = Files.walk(src)) {
+            paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        }
     }
 
     /**

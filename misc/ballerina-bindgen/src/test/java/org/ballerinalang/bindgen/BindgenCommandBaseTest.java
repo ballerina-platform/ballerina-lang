@@ -75,14 +75,15 @@ public abstract class BindgenCommandBaseTest {
 
     @AfterClass (alwaysRun = true)
     public void cleanup() throws IOException {
-        Files.walk(tmpDir)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        Assert.fail(e.getMessage(), e);
-                    }
-                });
+        try (var paths = Files.walk(tmpDir)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            Assert.fail(e.getMessage(), e);
+                        }
+                    });
+        }
     }
 }

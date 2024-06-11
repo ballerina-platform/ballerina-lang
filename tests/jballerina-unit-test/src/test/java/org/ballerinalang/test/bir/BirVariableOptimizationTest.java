@@ -79,11 +79,11 @@ public class BirVariableOptimizationTest {
         Path filePath = Paths.get("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
         if (Files.exists(filePath)) {
             StringBuilder contentBuilder = new StringBuilder();
+            try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
+                stream.forEach(s -> contentBuilder.append(s).append("\n"));
 
-            Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8);
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
-
-            return contentBuilder.toString().trim();
+                return contentBuilder.toString().trim();
+            }
         }
         return "";
     }

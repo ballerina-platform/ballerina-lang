@@ -75,8 +75,8 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
         if (JAR_URI_SCHEME.equals(uri.getScheme())) {
             Map<String, String> env = new HashMap<>(); 
             env.put("create", "true");
-            try {
-                FileSystems.newFileSystem(uri, env);
+            try (var filesystem = FileSystems.newFileSystem(uri, env)) {
+                // Do nothing
             } catch (FileSystemAlreadyExistsException ignore) { }
         }
     }

@@ -122,10 +122,11 @@ public class GenDocsForBalaTest {
     @AfterMethod
     public void cleanUp() throws IOException {
         if (Files.exists(this.docsPath)) {
-            Files.walk(this.docsPath)
-                    .sorted(Comparator.reverseOrder())
+            try (var paths = Files.walk(this.docsPath)) {
+                paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
+            }
         }
     }
 }

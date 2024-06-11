@@ -58,8 +58,10 @@ public class JlineTerminalAdapter extends TerminalAdapter {
 
     @Override
     public void println(String text) {
-        lineReader.getTerminal().writer().println(text);
-        lineReader.getTerminal().writer().flush();
+        try (var writer = lineReader.getTerminal().writer()) {
+            writer.println(text);
+            writer.flush();
+        }
     }
 
     @Override
