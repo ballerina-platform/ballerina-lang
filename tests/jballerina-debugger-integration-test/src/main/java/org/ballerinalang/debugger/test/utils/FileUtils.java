@@ -44,7 +44,9 @@ public class FileUtils {
      * @throws IOException thrown when as error occurs when copying from src to dest
      */
     public static void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        try (var paths = Files.walk(src)) {
+            paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        }
     }
 
     private static void copy(Path source, Path dest) {

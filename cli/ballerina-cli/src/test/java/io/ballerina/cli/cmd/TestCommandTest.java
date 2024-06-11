@@ -506,9 +506,11 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(testableJar.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 1);
+        try (var paths = Files.list(testableJar.getParent())) {
+            List<File> testableJars = paths.filter(path -> path.toString().endsWith(".jar"))
+                    .map(Path::toFile).toList();
+            Assert.assertEquals(testableJars.size(), 1);
+        }
     }
 
     @Test(description = "Test the execution of testable fat jar for a project with tests and mocks",
@@ -568,9 +570,11 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(testableJar.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 1);
+        try (var paths = Files.list(testableJar.getParent())) {
+            List<File> testableJars = paths.filter(path -> path.toString().endsWith(".jar"))
+                    .map(Path::toFile).toList();
+            Assert.assertEquals(testableJars.size(), 1);
+        }
     }
 
     @Test(description = "Test the emission of multiple testable fat jars for a project with mocks when " +
@@ -589,13 +593,15 @@ public class TestCommandTest extends BaseCommandTest {
         Path mainArgsFile = targetDir.resolve("bin").resolve("tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
         Assert.assertTrue(Files.exists(mainArgsFile));
         //should exist only one testable jar
-        List<File> testableJars = Files.list(mainArgsFile.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .map(Path::toFile).toList();
-        Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
-        List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
-                "projectWithMocks.mod1-testable.jar");
-        for (File testableJar : testableJars) {
-            Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
+        try (var paths = Files.list(mainArgsFile.getParent())) {
+            List<File> testableJars = paths.filter(path -> path.toString().endsWith(".jar"))
+                    .map(Path::toFile).toList();
+            Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
+            List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
+                    "projectWithMocks.mod1-testable.jar");
+            for (File testableJar : testableJars) {
+                Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
+            }
         }
     }
 
@@ -612,8 +618,10 @@ public class TestCommandTest extends BaseCommandTest {
         mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
         mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
 
-        List<Path> testableJars = Files.list(mainArgsFile.getParent()).filter(path -> path.toString().endsWith(".jar"))
-                .toList();
+        List<Path> testableJars;
+        try (var paths = Files.list(mainArgsFile.getParent())) {
+            testableJars = paths.filter(path -> path.toString().endsWith(".jar")).toList();
+        }
         for (Path testableJar : testableJars) {
             List<String> pbArgs = new ArrayList<>();
             pbArgs.addAll(TestUtils.getInitialCmdArgs(null, null));

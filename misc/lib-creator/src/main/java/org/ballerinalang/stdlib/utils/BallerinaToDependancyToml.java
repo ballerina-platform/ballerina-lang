@@ -23,7 +23,9 @@ public class BallerinaToDependancyToml {
         Path dir = Paths.get(System.getProperty("user.dir")).resolve(path);
         PathMatcher pathMatcher = FileSystems.getDefault()
                 .getPathMatcher("glob:**/Ballerina.toml");
-        Files.walk(Paths.get("..")).filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
+        try (var paths = Files.walk(Paths.get(".."))) {
+            paths.filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
+        }
     }
 
     public static void migrate(Path ballerinaTomlPath) {

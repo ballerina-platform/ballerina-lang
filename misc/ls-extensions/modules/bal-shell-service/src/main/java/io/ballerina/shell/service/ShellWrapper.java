@@ -80,9 +80,9 @@ public class ShellWrapper {
         PrintStream originalErr = System.err;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
         PrintStream printStreamCollector = new PrintStream(consoleOutCollector, false, StandardCharsets.UTF_8);
-        System.setOut(printStreamCollector);
-        System.setErr(printStreamCollector);
-        try {
+        try (printStreamCollector) {
+            System.setOut(printStreamCollector);
+            System.setErr(printStreamCollector);
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
             // continue the execution if the compilation is done successfully
             // info related to errors required for the Ballerina notebook in compilation
@@ -123,7 +123,6 @@ public class ShellWrapper {
             );
             evaluator.resetDiagnostics();
             evaluator.clearPreviousVariablesAndModuleDclnsNames();
-            printStreamCollector.close();
             System.setOut(originalOut);
             System.setErr(originalErr);
         }

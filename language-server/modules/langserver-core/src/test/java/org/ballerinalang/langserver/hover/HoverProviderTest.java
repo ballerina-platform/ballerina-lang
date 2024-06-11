@@ -87,9 +87,8 @@ public class HoverProviderTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))
-                    .filter(path -> {
+        try (var configPaths = Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

@@ -190,9 +190,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))
-                    .filter(path -> {
+        try (var assertPaths =
+                     Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))) {
+            return assertPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());
@@ -209,10 +209,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.buildDirectory.resolve("resources").resolve("test")
-                    .resolve(this.getTestResourceDir()))
-                    .filter(path -> {
+        try (var testPaths = Files.walk(this.buildDirectory.resolve("resources").resolve("test")
+                                .resolve(this.getTestResourceDir()))) {
+            return testPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());

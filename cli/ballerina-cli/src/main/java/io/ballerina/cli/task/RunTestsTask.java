@@ -63,12 +63,12 @@ import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
-import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
-import static io.ballerina.cli.utils.TestUtils.getClassPath;
-import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
-import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.cli.utils.TestUtils.getClassPath;
+import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
+import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
+import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
@@ -336,7 +336,10 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
+        List<Path> paths;
+        try (var stream = Files.walk(Paths.get(projectRootString), 3)) {
+            paths = stream.toList();
+        }
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);

@@ -573,9 +573,7 @@ public class NativeUtils {
     private static byte[] replaceMethodBody(Method method, Method mockMethod) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
-        try {
-            InputStream ins;
-            ins = clazz.getResourceAsStream(clazz.getSimpleName() + CLASS_EXTENSION);
+        try (InputStream ins = clazz.getResourceAsStream(clazz.getSimpleName() + CLASS_EXTENSION)) {
             cr = new ClassReader(requireNonNull(ins));
         } catch (IOException e) {
             throw createLauncherException("failed to get the class reader object for the class "

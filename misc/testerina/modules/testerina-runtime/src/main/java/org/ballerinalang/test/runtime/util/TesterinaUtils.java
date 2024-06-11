@@ -72,7 +72,9 @@ public class TesterinaUtils {
     public static void cleanUpDir(Path path) {
         try {
             if (Files.exists(path)) {
-                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                try (var paths = Files.walk(path)) {
+                    paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                }
             }
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path + " with error : "

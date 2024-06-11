@@ -136,7 +136,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
                         return FileVisitResult.SKIP_SUBTREE;
                     }
                     List<Name> nameComps = new ArrayList<>();
-                    if (Files.list(dir).filter(f -> isBALFile(f)).count() > 0) {
+                    boolean balFilesExist;
+                    try (var paths = Files.list(dir)) {
+                        balFilesExist = paths.filter(f -> isBALFile(f)).count() > 0;
+                    }
+                    if (balFilesExist) {
                         int dirNameCount = dir.getNameCount();
                         if (dirNameCount > baseNameCount) {
                             dir.subpath(baseNameCount, dirNameCount).forEach(
@@ -233,8 +237,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
         @Override
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
-                try {
-                    List<Path> files = Files.walk(this.pkgPath, 1).filter(
+                try (var paths = Files.walk(this.pkgPath, 1)) {
+                    List<Path> files = paths.filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
                             toList();
                     this.cachedEntryNames = new ArrayList<>(files.size());

@@ -132,9 +132,8 @@ public abstract class BallerinaTomlCompletionTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve("config").resolve(this.getTestResourceDir()))
-                    .filter(path -> {
+        try (var configPaths = Files.walk(this.testRoot.resolve("config").resolve(this.getTestResourceDir()))) {
+            return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")
                                 && !skippedTests.contains(file.getName());

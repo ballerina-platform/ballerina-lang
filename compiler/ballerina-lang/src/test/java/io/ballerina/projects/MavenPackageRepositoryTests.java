@@ -241,10 +241,11 @@ public class MavenPackageRepositoryTests {
                 resolve("local-custom-repo")
                 .resolve("bala").resolve("luheerathan").resolve("pact");
         if (Files.exists(destinationFolderPath)) {
-            Files.walk(destinationFolderPath)
-                    .sorted(Comparator.reverseOrder())
+            try (var paths = Files.walk(destinationFolderPath)) {
+                paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
+            }
         }
     }
 }

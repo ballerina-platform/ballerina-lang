@@ -71,7 +71,9 @@ public class TestarinaTestCase extends BaseTest {
 
 
     public void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        try (var paths = Files.walk(src)) {
+            paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        }
     }
 
     private void copy(Path source, Path dest) {

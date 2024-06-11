@@ -87,8 +87,8 @@ public class ZipConverter extends PathConverter {
     private static void initFS(URI uri) {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
-        try {
-            FileSystems.newFileSystem(uri, env);
+        try (var filesystem = FileSystems.newFileSystem(uri, env)) {
+            // do nothing
         } catch (FileSystemAlreadyExistsException ignore) {
             // A file system will be always created when we are accessing zip/jar when resolving dependencies. So when
             // we are accessing the same zip/jar for the second time sometimes that filesystem might already exist.
@@ -188,13 +188,15 @@ public class ZipConverter extends PathConverter {
         if (dirPath == null) {
             return;
         }
-        Files.walk(dirPath).sorted(Comparator.reverseOrder()).forEach(path -> {
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                //
-            }
-        });
+        try (var paths = Files.walk(dirPath)) {
+            paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    //
+                }
+            });
+        }
     }
 
     /**

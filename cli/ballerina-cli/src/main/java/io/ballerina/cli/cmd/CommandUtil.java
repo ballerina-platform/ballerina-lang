@@ -876,21 +876,22 @@ public class CommandUtil {
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
-            Stream<Path> walk = Files.walk(templateDir, 1);
+            try (Stream<Path> walk = Files.walk(templateDir, 1)) {
 
-            List<String> templates = walk.filter(Files::isDirectory)
+                List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
                     .filter(directory -> directory.getFileName() != null)
                     .map(directory -> directory.getFileName())
                     .map(fileName -> fileName.toString())
                     .collect(Collectors.toList());
 
-            if (null != jarFs) {
-                return templates.stream().map(t -> t
-                        .replace(jarFs.getSeparator(), ""))
+                if (null != jarFs) {
+                    return templates.stream().map(t -> t
+                            .replace(jarFs.getSeparator(), ""))
                         .collect(Collectors.toList());
-            } else {
-                return templates;
+                } else {
+                    return templates;
+                }
             }
 
         } catch (IOException | URISyntaxException e) {
@@ -1030,13 +1031,11 @@ public class CommandUtil {
     public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
         List<Path> versions = new ArrayList<>();
         if (Files.exists(balaPackagePath)) {
-            Stream<Path> collectVersions;
-            try {
-                collectVersions = Files.list(balaPackagePath);
+            try (Stream<Path> collectVersions = Files.list(balaPackagePath)) {
+                versions.addAll(collectVersions.toList());
             } catch (IOException e) {
                 throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
             }
-            versions.addAll(collectVersions.toList());
         }
         return pathToVersions(versions);
     }
@@ -1090,8 +1089,10 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.toList();
+        List<Path> templateFilePathList;
+        try (Stream<Path> paths = Files.list(templateDir)) {
+            templateFilePathList = paths.toList();
+        }
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
@@ -1131,7 +1132,9 @@ public class CommandUtil {
      */
     public static boolean balFilesExists(Path packagePath) throws IOException {
         //Only skip the bal file to be created if any other .bal files exists
-        return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+        try (var paths = Files.list(packagePath)) {
+            return paths.anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+        }
     }
 
     /**
