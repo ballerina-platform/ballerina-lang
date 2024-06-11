@@ -57,7 +57,6 @@ public class MappingDefinition implements Definition {
 
     private SemType createSemType(Env env, Atom atom) {
         BddNode bdd = bddAtom(atom);
-        // FIXME: create delegate
         this.semType = basicSubType(BasicTypeCode.BT_MAPPING, BMappingSubType.createDelegate(bdd));
         return this.semType;
     }
