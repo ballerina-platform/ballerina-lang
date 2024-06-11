@@ -242,13 +242,6 @@ public class SemTypeTest {
                 "function-union-tv.bal"
         ));
         Predicate<File> mappingFilter = createRuntimeFileNameFilter(Set.of(
-                "mapping1-t.bal",
-                "mapping2-t.bal",
-                "mapping3-t.bal",
-                "mapping-record-tv.bal",
-                "mapping-t.bal",
-                "mappingIntersect-tv.bal",
-                "mutable-record-t.bal",
                 "optional-field-record1-t.bal",
                 "optional-field-record2-t.bal",
                 "optional-field-record3-t.bal",
@@ -257,9 +250,7 @@ public class SemTypeTest {
                 "recursive-record-t.bal",
                 "test_test.bal",
                 "proj1-tv.bal",
-                "proj3-tv.bal",
-                "tuple1-tv.bal",
-                "tuple3-tv.bal"
+                "proj3-tv.bal"
         ));
         Predicate<File> xmlFilter = createRuntimeFileNameFilter(Set.of(
                 "xml-complex-ro-tv.bal",

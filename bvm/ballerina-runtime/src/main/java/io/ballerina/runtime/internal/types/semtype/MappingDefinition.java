@@ -63,12 +63,14 @@ public class MappingDefinition implements Definition {
     }
 
     public SemType defineMappingTypeWrapped(Env env, Field[] fields, SemType rest, CellAtomicType.CellMutability mut) {
+        assert rest != null;
         BCellField[] cellFields = new BCellField[fields.length];
-        for (Field field : fields) {
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
             SemType type = field.ty;
             SemType cellType = cellContaining(env, field.optional ? union(type, undef()) : type,
                     field.readonly ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
-            cellFields[0] = new BCellField(field.name, cellType);
+            cellFields[i] = new BCellField(field.name, cellType);
         }
         SemType restCell = cellContaining(env, union(rest, undef()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
