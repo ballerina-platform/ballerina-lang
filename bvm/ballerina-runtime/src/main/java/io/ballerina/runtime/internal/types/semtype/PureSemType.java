@@ -28,11 +28,16 @@ import io.ballerina.runtime.api.types.semtype.SubType;
  */
 public final class PureSemType extends SemType {
 
+    private final int index;
+    private static int nextIndex;
+
     public PureSemType(int all, int some, SubType[] subTypeData) {
         super(all, some, subTypeData);
+        index = nextIndex++;
     }
 
     public PureSemType(int all) {
         super(all);
+        index = nextIndex++;
     }
 }
