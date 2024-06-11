@@ -48,14 +48,14 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class HomeBalaRepo implements Repo<Path> {
     private Path repoLocation;
     private ZipConverter zipConverter;
-    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).toList();
+    private List<String> supportedPlatforms = Stream.concat(
+            Arrays.stream(SUPPORTED_PLATFORMS), Stream.of("any")).toList();
     private Map<PackageID, Manifest> dependencyManifests;
     
     public HomeBalaRepo(Map<PackageID, Manifest> dependencyManifests) {
         this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
         this.dependencyManifests = dependencyManifests;
         this.zipConverter = new ZipConverter(this.repoLocation);
-        supportedPlatforms.add("any");
     }
     
     @Override

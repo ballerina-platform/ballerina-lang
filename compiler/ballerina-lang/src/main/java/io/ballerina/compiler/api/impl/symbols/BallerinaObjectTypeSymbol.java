@@ -204,11 +204,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     @Override
     protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
         List<FunctionSymbol> functionSymbols = super.filterLangLibMethods(functions, internalType);
-        return functionSymbols.stream()
+        return new ArrayList<>(functionSymbols.stream()
                 .filter(functionSymbol -> functionSymbol.getModule().isPresent())
                 .filter(functionSymbol -> !ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
                         !MODULE_NAME_LANG_VALUE.equals(functionSymbol.getModule().get().id().moduleName()))
-                .toList();
+                .toList());
     }
 
     private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {

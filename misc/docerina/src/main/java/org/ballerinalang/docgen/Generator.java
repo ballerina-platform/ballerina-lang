@@ -95,6 +95,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Stream;
 
 /**
  * Generates the Page bClasses for bal packages.
@@ -574,13 +575,11 @@ public final class Generator {
         }
 
         // Get functions that are not overridden
-        List<Function> functions = includedFunctions.stream().filter(includedFunction ->
+        List<Function> functions = Stream.concat(includedFunctions.stream().filter(includedFunction ->
                 classFunctions
                         .stream()
-                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .toList();
-
-        functions.addAll(classFunctions);
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name))),
+                classFunctions.stream()).toList();
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
@@ -691,13 +690,10 @@ public final class Generator {
         }
 
         // Get functions that are not overridden
-        List<Function> functions = includedFunctions.stream().filter(includedFunction ->
-                objectFunctions
-                        .stream()
-                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .toList();
-
-        functions.addAll(objectFunctions);
+        List<Function> functions = Stream.concat(
+                includedFunctions.stream().filter(includedFunction -> objectFunctions.stream()
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name))),
+                objectFunctions.stream()).toList();
 
         return new BObjectType(objectName, description, descriptionSections, isDeprecated, fields, functions);
     }

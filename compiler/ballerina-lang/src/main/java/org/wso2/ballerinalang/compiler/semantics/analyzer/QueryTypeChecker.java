@@ -285,7 +285,7 @@ public class QueryTypeChecker extends TypeChecker {
                 .toList();
         // resultTypes will be empty if the targetType is `error?`
         if (safeResultTypes.isEmpty()) {
-            safeResultTypes.add(symTable.noType);
+            safeResultTypes = List.of(symTable.noType);
         }
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();

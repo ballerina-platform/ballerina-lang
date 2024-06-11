@@ -1682,9 +1682,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 case TypeTags.RECORD:
                     Map<String, BField> fieldList = ((BRecordType) referredKeyTypeConstraint).getFields();
-                    memberTypes = fieldList.entrySet().stream()
+                    memberTypes = new ArrayList<>(fieldList.entrySet().stream()
                             .filter(e -> fieldNameList.contains(e.getKey())).map(entry -> entry.getValue().type)
-                            .toList();
+                            .toList());
                     if (memberTypes.isEmpty()) {
                         memberTypes.add(keyTypeConstraint);
                     }
@@ -4805,17 +4805,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        List<BVarSymbol> requiredParams = function.symbol.params.stream()
+        List<BVarSymbol> requiredParams = new ArrayList<>(function.symbol.params.stream()
                 .filter(param -> !param.isDefaultable)
-                .toList();
+                .toList());
         // Given named and positional arguments are less than required parameters.
         if (requiredParams.size() > invocationArguments.size()) {
             return false;
         }
 
-        List<BVarSymbol> defaultableParams = function.symbol.params.stream()
+        List<BVarSymbol> defaultableParams = new ArrayList<>(function.symbol.params.stream()
                 .filter(param -> param.isDefaultable)
-                .toList();
+                .toList());
 
         int givenRequiredParamCount = 0;
         for (int i = 0; i < positionalArgs.size(); i++) {

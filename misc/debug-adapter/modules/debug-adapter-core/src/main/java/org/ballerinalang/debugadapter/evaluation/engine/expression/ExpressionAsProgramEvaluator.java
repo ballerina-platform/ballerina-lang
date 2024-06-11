@@ -497,7 +497,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             }
 
             // Replaces original package name with the evaluation package name.
-            List<IdentifierToken> moduleParts = importDeclarationNode.moduleName().stream().toList();
+            List<IdentifierToken> moduleParts = new ArrayList<>(importDeclarationNode.moduleName().stream().toList());
             IdentifierToken packageToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_NAME);
             moduleParts.remove(0);
             moduleParts.add(0, packageToken);

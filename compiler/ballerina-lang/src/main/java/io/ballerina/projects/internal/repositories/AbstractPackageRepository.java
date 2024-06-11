@@ -148,15 +148,16 @@ public abstract class AbstractPackageRepository implements PackageRepository {
     private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
                                                          PackageName packageName,
                                                          List<PackageVersion> packageVersions) {
-        Comparator<PackageVersion> comparator = (v1, v2) -> {
-
+        packageVersions = packageVersions.stream().sorted((v1, v2) -> {
+            if (v1.equals(v2)) {
+                return 0;
+            }
             PackageVersion latest = getLatest(v1, v2);
             if (v1 == latest) {
                 return -1;
             }
             return 1;
-        };
-        packageVersions.sort(comparator);
+        }).toList();
 
         for (PackageVersion packageVersion : packageVersions) {
             Collection<ModuleDescriptor> moduleDescriptors = getModules(

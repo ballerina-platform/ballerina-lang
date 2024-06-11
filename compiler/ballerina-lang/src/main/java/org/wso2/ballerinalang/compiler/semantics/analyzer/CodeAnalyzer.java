@@ -266,6 +266,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
@@ -1889,12 +1890,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private List<BLangExpression> getVarRefs(BLangRecordVarRef varRef) {
-        List<BLangExpression> varRefs = varRef.recordRefFields.stream()
-                .map(e -> e.variableReference).toList();
-        if (varRef.restParam != null) {
-            varRefs.add(varRef.restParam);
-        }
-        return varRefs;
+        return Stream.concat(
+                varRef.recordRefFields.stream().map(e -> e.variableReference),
+                Stream.ofNullable(varRef.restParam)).toList();
     }
 
     private List<BLangExpression> getVarRefs(BLangErrorVarRef varRef) {

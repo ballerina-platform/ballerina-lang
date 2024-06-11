@@ -76,11 +76,8 @@ public final class ProjectFiles {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
         List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
-        if (otherModules.isEmpty()) {
-            otherModules = newModules;
-        } else {
-            otherModules.addAll(newModules);
-        }
+        otherModules = Stream.concat(otherModules.stream(), newModules.stream()).toList();
+
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
@@ -149,7 +146,7 @@ public final class ProjectFiles {
         }
 
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
-            return pathStream
+            return new ArrayList<>(pathStream
                     .filter(path -> !path.equals(modulesDirPath))
                     .filter(Files::isDirectory)
                     .filter(path -> {
@@ -165,7 +162,7 @@ public final class ProjectFiles {
                         return true;
                     })
                     .map(ProjectFiles::loadModule)
-                    .toList();
+                    .toList());
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -173,9 +170,9 @@ public final class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
-        List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : new ArrayList<>();
+        List<DocumentData> testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) :
+                new ArrayList<>();
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
@@ -185,13 +182,13 @@ public final class ProjectFiles {
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
                 verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath, false);
-                srcDocs.addAll(generatedDocs);
+                srcDocs = Stream.concat(srcDocs.stream(), generatedDocs.stream()).toList();
                 if (Files.isDirectory(generatedSourcesRoot.resolve(TEST_DIR_NAME))) {
                     List<DocumentData> generatedTestDocs =
                             loadTestDocuments(generatedSourcesRoot.resolve(TEST_DIR_NAME));
                     verifyDuplicateNames(testSrcDocs, generatedTestDocs, moduleDirPath.toFile().getName(),
                             moduleDirPath, true);
-                    testSrcDocs.addAll(generatedTestDocs);
+                    testSrcDocs = Stream.concat(testSrcDocs.stream(), generatedTestDocs.stream()).toList();
                 }
             }
         }

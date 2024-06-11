@@ -8155,7 +8155,7 @@ public class Desugar extends BLangNodeVisitor {
         funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.getBType();
         // Create function type.
-        List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).toList();
+        List<BType> paramTypes = new ArrayList<>(paramSymbols.stream().map(paramSym -> paramSym.type).toList());
         funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
                           funcSymbol.type.tsymbol));
 
