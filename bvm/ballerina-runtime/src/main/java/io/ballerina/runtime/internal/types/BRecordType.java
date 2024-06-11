@@ -28,6 +28,10 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -35,13 +39,16 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,6 +65,8 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+    private MappingDefinition defn;
+    private final Env env = Env.getInstance();
 
     private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
 
@@ -224,6 +233,38 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     SemType createSemType() {
-        return BTypeConverter.fromRecordType(this);
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        defn = new MappingDefinition();
+        Field[] fields = getFields().values().toArray(Field[]::new);
+        MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
+        boolean hasBTypePart = false;
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            SemType fieldType = Builder.from(field.getFieldType());
+            if (Core.isNever(fieldType)) {
+                return Builder.neverType();
+            } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
+                hasBTypePart = true;
+                fieldType = Core.intersect(fieldType, Core.SEMTYPE_TOP);
+            }
+            mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
+                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY), isOptional);
+        }
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType rest = restFieldType != null ? Builder.from(restFieldType) : Builder.neverType();
+        if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+            hasBTypePart = true;
+            rest = Core.intersect(rest, Core.SEMTYPE_TOP);
+        }
+        if (hasBTypePart) {
+            SemType semTypePart = defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(semTypePart, bTypePart);
+        }
+        return defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }
 }

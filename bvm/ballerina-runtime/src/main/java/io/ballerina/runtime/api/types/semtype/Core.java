@@ -30,6 +30,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_INT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_STRING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
@@ -283,6 +284,11 @@ public final class Core {
     // Describes the subtype of int included in the type: true/false mean all or none of string
     public static SubTypeData intSubtype(SemType t) {
         return subTypeData(t, BT_INT);
+    }
+
+    // Describes the subtype of string included in the type: true/false mean all or none of string
+    public static SubTypeData stringSubtype(SemType t) {
+        return subTypeData(t, BT_STRING);
     }
 
     public static SubTypeData subTypeData(SemType s, BasicTypeCode code) {

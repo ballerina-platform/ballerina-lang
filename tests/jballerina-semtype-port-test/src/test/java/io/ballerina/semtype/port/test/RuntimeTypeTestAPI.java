@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.ListProj;
+import io.ballerina.runtime.api.types.semtype.MappingProj;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
@@ -56,7 +57,7 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
 
     @Override
     public boolean isMapType(SemType t) {
-        throw new IllegalArgumentException("map type not implemented");
+        return Core.isSubtypeSimple(t, Builder.mappingType());
     }
 
     @Override
@@ -65,8 +66,8 @@ public class RuntimeTypeTestAPI implements TypeTestAPI<SemType> {
     }
 
     @Override
-    public SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType semType, SemType m) {
-        throw new IllegalArgumentException("mapping member type inner val not implemented");
+    public SemType mappingMemberTypeInnerVal(TypeTestContext<SemType> context, SemType t, SemType key) {
+        return MappingProj.mappingMemberTypeInnerVal(from(context), t, key);
     }
 
     @Override

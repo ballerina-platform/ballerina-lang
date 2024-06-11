@@ -224,12 +224,6 @@ public class BArrayType extends BType implements ArrayType {
         }
         defn = new ListDefinition();
         SemType elementType = Builder.from(getElementType());
-//        if (Core.isSubtypeSimple(elementType, Core.B_TYPE_TOP)) {
-//            SemType semTypePart = defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, Builder.neverType(),
-//                    CellAtomicType.CellMutability.CELL_MUT_NONE);
-//            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
-//            return Core.union(semTypePart, bTypePart);
-//        }
         SemType pureBTypePart = Core.intersect(elementType, Core.B_TYPE_TOP);
         if (!Core.isNever(pureBTypePart)) {
             SemType pureSemTypePart = Core.intersect(elementType, Core.SEMTYPE_TOP);
