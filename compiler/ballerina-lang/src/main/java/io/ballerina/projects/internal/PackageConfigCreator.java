@@ -38,6 +38,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -139,11 +140,11 @@ public class PackageConfigCreator {
         PackageName packageName = packageManifest.name();
         PackageId packageId = PackageId.create(packageName.value());
 
-        List<ModuleConfig> moduleConfigs = packageData.otherModules()
+        List<ModuleConfig> moduleConfigs = new ArrayList<>(packageData.otherModules()
                 .stream()
                 .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
                         packageId, moduleDependencyGraph))
-                .toList();
+                .toList());
 
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
                 packageData.defaultModule(), packageId, moduleDependencyGraph));
