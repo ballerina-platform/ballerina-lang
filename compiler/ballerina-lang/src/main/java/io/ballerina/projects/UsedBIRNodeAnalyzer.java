@@ -109,9 +109,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     public void analyze(BLangPackage pkgNode) {
         CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
 
-        currentInvocationData = pkgNode.symbol.invocationData;
-        pkgWiseInvocationData.putIfAbsent(pkgNode.packageID, currentInvocationData);
         currentPkgID = pkgNode.packageID;
+        currentInvocationData = pkgNode.symbol.invocationData;
+        pkgWiseInvocationData.putIfAbsent(currentPkgID, currentInvocationData);
 
         if (!currentInvocationData.moduleIsUsed) {
             currentInvocationData.registerNodes(usedTypeDefAnalyzer, pkgNode.symbol.bir);
@@ -126,7 +126,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             visitNode(node);
         }
 
-        CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
+        CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(currentPkgID);
     }
 
     private void analyzeTestablePkg(BPackageSymbol testableSymbol) {
