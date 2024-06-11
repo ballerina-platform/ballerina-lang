@@ -705,8 +705,9 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     error err = <error>res;
     var message = err.detail()["message"];
     string detailMessage = message is error ? message.toString() : message.toString();
-    assertValueEquality("{ballerina/lang.array}SizeMismatch", err.message());
-    assertValueEquality("insufficient member size: expected at least '2', found '1'", detailMessage);
+    assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
+    assertValueEquality("the number of members in a tuple value should be greater " +
+    "than the member types of the tuple to perform a 'shift' operation", detailMessage);
 }
 
 function testShiftOnTupleWithVariableInherentTypes() {
