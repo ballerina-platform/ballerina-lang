@@ -243,9 +243,6 @@ public class SemTypeTest {
                 "func-quals-tv.bal"
         ));
         Predicate<File> mappingFilter = createRuntimeFileNameFilter(Set.of(
-                "optional-field-record1-t.bal",
-                "optional-field-record2-t.bal",
-                "optional-field-record3-t.bal",
                 "record-proj-tv.bal",
                 "record-t.bal",
                 "recursive-record-t.bal",
