@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -645,10 +646,12 @@ public class CoverageReport {
                             dependencyPathList.add(generatedJarLibrary.path());
                         }
                     }
-                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
-                    otherJarDependencies.addAll(jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.PROVIDED));
+                    Collection<PlatformLibrary> otherJarDependencies = Stream.concat(
+                            jBallerinaBackend.platformLibraryDependencies(
+                                    pkg.packageId(), PlatformLibraryScope.DEFAULT).stream(),
+                            jBallerinaBackend.platformLibraryDependencies(
+                                    pkg.packageId(), PlatformLibraryScope.PROVIDED).stream()).toList();
+
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
                         if (!dependencyPathList.contains(otherJarDependency.path())) {
                             dependencyPathList.add(otherJarDependency.path());
