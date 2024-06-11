@@ -954,9 +954,9 @@ public class CommandUtil {
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest
-                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, "app"))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+                .replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, "app"))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -966,9 +966,9 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, "lib"))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        defaultManifest = defaultManifest.replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, "lib"))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
 
@@ -990,16 +990,16 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         defaultManifest = defaultManifest
-                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, guessPkgName(packageName, TOOL_DIR))
-                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+                .replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, TOOL_DIR))
+                .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
 
         Path balToolToml = path.resolve(ProjectConstants.BAL_TOOL_TOML);
         Files.createFile(balToolToml);
 
         String balToolManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-tool.toml");
-        balToolManifest = balToolManifest.replaceAll(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
+        balToolManifest = balToolManifest.replace(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
 
         write(balToolToml, balToolManifest.getBytes(StandardCharsets.UTF_8));
     }
