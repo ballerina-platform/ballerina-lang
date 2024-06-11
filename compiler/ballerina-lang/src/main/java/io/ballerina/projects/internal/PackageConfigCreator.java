@@ -141,9 +141,9 @@ public class PackageConfigCreator {
         PackageName packageName = packageManifest.name();
         PackageId packageId = PackageId.create(packageName.value());
 
-        List<ModuleConfig> moduleConfigs = Stream.concat(packageData.otherModules().stream()
-                        .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
-                                packageId, moduleDependencyGraph)),
+        List<ModuleConfig> moduleConfigs = Stream.concat(
+                packageData.otherModules().stream().map(moduleData ->
+                        createModuleConfig(packageManifest.descriptor(), moduleData, packageId, moduleDependencyGraph)),
                 Stream.of(createDefaultModuleConfig(packageManifest.descriptor(),
                         packageData.defaultModule(), packageId, moduleDependencyGraph))).toList();
 

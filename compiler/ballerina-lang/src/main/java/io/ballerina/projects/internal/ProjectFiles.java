@@ -71,11 +71,8 @@ public class ProjectFiles {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
         List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
-        if (otherModules.isEmpty()) {
-            otherModules = newModules;
-        } else {
-            otherModules.addAll(newModules);
-        }
+        otherModules = Stream.concat(otherModules.stream(), newModules.stream()).toList();
+
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
@@ -132,7 +129,7 @@ public class ProjectFiles {
         }
 
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
-            return pathStream
+            return new ArrayList<>(pathStream
                     .filter(path -> !path.equals(modulesDirPath))
                     .filter(Files::isDirectory)
                     .filter(path -> {
@@ -148,7 +145,7 @@ public class ProjectFiles {
                         return true;
                     })
                     .map(ProjectFiles::loadModule)
-                    .toList();
+                    .toList());
         } catch (IOException e) {
             throw new ProjectException(e);
         }
