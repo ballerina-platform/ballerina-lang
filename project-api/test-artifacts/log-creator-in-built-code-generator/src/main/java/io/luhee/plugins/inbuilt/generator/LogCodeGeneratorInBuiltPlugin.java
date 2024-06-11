@@ -52,8 +52,7 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
             generatorContext.addSourceGeneratorTask(sourceGeneratorContext ->
-                appendToOutputFile(filePath, "source-generator")
-            );
+                appendToOutputFile(filePath, "source-generator"));
 
             generatorContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }

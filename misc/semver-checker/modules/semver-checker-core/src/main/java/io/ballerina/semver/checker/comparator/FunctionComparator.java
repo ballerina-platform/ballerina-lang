@@ -169,8 +169,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         ParamListComparator paramComparator = new ParamListComparator(newParams, oldParams);
         paramComparator.computeDiff().ifPresent(diff ->
-            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>()))
-        );
+            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>())));
 
         return paramDiffs;
     }

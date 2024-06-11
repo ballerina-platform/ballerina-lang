@@ -48,8 +48,7 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
             generatorContext.addSourceGeneratorTask(sourceGeneratorContext ->
-                sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml")
-            );
+                sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml"));
         }
     }
 

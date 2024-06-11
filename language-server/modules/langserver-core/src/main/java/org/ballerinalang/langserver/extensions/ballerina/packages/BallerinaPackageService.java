@@ -106,8 +106,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                             String msg = "Operation 'ballerinaPackage/components' load project failed!";
                             this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null);
                         }
-                    })
-                );
+                    }));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
@@ -168,8 +167,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                 moduleObject.setName(module.moduleName().moduleNamePart());
             }
             module.documentIds().forEach(documentId -> new DocumentComponentTransformer(moduleObject)
-                    .getModuleObject(module.document(documentId).syntaxTree().rootNode())
-            );
+                    .getModuleObject(module.document(documentId).syntaxTree().rootNode()));
             packageObject.addModule(moduleObject);
         });
         return new Gson().toJsonTree(packageObject).getAsJsonObject();

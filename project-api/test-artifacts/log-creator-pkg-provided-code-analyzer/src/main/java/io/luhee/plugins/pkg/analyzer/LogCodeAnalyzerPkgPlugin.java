@@ -54,8 +54,7 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
         @Override
         public void init(CodeAnalysisContext analysisContext) {
             analysisContext.addCompilationAnalysisTask(sourceGeneratorContext ->
-                appendToOutputFile(filePath, "source-analyzer")
-            );
+                appendToOutputFile(filePath, "source-analyzer"));
 
             analysisContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }

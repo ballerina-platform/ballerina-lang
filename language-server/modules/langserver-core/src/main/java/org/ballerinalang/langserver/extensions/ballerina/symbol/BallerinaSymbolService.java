@@ -410,8 +410,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                                 parameterSymbol.getName().get(),
                                 documentation.get().parameterMap().get(parameterSymbol.getName().get()),
                                 parameterSymbol.paramKind().name(),
-                                NameUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())))
-                        );
+                                NameUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor()))));
             }
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
@@ -430,8 +429,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 documentation.get().deprecatedParametersMap().size());
         Map<String, String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
         deprecatedParamMap.forEach((param, desc) ->
-            deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc))
-        );
+            deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc)));
 
         SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation.get(), symbolParams,
                 deprecatedParams);

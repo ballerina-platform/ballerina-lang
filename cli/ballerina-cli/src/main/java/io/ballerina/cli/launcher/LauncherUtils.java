@@ -124,9 +124,7 @@ public class LauncherUtils {
             toolNames.forEach(toolName ->
                 balToolsManifest.getActiveTool(toolName).ifPresent(tool ->
                     activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
-                            .toUpperCase() + "] ")
-                )
-            );
+                            .toUpperCase() + "] ")));
             helpBuilder.append("\n\n   Tool Commands:");
             toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
                     activeToolsVsRepos.get(key)));

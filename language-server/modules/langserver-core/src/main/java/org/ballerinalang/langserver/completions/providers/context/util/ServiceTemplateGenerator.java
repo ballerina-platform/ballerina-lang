@@ -163,8 +163,7 @@ public class ServiceTemplateGenerator {
                 return;
             }
             moduleInfo.getListenerMetaData().forEach(listenerMetaData ->
-                completionItems.add(generateServiceSnippet(listenerMetaData, ctx))
-            );
+                completionItems.add(generateServiceSnippet(listenerMetaData, ctx)));
             processedModuleList.add(moduleInfo.getModuleIdentifier());
         });
         return completionItems;

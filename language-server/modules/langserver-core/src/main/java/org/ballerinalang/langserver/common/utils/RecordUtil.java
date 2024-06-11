@@ -60,8 +60,7 @@ public class RecordUtil {
                                                                List<RecordField>> fieldsMap) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fieldsMap.forEach((recordFieldIdentifier, fields) ->
-            completionItems.add(getRecordFieldCompletionItem(context, recordFieldIdentifier, fields))
-        );
+            completionItems.add(getRecordFieldCompletionItem(context, recordFieldIdentifier, fields)));
 
         return completionItems;
     }

@@ -53,8 +53,7 @@ public class LogCodeModifierInBuiltPlugin extends CompilerPlugin {
         @Override
         public void init(CodeModifierContext modifierContext) {
             modifierContext.addSourceModifierTask(sourceGeneratorContext ->
-                appendToOutputFile(filePath, "source-modifier")
-            );
+                appendToOutputFile(filePath, "source-modifier"));
 
             modifierContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }

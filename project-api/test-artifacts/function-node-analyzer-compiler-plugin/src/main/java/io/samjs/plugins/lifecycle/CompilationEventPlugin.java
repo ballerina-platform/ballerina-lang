@@ -48,8 +48,7 @@ public class CompilationEventPlugin extends CompilerPlugin {
                 compilerLifecycleEventContext.reportDiagnostic(DiagnosticUtils.createDiagnostic(
                         "CODE_GEN_COMPLETED_TEST_EVENT",
                         "End of codegen", new NullLocation(),
-                        DiagnosticSeverity.WARNING))
-            );
+                        DiagnosticSeverity.WARNING)));
         }
     }
 

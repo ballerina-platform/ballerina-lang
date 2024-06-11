@@ -375,8 +375,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                                 }
                             });
                         }
-                    })
-                );
+                    }));
                 return reply;
             } catch (Throwable e) {
                 reply.setParseSuccess(false);

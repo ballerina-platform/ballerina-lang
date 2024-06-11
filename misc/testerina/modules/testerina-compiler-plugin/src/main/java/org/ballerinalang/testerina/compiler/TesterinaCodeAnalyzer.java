@@ -53,14 +53,12 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
             if (syntaxNodeAnalysisContext.node() instanceof ClassDefinitionNode) {
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) syntaxNodeAnalysisContext.node();
                 classDefinitionNode.members().forEach(member ->
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member)
-                );
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             } else if (syntaxNodeAnalysisContext.node() instanceof ServiceDeclarationNode) {
                 ServiceDeclarationNode serviceDeclarationNode =
                         (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
                 serviceDeclarationNode.members().forEach(member ->
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member)
-                );
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             }
         }, Arrays.asList(SyntaxKind.CLASS_DEFINITION, SyntaxKind.SERVICE_DECLARATION));
     }
@@ -83,8 +81,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
                             syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
                         }
                     }
-                })
-            );
+                }));
         }
     }
 }

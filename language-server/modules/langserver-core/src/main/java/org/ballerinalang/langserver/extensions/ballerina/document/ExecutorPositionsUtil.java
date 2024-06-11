@@ -172,8 +172,7 @@ public class ExecutorPositionsUtil {
         TestCaseVisitor testCaseVisitor = new TestCaseVisitor(execPositions, filePath);
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             module.documentIds().forEach(documentId ->
-                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode())
-            );
+                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode()));
 
         } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
             module.testDocumentIds().forEach(testDocumentId -> {
