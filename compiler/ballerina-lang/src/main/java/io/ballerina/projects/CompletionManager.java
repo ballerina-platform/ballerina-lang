@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Manages interaction with completion providers via compiler plugins.
@@ -159,7 +158,7 @@ public class CompletionManager {
                     }
                     return Optional.of(listenerType);
                 }).filter(listenerType -> listenerType.isPresent() && listenerType.get().getModule().isPresent())
-                .map(listenerType -> listenerType.get().getModule().get()).collect(Collectors.toList());
+                .map(listenerType -> listenerType.get().getModule().get()).toList();
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {

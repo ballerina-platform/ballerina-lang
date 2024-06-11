@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Generic Completion provider for match statement related contexts such as match node and pattern clauses.
@@ -51,7 +50,7 @@ public abstract class MatchStatementContext<T extends Node> extends AbstractComp
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
         List<Symbol> filteredConstants = visibleSymbols.stream()
                 .filter(this.constantFilter())
-                .collect(Collectors.toList());
+                .toList();
 
         completionItems.addAll(this.getCompletionItemList(filteredConstants, context));
         completionItems.addAll(this.getModuleCompletionItems(context));

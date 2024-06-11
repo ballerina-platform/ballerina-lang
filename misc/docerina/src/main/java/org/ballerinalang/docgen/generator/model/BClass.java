@@ -19,7 +19,6 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represent documentation for an BClass.
@@ -64,7 +63,7 @@ public class BClass extends Construct {
     public List<Function> getOtherMethods(List<Function> methods) {
         return methods.stream()
                 .filter(function -> !function.name.equals("init"))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

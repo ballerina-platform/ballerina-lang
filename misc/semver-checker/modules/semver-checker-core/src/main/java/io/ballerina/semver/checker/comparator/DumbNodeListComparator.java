@@ -59,8 +59,8 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
     }
 
     DumbNodeListComparator(NodeList<T> newNodes, NodeList<T> oldNodes, DiffKind nodeKind) {
-        this.newNodes = newNodes != null ? newNodes.stream().collect(Collectors.toList()) : null;
-        this.oldNodes = oldNodes != null ? oldNodes.stream().collect(Collectors.toList()) : null;
+        this.newNodes = newNodes != null ? newNodes.stream().toList() : null;
+        this.oldNodes = oldNodes != null ? oldNodes.stream().toList() : null;
         this.nodeKind = nodeKind;
     }
 

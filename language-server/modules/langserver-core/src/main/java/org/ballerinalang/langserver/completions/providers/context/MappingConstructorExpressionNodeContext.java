@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link MappingConstructorExpressionNode} context.
@@ -153,7 +152,7 @@ public class MappingConstructorExpressionNodeContext extends
 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
-                .collect(Collectors.toList());
+                .toList();
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredList, context);
         completionItems.addAll(this.getModuleCompletionItems(context));
 
@@ -166,7 +165,7 @@ public class MappingConstructorExpressionNodeContext extends
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.SPECIFIC_FIELD
                         && ((SpecificFieldNode) field).fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((IdentifierToken) ((SpecificFieldNode) field).fieldName()).text())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private enum Scope {

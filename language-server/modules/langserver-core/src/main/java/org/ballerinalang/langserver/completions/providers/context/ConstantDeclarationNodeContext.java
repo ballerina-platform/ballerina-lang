@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -119,7 +118,7 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
         } else {
             constants = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(predicate)
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));

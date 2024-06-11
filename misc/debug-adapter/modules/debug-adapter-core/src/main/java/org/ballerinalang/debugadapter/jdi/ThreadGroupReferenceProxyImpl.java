@@ -77,12 +77,12 @@ public class ThreadGroupReferenceProxyImpl extends ObjectReferenceProxyImpl impl
 
     public List<ThreadReferenceProxyImpl> threads() {
         return getThreadGroupReference().threads().stream().map(getVirtualMachineProxy()::getThreadReferenceProxy)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ThreadGroupReferenceProxyImpl> threadGroups() {
         return getThreadGroupReference().threadGroups().stream().map(getVirtualMachineProxy()
-                ::getThreadGroupReferenceProxy).collect(Collectors.toList());
+                ::getThreadGroupReferenceProxy).toList();
     }
 
     @Override

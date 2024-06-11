@@ -265,10 +265,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.typeDefinitions);
         find(pkgNode.classDefinitions.stream()
                      .filter(c -> !isGeneratedClassDefForService(c))
-                     .collect(Collectors.toList()));
+                     .toList());
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
-                     .collect(Collectors.toList()));
+                     .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
             find(pkgNode.getTestablePkg());

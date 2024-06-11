@@ -44,7 +44,7 @@ public class XMLSimpleNameNodeContext extends AbstractCompletionProvider<XMLSimp
 
         List<Symbol> xmlNamespaces = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.XMLNS)
-                .collect(Collectors.toList());
+                .toList();
 
         List<LSCompletionItem> completionItems = this.getCompletionItemList(xmlNamespaces, context);
         this.sort(context, node, completionItems);

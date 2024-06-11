@@ -139,11 +139,11 @@ public class TestReport {
         // sort the module list to be in the alphabetical order
         moduleStatus = moduleStatus.stream()
                 .sorted(Comparator.comparing(ModuleStatus::getName))
-                .collect(Collectors.toList());
+                .toList();
 
         moduleCoverage = moduleCoverage.stream()
                 .sorted(Comparator.comparing(ModuleCoverage::getName))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public float getCoveragePercentage() {

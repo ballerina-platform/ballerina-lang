@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.ballerina.toml.internal.syntax.NodeListUtils.rangeCheck;
 import static io.ballerina.toml.internal.syntax.NodeListUtils.rangeCheckForAdd;
@@ -87,7 +86,7 @@ public final class MinutiaeList implements Iterable<Minutiae> {
         List<STNode> stNodesToBeAdded = c.stream()
                 .map(minutiae -> Objects.requireNonNull(minutiae, "minutiae should not be null"))
                 .map(Minutiae::internalNode)
-                .collect(Collectors.toList());
+                .toList();
         return new MinutiaeList(token,
                 internalListNode.addAll(stNodesToBeAdded),
                 position);

@@ -62,7 +62,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents the Inlay Hint Provider.
@@ -154,7 +153,7 @@ public class InlayHintProvider {
                 return Pair.of(Collections.emptyList(), Optional.empty());
             }
             // Since the method is a lang-lib function, skip the first parameter
-            return Pair.of(libFunction.get().params().get().stream().skip(1).collect(Collectors.toList()),
+            return Pair.of(libFunction.get().params().get().stream().skip(1).toList(),
                     libFunction.get().restParam());
         } else if (invokableNode.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             return context.currentSemanticModel().get()
@@ -229,7 +228,7 @@ public class InlayHintProvider {
         } else if (node.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             functionSymbols = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
-                    .map(symbol -> (FunctionSymbol) symbol).collect(Collectors.toList());
+                    .map(symbol -> (FunctionSymbol) symbol).toList();
             functionName = ((SimpleNameReferenceNode) node.functionName()).name().text();
         } else {
             return Pair.of(Collections.emptyList(), Optional.empty());

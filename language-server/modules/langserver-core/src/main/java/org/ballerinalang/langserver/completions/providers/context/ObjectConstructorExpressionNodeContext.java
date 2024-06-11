@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ObjectConstructorExpressionNode} context.
@@ -110,7 +109,7 @@ public class ObjectConstructorExpressionNodeContext
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         List<Symbol> objectEntries = visibleSymbols.stream()
                 .filter(predicate)
-                .collect(Collectors.toList());
+                .toList();
 
         List<LSCompletionItem> completionItems = this.getCompletionItemList(objectEntries, ctx);
         completionItems.addAll(this.getModuleCompletionItems(ctx));

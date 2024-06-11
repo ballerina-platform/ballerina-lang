@@ -37,7 +37,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
@@ -49,7 +48,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class HomeBalaRepo implements Repo<Path> {
     private Path repoLocation;
     private ZipConverter zipConverter;
-    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).toList();
     private Map<PackageID, Manifest> dependencyManifests;
     
     public HomeBalaRepo(Map<PackageID, Manifest> dependencyManifests) {

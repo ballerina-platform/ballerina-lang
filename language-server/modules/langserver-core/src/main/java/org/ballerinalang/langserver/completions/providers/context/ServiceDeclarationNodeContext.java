@@ -120,7 +120,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
                 List<Symbol> listeners = visibleSymbols.stream()
                         .filter(predicate)
-                        .collect(Collectors.toList());
+                        .toList();
                 completionItems.addAll(this.getCompletionItemList(listeners, context));
                 completionItems.addAll(this.getModuleCompletionItems(context));
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
