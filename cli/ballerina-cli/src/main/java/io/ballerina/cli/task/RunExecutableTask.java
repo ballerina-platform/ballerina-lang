@@ -46,6 +46,7 @@ public class RunExecutableTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
     private final Target target;
+    private Process process;
 
     /**
      * Create a task to run the executable. This requires {@link CreateExecutableTask} to be completed.
@@ -97,15 +98,24 @@ public class RunExecutableTask implements Task {
                     .normalize().toString());
             commands.addAll(args);
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
-            Process process = pb.start();
+            process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
             if (exitValue != 0) {
                 throw new RuntimePanicException(exitValue);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw createLauncherException("Error occurred while running the executable ", e.getCause());
+        } catch (InterruptedException e) {
+            if (process != null && process.isAlive()) {
+                process.destroy();
+            }
+        }
+    }
+
+    public void killProcess() {
+        if (process != null && process.isAlive()) {
+            process.destroy();
         }
     }
 }
-
