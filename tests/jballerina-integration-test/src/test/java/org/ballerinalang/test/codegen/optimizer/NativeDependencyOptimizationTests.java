@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -93,15 +94,40 @@ public class NativeDependencyOptimizationTests extends BaseTest {
         }
     }
 
-    public Path buildClassesAndGetJarFilePath(Path parentPackagePath) throws IOException, InterruptedException {
+    private Path buildClassesAndGetJarFilePath(Path parentPackagePath) throws IOException, InterruptedException {
         Path classCache = parentPackagePath.resolve("generated");
         Path generatedJar = parentPackagePath.getParent().resolve(parentPackagePath.getFileName() + ".jar");
-        Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec("javac " + parentPackagePath + File.separator + "*.java" + " -d " + classCache);
-        process.waitFor();
-        process = rt.exec("jar cf " + generatedJar + " ./*.class", null, classCache.toFile());
-        process.waitFor();
+        compileJavaFiles(parentPackagePath, classCache);
+        packClassFilesToJar(generatedJar, classCache);
         return generatedJar;
+    }
+
+    private void compileJavaFiles(Path javaFileDirectory, Path classFileDirectory)
+            throws IOException, InterruptedException {
+        List<String> commands = new ArrayList<>();
+        commands.add("javac");
+        for (File file : Objects.requireNonNull(javaFileDirectory.toFile().listFiles())) {
+            commands.add(file.getPath());
+        }
+        commands.add("-d");
+        commands.add(classFileDirectory.toString());
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.start().waitFor();
+    }
+
+    private void packClassFilesToJar(Path generatedJarPath, Path classFileDirectory)
+            throws IOException, InterruptedException {
+        List<String> commands = new ArrayList<>();
+        commands.add("jar");
+        commands.add("cf");
+        commands.add(generatedJarPath.toString());
+        for (File file : Objects.requireNonNull(classFileDirectory.toFile().listFiles())) {
+            commands.add(file.getName());
+        }
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(classFileDirectory.toFile());
+        processBuilder.start().waitFor();
     }
 
     @Test(dataProvider = "InteropInfoProvider")
