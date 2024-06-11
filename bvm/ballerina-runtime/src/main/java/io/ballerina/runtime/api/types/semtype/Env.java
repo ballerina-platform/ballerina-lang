@@ -170,6 +170,15 @@ public final class Env {
         return this.typeAtom(atomicType);
     }
 
+    public MappingAtomicType getRecMappingAtomType(RecAtom recAtom) {
+        recMapLock.readLock().lock();
+        try {
+            return this.recMappingAtoms.get(recAtom.index());
+        } finally {
+            recMapLock.readLock().unlock();
+        }
+    }
+
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
 
     }
