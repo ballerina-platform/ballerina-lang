@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,15 +14,16 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
+ *
  */
 
-package io.ballerina.runtime.internal.types.semtype;
+package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.Env;
-import io.ballerina.runtime.api.types.semtype.SemType;
+import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER_RO;
 
-// NOTE: definitions are not thread safe
-public interface Definition {
+public record MappingAtomicType(String[] names, SemType[] types, SemType rest) implements AtomicType {
 
-    SemType getSemType(Env env);
+    public static final MappingAtomicType MAPPING_ATOMIC_RO = new MappingAtomicType(
+            new String[]{}, new SemType[]{}, CELL_SEMTYPE_INNER_RO
+    );
 }
