@@ -364,6 +364,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case STRING -> Builder.stringType();
             case READONLY -> Builder.readonlyType();
             case ANY -> Builder.anyType();
+            case ANYDATA -> Builder.anyDataType((Context) cx.getInnerContext());
             default -> throw new IllegalStateException("Unknown type: " + td);
         };
     }
