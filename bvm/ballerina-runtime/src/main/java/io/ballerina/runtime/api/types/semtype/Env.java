@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static io.ballerina.runtime.api.types.semtype.ListAtomicType.LIST_ATOMIC_RO;
+import static io.ballerina.runtime.api.types.semtype.Builder.LIST_ATOMIC_RO;
+import static io.ballerina.runtime.api.types.semtype.MappingAtomicType.MAPPING_ATOMIC_RO;
 
 /**
  * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
@@ -46,12 +47,28 @@ public final class Env {
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
     private final List<ListAtomicType> recListAtoms;
 
+    private final ReadWriteLock recMapLock = new ReentrantReadWriteLock();
+    private final List<MappingAtomicType> recMappingAtoms;
+
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private Env() {
         this.atomTable = new HashMap<>();
         this.recListAtoms = new ArrayList<>();
         recListAtoms.add(LIST_ATOMIC_RO);
+        this.recMappingAtoms = new ArrayList<>();
+        recMappingAtoms.add(MAPPING_ATOMIC_RO);
+
+        this.cellAtom(Builder.CELL_ATOMIC_VAL);
+        this.cellAtom(Builder.CELL_ATOMIC_NEVER);
+
+        this.cellAtom(Builder.CELL_ATOMIC_INNER);
+        this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING);
+        this.listAtom(Builder.LIST_ATOMIC_MAPPING);
+        this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING_RO);
+        this.listAtom(Builder.LIST_ATOMIC_MAPPING_RO);
+
+        this.cellAtom(Builder.CELL_ATOMIC_INNER_RO);
     }
 
     public static Env getInstance() {
@@ -98,7 +115,6 @@ public final class Env {
     }
 
     public RecAtom recListAtom() {
-        // TODO: do we have seperate read and write operations, if so use rw lock
         recListLock.writeLock().lock();
         try {
             int result = this.recListAtoms.size();
@@ -127,6 +143,31 @@ public final class Env {
         } finally {
             recListLock.readLock().unlock();
         }
+    }
+
+    public RecAtom recMappingAtom() {
+        recMapLock.writeLock().lock();
+        try {
+            int result = this.recMappingAtoms.size();
+            // represents adding () in nballerina
+            this.recMappingAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        } finally {
+            recMapLock.writeLock().unlock();
+        }
+    }
+
+    public void setRecMappingAtomType(RecAtom rec, MappingAtomicType atomicType) {
+        recMapLock.writeLock().lock();
+        try {
+            this.recMappingAtoms.set(rec.index(), atomicType);
+        } finally {
+            recMapLock.writeLock().unlock();
+        }
+    }
+
+    public TypeAtom mappingAtom(MappingAtomicType atomicType) {
+        return this.typeAtom(atomicType);
     }
 
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
