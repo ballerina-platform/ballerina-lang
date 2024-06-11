@@ -19,15 +19,18 @@
 package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.Definition;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -36,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -117,8 +121,44 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case ARRAY_TYPE -> resolveArrayTypeDesc(cx, mod, defn, depth, (BLangArrayType) td);
             case TUPLE_TYPE_NODE -> resolveTupleTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
             case CONSTRAINED_TYPE -> resolveConstrainedTypeDesc(cx, mod, defn, depth, (BLangConstrainedType) td);
+            case RECORD_TYPE -> resolveRecordTypeDesc(cx, mod, defn, depth, (BLangRecordTypeNode) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
+    }
+
+    private SemType resolveRecordTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                          BLangTypeDefinition defn, int depth, BLangRecordTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType(env);
+        }
+
+        MappingDefinition md = new MappingDefinition();
+        attachedDefinitions.put(td, md);
+
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[td.fields.size()];
+        for (int i = 0; i < td.fields.size(); i++) {
+            BLangSimpleVariable field = td.fields.get(i);
+            SemType type = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
+            if (Core.isNever(type)) {
+                throw new IllegalStateException("record field can't be never");
+            }
+            fields[i] =
+                    new MappingDefinition.Field(field.name.value, type, field.flagSet.contains(Flag.READONLY),
+                            field.flagSet.contains(Flag.OPTIONAL));
+        }
+
+        SemType rest;
+        if (!td.isSealed() && td.getRestFieldType() == null) {
+            rest = Builder.anyDataType((Context) cx.getInnerContext());
+        } else {
+            rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.getRestFieldType());
+        }
+        if (rest == null) {
+            rest = Builder.neverType();
+        }
+        return md.defineMappingTypeWrapped((Env) cx.getInnerEnv(), fields, rest, CELL_MUT_LIMITED);
     }
 
     private SemType resolveConstrainedTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -141,6 +181,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
         MappingDefinition md = new MappingDefinition();
         attachedDefinitions.put(td, md);
+
         SemType rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
 
         return md.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], rest, CELL_MUT_LIMITED);
