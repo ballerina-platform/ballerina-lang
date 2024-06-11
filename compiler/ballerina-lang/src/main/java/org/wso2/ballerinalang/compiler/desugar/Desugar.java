@@ -8591,7 +8591,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.requiredArgs = requiredArgs;
         invocationNode.restArgs = rewriteExprs(restArgs);
 
-        invocationNode.setBType(((BInvokableType) invocationNode.symbol.type).getReturnType());
+        invocationNode.setBType(invocationNode.symbol.type.getReturnType());
         invocationNode.langLibInvocation = true;
         return invocationNode;
     }
