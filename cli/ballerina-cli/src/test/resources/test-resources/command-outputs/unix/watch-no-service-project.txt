@@ -1,0 +1,5 @@
+Compiling source
+	gayaldassanayake/main:0.1.0
+
+Running executable
+
