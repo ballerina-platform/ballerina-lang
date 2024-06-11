@@ -73,10 +73,10 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         List<ImportDeclarationNode> fileImports = new ArrayList<>();
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
-        List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
+        List<LineRange> toBeRemovedImportsLocations = new ArrayList<>(context.diagnostics(context.filePath()).stream()
                 .filter(diag -> UNUSED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
-                .toList();
+                .toList());
 
         // Skip, when nothing to remove and only single import pending
         if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.isEmpty())) {
