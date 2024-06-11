@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
@@ -79,14 +78,14 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             Assert.fail(e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"), buildLog);
+        Assert.assertTrue(buildLog.contains("Generating 'winery' (executable)"), buildLog);
     }
 
     @Test(description = "Test function mocking")
     public void testNativeFunctionMockTests() throws IOException {
         Path projectPath = this.testResources.resolve("mockFunctionNative");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, System.out, System.out, false, true, "");
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
         // non existing bal file
         new CommandLine(testCommand).parseArgs();
         try {
