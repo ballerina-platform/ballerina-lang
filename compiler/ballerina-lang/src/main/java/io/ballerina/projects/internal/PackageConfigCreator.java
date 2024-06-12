@@ -38,7 +38,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
