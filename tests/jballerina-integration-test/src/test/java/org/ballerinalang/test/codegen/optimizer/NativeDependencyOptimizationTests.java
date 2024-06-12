@@ -37,7 +37,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -162,8 +164,9 @@ public class NativeDependencyOptimizationTests extends BaseTest {
 
     private void emitOptimizationReports(String projectPath) throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        LogLeecher leecher = new LogLeecher("Optimized file size");
-        bMainInstance.runMain("build", new String[]{"--optimize", "--verbose"}, null, null, new LogLeecher[]{leecher},
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        bMainInstance.runMain("build", new String[]{"--optimize", "--verbose"}, envProperties, null, new LogLeecher[]{},
                 projectPath);
     }
 }
