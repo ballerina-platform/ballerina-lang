@@ -131,10 +131,10 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
         } else {
             MappingAtomicType neg = cx.mappingAtomType(negList.atom());
 
-            FieldPairs pairing = new FieldPairs(pos, neg);
             if (!Core.isEmpty(cx, Core.diff(pos.rest(), neg.rest()))) {
                 return mappingInhabited(cx, pos, negList.next());
             }
+            FieldPairs pairing = new FieldPairs(pos, neg);
             for (FieldPair fieldPair : pairing) {
                 SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
