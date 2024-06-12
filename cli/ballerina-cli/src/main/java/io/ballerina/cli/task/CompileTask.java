@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -112,6 +113,7 @@ public class CompileTask implements Task {
             if (this.compileForBalBuild) {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
             }
+            addDiagnosticForInvalidVerboseFlagUsage(project, diagnostics);
             long start = 0;
 
             if (project.currentPackage().compilationOptions().dumpGraph()
@@ -331,6 +333,17 @@ public class CompileTask implements Task {
                     return;
                 }
             }
+        }
+    }
+
+    private void addDiagnosticForInvalidVerboseFlagUsage(Project project, List<Diagnostic> diagnostics) {
+        BuildOptions buildOptions = project.buildOptions();
+        if (buildOptions.verbose() && !buildOptions.optimizeCodegen()) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.INVALID_VERBOSE_FLAG_USAGE.diagnosticId(),
+                    "--verbose flag can only be used with --optimize flag", DiagnosticSeverity.ERROR);
+            diagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                    project.currentPackage().descriptor().name().toString()));
         }
     }
 
