@@ -2398,7 +2398,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (typeNode == null) {
             flagSet = new HashSet<>();
         } else if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
+            flagSet = typeNode.flagSet;
         } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
             flagSet = typeNode.flagSet;
         } else {

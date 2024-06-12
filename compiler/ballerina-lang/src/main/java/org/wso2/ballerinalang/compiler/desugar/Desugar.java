@@ -7015,7 +7015,7 @@ public class Desugar extends BLangNodeVisitor {
         if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
                     .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type,
-                            this.env.scope.owner, s.pos, VIRTUAL)).collect(Collectors.toList()));
+                            this.env.scope.owner, s.pos, VIRTUAL)).toList());
         }
 
         invokableSymbol.params = invocationParams;
@@ -8591,7 +8591,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.requiredArgs = requiredArgs;
         invocationNode.restArgs = rewriteExprs(restArgs);
 
-        invocationNode.setBType(((BInvokableType) invocationNode.symbol.type).getReturnType());
+        invocationNode.setBType(invocationNode.symbol.type.getReturnType());
         invocationNode.langLibInvocation = true;
         return invocationNode;
     }

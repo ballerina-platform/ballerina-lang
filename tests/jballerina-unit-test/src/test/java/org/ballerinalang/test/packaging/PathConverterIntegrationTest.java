@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
@@ -50,7 +49,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(paths.get(0).toString(), tempSemVerFile.toString());
     }
@@ -63,7 +62,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 0);
     }
 
@@ -74,7 +73,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(paths.get(0).toString(), tempFile.toString());
     }

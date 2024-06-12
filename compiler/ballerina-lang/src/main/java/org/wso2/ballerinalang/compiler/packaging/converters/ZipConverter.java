@@ -40,7 +40,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipError;
 
@@ -114,7 +113,7 @@ public class ZipConverter extends PathConverter {
                             .sorted(Comparator.reverseOrder())
                             .limit(1)
                             .map(SortablePath::getPath)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                         && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {

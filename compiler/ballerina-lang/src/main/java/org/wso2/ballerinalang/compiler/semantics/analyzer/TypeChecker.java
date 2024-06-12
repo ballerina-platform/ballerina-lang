@@ -940,7 +940,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
 
-                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, type);
+                finiteType = getFiniteTypeWithValuesOfSingleType(expType, type);
                 if (finiteType != symTable.semanticError) {
                     BType setType = setLiteralValueAndGetType(literalExpr, finiteType, data);
                     if (literalExpr.isFiniteContext) {
@@ -1003,7 +1003,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BFiniteType> finiteTypeMembers = types.getAllTypes(unionType, true).stream()
                 .filter(memType -> Types.getImpliedType(memType).tag == TypeTags.FINITE)
                 .map(memFiniteType -> (BFiniteType) memFiniteType)
-                .collect(Collectors.toList());
+                .toList();
 
         if (finiteTypeMembers.isEmpty()) {
             return symTable.semanticError;
@@ -3270,7 +3270,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fields.put(field.name.value, field);
         }
 
-        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        BLangExpression restParam = varRefExpr.restParam;
         if (restParam != null) {
             checkExpr(restParam, data);
             unresolvedReference = !isValidVariableReference(restParam);

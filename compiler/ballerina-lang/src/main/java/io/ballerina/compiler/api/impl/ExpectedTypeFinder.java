@@ -885,7 +885,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             //`params` contains path params and path rest params as well. We need to skip those
             List<BVarSymbol> params = symbol.params.stream().filter(param ->
                     param.getKind() != SymbolKind.PATH_PARAMETER
-                            && param.getKind() != SymbolKind.PATH_REST_PARAMETER).collect(Collectors.toList());
+                            && param.getKind() != SymbolKind.PATH_REST_PARAMETER).toList();
             BVarSymbol restPram = ((BInvokableSymbol) bLangInvocation.symbol).restParam;
             TypeSymbol restParamMemberType = null;
 
