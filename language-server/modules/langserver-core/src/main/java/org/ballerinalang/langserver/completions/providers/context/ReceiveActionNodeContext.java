@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ReceiveActionNode}.

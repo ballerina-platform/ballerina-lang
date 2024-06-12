@@ -27,7 +27,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 

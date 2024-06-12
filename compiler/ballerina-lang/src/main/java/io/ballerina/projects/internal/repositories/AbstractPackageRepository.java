@@ -35,7 +35,6 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
