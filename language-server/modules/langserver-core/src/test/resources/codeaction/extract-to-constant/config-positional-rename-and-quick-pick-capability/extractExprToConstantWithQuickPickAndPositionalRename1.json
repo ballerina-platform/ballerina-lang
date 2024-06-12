@@ -27,7 +27,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 10;\n"
+                "newText": "const CONST = 10;\n"
               },
               {
                 "range": {
@@ -55,7 +55,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 10 * 20;\n"
+                "newText": "const CONST = 10 * 20;\n"
               },
               {
                 "range": {
@@ -83,7 +83,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 10 * 20 + 30;\n"
+                "newText": "const CONST = 10 * 20 + 30;\n"
               },
               {
                 "range": {

@@ -27,7 +27,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 40;\n"
+                "newText": "const CONST = 40;\n"
               },
               {
                 "range": {
@@ -55,7 +55,7 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 40 + 50;\n"
+                "newText": "const CONST = 40 + 50;\n"
               },
               {
                 "range": {

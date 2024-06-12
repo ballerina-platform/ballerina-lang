@@ -16,8 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -98,15 +96,11 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         String constName = getConstantName(context);
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-            return Collections.emptyList();
-        }
         ConstantData constantData = getConstantData(context);
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
 
-        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition,
+        List<TextEdit> textEdits = getTextEdits(node, constName, constDeclPosition,
                 addNewLineAtStart);
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
@@ -134,7 +128,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
         nodeList.forEach(extractableNode -> {
             textEditMap.put(extractableNode.toSourceCode().strip(),
-                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
+                    getTextEdits(extractableNode, constName, constDeclPosition, addNewLineAtStart));
         });
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
@@ -185,7 +179,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return NAME;
     }
 
-    private List<TextEdit> getTextEdits(Node node, TypeSymbol typeSymbol, String constName, Position constDeclPos,
+    private List<TextEdit> getTextEdits(Node node, String constName, Position constDeclPos,
                                         boolean newLineAtStart) {
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -193,7 +187,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (newLineAtStart) {
             constDeclStr += String.format("%n");
         }
-        constDeclStr = String.format(constDeclStr + "const %s %s = %s;%n", typeSymbol.signature(), constName, value);
+        constDeclStr = String.format(constDeclStr + "const %s = %s;%n", constName, value);
 
         TextEdit constDeclEdit = new TextEdit(new Range(constDeclPos, constDeclPos), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),

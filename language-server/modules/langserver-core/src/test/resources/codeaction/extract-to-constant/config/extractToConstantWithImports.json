@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "\nconst string CONST = \"Hello World\";\n"
+          "newText": "\nconst CONST = \"Hello World\";\n"
         },
         {
           "range": {
