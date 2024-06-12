@@ -274,7 +274,8 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        SemType targetSemType = Builder.from(targetType);
+        Context cx = context();
+        SemType targetSemType = Builder.from(cx, targetType);
         SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetSemType);
         SemType valueBasicType = basicType(sourceVal);
         if (!Core.isSubtypeSimple(valueBasicType, targetBasicTypeUnion)) {
@@ -283,7 +284,7 @@ public final class TypeChecker {
         if (targetBasicTypeUnion == targetSemType) {
             return true;
         }
-        SemType sourceSemType = Builder.from(getType(sourceVal));
+        SemType sourceSemType = Builder.from(cx, getType(sourceVal));
         return switch (isSubTypeInner(sourceVal, sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -302,11 +303,12 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        return switch (isSubType(sourceVal, sourceType, targetType)) {
+        Context cx = context();
+        return switch (isSubType(cx, sourceVal, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
-            case MAYBE ->
-                    FallbackTypeChecker.checkIsType(errors, sourceVal, bTypePart(sourceType), bTypePart(targetType));
+            case MAYBE -> FallbackTypeChecker.checkIsType(errors, sourceVal, bTypePart(cx, sourceType),
+                    bTypePart(cx, targetType));
         };
     }
 
@@ -502,28 +504,32 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return switch (isSubType(sourceType, targetType)) {
+        Context cx = context();
+        return switch (isSubType(cx, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(sourceType), bTypePart(targetType), null);
+            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(cx, sourceType), bTypePart(cx, targetType), null);
         };
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return switch (isSubType(sourceType, targetType)) {
+        Context cx = context();
+        return switch (isSubType(cx, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
-            case MAYBE ->
-                    FallbackTypeChecker.checkIsType(bTypePart(sourceType), bTypePart(targetType), unresolvedTypes);
+            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(cx, sourceType), bTypePart(cx, targetType),
+                    unresolvedTypes);
         };
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return switch (isSubType(sourceVal, sourceType, targetType)) {
+        Context cx = context();
+        return switch (isSubType(cx, sourceVal, sourceType, targetType)) {
             case TRUE -> true;
             case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(sourceVal, bTypePart(sourceType), bTypePart(targetType),
+            case MAYBE ->
+                    FallbackTypeChecker.checkIsType(sourceVal, bTypePart(cx, sourceType), bTypePart(cx, targetType),
                     unresolvedTypes);
         };
     }
@@ -557,22 +563,22 @@ public final class TypeChecker {
         MAYBE
     }
 
-    private static TypeCheckResult isSubType(Object sourceValue, Type source, Type target) {
-        TypeCheckResult result = isSubType(source, target);
+    private static TypeCheckResult isSubType(Context cx, Object sourceValue, Type source, Type target) {
+        TypeCheckResult result = isSubType(cx, source, target);
         if (result != TypeCheckResult.FALSE || !source.isReadOnly()) {
             return result;
         }
-        return isSubTypeImmutableValue(sourceValue, Builder.from(target));
+        return isSubTypeImmutableValue(sourceValue, Builder.from(cx, target));
     }
 
-    private static TypeCheckResult isSubType(Type source, Type target) {
+    private static TypeCheckResult isSubType(Context cx, Type source, Type target) {
         if (source instanceof ParameterizedType sourceParamType) {
             if (target instanceof ParameterizedType targetParamType) {
-                return isSubType(sourceParamType.getParamValueType(), targetParamType.getParamValueType());
+                return isSubType(cx, sourceParamType.getParamValueType(), targetParamType.getParamValueType());
             }
-            return isSubType(sourceParamType.getParamValueType(), target);
+            return isSubType(cx, sourceParamType.getParamValueType(), target);
         }
-        return isSubTypeInner(Builder.from(source), Builder.from(target));
+        return isSubTypeInner(Builder.from(cx, source), Builder.from(cx, target));
     }
 
     private static TypeCheckResult isSubTypeInner(Object sourceValue, SemType source, SemType target) {
@@ -624,8 +630,8 @@ public final class TypeChecker {
         }
     }
 
-    private static BType bTypePart(Type t) {
-        return bTypePart(Builder.from(t));
+    private static BType bTypePart(Context cx, Type t) {
+        return bTypePart(Builder.from(cx, t));
     }
 
     private static BType bTypePart(SemType t) {

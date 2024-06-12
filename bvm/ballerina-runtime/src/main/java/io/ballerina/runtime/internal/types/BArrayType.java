@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -46,7 +47,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType implements ArrayType {
+public class BArrayType extends BType implements ArrayType, PartialSemTypeSupplier {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -218,14 +219,15 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
         defn = new ListDefinition();
-        SemType elementType = Builder.from(getElementType());
+        SemType elementType = Builder.from(cx, getElementType());
         SemType pureBTypePart = Core.intersect(elementType, Core.B_TYPE_TOP);
         if (!Core.isNever(pureBTypePart)) {
+            cx.markProvisionTypeReset();
             SemType pureSemTypePart = Core.intersect(elementType, Core.SEMTYPE_TOP);
             SemType semTypePart = getSemTypePart(pureSemTypePart);
             SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
@@ -244,5 +246,11 @@ public class BArrayType extends BType implements ArrayType {
             SemType[] initial = {elementType};
             return defn.defineListTypeWrapped(env, initial, size, Builder.neverType(), mut);
         }
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
     }
 }

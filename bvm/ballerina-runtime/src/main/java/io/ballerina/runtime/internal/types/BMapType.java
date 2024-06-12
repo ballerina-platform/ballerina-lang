@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -47,7 +48,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType implements MapType {
+public class BMapType extends BType implements MapType, PartialSemTypeSupplier {
 
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
@@ -179,20 +180,27 @@ public class BMapType extends BType implements MapType {
     }
 
     @Override
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
         defn = new MappingDefinition();
-        SemType restType = Builder.from(getConstrainedType());
+        SemType restType = Builder.from(cx, getConstrainedType());
         SemType pureBTypePart = Core.intersect(restType, Core.B_TYPE_TOP);
         if (!Core.isNever(pureBTypePart)) {
+            cx.markProvisionTypeReset();
             SemType pureSemTypePart = Core.intersect(restType, Core.SEMTYPE_TOP);
             SemType semTypePart = getSemTypePart(pureSemTypePart);
             SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
             return Core.union(semTypePart, bTypePart);
         }
         return getSemTypePart(restType);
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
     }
 
     private SemType getSemTypePart(SemType restType) {
