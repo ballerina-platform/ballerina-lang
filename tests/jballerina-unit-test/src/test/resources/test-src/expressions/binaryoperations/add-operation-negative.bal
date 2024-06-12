@@ -198,4 +198,8 @@ function testXmlStringAdditionNegative() {
 
     xml<never> x6 = xml ``;
     xml<never> _ = x6 + s3;
+
+    xml<xml:Element|xml:Text> x7 = xml `<foo/>`;
+    ("foo"|"bar") s4 = "foo";
+    xml<xml:Element|xml:Comment> _ = x7 + s4;
 }

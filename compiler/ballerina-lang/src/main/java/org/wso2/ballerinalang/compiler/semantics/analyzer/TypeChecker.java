@@ -5368,12 +5368,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
                     break;
                 } else if (leftConstituent != null || rightConstituent != null) {
+                    Location pos = binaryExpr.pos;
                     if (leftConstituent != null && types.isAssignable(rhsType, symTable.stringType)) {
-                        actualType = new BXMLType(BUnionType.create(null, leftConstituent, symTable.xmlTextType), null);
+                        actualType = getXmlBinaryOpResultType(lhsType, leftConstituent, data.env, pos);
                         break;
                     } else if (rightConstituent != null && types.isAssignable(lhsType, symTable.stringType)) {
-                        actualType =
-                                new BXMLType(BUnionType.create(null, symTable.xmlTextType, rightConstituent), null);
+                        actualType = getXmlBinaryOpResultType(rhsType, rightConstituent, data.env, pos);
                         break;
                     }
                 }
@@ -5427,6 +5427,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    private BType getXmlBinaryOpResultType(BType opType, BType constituentType, SymbolEnv env, Location pos) {
+        if (types.isAssignable(symTable.xmlTextType, constituentType)) {
+            return opType;
+        }
+
+        BTypeSymbol typeSymbol =
+                Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                        env.scope.owner, pos, VIRTUAL);
+        BType type = new BXMLType(BUnionType.create(typeSymbol, constituentType, symTable.xmlTextType),
+                symTable.xmlType.tsymbol);
+        typeSymbol.type = type;
+        return type;
     }
 
     public boolean isOptionalFloatOrDecimal(BType expectedType) {

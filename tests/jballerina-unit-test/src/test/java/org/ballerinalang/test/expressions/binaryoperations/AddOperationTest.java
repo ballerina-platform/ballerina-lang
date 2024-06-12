@@ -279,7 +279,7 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml:Text' and '(string|int)'",
                 184, 18);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text|xml:Text)>'", 187,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text)>'", 187,
                 26);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'xml<(xml:Element|xml:Comment|xml:ProcessingInstruction)>', found 'xml'",
@@ -292,6 +292,9 @@ public class AddOperationTest {
                 197, 38);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'xml<never>', found 'xml<(never|xml:Text)>'", 200, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment)>', found 'xml<(xml:Element|xml:Text)>'",
+                204, 38);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
