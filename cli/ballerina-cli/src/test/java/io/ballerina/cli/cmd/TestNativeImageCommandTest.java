@@ -92,7 +92,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             readOutput(false);
-            Assert.fail(e.getDetailedMessages().get(0));
+            Assert.fail(e + "\n" + e.getDetailedMessages().toString());
         }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("[pass] intAddTest"));
