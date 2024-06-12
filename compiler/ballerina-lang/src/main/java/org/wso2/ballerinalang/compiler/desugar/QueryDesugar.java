@@ -2696,6 +2696,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        this.acceptNode(((BLangVariable) onFailClause.variableDefinitionNode.getVariable()));
         onFailClause.body.stmts.forEach(this::acceptNode);
         result = onFailClause;
     }
