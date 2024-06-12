@@ -315,7 +315,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
      *
      * @since 0.94
      */
-    public class FSPackageEntityNotAvailableException extends Exception {
+    public static class FSPackageEntityNotAvailableException extends Exception {
 
         private static final long serialVersionUID = 1528033476455781589L;
 
