@@ -35,7 +35,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This class is being used to build resource access completion item.

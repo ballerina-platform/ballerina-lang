@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link XMLNamePatternChainingNode} context.

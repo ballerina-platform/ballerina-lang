@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortTextForModule;
