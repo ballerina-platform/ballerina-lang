@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType {
+public class BTupleType extends BAnnotatableType implements TupleType, PartialSemTypeSupplier {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
@@ -312,7 +313,7 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     }
 
     @Override
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -320,7 +321,7 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         SemType[] memberTypes = new SemType[tupleTypes.size()];
         boolean hasBTypePart = false;
         for (int i = 0; i < tupleTypes.size(); i++) {
-            SemType memberType = Builder.from(tupleTypes.get(i));
+            SemType memberType = Builder.from(cx, tupleTypes.get(i));
             if (Core.isNever(memberType)) {
                 // TODO:  This is not correct and blow up if this is recursive. But current jBal type implementation
                 //  treats these as never while nBal don't. Revisit this once all types are done
@@ -338,7 +339,7 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restType != null ? Builder.from(restType) : Builder.neverType();
+        SemType rest = restType != null ? Builder.from(cx, restType) : Builder.neverType();
 //        if (Core.isSubtypeSimple(rest, Core.B_TYPE_TOP)) {
 //            SemType semTypePart =
 //                    defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, Builder.neverType(), mut);
@@ -350,10 +351,17 @@ public class BTupleType extends BAnnotatableType implements TupleType {
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
         }
         if (hasBTypePart) {
+            cx.markProvisionTypeReset();
             SemType semTypePart = defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
             SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
             return Core.union(semTypePart, bTypePart);
         }
         return defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
     }
 }

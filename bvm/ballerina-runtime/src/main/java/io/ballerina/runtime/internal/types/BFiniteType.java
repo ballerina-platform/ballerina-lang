@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -202,7 +203,7 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         return BTypeConverter.fromFiniteType(this);
     }
 }
