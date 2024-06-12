@@ -146,14 +146,9 @@ public class StringUtils {
         String encodedKey = key;
         String encodedValue;
         for (String character : specialCharacters) {
-            try {
-                if (encodedKey.contains(character)) {
-                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
-                    encodedKey = encodedKey.replace(character, encodedValue);
-                }
-            } catch (UnsupportedEncodingException e) {
-                return ErrorHelper.getRuntimeException(
-                        ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            if (encodedKey.contains(character)) {
+                encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8);
+                encodedKey = encodedKey.replace(character, encodedValue);
             }
         }
         return encodedKey;
