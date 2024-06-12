@@ -460,7 +460,7 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
-                assert false : "Compilation failed due to " + ((Supplier<String>)() -> {
+                assert false : "Compilation failed due to " + ((Supplier<String>) () -> {
                     StringWriter errors = new StringWriter();
                     t.printStackTrace(new PrintWriter(errors));
                     return errors.toString();
