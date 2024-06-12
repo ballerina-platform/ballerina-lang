@@ -837,7 +837,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                    ErrorCodes.INVALID_MEMBER_SIZE, "shift");
+                    ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, "shift");
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
         for (int i = 1; i <= numOfMandatoryTypes; i++) {
