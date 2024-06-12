@@ -84,6 +84,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
             return;
         }
         this.baseWorkspaceManager.didChange(path.get(), params);
+        this.clonedWorkspaceManager.didChange(path.get(), params);
     }
 
     @Override
