@@ -21,7 +21,6 @@ package io.ballerina.shell.utils;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * An import that has quoted orgname and module names.

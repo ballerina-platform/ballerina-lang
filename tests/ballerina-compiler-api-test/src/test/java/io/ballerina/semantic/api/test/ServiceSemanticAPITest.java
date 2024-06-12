@@ -49,7 +49,6 @@ import org.testng.internal.collections.Pair;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
