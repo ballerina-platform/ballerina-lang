@@ -219,7 +219,8 @@ public final class ConverterUtils {
      */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
         Stream<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).sorted(Comparator.comparing(TypeDescriptorNode::toSourceCode));
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode))
+                .sorted(Comparator.comparing(TypeDescriptorNode::toSourceCode));
         Stream<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
                 .filter(node -> (node instanceof ArrayTypeDescriptorNode)).sorted((node1, node2) -> {
             ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
