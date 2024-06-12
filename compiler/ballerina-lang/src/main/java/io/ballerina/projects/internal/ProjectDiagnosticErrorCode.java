@@ -64,6 +64,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
     // Error codes used for pack command
     DEPRECATED_DOC_FILE("BCE5601", "deprecated.doc.file"),
+
+    // Error codes for invalid flag combinations.
+    INVALID_VERBOSE_FLAG_USAGE("BCE5701", "invalid.verbose.flag.usage"),
     ;
 
     private final String diagnosticId;
