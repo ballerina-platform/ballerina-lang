@@ -340,8 +340,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        for (TopLevelNode topLevelNode : topLevelNodes) {
-            analyzeNode((BLangNode) topLevelNode, data);
+
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < topLevelNodes.size(); i++) {
+            analyzeNode((BLangNode) topLevelNodes.get(i), data);
         }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
