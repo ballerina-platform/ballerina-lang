@@ -1375,8 +1375,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        analyzeFieldBasedAccess(nsPrefixedFieldBasedAccess);
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        analyzeFieldBasedAccess(prefixedFieldBasedAccess);
     }
 
     private void analyzeFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
