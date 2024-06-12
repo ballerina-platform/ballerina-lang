@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -42,7 +43,7 @@ import java.util.function.Supplier;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
+public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
 
     private static final SemType READONLY_WITH_B_TYPE = Core.union(Builder.readonlyType(), Core.B_TYPE_TOP);
     protected String typeName;
@@ -241,19 +242,20 @@ public abstract class BType implements Type, SubTypeData, Supplier<SemType> {
     }
 
     // If any child class allow mutation that will affect the SemType, it must call this method.
-    final void resetSemTypeCache() {
+    // TODO: update this comment to mention what context does
+    public void resetSemTypeCache() {
         cachedSemType = null;
     }
 
     // If any child class partially implement SemType it must override this method.
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         return BTypeConverter.wrapAsPureBType(this);
     }
 
     @Override
-    public final SemType get() {
+    public final SemType get(Context cx) {
         if (cachedSemType == null) {
-            cachedSemType = createSemType();
+            cachedSemType = createSemType(cx);
             if (isReadOnly()) {
                 cachedSemType = Core.intersect(cachedSemType, READONLY_WITH_B_TYPE);
             }

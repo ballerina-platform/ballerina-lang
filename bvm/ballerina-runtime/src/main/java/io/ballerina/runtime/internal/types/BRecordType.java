@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -57,7 +58,7 @@ import java.util.Optional;
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType implements RecordType {
+public class BRecordType extends BStructureType implements RecordType, PartialSemTypeSupplier {
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -232,7 +233,7 @@ public class BRecordType extends BStructureType implements RecordType {
     }
 
     @Override
-    SemType createSemType() {
+    SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -243,7 +244,7 @@ public class BRecordType extends BStructureType implements RecordType {
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-            SemType fieldType = Builder.from(field.getFieldType());
+            SemType fieldType = Builder.from(cx, field.getFieldType());
             if (Core.isNever(fieldType)) {
                 return Builder.neverType();
             } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
@@ -255,16 +256,23 @@ public class BRecordType extends BStructureType implements RecordType {
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restFieldType != null ? Builder.from(restFieldType) : Builder.neverType();
+        SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : Builder.neverType();
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
         }
         if (hasBTypePart) {
+            cx.markProvisionTypeReset();
             SemType semTypePart = defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
             SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
             return Core.union(semTypePart, bTypePart);
         }
         return defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
     }
 }

@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.internal.types.BType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,9 @@ public final class Context {
     public final Env env;
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
+
+    private final List<BType> provisionalTypes = new ArrayList<>();
+    private boolean resetProvisionalTypes = false;
 
     SemType anydataMemo;
     private Context(Env env) {
@@ -115,5 +120,31 @@ public final class Context {
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
+    }
+
+    public int addProvisionalType(BType type) {
+        int currentSize = provisionalTypes.size();
+        provisionalTypes.add(type);
+        return currentSize;
+    }
+
+    public void markProvisionTypeReset() {
+        resetProvisionalTypes = true;
+    }
+
+    public void emptyProvisionalTypes(int startingSize) {
+        if (startingSize != 0) {
+            return;
+        }
+        // FIXME: reset all (if we have cycles we will reset the top one as well)
+        if (resetProvisionalTypes) {
+            for (int i = 1; i < provisionalTypes.size(); i++) {
+                BType type = provisionalTypes.get(i);
+                // TODO: we should be able to be more selective about resetting the cache
+                type.resetSemTypeCache();
+            }
+        }
+        provisionalTypes.clear();
+        resetProvisionalTypes = false;
     }
 }

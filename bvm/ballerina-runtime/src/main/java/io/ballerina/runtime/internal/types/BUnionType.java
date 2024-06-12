@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -544,7 +545,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     @Override
-    SemType createSemType() {
-        return BTypeConverter.fromUnionType(this);
+    SemType createSemType(Context cx) {
+        return BTypeConverter.fromUnionType(cx, this);
     }
 }
