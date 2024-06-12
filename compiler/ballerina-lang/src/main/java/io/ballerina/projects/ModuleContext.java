@@ -460,8 +460,11 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
-                assert false : "Compilation failed due to" +
-                        (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
+                assert false : "Compilation failed due to " + ((Supplier<String>)() -> {
+                    StringWriter errors = new StringWriter();
+                    t.printStackTrace(new PrintWriter(errors));
+                    return errors.toString();
+                }).get();
                 compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
                 return;
             }
