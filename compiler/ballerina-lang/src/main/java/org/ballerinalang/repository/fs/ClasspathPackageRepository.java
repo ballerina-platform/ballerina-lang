@@ -70,13 +70,14 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
             throw new RuntimeException(e);
         }
     }
-    
+
+    @SuppressWarnings("resource")
     private static void initFS(URI uri) throws IOException {
         if (JAR_URI_SCHEME.equals(uri.getScheme())) {
             Map<String, String> env = new HashMap<>(); 
             env.put("create", "true");
-            try (var filesystem = FileSystems.newFileSystem(uri, env)) {
-                // Do nothing
+            try {
+                FileSystems.newFileSystem(uri, env);
             } catch (FileSystemAlreadyExistsException ignore) { }
         }
     }

@@ -84,11 +84,12 @@ public class ZipConverter extends PathConverter {
         return Paths.get(pathToZip);
     }
 
+    @SuppressWarnings("resource")
     private static void initFS(URI uri) {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
-        try (var filesystem = FileSystems.newFileSystem(uri, env)) {
-            // do nothing
+        try {
+            FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
             // A file system will be always created when we are accessing zip/jar when resolving dependencies. So when
             // we are accessing the same zip/jar for the second time sometimes that filesystem might already exist.
