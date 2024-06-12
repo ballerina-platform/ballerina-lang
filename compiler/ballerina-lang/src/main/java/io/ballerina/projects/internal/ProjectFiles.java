@@ -172,7 +172,7 @@ public class ProjectFiles {
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
                 verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath, false);
-                srcDocs.addAll(generatedDocs);
+                srcDocs = Stream.concat(srcDocs.stream(), generatedDocs.stream()).toList();
                 if (Files.isDirectory(generatedSourcesRoot.resolve(TEST_DIR_NAME))) {
                     List<DocumentData> generatedTestDocs =
                             loadTestDocuments(generatedSourcesRoot.resolve(TEST_DIR_NAME));
