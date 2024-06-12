@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
@@ -38,7 +39,9 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
@@ -279,7 +282,6 @@ public final class Builder {
     }
 
     public static Optional<SemType> typeOf(Object object) {
-        // FIXME: handle mapping values here
         if (object == null) {
             return Optional.of(nilType());
         } else if (object instanceof DecimalValue decimalValue) {
@@ -296,8 +298,28 @@ public final class Builder {
             return Optional.of(stringConst(stringValue.getValue()));
         } else if (object instanceof BArray arrayValue) {
             return typeOfArray(arrayValue);
+        } else if (object instanceof BMap mapValue) {
+            return typeOfMap(mapValue);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfMap(BMap mapValue) {
+        int nFields = mapValue.size();
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        Map.Entry[] entries = (Map.Entry[]) mapValue.entrySet().toArray(new Map.Entry[0]);
+        for (int i = 0; i < nFields; i++) {
+            String key = entries[i].getKey().toString();
+            Object value = entries[i].getValue();
+            Optional<SemType> valueType = typeOf(value);
+            if (valueType.isEmpty()) {
+                return Optional.empty();
+            }
+            fields[i] = new MappingDefinition.Field(key, valueType.get(), true, false);
+        }
+        // TODO: cache this in the map value
+        MappingDefinition md = new MappingDefinition();
+        return Optional.of(md.defineMappingTypeWrapped(env, fields, neverType(), CELL_MUT_NONE));
     }
 
     private static Optional<SemType> typeOfArray(BArray arrayValue) {
@@ -311,6 +333,7 @@ public final class Builder {
             memberTypes[i] = memberType.get();
         }
         ListDefinition ld = new ListDefinition();
+        // TODO: cache this in the array value
         return Optional.of(
                 ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
     }
