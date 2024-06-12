@@ -707,6 +707,8 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
+type UnshiftType1 record {string val1; int val2;};
+type UnshiftType2 record {string val1;};
 function testUnshiftOperation() {
     testUnshiftTuplesPositives();
     testUnshiftTuplesNegatives();
@@ -716,12 +718,14 @@ function testUnshiftTuplesPositives() {
     [int, int...] tuple1 = [];
     [int, int, int...] tuple3 = [1, 3, 4, 5, 7];
     [int, int...] list = [];
+    [UnshiftType1, UnshiftType1...] tuple4 = [{val1:"Hello", val2:67}];
 
     tuple1.unshift(5, 6, 7, 8);
     tuple3.unshift(12, 67);
     foreach int i in 0 ..< 400 {
         list.unshift(i);
     }
+    tuple4.unshift({val1:"world", val2:82});
 
     assertValueEquality([5, 6, 7, 8, 0], tuple1);
     assertValueEquality([12, 67, 1, 3, 4, 5, 7], tuple3);
@@ -730,12 +734,14 @@ function testUnshiftTuplesPositives() {
     assertValueEquality(199, list[200]);
     assertValueEquality(0, list[399]);
     assertValueEquality(0, list[400]);
+    assertValueEquality([{val1:"world", val2:82}, {val1:"Hello", val2:67}], tuple4);
 }
 
 function testUnshiftTuplesNegatives() {
     [boolean, string...] tuple1 = [];
     [int, boolean, string...] tuple2 = [8, false, "hello"];
     [int, boolean, string...] tuple3 = [];
+    [UnshiftType1, UnshiftType2...] tuple4 = [{val1:"Hello", val2:67}];
 
     var fn1 = function() {
         tuple1.unshift("hello");
@@ -749,28 +755,39 @@ function testUnshiftTuplesNegatives() {
         tuple3.unshift(10, false, "Hello", "World");
     };
 
+    var fn4 = function() {
+        tuple4.unshift({val1:"world"});
+    };
+
     error? res1 = trap fn1();
     error? res2 = trap fn2();
     error? res3 = trap fn3();
+    error? res4 = trap fn4();
     assertTrue(res1 is error);
     assertTrue(res2 is error);
     assertTrue(res3 is error);
+    assertTrue(res4 is error);
 
     error err1 = <error>res1;
     error err2 = <error>res2;
     error err3 = <error>res3;
+    error err4 = <error>res4;
     var message1 = err1.detail()["message"];
     var message2 = err2.detail()["message"];
     var message3 = err3.detail()["message"];
+    var message4 = err4.detail()["message"];
     string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
     string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
     string detailMessage3 = message3 is error ? message3.toString() : message3.toString();
+    string detailMessage4 = message4 is error ? message4.toString() : message4.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
     assertValueEquality("incompatible types: expected 'boolean', found 'string'", detailMessage1);
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err3.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage3);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err4.message());
+    assertValueEquality("incompatible types: expected 'UnshiftType1', found 'UnshiftType2'", detailMessage4);
 }
 
 type Student record {|
