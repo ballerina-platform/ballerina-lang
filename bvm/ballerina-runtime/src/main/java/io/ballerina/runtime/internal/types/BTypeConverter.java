@@ -18,11 +18,10 @@
 
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
@@ -33,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * This is a utility class for {@code Builder} class so that BTypes don't need to expose their internal structure as
@@ -61,17 +59,20 @@ final class BTypeConverter {
         return result;
     }
 
-    private static SemType from(Type type) {
+    private static SemType from(Context cx, Type type) {
         if (type instanceof SemType semType) {
             return semType;
         } else if (type instanceof BType bType) {
-            return fromBType(bType);
+            return fromBType(cx, bType);
         }
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
-    private static SemType fromBType(BType innerType) {
-        return innerType.get();
+    private static SemType fromBType(Context cx, BType innerType) {
+        int staringSize = cx.addProvisionalType(innerType);
+        SemType res = innerType.get(cx);
+        cx.emptyProvisionalTypes(staringSize);
+        return res;
     }
 
     static SemType fromReadonly(BReadonlyType readonlyType) {
@@ -98,8 +99,8 @@ final class BTypeConverter {
         return Core.union(parts.semTypePart(), bTypePart);
     }
 
-    static SemType fromUnionType(BUnionType unionType) {
-        BTypeParts parts = splitUnion(unionType);
+    static SemType fromUnionType(Context cx, BUnionType unionType) {
+        BTypeParts parts = splitUnion(cx, unionType);
         if (parts.bTypeParts().isEmpty()) {
             return parts.semTypePart();
         }
@@ -111,32 +112,33 @@ final class BTypeConverter {
 
     }
 
-    private static BTypeParts split(Type type) {
+    private static BTypeParts split(Context cx, Type type) {
         if (type instanceof SemType) {
-            return new BTypeParts(from(type), Collections.emptyList());
+            return new BTypeParts(from(cx, type), Collections.emptyList());
         } else if (type instanceof BUnionType unionType) {
-            return splitUnion(unionType);
+            return splitUnion(cx, unionType);
         } else if (type instanceof BAnyType anyType) {
             return splitAnyType(anyType);
         } else if (type instanceof BTypeReferenceType referenceType) {
-            return split(referenceType.getReferredType());
+            return split(cx, referenceType.getReferredType());
         } else if (type instanceof BIntersectionType intersectionType) {
-            return split(intersectionType.getEffectiveType());
+            return split(cx, intersectionType.getEffectiveType());
         } else if (type instanceof BReadonlyType readonlyType) {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
             return splitFiniteType(finiteType);
             // FIXME: introduce a marker type for these
-        } else if (type instanceof BArrayType || type instanceof BTupleType || type instanceof BRecordType ||
-                type instanceof BMapType) {
-            return splitSemTypeSupplier((Supplier<SemType>) type);
+        } else if (type instanceof PartialSemTypeSupplier supplier) {
+            return splitSemTypeSupplier(cx, supplier);
         } else {
             return new BTypeParts(Builder.neverType(), List.of(type));
         }
     }
 
-    private static BTypeParts splitSemTypeSupplier(Supplier<SemType> supplier) {
-        SemType semtype = supplier.get();
+    private static BTypeParts splitSemTypeSupplier(Context cx, PartialSemTypeSupplier supplier) {
+        int startingIndex = cx.addProvisionalType((BType) supplier);
+        SemType semtype = supplier.get(cx);
+        cx.emptyProvisionalTypes(startingIndex);
         SemType bBTypePart = Core.intersect(semtype, Core.B_TYPE_TOP);
         if (Core.isNever(bBTypePart)) {
             return new BTypeParts(semtype, Collections.emptyList());
@@ -178,12 +180,12 @@ final class BTypeConverter {
         return new BTypeParts(READONLY_SEMTYPE_PART, List.of(readonlyType));
     }
 
-    private static BTypeParts splitUnion(BUnionType unionType) {
+    private static BTypeParts splitUnion(Context cx, BUnionType unionType) {
         List<Type> members = Collections.unmodifiableList(unionType.getMemberTypes());
         List<Type> bTypeMembers = new ArrayList<>(members.size());
         SemType semTypePart = Builder.neverType();
         for (Type member : members) {
-            BTypeParts memberParts = split(member);
+            BTypeParts memberParts = split(cx, member);
             semTypePart = Core.union(memberParts.semTypePart(), semTypePart);
             bTypeMembers.addAll(memberParts.bTypeParts());
         }

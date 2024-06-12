@@ -138,17 +138,20 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
-    public static SemType from(Type type) {
+    public static SemType from(Context cx, Type type) {
         if (type instanceof SemType semType) {
             return semType;
         } else if (type instanceof BType bType) {
-            return from(bType);
+            return fromBType(cx, bType);
         }
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
-    public static SemType from(BType innerType) {
-        return innerType.get();
+    private static SemType fromBType(Context cx, BType innerType) {
+        int staringSize = cx.addProvisionalType(innerType);
+        SemType result = innerType.get(cx);
+        cx.emptyProvisionalTypes(staringSize);
+        return result;
     }
 
     public static SemType neverType() {
