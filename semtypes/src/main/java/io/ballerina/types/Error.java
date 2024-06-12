@@ -37,8 +37,8 @@ import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {
-        SubtypeData sd = bddIntersect((Bdd) subtypeData(detail, BasicTypeCode.BT_MAPPING), BDD_SUBTYPE_RO);
-        if (sd instanceof AllOrNothingSubtype allOrNothingSubtype) {
+        SubtypeData mappingSd = subtypeData(detail, BasicTypeCode.BT_MAPPING);
+        if (mappingSd instanceof AllOrNothingSubtype allOrNothingSubtype) {
             if (allOrNothingSubtype.isAllSubtype()) {
                 return ERROR;
             } else {
@@ -46,7 +46,9 @@ public class Error {
                 return NEVER;
             }
         }
-        if (sd == BDD_SUBTYPE_RO) {
+
+        SubtypeData sd = bddIntersect((Bdd) mappingSd, BDD_SUBTYPE_RO);
+        if (sd.equals(BDD_SUBTYPE_RO)) {
             return ERROR;
         }
         return basicSubtype(BT_ERROR, (ProperSubtypeData) sd);
