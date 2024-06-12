@@ -17,6 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -69,5 +72,16 @@ public class BErrorType extends BType implements ErrorType {
             return String.valueOf(tsymbol);
         }
         return ERROR +  detailType + CLOSE_ERROR;
+    }
+
+    @Override
+    public SemType semType() {
+        if (detailType == null) {
+            return PredefinedType.ERROR;
+        }
+
+        SemType detail = detailType.semType();
+        assert detail != null;
+        return SemTypes.errorDetail(detail);
     }
 }

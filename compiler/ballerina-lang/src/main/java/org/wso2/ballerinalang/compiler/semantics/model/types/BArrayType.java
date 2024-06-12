@@ -34,8 +34,8 @@ import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.ANY;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.VAL;
 
 /**
  * @since 0.94
@@ -159,7 +159,7 @@ public class BArrayType extends BType implements ArrayType {
         }
         ld = new ListDefinition();
         if (hasTypeHoles()) {
-            return ld.defineListTypeWrapped(env, ANY);
+            return ld.defineListTypeWrapped(env, VAL);
         }
         SemType elementTypeSemType = eType.semType();
         if (elementTypeSemType == null) {

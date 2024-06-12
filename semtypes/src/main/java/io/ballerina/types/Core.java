@@ -321,6 +321,10 @@ public final class Core {
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
+        // TODO: remove this intersect once all types are implemented.
+        // The predefined readonly and other atoms contain types that are not yet implemented.
+        // This is a temporary workaround to remove the unimplemented portion of the type.
+        t = intersect(t, PredefinedType.IMPLEMENTED_TYPES);
         if (t instanceof BasicTypeBitSet b) {
             return b.bitset == 0;
         } else {
