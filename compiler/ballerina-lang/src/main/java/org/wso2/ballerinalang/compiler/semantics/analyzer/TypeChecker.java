@@ -5361,11 +5361,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 } else if (leftConstituent != null || rightConstituent != null) {
                     if (leftConstituent != null && types.isAssignable(rhsType, symTable.stringType)) {
-                        actualType = new BXMLType(BUnionType.create(null, leftConstituent, symTable.xmlTextType), null);
+                        actualType = getXmlBinaryOpResultType(lhsType, leftConstituent, data.env);
                         break;
                     } else if (rightConstituent != null && types.isAssignable(lhsType, symTable.stringType)) {
-                        actualType =
-                                new BXMLType(BUnionType.create(null, symTable.xmlTextType, rightConstituent), null);
+                        actualType = getXmlBinaryOpResultType(rhsType, rightConstituent, data.env);
                         break;
                     }
                 }
@@ -5419,6 +5418,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    private BType getXmlBinaryOpResultType(BType opType, BType constituentType, SymbolEnv env) {
+        if (types.isAssignable(symTable.xmlTextType, constituentType)) {
+            return opType;
+        }
+
+        BTypeSymbol typeSymbol =
+                Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                        env.scope.owner, null, VIRTUAL);
+        BType type = new BXMLType(BUnionType.create(typeSymbol, constituentType, symTable.xmlTextType),
+                symTable.xmlType.tsymbol);
+        typeSymbol.type = type;
+        return type;
     }
 
     public boolean isOptionalFloatOrDecimal(BType expectedType) {
