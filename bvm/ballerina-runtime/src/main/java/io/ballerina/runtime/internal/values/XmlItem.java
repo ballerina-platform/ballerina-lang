@@ -587,7 +587,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         List<Integer> toRemove = new ArrayList<>();
         for (int i = 0; i < children.size(); i++) {
             BXml child = children.get(i);
-            if (child.getNodeType() == ELEMENT && ((XmlItem) child).getElementName().equals(qname)) {
+            if (child.getNodeType() == ELEMENT && child.getElementName().equals(qname)) {
                 toRemove.add(i);
             }
         }

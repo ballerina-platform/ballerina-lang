@@ -139,7 +139,7 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
         Assert.assertEquals(
-                getType(((Object) ((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")))).getClass(),
+                getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
         Assert.assertEquals(getType(mapValue1).getClass(), BMapType.class);
@@ -147,7 +147,7 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue1).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
         Assert.assertEquals(
-                getType(((Object) ((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")))).getClass(),
+                getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
     }

@@ -605,7 +605,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
-            if (containsKey((K) key)) {
+            if (containsKey(key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
                         ErrorHelper.getErrorDetails(ErrorCodes.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
@@ -680,7 +680,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entries.containsKey(hash)) {
                 return updateExistingEntry(key, data, entry, hash);
             }
-            return putNewData((K) key, data, entry, hash);
+            return putNewData(key, data, entry, hash);
         }
 
         private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {

@@ -170,7 +170,7 @@ public class NumericConversionTest {
         Assert.assertTrue(returns.get(0) instanceof Boolean);
         Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
-        Assert.assertEquals(((BDecimal) returns.get(1)).intValue(), (long) i,
+        Assert.assertEquals(((BDecimal) returns.get(1)).intValue(), i,
                 "incorrect int representation as decimal");
     }
 

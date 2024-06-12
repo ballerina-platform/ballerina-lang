@@ -66,11 +66,11 @@ public class StringUtils {
         Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
 
         if (encodedFunctionPattern instanceof BError) {
-            return (BError) encodedFunctionPattern;
+            return encodedFunctionPattern;
         }
 
         if (encodedFunctionName instanceof BError) {
-            return (BError) encodedFunctionName;
+            return encodedFunctionName;
         }
 
         try {
@@ -89,12 +89,12 @@ public class StringUtils {
         }
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         return io.ballerina.runtime.api.utils.StringUtils.fromString((String) updatedKeyOrError);
     }
@@ -146,14 +146,9 @@ public class StringUtils {
         String encodedKey = key;
         String encodedValue;
         for (String character : specialCharacters) {
-            try {
-                if (encodedKey.contains(character)) {
-                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
-                    encodedKey = encodedKey.replace(character, encodedValue);
-                }
-            } catch (UnsupportedEncodingException e) {
-                return ErrorHelper.getRuntimeException(
-                        ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            if (encodedKey.contains(character)) {
+                encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8);
+                encodedKey = encodedKey.replace(character, encodedValue);
             }
         }
         return encodedKey;

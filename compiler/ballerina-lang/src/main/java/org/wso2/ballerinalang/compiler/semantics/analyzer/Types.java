@@ -3807,7 +3807,7 @@ public class Types {
                 return new BTableType(tableType.tag, target, tableType.tsymbol,
                         tableType.flags);
             } else if (tableType.constraint instanceof BMapType) {
-                return updateSelfReferencedWithNewType(source, (BMapType) tableType.constraint, target);
+                return updateSelfReferencedWithNewType(source, tableType.constraint, target);
             }
         }
         return s;

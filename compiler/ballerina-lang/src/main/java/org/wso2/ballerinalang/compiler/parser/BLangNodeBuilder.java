@@ -1277,7 +1277,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (objTypeDescNode.parent().kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-            ((BLangType) objectTypeNode).flagSet.add(Flag.DISTINCT);
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
         }
         return deSugarTypeAsUserDefType(objectTypeNode);
     }
@@ -2362,7 +2362,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         } else {
             ParenthesizedArgList argList =
-                    (ParenthesizedArgList) ((ExplicitNewExpressionNode) expression).parenthesizedArgList();
+                    ((ExplicitNewExpressionNode) expression).parenthesizedArgList();
             argumentsIter = argList.arguments().iterator();
         }
 
@@ -4184,8 +4184,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
-        BLangType lhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.leftTypeDesc());
-        BLangType rhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        BLangType lhsType = createTypeNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        BLangType rhsType = createTypeNode(intersectionTypeDescriptorNode.rightTypeDesc());
 
         BLangIntersectionTypeNode intersectionType;
         if (rhsType.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
