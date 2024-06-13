@@ -124,8 +124,8 @@ public class BalRuntime extends Runtime {
         try {
             schedulerThread.join();
         } catch (InterruptedException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("ballerina: error occurred in while waiting for " +
-                    "scheduler thread to finish"), e);
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred while waiting for the scheduler " +
+                    "thread to finish"), e);
         }
         invokeModuleStop();
         moduleStopped = true;
@@ -359,9 +359,8 @@ public class BalRuntime extends Runtime {
         try {
             final Method method = initClass.getDeclaredMethod(funcName, RuntimeRegistry.class);
             method.invoke(null, scheduler.getRuntimeRegistry());
-
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("calling module stop failed due to " +
+            throw ErrorCreator.createError(StringUtils.fromString("failed to stop the module due to " +
                     RuntimeUtils.formatErrorMessage(e)), e);
         }
     }
