@@ -303,7 +303,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                                         + "The key sequence should only have an " +
                                                                            "Integer field."));
         }
-        return indexToKeyMap.size() == 0 ? 0 : (this.maxIntKey + 1);
+        return indexToKeyMap.isEmpty() ? 0 : (this.maxIntKey + 1);
     }
 
     public Type getKeyType() {
@@ -535,7 +535,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public boolean hasNext() {
-           return cursor < noOfAddedEntries && values.size() != 0;
+           return cursor < noOfAddedEntries && !values.isEmpty();
         }
     }
 
@@ -605,12 +605,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
-            if (containsKey((K) key)) {
+            if (containsKey(key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
                         ErrorHelper.getErrorDetails(ErrorCodes.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
-            if (nextKeySupported && (indexToKeyMap.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
+            if (nextKeySupported && (indexToKeyMap.isEmpty() || maxIntKey < TypeChecker.anyToInt(key))) {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
@@ -680,7 +680,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entries.containsKey(hash)) {
                 return updateExistingEntry(key, data, entry, hash);
             }
-            return putNewData((K) key, data, entry, hash);
+            return putNewData(key, data, entry, hash);
         }
 
         private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {

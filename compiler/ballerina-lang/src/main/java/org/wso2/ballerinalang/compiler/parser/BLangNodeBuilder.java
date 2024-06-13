@@ -1277,7 +1277,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (objTypeDescNode.parent().kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-            ((BLangType) objectTypeNode).flagSet.add(Flag.DISTINCT);
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
         }
         return deSugarTypeAsUserDefType(objectTypeNode);
     }
@@ -1304,7 +1304,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     classDefinition.addFunction(bLangFunction);
                     continue;
                 }
-                if (bLangFunction.requiredParams.size() != 0) {
+                if (!bLangFunction.requiredParams.isEmpty()) {
                     dlog.error(bLangFunction.pos, DiagnosticErrorCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
                     continue;
                 }
@@ -2362,7 +2362,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         } else {
             ParenthesizedArgList argList =
-                    (ParenthesizedArgList) ((ExplicitNewExpressionNode) expression).parenthesizedArgList();
+                    ((ExplicitNewExpressionNode) expression).parenthesizedArgList();
             argumentsIter = argList.arguments().iterator();
         }
 
@@ -2375,7 +2375,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
-        if (keys.size() == 0) {
+        if (keys.isEmpty()) {
             // TODO : This should be handled by Parser, issue #31536
             dlog.error(getPosition(indexedExpressionNode.closeBracket()),
                     DiagnosticErrorCode.MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
@@ -4184,8 +4184,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
-        BLangType lhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.leftTypeDesc());
-        BLangType rhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.rightTypeDesc());
+        BLangType lhsType = createTypeNode(intersectionTypeDescriptorNode.leftTypeDesc());
+        BLangType rhsType = createTypeNode(intersectionTypeDescriptorNode.rightTypeDesc());
 
         BLangIntersectionTypeNode intersectionType;
         if (rhsType.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
@@ -4544,7 +4544,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
         listConstructorExpr.exprs = pathSegments;
-        if (pathSegments.size() == 0) {
+        if (pathSegments.isEmpty()) {
             listConstructorExpr.pos = getPosition(clientResourceAccessActionNode.slashToken());
         } else {
             listConstructorExpr.pos = 
@@ -4625,7 +4625,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 return createExpression(xmlTypeNode);
             case XML_CDATA:
                 NodeList<Node> cdataContent = ((XMLCDATANode) xmlTypeNode).content();
-                if (cdataContent.size() == 0) {
+                if (cdataContent.isEmpty()) {
                     return (BLangExpression) createXMLEmptyLiteral(xmlTypeNode);
                 }
 
@@ -4732,7 +4732,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             bLangErrorMatchPattern.errorTypeReference = (BLangUserDefinedType) createTypeNode(nameReferenceNode);
         }
 
-        if (errorMatchPatternNode.argListMatchPatternNode().size() == 0) {
+        if (errorMatchPatternNode.argListMatchPatternNode().isEmpty()) {
             return bLangErrorMatchPattern;
         }
 
@@ -4984,7 +4984,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     (BLangUserDefinedType) createTypeNode(nameReferenceNode);
         }
 
-        if (errorBindingPatternNode.argListBindingPatterns().size() == 0) {
+        if (errorBindingPatternNode.argListBindingPatterns().isEmpty()) {
             return bLangErrorBindingPattern;
         }
 
@@ -5208,7 +5208,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private boolean stringStartsWithSingleQuote(String ns) {
-        return ns != null && ns.length() > 0 && ns.charAt(0) == '\'';
+        return ns != null && !ns.isEmpty() && ns.charAt(0) == '\'';
     }
 
     // ------------------------------------------private methods--------------------------------------------------------

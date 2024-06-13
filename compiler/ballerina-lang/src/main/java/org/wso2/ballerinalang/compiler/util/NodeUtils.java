@@ -39,7 +39,7 @@ public class NodeUtils {
     public static Name getName(Names names, List<BLangIdentifier> pkgNameComps) {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
-                .collect(Collectors.toList()));
+                .toList());
         return names.fromString(pkgName);
     }
 

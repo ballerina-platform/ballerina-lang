@@ -130,7 +130,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -1172,7 +1171,7 @@ public class Types {
                 BUnionType unionType = (BUnionType) constraintType;
                 Set<BType> memTypes = unionType.getMemberTypes();
                 List<BField> fields = memTypes.stream().map(type -> getTableConstraintField(type, fieldName))
-                        .filter(Objects::nonNull).collect(Collectors.toList());
+                        .filter(Objects::nonNull).toList();
 
                 if (fields.size() != memTypes.size()) {
                     return null;
@@ -2285,7 +2284,7 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
-        } else if (fields.size() == 0) {
+        } else if (fields.isEmpty()) {
             unionType.add(symTable.neverType);
         }
 
@@ -3808,7 +3807,7 @@ public class Types {
                 return new BTableType(tableType.tag, target, tableType.tsymbol,
                         tableType.flags);
             } else if (tableType.constraint instanceof BMapType) {
-                return updateSelfReferencedWithNewType(source, (BMapType) tableType.constraint, target);
+                return updateSelfReferencedWithNewType(source, tableType.constraint, target);
             }
         }
         return s;
@@ -5180,7 +5179,7 @@ public class Types {
                     .filter(t -> getImpliedType(t).tag != TypeTags.READONLY)
                     .map(t -> getIntersection(intersectionContext, t, env, finalType, visitedTypes))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
             if (types.size() == 1) {
                 BType bType = types.get(0);
 
@@ -5951,7 +5950,7 @@ public class Types {
             return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
 
-        if (errorLiftedType.getMemberTypes().size() == 0) {
+        if (errorLiftedType.getMemberTypes().isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -7036,7 +7035,7 @@ public class Types {
     }
 
     private enum ContextOption {
-        LEFT, RIGHT, NON;
+        LEFT, RIGHT, NON
     }
 
     private void populateBasicTypes(BType type, Set<BasicTypes> basicTypes) {

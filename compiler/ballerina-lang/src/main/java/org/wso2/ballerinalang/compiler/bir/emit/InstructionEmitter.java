@@ -307,7 +307,7 @@ class InstructionEmitter {
 
     private static String emitClosureParams(List<BIROperand> closureVars) {
         String str = "";
-        if (closureVars.size() > 0) {
+        if (!closureVars.isEmpty()) {
             str += "(";
             str += closureVars.stream().map(EmitterUtils::emitVarRef).collect(Collectors.joining(","));
             str += ")";

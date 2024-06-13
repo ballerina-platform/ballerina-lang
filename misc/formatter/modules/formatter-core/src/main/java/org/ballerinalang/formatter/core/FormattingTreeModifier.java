@@ -261,7 +261,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.openBraceTrailingNLs;
@@ -4418,7 +4417,7 @@ public class FormattingTreeModifier extends TreeModifier {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
-        if (leadingMinutiae.size() > 0 &&
+        if (!leadingMinutiae.isEmpty() &&
                 leadingMinutiae.get(leadingMinutiae.size() - 1).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
             leadingMinutiae.add(getNewline());
         }
@@ -4918,9 +4917,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNodeList(NodeFactory.createNodeList(thirdPartyImports), 0, 1, 0, 2);
 
         List<ImportDeclarationNode> imports = new ArrayList<>();
-        imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
-        imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(moduleImportNodes.stream().toList());
+        imports.addAll(stdLibImportNodes.stream().toList());
+        imports.addAll(thirdPartyImportNodes.stream().toList());
 
         if (hasLeadingComments(firstImport)) {
             // This is to ensure license header remains at top of the file

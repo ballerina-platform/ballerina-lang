@@ -32,7 +32,7 @@ public enum BArrayState {
     INFERRED((byte) 2),
     OPEN((byte) 3);
 
-    byte value;
+    final byte value;
     private static final Map<Byte, BArrayState> map;
 
     BArrayState(byte value) {

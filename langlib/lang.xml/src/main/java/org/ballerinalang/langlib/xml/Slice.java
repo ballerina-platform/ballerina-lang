@@ -39,7 +39,7 @@ public class Slice {
 
     public static BXml slice(BXml xml, long startIndex, long endIndex) {
         try {
-            return (BXml) xml.slice(startIndex, endIndex);
+            return xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

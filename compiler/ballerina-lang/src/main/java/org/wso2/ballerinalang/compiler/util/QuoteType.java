@@ -22,5 +22,5 @@ package org.wso2.ballerinalang.compiler.util;
  */
 public enum QuoteType {
     SINGLE_QUOTE, 
-    DOUBLE_QUOTE;
+    DOUBLE_QUOTE
 }

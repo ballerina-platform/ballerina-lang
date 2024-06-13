@@ -78,7 +78,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                 .collect(Collectors.toList());
 
         // Skip, when nothing to remove and only single import pending
-        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
+        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.isEmpty())) {
             return actions;
         }
 
@@ -141,7 +141,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         List<LineRange> reDeclaredImportLocations = context.diagnostics(context.filePath()).stream()
                 .filter(diag -> REDECLARED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
-                .collect(Collectors.toList());
+                .toList();
 
         Iterator<ImportDeclarationNode> iterator = fileImports.iterator();
         while (iterator.hasNext()) {

@@ -123,12 +123,12 @@ public class Main {
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
-            if (defaultCmd.argList.size() > 0 && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
+            if (!defaultCmd.argList.isEmpty() && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown command '"
                         + defaultCmd.argList.get(0) + "'");
             }
 
-            if (parsedCommands.size() < 1 || defaultCmd.helpFlag) {
+            if (parsedCommands.isEmpty() || defaultCmd.helpFlag) {
                 if (parsedCommands.size() > 1) {
                     defaultCmd.argList.add(parsedCommands.get(1).getCommandName());
                 }
