@@ -63,11 +63,12 @@ public final class Env {
         this.cellAtom(Builder.CELL_ATOMIC_NEVER);
 
         this.cellAtom(Builder.CELL_ATOMIC_INNER);
+
         this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING);
         this.listAtom(Builder.LIST_ATOMIC_MAPPING);
+
         this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING_RO);
         this.listAtom(Builder.LIST_ATOMIC_MAPPING_RO);
-
         this.cellAtom(Builder.CELL_ATOMIC_INNER_RO);
     }
 
@@ -97,7 +98,7 @@ public final class Env {
             if (ta != null) {
                 return ta;
             } else {
-                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size() + 1, atomicType);
                 this.atomTable.put(result.atomicType(), result);
                 return result;
             }
