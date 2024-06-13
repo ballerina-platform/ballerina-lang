@@ -48,6 +48,16 @@ public final class AssertionUtils {
         }
     }
 
+    public static String replaceBIRNodeAnalysisTime(String content) {
+        return removeStringBlock("Duration for unused BIR node analysis :", "Running Tests", content);
+    }
+
+    public static String removeStringBlock(String firstString, String endString, String content) {
+        int firstPos = content.indexOf(firstString);
+        int lastPos = content.indexOf(endString);
+        return content.substring(0, firstPos) + content.substring(lastPos);
+    }
+
     public static void assertOutput(String outputFileName, String output) throws IOException {
         if (isWindows) {
             output = CommonUtils.replaceExecutionTime(output);
