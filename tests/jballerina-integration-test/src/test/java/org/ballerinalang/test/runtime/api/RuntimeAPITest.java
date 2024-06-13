@@ -132,11 +132,11 @@ public class RuntimeAPITest extends BaseTest {
                     LogLeecher.LeecherType.ERROR));
             leechers.add(new LogLeecher("function 'stop' is called before module initialization",
                     LogLeecher.LeecherType.ERROR));
-            leechers.add(new LogLeecher("function 'init' is already called",
+            leechers.add(new LogLeecher("function 'init' has already been called",
                     LogLeecher.LeecherType.ERROR));
-            leechers.add(new LogLeecher("function 'start' is already called",
+            leechers.add(new LogLeecher("function 'start' has already been called",
                     LogLeecher.LeecherType.ERROR));
-            leechers.add(new LogLeecher("function 'stop' is already called",
+            leechers.add(new LogLeecher("function 'stop' has already been called",
                     LogLeecher.LeecherType.ERROR));
             addToServerInfoLogReader(serverInfoLogReader, leechers);
             serverInfoLogReader.start();
