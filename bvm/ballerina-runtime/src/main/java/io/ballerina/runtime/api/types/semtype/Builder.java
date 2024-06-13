@@ -62,6 +62,11 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
  */
 public final class Builder {
 
+    private static final String[] EMPTY_STRING_ARR = new String[0];
+    private static final SemType NEVER = SemType.from(0);
+    private static final SemType VAL = SemType.from(VT_MASK);
+    private static final SemType UNDEF = from(BasicTypeCode.BT_UNDEF);
+    private static final SemType INNER = basicTypeUnion(VAL.all | UNDEF.all);
     static final CellAtomicType CELL_ATOMIC_VAL = new CellAtomicType(
             valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
@@ -70,11 +75,6 @@ public final class Builder {
     static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
             neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
-    private static final String[] EMPTY_STRING_ARR = new String[0];
-    private static final SemType NEVER = SemType.from(0);
-    private static final SemType VAL = SemType.from(VT_MASK);
-    private static final SemType UNDEF = from(BasicTypeCode.BT_UNDEF);
-    private static final SemType INNER = basicTypeUnion(VAL.all | UNDEF.all);
 
     public static final int BDD_REC_ATOM_READONLY = 0;
     // represents both readonly & map<readonly> and readonly & readonly[]
