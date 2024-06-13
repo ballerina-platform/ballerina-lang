@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -654,48 +653,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         protected Collection<FunctionPointerData> getFpDataPool() {
             return this.functionPointerDataPool.values();
-        }
-
-        public void emitInvocationData(BufferedWriter out) throws IOException {
-            out.newLine();
-            out.write("/".repeat(60));
-            out.write("/".repeat(60));
-
-            out.newLine();
-            out.write("Used Functions");
-            out.newLine();
-
-            for (BIRNode.BIRFunction function : usedFunctions) {
-                out.write(function.originalName.value);
-                out.newLine();
-            }
-
-            out.newLine();
-            out.write("-".repeat(60));
-            out.newLine();
-            out.write("Deleted functions");
-            for (BIRNode.BIRFunction function : unusedFunctions) {
-                out.write(function.originalName.value);
-                out.newLine();
-            }
-
-            out.newLine();
-            out.write("-".repeat(60));
-            out.newLine();
-            out.write("Used Type definitions");
-            for (BIRNode.BIRTypeDefinition typeDef : usedTypeDefs) {
-                out.write(typeDef.originalName.value);
-                out.newLine();
-            }
-
-            out.newLine();
-            out.write("-".repeat(60));
-            out.newLine();
-            out.write("Deleted Type definitions");
-            for (BIRNode.BIRTypeDefinition typeDef : unusedTypeDefs) {
-                out.write(typeDef.originalName.value);
-                out.newLine();
-            }
         }
     }
 
