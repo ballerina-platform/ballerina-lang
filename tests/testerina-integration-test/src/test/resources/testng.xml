@@ -61,6 +61,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
             <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
             <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
+            <class name="org.ballerinalang.testerina.test.OptimizedExecutableTestingTest" />
         </classes>
     </test>
 </suite>
