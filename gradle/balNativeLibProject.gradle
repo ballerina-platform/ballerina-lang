@@ -50,7 +50,7 @@ class CreateBalaTask extends JavaExec {
     def newParser = 'true'
 
     CreateBalaTask() {
-        setMain('org.ballerinalang.stdlib.utils.GenerateBala')
+        setMainClass('org.ballerinalang.stdlib.utils.GenerateBala')
         setEnableAssertions(true)
     }
 

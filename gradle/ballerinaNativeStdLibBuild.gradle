@@ -83,7 +83,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def skipBootstrap = 'false'
 
     BallerinaLangLibBuildTask() {
-        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
+        setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
     }
 
     @Override

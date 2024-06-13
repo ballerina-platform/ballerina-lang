@@ -47,7 +47,7 @@ public class SelectDescendants {
                 }
                 qnameList.add(strQname);
             }
-            return (BXml) xml.descendants(qnameList);
+            return xml.descendants(qnameList);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

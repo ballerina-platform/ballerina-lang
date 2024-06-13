@@ -277,7 +277,7 @@ public class ModulePartNodeContextUtil {
         List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node)
                 .stream()
                 .filter(qualifier -> qualifier.lineRange().endLine().line() == cursorPos.getLine())
-                .collect(Collectors.toList());
+                .toList();
         if (qualifiers.isEmpty()) {
             return Optional.empty();
         }

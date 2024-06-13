@@ -405,7 +405,7 @@ public class TestProcessor {
      * @return String
      */
     private String getStringValue(Node valueExpr) {
-        return valueExpr.toString().replaceAll("\\\"", "").trim();
+        return valueExpr.toString().replace("\"", "").trim();
     }
 
     /**

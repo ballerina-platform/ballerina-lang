@@ -1718,7 +1718,7 @@ public class TypeResolver {
                 expression.setBType(type);
                 return type;
             case LITERAL:
-                return ((BLangLiteral) expression).getBType();
+                return expression.getBType();
             case BINARY_EXPR:
                 type = blangTypeUpdate(((BLangBinaryExpr) expression).lhsExpr);
                 expression.setBType(type);

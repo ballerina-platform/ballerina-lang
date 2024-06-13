@@ -303,7 +303,7 @@ public class NativeUtils {
                         functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
                     }
                 }
-                functionToMock = functionToMock.replaceAll("\\\\", "");
+                functionToMock = functionToMock.replace("\\", "");
                 mockFunctionClassMapping.computeIfAbsent(functionToMockClassName,
                         k -> new ArrayList<>()).add("$ORIG_" + functionToMock);
             }
@@ -444,7 +444,7 @@ public class NativeUtils {
             for (Map.Entry<String, byte[]> modifiedClassDef : modifiedClassDefs.entrySet()) {
                 if (modifiedClassDef.getValue().length > 0) {
                     String entry = modifiedClassDef.getKey();
-                    String path = entry.replaceAll("\\.", PATH_SEPARATOR) + CLASS_EXTENSION;
+                    String path = entry.replace(".", PATH_SEPARATOR) + CLASS_EXTENSION;
                     duplicatePaths.add(path);
                     jarOutputStream.putNextEntry(new ZipEntry(path));
                     jarOutputStream.write(modifiedClassDefs.get(entry));
@@ -502,7 +502,7 @@ public class NativeUtils {
                     functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
                 }
             }
-            functionToMock = functionToMock.replaceAll("\\\\", "");
+            functionToMock = functionToMock.replace("\\", "");
             classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
                     k -> new ArrayList<>()).add(functionToMock);
         }

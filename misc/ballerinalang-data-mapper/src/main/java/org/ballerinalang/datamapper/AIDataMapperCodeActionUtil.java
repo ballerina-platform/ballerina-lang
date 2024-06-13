@@ -789,9 +789,9 @@ class AIDataMapperCodeActionUtil {
             rightType = rhsSignature;
         }
 
-        mappingFromServer = mappingFromServer.replaceAll("\"", "");
-        mappingFromServer = mappingFromServer.replaceAll(",", ", ");
-        mappingFromServer = mappingFromServer.replaceAll(":", ": ");
+        mappingFromServer = mappingFromServer.replace("\"", "");
+        mappingFromServer = mappingFromServer.replace(",", ", ");
+        mappingFromServer = mappingFromServer.replace(":", ": ");
 
 
         // change the generated mapping function to be compatible with spread fields.

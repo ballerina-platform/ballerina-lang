@@ -58,7 +58,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Contains cases to test compiler plugin loading and running.
@@ -493,7 +492,7 @@ public class CompilerPluginTests {
         List<Diagnostic> reportedDiagnostics = diagnosticResult.diagnostics()
                 .stream()
                 .sorted(Comparator.comparing(Diagnostic::message))
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertEquals(reportedDiagnostics.get(0).diagnosticInfo().severity(), DiagnosticSeverity.ERROR);
         Assert.assertEquals(reportedDiagnostics.get(1).diagnosticInfo().severity(), DiagnosticSeverity.WARNING);

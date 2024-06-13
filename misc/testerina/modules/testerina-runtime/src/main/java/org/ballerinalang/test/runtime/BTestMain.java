@@ -329,7 +329,7 @@ public class BTestMain {
         try {
             InputStream ins;
             if (coverage) {
-                String instrumentedClassPath = instrumentDir + "/" + clazz.getName().replaceAll("\\.", "/") + ".class";
+                String instrumentedClassPath = instrumentDir + "/" + clazz.getName().replace(".", "/") + ".class";
                 ins = new FileInputStream(instrumentedClassPath);
             } else {
                 ins = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");

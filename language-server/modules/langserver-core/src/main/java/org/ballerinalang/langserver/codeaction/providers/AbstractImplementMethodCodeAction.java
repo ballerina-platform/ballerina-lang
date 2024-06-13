@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -125,7 +124,7 @@ public abstract class AbstractImplementMethodCodeAction {
         List<FunctionDefinitionNode> concreteMethods = members.stream()
                 .filter(member -> member.kind() == SyntaxKind.FUNCTION_DEFINITION)
                 .map(member -> (FunctionDefinitionNode) member)
-                .collect(Collectors.toList());
+                .toList();
 
         String offsetStr;
         int enclosingNodeOffset;

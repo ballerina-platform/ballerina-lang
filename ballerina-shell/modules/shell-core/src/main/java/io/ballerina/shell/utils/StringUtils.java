@@ -62,7 +62,7 @@ public class StringUtils {
      */
     public static String shortenedString(Object input) {
         String value = String.valueOf(input);
-        value = value.replaceAll("\n", "");
+        value = value.replace("\n", "");
         if (value.length() > MAX_VAR_STRING_LENGTH) {
             int subStrLength = MAX_VAR_STRING_LENGTH / 2;
             return value.substring(0, subStrLength)
@@ -172,7 +172,7 @@ public class StringUtils {
      * @return Reformatted unicode string.
      */
     public static String convertUnicode(char character) {
-        return "\\u{" + Integer.toHexString((int) character) + "}";
+        return "\\u{" + Integer.toHexString(character) + "}";
     }
 
     /**

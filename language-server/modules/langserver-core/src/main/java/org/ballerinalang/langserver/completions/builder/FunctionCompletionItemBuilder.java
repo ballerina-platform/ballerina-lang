@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -200,7 +199,7 @@ public final class FunctionCompletionItemBuilder {
             functionParameters.addAll(functionTypeDesc.params().get());
             defaultParams.addAll(functionParameters.stream()
                     .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         MarkupContent docMarkupContent = new MarkupContent();

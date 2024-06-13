@@ -337,7 +337,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             try {
                 final LocalVariable variable = localVariable.getVariable();
                 final StackFrame stackFrame = getStackFrame();
-                stackFrame.setValue(variable, (value instanceof ObjectReference) ? ((ObjectReference) value) : value);
+                stackFrame.setValue(variable, value);
                 if (myAllValues != null) {
                     // update cached data if any
                     // re-read the value just set from the stackframe to be 100% sure

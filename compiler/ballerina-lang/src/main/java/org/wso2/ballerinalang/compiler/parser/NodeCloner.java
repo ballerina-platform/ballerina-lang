@@ -303,7 +303,7 @@ public class NodeCloner extends BLangNodeVisitor {
         }
         List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
-            T clone = (T) clone(node);
+            T clone = clone(node);
             cloneList.add(clone);
         }
         return cloneList;

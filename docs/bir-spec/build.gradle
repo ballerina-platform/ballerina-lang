@@ -59,7 +59,7 @@ checkstyleMain.exclude '**/kaitai/**'
 task genBirSpec(type: JavaExec) {
     dependsOn classes
     classpath += sourceSets.main.runtimeClasspath
-    main = 'org.ballerinalang.birspec.BIRSpecGenerator'
+    mainClass = 'org.ballerinalang.birspec.BIRSpecGenerator'
 
     inputs.dir('src/main/resources')
     outputs.files('../compiler/bir-spec.md')
