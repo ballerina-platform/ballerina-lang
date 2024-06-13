@@ -20,6 +20,7 @@
 package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.Bdd;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Conjunction;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -143,6 +144,10 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
                         // the posType came from the rest type
                         mt = insertField(pos, fieldPair.name(), d);
                     } else {
+                        // FIXME:
+                        if (Core.isSubType(cx, fieldPair.type1(), Builder.cellContaining(cx.env, Builder.undef()))) {
+                            continue;
+                        }
                         SemType[] posTypes = pos.types().clone();
                         posTypes[fieldPair.index1()] = d;
                         mt = new MappingAtomicType(pos.names(), posTypes, pos.rest());

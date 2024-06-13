@@ -27,6 +27,10 @@ package io.ballerina.runtime.api.types.semtype;
  */
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 
+    public CellAtomicType {
+        assert ty != null;
+    }
+
     public static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
         SemType ty = Core.intersect(c1.ty(), c2.ty());
         CellMutability mut = min(c1.mut(), c2.mut());
