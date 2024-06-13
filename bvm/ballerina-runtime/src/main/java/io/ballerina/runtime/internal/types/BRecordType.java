@@ -242,7 +242,7 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
             SemType fieldType = Builder.from(cx, field.getFieldType());
-            if (Core.isNever(fieldType)) {
+            if (!isOptional && Core.isNever(fieldType)) {
                 return Builder.neverType();
             } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
                 hasBTypePart = true;
