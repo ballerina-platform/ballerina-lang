@@ -122,7 +122,7 @@ public final class BCompileUtil {
     public static CompileResult compileOptimized(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions =
-                buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setVerbose(Boolean.TRUE).build();
+                buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setOptimizeReport(Boolean.TRUE).build();
         Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();

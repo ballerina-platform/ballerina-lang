@@ -43,14 +43,14 @@ public class CompilationOptions {
     Boolean optimizeDependencyCompilation;
     Boolean optimizeJar = true;
     static Boolean optimizeCodegen;
-    static Boolean verbose;
+    static Boolean optimizeReport;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement, Boolean optimizeDependencyCompilation, Boolean verbose) {
+                       Boolean remoteManagement, Boolean optimizeDependencyCompilation, Boolean optimizeReport) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -69,8 +69,8 @@ public class CompilationOptions {
         if (CompilationOptions.optimizeCodegen == null) {
             CompilationOptions.optimizeCodegen = optimizeCodegen;
         }
-        if (CompilationOptions.verbose == null) {
-            CompilationOptions.verbose = verbose;
+        if (CompilationOptions.optimizeReport == null) {
+            CompilationOptions.optimizeReport = optimizeReport;
         }
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
@@ -79,7 +79,7 @@ public class CompilationOptions {
 
     public static void resetStaticCompilationOptions() {
         optimizeCodegen = null;
-        verbose = null;
+        optimizeReport = null;
     }
 
     public boolean offlineBuild() {
@@ -146,8 +146,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(optimizeCodegen);
     }
 
-    public boolean verbose() {
-        return toBooleanDefaultIfNull(verbose);
+    public boolean optimizeReport() {
+        return toBooleanDefaultIfNull(optimizeReport);
     }
 
     boolean remoteManagement() {
@@ -259,10 +259,10 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setOptimizeCodegen(this.optimizeCodegen);
         }
-        if (theirOptions.verbose != null) {
-            compilationOptionsBuilder.setVerbose(theirOptions.verbose);
+        if (theirOptions.optimizeReport != null) {
+            compilationOptionsBuilder.setOptimizeReport(theirOptions.optimizeReport);
         } else {
-            compilationOptionsBuilder.setVerbose(this.verbose);
+            compilationOptionsBuilder.setOptimizeReport(this.optimizeReport);
         }
         return compilationOptionsBuilder.build();
     }
@@ -405,7 +405,7 @@ public class CompilationOptions {
             return this;
         }
 
-        CompilationOptionsBuilder setVerbose(Boolean value) {
+        CompilationOptionsBuilder setOptimizeReport(Boolean value) {
             if (verbose == null) {
                 verbose = value;
             }

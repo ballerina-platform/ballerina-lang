@@ -166,7 +166,7 @@ public class NativeDependencyOptimizationTests extends BaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        bMainInstance.runMain("build", new String[]{"--optimize", "--verbose"}, envProperties, null, new LogLeecher[]{},
-                projectPath);
+        bMainInstance.runMain("build", new String[]{"--optimize", "--optimize-report"}, envProperties, null,
+                new LogLeecher[]{}, projectPath);
     }
 }
