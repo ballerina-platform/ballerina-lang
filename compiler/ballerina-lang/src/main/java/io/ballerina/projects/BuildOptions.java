@@ -142,8 +142,8 @@ public class BuildOptions {
         return this.compilationOptions.optimizeCodegen();
     }
 
-    public boolean verbose() {
-        return this.compilationOptions.verbose();
+    public boolean optimizeReport() {
+        return this.compilationOptions.optimizeReport();
     }
 
     /**
@@ -220,7 +220,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
-        buildOptionsBuilder.setVerbose(compilationOptions.verbose);
+        buildOptionsBuilder.setOptimizeReport(compilationOptions.optimizeReport);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
 
         return buildOptionsBuilder.build();
@@ -260,7 +260,9 @@ public class BuildOptions {
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
-        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics");
+        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
+        OPTIMIZE_CODEGEN("optimizeCodegen"),
+        OPTIMIZE_REPORT("optimizeReport");
 
         private final String name;
 
@@ -426,8 +428,8 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setVerbose(Boolean value) {
-            compilationOptionsBuilder.setVerbose(value);
+        public BuildOptionsBuilder setOptimizeReport(Boolean value) {
+            compilationOptionsBuilder.setOptimizeReport(value);
             return this;
         }
 
