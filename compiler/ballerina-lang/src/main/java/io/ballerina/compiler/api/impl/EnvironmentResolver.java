@@ -603,7 +603,7 @@ public class EnvironmentResolver extends BaseVisitor {
         }
         this.scope = joinClause.env;
         this.acceptNode(joinClause.collection, joinClause.env);
-        this.acceptNode((BLangNode) joinClause.onClause, joinClause.env);
+        this.acceptNode(joinClause.onClause, joinClause.env);
     }
 
     @Override

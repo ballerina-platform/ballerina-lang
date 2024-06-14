@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class MethodsTestResource extends RestrictedTestResource implements InterfaceTestResource {
+public class MethodsTestResource extends AbstractTestResource implements InterfaceTestResource {
 
     // Different instance method combinations
 
@@ -296,6 +296,11 @@ public class MethodsTestResource extends RestrictedTestResource implements Inter
     @Override
     public int testMethod(int x) {
         return 0;
+    }
+
+    @Override
+    public String testMethodWithException(Object obj) throws IOException {
+        throw new IOException();
     }
 
     @Override

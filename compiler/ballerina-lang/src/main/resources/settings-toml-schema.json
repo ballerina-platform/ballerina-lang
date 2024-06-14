@@ -41,6 +41,9 @@
         },
         "callTimeout": {
           "type": "integer"
+        },
+        "maxRetries": {
+          "type": "integer"
         }
       }
     },

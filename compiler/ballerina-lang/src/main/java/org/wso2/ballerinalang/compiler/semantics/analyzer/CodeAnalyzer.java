@@ -1352,7 +1352,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean compareVariables(Map<String, BVarSymbol> varsInPreviousMatchPattern,
                                      BLangMatchPattern matchPattern) {
         Map<String, BVarSymbol> varsInCurrentMatchPattern = matchPattern.declaredVars;
-        if (varsInPreviousMatchPattern.size() == 0) {
+        if (varsInPreviousMatchPattern.isEmpty()) {
             varsInPreviousMatchPattern.putAll(varsInCurrentMatchPattern);
             return true;
         }
@@ -1903,7 +1903,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (varRef.cause != null) {
             varRefs.add(varRef.cause);
         }
-        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).toList());
         if (varRef.restVar != null) {
             varRefs.add(varRef.restVar);
         }
@@ -2396,7 +2396,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     inclusiveTypeSpreadField = spreadOpField;
 
                     if (recordLiteralFields.size() > 1) {
-                        if (names.size() > 0) {
+                        if (!names.isEmpty()) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
                                             spreadOpExpr);
@@ -2902,7 +2902,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                                               .filter(bLangNode -> bLangNode.workerIdentifier.equals
                                                                       (flushWrkIdentifier))
                                                               .collect(Collectors.toList());
-            if (sendsToGivenWrkr.size() == 0) {
+            if (sendsToGivenWrkr.isEmpty()) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH_FOR_WORKER,
                                 workerFlushExpr.workerSymbol, currentWrkerAction.currentWorkerId());
                 return;
@@ -2910,7 +2910,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 sendStmts = sendsToGivenWrkr;
             }
         } else {
-            if (sendStmts.size() == 0) {
+            if (sendStmts.isEmpty()) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH,
                                 currentWrkerAction.currentWorkerId());
                 return;

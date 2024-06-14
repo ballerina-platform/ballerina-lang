@@ -102,7 +102,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         List<ModuleSymbol> existingModules = symbolMap.values().stream()
                 .filter(moduleSymbol -> moduleSymbol.getModule().isPresent())
-                .map(moduleSymbol -> moduleSymbol.getModule().get()).collect(Collectors.toList());
+                .map(moduleSymbol -> moduleSymbol.getModule().get()).toList();
 
         List<CodeAction> actions = new ArrayList<>();
 
@@ -114,7 +114,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
             Token prefix = prefixNode.prefix();
             if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
                 int startOffset = importNode.moduleName().get(importNode.moduleName().size() - 1)
-                        .textRange().endOffset();;
+                        .textRange().endOffset();
                 Range insertRange = PositionUtil.toRange(startOffset,
                         prefixNode.textRange().endOffset(), context.currentSyntaxTree().get().textDocument());
                 List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, ""));

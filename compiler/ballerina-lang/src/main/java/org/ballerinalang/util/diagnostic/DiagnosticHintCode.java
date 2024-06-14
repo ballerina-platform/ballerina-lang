@@ -38,8 +38,8 @@ public enum DiagnosticHintCode implements DiagnosticCode {
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD(
             "BCH2005", "concurrent.calls.will.not.be.made.to.non.isolated.method"),;
 
-    private String diagnosticId;
-    private String messageKey;
+    private final String diagnosticId;
+    private final String messageKey;
 
     DiagnosticHintCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

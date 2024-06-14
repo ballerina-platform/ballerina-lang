@@ -36,7 +36,6 @@ dependencies {
     dist "info.picocli:picocli:${project.picocliVersion}"
     dist "org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:${project.apacheGeronimoStaxVersion}"
     dist "com.google.code.gson:gson:${project.gsonVersion}"
-    dist "com.github.jknack:handlebars:${project.jknackHandlebarsVersion}"
     dist "com.sun.mail:javax.mail:${project.javaxMailVersion}"
     dist "io.netty:netty-buffer:${project.nettyBufferVersion}"
     dist "io.netty:netty-common:${project.nettyCommonVersion}"

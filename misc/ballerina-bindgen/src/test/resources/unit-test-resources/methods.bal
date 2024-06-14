@@ -24,6 +24,7 @@ distinct class MethodsTestResource {
     function toString() returns string {
         return java:toString(self.jObj) ?: "";
     }
+
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `AbstractSet` value required to map with the Java method parameter.
@@ -540,6 +541,20 @@ distinct class MethodsTestResource {
     # + return - The `int` value returning from the Java mapping.
     function testMethod(int arg0) returns int {
         return org_ballerinalang_bindgen_MethodsTestResource_testMethod(self.jObj, arg0);
+    }
+
+    # The function that maps to the `testMethodWithException` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
+    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + return - The `string` or the `IOException` value returning from the Java mapping.
+    function testMethodWithException(Object arg0) returns string|IOException {
+        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_testMethodWithException(self.jObj, arg0.jObj);
+        if (externalObj is error) {
+            IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
+            return e;
+        } else {
+            return java:toString(externalObj) ?: "";
+        }
     }
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -1130,6 +1145,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receive
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["int"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_testMethodWithException(handle receiver, handle arg0) returns handle|error = @java:Method {
+    name: "testMethodWithException",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_unsupportedReturnType(handle receiver) returns handle = @java:Method {

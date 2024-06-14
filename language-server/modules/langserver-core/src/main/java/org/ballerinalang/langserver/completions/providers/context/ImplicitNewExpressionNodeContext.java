@@ -73,7 +73,7 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             */
             List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(this.getSymbolFilterPredicate(node))
-                    .collect(Collectors.toList());
+                    .toList();
             filteredSymbols.forEach(symbol -> {
                 Optional<LSCompletionItem> cItem = this.getExplicitNewCompletionItem(symbol, context);
                 cItem.ifPresent(completionItems::add);

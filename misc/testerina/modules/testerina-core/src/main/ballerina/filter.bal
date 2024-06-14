@@ -69,8 +69,8 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName)
-            is string[] {
+            if testOptions.isFilterSubTestsContains(updatedName) 
+                    && testOptions.getFilterSubTest(updatedName) is string[] {
                 string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
                 testOptions.addFilterSubTest(testPart, subTestList);
@@ -137,12 +137,8 @@ isolated function readRerunJson() returns map<ModuleRerunJson>|error {
     return content.fromJsonStringWithType();
 }
 
-function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean {
-    if containsAPrefix(testName) {
-        return isPrefixInCorrectFormat(packageName, moduleName, testName);
-    }
-    return false;
-}
+function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean => 
+    containsAPrefix(testName) && isPrefixInCorrectFormat(packageName, moduleName, testName);
 
 function containsAPrefix(string testName) returns boolean {
     if testName.includes(MODULE_SEPARATOR) {
@@ -154,16 +150,13 @@ function containsAPrefix(string testName) returns boolean {
     return false;
 }
 
-function containsDataKeySuffix(string testName) returns boolean {
-    return testName.includes(DATA_KEY_SEPARATOR);
-}
+function containsDataKeySuffix(string testName) returns boolean => testName.includes(DATA_KEY_SEPARATOR);
 
 function isPrefixInCorrectFormat(string packageName, string moduleName, string testName) returns boolean {
     string prefix = testName.substring(0, <int>testName.indexOf(MODULE_SEPARATOR));
     return prefix.includes(packageName) || prefix.includes(packageName + DOT + moduleName);
 }
 
-isolated function getFullModuleName() returns string {
-    return testOptions.getPackageName() == testOptions.getModuleName() ? testOptions.getPackageName()
+isolated function getFullModuleName() returns string =>
+    testOptions.getPackageName() == testOptions.getModuleName() ? testOptions.getPackageName()
         : testOptions.getPackageName() + DOT + testOptions.getModuleName();
-}

@@ -71,4 +71,13 @@ public class RecordInBalaTest {
         BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBala");
         BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBalaWithCM");
     }
+
+    @Test
+    public void testIntersectionOfReadonlyAndRecordTypeWithDefaults() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_projects/test_project_records_negative");
+        int count = 0;
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'initialValues'",
+                                  22, 25);
+        Assert.assertEquals(result.getErrorCount(), count);
+    }
 }

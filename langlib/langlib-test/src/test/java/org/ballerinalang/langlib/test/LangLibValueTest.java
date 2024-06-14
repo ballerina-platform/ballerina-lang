@@ -371,6 +371,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
                 "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
                 "testCloneWithTypeToUnion",
+                "testCloneWithTypeWithUnionOfRecordsWithTypeInclusion",
                 "testCloneWithTypeTable",
                 "testCloneWithTypeOnRegExp",
                 "testCloneWithTypeOnRegExpNegative",
@@ -472,7 +473,9 @@ public class LangLibValueTest {
                 { "testFromJsonStringWithTypeStringArray" },
                 { "testFromJsonStringWithTypeArrayNegative" },
                 { "testFromJsonStringWithTypeIntArray" },
-                { "testFromJsonStringWithTypeWithInferredArgument" }
+                { "testFromJsonStringWithTypeWithInferredArgument" },
+                { "testFromJsonStringWithTypeRecordWithXML" },
+                { "testFromJsonWithTypeArray" }
         };
     }
 

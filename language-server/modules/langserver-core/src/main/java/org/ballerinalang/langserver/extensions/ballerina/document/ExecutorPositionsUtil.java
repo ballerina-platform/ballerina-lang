@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Executor positions evaluation utilities.
@@ -99,7 +98,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (FunctionSymbol) symbol)
-                .collect(Collectors.toList());
+                .toList();
 
         if (defaultModuleFunctionList.size() == 1) {
             JsonObject mainFunctionObject = new JsonObject();
@@ -124,7 +123,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (ServiceDeclarationSymbol) symbol)
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(serviceSymbol -> {
                     JsonObject serviceObject = new JsonObject();
                     serviceObject.addProperty(KIND, SOURCE);

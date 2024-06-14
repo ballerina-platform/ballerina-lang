@@ -40,8 +40,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
@@ -121,9 +119,6 @@ public class LSPackageLoader {
                 if (languageClient == null) {
                     return;
                 }
-                this.languageClient.showMessage(
-                        new MessageParams(MessageType.Info, "Indexing Ballerina packages: " +
-                                "some completions may not be available until indexing is complete."));
                 // Initialize progress notification
                 WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                 workDoneProgressCreateParams.setToken(taskId);
@@ -195,7 +190,6 @@ public class LSPackageLoader {
                 endNotification.setMessage("Initialized Successfully!");
                 languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                         Either.forLeft(endNotification)));
-                languageClient.showMessage(new MessageParams(MessageType.Info, "Indexing completed successfully."));
             }).exceptionally(e -> {
                 WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
                 endNotification.setMessage("Initialization Failed!");

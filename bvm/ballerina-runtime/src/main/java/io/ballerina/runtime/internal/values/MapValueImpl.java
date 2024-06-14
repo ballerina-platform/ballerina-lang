@@ -95,7 +95,6 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V> {
 
-    private static final long serialVersionUID = 1L;
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;

@@ -1053,7 +1053,7 @@ public class QueryTypeChecker extends TypeChecker {
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
         return symbol != null && symbol.restParam != null
-                && symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
+                && !symbol.params.isEmpty() && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     // Check the argument within sequence context.

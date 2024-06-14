@@ -1376,7 +1376,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             } else {
                 // Simple binding
                 if (variable.symbol != null) {
-                    symbols.add(((BLangSimpleVariable) variable).symbol);
+                    symbols.add(variable.symbol);
                 }
             }
             return symbols;
@@ -1785,7 +1785,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
         return symbol.restParam != null &&
-                symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
+                !symbol.params.isEmpty() && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     private void visitRestArgs(BLangInvocation invocation) {

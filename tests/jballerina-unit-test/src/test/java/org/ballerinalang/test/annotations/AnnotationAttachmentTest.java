@@ -221,7 +221,7 @@ public class AnnotationAttachmentTest {
                         .get().getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v82");
     }
@@ -377,7 +377,7 @@ public class AnnotationAttachmentTest {
                 .getClassDefinitions().get(0).getAnnotationAttachments()
                 .stream()
                 .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                .collect(Collectors.toList());
+                .toList();
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, "v1");

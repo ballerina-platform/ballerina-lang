@@ -172,8 +172,7 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id().value(),
-                        toolEntry.type());
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.type());
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
@@ -223,16 +222,16 @@ public class RunBuildToolsTask implements Task {
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, Tool.Field toolType) throws IOException {
         if (optionsToml == null) {
-            return validateEmptyOptionsToml(toolId, toolType);
+            return validateEmptyOptionsToml(toolType);
         }
         FileUtils.validateToml(optionsToml, toolType.value(), toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(String toolId, Tool.Field toolType) throws IOException {
+    private boolean validateEmptyOptionsToml(Tool.Field toolType) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolType.value(), toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
@@ -247,8 +246,6 @@ public class RunBuildToolsTask implements Task {
             }
             return true;
         }
-        this.outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to " +
-                "no tool options found%n", toolType.value(), toolId);
         return false;
     }
 
@@ -322,7 +319,7 @@ public class RunBuildToolsTask implements Task {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);

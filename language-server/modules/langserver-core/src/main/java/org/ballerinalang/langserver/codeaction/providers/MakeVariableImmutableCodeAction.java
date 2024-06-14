@@ -20,20 +20,27 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -48,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for making a variable immutable. This will ensure that the given variable is both final and readonly.
@@ -58,68 +66,85 @@ import java.util.Optional;
 public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static final String NAME = "Make variable immutable";
-    private static final String DIAGNOSTIC_CODE = "BCE3956";
+    private static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE3943", "BCE3956");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code())
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        NonTerminalNode cursorNode = positionDetails.matchedNode();
-
-        // The current implementation of the CA only supports object fields
-        if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
-            assert false : "This line is unreachable as the diagnostic is only generated for an object field.";
-            return Collections.emptyList();
-        }
-
-        ObjectFieldNode objectFieldNode = (ObjectFieldNode) cursorNode;
-        Node typeNode = objectFieldNode.typeName();
         List<TextEdit> textEdits = new ArrayList<>();
 
-        // Check if the type is final
-        boolean isFinal = objectFieldNode.qualifierList().stream()
-                .anyMatch(token -> token.kind().equals(SyntaxKind.FINAL_KEYWORD));
-        if (!isFinal) {
-            textEdits.add(getFinalTextEdit(typeNode));
-        }
-
-        // Check if the type is readonly
-        TypeSymbol typeSymbol, readonlyType;
+        TypeSymbol readonlyType;
+        SymbolInfo symbolInfo;
         try {
             SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
             readonlyType = semanticModel.types().READONLY;
-            Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
-            typeSymbol = getTypeSymbol(symbol).orElseThrow();
+            ModulePartNode rootNode = context.currentSyntaxTree().orElseThrow().rootNode();
+            symbolInfo = getSymbolInfo(positionDetails.matchedNode(), semanticModel, rootNode).orElseThrow();
         } catch (RuntimeException e) {
             assert false : "This line is unreachable because the semantic model cannot be empty, and the type " +
                     "symbol does not contain errors.";
             return Collections.emptyList();
         }
-        boolean isReadonly = typeSymbol.subtypeOf(readonlyType);
-        if (!isReadonly) {
-            textEdits.addAll(getReadonlyTextEdits(typeNode, typeSymbol.typeKind() == TypeDescKind.UNION));
+
+        // Check if the type is readonly
+        boolean generateReadonly = !symbolInfo.skipReadonly() && !symbolInfo.typeSymbol().subtypeOf(readonlyType);
+        boolean generateFinal = !symbolInfo.isFinal();
+        if (generateFinal) {
+            textEdits.add(getFinalTextEdit(symbolInfo.typeNode()));
+        }
+        if (generateReadonly) {
+            textEdits.addAll(getReadonlyTextEdits(symbolInfo.typeNode(),
+                    symbolInfo.typeSymbol().typeKind() == TypeDescKind.UNION));
         }
 
         // Generate and return the code action
         return Collections.singletonList(CodeActionUtil.createCodeAction(
-                String.format(CommandConstants.MAKE_VARIABLE_IMMUTABLE, getTitleText(isFinal, isReadonly)),
+                String.format(CommandConstants.MAKE_VARIABLE_IMMUTABLE, getTitleText(generateFinal, generateReadonly)),
                 textEdits,
                 context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 
-    private static Optional<TypeSymbol> getTypeSymbol(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.CLASS_FIELD) {
-            return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
+    private static Optional<SymbolInfo> getSymbolInfo(Node cursorNode, SemanticModel semanticModel,
+                                                      ModulePartNode rootNode) {
+        try {
+            Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
+            if (symbol.kind() == SymbolKind.CLASS_FIELD) {
+                ClassFieldSymbol classFieldSymbol = (ClassFieldSymbol) symbol;
+                return Optional.of(new SymbolInfo(classFieldSymbol.typeDescriptor(),
+                        ((ObjectFieldNode) cursorNode).typeName(), classFieldSymbol, false));
+            }
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            TypedBindingPatternNode typeNode =
+                    (TypedBindingPatternNode) CommonUtil.findNode(symbol, rootNode.syntaxTree()).orElseThrow().parent();
+
+            // Skip the readonly consideration for isolated and readonly classes.
+            boolean skipReadonly = false;
+            TypeSymbol typeSymbol = variableSymbol.typeDescriptor();
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                Symbol definition = ((TypeReferenceTypeSymbol) typeSymbol).definition();
+                if (definition.kind() == SymbolKind.CLASS) {
+                    boolean isSupportedClassType = ((ClassSymbol) definition).qualifiers().stream()
+                            .anyMatch(qualifier -> qualifier == Qualifier.READONLY ||
+                                    qualifier == Qualifier.ISOLATED);
+                    if (!isSupportedClassType) {
+                        return Optional.empty();
+                    }
+                    skipReadonly = true;
+                }
+            }
+            return Optional.of(new SymbolInfo(typeSymbol, typeNode.typeDescriptor(), variableSymbol, skipReadonly));
+        } catch (RuntimeException e) {
+            assert false : "Unconsidered symbol type found";
+            return Optional.empty();
         }
-        assert false : "Unconsidered symbol type found: " + symbol.kind();
-        return Optional.empty();
     }
 
     private static TextEdit getFinalTextEdit(Node typeNode) {
@@ -150,15 +175,15 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
         return textEdits;
     }
 
-    private static String getTitleText(boolean isFinal, boolean isReadonly) {
+    private static String getTitleText(boolean generateFinal, boolean generateReadonly) {
         StringBuilder result = new StringBuilder();
 
-        if (!isFinal) {
+        if (generateFinal) {
             result.append("'").append(SyntaxKind.FINAL_KEYWORD.stringValue()).append("'");
         }
 
-        if (!isReadonly) {
-            if (result.length() > 0) {
+        if (generateReadonly) {
+            if (!result.isEmpty()) {
                 result.append(" and ");
             }
             result.append("'").append(SyntaxKind.READONLY_KEYWORD.stringValue()).append("'");
@@ -170,5 +195,14 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
     @Override
     public String getName() {
         return NAME;
+    }
+
+    private record SymbolInfo(TypeSymbol typeSymbol, Node typeNode, boolean isFinal, boolean skipReadonly) {
+
+        public SymbolInfo(TypeSymbol typeSymbol, Node typeNode, Qualifiable qualifiable, boolean skipReadonly) {
+            this(typeSymbol, typeNode,
+                    qualifiable.qualifiers().stream().anyMatch(qualifier -> qualifier.equals(Qualifier.FINAL)),
+                    skipReadonly);
+        }
     }
 }

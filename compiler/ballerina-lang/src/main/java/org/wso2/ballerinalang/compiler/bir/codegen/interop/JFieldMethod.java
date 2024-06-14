@@ -26,7 +26,7 @@ enum JFieldMethod {
     ACCESS("access"),
     MUTATE("mutate");
 
-    private String strValue;
+    private final String strValue;
 
     JFieldMethod(String strValue) {
 

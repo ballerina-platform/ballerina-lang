@@ -38,7 +38,7 @@ public interface CompilerOutputEntry {
         OBJ("obj"),
         ROOT("/");
 
-        private String value;
+        private final String value;
 
         Kind(String value) {
             this.value = value;
