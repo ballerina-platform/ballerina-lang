@@ -224,7 +224,7 @@ public class ModuleStopMethodGen {
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        jvmTypeGen.loadType(mv, new BNilType());
+        jvmTypeGen.loadType(mv, BType.createNilType());
         MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);

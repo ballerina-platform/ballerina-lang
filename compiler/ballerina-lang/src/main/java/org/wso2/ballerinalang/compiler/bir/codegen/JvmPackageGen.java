@@ -737,7 +737,7 @@ public class JvmPackageGen {
 
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen);
-        injectDefaultParamInitsToAttachedFuncs(module, initMethodGen);
+        injectDefaultParamInitsToAttachedFuncs(symbolTable.typeEnv(), module, initMethodGen);
 
         // create imported modules flat list
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
