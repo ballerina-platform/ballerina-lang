@@ -174,13 +174,15 @@ public class JarResolver {
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                               Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
-            if (jBalBackend.unusedModuleIds.contains(moduleId)) {
+            if (packageContext.project().buildOptions().optimizeCodegen() &&
+                    jBalBackend.unusedModuleIds.contains(moduleId)) {
                 continue;
             }
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PackageID pkgID = moduleContext.descriptor().moduleCompilationId();
 
-            if (!this.rootPackageContext.project().buildOptions().skipTests() &&
+            if (packageContext.project().buildOptions().optimizeCodegen() &&
+                    !this.rootPackageContext.project().buildOptions().skipTests() &&
                     this.jBalBackend.getOptimizedPackageIDs().contains(pkgID)) {
                 addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, pkgID);
             }
