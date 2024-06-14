@@ -33,6 +33,11 @@ public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
     @Override
     public int hashCode() {
-        return index;
+        return this.getIdentifier().hashCode();
+    }
+
+    @Override
+    public Kind kind() {
+        return atomicType.atomKind();
     }
 }

@@ -65,7 +65,7 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public String toString() {
-        boolean readonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        boolean readonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         if (constraint == null) {
             return readonly ? super.toString().concat(" & readonly") : super.toString();
         }

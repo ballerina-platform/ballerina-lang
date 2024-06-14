@@ -416,29 +416,31 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_BYTE";
                     break;
                 case TypeTags.ANY:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANY" : "TYPE_ANY";
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANY" :
+                            "TYPE_ANY";
                     break;
                 case TypeTags.ANYDATA:
                 case TypeTags.REGEXP:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
                             "TYPE_ANYDATA";
                     break;
                 case TypeTags.JSON:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_JSON" : "TYPE_JSON";
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_JSON" :
+                            "TYPE_JSON";
                     break;
                 case TypeTags.XML:
                     loadXmlType(mv, (BXMLType) bType);
                     return;
                 case TypeTags.XML_ELEMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ELEMENT" :
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ELEMENT" :
                             "TYPE_ELEMENT";
                     break;
                 case TypeTags.XML_PI:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ?
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ?
                             "TYPE_READONLY_PROCESSING_INSTRUCTION" : "TYPE_PROCESSING_INSTRUCTION";
                     break;
                 case TypeTags.XML_COMMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_COMMENT" :
+                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_COMMENT" :
                             "TYPE_COMMENT";
                     break;
                 case TypeTags.XML_TEXT:
@@ -562,7 +564,7 @@ public class JvmTypeGen {
                 case TypeTags.XML_ELEMENT:
                 case TypeTags.XML_PI:
                 case TypeTags.XML_COMMENT:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
+                    return Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
                 case TypeTags.OBJECT:
                     return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
                 case TypeTags.HANDLE:
@@ -618,7 +620,7 @@ public class JvmTypeGen {
     }
 
     public void loadReadonlyFlag(MethodVisitor mv, BType bType) {
-        if (Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(bType.getFlags(), Flags.READONLY)) {
             mv.visitInsn(ICONST_1);
         } else {
             mv.visitInsn(ICONST_0);
@@ -718,7 +720,7 @@ public class JvmTypeGen {
             return;
         }
         
-        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS)) {
+        if (Symbols.isFlagOn(errorType.getFlags(), Flags.ANONYMOUS)) {
             jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
         } else {
             String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
@@ -883,7 +885,7 @@ public class JvmTypeGen {
         boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!samePackage && Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS)) {
+        if (!samePackage && Symbols.isFlagOn(typeToLoad.getFlags(), Flags.ANONYMOUS)) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
@@ -943,8 +945,8 @@ public class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
         }
 
-        if (Symbols.isFlagOn(bType.flags, Flags.ANY_FUNCTION)) {
-            mv.visitLdcInsn(bType.flags);
+        if (Symbols.isFlagOn(bType.getFlags(), Flags.ANY_FUNCTION)) {
+            mv.visitLdcInsn(bType.getFlags());
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL, false);
             return;
         }
@@ -961,7 +963,7 @@ public class JvmTypeGen {
         // load return type type
         loadType(mv, bType.retType);
 
-        mv.visitLdcInsn(bType.flags);
+        mv.visitLdcInsn(bType.getFlags());
         mv.visitLdcInsn(bType.name.getValue());
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS,

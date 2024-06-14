@@ -404,7 +404,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
             return 0;
         }
         List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
-        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, type.tsymbol);
+        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.getFlags(), type.tsymbol);
         return addToVisited(type, hash);
     }
 
@@ -468,7 +468,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        Integer hash = hash(baseHash(type), type.flags, fieldsHashes, typeInclHashes);
+        Integer hash = hash(baseHash(type), type.getFlags(), fieldsHashes, typeInclHashes);
         return addToVisited(type, hash);
     }
 
@@ -483,7 +483,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
         List<Integer> attachedFunctionsHashes = getFunctionsHashes(((BObjectTypeSymbol) type.tsymbol).attachedFuncs);
-        Integer hash = hash(baseHash(type), type.flags, fieldsHashes, typeInclHashes,
+        Integer hash = hash(baseHash(type), type.getFlags(), fieldsHashes, typeInclHashes,
                 attachedFunctionsHashes, type.typeIdSet);
         return addToVisited(type, hash);
     }
@@ -498,7 +498,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        Integer hash = hash(baseHash(type), type.flags, type.sealed, fieldsHashes, typeInclHashes,
+        Integer hash = hash(baseHash(type), type.getFlags(), type.sealed, fieldsHashes, typeInclHashes,
                 visit(type.restFieldType));
         return addToVisited(type, hash);
     }
@@ -511,7 +511,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()), type.flags);
+        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()), type.getFlags());
         return addToVisited(type, hash);
     }
 

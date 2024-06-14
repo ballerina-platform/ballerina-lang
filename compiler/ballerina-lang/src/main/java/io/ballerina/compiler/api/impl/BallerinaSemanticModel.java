@@ -542,7 +542,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isInlineErrorType(BSymbol symbol) {
         return getImpliedType(symbol.type).tag == TypeTags.ERROR &&
-                Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
+                Symbols.isFlagOn(symbol.type.getFlags(), Flags.ANONYMOUS);
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {

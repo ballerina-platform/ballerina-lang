@@ -461,10 +461,10 @@
     {
       "label": "message = ...",
       "kind": "Snippet",
-      "detail": "message = \"\"",
+      "detail": "message = ()",
       "sortText": "AR",
       "filterText": "message",
-      "insertText": "message = ${1:\"\"}",
+      "insertText": "message = ${1:()}",
       "insertTextFormat": "Snippet"
     },
     {

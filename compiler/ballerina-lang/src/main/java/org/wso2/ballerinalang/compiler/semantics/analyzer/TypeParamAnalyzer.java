@@ -130,7 +130,7 @@ public class TypeParamAnalyzer {
 
     static boolean isTypeParam(BType expType) {
 
-        return Symbols.isFlagOn(expType.flags, Flags.TYPE_PARAM)
+        return Symbols.isFlagOn(expType.getFlags(), Flags.TYPE_PARAM)
                 || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
     }
 
@@ -173,7 +173,7 @@ public class TypeParamAnalyzer {
 
     BType createTypeParam(BSymbol symbol) {
         BType type = symbol.type;
-        var flag = type.flags | Flags.TYPE_PARAM;
+        var flag = type.getFlags() | Flags.TYPE_PARAM;
         return createTypeParamType(symbol, type, symbol.name, flag);
     }
 
@@ -222,7 +222,7 @@ public class TypeParamAnalyzer {
                 return false;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
-                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                if (Symbols.isFlagOn(invokableType.getFlags(), Flags.ANY_FUNCTION)) {
                     return false;
                 }
                 for (BType paramType : invokableType.paramTypes) {
@@ -311,7 +311,7 @@ public class TypeParamAnalyzer {
                     BUnionType cloneableType =
                             BUnionType.create(symTable.typeEnv(), null, symTable.readonlyType, symTable.xmlType);
                     addCyclicArrayMapTableOfMapMembers(cloneableType);
-                    cloneableType.flags = flags;
+                    cloneableType.setFlags(flags);
 
                     cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, refType.tsymbol.flags, symbol.name,
                             refType.tsymbol.pkgID, cloneableType, refType.tsymbol.owner, type.tsymbol.pos,
@@ -334,13 +334,13 @@ public class TypeParamAnalyzer {
         immutableType.ifPresent(bIntersectionType ->
                 Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, bIntersectionType));
         anydataType.name = name;
-        anydataType.flags |= flags;
+        anydataType.addFlags(flags);
         return anydataType;
     }
 
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(symTable.typeEnv(), unionType);
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
+        BMapType mapCloneableType = new BMapType(symTable.typeEnv(), TypeTags.MAP, unionType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
@@ -719,7 +719,7 @@ public class TypeParamAnalyzer {
     private void findTypeParamInInvokableType(Location loc, BInvokableType expType,
                                               BInvokableType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                               FindTypeParamResult result) {
-        if (Symbols.isFlagOn(expType.flags, Flags.ANY_FUNCTION)) {
+        if (Symbols.isFlagOn(expType.getFlags(), Flags.ANY_FUNCTION)) {
             return;
         }
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
@@ -816,7 +816,8 @@ public class TypeParamAnalyzer {
                 if (!isDifferentTypes(constraint, matchingBoundMapConstraintType)) {
                     return expType;
                 }
-                return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
+                return new BMapType(symTable.typeEnv(), TypeTags.MAP, matchingBoundMapConstraintType,
+                        symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BStreamType expStreamType = (BStreamType) expType;
                 BType expStreamConstraint = expStreamType.constraint;
@@ -917,7 +918,7 @@ public class TypeParamAnalyzer {
         }
 
         if (types.isInherentlyImmutableType(matchingBoundNonReadOnlyType) ||
-                Symbols.isFlagOn(matchingBoundNonReadOnlyType.flags, Flags.READONLY)) {
+                Symbols.isFlagOn(matchingBoundNonReadOnlyType.getFlags(), Flags.READONLY)) {
             return matchingBoundNonReadOnlyType;
         }
 
@@ -937,7 +938,7 @@ public class TypeParamAnalyzer {
             if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
+            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.getFlags(), null, null, matchingBoundType,
                     null, null, null);
             members.add(new BTupleMember(matchingBoundType, varSymbol));
         }
@@ -983,10 +984,10 @@ public class TypeParamAnalyzer {
             recordSymbol.scope.define(expField.name, field.symbol);
         }
 
-        BRecordType bRecordType = new BRecordType(recordSymbol);
+        BRecordType bRecordType = new BRecordType(symTable.typeEnv(), recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        bRecordType.flags = expType.flags;
+        bRecordType.setFlags(expType.getFlags());
 
         if (expType.sealed) {
             bRecordType.sealed = true;
@@ -1017,7 +1018,7 @@ public class TypeParamAnalyzer {
         }
 
         BType restType = expType.restType;
-        var flags = expType.flags;
+        var flags = expType.getFlags();
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                 env.enclPkg.symbol.pkgID, expType, env.scope.owner, expType.tsymbol.pos, VIRTUAL);
 
@@ -1042,7 +1043,7 @@ public class TypeParamAnalyzer {
         invokableType.tsymbol.isTypeParamResolved = true;
         invokableType.tsymbol.typeParamTSymbol = expType.tsymbol;
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
-            invokableType.flags |= Flags.ISOLATED;
+            invokableType.addFlags(Flags.ISOLATED);
         }
 
         return invokableType;

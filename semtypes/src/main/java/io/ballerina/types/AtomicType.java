@@ -23,4 +23,6 @@ package io.ballerina.types;
  * @since 2201.8.0
  */
 public interface AtomicType {
+
+    Atom.Kind atomKind();
 }

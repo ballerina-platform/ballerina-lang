@@ -1649,7 +1649,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
-                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                if (Symbols.isFlagOn(invokableType.getFlags(), Flags.ANY_FUNCTION)) {
                     return;
                 }
                 if (invokableType.paramTypes != null) {
@@ -4290,7 +4290,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BType matchedExprType = matchedExpr.getBType();
 
         if (types.isInherentlyImmutableType(matchedExprType) ||
-                Symbols.isFlagOn(matchedExprType.flags, Flags.READONLY)) {
+                Symbols.isFlagOn(matchedExprType.getFlags(), Flags.READONLY)) {
             return;
         }
 
@@ -4314,7 +4314,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
             BLangExpression streamImplementorExpr = argsExpr.get(0);
             BType type = streamImplementorExpr.getBType();
-            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
                 dlog.error(streamImplementorExpr.pos,
                         DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
             }
@@ -4339,7 +4339,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
             if (type != symTable.semanticError &&
                     !types.isInherentlyImmutableType(type) &&
-                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                    !Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
                 dlog.error(arg.pos, DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
             }
         }

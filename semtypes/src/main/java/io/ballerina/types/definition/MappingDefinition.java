@@ -65,6 +65,14 @@ public class MappingDefinition implements Definition {
         }
     }
 
+    /**
+     * This is a deviation from nBallerina. jBallerina considers `record {never x;}` as `never`.
+     * This method is to support jBallerina behavior.
+     */
+    public void setSemTypeToNever() {
+        this.semType = PredefinedType.NEVER;
+    }
+
     public SemType define(Env env, List<CellField> fields, CellSemType rest) {
         SplitField sfh = splitFields(fields);
         MappingAtomicType atomicType = MappingAtomicType.from(sfh.names.toArray(new String[]{}),

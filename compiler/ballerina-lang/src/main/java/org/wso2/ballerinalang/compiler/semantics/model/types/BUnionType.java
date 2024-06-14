@@ -71,27 +71,26 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
     public final Env env;
 
-    public BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
-                      boolean readonly) {
-        this(env, tsymbol, memberTypes, memberTypes, nullable, readonly, false);
+    public BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean readonly) {
+        this(env, tsymbol, memberTypes, memberTypes, readonly, false);
     }
 
     private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
-                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
-        this(env, tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
+                       LinkedHashSet<BType> memberTypes, boolean readonly) {
+        this(env, tsymbol, originalMemberTypes, memberTypes, readonly, false);
     }
 
-    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
+    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes,
                        boolean readonly, boolean isCyclic) {
-        this(env, tsymbol, null, memberTypes, nullable, readonly, isCyclic);
+        this(env, tsymbol, null, memberTypes, readonly, isCyclic);
     }
 
     private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
-                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly, boolean isCyclic) {
+                       LinkedHashSet<BType> memberTypes, boolean readonly, boolean isCyclic) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
-            this.flags |= Flags.READONLY;
+            this.addFlags(Flags.READONLY);
 
             if (tsymbol != null) {
                 this.tsymbol.flags |= Flags.READONLY;
@@ -162,8 +161,7 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
         boolean isImmutable = true;
-        boolean hasNilableType = false;
-        return new BUnionType(env, tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
+        return new BUnionType(env, tsymbol, memberTypes, isImmutable, isCyclic);
     }
 
     /**
@@ -179,7 +177,7 @@ public class BUnionType extends BType implements UnionType {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
         if (types.isEmpty()) {
-            return new BUnionType(env, tsymbol, memberTypes, false, true);
+            return new BUnionType(env, tsymbol, memberTypes, true);
         }
 
         boolean isImmutable = true;
@@ -188,40 +186,17 @@ public class BUnionType extends BType implements UnionType {
                 memberTypes.add(memBType);
             }
 
-            if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+            if (isImmutable && !Symbols.isFlagOn(memBType.getFlags(), Flags.READONLY)) {
                 isImmutable = false;
             }
         }
+
         if (memberTypes.isEmpty()) {
             memberTypes.add(BType.createNeverType());
-            return new BUnionType(env, tsymbol, memberTypes, false, isImmutable);
+            return new BUnionType(env, tsymbol, memberTypes, isImmutable);
         }
 
-        boolean hasNilableType = false;
-        for (BType memberType : memberTypes) {
-            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
-                hasNilableType = true;
-                break;
-            }
-        }
-
-        if (hasNilableType) {
-            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(memberTypes.size());
-            for (BType t : memberTypes) {
-                if (t.tag != TypeTags.NIL) {
-                    bTypes.add(t);
-                }
-            }
-            memberTypes = bTypes;
-        }
-
-        for (BType memberType : memberTypes) {
-            if (memberType.isNullable()) {
-                return new BUnionType(env, tsymbol, types, memberTypes, true, isImmutable);
-            }
-        }
-
-        return new BUnionType(env, tsymbol, types, memberTypes, false, isImmutable);
+        return new BUnionType(env, tsymbol, types, memberTypes, isImmutable);
     }
 
     /**
@@ -261,8 +236,8 @@ public class BUnionType extends BType implements UnionType {
             this.memberTypes.add(type);
         }
 
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-            this.flags ^= Flags.READONLY;
+        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY) && !Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
+            this.setFlags(this.getFlags() ^ Flags.READONLY);
         }
 
         setCyclicFlag(type);
@@ -321,20 +296,20 @@ public class BUnionType extends BType implements UnionType {
         }
         this.originalMemberTypes.remove(type);
 
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY)) {
             return;
         }
 
         boolean isImmutable = true;
         for (BType memBType : this.memberTypes) {
-            if (!Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+            if (!Symbols.isFlagOn(memBType.getFlags(), Flags.READONLY)) {
                 isImmutable = false;
                 break;
             }
         }
 
         if (isImmutable) {
-            this.flags |= Flags.READONLY;
+            this.addFlags(Flags.READONLY);
         }
     }
 
@@ -351,14 +326,14 @@ public class BUnionType extends BType implements UnionType {
                 BArrayType arrayType = (BArrayType) member;
                 if (getImpliedType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(env, this, arrayType.tsymbol, arrayType.size,
-                            arrayType.state, arrayType.flags);
+                            arrayType.state, arrayType.getFlags());
                     this.add(newArrayType);
                     continue;
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
                 if (getImpliedType(mapType.constraint) == unionType) {
-                    BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                    BMapType newMapType = new BMapType(env, mapType.tag, this, mapType.tsymbol, mapType.getFlags());
                     this.add(newMapType);
                     continue;
                 }
@@ -366,15 +341,15 @@ public class BUnionType extends BType implements UnionType {
                 BTableType tableType = (BTableType) member;
                 if (getImpliedType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
-                            tableType.flags);
+                            tableType.getFlags());
                     this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
                     if (getImpliedType(mapType.constraint) == unionType) {
-                        BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                        BMapType newMapType = new BMapType(env, mapType.tag, this, mapType.tsymbol, mapType.getFlags());
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
-                                tableType.flags);
+                                tableType.getFlags());
                         this.add(newTableType);
                         continue;
                     }
@@ -447,7 +422,7 @@ public class BUnionType extends BType implements UnionType {
         if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
             String typeName = tsymbol.getName().getValue();
             String packageId = tsymbol.pkgID.toString();
-            boolean isTypeParam = Symbols.isFlagOn(flags, Flags.TYPE_PARAM);
+            boolean isTypeParam = Symbols.isFlagOn(getFlags(), Flags.TYPE_PARAM);
             // improve readability of cyclic union types
             if (isCyclic && (pCloneable.matcher(typeName).matches() ||
                     (isTypeParam && pCloneableType.matcher(typeName).matches()))) {
@@ -539,8 +514,10 @@ public class BUnionType extends BType implements UnionType {
         }
 
         if (memberType.tag == TypeTags.UNION) {
-            memberSemTypes.addAll(((BUnionType) memberType).memberSemTypes);
-            memberNonSemTypes.addAll(((BUnionType) memberType).memberNonSemTypes);
+            BUnionType bUnionType = (BUnionType) memberType;
+            bUnionType.populateMemberSemTypesAndNonSemTypes();
+            memberSemTypes.addAll(bUnionType.memberSemTypes);
+            memberNonSemTypes.addAll(bUnionType.memberNonSemTypes);
             return;
         }
 

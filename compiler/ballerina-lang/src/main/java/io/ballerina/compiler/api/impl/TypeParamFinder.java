@@ -244,7 +244,7 @@ public class TypeParamFinder extends TypeVisitor {
     }
 
     private void setContainsTypeParam(BType type) {
-        if (Symbols.isFlagOn(type.flags, Flags.TYPE_PARAM)) {
+        if (Symbols.isFlagOn(type.getFlags(), Flags.TYPE_PARAM)) {
             this.typeParam = type;
         }
     }

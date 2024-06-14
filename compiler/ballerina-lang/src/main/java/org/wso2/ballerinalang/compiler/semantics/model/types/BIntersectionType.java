@@ -52,7 +52,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
         for (BType constituentType : this.constituentTypes) {
             if (constituentType.tag == TypeTags.READONLY) {
-                this.flags |= Flags.READONLY;
+                this.addFlags(Flags.READONLY);
                 break;
             }
         }

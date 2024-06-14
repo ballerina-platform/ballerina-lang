@@ -54,7 +54,7 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public BAnyType(BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
         super(TypeTags.ANY, tsymbol, semType);
         this.name = name;
-        this.flags = flags;
+        this.setFlags(flags);
     }
 
     public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
@@ -80,14 +80,14 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
 
     @Override
     public String toString() {
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
     }
 
     @Override
     public SemType semType() {
         SemType semType;
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
             semType = Core.intersect(IMPLEMENTED_ANY_TYPE, IMPLEMENTED_VAL_READONLY);
         } else {
             semType = IMPLEMENTED_ANY_TYPE;

@@ -100,7 +100,7 @@ public class Env {
 
     public void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
         synchronized (this.recFunctionAtoms) {
-            ra.setTargetKind(RecAtom.TargetKind.FUNCTION_ATOM);
+            ra.setKind(Atom.Kind.FUNCTION_ATOM);
             this.recFunctionAtoms.set(ra.index, atomicType);
         }
     }
@@ -207,14 +207,14 @@ public class Env {
 
     public void setRecListAtomType(RecAtom ra, ListAtomicType atomicType) {
         synchronized (this.recListAtoms) {
-            ra.setTargetKind(RecAtom.TargetKind.LIST_ATOM);
+            ra.setKind(Atom.Kind.LIST_ATOM);
             this.recListAtoms.set(ra.index, atomicType);
         }
     }
 
     public void setRecMappingAtomType(RecAtom ra, MappingAtomicType atomicType) {
         synchronized (this.recListAtoms) {
-            ra.setTargetKind(RecAtom.TargetKind.MAPPING_ATOM);
+            ra.setKind(Atom.Kind.MAPPING_ATOM);
             this.recMappingAtoms.set(ra.index, atomicType);
         }
     }

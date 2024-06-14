@@ -1075,7 +1075,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE,
                                 PackageID.VALUE, symTable.cloneableType, symTable.langValueModuleSymbol,
                                 symTable.builtinPos, BUILTIN);
-                symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+                symTable.detailType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.cloneableType, null);
                 symTable.errorType = new BErrorType(null, symTable.detailType);
                 symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                         symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos
@@ -1086,7 +1086,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.anyOrErrorType =
                         BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
 
-                symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+                symTable.mapAllType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyOrErrorType, null);
                 symTable.arrayAllType = new BArrayType(symTable.typeEnv(), symTable.anyOrErrorType);
                 symTable.typeDesc.constraint = symTable.anyOrErrorType;
                 symTable.futureType.constraint = symTable.anyOrErrorType;
@@ -1330,7 +1330,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     data.env.enclPkg.symbol.pkgID, null,
                     data.env.scope.owner, recordTypeNode.pos,
                     recordTypeNode.isAnonymous ? VIRTUAL : SOURCE);
-            BRecordType recordType = new BRecordType(recordSymbol);
+            BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
 
@@ -1448,7 +1448,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
         List<BTupleMember> tupleMembers = new ArrayList<>();
         members.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
-                new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
+                new BVarSymbol(member.getBType().getFlags(), member.symbol.name, member.symbol.pkgID, member.getBType(),
                         member.symbol.owner, member.pos, SOURCE))));
         BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleMembers);
         tupleTypeSymbol.type = tupleType;
@@ -1498,7 +1498,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
-        errorType.flags |= errorTypeSymbol.flags;
+        errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
 
         markParameterizedType(errorType, detailType);
@@ -1526,7 +1526,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
-            constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
+            constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
@@ -1654,7 +1654,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                                           null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                                                           tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.flags |= Flags.PARAMETERIZED;
+                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
 
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
@@ -1696,7 +1696,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                             tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                             tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.flags |= Flags.PARAMETERIZED;
+                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
                 }
@@ -1726,8 +1726,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)
                 && !isCloneableTypeDef) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-            referenceType.flags |= symbol.type.flags;
-            referenceType.tsymbol.flags |= symbol.type.flags;
+            referenceType.addFlags(symbol.type.getFlags());
+            referenceType.tsymbol.flags |= symbol.type.getFlags();
             return referenceType;
         }
 
@@ -1781,7 +1781,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BInvokableType invokableType;
             if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
                 invokableType = new BInvokableType(null, null, null, null);
-                invokableType.flags = Flags.asMask(functionTypeNode.flagSet);
+                invokableType.setFlags(Flags.asMask(functionTypeNode.flagSet));
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                         Flags.asMask(functionTypeNode.flagSet),
                                                                         env.enclPkg.symbol.pkgID, invokableType,
@@ -2149,16 +2149,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public boolean markParameterizedType(BType type, BType constituentType) {
-        if (Symbols.isFlagOn(constituentType.flags, Flags.PARAMETERIZED)) {
+        if (Symbols.isFlagOn(constituentType.getFlags(), Flags.PARAMETERIZED)) {
             type.tsymbol.flags |= Flags.PARAMETERIZED;
-            type.flags |= Flags.PARAMETERIZED;
+            type.addFlags(Flags.PARAMETERIZED);
             return true;
         }
         return false;
     }
 
     public void markParameterizedType(BType enclosingType, Collection<BType> constituentTypes) {
-        if (Symbols.isFlagOn(enclosingType.flags, Flags.PARAMETERIZED)) {
+        if (Symbols.isFlagOn(enclosingType.getFlags(), Flags.PARAMETERIZED)) {
             return;
         }
 
@@ -2366,7 +2366,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (types.isInherentlyImmutableType(potentialIntersectionType) ||
-                (Symbols.isFlagOn(potentialIntersectionType.flags, Flags.READONLY) &&
+                (Symbols.isFlagOn(potentialIntersectionType.getFlags(), Flags.READONLY) &&
                         // For objects, a new type has to be created.
                         !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
             BTypeSymbol effectiveTypeTSymbol = potentialIntersectionType.tsymbol;
@@ -2440,8 +2440,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BTypeSymbol intersectionTypeSymbol =
                 Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, 0, Names.EMPTY, pkgId, null, owner, pos, VIRTUAL);
 
-        BIntersectionType intersectionType =
-                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType, effectiveType.flags);
+        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
+                effectiveType, effectiveType.getFlags());
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }

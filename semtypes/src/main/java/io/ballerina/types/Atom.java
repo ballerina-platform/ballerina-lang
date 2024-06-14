@@ -28,4 +28,29 @@ public interface Atom {
      * Get the unique index of the atom.
      */
     int index();
+
+    /**
+     * Get the kind of the atom.
+     */
+    Kind kind();
+
+    /**
+     * This method returns a unique identifier for an Atom.
+     * The identifier is a combination of the atom's index and kind.
+     *
+     * @return AtomIdentifier - a record containing the index and kind of the atom.
+     */
+    default AtomIdentifier getIdentifier() {
+        return new AtomIdentifier(index(), kind());
+    }
+
+    record AtomIdentifier(int index, Kind kind) {
+    }
+
+    enum Kind {
+        LIST_ATOM,
+        FUNCTION_ATOM,
+        MAPPING_ATOM,
+        CELL_ATOM
+    }
 }

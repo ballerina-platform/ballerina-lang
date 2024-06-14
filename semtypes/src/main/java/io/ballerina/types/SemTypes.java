@@ -33,7 +33,7 @@ import java.math.BigDecimal;
  *
  * @since 2201.8.0
  */
-public class SemTypes {
+public final class SemTypes {
     public static final SemType SINT8 = IntSubtype.intWidthSigned(8);
     public static final SemType SINT16 = IntSubtype.intWidthSigned(16);
     public static final SemType SINT32 = IntSubtype.intWidthSigned(32);

@@ -868,12 +868,12 @@ public class ASTBuilderUtil {
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             dupFuncSymbol.flags |= Flags.ISOLATED;
-            dupInvokableType.flags |= Flags.ISOLATED;
+            dupInvokableType.addFlags(Flags.ISOLATED);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
             dupFuncSymbol.flags |= Flags.TRANSACTIONAL;
-            dupInvokableType.flags |= Flags.TRANSACTIONAL;
+            dupInvokableType.addFlags(Flags.TRANSACTIONAL);
         }
 
         dupFuncSymbol.type = dupInvokableType;
@@ -914,7 +914,7 @@ public class ASTBuilderUtil {
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         BType newFuncType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
                                                prevFuncType.retType, prevFuncType.tsymbol);
-        newFuncType.flags |= prevFuncType.flags;
+        newFuncType.addFlags(prevFuncType.getFlags());
         dupFuncSymbol.type = newFuncType;
         return dupFuncSymbol;
     }

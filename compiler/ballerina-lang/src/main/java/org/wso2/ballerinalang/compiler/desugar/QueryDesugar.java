@@ -298,7 +298,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 queryBlock, stmtsToBePropagated);
         BLangExpression result = streamRef;
         BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
-                Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
+                Symbols.isFlagOn(queryExpr.getBType().getFlags(), Flags.READONLY));
         BType resultType = queryExpr.getBType();
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();

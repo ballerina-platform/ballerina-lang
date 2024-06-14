@@ -98,13 +98,21 @@ public class BTupleType extends BType implements TupleType {
         super(TypeTags.TUPLE, tsymbol);
 
         if (readonly) {
-            this.flags |= Flags.READONLY;
+            this.addFlags(Flags.READONLY);
 
             if (tsymbol != null) {
                 this.tsymbol.flags |= Flags.READONLY;
             }
         }
         this.env = env;
+    }
+
+    /**
+     * It is required to reset {@link #ld} when the type gets mutated.
+     * This method is used for that. e.g. When changing Flags.READONLY
+     */
+    protected void restLd() {
+        ld = null;
     }
 
     @Override
@@ -150,7 +158,7 @@ public class BTupleType extends BType implements TupleType {
                 + ((restType != null) ? (members.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     // In the case of a cyclic tuple, this aids in
@@ -166,8 +174,9 @@ public class BTupleType extends BType implements TupleType {
         if (this.memberTypes != null) {
             this.memberTypes.add(member.type);
         }
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(member.type.flags, Flags.READONLY)) {
-            this.flags ^= Flags.READONLY;
+        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY) &&
+                !Symbols.isFlagOn(member.type.getFlags(), Flags.READONLY)) {
+            this.setFlags(this.getFlags() ^ Flags.READONLY);
         }
         setCyclicFlag(member.type);
         return true;
@@ -183,8 +192,9 @@ public class BTupleType extends BType implements TupleType {
             return false;
         }
         this.restType = restType;
-        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(restType.flags, Flags.READONLY)) {
-            this.flags ^= Flags.READONLY;
+        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY) &&
+                !Symbols.isFlagOn(restType.getFlags(), Flags.READONLY)) {
+            this.setFlags(this.getFlags() ^ Flags.READONLY);
         }
         setCyclicFlag(restType);
         return true;
@@ -264,7 +274,7 @@ public class BTupleType extends BType implements TupleType {
         if (hasTypeHoles()) {
             return ld.defineListTypeWrapped(env, ANY);
         }
-        boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         if (members == null) {
             if (restType == null) {
@@ -287,5 +297,17 @@ public class BTupleType extends BType implements TupleType {
             restSemType = NEVER;
         }
         return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
+    }
+
+    @Override
+    public void setFlags(long flags) {
+        super.setFlags(flags);
+        restLd();
+    }
+
+    @Override
+    public void addFlags(long flags) {
+        super.addFlags(flags);
+        restLd();
     }
 }

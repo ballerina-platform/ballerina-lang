@@ -905,7 +905,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (flags.contains(Flag.CLIENT)) {
-            objectType.flags |= Flags.CLIENT;
+            objectType.addFlags(Flags.CLIENT);
         }
 
         tSymbol.type = objectType;
@@ -1655,7 +1655,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
-                typeDefSymbol.type.flags);
+                typeDefSymbol.type.getFlags());
 
         boolean isLabel = true;
         //todo remove after type ref introduced to runtime
@@ -1716,7 +1716,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        definedType.flags |= typeDefSymbol.flags;
+        definedType.addFlags(typeDefSymbol.flags);
         typeDefinition.symbol = typeDefSymbol;
 
         if (typeDefinition.hasCyclicReference) {
@@ -1753,7 +1753,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
                 ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = distinctType;
             }
-            definedType.flags |= Flags.DISTINCT;
+            definedType.addFlags(Flags.DISTINCT);
         }
     }
 
@@ -1816,12 +1816,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
         alreadyDefinedErrorType.detailType = errorType.detailType;
-        alreadyDefinedErrorType.flags = errorType.flags;
+        alreadyDefinedErrorType.setFlags(errorType.getFlags());
         alreadyDefinedErrorType.name = errorType.name;
         intersectionType.effectiveType = alreadyDefinedErrorType;
 
         if (!errorType.typeIdSet.isEmpty()) {
-            definedType.flags |= Flags.DISTINCT;
+            definedType.addFlags(Flags.DISTINCT);
         }
     }
 
@@ -1898,7 +1898,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.symbol = typeDefSymbol;
         defineTypeInMainScope(typeDefSymbol, typeDef, env);
         newTypeNode.tsymbol = typeDefSymbol;
-        newTypeNode.flags |= typeDefSymbol.flags;
+        newTypeNode.addFlags(typeDefSymbol.flags);
         return newTypeNode;
     }
 
@@ -2483,7 +2483,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                             if (memberTypes.size() > 1) {
                                 BType type = BUnionType.create(symTable.typeEnv(), null, memberTypes);
-                                BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null,
+                                BVarSymbol varSymbol = new BVarSymbol(type.getFlags(), null, null, type, null,
                                         null, null);
                                 members.add(new BTupleMember(type, varSymbol));
                             } else {
@@ -2815,7 +2815,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             unmappedMembers.putAll(optionalFields);
 
-            BRecordType restRecord = new BRecordType(null);
+            BRecordType restRecord = new BRecordType(symTable.typeEnv(), null);
             restRecord.fields = unmappedMembers;
             restRecord.restFieldType = restFieldType;
             restFieldType = restRecord;
@@ -3083,7 +3083,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<String> variableList,
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
-        BRecordType recordVarType = new BRecordType(recordSymbol);
+        BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
         recordSymbol.type = recordVarType;
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
@@ -3387,7 +3387,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE, env);
             BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
-            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
+            BMapType restType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.setBType(restType);
             defineMemberNode(errorVariable.restDetail, env, restType);
@@ -3400,7 +3400,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (detailType.getKind() == TypeKind.RECORD) {
             return (BRecordType) detailType;
         }
-        BRecordType detailRecord = new BRecordType(null);
+        BRecordType detailRecord = new BRecordType(symTable.typeEnv(), null);
         BMapType detailMap = (BMapType) detailType;
         detailRecord.sealed = false;
         detailRecord.restFieldType = detailMap.constraint;
@@ -4270,7 +4270,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BSymbol symbol = typeDef.symbol;
             BStructureType structureType = (BStructureType) Types.getImpliedType(symbol.type);
 
-            if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
+            if (Symbols.isFlagOn(structureType.getFlags(), Flags.READONLY)) {
                 if (structureType.tag != TypeTags.OBJECT) {
                     continue;
                 }
@@ -4338,7 +4338,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
-                structureType.flags |= Flags.READONLY;
+                structureType.addFlags(Flags.READONLY);
             }
         }
     }
@@ -4372,7 +4372,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectType objectType = (BObjectType) classDef.getBType();
         Location pos = classDef.pos;
 
-        if (Symbols.isFlagOn(classDef.getBType().flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(classDef.getBType().getFlags(), Flags.READONLY)) {
             if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                 return;
@@ -4388,13 +4388,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BField field : fields) {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
-                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
+                        !Symbols.isFlagOn(field.type.getFlags(), Flags.READONLY)) {
                     return;
                 }
             }
 
             classDef.getBType().tsymbol.flags |= Flags.READONLY;
-            classDef.getBType().flags |= Flags.READONLY;
+            classDef.getBType().addFlags(Flags.READONLY);
         }
     }
 
@@ -4406,11 +4406,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
-            funcSymbol.type.flags |= Flags.ISOLATED;
+            funcSymbol.type.addFlags(Flags.ISOLATED);
         }
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.TRANSACTIONAL)) {
-            funcSymbol.type.flags |= Flags.TRANSACTIONAL;
+            funcSymbol.type.addFlags(Flags.TRANSACTIONAL);
         }
     }
 
@@ -4583,7 +4583,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.retType = retType;
         bInvokableType.restType = restType;
-        bInvokableType.flags |= flags;
+        bInvokableType.addFlags(flags);
         functionTypeNode.setBType(bInvokableType);
 
         List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
@@ -5338,12 +5338,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         BInvokableType invokableType = (BInvokableType) function.symbol.type;
         if (function.flagSet.contains(Flag.ISOLATED)) {
-            invokableType.flags |= Flags.ISOLATED;
+            invokableType.addFlags(Flags.ISOLATED);
             invokableType.tsymbol.flags |= Flags.ISOLATED;
         }
 
         if (function.flagSet.contains(Flag.TRANSACTIONAL)) {
-            invokableType.flags |= Flags.TRANSACTIONAL;
+            invokableType.addFlags(Flags.TRANSACTIONAL);
             invokableType.tsymbol.flags |= Flags.TRANSACTIONAL;
         }
 
@@ -5392,7 +5392,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isImmutable(BObjectType objectType) {
-        if (Symbols.isFlagOn(objectType.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(objectType.getFlags(), Flags.READONLY)) {
             return true;
         }
 
@@ -5403,7 +5403,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BField field : fields) {
             if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
-                    !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
+                    !Symbols.isFlagOn(field.type.getFlags(), Flags.READONLY)) {
                 return false;
             }
         }
@@ -5415,7 +5415,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType effectiveType = referredType.effectiveType;
 
         if (Types.getImpliedType(effectiveType).tag != TypeTags.OBJECT ||
-                !Symbols.isFlagOn(effectiveType.flags, Flags.READONLY)) {
+                !Symbols.isFlagOn(effectiveType.getFlags(), Flags.READONLY)) {
             return false;
         }
 

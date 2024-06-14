@@ -270,7 +270,7 @@ public class EffectiveTypePopulator extends TypeVisitor {
 
             BTypeSymbol tsymbol = bTupleType.tsymbol;
             if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.isEmpty()
-                    && !Symbols.isFlagOn(bTupleType.flags, Flags.EFFECTIVE_TYPE_DEF)) {
+                    && !Symbols.isFlagOn(bTupleType.getFlags(), Flags.EFFECTIVE_TYPE_DEF)) {
                 BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
                 tupleTypeNode.setBType(bTupleType);
                 BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(bTupleType,

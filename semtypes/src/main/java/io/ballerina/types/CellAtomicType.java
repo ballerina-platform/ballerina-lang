@@ -31,6 +31,11 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
         return new CellAtomicType(ty, mut);
     }
 
+    @Override
+    public Atom.Kind atomKind() {
+        return Atom.Kind.CELL_ATOM;
+    }
+
     public enum CellMutability {
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
