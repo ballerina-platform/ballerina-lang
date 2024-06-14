@@ -69,7 +69,6 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
 
         BIRNode.BIRDocumentableNode prevParentNode = data.currentParentNode;
         boolean prevShouldAnalyzeChildren = data.shouldAnalyzeChildren;
-
         addDependency(bType, data);
         if (data.shouldAnalyzeChildren) {
             bType.accept(this, data);
