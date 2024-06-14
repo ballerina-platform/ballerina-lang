@@ -260,9 +260,11 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     private Optional<String> getVariableName(Node matchedNode) {
         switch (matchedNode.kind()) {
             case LOCAL_VAR_DECL:
-                return getLocalVarName((VariableDeclarationNode) matchedNode);
+                return getVarNameFromBindingPattern(((VariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().bindingPattern());
             case MODULE_VAR_DECL:
-                return getModuleVarName((ModuleVariableDeclarationNode) matchedNode);
+                return getVarNameFromBindingPattern(((ModuleVariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().bindingPattern());
             case ASSIGNMENT_STATEMENT:
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
@@ -283,9 +285,11 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 Node parent = matchedNode.parent();
                 switch (parent.kind()) {
                     case LOCAL_VAR_DECL:
-                        return getLocalVarName((VariableDeclarationNode) parent);
+                        return getVarNameFromBindingPattern(((VariableDeclarationNode) parent)
+                                .typedBindingPattern().bindingPattern());
                     case MODULE_VAR_DECL:
-                        return getModuleVarName((ModuleVariableDeclarationNode) parent);
+                        return getVarNameFromBindingPattern(((ModuleVariableDeclarationNode) parent)
+                                .typedBindingPattern().bindingPattern());
                     case OBJECT_FIELD:
                         return getObjectFieldName((ObjectFieldNode) parent);    
                     case LET_VAR_DECL:
@@ -297,23 +301,17 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 return Optional.empty();
         }
     }
-    
-    private Optional<String> getLocalVarName(VariableDeclarationNode node) {
-        BindingPatternNode bindingPatternNode = node.typedBindingPattern().bindingPattern();
+
+    private Optional<String> getVarNameFromBindingPattern(BindingPatternNode bindingPatternNode) {
+        if (bindingPatternNode.kind() == SyntaxKind.WILDCARD_BINDING_PATTERN) {
+            return Optional.of("_");
+        }
         if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
             return Optional.empty();
         }
-        return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());        
+        return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());
     }
-    
-    private Optional<String> getModuleVarName(ModuleVariableDeclarationNode node) {
-        BindingPatternNode bindingPattern = node.typedBindingPattern().bindingPattern();
-        if (bindingPattern.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            return Optional.empty();
-        }
-        return Optional.of(((CaptureBindingPatternNode) bindingPattern).variableName().text());      
-    }
-    
+
     private Optional<String> getObjectFieldName(ObjectFieldNode node) {
         return Optional.of(node.fieldName().text());
     }
