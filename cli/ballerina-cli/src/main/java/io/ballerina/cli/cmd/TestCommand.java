@@ -211,9 +211,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
     private Boolean optimizeCodegen;
 
-    @CommandLine.Option(names = "--verbose", description = "generate codegen optimization reports",
+    @CommandLine.Option(names = "--optimize-report", description = "generate codegen optimization reports",
             defaultValue = "false")
-    private Boolean verbose;
+    private Boolean optimizeReport;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -420,9 +420,9 @@ public class TestCommand implements BLauncherCmd {
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
-                .setOptimizeCodegen(optimizeCodegen);
-                .setVerbose(verbose);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeCodegen(optimizeCodegen)
+                .setOptimizeReport(optimizeReport);
 
 
         if (targetDir != null) {
