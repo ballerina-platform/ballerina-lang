@@ -80,7 +80,7 @@ public class CodeGenOptimizationReportEmitter {
 
     protected static void emitNativeOptimizationDuration() {
         out.println(
-                "Duration for Bytecode Optimization (analysis + deletion) : " + nativeOptimizationDuration + "ms");
+                "Duration for Bytecode optimization (analysis + deletion) : " + nativeOptimizationDuration + "ms");
         nativeOptimizationDuration = 0;
     }
 
@@ -109,7 +109,7 @@ public class CodeGenOptimizationReportEmitter {
             try {
                 Files.createDirectories(reportParentDirectoryPath);
             } catch (IOException e) {
-                throw new ProjectException("Failed to create Optimization Report directory ", e);
+                throw new ProjectException("Failed to create optimization report directory ", e);
             }
         }
 
@@ -123,7 +123,7 @@ public class CodeGenOptimizationReportEmitter {
             String json = gson.toJson(reports);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            throw new ProjectException("couldn't write data to optimization report file : ", e);
+            throw new ProjectException("Couldn't write data to optimization report file : ", e);
         }
     }
 
