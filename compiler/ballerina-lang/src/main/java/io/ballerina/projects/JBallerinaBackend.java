@@ -1042,6 +1042,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private ByteArrayOutputStream getOptimizedStream(String pathName) {
+        if (this.optimizedJarStreams == null) {
+            return null;
+        }
+
         for (Map.Entry<String, ByteArrayOutputStream> entry : this.optimizedJarStreams.entrySet()) {
             if (pathName.contains(entry.getKey())) {
                 return entry.getValue();
