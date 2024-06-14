@@ -167,7 +167,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         birFunction.basicBlocks.forEach(this::visitNode);
-
         birFunction.parameters.forEach(param -> usedTypeDefAnalyzer.analyzeTypeDefWithinScope(param.type, birFunction));
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(birFunction.returnVariable.type, birFunction);
     }
@@ -187,23 +186,21 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         typeDef.markAsUsed();
         currentInvocationData.addToUsedPool(typeDef);
         usedTypeDefAnalyzer.analyzeTypeDef(typeDef);
-
         typeDef.attachedFuncs.forEach(
                 attachedFunc -> addDependentFunctionAndVisit(typeDef, attachedFunc, typeDef.type.tsymbol.pkgID));
     }
 
     @Override
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
-        currentInstructionArr = birBasicBlock.instructions;
-
         Map<BIRNode.BIRVariableDcl, FunctionPointerData> previousLocalFpHolders = localFpHolders;
+        currentInstructionArr = birBasicBlock.instructions;
         localFpHolders = new HashMap<>();
         localFpHolders.putAll(currentInvocationData.globalVarFPDataPool);
+
         birBasicBlock.instructions.forEach(instruction -> {
             if (ANALYZED_INSTRUCTION_KINDS.contains(instruction.getKind())) {
                 visitNode(instruction);
             }
-
             // The current algorithm does not track all FP assignments.
             // If the FP is assigned inside the parent scope, the FP will have the same UsedState as the parent
             Set<BIRNode.BIRVariableDcl> rhsVars = getVarDeclarations(instruction);
@@ -225,7 +222,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         Set<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
         call.args.forEach(birOperand -> argVars.add(birOperand.variableDcl));
         argVars.retainAll(localFpHolders.keySet());
-        // TODO Refactor logic here to analyze typedefs of the fpCall parameter types
         if (!argVars.isEmpty()) {
             argVars.forEach(var -> {
                 FunctionPointerData fpData = currentInvocationData.getFPData(var);
@@ -247,7 +243,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.FPCall fpCall) {
         BIRNode.BIRVariableDcl fpPointer = fpCall.fp.variableDcl;
-
         if (!fpPointer.isInSamePkg(currentPkgID) && isTestablePkgAnalysis) {
             return;
         }
@@ -257,8 +252,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         fpPointer.parentNodes.add(currentParentFunction);
 
         FunctionPointerData fpData;
-
-        // TODO Dont use instance of. Find a way to not use the type cast
         if (fpPointer instanceof BIRNode.BIRGlobalVariableDcl globalVariableDcl) {
             fpData = currentInvocationData.globalVarFPDataPool.get(globalVariableDcl);
         } else {
@@ -312,8 +305,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         if (lambdaPointerVar.getUsedState() == UsedState.UNEXPOLORED) {
             lambdaPointerVar.markSelfAsUnused();
         }
-        localFpHolders.put(lambdaPointerVar, fpData);
 
+        localFpHolders.put(lambdaPointerVar, fpData);
         lambdaPointerVar.childNodes.add(lambdaFunction);
         if (lambdaFunction != null) {
             lambdaFunction.parentNodes.add(lambdaPointerVar);
@@ -327,13 +320,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
         FunctionPointerData fpData = currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl);
-
         fpData.recordDefaultFPLoad = recordDefaultFPLoad;
         if (fpData.recordDefaultFPLoad.enclosedType.isUsed) {
             fpData.lambdaPointerVar.markAsUsed();
             visitNode(fpData.lambdaFunction);
         }
-
         currentInvocationData.recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
                 new HashSet<>());
         currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType).add(fpData);
@@ -414,7 +405,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private void initInteropDependencies() {
         Properties prop = new Properties();
-
         try {
             InputStream stream = getClass().getClassLoader().getResourceAsStream(INTEROP_DEPENDENCIES_PROPERTIES_FILE);
             prop.load(stream);
@@ -489,19 +479,19 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             return;
         }
 
-        // Testable pkg dependencies should not be analysed because the unoptimized duplicates will be referenced.
+        // Testable pkg dependencies should not be analysed because the unoptimized duplicates will be referenced
         if (isTestablePkgAnalysis) {
             return;
         }
 
         UsedBIRNodeAnalyzer.InvocationData childInvocationData = getInvocationData(childPkgId);
 
-        // Handling langLibs for now
+        // Handling langLibs
         if (childInvocationData == null) {
             return;
         }
 
-        // Child is an external one
+        // Child is from another package
         childInvocationData.moduleIsUsed = true;
         childInvocationData.startPointNodes.add(childFunction);
         currentInvocationData.childPackages.add(childFunction.getPackageID());
@@ -552,7 +542,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (birFunction.annotAttachments == null) {
                 return false;
             }
-
             return containsExternalDependencyAnnot(birFunction.annotAttachments);
         }
 
@@ -560,7 +549,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (birTypeDefinition.annotAttachments == null) {
                 return false;
             }
-
             return containsExternalDependencyAnnot(birTypeDefinition.annotAttachments);
         }
 
