@@ -338,10 +338,10 @@ public class CompileTask implements Task {
 
     private void addDiagnosticForInvalidVerboseFlagUsage(Project project, List<Diagnostic> diagnostics) {
         BuildOptions buildOptions = project.buildOptions();
-        if (buildOptions.verbose() && !buildOptions.optimizeCodegen()) {
+        if (buildOptions.optimizeReport() && !buildOptions.optimizeCodegen()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.INVALID_VERBOSE_FLAG_USAGE.diagnosticId(),
-                    "--verbose flag can only be used with --optimize flag", DiagnosticSeverity.ERROR);
+                    "--optimize-report flag can only be used with --optimize flag", DiagnosticSeverity.ERROR);
             diagnostics.add(new PackageDiagnostic(diagnosticInfo,
                     project.currentPackage().descriptor().name().toString()));
         }

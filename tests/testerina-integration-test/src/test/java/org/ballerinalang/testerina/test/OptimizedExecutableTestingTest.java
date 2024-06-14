@@ -59,8 +59,9 @@ public class OptimizedExecutableTestingTest extends BaseTestCase {
 
     @Test()
     public void testWithCommonDependencies() throws BallerinaTestException, IOException {
-        String output = balClient.runMainAndReadStdOut("test", new String[]{"--optimize", "--verbose"}, new HashMap<>(),
-                projectPath, true);
+        String output =
+                balClient.runMainAndReadStdOut("test", new String[]{"--optimize", "--optimize-report"}, new HashMap<>(),
+                        projectPath, true);
         AssertionUtils.assertOutput("OptimizedExecutableTestingTest-testWithCommonDependencies.txt",
                 AssertionUtils.replaceBIRNodeAnalysisTime(output));
         assertBuildProjectJsonReportsAreSimilar(Path.of(projectPath));
