@@ -363,7 +363,8 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BArrayType(symTable.typeEnv(), null, immutableArrayTSymbol, type.size, type.state,
+                    originalType,
+                    new BArrayType(symTable.typeEnv(), null, immutableArrayTSymbol, type.getSize(), type.state,
                             type.getFlags() | Flags.READONLY), symTable));
         }
 
@@ -585,7 +586,8 @@ public class ImmutableTypeCloner {
                         getImmutableTypeName(names,  getSymbolFQN(recordTypeSymbol)),
                         pkgID, null, env.scope.owner, pos, recordTypeSymbol.origin);
 
-        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BInvokableType bInvokableType =
+                new BInvokableType(symTable.typeEnv(), List.of(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
                 Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
                 false, symTable.builtinPos, VIRTUAL);

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
@@ -80,10 +81,10 @@ public class ExternalMethodGen {
         }
     }
 
-    public static BIRFunctionWrapper createExternalFunctionWrapper(boolean isEntry, BIRFunction birFunc,
+    public static BIRFunctionWrapper createExternalFunctionWrapper(Env env, boolean isEntry, BIRFunction birFunc,
                                                                    PackageID packageID, String birModuleClassName) {
         if (isEntry) {
-            addDefaultableBooleanVarsToSignature(birFunc);
+            addDefaultableBooleanVarsToSignature(env, birFunc);
         }
         return getFunctionWrapper(birFunc, packageID, birModuleClassName);
     }

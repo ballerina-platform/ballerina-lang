@@ -2533,7 +2533,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     BArrayType arrayType = (BArrayType) referredType;
                     tupleTypeNode = new BTupleType(symTable.typeEnv(), tupleTypes);
                     BType eType = arrayType.eType;
-                    for (int i = 0; i < arrayType.size; i++) {
+                    for (int i = 0; i < arrayType.getSize(); i++) {
                         BType type = arrayType.eType;
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         tupleTypes.add(new BTupleMember(type, varSymbol));
@@ -4626,7 +4626,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             functionTypeSymbol.restParam = invokableSymbol.restParam;
             restType = invokableSymbol.restParam.type;
         }
-        invokableSymbol.type = new BInvokableType(paramTypes, restType, retType, null);
+        invokableSymbol.type = new BInvokableType(symTable.typeEnv(), paramTypes, restType, retType, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
         invokableSymbol.type.tsymbol.type = invokableSymbol.type;
     }

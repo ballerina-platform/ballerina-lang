@@ -1145,10 +1145,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         validateWorkerAnnAttachments(varNode.expr, data);
 
+        if (varNode.typeNode != null) {
+            analyzeNode(varNode.typeNode, data);
+        }
         handleWildCardBindingVariable(varNode, currentEnv);
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
+
         // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null && lhsType.tag != TypeTags.SEMANTIC_ERROR) {
             if (!types.isAssignable(lhsType, symTable.anydataType)) {
@@ -1165,10 +1169,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 // TODO: remove this check once runtime support all configurable types
                 checkSupportedConfigType(varNode.symbol, varNode.pos, varNode.name.value);
             }
-        }
-
-        if (varNode.typeNode != null) {
-            analyzeNode(varNode.typeNode, data);
         }
 
         // Analyze the init expression
@@ -2523,7 +2523,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BArrayType arraySource = (BArrayType) source;
 
         // For unsealed
-        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.OPEN) {
+        if (arraySource.getSize() < target.expressions.size() && arraySource.state != BArrayState.OPEN) {
             dlog.error(rhsPos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, target.getBType(), arraySource);
         }
 
@@ -3114,7 +3114,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                         BType type = arrayType.eType;
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         BTupleType restTupleType = createTupleForClosedArray(
-                                arrayType.size - listMatchPattern.matchPatterns.size(),
+                                arrayType.getSize() - listMatchPattern.matchPatterns.size(),
                                 new BTupleMember(type, varSymbol));
                         listMatchPattern.restMatchPattern.setBType(restTupleType);
                         BVarSymbol restMatchPatternSymbol = listMatchPattern.restMatchPattern.declaredVars
@@ -3721,7 +3721,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                         BType type = arrayType.eType;
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         BTupleType restTupleType = createTupleForClosedArray(
-                                arrayType.size - listBindingPattern.bindingPatterns.size(),
+                                arrayType.getSize() - listBindingPattern.bindingPatterns.size(),
                                 new BTupleMember(type, varSymbol));
                         listBindingPattern.restBindingPattern.setBType(restTupleType);
                         BVarSymbol restBindingPatternSymbol = listBindingPattern.restBindingPattern.declaredVars

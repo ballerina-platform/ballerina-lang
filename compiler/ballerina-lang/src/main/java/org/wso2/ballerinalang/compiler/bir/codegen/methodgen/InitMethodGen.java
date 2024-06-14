@@ -272,7 +272,8 @@ public class InitMethodGen {
                 new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
         List<BIROperand> functionArgs = new ArrayList<>();
-        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
+        BInvokableType funcType =
+                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, errorOrNilType, null);
         BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD),
                 0, funcType, null, 0, VIRTUAL);
         List<BType> paramTypes = new ArrayList<>();
@@ -431,7 +432,8 @@ public class InitMethodGen {
                                                                    VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
 
-        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
+        BInvokableType funcType =
+                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, errorOrNilType, null);
         BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(null, new Name(funcName), 0, funcType, null, 0,
                                                                   VIRTUAL);
         modInitFunc.localVars.add(retVar);

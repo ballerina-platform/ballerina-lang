@@ -45,7 +45,7 @@ public class BArrayType extends BType implements ArrayType {
     private static final int NO_FIXED_SIZE = -1;
     public BType eType;
 
-    public int size = NO_FIXED_SIZE;
+    private int size = NO_FIXED_SIZE;
 
     public BArrayState state = BArrayState.OPEN;
 
@@ -92,6 +92,17 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public int getSize() {
         return size;
+    }
+
+    public void setSize(int size) {
+        if (ld != null) {
+            // This is dangerous since someone have already captured the SemType may use it in the future. But we have
+            // cases where we actually do "proper" (i.e not accidental type checks like `isNullable`) type checks and
+            // then update the size. One option for this may be to poison the semtype, so that using it after this
+            // point trigger an exception.
+            ld = null;
+        }
+        this.size = size;
     }
 
     @Override

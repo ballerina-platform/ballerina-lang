@@ -165,7 +165,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BArrayType(typeInSymbol.env, boundElemType, typeInSymbol.tsymbol, typeInSymbol.size,
+        return new BArrayType(typeInSymbol.env, boundElemType, typeInSymbol.tsymbol, typeInSymbol.getSize(),
                 typeInSymbol.state, typeInSymbol.getFlags());
     }
 
@@ -312,7 +312,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         invokableTypeSymbol.returnType = newReturnType;
-        BInvokableType type = new BInvokableType(newParamTypes, newRestParamType, newReturnType, invokableTypeSymbol);
+        BInvokableType type = new BInvokableType(typeInSymbol.env, newParamTypes, newRestParamType, newReturnType,
+                invokableTypeSymbol);
         invokableTypeSymbol.type = type;
 
         return type;

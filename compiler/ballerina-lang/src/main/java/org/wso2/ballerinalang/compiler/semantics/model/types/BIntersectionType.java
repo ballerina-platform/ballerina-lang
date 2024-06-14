@@ -91,8 +91,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
-        this.constituentTypes =  toFlatTypeSet(constituentTypes);
-        this.semType = null; // reset cached sem-type if exists
+        this.constituentTypes = toFlatTypeSet(constituentTypes);
     }
 
     @Override
@@ -137,10 +136,9 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public SemType semType() {
-        if (this.semType == null) {
-            this.semType = computeResultantIntersection();
-        }
-        return this.semType;
+        // We have to recalculate this everytime since the actual BTypes inside constituent types do mutate and we
+        // can't detect those mutations.
+        return computeResultantIntersection();
     }
 
     private SemType computeResultantIntersection() {

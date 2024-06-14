@@ -149,7 +149,7 @@ public class BIRTypeWriter extends TypeVisitor {
     @Override
     public void visit(BArrayType bArrayType) {
         buff.writeByte(bArrayType.state.getValue());
-        buff.writeInt(bArrayType.size);
+        buff.writeInt(bArrayType.getSize());
         writeTypeCpIndex(bArrayType.getElementType());
     }
 
@@ -713,8 +713,7 @@ public class BIRTypeWriter extends TypeVisitor {
             writeListAtomicType(listAtomicType);
         } else if (atomicType instanceof FunctionAtomicType functionAtomicType) {
             buff.writeByte(3);
-            writeSemType(functionAtomicType.paramType());
-            writeSemType(functionAtomicType.retType());
+            writeFunctionAtomicType(functionAtomicType);
         } else if (atomicType instanceof CellAtomicType cellAtomicType) {
             buff.writeByte(4);
             writeSemType(cellAtomicType.ty());
@@ -722,6 +721,12 @@ public class BIRTypeWriter extends TypeVisitor {
         } else {
             throw new UnsupportedOperationException("Unexpected atomic type " + atomicType);
         }
+    }
+
+    private void writeFunctionAtomicType(FunctionAtomicType functionAtomicType) {
+        writeSemType(functionAtomicType.paramType());
+        writeSemType(functionAtomicType.retType());
+        buff.writeBoolean(functionAtomicType.isGeneric());
     }
 
     private void writeMappingAtomicType(MappingAtomicType mat) {

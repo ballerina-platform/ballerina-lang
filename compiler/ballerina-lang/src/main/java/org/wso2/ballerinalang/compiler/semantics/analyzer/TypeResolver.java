@@ -1156,7 +1156,7 @@ public class TypeResolver {
 
         SymbolEnv symEnv = data.env;
         Location pos = td.pos;
-        BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+        BInvokableType bInvokableType = new BInvokableType(symTable.typeEnv(), List.of(), null, null, null);
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                 Flags.asMask(td.flagSet), symEnv.enclPkg.symbol.pkgID, bInvokableType,
                 symEnv.scope.owner, pos, BUILTIN);

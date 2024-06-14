@@ -17,8 +17,15 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.FunctionDefinition;
+import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -26,6 +33,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,23 +42,39 @@ import java.util.List;
 public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
+    // TODO: make these final
     public BType restType;
     public BType retType;
+    public final Env env;
+    private FunctionDefinition defn;
 
-    public BInvokableType(List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
+    public BInvokableType(Env env, List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
-        this.paramTypes = paramTypes;
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
+        assert restType == null || restType instanceof BArrayType || restType.tag == TypeTags.SEMANTIC_ERROR;
         this.restType = restType;
         this.retType = retType;
+        this.env = env;
     }
 
-    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
-        this(paramTypes, null, retType, tsymbol);
+    public BInvokableType(Env env, List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
+        this(env, paramTypes, null, retType, tsymbol);
     }
 
-    public BInvokableType(BTypeSymbol tSymbol) {
+    public BInvokableType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.INVOKABLE, tSymbol, Flags.READONLY);
-        this.paramTypes = new ArrayList<>();
+        this.paramTypes = List.of();
+        this.env = env;
+    }
+
+    public void addParamType(BType type) {
+        List<BType> newParams = new ArrayList<>(paramTypes);
+        newParams.add(type);
+        paramTypes = Collections.unmodifiableList(newParams);
+    }
+
+    public void setParamTypes(List<BType> paramTypes) {
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
     }
 
     @Override
@@ -155,5 +179,52 @@ public class BInvokableType extends BType implements InvokableType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isNullable() {
+        return false;
+    }
+
+    @Override
+    public SemType semType() {
+        if (isFunctionTop()) {
+            return PredefinedType.FUNCTION;
+        }
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        this.defn = fd;
+        List<SemType> params = this.paramTypes.stream().map(BInvokableType::from).toList();
+        SemType rest;
+        if (restType instanceof BArrayType arrayType) {
+            rest = from(arrayType.eType);
+        } else {
+            // Is this correct even when type is semantic error?
+            rest = PredefinedType.NEVER;
+        }
+        SemType returnType = retType != null ? from(retType) : PredefinedType.NIL;
+        ListDefinition paramListDefinition = new ListDefinition();
+        SemType paramTypes = paramListDefinition.defineListTypeWrapped(env, params, params.size(), rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
+        // TODO: probably we need to move this method from Types.
+        boolean isGeneric = Types.containsTypeParams(this);
+        if (isGeneric) {
+            return fd.defineGeneric(env, paramTypes, returnType);
+        }
+        return fd.define(env, paramTypes, returnType);
+    }
+
+    private static SemType from(BType type) {
+        SemType semType = type.semType();
+        if (semType == null) {
+            semType = PredefinedType.NEVER;
+        }
+        return semType;
+    }
+
+    private boolean isFunctionTop() {
+        return paramTypes.isEmpty() && restType == null && retType == null;
     }
 }

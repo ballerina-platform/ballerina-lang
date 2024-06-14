@@ -59,6 +59,15 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
             FunctionAtomicType t = cx.functionAtomType(neg.atom);
             SemType t0 = t.paramType();
             SemType t1 = t.retType();
+            if (t.isGeneric()) {
+                // TODO: this is not correct. Ideally we should either resolve generic function calls to concrete
+                //  function or properly support generics. However in order to support former we need some sort of
+                //  monomorphization (at least for types) since generics can contain calls to other generics, and
+                //  in order to do latter we need to define generics properly in spec. Untill that we are going to use
+                //  a hack just to make sure internal libraries type checks passes
+                return (Core.isSubtype(cx, params, t0))
+                        || functionPathIsEmpty(cx, params, pos, neg.next);
+            }
             return (Core.isSubtype(cx, t0, params) && functionPhi(cx, t0, Core.complement(t1), pos))
                     || functionPathIsEmpty(cx, params, pos, neg.next);
         }

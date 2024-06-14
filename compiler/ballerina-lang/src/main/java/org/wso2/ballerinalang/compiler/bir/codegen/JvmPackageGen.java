@@ -520,7 +520,8 @@ public class JvmPackageGen {
     }
 
     private void linkModuleFunction(PackageID packageID, String initClass, String funcName) {
-        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, BType.createNilType(), null);
+        BInvokableType funcType =
+                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, BType.createNilType(), null);
         BIRFunction moduleStopFunction = new BIRFunction(null, new Name(funcName), 0, funcType, new Name(""), 0,
                                                         VIRTUAL);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(packageID) + funcName,
@@ -608,10 +609,11 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID, birModuleClassName);
+            birFuncWrapperOrError = createExternalFunctionWrapper(symbolTable.typeEnv(), isEntry, birFunc, packageID,
+                    birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
-                addDefaultableBooleanVarsToSignature(birFunc);
+                addDefaultableBooleanVarsToSignature(symbolTable.typeEnv(), birFunc);
             }
             birFuncWrapperOrError = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         }
@@ -757,7 +759,7 @@ public class JvmPackageGen {
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
-        rewriteRecordInits(module.typeDefs);
+        rewriteRecordInits(symbolTable.typeEnv(), module.typeDefs);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);

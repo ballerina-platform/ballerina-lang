@@ -59,6 +59,15 @@ public final class FunctionDefinition implements Definition {
 
     public SemType define(Env env, SemType args, SemType ret) {
         FunctionAtomicType atomicType = FunctionAtomicType.from(args, ret);
+        return defineInternal(env, atomicType);
+    }
+
+    public SemType defineGeneric(Env env, SemType args, SemType ret) {
+        FunctionAtomicType atomicType = FunctionAtomicType.genericFrom(args, ret);
+        return defineInternal(env, atomicType);
+    }
+
+    private SemType defineInternal(Env env, FunctionAtomicType atomicType) {
         Atom atom;
         RecAtom rec = this.rec;
         if (rec != null) {
@@ -69,4 +78,5 @@ public final class FunctionDefinition implements Definition {
         }
         return this.createSemType(atom);
     }
+
 }

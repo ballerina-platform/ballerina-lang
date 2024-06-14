@@ -559,7 +559,7 @@ public class QueryTypeChecker extends TypeChecker {
     private BType getQueryMapConstraintType(BType type, Location pos) {
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
-            if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
+            if (arrayType.state != BArrayState.OPEN && arrayType.getSize() == 2 &&
                     types.isAssignable(arrayType.eType, symTable.stringType)) {
                 return arrayType.eType;
             }

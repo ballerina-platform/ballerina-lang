@@ -369,10 +369,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
         initFunction.symbol.scope.define(paramSym.name, paramSym);
         initFunction.symbol.params.add(paramSym);
         BInvokableType initFuncSymbolType = (BInvokableType) initFunction.symbol.type;
-        initFuncSymbolType.paramTypes.add(mapSymbol.type);
+        initFuncSymbolType.addParamType(mapSymbol.type);
 
         BInvokableType initFnType = (BInvokableType) initFunction.getBType();
-        initFnType.paramTypes.add(mapSymbol.type);
+        initFnType.addParamType(mapSymbol.type);
 
         BAttachedFunction attachedFunction = ((BObjectTypeSymbol) classDef.getBType().tsymbol).generatedInitializerFunc;
         attachedFunction.symbol.params.add(paramSym);
@@ -653,12 +653,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
 
         int i = 0;
+        List<BType> newParamTypes = new ArrayList<>(dupFuncType.paramTypes);
         for (Map.Entry<Integer, BVarSymbol> entry : funcNode.paramClosureMap.entrySet()) {
             BVarSymbol mapSymbol = entry.getValue();
             dupFuncSymbol.params.add(i, mapSymbol);
-            dupFuncType.paramTypes.add(i, mapSymbol.type);
+            newParamTypes.add(i, mapSymbol.type);
             i++;
         }
+        dupFuncType.setParamTypes(newParamTypes);
     }
 
     /**

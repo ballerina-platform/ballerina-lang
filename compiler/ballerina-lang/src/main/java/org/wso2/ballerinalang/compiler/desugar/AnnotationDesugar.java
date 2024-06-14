@@ -801,7 +801,7 @@ public class AnnotationDesugar {
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
         String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
-        function.setBType(new BInvokableType(Collections.emptyList(), symTable.mapType, null));
+        function.setBType(new BInvokableType(symTable.typeEnv(), Collections.emptyList(), symTable.mapType, null));
         BLangBuiltInRefTypeNode anyMapType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         anyMapType.typeKind = TypeKind.MAP;
         anyMapType.pos = pos;
@@ -911,7 +911,7 @@ public class AnnotationDesugar {
                 .collect(Collectors.toList());
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
-        functionSymbol.type = new BInvokableType(Collections.emptyList(),
+        functionSymbol.type = new BInvokableType(symTable.typeEnv(), Collections.emptyList(),
                 function.restParam != null ? function.restParam.getBType() : null,
                 new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyType, null),
                 null);

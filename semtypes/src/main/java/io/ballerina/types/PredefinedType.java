@@ -87,7 +87,8 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_INT.code)
                     | (1 << BasicTypeCode.BT_FLOAT.code)
                     | (1 << BasicTypeCode.BT_DECIMAL.code)
-                    | (1 << BasicTypeCode.BT_STRING.code);
+                    | (1 << BasicTypeCode.BT_STRING.code)
+                    | (1 << BasicTypeCode.BT_FUNCTION.code);
 
     public static final BasicTypeBitSet SIMPLE_OR_STRING =
             basicTypeUnion((1 << BasicTypeCode.BT_NIL.code)
@@ -97,7 +98,7 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_DECIMAL.code)
                     | (1 << BasicTypeCode.BT_STRING.code));
 
-    public static final SemType IMPLEMENTED_TYPES = union(SIMPLE_OR_STRING, union(LIST, MAPPING));
+    public static final SemType IMPLEMENTED_TYPES = union(FUNCTION, union(SIMPLE_OR_STRING, union(LIST, MAPPING)));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
