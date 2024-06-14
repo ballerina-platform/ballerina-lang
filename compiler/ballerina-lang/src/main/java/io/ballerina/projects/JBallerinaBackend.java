@@ -130,13 +130,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
     List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
-    private final Map<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
-    protected final Set<PackageID> unusedPackageIDs = new HashSet<>();
-    protected final Set<PackageId> unusedPackageIds = new HashSet<>();
-    protected final Set<ModuleId> unusedModuleIds = new HashSet<>();
-    protected final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
+    private Map<String, ByteArrayOutputStream> optimizedJarStreams;
+    protected Set<PackageID> unusedPackageIDs;
+    protected Set<PackageId> unusedPackageIds;
+    protected Set<ModuleId> unusedModuleIds;
+    protected Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -170,6 +170,13 @@ public class JBallerinaBackend extends CompilerBackend {
         this.conflictedJars = new ArrayList<>();
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+        if (packageCompilation.compilationOptions().optimizeCodegen()) {
+            this.optimizedJarStreams = new HashMap<>();
+            this.unusedPackageIDs = new HashSet<>();
+            this.unusedPackageIds = new HashSet<>();
+            this.unusedModuleIds = new HashSet<>();
+            this.pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
+        }
         performCodeGen(shrink);
     }
 
