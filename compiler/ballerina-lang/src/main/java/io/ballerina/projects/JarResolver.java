@@ -193,7 +193,8 @@ public class JarResolver {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
-        Set<String> usedNativeClassPaths = jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId());
+        Set<String> usedNativeClassPaths =
+                addOnlyUsedLibraries ? jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId()) : null;
         if (addProvidedJars) {
             providedPlatformLibs.addAll(otherJarDependencies);
         }
