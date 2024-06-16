@@ -293,7 +293,7 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             boolean readonlyField = fieldIsReadonly(fieldName);
             boolean optionalField = fieldIsOptional(fieldName);
             Optional<SemType> fieldType;
-            if (readonlyField) {
+            if (isReadOnly() || readonlyField) {
                 optionalField = false;
                 fieldType = Builder.shapeOf(cx, fieldValue);
             } else {
