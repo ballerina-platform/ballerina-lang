@@ -230,7 +230,7 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     }
 
     @Override
-    SemType createSemType(Context cx) {
+    synchronized SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
