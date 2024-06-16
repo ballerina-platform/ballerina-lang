@@ -255,9 +255,14 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
     @Override
     public final SemType get(Context cx) {
         if (cachedSemType == null) {
-            cachedSemType = createSemType(cx);
-            if (isReadOnly()) {
-                cachedSemType = Core.intersect(cachedSemType, READONLY_WITH_B_TYPE);
+            synchronized (this) {
+                if (cachedSemType != null) {
+                    return cachedSemType;
+                }
+                cachedSemType = createSemType(cx);
+                if (isReadOnly()) {
+                    cachedSemType = Core.intersect(cachedSemType, READONLY_WITH_B_TYPE);
+                }
             }
         }
         return cachedSemType;
