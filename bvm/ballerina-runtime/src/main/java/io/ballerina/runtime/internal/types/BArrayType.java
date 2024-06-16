@@ -219,7 +219,7 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
     }
 
     @Override
-    SemType createSemType(Context cx) {
+    synchronized SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
