@@ -40,7 +40,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType implements IntersectionType {
+public class BIntersectionType extends BType implements IntersectionType, TypeWithShape {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";
@@ -226,5 +226,14 @@ public class BIntersectionType extends BType implements IntersectionType {
             return semType;
         }
         return Builder.from(cx, effectiveType);
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, object);
+        }
+        return Optional.empty();
     }
 }
