@@ -1145,9 +1145,9 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangSimpleVarRef clone;
 
-        if (source instanceof BLangRecordVarNameField) {
+        if (source instanceof BLangRecordVarNameField recordVarNameField) {
             BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
-            clonedVarNameField.readonly = ((BLangRecordVarNameField) source).readonly;
+            clonedVarNameField.readonly = recordVarNameField.readonly;
             clone = clonedVarNameField;
         } else {
             clone = new BLangSimpleVarRef();

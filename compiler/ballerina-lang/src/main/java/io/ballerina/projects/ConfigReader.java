@@ -132,8 +132,9 @@ public class ConfigReader {
                     symbol = symbol.type.tsymbol;
                 }
                 if (symbol != null && symbol.tag == SymTag.VARIABLE
-                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) && symbol instanceof BVarSymbol) {
-                    configVars.add((BVarSymbol) symbol);
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) &&
+                        symbol instanceof BVarSymbol bVarSymbol) {
+                    configVars.add(bVarSymbol);
                 }
             }
         }
@@ -184,8 +185,8 @@ public class ConfigReader {
                                             if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
                                                 ExpressionNode valueNode =
                                                         ((SpecificFieldNode) fieldNode).valueExpr().get();
-                                                if (valueNode instanceof BasicLiteralNode) {
-                                                    return ((BasicLiteralNode) valueNode).literalToken().text();
+                                                if (valueNode instanceof BasicLiteralNode basicLiteralNode) {
+                                                    return basicLiteralNode.literalToken().text();
                                                 }
                                             }
                                         }

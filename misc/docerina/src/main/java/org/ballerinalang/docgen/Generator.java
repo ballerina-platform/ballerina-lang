@@ -138,10 +138,10 @@ public class Generator {
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         hasPublicConstructs = true;
                         BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
-                        if (cls instanceof Client) {
-                            module.clients.add((Client) cls);
-                        } else if (cls instanceof Listener) {
-                            module.listeners.add((Listener) cls);
+                        if (cls instanceof Client client) {
+                            module.clients.add(client);
+                        } else if (cls instanceof Listener listener) {
+                            module.listeners.add(listener);
                         } else {
                             module.classes.add(cls);
                         }
@@ -662,8 +662,8 @@ public class Generator {
                 }
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel, module);
-                if (originType instanceof ObjectType) {
-                    includedFunctions.addAll(mapFunctionTypesToFunctions(((ObjectType) originType).functionTypes,
+                if (originType instanceof ObjectType objectType) {
+                    includedFunctions.addAll(mapFunctionTypesToFunctions(objectType.functionTypes,
                             originType));
                 }
             }
@@ -944,16 +944,15 @@ public class Generator {
                 (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine).
-                            documentElements());
+                if (docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
                         break;
                     }
-                    doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                            getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
-                } else if (docLine instanceof MarkdownCodeBlockNode) {
-                    doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
+                    doc.append(!markdownDocLine.documentElements().isEmpty() ?
+                            getDocLineString(markdownDocLine.documentElements()) : "\n");
+                } else if (docLine instanceof MarkdownCodeBlockNode markdownCodeBlock) {
+                    doc.append(getDocCodeBlockString(markdownCodeBlock));
                 } else {
                     break;
                 }
@@ -974,18 +973,16 @@ public class Generator {
         if (docLines != null) {
             boolean lookForMoreLines = false;
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownParameterDocumentationLineNode) {
-                    if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
+                if (docLine instanceof MarkdownParameterDocumentationLineNode markdownParamDocLine) {
+                    if (markdownParamDocLine.parameterName().text()
                             .equals(parameterName)) {
-                        parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
-                                .documentElements()));
+                        parameterDoc.append(getDocLineString(markdownParamDocLine.documentElements()));
                         lookForMoreLines = true;
                     } else {
                         lookForMoreLines = false;
                     }
-                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
-                            .documentElements());
+                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
                         parameterDoc.append(docLineString);
                     } else {
@@ -1010,9 +1007,8 @@ public class Generator {
             StringBuilder sectionDoc = new StringBuilder();
             boolean lookForMoreLines = false;
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
-                            .documentElements());
+                if (docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
                         if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
                             sectionDoc = new StringBuilder();

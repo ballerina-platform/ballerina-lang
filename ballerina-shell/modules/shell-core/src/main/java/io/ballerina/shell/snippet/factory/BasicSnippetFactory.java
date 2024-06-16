@@ -142,8 +142,8 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
 
-        if (node instanceof ModuleVariableDeclarationNode) {
-            dclnNode = (ModuleVariableDeclarationNode) node;
+        if (node instanceof ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+            dclnNode = moduleVariableDeclarationNode;
         } else if (node instanceof VariableDeclarationNode varNode) {
             VariableDeclarationNode newNode = null;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
@@ -228,14 +228,14 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
 
-        if (node instanceof ModuleMemberDeclarationNode) {
+        if (node instanceof ModuleMemberDeclarationNode moduleMemberDeclarationNode) {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
             if (subKind.hasError()) {
                 addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
-                return new ModuleMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
+                return new ModuleMemberDeclarationSnippet(subKind, moduleMemberDeclarationNode);
             }
         }
         return null;
@@ -262,8 +262,8 @@ public class BasicSnippetFactory extends SnippetFactory {
 
     @Override
     public ExpressionSnippet createExpressionSnippet(Node node) {
-        if (node instanceof ExpressionNode) {
-            return new ExpressionSnippet((ExpressionNode) node);
+        if (node instanceof ExpressionNode expressionNode) {
+            return new ExpressionSnippet(expressionNode);
         }
         return null;
     }
@@ -275,11 +275,11 @@ public class BasicSnippetFactory extends SnippetFactory {
      * @return node contains isolated keyword or not.
      */
     private boolean containsIsolated(Node node) {
-        if (node instanceof ModuleVariableDeclarationNode) {
-            NodeList<Token> nodeList = ((ModuleVariableDeclarationNode) node).qualifiers();
+        if (node instanceof ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+            NodeList<Token> nodeList = moduleVariableDeclarationNode.qualifiers();
              return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
-        } else if (node instanceof FunctionDefinitionNode) {
-            NodeList<Token> nodeList = ((FunctionDefinitionNode) node).qualifierList();
+        } else if (node instanceof FunctionDefinitionNode functionDefinitionNode) {
+            NodeList<Token> nodeList = functionDefinitionNode.qualifierList();
             return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
         }
 

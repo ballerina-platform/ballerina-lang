@@ -40,8 +40,8 @@ public class BByte extends BSimpleVariable {
             // inclusive. It is equivalent to the built-in subtype int:Unsigned8.
             // Since JDI represents byte values as signed values by default, we need to explicitly converts them to
             // unsigned values in here.
-            if (jvmValue instanceof ByteValue) {
-                byte signedByteValue = ((ByteValue) jvmValue).byteValue();
+            if (jvmValue instanceof ByteValue byteValue) {
+                byte signedByteValue = byteValue.byteValue();
                 int unsignedValue = signedByteValue & 0xFF;
                 return String.valueOf(unsignedValue);
             }

@@ -154,8 +154,8 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                if (symbol.get() instanceof TypeReferenceTypeSymbol &&
-                        !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
+                if (symbol.get() instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol &&
+                        !Type.isPublic(typeReferenceTypeSymbol.definition())) {
                     type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false, module);
                 } else {
                     resolveSymbolMetaData(type, symbol.get(), module);
@@ -176,8 +176,8 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                if (symbol.get() instanceof TypeReferenceTypeSymbol &&
-                        !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
+                if (symbol.get() instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol &&
+                        !Type.isPublic(typeReferenceTypeSymbol.definition())) {
                     type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false, module);
                 } else {
                     resolveSymbolMetaData(type, symbol.get(), module);
@@ -339,13 +339,13 @@ public class Type {
             if (!typeReferenceTypeSymbol.equals(parentTypeRefSymbol) &&
                     (!Type.isPublic(typeReferenceTypeSymbol.definition()) || isTypeInclusion)) {
                 // Further process type details
-                if (typeDefinition instanceof TypeDefinitionSymbol) {
+                if (typeDefinition instanceof TypeDefinitionSymbol typeDefinitionSymbol) {
                     type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(),
-                            ((TypeDefinitionSymbol) typeDefinition).documentation(), typeReferenceTypeSymbol,
+                            typeDefinitionSymbol.documentation(), typeReferenceTypeSymbol,
                             false, module);
-                } else if (typeDefinition instanceof ClassSymbol) {
+                } else if (typeDefinition instanceof ClassSymbol classSymbol) {
                     type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(),
-                            ((ClassSymbol) typeDefinition).documentation(), typeReferenceTypeSymbol,
+                            classSymbol.documentation(), typeReferenceTypeSymbol,
                             false, module);
                 }
             }
@@ -469,9 +469,9 @@ public class Type {
             type.arrayDimensions = 1;
             type.elementType = fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), documentation,
                     parentTypeRefSymbol, isTypeInclusion, module);
-        } else if (symbol instanceof TypeSymbol) {
+        } else if (symbol instanceof TypeSymbol typeSymbol) {
             type.category = "builtin";
-            type.name = ((TypeSymbol) symbol).signature();
+            type.name = typeSymbol.signature();
         }
         return type;
     }

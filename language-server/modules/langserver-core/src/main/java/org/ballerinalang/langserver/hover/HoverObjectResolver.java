@@ -94,8 +94,8 @@ public class HoverObjectResolver {
             case PARAMETER:
                 return getHoverObjectForSymbol((ParameterSymbol) symbol);
             case TYPE:
-                if (symbol instanceof TypeReferenceTypeSymbol) {
-                    return getHoverObjectForSymbol(((TypeReferenceTypeSymbol) symbol).definition());
+                if (symbol instanceof TypeReferenceTypeSymbol refTypeSymbol) {
+                    return getHoverObjectForSymbol(refTypeSymbol.definition());
                 }
                 return HoverUtil.getHoverObject();
             default:

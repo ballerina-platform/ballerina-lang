@@ -49,8 +49,8 @@ public class RegExpCharSet extends RegExpCommonValue {
         Object[] atoms = new Object[size];
         for (int i = 0; i < size; i++) {
             Object atom = charSetAtoms.get(i);
-            if (atom instanceof BString) {
-                atoms[i] = ((BString) atom).getValue();
+            if (atom instanceof BString bString) {
+                atoms[i] = bString.getValue();
                 continue;
             }
             atoms[i] = atom;

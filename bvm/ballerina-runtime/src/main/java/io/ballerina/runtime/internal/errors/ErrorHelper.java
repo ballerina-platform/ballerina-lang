@@ -97,10 +97,10 @@ public class ErrorHelper {
     }
 
     private static boolean isBErrorWithMessageDetail(Throwable e) {
-        if (!(e instanceof BError)) {
+        if (!(e instanceof BError error)) {
             return false;
         }
-        return hasMessageDetail((BError) e);
+        return hasMessageDetail(error);
     }
 
     public static boolean hasMessageDetail(BError bError) {

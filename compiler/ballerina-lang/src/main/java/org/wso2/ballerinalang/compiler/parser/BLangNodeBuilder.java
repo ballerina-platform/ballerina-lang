@@ -6129,10 +6129,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String originalValue = null;
 
         String textValue;
-        if (literal instanceof BasicLiteralNode) {
-            textValue = ((BasicLiteralNode) literal).literalToken().text();
-        } else if (literal instanceof Token) {
-            textValue = ((Token) literal).text();
+        if (literal instanceof BasicLiteralNode basicLiteralNode) {
+            textValue = basicLiteralNode.literalToken().text();
+        } else if (literal instanceof Token token) {
+            textValue = token.text();
         } else {
             textValue = "";
         }
@@ -6912,8 +6912,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private boolean withinByteRange(Object num) {
-        if (num instanceof Long) {
-            return (Long) num <= 255 && (Long) num >= 0;
+        if (num instanceof Long l) {
+            return l <= 255 && l >= 0;
         }
         return false;
     }

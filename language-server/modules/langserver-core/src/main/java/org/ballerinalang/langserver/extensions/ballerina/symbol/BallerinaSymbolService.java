@@ -234,8 +234,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         .orElseThrow();
                 LinePosition fnPosition = request.getFnPosition();
                 Symbol fnSymbol = semanticModel.symbol(document, fnPosition).orElseThrow();
-                if (fnSymbol instanceof FunctionSymbol) {
-                    FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
+                if (fnSymbol instanceof FunctionSymbol functionSymbol) {
+                    FunctionTypeSymbol fnTypeSymbol = functionSymbol.typeDescriptor();
 
                     Optional<ResolvedTypeForSymbol> returnType =
                             getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());

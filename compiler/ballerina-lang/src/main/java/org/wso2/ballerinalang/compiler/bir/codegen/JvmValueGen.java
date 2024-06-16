@@ -153,8 +153,8 @@ public class JvmValueGen {
     private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
-                if (birFunc instanceof JMethodBIRFunction) {
-                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
+                if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
+                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();

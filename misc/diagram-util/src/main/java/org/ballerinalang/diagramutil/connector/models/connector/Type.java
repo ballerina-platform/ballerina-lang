@@ -353,8 +353,8 @@ public class Type {
             }
         } else if (symbol instanceof VariableSymbol variableSymbol) {
             type = fromSemanticSymbol(variableSymbol.typeDescriptor());
-        } else if (symbol instanceof TypeSymbol) {
-            String typeName = ((TypeSymbol) symbol).signature();
+        } else if (symbol instanceof TypeSymbol typeSymbol) {
+            String typeName = typeSymbol.signature();
             if (typeName.startsWith("\"") && typeName.endsWith("\"")) {
                 typeName = typeName.substring(1, typeName.length() - 1);
             }
@@ -368,15 +368,15 @@ public class Type {
         if (visitedType.isCompleted()) {
             Type existingType = visitedType.getTypeNode();
             if (getClone) {
-                if (existingType instanceof UnionType) {
-                    return new UnionType((UnionType) existingType);
+                if (existingType instanceof UnionType unionType) {
+                    return new UnionType(unionType);
                 }
                 return new Type(existingType.getName(), existingType.getTypeName(), existingType.isOptional(),
                         existingType.getTypeInfo(), existingType.isDefaultable(), existingType.getDefaultValue(),
                         existingType.getDisplayAnnotation(), existingType.getDocumentation());
             }
-            if (existingType instanceof RecordType) {
-                return new RecordType((RecordType) existingType);
+            if (existingType instanceof RecordType recordType) {
+                return new RecordType(recordType);
             }
             return existingType;
         } else {

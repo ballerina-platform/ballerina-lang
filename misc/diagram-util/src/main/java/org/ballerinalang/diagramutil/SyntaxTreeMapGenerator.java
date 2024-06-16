@@ -584,9 +584,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 throw new JSONGenerationException("Error occurred while generating JSON", e);
             }
 
-            if (prop instanceof Symbol) {
+            if (prop instanceof Symbol symbolProp) {
                 if (!jsonName.equals("typeDescriptor")) {
-                    nodeJson.add(jsonName, generateTypeJson((Symbol) prop));
+                    nodeJson.add(jsonName, generateTypeJson(symbolProp));
                 }
                 // TODO: verify if this is needed and enable (need to add to the nodeJson as well)
 //            } else if (prop instanceof List) {
@@ -601,9 +601,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                        listPropJson.add((Boolean) listPropItem);
 //                    }
 //                }
-            } else if (prop instanceof Optional &&
-                    ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
-                ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
+            } else if (prop instanceof Optional<?> optionalProp &&
+                    optionalProp.isPresent() && optionalProp.get() instanceof ModuleSymbol moduleSymbol) {
+                ModuleID ballerinaModuleID = moduleSymbol.id();
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
                 moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());
@@ -617,14 +617,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add(jsonName, moduleIdJson);
-            } else if (prop instanceof TypeDescKind) {
-                nodeJson.addProperty(jsonName, ((TypeDescKind) prop).getName());
-            } else if (prop instanceof io.ballerina.compiler.api.symbols.SymbolKind) {
-                nodeJson.addProperty(jsonName, ((io.ballerina.compiler.api.symbols.SymbolKind) prop).name());
-            } else if (prop instanceof String) {
-                nodeJson.addProperty(jsonName, (String) prop);
-            } else if (prop instanceof Boolean) {
-                nodeJson.addProperty(jsonName, (Boolean) prop);
+            } else if (prop instanceof TypeDescKind typeDescKind) {
+                nodeJson.addProperty(jsonName, typeDescKind.getName());
+            } else if (prop instanceof io.ballerina.compiler.api.symbols.SymbolKind symbolKind) {
+                nodeJson.addProperty(jsonName, symbolKind.name());
+            } else if (prop instanceof String s) {
+                nodeJson.addProperty(jsonName, s);
+            } else if (prop instanceof Boolean b) {
+                nodeJson.addProperty(jsonName, b);
             }
         }
 
@@ -634,9 +634,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private JsonElement apply(Node node) {
         JsonObject nodeInfo = new JsonObject();
         nodeInfo.addProperty("kind", prettifyKind(node.kind().toString()));
-        if (node instanceof Token) {
+        if (node instanceof Token token) {
             nodeInfo.addProperty("isToken", true);
-            nodeInfo.addProperty("value", ((Token) node).text());
+            nodeInfo.addProperty("value", token.text());
             nodeInfo.addProperty("isMissing", node.isMissing());
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();

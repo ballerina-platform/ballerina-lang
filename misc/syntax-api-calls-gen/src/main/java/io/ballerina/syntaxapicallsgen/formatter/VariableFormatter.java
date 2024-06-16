@@ -51,9 +51,9 @@ public class VariableFormatter extends SegmentFormatter {
 
     @Override
     public String format(Segment segment) {
-        if (segment instanceof NodeFactorySegment) {
+        if (segment instanceof NodeFactorySegment nodeFactorySegment) {
             variableCount = new HashMap<>();
-            return MINUTIAE_LIST_DEF + processNode((NodeFactorySegment) segment);
+            return MINUTIAE_LIST_DEF + processNode(nodeFactorySegment);
         }
         throw new SyntaxApiCallsGenException("Expected a valid node segment but fount parsed segment of " + segment);
     }

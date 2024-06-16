@@ -177,9 +177,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             if (parameters != null) {
                 addParamListToString(parameters, stringRep);
             }
-            if (restType instanceof BArrayType) {
+            if (restType instanceof BArrayType bArrayType) {
                 stringRep.append(",");
-                stringRep.append(((BArrayType) restType).getElementType().toString());
+                stringRep.append(bArrayType.getElementType().toString());
                 stringRep.append("...");
             }
             stringRep.append(")");

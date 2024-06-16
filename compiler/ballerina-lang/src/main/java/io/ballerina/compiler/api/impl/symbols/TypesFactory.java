@@ -173,8 +173,8 @@ public class TypesFactory {
             case BYTE:
                 return new BallerinaByteTypeSymbol(this.context, bType);
             case INT:
-                if (bType instanceof BIntSubType) {
-                    return createIntSubType((BIntSubType) bType);
+                if (bType instanceof BIntSubType intSubType) {
+                    return createIntSubType(intSubType);
                 }
                 return new BallerinaIntTypeSymbol(this.context, bType);
             case FLOAT:
@@ -182,15 +182,15 @@ public class TypesFactory {
             case DECIMAL:
                 return new BallerinaDecimalTypeSymbol(this.context, bType);
             case STRING:
-                if (bType instanceof BStringSubType) {
-                    return new BallerinaStringCharTypeSymbol(this.context, (BStringSubType) bType);
+                if (bType instanceof BStringSubType stringSubType) {
+                    return new BallerinaStringCharTypeSymbol(this.context, stringSubType);
                 }
                 return new BallerinaStringTypeSymbol(this.context, bType);
             case ANY:
                 return new BallerinaAnyTypeSymbol(this.context, (BAnyType) bType);
             case ANYDATA:
-                if (bType instanceof BRegexpType) {
-                    return new BallerinaRegexpTypeSymbol(this.context, (BRegexpType) bType);
+                if (bType instanceof BRegexpType regexpType) {
+                    return new BallerinaRegexpTypeSymbol(this.context, regexpType);
                 }
                 return new BallerinaAnydataTypeSymbol(this.context, (BAnydataType) bType);
             case HANDLE:
@@ -202,8 +202,8 @@ public class TypesFactory {
             case TABLE:
                 return new BallerinaTableTypeSymbol(this.context, (BTableType) bType);
             case XML:
-                if (bType instanceof BXMLSubType) {
-                    return createXMLSubType((BXMLSubType) bType);
+                if (bType instanceof BXMLSubType subType) {
+                    return createXMLSubType(subType);
                 }
                 return new BallerinaXMLTypeSymbol(this.context, (BXMLType) bType);
             case OBJECT:

@@ -63,8 +63,8 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
             // If the type is a union, resolves sub types recursively.
             resolvedTypes.addAll(resolve(unionTypeDesc.leftTypeDesc()));
             resolvedTypes.addAll(resolve(unionTypeDesc.rightTypeDesc()));
-        } else if (typeDescriptor instanceof ArrayTypeDescriptorNode) {
-            Value elementType = resolveSingleType(((ArrayTypeDescriptorNode) typeDescriptor).memberTypeDesc());
+        } else if (typeDescriptor instanceof ArrayTypeDescriptorNode arrayTypeDesc) {
+            Value elementType = resolveSingleType(arrayTypeDesc.memberTypeDesc());
             resolvedTypes.add(createBArrayType(elementType));
         } else {
             resolvedTypes.add(resolveSingleType(typeDescriptor));

@@ -37,8 +37,8 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof FullHttpResponse) {
-            this.fullHttpResponses.add((FullHttpResponse) msg);
+        if (msg instanceof FullHttpResponse httpResponse) {
+            this.fullHttpResponses.add(httpResponse);
             if (latch != null) {
                 latch.countDown();
             }

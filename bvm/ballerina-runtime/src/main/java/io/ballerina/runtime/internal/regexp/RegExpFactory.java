@@ -162,10 +162,10 @@ public class RegExpFactory {
                 continue;
             }
             Object reAtom = atomQuantifier.getReAtom();
-            if (reAtom instanceof RegExpLiteralCharOrEscape) {
-                atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
-            } else if (reAtom instanceof RegExpCharacterClass) {
-                atomQuantifier.setReAtom(translateCharacterClass((RegExpCharacterClass) reAtom));
+            if (reAtom instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+                atomQuantifier.setReAtom(translateLiteralCharOrEscape(regExpLiteralCharOrEscape));
+            } else if (reAtom instanceof RegExpCharacterClass regExpCharacterClass) {
+                atomQuantifier.setReAtom(translateCharacterClass(regExpCharacterClass));
             }
         }
     }
@@ -217,10 +217,10 @@ public class RegExpFactory {
     }
 
     private static Object translateVisitor(Object node) {
-        if (node instanceof RegExpLiteralCharOrEscape) {
-            return translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) node);
-        } else if (node instanceof String) {
-            return translateCharInCharacterClass((String) node);
+        if (node instanceof RegExpLiteralCharOrEscape regExpLiteralCharOrEscape) {
+            return translateLiteralCharOrEscape(regExpLiteralCharOrEscape);
+        } else if (node instanceof String s) {
+            return translateCharInCharacterClass(s);
         }
         return node;
     }

@@ -3371,7 +3371,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, long symTag, SymbolEnv currentEnv) {
         BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
         if (symbol != symTable.notFoundSymbol &&
-                (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
+                (!(symbol instanceof BVarSymbol bVarSymbol) || bVarSymbol.originalSymbol == null)) {
             return false;
         }
 

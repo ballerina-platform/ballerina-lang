@@ -104,9 +104,9 @@ public class BTuple extends IndexedCompoundVariable {
             List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();
             StringJoiner tupleTypes = new StringJoiner(",");
             subValues.forEach(ref -> {
-                if (ref instanceof ObjectReference) {
-                    Field typeNameField = ((ObjectReference) ref).referenceType().fieldByName("typeName");
-                    Value typeNameRef = ((ObjectReference) ref).getValue(typeNameField);
+                if (ref instanceof ObjectReference objectRef) {
+                    Field typeNameField = objectRef.referenceType().fieldByName("typeName");
+                    Value typeNameRef = objectRef.getValue(typeNameField);
                     tupleTypes.add(getStringFrom(typeNameRef));
                 }
             });

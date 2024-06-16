@@ -99,9 +99,8 @@ public class JDIEventProcessor {
     }
 
     private void processEvent(EventSet eventSet, Event event) {
-        if (event instanceof ClassPrepareEvent) {
+        if (event instanceof ClassPrepareEvent evt) {
             if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
-                ClassPrepareEvent evt = (ClassPrepareEvent) event;
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -215,10 +214,10 @@ public class JDIEventProcessor {
      * Notifies DAP client that the remote VM is stopped due to a breakpoint hit / step event.
      */
     void notifyStopEvent(Event event) {
-        if (event instanceof BreakpointEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, ((BreakpointEvent) event).thread().uniqueID());
-        } else if (event instanceof StepEvent) {
-            notifyStopEvent(StoppedEventArgumentsReason.STEP, ((StepEvent) event).thread().uniqueID());
+        if (event instanceof BreakpointEvent breakpointEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.BREAKPOINT, breakpointEvent.thread().uniqueID());
+        } else if (event instanceof StepEvent stepEvent) {
+            notifyStopEvent(StoppedEventArgumentsReason.STEP, stepEvent.thread().uniqueID());
         }
     }
 

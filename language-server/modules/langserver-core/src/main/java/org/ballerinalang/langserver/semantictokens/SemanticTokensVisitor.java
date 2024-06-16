@@ -145,8 +145,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
 
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         Node functionName = functionCallExpressionNode.functionName();
-        if (functionName instanceof QualifiedNameReferenceNode) {
-            functionName = ((QualifiedNameReferenceNode) functionName).identifier();
+        if (functionName instanceof QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+            functionName = qualifiedNameReferenceNode.identifier();
         }
         this.addSemanticToken(functionName, TokenTypes.FUNCTION.getId(), 0, false, -1, -1);
         visitSyntaxNode(functionCallExpressionNode);
@@ -263,8 +263,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 case TYPE_DEFINITION:
                     Node node = markdownParameterDocumentationLineNode.parent().parent().parent();
                     type = TokenTypes.TYPE_PARAMETER.getId();
-                    if (node instanceof TypeDefinitionNode) {
-                        SyntaxKind kind = ((TypeDefinitionNode) node).typeDescriptor().kind();
+                    if (node instanceof TypeDefinitionNode typeDefinitionNode) {
+                        SyntaxKind kind = typeDefinitionNode.typeDescriptor().kind();
                         if (kind == SyntaxKind.OBJECT_TYPE_DESC || kind == SyntaxKind.RECORD_TYPE_DESC) {
                             type = TokenTypes.PROPERTY.getId();
                         }

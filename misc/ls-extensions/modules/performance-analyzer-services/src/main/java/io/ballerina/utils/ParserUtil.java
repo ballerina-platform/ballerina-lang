@@ -82,8 +82,8 @@ public class ParserUtil {
     public static boolean isURLAttrFromConfig(BLangRecordLiteral.RecordField recordField) {
 
         if (recordField instanceof BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
-            if (recordKeyValue.key.expr instanceof BLangSimpleVarRef) {
-                String recordValue = ((BLangSimpleVarRef) recordKeyValue.key.expr).variableName.value;
+            if (recordKeyValue.key.expr instanceof BLangSimpleVarRef simpleVarRef) {
+                String recordValue = simpleVarRef.variableName.value;
                 return recordValue != null && recordValue.toLowerCase(Locale.ENGLISH).contains(CONFIG_URL_KEY);
             }
         }
@@ -104,8 +104,8 @@ public class ParserUtil {
 
     private static BType isClientType(BType type) {
 
-        if (type instanceof BUnionType) {
-            for (BType bType : ((BUnionType) type).getMemberTypes()) {
+        if (type instanceof BUnionType bUnionType) {
+            for (BType bType : bUnionType.getMemberTypes()) {
                 if (bType.tsymbol != null && SymbolKind.OBJECT.equals(bType.tsymbol.kind) &&
                         (bType.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
                     return bType;
@@ -123,8 +123,8 @@ public class ParserUtil {
     public static BLangExpression getURLExpressionFromArgs(BLangTypeInit connectorInitExpr) {
 
         BSymbol bSymbol = ((BLangInvocation) connectorInitExpr.initInvocation).symbol;
-        if (bSymbol instanceof BInvokableSymbol) {
-            List<BVarSymbol> params = ((BInvokableSymbol) bSymbol).getParameters();
+        if (bSymbol instanceof BInvokableSymbol bInvokableSymbol) {
+            List<BVarSymbol> params = bInvokableSymbol.getParameters();
             for (int i = 0; i < params.size(); i++) {
                 if (connectorInitExpr.argsExpr.size() > i &&
                         (CLIENT_URL_ATTR_NAME.equals(params.get(i).name.value.toLowerCase(Locale.ENGLISH))
@@ -140,8 +140,8 @@ public class ParserUtil {
 
         BSymbol bSymbol = actionInvocation.symbol;
         if (bSymbol != null) {
-            if (bSymbol instanceof BInvokableSymbol) {
-                List<BVarSymbol> params = ((BInvokableSymbol) bSymbol).getParameters();
+            if (bSymbol instanceof BInvokableSymbol bInvokableSymbol) {
+                List<BVarSymbol> params = bInvokableSymbol.getParameters();
                 for (int i = 0; i < params.size(); i++) {
                     if (actionInvocation.argExprs.size() > i &&
                             (ACTION_PATH_ATTR_NAME.equals(params.get(i).name.value.toLowerCase(Locale.ENGLISH)))) {

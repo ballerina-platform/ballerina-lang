@@ -75,8 +75,8 @@ public class ModuleMemberTrial extends TreeParserTrial {
     }
 
     private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) {
-        if (declarationNode instanceof FunctionDefinitionNode) {
-            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
+        if (declarationNode instanceof FunctionDefinitionNode functionDefinitionNode) {
+            String functionName = functionDefinitionNode.functionName().text();
             if (ParserConstants.isFunctionNameRestricted(functionName)) {
                 String message = "Function name " + "'" + functionName + "'" + " not allowed in Ballerina Shell.\n";
                 throw new InvalidMethodException(message);

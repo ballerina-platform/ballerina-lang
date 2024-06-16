@@ -260,8 +260,8 @@ public class ErrorValue extends BError implements RefValue {
      * @return detail record
      */
     public Object getDetails() {
-        if (details instanceof BRefValue) {
-            return ((BRefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue bRefValue) {
+            return bRefValue.frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -399,7 +399,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
+        return (details instanceof MapValue<?, ?> mapValue) && mapValue.isEmpty();
     }
 
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {

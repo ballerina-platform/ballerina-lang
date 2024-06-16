@@ -113,8 +113,8 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
             return symTable.noType;
         }
 
-        if (typeSymbol instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         return symTable.anyType;

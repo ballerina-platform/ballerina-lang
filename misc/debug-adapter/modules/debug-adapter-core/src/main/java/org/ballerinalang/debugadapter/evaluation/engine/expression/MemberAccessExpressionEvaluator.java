@@ -184,20 +184,20 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
 
                     try {
                         Value child;
-                        if (containerVar instanceof BXmlItem) {
-                            Value childrenValue = ((BXmlItem) containerVar).getChildByName(FIELD_CHILDREN);
+                        if (containerVar instanceof BXmlItem xmlItem) {
+                            Value childrenValue = xmlItem.getChildByName(FIELD_CHILDREN);
                             BVariable childrenVar = VariableFactory.getVariable(context, childrenValue);
-                            if (childrenVar instanceof IndexedCompoundVariable) {
-                                child = ((IndexedCompoundVariable) childrenVar).getChildByIndex(index);
-                            } else if (childrenVar instanceof NamedCompoundVariable) {
-                                child = ((NamedCompoundVariable) childrenVar).getChildByName(String.valueOf(index));
+                            if (childrenVar instanceof IndexedCompoundVariable indexedCompoundVariable) {
+                                child = indexedCompoundVariable.getChildByIndex(index);
+                            } else if (childrenVar instanceof NamedCompoundVariable namedCompoundVariable) {
+                                child = namedCompoundVariable.getChildByName(String.valueOf(index));
                             } else {
                                 child = containerVar.getJvmValue();
                             }
-                        } else if (containerVar instanceof IndexedCompoundVariable) {
-                            child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
-                        } else if (containerVar instanceof NamedCompoundVariable) {
-                            child = ((NamedCompoundVariable) containerVar).getChildByName(String.valueOf(index));
+                        } else if (containerVar instanceof IndexedCompoundVariable indexedCompoundVariable) {
+                            child = indexedCompoundVariable.getChildByIndex(index);
+                        } else if (containerVar instanceof NamedCompoundVariable namedCompoundVariable) {
+                            child = namedCompoundVariable.getChildByName(String.valueOf(index));
                         } else {
                             child = containerVar.getJvmValue();
                         }
@@ -225,14 +225,14 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
      */
     private int getXmlChildVarCount(BVariable containerVar) {
         try {
-            if (containerVar instanceof BXmlItem) {
-                Value childrenValue = ((BXmlItem) containerVar).getChildByName(FIELD_CHILDREN);
+            if (containerVar instanceof BXmlItem xmlItem) {
+                Value childrenValue = xmlItem.getChildByName(FIELD_CHILDREN);
                 BVariable childrenVar = VariableFactory.getVariable(context, childrenValue);
-                return childrenVar instanceof BCompoundVariable ?
-                        ((BCompoundVariable) childrenVar).getChildrenCount() : 1;
+                return childrenVar instanceof BCompoundVariable bCompoundVariable ?
+                        bCompoundVariable.getChildrenCount() : 1;
             } else {
-                return containerVar instanceof BCompoundVariable ?
-                        ((BCompoundVariable) containerVar).getChildrenCount() : 1;
+                return containerVar instanceof BCompoundVariable bCompoundVariable ?
+                        bCompoundVariable.getChildrenCount() : 1;
             }
         } catch (DebugVariableException e) {
             return 1;

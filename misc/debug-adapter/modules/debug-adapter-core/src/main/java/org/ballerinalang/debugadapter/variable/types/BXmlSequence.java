@@ -82,8 +82,8 @@ public class BXmlSequence extends IndexedCompoundVariable {
             getXmlChildrenInRange.setArgValues(argValues);
             Value childArray = getXmlChildrenInRange.invokeSafely();
 
-            if (childArray instanceof ArrayReference) {
-                childValues = ((ArrayReference) childArray).getValues();
+            if (childArray instanceof ArrayReference arrayReference) {
+                childValues = arrayReference.getValues();
             }
             return Either.forRight(childValues);
         } catch (Exception e) {
@@ -111,10 +111,10 @@ public class BXmlSequence extends IndexedCompoundVariable {
             getSizeMethod.setArgValues(new ArrayList<>());
             Value getSizeResult = getSizeMethod.invokeSafely();
 
-            if (getSizeResult instanceof IntegerValue) {
-                childrenCount = ((IntegerValue) getSizeResult).intValue();
-            } else if (getSizeResult instanceof LongValue) {
-                childrenCount = ((LongValue) getSizeResult).intValue();
+            if (getSizeResult instanceof IntegerValue integerValue) {
+                childrenCount = integerValue.intValue();
+            } else if (getSizeResult instanceof LongValue longValue) {
+                childrenCount = longValue.intValue();
             } else {
                 childrenCount = 0;
             }

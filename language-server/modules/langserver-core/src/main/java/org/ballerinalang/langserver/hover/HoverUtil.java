@@ -200,11 +200,11 @@ public class HoverUtil {
      * @return {@link Hover}
      */
     public static Hover getDescriptionOnlyHoverObject(Symbol symbol) {
-        if (!(symbol instanceof Documentable) || ((Documentable) symbol).documentation().isEmpty()) {
+        if (!(symbol instanceof Documentable documentable) || documentable.documentation().isEmpty()) {
             return HoverUtil.getHoverObject("");
         }
 
-        return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
+        return getDescriptionOnlyHoverObject(documentable.documentation().get());
     }
 
     /**
