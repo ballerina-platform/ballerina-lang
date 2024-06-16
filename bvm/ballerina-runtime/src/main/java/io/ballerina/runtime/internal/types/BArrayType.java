@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -35,6 +36,9 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
+
+import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -47,7 +51,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType implements ArrayType, PartialSemTypeSupplier {
+public class BArrayType extends BType implements ArrayType, PartialSemTypeSupplier, TypeWithShape {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -244,7 +248,7 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
             return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
         } else {
             SemType[] initial = {elementType};
-            return defn.defineListTypeWrapped(env, initial, size, Builder.neverType(), mut);
+            return defn.defineListTypeWrapped(env, initial, size, neverType(), mut);
         }
     }
 
@@ -252,5 +256,26 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
     public void resetSemTypeCache() {
         super.resetSemTypeCache();
         defn = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(get(cx));
+        }
+        BArray value = (BArray) object;
+        int size = value.size();
+        SemType[] memberTypes = new SemType[size];
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = Builder.shapeOf(cx, value.get(i));
+            if (memberType.isEmpty()) {
+                return Optional.empty();
+            }
+            memberTypes[i] = memberType.get();
+        }
+        ListDefinition ld = new ListDefinition();
+        // TODO: cache this in the array value
+        return Optional.of(
+                ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
     }
 }
