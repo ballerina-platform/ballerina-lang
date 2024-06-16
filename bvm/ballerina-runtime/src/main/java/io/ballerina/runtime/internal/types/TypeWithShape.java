@@ -22,7 +22,9 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.Optional;
+
 public interface TypeWithShape {
 
-    SemType shapeOf(Context cx, Object object);
+    Optional<SemType> shapeOf(Context cx, Object object);
 }
