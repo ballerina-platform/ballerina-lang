@@ -2012,7 +2012,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
+                Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BObjectType objectType = (BObjectType) getImpliedType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation(objectType);
@@ -2035,7 +2035,7 @@ public class Types {
         }
         
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
+                Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) getImpliedType(iteratorSymbol.retType));
         bLangInputClause.resultType = getRecordType(nextMethodReturnType);
@@ -4229,7 +4229,7 @@ public class Types {
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 finiteType.tsymbol.pkgID, null,
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
@@ -5662,7 +5662,7 @@ public class Types {
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                                 env.enclPkg.packageID, null,
                                                                                 env.scope.owner, null, VIRTUAL);
-        recordSymbol.name = names.fromString(
+        recordSymbol.name = Names.fromString(
                 anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -5699,7 +5699,7 @@ public class Types {
 
     public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, names.fromString(name),
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, Names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
@@ -5894,7 +5894,7 @@ public class Types {
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);

@@ -374,7 +374,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         BType listenerType = null;
         if (!resParamTypes.expectedListenerType().name().isEmpty() && !resParamTypes.expectedListenerType()
                 .packageName().isEmpty()) {
-            Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
+            Name listenerName = Names.fromString(resParamTypes.expectedListenerType().name());
             String packageQName =
                     resParamTypes.expectedListenerType().orgName() + "/" + resParamTypes.expectedListenerType()
                             .packageName();
