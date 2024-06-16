@@ -285,6 +285,10 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     @Override
     public Optional<SemType> shapeOf(Context cx, Object object) {
         BMap value = (BMap) object;
+        SemType cachedSemType = value.shapeOf();
+        if (cachedSemType != null) {
+            return Optional.of(cachedSemType);
+        }
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
@@ -337,6 +341,7 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             }
             semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
         }
+        value.cacheShape(semTypePart);
         return Optional.of(semTypePart);
     }
 

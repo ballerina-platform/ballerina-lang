@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -100,6 +101,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private Type referredType;
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
+    private SemType shape;
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -721,5 +723,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
+    }
+
+    @Override
+    public void cacheShape(SemType semType) {
+        shape = semType;
+    }
+
+    @Override
+    public SemType shapeOf() {
+        return shape;
     }
 }

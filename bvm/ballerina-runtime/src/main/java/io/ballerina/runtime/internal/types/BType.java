@@ -52,7 +52,7 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
-    SemType cachedSemType = null;
+    private volatile SemType cachedSemType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -254,17 +254,19 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
 
     @Override
     public final SemType get(Context cx) {
-        if (cachedSemType == null) {
+        SemType semType = cachedSemType;
+        if (semType == null) {
             synchronized (this) {
-                if (cachedSemType != null) {
-                    return cachedSemType;
-                }
-                cachedSemType = createSemType(cx);
-                if (isReadOnly()) {
-                    cachedSemType = Core.intersect(cachedSemType, READONLY_WITH_B_TYPE);
+                semType = cachedSemType;
+                if (semType == null) {
+                    semType = createSemType(cx);
+                    if (isReadOnly()) {
+                        semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
+                    }
+                    cachedSemType = semType;
                 }
             }
         }
-        return cachedSemType;
+        return semType;
     }
 }
