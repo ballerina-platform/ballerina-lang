@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
@@ -48,7 +49,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType implements MapType, PartialSemTypeSupplier {
+public class BMapType extends BType implements MapType, PartialSemTypeSupplier, TypeWithShape {
 
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
@@ -201,6 +202,11 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier {
     public void resetSemTypeCache() {
         super.resetSemTypeCache();
         defn = null;
+    }
+
+    @Override
+    public SemType shapeOf(Context cx, Object object) {
+        return get(cx);
     }
 
     private SemType getSemTypePart(SemType restType) {

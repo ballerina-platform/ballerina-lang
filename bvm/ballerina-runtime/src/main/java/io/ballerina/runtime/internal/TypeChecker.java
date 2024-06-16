@@ -284,7 +284,7 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = Builder.from(cx, getType(sourceVal));
-        return switch (isSubTypeInner(sourceVal, sourceSemType, targetSemType)) {
+        return switch (isSubTypeInner(cx, sourceVal, sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
             case MAYBE -> FallbackTypeChecker.checkIsType(null, sourceVal, bTypePart(sourceSemType),
@@ -567,7 +567,7 @@ public final class TypeChecker {
         if (result != TypeCheckResult.FALSE || !source.isReadOnly()) {
             return result;
         }
-        return isSubTypeImmutableValue(sourceValue, Builder.from(cx, target));
+        return isSubTypeImmutableValue(cx, sourceValue, Builder.from(cx, target));
     }
 
     private static TypeCheckResult isSubType(Context cx, Type source, Type target) {
@@ -580,17 +580,17 @@ public final class TypeChecker {
         return isSubTypeInner(Builder.from(cx, source), Builder.from(cx, target));
     }
 
-    private static TypeCheckResult isSubTypeInner(Object sourceValue, SemType source, SemType target) {
+    private static TypeCheckResult isSubTypeInner(Context cx, Object sourceValue, SemType source, SemType target) {
         TypeCheckResult result = isSubTypeInner(source, target);
         if (result != TypeCheckResult.FALSE ||
                 !Core.isSubType(context(), Core.intersect(source, SEMTYPE_TOP), Builder.readonlyType())) {
             return result;
         }
-        return isSubTypeImmutableValue(sourceValue, target);
+        return isSubTypeImmutableValue(cx, sourceValue, target);
     }
 
-    private static TypeCheckResult isSubTypeImmutableValue(Object sourceValue, SemType target) {
-        Optional<SemType> sourceSingletonType = Builder.typeOf(sourceValue);
+    private static TypeCheckResult isSubTypeImmutableValue(Context cx, Object sourceValue, SemType target) {
+        Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
         if (sourceSingletonType.isEmpty()) {
             return Core.containsBasicType(target, B_TYPE_TOP) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
         }
