@@ -1076,8 +1076,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     outputLogger.sendProgramOutput(line);
                 }
             } catch (Exception e) {
-                String host = clientConfigHolder instanceof ClientAttachConfigHolder ?
-                        ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
+                String host = clientConfigHolder instanceof ClientAttachConfigHolder clientAttachConfigHolder ?
+                        clientAttachConfigHolder.getHostName().orElse(LOCAL_HOST) : LOCAL_HOST;
                 String portName;
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
