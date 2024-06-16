@@ -60,7 +60,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -391,8 +390,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
                     .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
-                    .collect(Collectors.toList())
-                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
+                    .toList()
+                    .stream().map(element -> "at " + element.getMethodName() + "()").toList();
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");

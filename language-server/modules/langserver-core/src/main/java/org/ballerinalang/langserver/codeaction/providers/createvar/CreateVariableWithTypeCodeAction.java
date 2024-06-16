@@ -347,7 +347,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
         List<TypeSymbol> memberTypes = ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         if (memberTypes.isEmpty()) {
             // If there are no non-error members (which is highly unlikely), there's no return type

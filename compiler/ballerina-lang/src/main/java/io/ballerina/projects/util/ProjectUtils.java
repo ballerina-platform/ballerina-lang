@@ -388,7 +388,7 @@ public class ProjectUtils {
 
         // if package name has consecutive underscores, replace them with a single underscore
         if (packageName.contains("__")) {
-            packageName = packageName.replaceAll("__", "_");
+            packageName = packageName.replace("__", "_");
         }
 
         // if package name has trailing underscore remove it

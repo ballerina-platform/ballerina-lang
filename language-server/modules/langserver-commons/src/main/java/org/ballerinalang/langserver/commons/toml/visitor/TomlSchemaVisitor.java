@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Schema Visitor for visiting toml validation schema.
@@ -194,7 +193,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         for (Map.Entry<TomlNode, Map<String, CompletionItem>> entry : completions.entrySet()) {
             TomlNode key = entry.getKey();
             Map<String, CompletionItem> completionItemList = entry.getValue();
-            if (!completionItemList.entrySet().stream().filter(filter).collect(Collectors.toList()).isEmpty()) {
+            if (!completionItemList.entrySet().stream().filter(filter).toList().isEmpty()) {
                 optimizedCompletions.put(key, completionItemList);
             }
         }

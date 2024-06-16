@@ -146,14 +146,9 @@ public class StringUtils {
         String encodedKey = key;
         String encodedValue;
         for (String character : specialCharacters) {
-            try {
-                if (encodedKey.contains(character)) {
-                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
-                    encodedKey = encodedKey.replace(character, encodedValue);
-                }
-            } catch (UnsupportedEncodingException e) {
-                return ErrorHelper.getRuntimeException(
-                        ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            if (encodedKey.contains(character)) {
+                encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8);
+                encodedKey = encodedKey.replace(character, encodedValue);
             }
         }
         return encodedKey;
@@ -163,7 +158,7 @@ public class StringUtils {
         try {
             String javaStr = str.getValue();
             javaStr = javaStr.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
-            javaStr = javaStr.replaceAll("\\+", "%2B");
+            javaStr = javaStr.replace("+", "%2B");
             return io.ballerina.runtime.api.utils.StringUtils.fromString(
                     URLDecoder.decode(javaStr, charset.getValue()));
         } catch (UnsupportedEncodingException | IllegalArgumentException e) {

@@ -174,7 +174,7 @@ public class NameUtil {
             }
 
             return -3;
-        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+        }).filter(integer -> integer >= 0).sorted().toList();
 
         for (int i = 0; i < suffixList.size(); i++) {
             Integer suffix = suffixList.get(i);

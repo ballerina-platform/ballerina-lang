@@ -32,7 +32,6 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.semver.checker.util.SemverUtils.BAL_FILE_EXT;
 
@@ -129,7 +128,7 @@ public class SemverChecker {
             // Todo - support toml changes validation
             List<Diagnostic> srcErrors = compilation.diagnosticResult().errors().stream()
                     .filter(diagnostic -> diagnostic.location().lineRange().fileName().endsWith(BAL_FILE_EXT))
-                    .collect(Collectors.toList());
+                    .toList();
             if (srcErrors.isEmpty()) {
                 return;
             }

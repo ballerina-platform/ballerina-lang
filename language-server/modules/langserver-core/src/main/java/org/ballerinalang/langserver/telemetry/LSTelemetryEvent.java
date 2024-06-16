@@ -46,7 +46,7 @@ public abstract class LSTelemetryEvent {
         if (operation == null) {
             return LS_TELEMETRY_COMPONENT_NAME;
         }
-        return LS_TELEMETRY_COMPONENT_NAME + "." + operation.getName().replaceAll("/", "_");
+        return LS_TELEMETRY_COMPONENT_NAME + "." + operation.getName().replace("/", "_");
     }
 
     public String getComponent() {

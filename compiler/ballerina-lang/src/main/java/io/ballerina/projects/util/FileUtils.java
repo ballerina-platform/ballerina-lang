@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -170,7 +169,7 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).collect(Collectors.toList())) {
+            for (Path dir : Files.list(path).toList()) {
                 deletePath(dir);
             }
         }

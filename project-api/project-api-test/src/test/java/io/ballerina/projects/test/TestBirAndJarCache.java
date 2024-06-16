@@ -43,7 +43,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
@@ -95,7 +94,7 @@ public class TestBirAndJarCache {
 
         List<String> foundPaths = pathStream
                 .map(path -> path.getFileName().toString())
-                .collect(Collectors.toList());
+                .toList();
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
             ModuleName moduleName = module.moduleName();

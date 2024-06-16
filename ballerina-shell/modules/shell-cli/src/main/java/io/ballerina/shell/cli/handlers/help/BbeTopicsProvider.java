@@ -66,7 +66,7 @@ public class BbeTopicsProvider extends DiagnosticReporter {
                     Stream<BbeRecord> sampleList = Arrays.stream(samples);
                     sampleList.forEach((bbeRecordElement) -> {
                         if (bbeRecordElement != null) {
-                            topicList.add(bbeRecordElement.getUrl().replaceAll("-", " "));
+                            topicList.add(bbeRecordElement.getUrl().replace("-", " "));
                         }
                     });
                 }

@@ -207,7 +207,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
+        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));

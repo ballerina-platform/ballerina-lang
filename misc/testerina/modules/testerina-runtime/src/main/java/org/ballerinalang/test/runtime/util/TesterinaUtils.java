@@ -168,7 +168,7 @@ public class TesterinaUtils {
      */
     public static String formatError(String errorMsg) {
         StringBuilder newErrMsg = new StringBuilder();
-        errorMsg = errorMsg.replaceAll("\n", "\n\t");
+        errorMsg = errorMsg.replace("\n", "\n\t");
         List<String> msgParts = Arrays.asList(errorMsg.split("\n"));
         boolean stackTraceStartFlag = true;
 

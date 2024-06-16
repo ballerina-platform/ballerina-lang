@@ -904,6 +904,31 @@ public class BuildCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
+    @Test(description = "Build a package with corrupted Dependencies.toml file")
+    public void testBuildWithCorruptedDependenciesToml() throws IOException {
+        Path projectPath = this.testResources.resolve("corrupted-dependecies-toml-file");
+        cleanTarget(projectPath);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        Path sourcePath = projectPath.resolve("Dependencies-corrupt.toml");
+        Path destinationPath = projectPath.resolve("Dependencies.toml");
+        Files.copy(sourcePath, destinationPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
+        String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
+                .replace("/r" , "");
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
+                        Charset.defaultCharset()).replace("/r" , "")
+                        .replace("DIST_VERSION", ballerinaShortVersion);
+        Assert.assertEquals(depContent, corrcetDepContent);
+        Files.delete(destinationPath);
+    }
+
     @Test(description = "Test bir cached project build performance")
     public void testBirCachedProjectBuildPerformance() {
         Path projectPath = this.testResources.resolve("noClassDefProject");

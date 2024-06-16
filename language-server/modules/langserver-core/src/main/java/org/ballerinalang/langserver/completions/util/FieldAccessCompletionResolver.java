@@ -259,7 +259,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
                 visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
                         .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg.get(),
-                                currentModule.get().moduleId())).collect(Collectors.toList()));
+                                currentModule.get().moduleId())).toList());
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
                 boolean isService = SymbolUtil.getTypeDescForObjectSymbol(objTypeDesc)
                         .qualifiers().contains(Qualifier.SERVICE);
@@ -270,7 +270,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE)
                                 && withValidAccessModifiers(node, methodSymbol, currentPkg.get(),
                                 currentModule.get().moduleId()))
-                        .collect(Collectors.toList());
+                        .toList();
                 visibleEntries.addAll(methodSymbols);
                 break;
             case UNION:
@@ -280,7 +280,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 }
                 List<TypeSymbol> members = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                         .map(CommonUtil::getRawType)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (!members.stream().allMatch(
                         member -> member.typeKind() == TypeDescKind.NIL || member.typeKind() == TypeDescKind.RECORD)) {
                     break;

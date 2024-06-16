@@ -68,7 +68,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Symbol resolver for the field access expressions.
@@ -253,7 +252,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
                 visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
                         .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg,
-                                currentModule.module().moduleId())).collect(Collectors.toList()));
+                                currentModule.module().moduleId())).toList());
                 boolean isClient = isClient(objTypeDesc);
                 boolean isService = getTypeDescForObjectSymbol(objTypeDesc)
                         .qualifiers().contains(Qualifier.SERVICE);
@@ -264,7 +263,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE)
                                 && withValidAccessModifiers(node, methodSymbol, currentPkg,
                                 currentModule.module().moduleId()))
-                        .collect(Collectors.toList());
+                        .toList();
                 visibleEntries.addAll(methodSymbols);
                 break;
             default:

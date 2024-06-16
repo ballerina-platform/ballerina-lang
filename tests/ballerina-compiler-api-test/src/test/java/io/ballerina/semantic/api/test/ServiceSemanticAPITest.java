@@ -180,7 +180,7 @@ public class ServiceSemanticAPITest {
         List<ServiceDeclarationSymbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
                 .map(s -> (ServiceDeclarationSymbol) s)
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(services.size(), expVals.length);
 
@@ -263,7 +263,7 @@ public class ServiceSemanticAPITest {
         SemanticModel model = getDefaultModulesSemanticModel("test-src/service_with_multiple_listeners.bal");
         List<Symbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
-                .collect(Collectors.toList());
+                .toList();
         ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
         List<TypeSymbol> listenerTypes = service.listenerTypes();
         assertEquals(listenerTypes.size(), 3);

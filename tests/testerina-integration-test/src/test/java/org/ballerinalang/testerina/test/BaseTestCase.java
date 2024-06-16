@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -72,7 +71,7 @@ public class BaseTestCase {
         try {
             packageDirs = Files.walk(projectBasedTestsPath, 1)
                     .filter(Files::isDirectory)
-                    .collect(Collectors.toList());
+                    .toList();
             for (Path dir : packageDirs) {
                 try {
                     FileUtils.copyBallerinaExec(dir, "");

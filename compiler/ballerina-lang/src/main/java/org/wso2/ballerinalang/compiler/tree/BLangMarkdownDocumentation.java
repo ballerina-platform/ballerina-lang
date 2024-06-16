@@ -107,7 +107,7 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     public String getDocumentation() {
         return documentationLines.stream()
                 .map(BLangMarkdownDocumentationLine::getText)
-                .collect(Collectors.joining("\n")).replaceAll("\r", "");
+                .collect(Collectors.joining("\n")).replace("\r", "");
     }
 
     @Override

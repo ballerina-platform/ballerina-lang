@@ -84,7 +84,19 @@ public class DependencyManifestBuilder {
         this.dependenciesToml = Optional.ofNullable(dependenciesToml);
         this.packageDescriptor = packageDescriptor;
         this.diagnosticList = new ArrayList<>();
-        this.dependencyManifest = parseAsDependencyManifest();
+        DependencyManifest parsedDependecyManifest = parseAsDependencyManifest();
+        if (parsedDependecyManifest.diagnostics().hasErrors()) {
+            var diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML.diagnosticId(),
+                    "Detected corrupted 'Dependencies.toml' file. Dependencies will be updated to the latest versions.",
+                    DiagnosticSeverity.WARNING);
+            var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                    this.dependenciesToml.get().toml().rootNode().location());
+            this.dependencyManifest = DependencyManifest.from(null, null,
+                    Collections.emptyList(), Collections.emptyList(), new DefaultDiagnosticResult(List.of(diagnostic)));
+        } else {
+            this.dependencyManifest = parsedDependecyManifest;
+        }
     }
 
     public static DependencyManifestBuilder from(TomlDocument dependenciesToml,

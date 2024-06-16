@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 
 /**
  * Registry for keeping metrics by name.
@@ -191,7 +190,7 @@ public class MetricRegistry {
      */
     public void remove(String name) {
         List<MetricId> ids = metrics.keySet().stream()
-                .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
+                .filter(id -> id.getName().equals(name)).toList();
         ids.forEach(metrics::remove);
     }
 

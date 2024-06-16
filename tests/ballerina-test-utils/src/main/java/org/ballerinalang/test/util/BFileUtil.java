@@ -35,7 +35,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Utility methods for doing file operations.
@@ -133,7 +132,7 @@ public class BFileUtil {
             return;
         }
         List<Path> files = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
-                p.toString().contains(pattern)).collect(Collectors.toList());
+                p.toString().contains(pattern)).toList();
         for (Path file : files) {
             BFileUtil.delete(file);
         }

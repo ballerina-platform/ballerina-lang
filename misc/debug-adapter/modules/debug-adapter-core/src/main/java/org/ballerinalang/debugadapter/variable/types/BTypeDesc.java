@@ -40,7 +40,7 @@ public class BTypeDesc extends BSimpleVariable {
         try {
             String stringValue = getStringValue(context, jvmValue);
             if (stringValue.startsWith(TYPEDESC_VALUE_PREFIX)) {
-                stringValue = stringValue.replaceAll(TYPEDESC_VALUE_PREFIX, "");
+                stringValue = stringValue.replace(TYPEDESC_VALUE_PREFIX, "");
             }
             return stringValue;
         } catch (Exception e) {

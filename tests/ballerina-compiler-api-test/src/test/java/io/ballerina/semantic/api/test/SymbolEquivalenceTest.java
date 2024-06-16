@@ -93,7 +93,7 @@ public class SymbolEquivalenceTest {
                                                from(20, 11), from(49, 5), from(40, 4));
         List<Symbol> symbols = positions.stream()
                 .map(pos -> model.symbol(srcFile, pos).get())
-                .collect(Collectors.toList());
+                .toList();
 
         for (int i = 0; i < symbols.size(); i++) {
             Symbol symbol = symbols.get(i);
@@ -153,7 +153,7 @@ public class SymbolEquivalenceTest {
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
                 .map(s -> s.kind() == RECORD_FIELD ?
                         ((RecordFieldSymbol) s).typeDescriptor() : ((ParameterSymbol) s).typeDescriptor())
-                .collect(Collectors.toList());
+                .toList();
 
         for (int i = 0; i < types.size(); i++) {
             TypeSymbol type = types.get(i);
