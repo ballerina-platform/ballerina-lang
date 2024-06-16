@@ -21,6 +21,8 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.BMappingProj;
 
+import static io.ballerina.runtime.api.types.semtype.Core.diff;
+
 public final class MappingProj {
 
     private MappingProj() {
@@ -30,4 +32,7 @@ public final class MappingProj {
         return BMappingProj.mappingMemberTypeInnerVal(cx, t, k);
     }
 
+    public static SemType mappingMemberType(Context cx, SemType t, SemType k) {
+        return BMappingProj.mappingMemberType(cx, t, k);
+    }
 }
