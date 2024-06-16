@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BArray;
 
@@ -41,9 +42,4 @@ public interface ArrayValue extends RefValue, BArray, CollectionValue {
 
     @Override
     void setLength(long length);
-
-    @Override
-    default SemType basicType() {
-        return Builder.listType();
-    }
 }
