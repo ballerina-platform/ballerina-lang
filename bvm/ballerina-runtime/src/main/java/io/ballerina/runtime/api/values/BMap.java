@@ -194,4 +194,13 @@ public interface BMap<K, V> extends BRefValue, BCollection {
     Object merge(BMap<?, ?> v2, boolean checkMergeability);
 
     void populateInitialValue(K key, V value);
+
+    // FIXME: lift this to collection
+    default SemType shapeOf() {
+        return null;
+    }
+
+    default void cacheShape(SemType semType) {
+
+    }
 }
