@@ -368,7 +368,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return getTypeFromBType(simpleVarRef.symbol.getType());
         }
 
-        if (bLangNode instanceof BLangUserDefinedType userDefinedType && ((BLangUserDefinedType) bLangNode).symbol != null) {
+        if (bLangNode instanceof BLangUserDefinedType userDefinedType && userDefinedType.symbol != null) {
             return getTypeFromBType(userDefinedType.symbol.getType());
         }
 

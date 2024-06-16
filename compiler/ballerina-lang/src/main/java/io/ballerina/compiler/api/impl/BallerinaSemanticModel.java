@@ -692,7 +692,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isObjectConstructorExpr(BLangNode node) {
-        return node instanceof BLangClassDefinition classDefinition && classDefinition.flagSet.contains(Flag.OBJECT_CTOR);
+        return node instanceof BLangClassDefinition classDefinition &&
+                classDefinition.flagSet.contains(Flag.OBJECT_CTOR);
     }
 
     private boolean isAnonFunctionExpr(BLangNode node) {
