@@ -51,12 +51,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType implements RecordType, PartialSemTypeSupplier {
+public class BRecordType extends BStructureType implements RecordType, PartialSemTypeSupplier, TypeWithShape {
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -243,7 +247,7 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
             SemType fieldType = Builder.from(cx, field.getFieldType());
             if (!isOptional && Core.isNever(fieldType)) {
-                return Builder.neverType();
+                return neverType();
             } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
                 hasBTypePart = true;
                 fieldType = Core.intersect(fieldType, Core.SEMTYPE_TOP);
@@ -251,9 +255,9 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
                     SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY), isOptional);
         }
-        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : Builder.neverType();
+        SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
@@ -271,5 +275,54 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     public void resetSemTypeCache() {
         super.resetSemTypeCache();
         defn = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        BMap value = (BMap) object;
+        int nFields = value.size();
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        for (int i = 0; i < nFields; i++) {
+            String fieldName = entries[i].getKey().toString();
+            boolean readonlyField = fieldIsReadonly(fieldName);
+            Optional<SemType> fieldType;
+            if (readonlyField) {
+                fieldType = Builder.shapeOf(cx, entries[i].getValue());
+            } else {
+                SemType fieldSemType = Builder.from(cx, fieldType(fieldName));
+                if (!Core.isNever(Core.intersect(fieldSemType, Core.B_TYPE_TOP))) {
+                    return Optional.empty();
+                }
+                fieldType = Optional.of(fieldSemType);
+            }
+            if (fieldType.isEmpty()) {
+                return Optional.empty();
+            }
+            fields[i] =
+                    new MappingDefinition.Field(entries[i].getKey().toString(), fieldType.get(), readonlyField, false);
+        }
+        MappingDefinition md = new MappingDefinition();
+        SemType semTypePart;
+        if (isReadOnly()) {
+            semTypePart = md.defineMappingTypeWrapped(env, fields, neverType(), CELL_MUT_NONE);
+        } else {
+            SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
+            if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+                return Optional.empty();
+            }
+            semTypePart = md.defineMappingTypeWrapped(env, fields, rest, CELL_MUT_LIMITED);
+        }
+        return Optional.of(semTypePart);
+    }
+
+    private Type fieldType(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field == null ? restFieldType : field.getFieldType();
+    }
+
+    private boolean fieldIsReadonly(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
     }
 }
