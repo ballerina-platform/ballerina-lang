@@ -313,7 +313,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
     }
 
     @Override
-    SemType createSemType(Context cx) {
+    synchronized SemType createSemType(Context cx) {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -323,14 +323,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
         for (int i = 0; i < tupleTypes.size(); i++) {
             SemType memberType = Builder.from(cx, tupleTypes.get(i));
             if (Core.isNever(memberType)) {
-                // TODO:  This is not correct and blow up if this is recursive. But current jBal type implementation
-                //  treats these as never while nBal don't. Revisit this once all types are done
                 return Builder.neverType();
-//            } else if (Core.isSubtypeSimple(memberType, Core.B_TYPE_TOP)) {
-//                SemType semTypePart = defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, Builder.neverType(),
-//                        CellAtomicType.CellMutability.CELL_MUT_NONE);
-//                SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
-//                return Core.union(semTypePart, bTypePart);
             } else if (!Core.isNever(Core.intersect(memberType, Core.B_TYPE_TOP))) {
                 hasBTypePart = true;
                 memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
@@ -340,12 +333,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         SemType rest = restType != null ? Builder.from(cx, restType) : Builder.neverType();
-//        if (Core.isSubtypeSimple(rest, Core.B_TYPE_TOP)) {
-//            SemType semTypePart =
-//                    defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, Builder.neverType(), mut);
-//            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
-//            return Core.union(semTypePart, bTypePart);
-//        }
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
