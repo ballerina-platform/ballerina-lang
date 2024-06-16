@@ -37,7 +37,7 @@ import java.util.Optional;
  *
  * @since 2201.2.0
  */
-public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
+public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType, TypeWithShape {
 
     private final int typeFlags;
     private final boolean readOnly;
@@ -137,5 +137,14 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
             return semType;
         }
         return Builder.from(cx, referredType);
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, object);
+        }
+        return Optional.empty();
     }
 }

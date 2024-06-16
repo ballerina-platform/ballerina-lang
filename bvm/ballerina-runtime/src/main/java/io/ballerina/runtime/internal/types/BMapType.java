@@ -30,13 +30,16 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
-import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.Map;
 import java.util.Optional;
+
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -205,8 +208,26 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
     }
 
     @Override
-    public SemType shapeOf(Context cx, Object object) {
-        return get(cx);
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(get(cx));
+        }
+        BMap value = (BMap) object;
+        int nFields = value.size();
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        boolean hasBTypePart = false;
+        for (int i = 0; i < nFields; i++) {
+            Optional<SemType> valueType = Builder.shapeOf(cx, entries[i].getValue());
+            if (valueType.isEmpty()) {
+                return Optional.empty();
+            }
+            SemType fieldType = valueType.get();
+            fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
+        }
+        // TODO: cache this in the map value
+        MappingDefinition md = new MappingDefinition();
+        return Optional.of(md.defineMappingTypeWrapped(env, fields, Builder.neverType(), CELL_MUT_NONE));
     }
 
     private SemType getSemTypePart(SemType restType) {

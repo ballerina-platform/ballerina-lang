@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
@@ -307,21 +308,8 @@ public final class Builder {
     }
 
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
-        int nFields = mapValue.size();
-        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
-        Map.Entry[] entries = (Map.Entry[]) mapValue.entrySet().toArray(new Map.Entry[0]);
-        for (int i = 0; i < nFields; i++) {
-            String key = entries[i].getKey().toString();
-            Object value = entries[i].getValue();
-            Optional<SemType> valueType = shapeOf(cx, value);
-            if (valueType.isEmpty()) {
-                return Optional.empty();
-            }
-            fields[i] = new MappingDefinition.Field(key, valueType.get(), true, false);
-        }
-        // TODO: cache this in the map value
-        MappingDefinition md = new MappingDefinition();
-        return Optional.of(md.defineMappingTypeWrapped(env, fields, neverType(), CELL_MUT_NONE));
+        TypeWithShape typeWithShape = (TypeWithShape) mapValue.getType();
+        return typeWithShape.shapeOf(cx, mapValue);
     }
 
     private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
