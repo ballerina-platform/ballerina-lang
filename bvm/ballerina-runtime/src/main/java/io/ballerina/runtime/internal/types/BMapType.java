@@ -213,10 +213,14 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
             return Optional.of(get(cx));
         }
         BMap value = (BMap) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+
         int nFields = value.size();
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
         Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
-        boolean hasBTypePart = false;
         for (int i = 0; i < nFields; i++) {
             Optional<SemType> valueType = Builder.shapeOf(cx, entries[i].getValue());
             if (valueType.isEmpty()) {
@@ -225,9 +229,10 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
             SemType fieldType = valueType.get();
             fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
         }
-        // TODO: cache this in the map value
         MappingDefinition md = new MappingDefinition();
-        return Optional.of(md.defineMappingTypeWrapped(env, fields, Builder.neverType(), CELL_MUT_NONE));
+        SemType semType = md.defineMappingTypeWrapped(env, fields, Builder.neverType(), CELL_MUT_NONE);
+        value.cacheShape(semType);
+        return Optional.of(semType);
     }
 
     private SemType getSemTypePart(SemType restType) {
