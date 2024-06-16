@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
@@ -284,7 +283,7 @@ public final class Builder {
         return new SubType[CODE_B_TYPE + 2];
     }
 
-    public static Optional<SemType> typeOf(Object object) {
+    public static Optional<SemType> shapeOf(Context cx, Object object) {
         if (object == null) {
             return Optional.of(nilType());
         } else if (object instanceof DecimalValue decimalValue) {
@@ -300,21 +299,21 @@ public final class Builder {
         } else if (object instanceof BString stringValue) {
             return Optional.of(stringConst(stringValue.getValue()));
         } else if (object instanceof BArray arrayValue) {
-            return typeOfArray(arrayValue);
+            return typeOfArray(cx, arrayValue);
         } else if (object instanceof BMap mapValue) {
-            return typeOfMap(mapValue);
+            return typeOfMap(cx, mapValue);
         }
         return Optional.empty();
     }
 
-    private static Optional<SemType> typeOfMap(BMap mapValue) {
+    private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
         int nFields = mapValue.size();
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
         Map.Entry[] entries = (Map.Entry[]) mapValue.entrySet().toArray(new Map.Entry[0]);
         for (int i = 0; i < nFields; i++) {
             String key = entries[i].getKey().toString();
             Object value = entries[i].getValue();
-            Optional<SemType> valueType = typeOf(value);
+            Optional<SemType> valueType = shapeOf(cx, value);
             if (valueType.isEmpty()) {
                 return Optional.empty();
             }
@@ -325,11 +324,11 @@ public final class Builder {
         return Optional.of(md.defineMappingTypeWrapped(env, fields, neverType(), CELL_MUT_NONE));
     }
 
-    private static Optional<SemType> typeOfArray(BArray arrayValue) {
+    private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
         int size = arrayValue.size();
         SemType[] memberTypes = new SemType[size];
         for (int i = 0; i < size; i++) {
-            Optional<SemType> memberType = typeOf(arrayValue.get(i));
+            Optional<SemType> memberType = shapeOf(cx, arrayValue.get(i));
             if (memberType.isEmpty()) {
                 return Optional.empty();
             }
