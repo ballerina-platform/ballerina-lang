@@ -89,8 +89,8 @@ final class BTypeConverter {
         return Core.union(ANY_SEMTYPE_PART, bTypePart);
     }
 
-    static SemType fromFiniteType(BFiniteType finiteType) {
-        BTypeParts parts = splitFiniteType(finiteType);
+    static SemType fromFiniteType(Context cx, BFiniteType finiteType) {
+        BTypeParts parts = splitFiniteType(cx, finiteType);
         if (parts.bTypeParts().isEmpty()) {
             return parts.semTypePart();
         }
@@ -126,7 +126,7 @@ final class BTypeConverter {
         } else if (type instanceof BReadonlyType readonlyType) {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
-            return splitFiniteType(finiteType);
+            return splitFiniteType(cx, finiteType);
             // FIXME: introduce a marker type for these
         } else if (type instanceof PartialSemTypeSupplier supplier) {
             return splitSemTypeSupplier(cx, supplier);
@@ -156,12 +156,12 @@ final class BTypeConverter {
         return new BTypeParts(semTypePart, List.of(anyType));
     }
 
-    private static BTypeParts splitFiniteType(BFiniteType finiteType) {
+    private static BTypeParts splitFiniteType(Context cx, BFiniteType finiteType) {
         Set<Object> newValueSpace = new HashSet<>(finiteType.valueSpace.size());
         SemType semTypePart = Builder.neverType();
         for (var each : finiteType.valueSpace) {
             // TODO: lift this to Builder (Object) -> Type
-            Optional<SemType> semType = Builder.typeOf(each);
+            Optional<SemType> semType = Builder.shapeOf(cx, each);
             if (semType.isPresent()) {
                 semTypePart = Core.union(semTypePart, semType.get());
             } else {

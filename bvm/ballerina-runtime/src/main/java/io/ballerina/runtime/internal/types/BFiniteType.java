@@ -205,6 +205,6 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     SemType createSemType(Context cx) {
-        return BTypeConverter.fromFiniteType(this);
+        return BTypeConverter.fromFiniteType(cx, this);
     }
 }
