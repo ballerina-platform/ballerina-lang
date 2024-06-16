@@ -34,7 +34,7 @@ public final class BddAllOrNothing extends Bdd {
 
     @Override
     public int hashCode() {
-        return 0xa11084 + (this == ALL ? 1 : 0);
+        return this == ALL ? 1 : 0;
     }
 
     @Override
