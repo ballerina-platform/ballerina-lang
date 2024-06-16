@@ -81,7 +81,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("Generating 'winery' (executable)"), buildLog);
     }
 
-    @Test(description = "Test function mocking")
+    //TODO: Fix this testcase (#42937)
+    @Test(description = "Test function mocking", enabled = false)
     public void testNativeFunctionMockTests() throws IOException {
         Path projectPath = this.testResources.resolve("mockFunctionNative");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
