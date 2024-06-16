@@ -387,7 +387,7 @@ public class BJSONValueTest {
     public void testEmptyStringToJson() {
         Object returns = BRunUtil.invoke(compileResult, "testEmptyStringToJson");
         Assert.assertTrue(returns instanceof BString);
-        Assert.assertTrue((Boolean) returns.toString().isEmpty());
+        Assert.assertTrue(returns.toString().isEmpty());
     }
 
     @Test

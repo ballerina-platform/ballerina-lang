@@ -130,7 +130,7 @@ public class TestExpressionFileScheme {
         JsonArray exprCodeActions = JsonParser.parseString(exprCodeActionResponse).getAsJsonObject()
                         .get("result").getAsJsonArray();
         Assert.assertEquals(originalCodeActions.size(), 0);
-        Assert.assertEquals(exprCodeActions.size(), 3);
+        Assert.assertEquals(exprCodeActions.size(), 4);
 
         TestUtil.openDocument(serviceEndpoint, originalUri.toString(), originalContent);
         TestUtil.openDocument(serviceEndpoint, exprUri.toString(), originalContent);

@@ -760,7 +760,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             case CLASS_DEFN:
                 return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case FUNCTION:
-                name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
+                name = ((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE) + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RESOURCE_FUNC:
                 return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);

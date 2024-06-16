@@ -414,7 +414,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         String actionName = remoteMethodCallActionNode.methodName().toString();
         String actionPath = null;
-        if (remoteMethodCallActionNode.arguments().size() > 0) {
+        if (!remoteMethodCallActionNode.arguments().isEmpty()) {
             SeparatedNodeList<FunctionArgumentNode> arguments = remoteMethodCallActionNode.arguments();
             FunctionArgumentNode functionArgumentNode = arguments.get(0);
             if (functionArgumentNode.kind() == SyntaxKind.POSITIONAL_ARG) {

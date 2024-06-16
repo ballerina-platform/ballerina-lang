@@ -264,7 +264,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
          */
         List<String> modNameString = moduleName.stream()
                 .map(token -> token.text().replace("'", ""))
-                .collect(Collectors.toList());
+                .toList();
         Optional<Project> currentProject = context.workspace().project(context.filePath());
         if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                 || !modNameString.get(0).equals(pkgName)) {

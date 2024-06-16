@@ -120,11 +120,11 @@ public class CentralUtils {
 
     public static String getBallerinaCentralCliTokenUrl() {
         if (SET_BALLERINA_STAGE_CENTRAL) {
-            return "https://staging-central.ballerina.io/cli-token";
+            return "https://staging-central.ballerina.io/dashboard?tab=token";
         } else if (SET_BALLERINA_DEV_CENTRAL) {
-            return "https://dev-central.ballerina.io/cli-token";
+            return "https://dev-central.ballerina.io/dashboard?tab=token";
         } else {
-            return "https://central.ballerina.io/cli-token";
+            return "https://central.ballerina.io/dashboard?tab=token";
         }
     }
 

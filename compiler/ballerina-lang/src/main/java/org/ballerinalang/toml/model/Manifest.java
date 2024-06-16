@@ -108,9 +108,9 @@ public class Manifest {
             List<Library> deps = platform.libraries.stream().filter(library -> {
                 return library.getModules() == null ||
                         Arrays.stream(library.getModules()).anyMatch(moduleName::equals);
-            }).collect(Collectors.toList());
+            }).toList();
             // If not return any
-            if (deps.size() > 0) {
+            if (!deps.isEmpty()) {
                 return platform.target;
             }
         }

@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 51,
+    "character": 18
+  },
+  "source": "source2.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'Rec1|string|Error2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 51,
+              "character": 4
+            },
+            "end": {
+              "line": 51,
+              "character": 4
+            }
+          },
+          "newText": "Rec1|string|Error2 unionResult = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'string|Error2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 51,
+              "character": 4
+            },
+            "end": {
+              "line": 51,
+              "character": 4
+            }
+          },
+          "newText": "string|Error2 unionResult = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'Rec1|Error2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 51,
+              "character": 4
+            },
+            "end": {
+              "line": 51,
+              "character": 4
+            }
+          },
+          "newText": "Rec1|Error2 unionResult = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

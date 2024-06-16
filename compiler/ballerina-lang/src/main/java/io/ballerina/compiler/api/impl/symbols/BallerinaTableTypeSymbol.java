@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements TableTypeSymbol {
+public class BallerinaTableTypeSymbol extends AbstractStructuredTypeSymbol implements TableTypeSymbol {
 
     private static final String ORG_NAME_BALLERINA = "ballerina";
     private static final String MODULE_NAME_LANG_TABLE = "lang.table";

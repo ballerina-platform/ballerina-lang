@@ -877,7 +877,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv joinEnv = joinClause.env;
         analyzeNode((BLangNode) joinClause.getVariableDefinitionNode(), joinEnv);
         analyzeNode(joinClause.collection, joinEnv);
-        analyzeNode((BLangNode) joinClause.onClause, joinEnv);
+        analyzeNode(joinClause.onClause, joinEnv);
     }
 
     @Override
@@ -1165,7 +1165,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(expression, env);
         }
 
-        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        BLangExpression restParam = varRefExpr.restParam;
         if (restParam != null) {
             analyzeNode(restParam, env);
         }
@@ -1177,7 +1177,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(recordRefField.variableReference, env);
         }
 
-        BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+        BLangExpression restParam = varRefExpr.restParam;
         if (restParam != null) {
             analyzeNode(restParam, env);
         }

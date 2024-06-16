@@ -479,7 +479,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
-                result = (Long) ((Long) lhs.value / (Long) rhs.value);
+                result = (Long) lhs.value / (Long) rhs.value;
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -501,7 +501,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = (Long) ((Long) lhs.value % (Long) rhs.value);
+                result = (Long) lhs.value % (Long) rhs.value;
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -851,7 +851,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordType.restFieldType = new BNoType(TypeTags.NONE);
         recordTypeSymbol.type = recordType;
 
-        if (constValueMap.size() != 0) {
+        if (!constValueMap.isEmpty()) {
             if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env)) {
                 return null;
             }

@@ -40,12 +40,12 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
@@ -54,12 +54,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
@@ -79,6 +79,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INT
  */
 public class Utils {
 
+    private static final int BUFFER_SIZE = 1024;
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_STAGE_CENTRAL));
@@ -347,7 +348,7 @@ public class Utils {
             long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter,
             Path homeRepo) throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         String remoteRepo = getRemoteRepo();
         String progressBarTask = fullPkgName + " [" + remoteRepo + " ->" + homeRepo + "] ";
         try (ProgressBar progressBar = new ProgressBar(progressBarTask, totalSizeInKB, 1000,
@@ -364,7 +365,7 @@ public class Utils {
     private static void writeAndHandleProgressQuietly(InputStream inputStream, FileOutputStream outputStream)
             throws IOException {
         int count;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         while ((count = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, count);
@@ -455,7 +456,7 @@ public class Utils {
 
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).toList();
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala
@@ -468,13 +469,37 @@ public class Utils {
     }
 
     public static String checkHash(String filePath, String algorithm) throws CentralClientException {
+        MessageDigest md;
         try {
-            byte[] data = Files.readAllBytes(Paths.get(filePath));
-            byte[] hash = MessageDigest.getInstance(algorithm).digest(data);
-            return new BigInteger(1, hash).toString(16);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new CentralClientException("Unable to calculate the hash value of the file: " + filePath);
+            md = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
         }
+
+        try (InputStream is = new FileInputStream(filePath);
+             DigestInputStream dis = new DigestInputStream(is, md)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (dis.read(buffer) != -1) {
+            }
+            md = dis.getMessageDigest();
+            return bytesToHex(md.digest());
+        } catch (RuntimeException | IOException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file " + filePath + ": "
+                    + e.getMessage());
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     static String getBearerToken(String accessToken) {

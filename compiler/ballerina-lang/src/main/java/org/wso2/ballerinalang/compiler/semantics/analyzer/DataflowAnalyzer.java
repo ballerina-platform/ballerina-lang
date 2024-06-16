@@ -1741,7 +1741,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                                             (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
-            analyzeNode((BLangNode) joinClause.onClause, env);
+            analyzeNode(joinClause.onClause, env);
         }
     }
 
@@ -1846,7 +1846,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         StringBuilder uninitializedFields =
                 getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
                         invocationExpr.expr).symbol.type);
-        if (uninitializedFields.length() != 0) {
+        if (!uninitializedFields.isEmpty()) {
             this.dlog.error(invocationExpr.pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                     uninitializedFields.toString());
             return false;
@@ -1861,7 +1861,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
-                if (uninitializedFields.length() != 0) {
+                if (!uninitializedFields.isEmpty()) {
                     this.dlog.error(location, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
@@ -1892,7 +1892,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     uninitializedFields.append(", ").append(symbol.getName().value);
                 }
             }
-            if (uninitializedFields.length() != 0) {
+            if (!uninitializedFields.isEmpty()) {
                 this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
@@ -2624,14 +2624,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
                 recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
                 if (recordVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                    checkAssignment(recordVarRef.restParam);
                 }
                 return;
             case TUPLE_VARIABLE_REF:
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRef;
                 tupleVarRef.expressions.forEach(this::checkAssignment);
                 if (tupleVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) tupleVarRef.restParam);
+                    checkAssignment(tupleVarRef.restParam);
                 }
                 return;
             case ERROR_VARIABLE_REF:
@@ -2877,7 +2877,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
                 }
 
-                populateUnusedVariableMapForMembers(unusedLocalVariables, (BLangVariable) recordVariable.restParam);
+                populateUnusedVariableMapForMembers(unusedLocalVariables, recordVariable.restParam);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;

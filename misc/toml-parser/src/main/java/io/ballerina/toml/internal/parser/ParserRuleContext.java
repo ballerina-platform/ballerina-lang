@@ -103,7 +103,7 @@ public enum ParserRuleContext {
     MULTILINE_LITERAL_STRING_END("'"),
     ;
 
-    private String value;
+    private final String value;
 
     ParserRuleContext(String value) {
         this.value = value;
