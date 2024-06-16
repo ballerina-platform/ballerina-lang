@@ -565,10 +565,10 @@ public final class TypeChecker {
 
     private static TypeCheckResult isSubType(Context cx, Object sourceValue, Type source, Type target) {
         TypeCheckResult result = isSubType(cx, source, target);
-        if (result != TypeCheckResult.FALSE || !source.isReadOnly()) {
+        if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        return isSubTypeImmutableValue(cx, sourceValue, Builder.from(cx, target));
+        return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, target));
     }
 
     private static TypeCheckResult isSubType(Context cx, Type source, Type target) {
@@ -583,14 +583,13 @@ public final class TypeChecker {
 
     private static TypeCheckResult isSubTypeInner(Context cx, Object sourceValue, SemType source, SemType target) {
         TypeCheckResult result = isSubTypeInner(source, target);
-        if (result != TypeCheckResult.FALSE ||
-                !Core.isSubType(context(), Core.intersect(source, SEMTYPE_TOP), Builder.readonlyType())) {
+        if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        return isSubTypeImmutableValue(cx, sourceValue, target);
+        return isSubTypeWithShape(cx, sourceValue, target);
     }
 
-    private static TypeCheckResult isSubTypeImmutableValue(Context cx, Object sourceValue, SemType target) {
+    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
         Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
         if (sourceSingletonType.isEmpty()) {
             return Core.containsBasicType(target, B_TYPE_TOP) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
