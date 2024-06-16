@@ -313,19 +313,8 @@ public final class Builder {
     }
 
     private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
-        int size = arrayValue.size();
-        SemType[] memberTypes = new SemType[size];
-        for (int i = 0; i < size; i++) {
-            Optional<SemType> memberType = shapeOf(cx, arrayValue.get(i));
-            if (memberType.isEmpty()) {
-                return Optional.empty();
-            }
-            memberTypes[i] = memberType.get();
-        }
-        ListDefinition ld = new ListDefinition();
-        // TODO: cache this in the array value
-        return Optional.of(
-                ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
+        TypeWithShape typeWithShape = (TypeWithShape) arrayValue.getType();
+        return typeWithShape.shapeOf(cx, arrayValue);
     }
 
     public static SemType roCellContaining(Env env, SemType ty) {

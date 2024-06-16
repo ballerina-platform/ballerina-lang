@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
@@ -40,12 +41,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+
 /**
  * {@code {@link BTupleType}} represents a tuple type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType, PartialSemTypeSupplier {
+public class BTupleType extends BAnnotatableType implements TupleType, PartialSemTypeSupplier, TypeWithShape {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
@@ -323,16 +327,16 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
         for (int i = 0; i < tupleTypes.size(); i++) {
             SemType memberType = Builder.from(cx, tupleTypes.get(i));
             if (Core.isNever(memberType)) {
-                return Builder.neverType();
+                return neverType();
             } else if (!Core.isNever(Core.intersect(memberType, Core.B_TYPE_TOP))) {
                 hasBTypePart = true;
                 memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
             }
             memberTypes[i] = memberType;
         }
-        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restType != null ? Builder.from(cx, restType) : Builder.neverType();
+        SemType rest = restType != null ? Builder.from(cx, restType) : neverType();
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
@@ -350,5 +354,26 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
     public void resetSemTypeCache() {
         super.resetSemTypeCache();
         defn = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(get(cx));
+        }
+        BArray value = (BArray) object;
+        int size = value.size();
+        SemType[] memberTypes = new SemType[size];
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = Builder.shapeOf(cx, value.get(i));
+            if (memberType.isEmpty()) {
+                return Optional.empty();
+            }
+            memberTypes[i] = memberType.get();
+        }
+        ListDefinition ld = new ListDefinition();
+        // TODO: cache this in the array value
+        return Optional.of(
+                ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
     }
 }
