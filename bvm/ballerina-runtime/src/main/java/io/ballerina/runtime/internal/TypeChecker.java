@@ -276,7 +276,7 @@ public class TypeChecker {
         Context cx = context();
         SemType targetSemType = Builder.from(cx, targetType);
         SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetSemType);
-        SemType valueBasicType = basicType(sourceVal);
+        SemType valueBasicType = widenedType(cx, sourceVal);
         if (!Core.isSubtypeSimple(valueBasicType, targetBasicTypeUnion)) {
             return false;
         }
@@ -608,7 +608,7 @@ public class TypeChecker {
         return Core.isSubType(cx, sourcePureSemType, targetPureSemType) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
     }
 
-    private static SemType basicType(Object value) {
+    private static SemType widenedType(Context cx, Object value) {
         if (value == null) {
             return Builder.nilType();
         } else if (value instanceof Double) {
@@ -622,7 +622,7 @@ public class TypeChecker {
         } else if (value instanceof DecimalValue) {
             return Builder.decimalType();
         } else {
-            return ((BValue) value).basicType();
+            return ((BValue) value).widenedType(cx);
         }
     }
 
