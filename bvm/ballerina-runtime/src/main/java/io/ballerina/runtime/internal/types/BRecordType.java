@@ -44,12 +44,14 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -281,14 +283,19 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     public Optional<SemType> shapeOf(Context cx, Object object) {
         BMap value = (BMap) object;
         int nFields = value.size();
-        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
         Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        Set<String> handledFields = new HashSet<>(nFields);
         for (int i = 0; i < nFields; i++) {
             String fieldName = entries[i].getKey().toString();
+            Object fieldValue = entries[i].getValue();
+            handledFields.add(fieldName);
             boolean readonlyField = fieldIsReadonly(fieldName);
+            boolean optionalField = fieldIsOptional(fieldName);
             Optional<SemType> fieldType;
             if (readonlyField) {
-                fieldType = Builder.shapeOf(cx, entries[i].getValue());
+                optionalField = false;
+                fieldType = Builder.shapeOf(cx, fieldValue);
             } else {
                 SemType fieldSemType = Builder.from(cx, fieldType(fieldName));
                 if (!Core.isNever(Core.intersect(fieldSemType, Core.B_TYPE_TOP))) {
@@ -299,19 +306,33 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             if (fieldType.isEmpty()) {
                 return Optional.empty();
             }
-            fields[i] =
-                    new MappingDefinition.Field(entries[i].getKey().toString(), fieldType.get(), readonlyField, false);
+            fields.add(new MappingDefinition.Field(fieldName, fieldType.get(), readonlyField,
+                    optionalField));
+        }
+        for (var field : getFields().values()) {
+            String name = field.getFieldName();
+            if (handledFields.contains(name)) {
+                continue;
+            }
+            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            SemType fieldType = Builder.from(cx, field.getFieldType());
+            if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
+                return Optional.of(neverType());
+            }
+            fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
+                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY), isOptional));
         }
         MappingDefinition md = new MappingDefinition();
         SemType semTypePart;
+        MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
         if (isReadOnly()) {
-            semTypePart = md.defineMappingTypeWrapped(env, fields, neverType(), CELL_MUT_NONE);
+            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, neverType(), CELL_MUT_NONE);
         } else {
             SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
             if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
                 return Optional.empty();
             }
-            semTypePart = md.defineMappingTypeWrapped(env, fields, rest, CELL_MUT_LIMITED);
+            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
         }
         return Optional.of(semTypePart);
     }
@@ -324,5 +345,10 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     private boolean fieldIsReadonly(String fieldName) {
         Field field = fields.get(fieldName);
         return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+    }
+
+    private boolean fieldIsOptional(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
     }
 }
