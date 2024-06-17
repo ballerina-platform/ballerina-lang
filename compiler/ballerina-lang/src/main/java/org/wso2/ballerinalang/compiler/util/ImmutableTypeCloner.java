@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -77,6 +79,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.types.SemTypes.intersect;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
@@ -217,11 +220,12 @@ public class ImmutableTypeCloner {
             case TypeTags.XML_PI:
                 BXMLSubType origXmlSubType = (BXMLSubType) type;
 
+                SemType xmlRoSemType = intersect(origXmlSubType.semType(), PredefinedType.IMPLEMENTED_VAL_READONLY);
                 // TODO: 4/28/20 Check tsymbol
                 BXMLSubType immutableXmlSubType =
                         new BXMLSubType(origXmlSubType.tag,
                                         names.fromString(origXmlSubType.name.getValue().concat(AND_READONLY_SUFFIX)),
-                                        origXmlSubType.getFlags() | Flags.READONLY);
+                                        origXmlSubType.getFlags() | Flags.READONLY, xmlRoSemType);
 
                 BIntersectionType immutableXmlSubTypeIntersectionType =
                         createImmutableIntersectionType(pkgId, owner, originalType, immutableXmlSubType, symTable);

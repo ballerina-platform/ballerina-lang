@@ -16,6 +16,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -65,5 +68,18 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        SemType s;
+        if (constraint == null) {
+            s = PredefinedType.XML;
+        } else {
+            s = SemTypes.xmlSequence(constraint.semType());
+        }
+
+        boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
+        return readonly ? SemTypes.intersect(PredefinedType.IMPLEMENTED_VAL_READONLY, s) : s;
     }
 }

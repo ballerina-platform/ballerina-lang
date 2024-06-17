@@ -208,6 +208,11 @@ public final class SemTypeHelper {
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.FINITE:
+            case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
                 return true;
             default:
                 return false;
