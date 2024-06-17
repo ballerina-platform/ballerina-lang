@@ -131,6 +131,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final List<JarConflict> conflictedJars;
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
+    private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
     private Map<String, ByteArrayOutputStream> optimizedJarStreams;
     protected Set<PackageID> unusedCompilerLevelPackageIds;
     protected Set<PackageId> unusedProjectLevelPackageIds;
@@ -169,6 +170,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.conflictedJars = new ArrayList<>();
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+        this.codeGenOptimizationReportEmitter = CodeGenOptimizationReportEmitter.getInstance(compilerContext);
         if (packageCompilation.compilationOptions().optimizeCodegen()) {
             this.optimizedJarStreams = new HashMap<>();
             this.unusedCompilerLevelPackageIds = new HashSet<>();
@@ -262,10 +264,10 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
-        CodeGenOptimizationReportEmitter.emitBirOptimizationDuration();
+        this.codeGenOptimizationReportEmitter.emitBirOptimizationDuration();
 
         if (this.packageContext.project().buildOptions().optimizeReport()) {
-            CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
+            this.codeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
                     this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportPath(),
                     packageContext.project().kind());
         }
@@ -860,7 +862,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             outStream.close();
 
-            CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
             ZipFile birOptimizedFatJar = new ZipFile(birOptimizedJarPath);
 
             Set<String> startPoints = new LinkedHashSet<>();
@@ -875,9 +877,9 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeDependencyOptimizer.copyUsedEntries();
             optimizedJarStream.close();
 
-            CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
-            CodeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
-            CodeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
+            this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            this.codeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
+            this.codeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
             if (this.packageContext.project().buildOptions().optimizeReport()) {
                 NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
                         nativeDependencyOptimizer.getNativeDependencyOptimizationReport(), getOptimizationReportPath(),
