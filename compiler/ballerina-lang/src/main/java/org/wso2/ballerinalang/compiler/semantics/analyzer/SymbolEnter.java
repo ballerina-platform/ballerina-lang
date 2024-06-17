@@ -3461,7 +3461,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean isIgnoredOrEmpty(BLangSimpleVariable varNode) {
-        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.equals("");
+        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.isEmpty();
     }
 
     private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {

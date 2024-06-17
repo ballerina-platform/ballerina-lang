@@ -308,7 +308,7 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
-            if (excludes != null && excludes.equals("")) {
+            if (excludes != null && excludes.isEmpty()) {
                 this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
             }
         } else {

@@ -1818,7 +1818,7 @@ public class JvmInstructionGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);
 
-            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+            String pkgClassName = currentPackageName.equals(".") || currentPackageName.isEmpty() ?
                     MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
                     ANNOTATION_MAP_NAME);
 
@@ -1874,7 +1874,7 @@ public class JvmInstructionGen {
         String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
         // Set annotations if available.
         this.mv.visitInsn(DUP);
-        String pkgClassName = funcPkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
         this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
         // Format of name `$anon$method$delegate$Foo.func$0`.

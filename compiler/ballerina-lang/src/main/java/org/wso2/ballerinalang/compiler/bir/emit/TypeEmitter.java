@@ -176,7 +176,7 @@ class TypeEmitter {
         String stringRep;
         if (!bType.fieldNameList.isEmpty()) {
             for (String fieldName : bType.fieldNameList) {
-                if (!keyStringBuilder.toString().equals("")) {
+                if (!keyStringBuilder.toString().isEmpty()) {
                     keyStringBuilder.append(", ");
                 }
                 keyStringBuilder.append(fieldName);
@@ -299,7 +299,7 @@ class TypeEmitter {
                 recordStr.append(emitTabs(tabs + 1));
                 String flags = emitFlags(bField.type.flags);
                 recordStr.append(flags);
-                if (!flags.equals("")) {
+                if (!flags.isEmpty()) {
                     recordStr.append(emitSpaces(1));
                 }
                 recordStr.append(emitTypeRef(bField.type, tabs + 1));
@@ -326,7 +326,7 @@ class TypeEmitter {
                 str.append(emitTabs(tabs + 1));
                 String flags = emitFlags(bField.type.flags);
                 str.append(flags);
-                if (!flags.equals("")) {
+                if (!flags.isEmpty()) {
                     str.append(emitSpaces(1));
                 }
                 str.append(emitTypeRef(bField.type, tabs + 1));

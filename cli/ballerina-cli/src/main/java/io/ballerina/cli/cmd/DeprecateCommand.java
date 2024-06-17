@@ -179,7 +179,7 @@ public class DeprecateCommand implements BLauncherCmd {
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

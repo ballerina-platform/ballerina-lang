@@ -62,7 +62,7 @@ class EmitterUtils {
         String str = "";
         str += modId.orgName + "/";
         str += modId.name;
-        if (!modId.version.value.equals("")) {
+        if (!modId.version.value.isEmpty()) {
             str += ":";
             str += modId.version.value;
         }
@@ -171,7 +171,7 @@ class EmitterUtils {
     }
 
     static boolean isEmpty(Name nameVal) {
-        return nameVal.value.equals("");
+        return nameVal.value.isEmpty();
     }
 
     static String emitValue(Object value, BType type) {
