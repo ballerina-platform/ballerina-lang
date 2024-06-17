@@ -479,7 +479,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
-                result = (Long) ((Long) lhs.value / (Long) rhs.value);
+                result = (Long) lhs.value / (Long) rhs.value;
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -501,7 +501,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = (Long) ((Long) lhs.value % (Long) rhs.value);
+                result = (Long) lhs.value % (Long) rhs.value;
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs.value))
@@ -782,7 +782,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
                 type.tsymbol.name, pkgID, null, env.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
-        typeDefinitionSymbol.scope.define(names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
 
         type.tsymbol.scope = new Scope(type.tsymbol);
         for (BField field : ((HashMap<String, BField>) type.fields).values()) {

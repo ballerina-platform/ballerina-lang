@@ -101,7 +101,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
     public boolean onPreValidation(BallerinaCompletionContext context, ForEachStatementNode node) {
         int cursor = context.getCursorPositionInTree();
         Token matchKeyword = node.forEachKeyword();
-        BlockStatementNode blockStatement = (BlockStatementNode) node.blockStatement();
+        BlockStatementNode blockStatement = node.blockStatement();
         
         /*
         Validates the following

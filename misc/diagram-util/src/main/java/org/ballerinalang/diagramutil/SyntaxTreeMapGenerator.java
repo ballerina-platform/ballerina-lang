@@ -653,9 +653,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
         } else {
             JsonElement memberValues = node.apply(this);
-            memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {
-                nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
-            });
+            memberValues.getAsJsonObject().entrySet().forEach(memberEntry ->
+                nodeInfo.add(memberEntry.getKey(), memberEntry.getValue()));
         }
         // Skip trailing minutiae if node doesn't have trailing minutiae (eg: ReTag)
         try {

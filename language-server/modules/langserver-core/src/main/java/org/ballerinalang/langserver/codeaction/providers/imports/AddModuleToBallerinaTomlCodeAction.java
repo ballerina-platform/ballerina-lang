@@ -157,7 +157,7 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
                 .filter(member -> member.kind().equals(SyntaxKind.TABLE) &&
                         TomlSyntaxTreeUtil.toQualifiedName(((TableNode) member).identifier().value()).equals("package"))
                 .findFirst()
-                .map(member -> ((TableNode) member).lineRange().endLine().line() + 2)
+                .map(member -> member.lineRange().endLine().line() + 2)
                 .orElse(0);
     }
 }

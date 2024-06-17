@@ -49,7 +49,7 @@ public class WorkerSyncSendTest {
     public void simpleSyncSendTest() {
 
         Object returns = BRunUtil.invoke(result, "simpleSyncSend");
-        Assert.assertTrue((Boolean) returns.toString().startsWith("w2w2w2w2w2"),
+        Assert.assertTrue(returns.toString().startsWith("w2w2w2w2w2"),
                 "Returned wrong value:" + returns.toString());
     }
 
@@ -57,7 +57,7 @@ public class WorkerSyncSendTest {
     public void multipleSyncSendTest() {
 
         Object returns = BRunUtil.invoke(result, "multipleSyncSend");
-        Assert.assertTrue((Boolean) returns.toString().startsWith("w2w2w2w2w2"),
+        Assert.assertTrue(returns.toString().startsWith("w2w2w2w2w2"),
                           "Returned wrong value:" + returns.toString());
         Assert.assertFalse(returns.toString().startsWith("w11"),
                            "Returned wrong value:" + returns.toString());

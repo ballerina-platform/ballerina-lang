@@ -634,7 +634,7 @@ public class TestCommandTest extends BaseCommandTest {
                 pbArgs.add("-jar");
                 pbArgs.add(testableJar.toString());
                 pbArgs.addAll(mainArgs);
-                
+
                 ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
                 Process process = processBuilder.start();
                 StringBuilder output = new StringBuilder();
