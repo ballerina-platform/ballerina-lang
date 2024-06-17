@@ -18,8 +18,6 @@
 
 package io.ballerina.projects.util;
 
-import java.util.List;
-
 /**
  * Defines constants related to the codegen optimization.
  *
@@ -37,6 +35,4 @@ public class CodegenOptimizationConstants {
     public static final String DOT_CLASS = ".class";
     public static final String INTEROP_DEPENDENCIES_PROPERTIES_FILE = "interop-dependencies.properties";
     public static final String EXTERNAL_DEPENDENCY_ANNOT = "ExternalDependency";
-    public static final List<String> WHITE_LISTED_PKG_NAMES =
-            List.of(BALLERINA_OBSERVE, BALLERINA_JBALLERINA, BALLERINA_LANG);
 }
