@@ -59,7 +59,7 @@ public class NativeDependencyOptimizationReportEmitter {
             try {
                 Files.createDirectories(reportParentDirectoryPath);
             } catch (IOException e) {
-                throw new ProjectException("Failed to create Optimization Report directory ", e);
+                throw new ProjectException("Failed to create optimization report directory ", e);
             }
         }
 
