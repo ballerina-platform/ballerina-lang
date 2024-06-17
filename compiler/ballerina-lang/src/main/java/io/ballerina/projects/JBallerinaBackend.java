@@ -94,7 +94,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-import static io.ballerina.projects.util.CodegenOptimizationConstants.WHITE_LISTED_PKG_NAMES;
+import static io.ballerina.projects.util.CodegenOptimizationUtils.isWhiteListedModule;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -308,7 +308,7 @@ public class JBallerinaBackend extends CompilerBackend {
         collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
 
         buildPkgDependencies.stream()
-                .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
+                .filter(testablePkgDependencies::contains).filter(pkgSymbol -> !isWhiteListedModule(pkgSymbol.pkgID))
                 .forEach(pkgSymbol -> {
                     pkgSymbol.shouldGenerateDuplicateBIR = true;
                     // Have to use a hashmap because the pkgIds get mutated later
@@ -316,15 +316,6 @@ public class JBallerinaBackend extends CompilerBackend {
                             pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
                             pkgSymbol.pkgID);
                 });
-    }
-
-    private boolean isNotWhiteListedPkg(BPackageSymbol pkgSymbol) {
-        for (String pkgName : WHITE_LISTED_PKG_NAMES) {
-            if (pkgSymbol.pkgID.toString().contains(pkgName)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void collectDependencies(BPackageSymbol pkgSymbol, Set<BPackageSymbol> currentDependencies) {
