@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +34,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -47,44 +49,60 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DI
  */
 public class CodeGenOptimizationReportEmitter {
 
-    private static final Map<PackageID, Long> birOptimizationDurations = new LinkedHashMap<>();
-    private static long nativeOptimizationDuration = 0;
-    private static final PrintStream out = System.out;
+    private static final CompilerContext.Key<CodeGenOptimizationReportEmitter> CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY =
+            new CompilerContext.Key<>();
+    private final Map<PackageID, Long> birOptimizationDurations;
+    private long nativeOptimizationDuration;
+    private final PrintStream out;
     private static final String CODEGEN_OPTIMIZATION_REPORT = "codegen_optimization_report.json";
 
-    protected static void flipBirOptimizationTimer(PackageID pkgId) {
-        if (birOptimizationDurations.containsKey(pkgId)) {
-            long totalDuration = System.currentTimeMillis() - birOptimizationDurations.get(pkgId);
-            birOptimizationDurations.put(pkgId, totalDuration);
+    private CodeGenOptimizationReportEmitter(CompilerContext compilerContext) {
+        compilerContext.put(CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY, this);
+        this.out = System.out;
+        this.birOptimizationDurations = new HashMap<>();
+        this.nativeOptimizationDuration = 0;
+    }
+
+    public static CodeGenOptimizationReportEmitter getInstance(CompilerContext compilerContext) {
+        CodeGenOptimizationReportEmitter codegenOptimizationReportEmitter =
+                compilerContext.get(CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY);
+        if (codegenOptimizationReportEmitter == null) {
+            codegenOptimizationReportEmitter = new CodeGenOptimizationReportEmitter(compilerContext);
+        }
+        return codegenOptimizationReportEmitter;
+    }
+
+    protected void flipBirOptimizationTimer(PackageID pkgId) {
+        if (this.birOptimizationDurations.containsKey(pkgId)) {
+            long totalDuration = System.currentTimeMillis() - this.birOptimizationDurations.get(pkgId);
+            this.birOptimizationDurations.put(pkgId, totalDuration);
         } else {
-            birOptimizationDurations.put(pkgId, System.currentTimeMillis());
+            this.birOptimizationDurations.put(pkgId, System.currentTimeMillis());
         }
     }
 
-    protected static void flipNativeOptimizationTimer() {
-        if (nativeOptimizationDuration == 0) {
-            nativeOptimizationDuration = System.currentTimeMillis();
+    protected void flipNativeOptimizationTimer() {
+        if (this.nativeOptimizationDuration == 0) {
+            this.nativeOptimizationDuration = System.currentTimeMillis();
         } else {
-            nativeOptimizationDuration = System.currentTimeMillis() - nativeOptimizationDuration;
+            this.nativeOptimizationDuration = System.currentTimeMillis() - this.nativeOptimizationDuration;
         }
     }
 
-    protected static void emitBirOptimizationDuration() {
-        long totalDuration = birOptimizationDurations.values().stream().mapToLong(Long::longValue).sum();
-        out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
-        birOptimizationDurations.forEach((key, value) -> out.printf("    %s : %dms%n", key, value));
-        out.println();
-        // TODO make this class a singleton
-        birOptimizationDurations.clear();
+    protected void emitBirOptimizationDuration() {
+        long totalDuration = this.birOptimizationDurations.values().stream().mapToLong(Long::longValue).sum();
+        this.out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
+        this.birOptimizationDurations.forEach((key, value) -> this.out.printf("    %s : %dms%n", key, value));
+        this.out.println();
     }
 
-    protected static void emitNativeOptimizationDuration() {
-        out.println(
-                "Duration for Bytecode optimization (analysis + deletion) : " + nativeOptimizationDuration + "ms");
-        nativeOptimizationDuration = 0;
+    protected void emitNativeOptimizationDuration() {
+        this.out.println(
+                "Duration for Bytecode optimization (analysis + deletion) : " + this.nativeOptimizationDuration + "ms");
+        this.nativeOptimizationDuration = 0;
     }
 
-    protected static void emitOptimizedExecutableSize(Path executableFilePath) {
+    protected void emitOptimizedExecutableSize(Path executableFilePath) {
         try {
             float optimizedJarSize = Files.size(executableFilePath) / (1024f * 1024f);
             System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
@@ -93,7 +111,7 @@ public class CodeGenOptimizationReportEmitter {
         }
     }
 
-    protected static void emitCodegenOptimizationReport(
+    protected void emitCodegenOptimizationReport(
             Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap, Path projectDirectoryPath,
             ProjectKind projectKind) {
         Path reportParentDirectoryPath = projectDirectoryPath.resolve(TARGET_DIR_NAME).toAbsolutePath().normalize();
@@ -127,14 +145,14 @@ public class CodeGenOptimizationReportEmitter {
         }
     }
 
-    private static CodegenOptimizationReport getCodegenOptimizationReport(
+    private CodegenOptimizationReport getCodegenOptimizationReport(
             UsedBIRNodeAnalyzer.InvocationData invocationData) {
         return new CodegenOptimizationReport(getFunctionNames(invocationData.usedFunctions),
                 getFunctionNames(invocationData.unusedFunctions), getTypeDefNames(invocationData.usedTypeDefs),
                 getTypeDefNames(invocationData.unusedTypeDefs), invocationData.usedNativeClassPaths);
     }
 
-    private static CodegenOptimizationReport.FunctionNames getFunctionNames(Set<BIRNode.BIRFunction> birFunctions) {
+    private CodegenOptimizationReport.FunctionNames getFunctionNames(Set<BIRNode.BIRFunction> birFunctions) {
         CodegenOptimizationReport.FunctionNames functionNames =
                 new CodegenOptimizationReport.FunctionNames(new LinkedHashSet<>(), new LinkedHashSet<>());
         birFunctions.forEach(birFunction -> {
@@ -147,7 +165,7 @@ public class CodeGenOptimizationReportEmitter {
         return functionNames;
     }
 
-    private static String getFunctionName(BIRNode.BIRFunction birFunction) {
+    private String getFunctionName(BIRNode.BIRFunction birFunction) {
         if (birFunction.receiver == null) {
             return birFunction.name.value;
         }
@@ -156,8 +174,7 @@ public class CodeGenOptimizationReportEmitter {
         return birFunction.receiver.type.toString() + "." + birFunction.name.value;
     }
 
-    private static CodegenOptimizationReport.TypeDefinitions getTypeDefNames(
-            Set<BIRNode.BIRTypeDefinition> birTypeDefs) {
+    private CodegenOptimizationReport.TypeDefinitions getTypeDefNames(Set<BIRNode.BIRTypeDefinition> birTypeDefs) {
         CodegenOptimizationReport.TypeDefinitions typeDefNames =
                 new CodegenOptimizationReport.TypeDefinitions(new LinkedHashSet<>(), new LinkedHashSet<>());
         birTypeDefs.forEach(birTypeDef -> {
