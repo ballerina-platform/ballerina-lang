@@ -336,9 +336,7 @@ public class TestSuite {
     }
 
     public void addTestExecutionDependencies(Collection<Path> dependencies) {
-        dependencies.forEach((path) -> {
-            this.testExecutionDependencies.add(path.toString());
-        });
+        dependencies.forEach((path) -> this.testExecutionDependencies.add(path.toString()));
     }
 
     public List<String> getTestExecutionDependencies() {
