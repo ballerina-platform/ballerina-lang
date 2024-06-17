@@ -434,7 +434,7 @@ public class ProjectUtils {
 
     public static String getBalaName(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -451,7 +451,7 @@ public class ProjectUtils {
      */
     public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return Paths.get(org, pkgName, version, platform);

@@ -133,7 +133,7 @@ public class RegExpFactory {
 
     public static RegExpValue translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
-        if (disjunction.stringValue(null).equals("")) {
+        if (disjunction.stringValue(null).isEmpty()) {
             disjunction = getNonCapturingGroupDisjunction();
         }
         for (Object s : disjunction.getRegExpSeqList()) {

@@ -66,7 +66,7 @@ public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifi
     public String toString() {
         StringBuilder keyStringBuilder = new StringBuilder();
         for (IdentifierNode identifier : fieldNameIdentifierList) {
-            if (!keyStringBuilder.toString().equals("")) {
+            if (!keyStringBuilder.toString().isEmpty()) {
                 keyStringBuilder.append(", ");
             }
             keyStringBuilder.append(((BLangIdentifier) identifier).value);
