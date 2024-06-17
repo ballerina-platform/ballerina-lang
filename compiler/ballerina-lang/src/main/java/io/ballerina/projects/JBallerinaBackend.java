@@ -133,8 +133,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
     private Map<String, ByteArrayOutputStream> optimizedJarStreams;
-    protected Set<PackageID> unusedPackageIDs;
-    protected Set<PackageId> unusedPackageIds;
+    protected Set<PackageID> unusedCompilerLevelPackageIds;
+    protected Set<PackageId> unusedProjectLevelPackageIds;
     protected Set<ModuleId> unusedModuleIds;
     protected Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
 
@@ -172,8 +172,8 @@ public class JBallerinaBackend extends CompilerBackend {
         this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
         if (packageCompilation.compilationOptions().optimizeCodegen()) {
             this.optimizedJarStreams = new HashMap<>();
-            this.unusedPackageIDs = new HashSet<>();
-            this.unusedPackageIds = new HashSet<>();
+            this.unusedCompilerLevelPackageIds = new HashSet<>();
+            this.unusedProjectLevelPackageIds = new HashSet<>();
             this.unusedModuleIds = new HashSet<>();
             this.pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
         }
@@ -367,9 +367,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void updateUnusedPkgMaps(ModuleContext ususedModuleContext) {
         unusedModuleIds.add(ususedModuleContext.moduleId());
-        unusedPackageIDs.add(ususedModuleContext.bLangPackage().symbol.pkgID);
+        unusedCompilerLevelPackageIds.add(ususedModuleContext.bLangPackage().symbol.pkgID);
         if (ususedModuleContext.isDefaultModule()) {
-            unusedPackageIds.add(ususedModuleContext.moduleId().packageId());
+            unusedProjectLevelPackageIds.add(ususedModuleContext.moduleId().packageId());
         }
     }
 
@@ -677,7 +677,8 @@ public class JBallerinaBackend extends CompilerBackend {
                             bPackageSymbol.getName()));
         }
 
-        bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
+        bPackageSymbol.imports.removeIf(pkgSymbol ->
+                pkgSymbol != null && unusedCompilerLevelPackageIds.contains(pkgSymbol.pkgID));
         birPackage.importModules.removeIf(module -> isUnusedPkgID(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
         birPackage.typeDefs.removeIf(typeDef -> typeDef.getUsedState() == UsedState.UNUSED);
@@ -691,7 +692,8 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private boolean isUnusedPkgID(PackageID packageID) {
-        return unusedPackageIDs.stream().anyMatch(unusedPkgID -> unusedPkgID.nameComps.equals(packageID.nameComps));
+        return unusedCompilerLevelPackageIds.stream().anyMatch(unusedPkgID ->
+                unusedPkgID.nameComps.equals(packageID.nameComps));
     }
 
     private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData, PackageID pkgID) {

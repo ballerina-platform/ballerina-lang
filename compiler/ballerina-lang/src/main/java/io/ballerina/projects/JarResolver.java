@@ -116,7 +116,7 @@ public class JarResolver {
                 .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
                 .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
                 .filter(pkgDep -> !optimizeFinalExecutable ||
-                        !jBalBackend.unusedPackageIds.contains(pkgDep.packageId()))
+                        !jBalBackend.unusedProjectLevelPackageIds.contains(pkgDep.packageId()))
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext
