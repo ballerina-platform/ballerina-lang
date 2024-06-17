@@ -127,9 +127,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
                     false, -1, -1);
             functionDefinitionNode.relativeResourcePath().stream()
                     .filter(resourcePath -> resourcePath.kind() == SyntaxKind.IDENTIFIER_TOKEN)
-                    .forEach(resourcePath -> {
-                    this.addSemanticToken(resourcePath, type, TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
-            });
+                    .forEach(resourcePath ->
+                    this.addSemanticToken(resourcePath, type, TokenTypeModifiers.DECLARATION.getId(), false, -1, -1));
         } else {
             this.addSemanticToken(functionDefinitionNode.functionName(), type, TokenTypeModifiers.DECLARATION.getId(),
                     true, type, 0);

@@ -433,7 +433,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                                                  names.fromString(DEFAULT_WORKER_NAME), 0,
+                                                  Names.fromString(DEFAULT_WORKER_NAME), 0,
                                                   funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
@@ -496,7 +496,7 @@ public class BIRGen extends BLangNodeVisitor {
             BInvokableSymbol funcSymbol = func.symbol;
 
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, funcSymbol.origin.toBIROrigin());
+                    Names.fromString(DEFAULT_WORKER_NAME), 0, funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
@@ -582,12 +582,12 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         Name funcName;
         if (isTypeAttachedFunction) {
-            funcName = names.fromString(astFunc.symbol.name.value);
+            funcName = Names.fromString(astFunc.symbol.name.value);
         } else {
             funcName = getFuncName(astFunc.symbol);
         }
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName,
-                names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
+                Names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
                 astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
@@ -892,12 +892,12 @@ public class BIRGen extends BLangNodeVisitor {
 
     private Name getFuncName(BInvokableSymbol symbol) {
         if (symbol.receiverSymbol == null) {
-            return names.fromString(symbol.name.value);
+            return Names.fromString(symbol.name.value);
         }
 
         int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
-        return names.fromString(attachedFuncName.substring(offset));
+        return Names.fromString(attachedFuncName.substring(offset));
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
@@ -1109,8 +1109,8 @@ public class BIRGen extends BLangNodeVisitor {
                                                                     ANNOTATION_DATA : varNode.name.originalValue;
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, varNode.symbol.pkgID,
-                                                                  names.fromString(name),
-                                                                  names.fromString(originalName), VarScope.GLOBAL,
+                                                                  Names.fromString(name),
+                                                                  Names.fromString(originalName), VarScope.GLOBAL,
                                                                   VarKind.GLOBAL, varNode.name.value,
                                                                   varNode.symbol.origin.toBIROrigin());
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
@@ -1243,7 +1243,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos,
-                names.fromString(workerReceive.getChannel().channelId()), lhsOp, isOnSameStrand, thenBB,
+                Names.fromString(workerReceive.getChannel().channelId()), lhsOp, isOnSameStrand, thenBB,
                 this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
@@ -1265,7 +1265,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                asyncSendExpr.pos, names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
+                asyncSendExpr.pos, Names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
                 false, lhsOp, thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
@@ -1288,7 +1288,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                syncSend.pos, names.fromString(syncSend.getChannel().channelId()), dataOp, isOnSameStrand, true, lhsOp,
+                syncSend.pos, Names.fromString(syncSend.getChannel().channelId()), dataOp, isOnSameStrand, true, lhsOp,
                 thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);

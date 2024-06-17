@@ -95,12 +95,12 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 }
             });
 
-            analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext -> {
+            analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext ->
                 syntaxNodeAnalysisContext.reportDiagnostic(
                         DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_SYNTAX_WARNING",
                                 "Local var decl test warning message",
-                                syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING));
-            }, SyntaxKind.LOCAL_VAR_DECL);
+                                syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING)),
+                    SyntaxKind.LOCAL_VAR_DECL);
         }
 
         SyntaxTree getSyntaxTree(Package currentPkg) {

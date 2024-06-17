@@ -128,7 +128,7 @@ public class ServiceDesugar {
         // Find correct symbol.
         BTypeSymbol listenerTypeSymbol = Types.getImpliedType(
                 getListenerType(variable.getBType())).tsymbol;
-        final Name functionName = names
+        final Name functionName = Names
                 .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
                 .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName,
@@ -194,7 +194,7 @@ public class ServiceDesugar {
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
             BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.getBType()).tsymbol;
-            final Name functionName = names
+            final Name functionName = Names
                     .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
                     .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName, SymTag.INVOKABLE);

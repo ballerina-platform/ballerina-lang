@@ -132,10 +132,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        nodeList.forEach(extractableNode -> {
+        nodeList.forEach(extractableNode ->
             textEditMap.put(extractableNode.toSourceCode().strip(),
-                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
-        });
+                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();

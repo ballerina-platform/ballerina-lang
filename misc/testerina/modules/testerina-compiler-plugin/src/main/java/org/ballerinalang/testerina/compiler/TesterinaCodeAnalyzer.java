@@ -51,20 +51,18 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
             // Traverses class and service definition nodes to check if test definitions are specified within
             // the class for functions
             if (syntaxNodeAnalysisContext.node() instanceof ClassDefinitionNode classDefinitionNode) {
-                classDefinitionNode.members().forEach(member -> {
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member);
-                });
+                classDefinitionNode.members().forEach(member ->
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             } else if (syntaxNodeAnalysisContext.node() instanceof ServiceDeclarationNode serviceDeclarationNode) {
-                serviceDeclarationNode.members().forEach(member -> {
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member);
-                });
+                serviceDeclarationNode.members().forEach(member ->
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             }
         }, Arrays.asList(SyntaxKind.CLASS_DEFINITION, SyntaxKind.SERVICE_DECLARATION));
     }
 
     private static void validateTestAnnotation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, Node member) {
         if (member instanceof FunctionDefinitionNode funcDefNode) {
-            funcDefNode.metadata().ifPresent(metadata -> {
+            funcDefNode.metadata().ifPresent(metadata ->
                 metadata.annotations().forEach(annotation -> {
                     if (annotation.annotReference().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                         QualifiedNameReferenceNode qualifiedNameReferenceNode =
@@ -79,8 +77,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
                             syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
                         }
                     }
-                });
-            });
+                }));
         }
     }
 }
