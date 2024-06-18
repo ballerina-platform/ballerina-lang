@@ -45,7 +45,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
 //        isPublic = true
 //)
-public class Enumerate {
+public final class Enumerate {
 
     private Enumerate() {
     }

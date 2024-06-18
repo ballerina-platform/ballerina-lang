@@ -43,7 +43,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  *
  * @since 2.0.0
  */
-public class Errors {
+public final class Errors {
 
     private static Module errorModule = new Module("testorg", "errors.error_utils", "1");
 

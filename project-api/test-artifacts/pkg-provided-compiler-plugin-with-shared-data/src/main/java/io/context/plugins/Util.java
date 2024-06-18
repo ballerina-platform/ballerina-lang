@@ -34,7 +34,7 @@ import io.ballerina.tools.text.TextRange;
  *
  * @since 2201.8.7
  */
-public class Util {
+public final class Util {
 
     private Util() {
     }

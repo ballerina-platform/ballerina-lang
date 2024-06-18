@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @since 1.2.0
  */
-public class IteratorUtils {
+public final class IteratorUtils {
 
     private IteratorUtils() {
     }

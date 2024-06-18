@@ -32,7 +32,7 @@ import java.math.BigDecimal;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Sum {
+public final class Sum {
 
     private Sum() {
     }

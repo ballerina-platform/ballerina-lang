@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @since 0.982.0
  */
-public class BallerinaServerAgent {
+public final class BallerinaServerAgent {
     private static PrintStream outStream = System.err;
 
     /**

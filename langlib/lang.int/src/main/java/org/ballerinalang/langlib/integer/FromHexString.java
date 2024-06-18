@@ -31,7 +31,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class FromHexString {
+public final class FromHexString {
 
     private FromHexString() {
     }

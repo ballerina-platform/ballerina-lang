@@ -44,7 +44,7 @@ import java.util.List;
  *
  * @since 2201.5.0
  */
-public class RegexpCompletionProvider {
+public final class RegexpCompletionProvider {
 
     private static final List<String> WORD_SEPARATOR_ARRAY = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
             "*", "(", ")", "-", "=", "+", "[", "{", "]", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/",

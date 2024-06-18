@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BHandle;
  * @since 1.0.0
  */
 
-public class GetArrayLength {
+public final class GetArrayLength {
 
     private GetArrayLength() {
     }

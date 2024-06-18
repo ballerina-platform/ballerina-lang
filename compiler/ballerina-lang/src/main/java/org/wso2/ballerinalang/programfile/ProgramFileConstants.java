@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.programfile;
  * @since 0.94
  */
 @Deprecated
-public class ProgramFileConstants {
+public final class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 50;

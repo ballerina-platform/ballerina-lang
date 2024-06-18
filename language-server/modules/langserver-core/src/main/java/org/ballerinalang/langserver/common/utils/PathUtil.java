@@ -50,7 +50,7 @@ import java.util.Optional;
  *
  * @since 2201.1.1
  */
-public class PathUtil {
+public final class PathUtil {
 
     private PathUtil() {
     }

@@ -86,7 +86,7 @@ import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefa
  *
  * @since 2201.9.0
  */
-public class JsonParser {
+public final class JsonParser {
 
     private static final ThreadLocal<JsonStateMachine> tlStateMachine =
             ThreadLocal.withInitial(JsonStateMachine::new);

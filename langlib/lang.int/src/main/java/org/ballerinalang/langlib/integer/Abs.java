@@ -37,7 +37,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Abs {
+public final class Abs {
 
     private Abs() {
     }

@@ -22,7 +22,7 @@ package io.ballerina.converters.util;
  *
  * @since 2.0.0
  */
-public class ErrorMessages {
+public final class ErrorMessages {
 
     private ErrorMessages() {
     }

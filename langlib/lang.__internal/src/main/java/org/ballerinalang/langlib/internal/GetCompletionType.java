@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 2.0.0
  */
-public class GetCompletionType {
+public final class GetCompletionType {
 
     private GetCompletionType() {
     }

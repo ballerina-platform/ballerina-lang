@@ -38,7 +38,7 @@ import io.ballerina.runtime.api.values.BXml;
 //        returnType = {@ReturnType(type = TypeKind.RECORD)},
 //        isPublic = true
 //)
-public class Next {
+public final class Next {
     private Next() {
     }
 

@@ -29,7 +29,7 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsFinite {
+public final class IsFinite {
 
     private IsFinite() {
     }

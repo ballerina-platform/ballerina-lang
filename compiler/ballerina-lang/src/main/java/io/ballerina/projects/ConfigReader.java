@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ConfigReader {
+public final class ConfigReader {
 
     private ConfigReader() {
     }

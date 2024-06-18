@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Remove {
+public final class Remove {
 
     private Remove() {
     }

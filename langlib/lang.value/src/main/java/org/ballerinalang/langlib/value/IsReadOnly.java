@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BRefValue;
  *
  * @since 1.0
  */
-public class IsReadOnly {
+public final class IsReadOnly {
 
     private IsReadOnly() {
     }

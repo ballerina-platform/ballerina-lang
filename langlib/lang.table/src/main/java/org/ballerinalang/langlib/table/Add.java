@@ -32,7 +32,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "val", type = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class Add {
+public final class Add {
 
     private Add() {
     }

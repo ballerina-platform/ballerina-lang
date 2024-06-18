@@ -22,7 +22,7 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 2201.6.0
  */
-public class Avg {
+public final class Avg {
     private Avg() {
     }
 

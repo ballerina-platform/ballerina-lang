@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
  *
  * @since 1.0
  */
-public class Unshift {
+public final class Unshift {
 
     private Unshift() {
     }

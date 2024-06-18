@@ -34,7 +34,7 @@ import java.math.RoundingMode;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Floor {
+public final class Floor {
 
     private Floor() {
     }

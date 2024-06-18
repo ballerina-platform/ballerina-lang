@@ -22,7 +22,7 @@ package org.ballerinalang.langlib.query;
  *
  * @since Swan Lake
  */
-public class CheckNaN {
+public final class CheckNaN {
 
     private CheckNaN() {
     }

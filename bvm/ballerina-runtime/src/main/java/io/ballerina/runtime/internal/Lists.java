@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
  *
  * @since 0.995.0
  */
-public class Lists {
+public final class Lists {
 
     private Lists() {
     }

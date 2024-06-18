@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class EndsWith {
+public final class EndsWith {
 
     private EndsWith() {
     }

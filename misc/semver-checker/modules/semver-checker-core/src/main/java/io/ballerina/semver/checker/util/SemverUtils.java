@@ -26,7 +26,7 @@ import io.ballerina.semver.checker.diff.PackageDiff;
  *
  * @since 2201.2.0
  */
-public class SemverUtils {
+public final class SemverUtils {
 
     private static final String SEMVER_FORMAT = "%d.%d.%d";
     public static final String BAL_FILE_EXT = ".bal";

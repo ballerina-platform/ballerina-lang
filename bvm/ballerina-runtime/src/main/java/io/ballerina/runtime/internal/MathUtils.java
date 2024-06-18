@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  *
  * @since 1.0
  */
-public class MathUtils {
+public final class MathUtils {
 
     private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
 

@@ -35,7 +35,7 @@ import io.ballerina.runtime.internal.XmlFactory;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class CreateProcessingInstruction {
+public final class CreateProcessingInstruction {
 
     private CreateProcessingInstruction() {
     }

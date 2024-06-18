@@ -30,7 +30,7 @@ import java.util.ArrayList;
  *
  * @since 1.2.0
  */
-public class GetElements {
+public final class GetElements {
 
 
     public static final String EMPTY = "";

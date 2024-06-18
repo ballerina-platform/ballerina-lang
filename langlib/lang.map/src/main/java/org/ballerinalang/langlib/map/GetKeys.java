@@ -34,7 +34,7 @@ import io.ballerina.runtime.api.values.BString;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetKeys {
+public final class GetKeys {
 
     private GetKeys() {
     }

@@ -28,7 +28,7 @@ import java.util.Optional;
  * 
  * @since 2.0.0
  */
-public class BallerinaContextUtils {
+public final class BallerinaContextUtils {
     private BallerinaContextUtils() {
     }
     

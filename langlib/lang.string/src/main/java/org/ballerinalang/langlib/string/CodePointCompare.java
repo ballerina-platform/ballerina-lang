@@ -33,7 +33,7 @@ import java.util.PrimitiveIterator;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class CodePointCompare {
+public final class CodePointCompare {
 
     private CodePointCompare() {
     }

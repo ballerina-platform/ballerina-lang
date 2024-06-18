@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.example;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
 
     protected static final String CAPABILITY_NAME = "ballerinaExample";
 

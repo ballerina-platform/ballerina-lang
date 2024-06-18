@@ -33,7 +33,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
  *
  * @since 2201.1.1
  */
-public class SpreadCompletionItemBuilder {
+public final class SpreadCompletionItemBuilder {
     
     public static final String  SPREAD_OPERATOR = "...";
 

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  *
  * @since 0.970.0
  */
-public class LambdaExceptionUtils {
+public final class LambdaExceptionUtils {
 
     private LambdaExceptionUtils() {
     }

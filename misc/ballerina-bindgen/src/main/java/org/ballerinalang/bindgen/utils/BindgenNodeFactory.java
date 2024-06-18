@@ -108,7 +108,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
  *
  * @since 2.0.0
  */
-class BindgenNodeFactory {
+final class BindgenNodeFactory {
 
     private static final Token OPEN_PAREN_TOKEN = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
     private static final Token CLOSED_PAREN_TOKEN = createToken(CLOSE_PAREN_TOKEN);

@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
 
     private RemoveIfHasKey() {
     }

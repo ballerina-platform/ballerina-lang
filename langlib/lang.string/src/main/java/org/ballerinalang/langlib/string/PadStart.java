@@ -32,7 +32,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 2201.1.0
  */
 
-public class PadStart {
+public final class PadStart {
 
     private PadStart() {
     }

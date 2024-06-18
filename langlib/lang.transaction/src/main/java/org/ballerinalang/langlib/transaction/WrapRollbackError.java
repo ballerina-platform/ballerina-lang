@@ -26,7 +26,7 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  *
  * @since 2.0.0-preview1
  */
-public class WrapRollbackError {
+public final class WrapRollbackError {
 
     private WrapRollbackError() {
     }

@@ -22,7 +22,7 @@ import java.util.UUID;
  *
  * @since 2.0.0
  */
-public class SemanticTokensConstants {
+public final class SemanticTokensConstants {
 
     private SemanticTokensConstants() {
     }

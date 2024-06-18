@@ -33,7 +33,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class TestTomlValidator {
+public final class TestTomlValidator {
     private static final PrintStream OUT = System.out;
 
     private TestTomlValidator() {

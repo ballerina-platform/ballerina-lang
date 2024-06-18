@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Min {
+public final class Min {
 
     private Min() {
     }

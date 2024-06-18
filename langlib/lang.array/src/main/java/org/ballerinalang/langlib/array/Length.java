@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BArray;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Length {
+public final class Length {
 
     private Length() {
     }

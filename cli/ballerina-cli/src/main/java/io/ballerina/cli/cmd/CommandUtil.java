@@ -104,7 +104,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  *
  * @since 2.0.0
  */
-public class CommandUtil {
+public final class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";

@@ -33,7 +33,7 @@ import java.util.HashMap;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Copy {
+public final class Copy {
 
     private static final String OPERATION = "copy xml";
 

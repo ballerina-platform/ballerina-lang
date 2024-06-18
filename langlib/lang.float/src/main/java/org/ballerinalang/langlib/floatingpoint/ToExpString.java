@@ -32,7 +32,7 @@ import java.text.DecimalFormat;
  *
  * @since 2201.1.0
  */
-public class ToExpString {
+public final class ToExpString {
 
     private ToExpString() {
     }

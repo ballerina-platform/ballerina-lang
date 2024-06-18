@@ -30,7 +30,7 @@ import java.util.Objects;
  *
  * @since 2201.9.0
  */
-public class WorkerChannels {
+public final class WorkerChannels {
 
     private WorkerChannels() {
     }

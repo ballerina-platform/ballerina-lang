@@ -42,7 +42,7 @@ import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-public class Map {
+public final class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");

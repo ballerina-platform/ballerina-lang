@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 2.0.0
  */
-public class ObjectMockTestInterop {
+public final class ObjectMockTestInterop {
 
     private ObjectMockTestInterop() {
     }

@@ -27,7 +27,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Util class for file operations.
  */
-public class FileUtils {
+public final class FileUtils {
 
     private FileUtils() {
     }

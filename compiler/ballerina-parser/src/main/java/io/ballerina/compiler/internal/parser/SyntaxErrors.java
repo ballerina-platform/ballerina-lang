@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class SyntaxErrors {
+public final class SyntaxErrors {
 
     private SyntaxErrors() {
     }

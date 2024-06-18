@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ValidationUtil {
+public final class ValidationUtil {
 
     private ValidationUtil() {
     }

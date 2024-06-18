@@ -30,7 +30,7 @@ import java.util.Base64;
  *
  * @since 1.0
  */
-public class FromBase64 {
+public final class FromBase64 {
 
     private FromBase64() {
     }

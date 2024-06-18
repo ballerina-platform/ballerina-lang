@@ -38,7 +38,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  *
  * @since 0.965.0
  */
-public class ProjectDirs {
+public final class ProjectDirs {
 
     private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);

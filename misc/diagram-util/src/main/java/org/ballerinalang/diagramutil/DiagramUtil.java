@@ -31,7 +31,7 @@ import io.ballerina.projects.Document;
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
  */
-public class DiagramUtil {
+public final class DiagramUtil {
 
     private DiagramUtil() {
     }

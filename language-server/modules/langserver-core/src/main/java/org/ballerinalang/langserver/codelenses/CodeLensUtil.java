@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 0.984.0
  */
-public class CodeLensUtil {
+public final class CodeLensUtil {
 
     private CodeLensUtil() {
     }

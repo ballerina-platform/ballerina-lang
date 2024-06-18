@@ -37,7 +37,7 @@ import java.util.ArrayList;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Children {
+public final class Children {
 
     private Children() {
     }

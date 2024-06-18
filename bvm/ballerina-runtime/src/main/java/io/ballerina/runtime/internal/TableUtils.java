@@ -41,7 +41,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_CYCLIC
  * @since 1.3.0
  */
 
-public class TableUtils {
+public final class TableUtils {
 
     private TableUtils() {
     }

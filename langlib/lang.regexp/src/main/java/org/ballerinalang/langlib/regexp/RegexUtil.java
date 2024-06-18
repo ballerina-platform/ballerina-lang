@@ -43,7 +43,7 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 2201.3.0
  */
-public class RegexUtil {
+public final class RegexUtil {
     static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(List.of(PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 

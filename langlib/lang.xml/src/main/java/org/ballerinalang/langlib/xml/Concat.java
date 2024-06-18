@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Concat {
+public final class Concat {
 
     private Concat() {
     }

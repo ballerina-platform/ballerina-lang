@@ -51,7 +51,7 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  *
  * @since 2.0.0
  */
-public class BCompileUtil {
+public final class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();

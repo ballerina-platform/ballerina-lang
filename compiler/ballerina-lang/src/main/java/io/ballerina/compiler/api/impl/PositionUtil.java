@@ -27,7 +27,7 @@ import io.ballerina.tools.text.LineRange;
  *
  * @since 2.0.0
  */
-class PositionUtil {
+final class PositionUtil {
 
     private PositionUtil() {
     }

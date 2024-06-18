@@ -25,7 +25,7 @@ import io.ballerina.compiler.internal.parser.ParserFactory;
  *
  * @since 1.3.0
  */
-public class NodeParser {
+public final class NodeParser {
 
     private NodeParser() {
     }

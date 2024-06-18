@@ -32,7 +32,7 @@ import java.io.StringReader;
  * All numbers in the JSON will be represented as float values.
  */
 
-public class FromJsonFloatString {
+public final class FromJsonFloatString {
 
     private FromJsonFloatString() {
     }

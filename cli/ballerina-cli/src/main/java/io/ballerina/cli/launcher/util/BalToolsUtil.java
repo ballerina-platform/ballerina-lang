@@ -96,7 +96,7 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
  *
  * @since 2201.8.0
  */
-public class BalToolsUtil {
+public final class BalToolsUtil {
     private static final String TOOL = "tool";
     private static final String LIBS = "libs";
 

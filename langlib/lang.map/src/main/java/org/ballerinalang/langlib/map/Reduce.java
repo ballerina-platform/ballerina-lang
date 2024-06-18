@@ -36,7 +36,7 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "reduce");

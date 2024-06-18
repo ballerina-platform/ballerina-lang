@@ -57,7 +57,7 @@ import java.util.List;
  *
  * @since 2201.4.0
  */
-public class TypeReference {
+public final class TypeReference {
 
     private TypeReference() {
     }

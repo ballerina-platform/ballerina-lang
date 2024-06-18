@@ -21,7 +21,7 @@ import io.ballerina.tools.text.LineRange;
 /**
  * Provides util methods for testing symbol service apis.
  */
-public class SymbolServiceTestUtil {
+public final class SymbolServiceTestUtil {
 
     public static final String INTEGER = "int";
     public static final String STRING = "string";

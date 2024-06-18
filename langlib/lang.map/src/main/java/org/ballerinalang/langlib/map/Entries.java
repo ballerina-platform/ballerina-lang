@@ -44,7 +44,7 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
-public class Entries {
+public final class Entries {
 
     private Entries() {
     }

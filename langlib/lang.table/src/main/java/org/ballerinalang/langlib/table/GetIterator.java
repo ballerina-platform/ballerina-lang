@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.OBJECT)},
 //        isPublic = true
 //)
-public class GetIterator {
+public final class GetIterator {
     private GetIterator() {
     }
 

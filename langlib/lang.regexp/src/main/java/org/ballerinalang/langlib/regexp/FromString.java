@@ -30,7 +30,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 2201.3.0
  */
-public class FromString {
+public final class FromString {
 
     private static final BString ERROR_REASON = getModulePrefixedReason(REGEXP_LANG_LIB,
             REG_EXP_PARSING_ERROR_IDENTIFIER);

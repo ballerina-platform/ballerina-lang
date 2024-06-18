@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Hold a default {@link MetricRegistry} instance, which is used by Metric APIs.
  */
-public class DefaultMetricRegistry {
+public final class DefaultMetricRegistry {
 
     private static MetricRegistry instance = new MetricRegistry(new NoOpMetricProvider());
 

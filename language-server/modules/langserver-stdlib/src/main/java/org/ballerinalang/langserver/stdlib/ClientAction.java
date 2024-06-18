@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 2201.4.0
  */
-public class ClientAction {
+public final class ClientAction {
 
     private ClientAction() {
     }

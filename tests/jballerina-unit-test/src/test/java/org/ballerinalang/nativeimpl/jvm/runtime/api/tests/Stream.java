@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @since 2201.9.0
  */
-public class Stream {
+public final class Stream {
 
     private Stream() {
     }

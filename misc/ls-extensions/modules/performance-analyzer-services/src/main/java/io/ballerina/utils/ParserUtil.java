@@ -37,7 +37,7 @@ import java.util.Locale;
 /**
  * utils class for ActionInvocationParser.
  */
-public class ParserUtil {
+public final class ParserUtil {
 
     public static final String TEST_DIR = "tests";
     public static final String MAIN_FUNC_NAME = "main";

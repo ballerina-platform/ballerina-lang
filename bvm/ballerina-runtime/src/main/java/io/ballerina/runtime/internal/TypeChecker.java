@@ -137,7 +137,7 @@ import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_ST
  * @since 0.995.0
  */
 @SuppressWarnings({"rawtypes"})
-public class TypeChecker {
+public final class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";

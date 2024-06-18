@@ -50,7 +50,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ServiceValue {
+public final class ServiceValue {
     private static BObject service;
     private static BObject listener;
     private static boolean started;

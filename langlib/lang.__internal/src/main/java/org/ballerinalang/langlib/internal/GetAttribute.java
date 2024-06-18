@@ -33,7 +33,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ER
  *
  * @since 1.2.0
  */
-public class GetAttribute {
+public final class GetAttribute {
 
     private GetAttribute() {
     }

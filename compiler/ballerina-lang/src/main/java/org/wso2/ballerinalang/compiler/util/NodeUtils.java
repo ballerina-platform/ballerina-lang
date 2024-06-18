@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * @since 0.94
  */
-public class NodeUtils {
+public final class NodeUtils {
 
     private NodeUtils() {
     }

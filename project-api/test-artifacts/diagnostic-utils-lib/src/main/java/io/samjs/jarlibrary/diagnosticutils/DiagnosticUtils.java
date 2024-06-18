@@ -28,7 +28,7 @@ import io.ballerina.tools.diagnostics.Location;
  *
  * @since 2.0.0
  */
-public class DiagnosticUtils {
+public final class DiagnosticUtils {
 
     private DiagnosticUtils() {
     }

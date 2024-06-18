@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.0
  */
-public class ResourcePathCompletionUtil {
+public final class ResourcePathCompletionUtil {
 
     private ResourcePathCompletionUtil() {
     }

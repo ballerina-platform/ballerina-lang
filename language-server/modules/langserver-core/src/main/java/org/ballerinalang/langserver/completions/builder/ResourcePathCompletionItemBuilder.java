@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.0
  */
-public class ResourcePathCompletionItemBuilder {
+public final class ResourcePathCompletionItemBuilder {
 
     private ResourcePathCompletionItemBuilder() {
     }

@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class TelemetryUtil {
+public final class TelemetryUtil {
 
     private static final String ARG_FEATURE_NAME = "feature.Name";
     private static final String ARG_FEATURE_CLASS = "feature.Class";

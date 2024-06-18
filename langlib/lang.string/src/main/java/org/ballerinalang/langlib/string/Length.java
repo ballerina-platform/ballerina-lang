@@ -33,7 +33,7 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Length {
+public final class Length {
 
     private Length() {
     }

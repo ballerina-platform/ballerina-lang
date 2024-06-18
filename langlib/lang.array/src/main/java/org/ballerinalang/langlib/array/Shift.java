@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Shift {
+public final class Shift {
 
     private Shift() {
     }

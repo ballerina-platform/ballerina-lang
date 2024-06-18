@@ -44,7 +44,7 @@ import java.util.Optional;
 /**
  * Common util methods related to symbols.
  */
-public class SymbolUtils {
+public final class SymbolUtils {
 
     private SymbolUtils() {
     }

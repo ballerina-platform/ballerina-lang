@@ -83,7 +83,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class Values {
+public final class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");

@@ -24,7 +24,7 @@ import java.util.Comparator;
  *
  * @since 2.0.0
  */
-public class ModuleMappingTest {
+public final class ModuleMappingTest {
 
     // Verifies that the module imports are correctly added in a final field.
     public static final Comparator BUILD_AWARE_ORDER = null;

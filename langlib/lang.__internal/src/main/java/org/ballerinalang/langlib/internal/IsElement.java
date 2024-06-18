@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 /**
  * Helper function to check xml.isElement().
  */
-public class IsElement {
+public final class IsElement {
 
     private IsElement() {
     }

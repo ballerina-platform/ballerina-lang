@@ -26,7 +26,7 @@ import java.util.Set;
  *
  * @since 0.974.0
  */
-public class AttachPoints {
+public final class AttachPoints {
     public static final int TYPE = 1;
     public static final int OBJECT = TYPE << 1;
     public static final int FUNCTION = OBJECT << 1;

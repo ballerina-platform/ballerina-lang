@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 2201.1.0
  */
-public class FloatUtils {
+public final class FloatUtils {
 
     private FloatUtils() {
     }

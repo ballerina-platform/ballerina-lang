@@ -20,7 +20,7 @@ package io.ballerina.tools.text;
 /**
  * Contains a set of helper methods.
  */
-public class TextDocuments {
+public final class TextDocuments {
 
     private TextDocuments() {
     }

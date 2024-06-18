@@ -10,7 +10,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PR
  *
  * @since 2.0.0
  */
-public class DebugUtils {
+public final class DebugUtils {
 
     private static final String DEBUG_ARGS_JAVA = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
     private static final String JAVA_VERSION_PROP = "java.version";

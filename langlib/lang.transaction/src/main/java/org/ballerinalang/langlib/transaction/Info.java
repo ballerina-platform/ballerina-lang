@@ -31,7 +31,7 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  *
  * @since 2.0.0-preview1
  */
-public class Info {
+public final class Info {
 
     private Info() {
     }

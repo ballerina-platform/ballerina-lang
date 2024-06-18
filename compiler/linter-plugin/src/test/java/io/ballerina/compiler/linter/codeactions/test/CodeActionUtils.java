@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class CodeActionUtils {
+public final class CodeActionUtils {
 
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     public static final String NEW = ".new";

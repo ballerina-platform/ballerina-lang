@@ -34,7 +34,7 @@ import java.util.Optional;
  *
  * @since 2201.1.1
  */
-public class PositionUtil {
+public final class PositionUtil {
 
     private PositionUtil() {
     }

@@ -20,7 +20,7 @@ package io.samjs.jarlibrary.stringutils;
 /**
  * A dummy string utils implementation.
  */
-public class StringUtils {
+public final class StringUtils {
 
     private StringUtils() {
     }

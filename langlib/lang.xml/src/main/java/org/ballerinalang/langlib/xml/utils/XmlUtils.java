@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @since 2201.9.0
  */
-public class XmlUtils {
+public final class XmlUtils {
 
     private XmlUtils() {
     }

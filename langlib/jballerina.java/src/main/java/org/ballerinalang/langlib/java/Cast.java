@@ -38,7 +38,7 @@ import static io.ballerina.runtime.api.creators.ValueCreator.createObjectValue;
  *
  * @since 1.2.5
  */
-public class Cast {
+public final class Cast {
 
     private static final String moduleName = "{ballerina/jballerina.java}";
     private static final String annotationName = "@java:Binding";

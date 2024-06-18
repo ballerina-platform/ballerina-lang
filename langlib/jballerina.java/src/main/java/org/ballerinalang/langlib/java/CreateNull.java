@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BHandle;
  *
  * @since 1.0.0
  */
-public class CreateNull {
+public final class CreateNull {
 
     private CreateNull() {
     }

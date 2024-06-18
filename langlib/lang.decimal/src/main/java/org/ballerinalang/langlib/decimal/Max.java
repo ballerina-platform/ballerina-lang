@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Max {
+public final class Max {
 
     private Max() {
     }

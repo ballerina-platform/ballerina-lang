@@ -31,7 +31,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
  *
  * @since 2.0.0
  */
-public class InvokeAsExternal {
+public final class InvokeAsExternal {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, "lang.internal",
             "0.1.0", "invokeAsExternal");

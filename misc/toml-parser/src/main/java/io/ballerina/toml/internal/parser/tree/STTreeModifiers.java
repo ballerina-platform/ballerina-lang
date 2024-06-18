@@ -22,7 +22,7 @@ package io.ballerina.toml.internal.parser.tree;
  *
  * @since 2.0.0
  */
-public class STTreeModifiers {
+public final class STTreeModifiers {
     private STTreeModifiers() {
     }
 

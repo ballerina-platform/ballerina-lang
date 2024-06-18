@@ -38,7 +38,7 @@ import java.util.HashMap;
  *
  * @since 2201.1.0
  */
-public class RuntimeApi {
+public final class RuntimeApi {
 
     private static final Module objectModule = new Module("testorg", "runtime_api", "1");
     private static final Module recordModule = new Module("testorg", "runtime_api", "1");

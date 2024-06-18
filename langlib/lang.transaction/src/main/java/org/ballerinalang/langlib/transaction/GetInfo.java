@@ -26,7 +26,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
  *
  * @since 2.0.0-preview1
  */
-public class GetInfo {
+public final class GetInfo {
 
     private GetInfo() {
     }

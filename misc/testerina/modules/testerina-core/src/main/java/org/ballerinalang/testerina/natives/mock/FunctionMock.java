@@ -30,7 +30,7 @@ import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FU
 /**
  * Class that contains inter-op function related to function mocking.
  */
-public class FunctionMock {
+public final class FunctionMock {
 
     private FunctionMock() {
     }

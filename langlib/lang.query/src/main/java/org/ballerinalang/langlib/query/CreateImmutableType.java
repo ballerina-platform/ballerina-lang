@@ -17,7 +17,7 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
  * @since 2201.2.0
  */
 
-public class CreateImmutableType {
+public final class CreateImmutableType {
 
     private CreateImmutableType() {
     }

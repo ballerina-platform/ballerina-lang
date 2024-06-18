@@ -36,7 +36,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Push {
+public final class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 

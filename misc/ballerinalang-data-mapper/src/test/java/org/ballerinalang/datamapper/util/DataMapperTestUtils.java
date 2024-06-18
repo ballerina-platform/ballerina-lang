@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 /**
  * Common utils that are reused within data-mapper test suits.
  */
-public class DataMapperTestUtils {
+public final class DataMapperTestUtils {
 
     private static JsonParser parser = new JsonParser();
     private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")

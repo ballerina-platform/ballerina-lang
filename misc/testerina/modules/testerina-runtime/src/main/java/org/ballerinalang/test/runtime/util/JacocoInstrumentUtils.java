@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @since 2201.2.0
  */
-public class JacocoInstrumentUtils {
+public final class JacocoInstrumentUtils {
 
     private static final Instrumenter instrumenter = new Instrumenter(new OfflineInstrumentationAccessGenerator());
 

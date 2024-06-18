@@ -74,7 +74,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class RenameUtil {
+public final class RenameUtil {
 
     private RenameUtil() {
     }

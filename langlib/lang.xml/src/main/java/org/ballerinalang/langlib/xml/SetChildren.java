@@ -45,7 +45,7 @@ import java.util.Arrays;
 //        args = {@Argument(name = "children", type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class SetChildren {
+public final class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 

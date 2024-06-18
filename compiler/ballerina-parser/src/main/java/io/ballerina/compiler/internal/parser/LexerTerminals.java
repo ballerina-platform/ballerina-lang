@@ -22,7 +22,7 @@ package io.ballerina.compiler.internal.parser;
  *
  * @since 1.2.0
  */
-public class LexerTerminals {
+public final class LexerTerminals {
 
     // Keywords
     public static final String PUBLIC = "public";

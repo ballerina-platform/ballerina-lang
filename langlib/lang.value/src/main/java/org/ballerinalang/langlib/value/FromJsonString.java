@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.JsonParser;
  *
  * @since 1.0
  */
-public class FromJsonString {
+public final class FromJsonString {
 
     private FromJsonString() {
     }

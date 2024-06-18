@@ -32,7 +32,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *
  * @since 2201.2.2
  */
-public class FileUtils {
+public final class FileUtils {
 
     private FileUtils() {
     }

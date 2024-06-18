@@ -32,7 +32,7 @@ import java.io.StringReader;
  * All numbers in the JSON will be represented as decimal values.
  */
 
-public class FromJsonDecimalString {
+public final class FromJsonDecimalString {
 
     private FromJsonDecimalString() {
     }

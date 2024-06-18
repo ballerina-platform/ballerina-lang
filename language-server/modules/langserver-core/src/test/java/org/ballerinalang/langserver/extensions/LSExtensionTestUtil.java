@@ -59,7 +59,7 @@ import static org.ballerinalang.langserver.util.TestUtil.getTextDocumentPosition
 /**
  * Provides util methods for testing lang-server extension apis.
  */
-public class LSExtensionTestUtil {
+public final class LSExtensionTestUtil {
 
     private static final String AST = "ballerinaDocument/syntaxTree";
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";

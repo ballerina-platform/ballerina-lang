@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.0.0
  */
-public class SetArrayElement {
+public final class SetArrayElement {
 
     private SetArrayElement() {
     }

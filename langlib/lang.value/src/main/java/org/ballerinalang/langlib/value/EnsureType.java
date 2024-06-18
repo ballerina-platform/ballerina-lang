@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  *
  * @since 2.0.0
  */
-public class EnsureType {
+public final class EnsureType {
     private EnsureType() {
     }
 

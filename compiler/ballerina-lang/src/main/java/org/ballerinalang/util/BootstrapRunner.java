@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
  */
-public class BootstrapRunner {
+public final class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;

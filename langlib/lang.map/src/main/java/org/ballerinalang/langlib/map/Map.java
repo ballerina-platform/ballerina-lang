@@ -47,7 +47,7 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
-public class Map {
+public final class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "map");

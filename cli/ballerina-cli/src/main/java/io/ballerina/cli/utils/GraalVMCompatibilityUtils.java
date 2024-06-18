@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 2201.7.0
  */
-public class GraalVMCompatibilityUtils {
+public final class GraalVMCompatibilityUtils {
 
     private GraalVMCompatibilityUtils() {
     }

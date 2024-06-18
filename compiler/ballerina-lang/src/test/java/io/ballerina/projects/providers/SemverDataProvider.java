@@ -5,7 +5,7 @@ import org.testng.annotations.DataProvider;
 /**
  * Data providers for semver versions tests.
  */
-public class SemverDataProvider {
+public final class SemverDataProvider {
 
     private SemverDataProvider() {
     }

@@ -78,7 +78,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INT
 /**
  * Utils class for this package.
  */
-public class Utils {
+public final class Utils {
 
     private static final int BUFFER_SIZE = 1024;
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";

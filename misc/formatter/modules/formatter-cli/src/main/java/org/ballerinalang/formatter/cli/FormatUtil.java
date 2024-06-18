@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * Util class for compilation and format execution for formatting CLI tool.
  */
-class FormatUtil {
+final class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
 

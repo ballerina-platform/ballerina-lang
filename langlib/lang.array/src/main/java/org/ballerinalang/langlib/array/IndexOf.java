@@ -37,7 +37,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class IndexOf {
+public final class IndexOf {
 
     private IndexOf() {
     }

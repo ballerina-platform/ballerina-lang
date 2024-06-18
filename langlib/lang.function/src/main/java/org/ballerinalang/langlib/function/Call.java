@@ -46,7 +46,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 2201.2.0
  */
-public class Call {
+public final class Call {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, FUNCTION_LANG_LIB,
                                                                       "1.0.0", "call");

@@ -22,7 +22,7 @@ package org.ballerinalang.langlib.bool;
  *
  * @since 2201.5.0
  */
-public class Some {
+public final class Some {
     private Some() {
     }
 

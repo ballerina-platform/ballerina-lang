@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0.0
  */
-public class FromString {
+public final class FromString {
 
     private FromString() {
     }

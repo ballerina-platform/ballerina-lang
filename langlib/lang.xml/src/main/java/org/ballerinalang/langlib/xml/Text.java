@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class Text {
+public final class Text {
     private Text() {
     }
 

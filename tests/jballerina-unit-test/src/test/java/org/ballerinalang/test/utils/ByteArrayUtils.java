@@ -26,7 +26,7 @@ import java.util.Base64;
 /**
  * A util class that is useful with byte array related operations.
  */
-public class ByteArrayUtils {
+public final class ByteArrayUtils {
 
     private ByteArrayUtils() {
     }

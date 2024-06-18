@@ -39,7 +39,7 @@ import javax.xml.namespace.QName;
 //        returnType = {@ReturnType(type = TypeKind.NIL)},
 //        isPublic = true
 //)
-public class SetName {
+public final class SetName {
     private static final String OPERATION = "set element name in xml";
 
     private SetName() {

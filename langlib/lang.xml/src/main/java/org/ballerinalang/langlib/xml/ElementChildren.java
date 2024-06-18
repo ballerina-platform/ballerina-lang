@@ -39,7 +39,7 @@ import java.util.List;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class ElementChildren {
+public final class ElementChildren {
 
     private ElementChildren() {
     }

@@ -35,7 +35,7 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class Accumulator {
+public final class Accumulator {
 
     private Accumulator() {
     }

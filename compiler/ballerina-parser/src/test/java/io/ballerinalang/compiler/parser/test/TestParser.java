@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 /**
  * Test the parser.
  */
-public class TestParser {
+public final class TestParser {
 
     private static final PrintStream OUT = System.out;
 

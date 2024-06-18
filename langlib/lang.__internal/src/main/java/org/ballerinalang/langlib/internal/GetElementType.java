@@ -35,7 +35,7 @@ import io.ballerina.runtime.api.values.BValue;
  *
  * @since 1.2.0
  */
-public class GetElementType {
+public final class GetElementType {
 
     private GetElementType() {
     }

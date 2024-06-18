@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Return default value for TypeDescKind.
  */
-public class DefaultValueGenerator {
+public final class DefaultValueGenerator {
     private DefaultValueGenerator() {
     }
 

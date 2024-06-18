@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * Function generator utilities.
  */
-public class FunctionGenerator {
+public final class FunctionGenerator {
 
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");

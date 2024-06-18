@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //                @Argument(name = "endIndex", type = TypeKind.INT) },
 //        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 //)
-public class Slice {
+public final class Slice {
 
     private static final String OPERATION = "slice xml";
 

@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
  *
  * @since 2.0.0
  */
-public class PackageServiceConstants {
+public final class PackageServiceConstants {
 
     protected static final String CAPABILITY_NAME = "ballerinaPackage";
     protected static final String NAME = "name";

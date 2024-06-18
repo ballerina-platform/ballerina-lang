@@ -38,7 +38,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
  *
  * @since 2.0.0
  */
-public class ErrorCreator {
+public final class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 

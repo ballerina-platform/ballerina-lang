@@ -34,7 +34,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        args = {@Argument(name = "children", type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class AppendChildren {
+public final class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";
 

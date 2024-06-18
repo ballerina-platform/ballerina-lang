@@ -56,7 +56,7 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  *
  * @since 2.0.0
  */
-public class BuildLangLib {
+public final class BuildLangLib {
 
     static Path projectDir;
     static Path distCache;

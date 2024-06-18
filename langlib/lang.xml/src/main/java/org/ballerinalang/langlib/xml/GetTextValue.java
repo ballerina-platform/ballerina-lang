@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetTextValue {
+public final class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
 

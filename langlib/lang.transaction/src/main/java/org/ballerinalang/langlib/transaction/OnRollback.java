@@ -28,7 +28,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
  *
  * @since 2.0.0-preview1
  */
-public class OnRollback {
+public final class OnRollback {
 
     private OnRollback() {
     }

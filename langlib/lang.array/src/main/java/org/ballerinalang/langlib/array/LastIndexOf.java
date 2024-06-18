@@ -37,7 +37,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class LastIndexOf {
+public final class LastIndexOf {
 
     private LastIndexOf() {
     }

@@ -21,7 +21,7 @@ import java.util.Locale;
 /**
  * Operating system utils.
  */
-public class OSUtils {
+public final class OSUtils {
 
     public static final String WINDOWS = "windows";
     public static final String UNIX = "unix";

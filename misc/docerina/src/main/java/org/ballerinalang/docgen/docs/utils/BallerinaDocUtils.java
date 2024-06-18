@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Util methods used for doc generation.
  */
-public class BallerinaDocUtils {
+public final class BallerinaDocUtils {
 
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));

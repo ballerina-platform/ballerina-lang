@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Test the parser.
  */
-public class TestToml {
+public final class TestToml {
 
     private static final PrintStream OUT = System.out;
 

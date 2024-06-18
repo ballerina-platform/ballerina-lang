@@ -51,7 +51,7 @@ import java.util.zip.ZipInputStream;
  *
  * @since 2.0.0
  */
-public class TestUtils {
+public final class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 

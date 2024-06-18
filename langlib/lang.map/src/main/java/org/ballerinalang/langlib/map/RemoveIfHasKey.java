@@ -35,7 +35,7 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  *
  * @since 1.2.0
  */
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
 
     private RemoveIfHasKey() {
     }

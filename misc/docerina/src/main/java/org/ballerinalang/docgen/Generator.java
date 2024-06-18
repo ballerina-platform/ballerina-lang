@@ -100,7 +100,7 @@ import java.util.stream.Collectors;
 /**
  * Generates the Page bClasses for bal packages.
  */
-public class Generator {
+public final class Generator {
 
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";

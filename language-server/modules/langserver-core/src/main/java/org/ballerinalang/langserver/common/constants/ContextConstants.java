@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.common.constants;
 /**
  * Constants for hover functionality.
  */
-public class ContextConstants {
+public final class ContextConstants {
     public static final String FUNCTION = "FUNCTION";
     public static final String VARIABLE = "VARIABLE";
     public static final String ENDPOINT = "ENDPOINT";
