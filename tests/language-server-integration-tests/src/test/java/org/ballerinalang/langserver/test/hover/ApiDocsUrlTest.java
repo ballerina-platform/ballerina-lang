@@ -40,7 +40,7 @@ public class ApiDocsUrlTest {
         connection.connect();
         int code = connection.getResponseCode();
         connection.disconnect();
-        Assert.assertEquals(code, 200, "API Docs URL is not valid: " + urlString + "received code: " + code);
+        Assert.assertEquals(code, 200, "API Docs URL is not valid: " + urlString + " received code: " + code);
     }
 
     @DataProvider(name = "data-provider")
