@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -101,6 +103,7 @@ public class TransactionResourceManager {
 
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
+    RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
 
     Map<ByteBuffer, Object> transactionInfoMap;
 
@@ -196,19 +199,29 @@ public class TransactionResourceManager {
     public int getTransactionAutoCommitTimeout() {
         VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
                 "transactionAutoCommitTimeout", PredefinedTypes.TYPE_INT, false);
-        if (!ConfigMap.containsKey(transactionAutoCommitTimeoutKey)) {
+        Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
+        if (value == null) {
             return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
         } else {
             int transactionAutoCommitTimeout;
-            Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
             if (value instanceof Long) {
                 transactionAutoCommitTimeout = ((Long) value).intValue();
             } else if (value instanceof Integer) {
                 transactionAutoCommitTimeout = (Integer) value;
             } else {
+                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_AUTO_COMMIT_TIMEOUT, null, value,
+                        DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
+                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+                }
                 return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
             }
-            if (transactionAutoCommitTimeout < 0) {
+            if (transactionAutoCommitTimeout <= 0) {
+                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null,
+                        transactionAutoCommitTimeout, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
+                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+                }
                 return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
             } else {
                 return transactionAutoCommitTimeout;
@@ -224,19 +237,29 @@ public class TransactionResourceManager {
     public int getTransactionCleanupTimeout() {
         VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID, "transactionCleanupTimeout",
                 PredefinedTypes.TYPE_INT, false);
-        if (!ConfigMap.containsKey(transactionCleanupTimeoutKey)) {
+        Object value = ConfigMap.get(transactionCleanupTimeoutKey);
+        if (value == null) {
             return DEFAULT_TRX_CLEANUP_TIMEOUT;
         } else {
             int transactionCleanupTimeout;
-            Object value = ConfigMap.get(transactionCleanupTimeoutKey);
             if (value instanceof Long) {
                 transactionCleanupTimeout = ((Long) value).intValue();
             } else if (value instanceof Integer) {
                 transactionCleanupTimeout = (Integer) value;
             } else {
+                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null, value,
+                        DEFAULT_TRX_CLEANUP_TIMEOUT);
+                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+                }
                 return DEFAULT_TRX_CLEANUP_TIMEOUT;
             }
-            if (transactionCleanupTimeout < 0) {
+            if (transactionCleanupTimeout <= 0) {
+                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null,
+                        transactionCleanupTimeout, DEFAULT_TRX_CLEANUP_TIMEOUT);
+                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+                }
                 return DEFAULT_TRX_CLEANUP_TIMEOUT;
             } else {
                 return transactionCleanupTimeout;
