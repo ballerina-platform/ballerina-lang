@@ -581,7 +581,7 @@ public class Utils {
      * A listener interface that allows tracking byte writing.
      */
     public interface ProgressListener {
-        void onRequestProgress(long bytesWritten, long contentLength) throws IOException;
+        void onRequestProgress(long bytesWritten, long contentLength);
     }
 
     /**

@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.MemoryUsageMonitor;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -30,7 +29,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 
@@ -47,7 +45,7 @@ public class MemoryUsageMonitorTest extends AbstractLSTest {
 
     @BeforeClass
     @Override
-    public void init() throws Exception {
+    public void init() {
         MemoryUsageMonitor memoryUsageMonitor = new MemoryUsageMonitor(createMockMemoryMXBean());
         this.languageServer = new BallerinaLanguageServer();
         languageServer.getServerContext().put(MemoryUsageMonitor.MEMORY_USAGE_MONITOR_KEY, memoryUsageMonitor);
@@ -55,7 +53,7 @@ public class MemoryUsageMonitorTest extends AbstractLSTest {
     }
 
     @Test
-    public void test() throws WorkspaceDocumentException, IOException, InterruptedException {
+    public void test() throws InterruptedException {
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
                 .withLanguageServer(languageServer)
                 .withClient(mockClient)

@@ -61,8 +61,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitActionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

@@ -46,8 +46,7 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, UnionTypeDescriptorNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, UnionTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 

@@ -38,7 +38,7 @@ public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {
     private String testFileLocation;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
         testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test").toString();
     }

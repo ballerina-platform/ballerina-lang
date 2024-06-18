@@ -42,8 +42,7 @@ public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSe
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, SyncSendActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, SyncSendActionNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)

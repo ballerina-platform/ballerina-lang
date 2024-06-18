@@ -18,7 +18,6 @@
 package org.ballerinalang.bindgen;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
     public void returnVoid() {
     }
 
-    public void returnOptionalError() throws Exception {
+    public void returnOptionalError() {
     }
 
     public IOException returnError() {
@@ -98,15 +97,15 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new File("test.txt");
     }
 
-    public File returnObjectThrowable() throws FileNotFoundException {
+    public File returnObjectThrowable() {
         return new File("test.txt");
     }
 
-    public File[] returnObjectThrowableError() throws FileNotFoundException {
+    public File[] returnObjectThrowableError() {
         return new File[2];
     }
 
-    public File returnObjectThrowableError(int[] x) throws FileNotFoundException {
+    public File returnObjectThrowableError(int[] x) {
         return new File("test.txt");
     }
 
@@ -202,7 +201,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return x;
     }
 
-    public String[] returnStringArray2(String[] x, StringBuffer y, int z) throws InterruptedException {
+    public String[] returnStringArray2(String[] x, StringBuffer y, int z) {
         return x;
     }
 
@@ -248,7 +247,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
     public static void join() {
     }
 
-    public static void returnStaticOptionalError() throws Exception {
+    public static void returnStaticOptionalError() {
     }
 
     public static IOException returnStaticError() {
@@ -289,7 +288,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new File("test.txt");
     }
 
-    public static File[] returnStaticObjectThrowableError1() throws FileNotFoundException {
+    public static File[] returnStaticObjectThrowableError1() {
         return new File[2];
     }
 

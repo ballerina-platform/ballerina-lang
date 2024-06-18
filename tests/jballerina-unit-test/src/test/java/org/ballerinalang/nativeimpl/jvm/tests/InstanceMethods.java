@@ -61,8 +61,7 @@ public class InstanceMethods {
         return this.counter;
     }
 
-    public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue)
-    throws JavaInteropTestCheckedException {
+    public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue) {
         this.counter = newValue;
         return this.counter;
     }
@@ -73,7 +72,7 @@ public class InstanceMethods {
         return this.counter;
     }
 
-    public long setGetCounterValueWhichThrowsCheckedException(float newValue) throws JavaInteropTestCheckedException {
+    public long setGetCounterValueWhichThrowsCheckedException(float newValue) {
         this.counter = (int) newValue;
         return this.counter;
     }

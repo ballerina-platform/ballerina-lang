@@ -445,7 +445,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return omElement;
         } catch (BError e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
+        } catch (OMException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {

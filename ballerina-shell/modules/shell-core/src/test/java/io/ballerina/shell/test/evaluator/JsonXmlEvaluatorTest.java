@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -40,57 +39,57 @@ public class JsonXmlEvaluatorTest extends AbstractEvaluatorTest {
     private static final String FUNCTION_EVALUATOR_TESTCASE = "testcases/evaluator/xml.function.json";
 
     @Test
-    public void testEvaluateJson() throws BallerinaShellException {
+    public void testEvaluateJson() {
         testEvaluate(JSON_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateJsonObjects() throws BallerinaShellException {
+    public void testEvaluateJsonObjects() {
         testEvaluate(JSON_OBJECTS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateJsonArrays() throws BallerinaShellException {
+    public void testEvaluateJsonArrays() {
         testEvaluate(JSON_ARRAYS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateJsonAccess() throws BallerinaShellException {
+    public void testEvaluateJsonAccess() {
         testEvaluate(JSON_ACCESS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateJsonConvertMap() throws BallerinaShellException {
+    public void testEvaluateJsonConvertMap() {
         testEvaluate(JSON_CONV_MAP_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXml() throws BallerinaShellException {
+    public void testEvaluateXml() {
         testEvaluate(XML_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXmlLiteral() throws BallerinaShellException {
+    public void testEvaluateXmlLiteral() {
         testEvaluate(LITERAL_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXmlAttribute() throws BallerinaShellException {
+    public void testEvaluateXmlAttribute() {
         testEvaluate(ATTRIBUTE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXmlNamespace() throws BallerinaShellException {
+    public void testEvaluateXmlNamespace() {
         testEvaluate(NAMESPACE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXmlAccess() throws BallerinaShellException {
+    public void testEvaluateXmlAccess() {
         testEvaluate(ACCESS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateXmlFunction() throws BallerinaShellException {
+    public void testEvaluateXmlFunction() {
         testEvaluate(FUNCTION_EVALUATOR_TESTCASE);
     }
 }

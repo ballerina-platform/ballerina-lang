@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -32,17 +31,17 @@ public class PatternEvaluatorTest extends AbstractEvaluatorTest {
     private static final String ARRAY_EVALUATOR_TESTCASE = "testcases/evaluator/pattern.array.json";
 
     @Test
-    public void testEvaluateTuple() throws BallerinaShellException {
+    public void testEvaluateTuple() {
         testEvaluate(TUPLE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateRecord() throws BallerinaShellException {
+    public void testEvaluateRecord() {
         testEvaluate(RECORD_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateArray() throws BallerinaShellException {
+    public void testEvaluateArray() {
          testEvaluate(ARRAY_EVALUATOR_TESTCASE);
     }
 }

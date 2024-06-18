@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -34,27 +33,27 @@ public class BasicTypeEvaluatorTest extends AbstractEvaluatorTest {
     private static final String MAPS_EVALUATOR_TESTCASE = "testcases/evaluator/values.maps.json";
 
     @Test
-    public void testEvaluateString() throws BallerinaShellException {
+    public void testEvaluateString() {
         testEvaluate(STRING_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateTuples() throws BallerinaShellException {
+    public void testEvaluateTuples() {
         testEvaluate(TUPLES_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateArrays() throws BallerinaShellException {
+    public void testEvaluateArrays() {
         testEvaluate(ARRAYS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateTable() throws BallerinaShellException {
+    public void testEvaluateTable() {
         testEvaluate(TABLE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateMaps() throws BallerinaShellException {
+    public void testEvaluateMaps() {
         testEvaluate(MAPS_EVALUATOR_TESTCASE);
     }
 }

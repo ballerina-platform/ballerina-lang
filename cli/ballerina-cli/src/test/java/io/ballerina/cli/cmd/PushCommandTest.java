@@ -27,7 +27,6 @@ import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -90,7 +89,7 @@ public class PushCommandTest extends BaseCommandTest {
     }
 
     @Test (description = "Push a package to a custom remote repository")
-    public void testPushPackageCustom() throws IOException, SettingsTomlException {
+    public void testPushPackageCustom() throws IOException {
         String org = "luheerathan";
         String packageName = "pact1";
         String version = "0.1.0";
@@ -122,7 +121,7 @@ public class PushCommandTest extends BaseCommandTest {
     }
 
     @Test (description = "Push a package to a custom remote repository(not exist in Settings.toml)")
-    public void testPushPackageNonExistingCustom() throws IOException, SettingsTomlException {
+    public void testPushPackageNonExistingCustom() throws IOException {
         String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
                 "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
 
@@ -142,7 +141,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertEquals(actual, expected);
     }
 
-    private static Settings readSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+    private static Settings readSettings(Path settingsFilePath, String repoPath) {
         try {
             String settingString = Files.readString(settingsFilePath);
             settingString = settingString.replaceAll("REPO_PATH", repoPath);

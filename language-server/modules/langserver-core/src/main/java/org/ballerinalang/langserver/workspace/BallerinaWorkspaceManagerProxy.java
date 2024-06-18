@@ -47,7 +47,6 @@ public interface BallerinaWorkspaceManagerProxy extends WorkspaceManagerProxy {
      * Handle the document close event.
      *
      * @param params {@link DidCloseTextDocumentParams}
-     * @throws WorkspaceDocumentException on failure
      */
-    void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
+    void didClose(DidCloseTextDocumentParams params);
 }

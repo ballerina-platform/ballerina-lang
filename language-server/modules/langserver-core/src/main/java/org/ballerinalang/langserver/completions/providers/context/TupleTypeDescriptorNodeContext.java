@@ -42,8 +42,7 @@ public class TupleTypeDescriptorNodeContext extends AbstractCompletionProvider<T
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TupleTypeDescriptorNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TupleTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {

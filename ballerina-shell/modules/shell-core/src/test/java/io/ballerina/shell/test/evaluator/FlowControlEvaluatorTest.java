@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -34,27 +33,27 @@ public class FlowControlEvaluatorTest extends AbstractEvaluatorTest {
     private static final String FOREACH_EVALUATOR_TESTCASE = "testcases/evaluator/flow.control.foreach.json";
 
     @Test
-    public void testEvaluateElvis() throws BallerinaShellException {
+    public void testEvaluateElvis() {
         testEvaluate(ELVIS_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateIf() throws BallerinaShellException {
+    public void testEvaluateIf() {
         testEvaluate(IF_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateMatch() throws BallerinaShellException {
+    public void testEvaluateMatch() {
         testEvaluate(MATCH_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateWhile() throws BallerinaShellException {
+    public void testEvaluateWhile() {
         testEvaluate(WHILE_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateForEach() throws BallerinaShellException {
+    public void testEvaluateForEach() {
         testEvaluate(FOREACH_EVALUATOR_TESTCASE);
     }
 }

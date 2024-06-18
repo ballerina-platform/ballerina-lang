@@ -21,7 +21,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +44,9 @@ public class ModuleDoc {
      * @param syntaxTreeMap a hash map of bal file names and syntax trees.
      * @param semanticModel the semantic model
      * @param isDefault whether this is the default module (not a sub-module)
-     * @throws IOException on error.
      */
     public ModuleDoc(String moduleMd, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
-                     SemanticModel semanticModel, boolean isDefault) throws IOException {
+                     SemanticModel semanticModel, boolean isDefault) {
         this.description = moduleMd;
         this.summary = BallerinaDocUtils.getSummary(moduleMd);
         this.resources = resources;

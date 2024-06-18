@@ -53,8 +53,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

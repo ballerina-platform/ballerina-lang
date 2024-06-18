@@ -65,7 +65,7 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
 
     @Override
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
-                                        LanguageServerContext serverContext) throws Throwable {
+                                        LanguageServerContext serverContext) {
 
         return Collections.emptyList();
     }
@@ -74,7 +74,7 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
     public List<CompletionItem> execute(CompletionParams inputParams,
                                         CompletionContext context,
                                         LanguageServerContext serverContext,
-                                        CancelChecker cancelChecker) throws Throwable {
+                                        CancelChecker cancelChecker) {
         Optional<PackageCompilation> packageCompilation =
                 context.workspace().waitAndGetPackageCompilation(context.filePath());
         if (packageCompilation.isEmpty() || context.currentDocument().isEmpty() ||

@@ -36,16 +36,9 @@ public abstract class DualTreeParserTrial extends TreeParserTrial {
     }
 
     @Override
-    public Collection<Node> parse(String source) throws ParserTrialFailedException {
-        try {
-            return parseSource(source);
-        } catch (ParserTrialFailedException e) {
-            if (source.endsWith(SEMICOLON)) {
-                return parseSource(source.substring(0, source.length() - 1));
-            }
-            throw e;
-        }
+    public Collection<Node> parse(String source) {
+        return parseSource(source);
     }
 
-    public abstract Collection<Node> parseSource(String source) throws ParserTrialFailedException;
+    public abstract Collection<Node> parseSource(String source);
 }

@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -34,27 +33,27 @@ public class RecordEvaluatorTest extends AbstractEvaluatorTest {
     private static final String READONLY_TESTCASE = "testcases/evaluator/record.readonly.json";
 
     @Test
-    public void testRecordBasic() throws BallerinaShellException {
+    public void testRecordBasic() {
         testEvaluate(RECORD_TESTCASE);
     }
 
     @Test
-    public void testRecordAnon() throws BallerinaShellException {
+    public void testRecordAnon() {
         testEvaluate(ANON_TESTCASE);
     }
 
     @Test
-    public void testRecordOptional() throws BallerinaShellException {
+    public void testRecordOptional() {
         testEvaluate(OPTIONAL_TESTCASE);
     }
 
     @Test
-    public void testRecordRef() throws BallerinaShellException {
+    public void testRecordRef() {
         testEvaluate(REF_TESTCASE);
     }
 
     @Test
-    public void testRecordReadonly() throws BallerinaShellException {
+    public void testRecordReadonly() {
         testEvaluate(READONLY_TESTCASE);
     }
 }

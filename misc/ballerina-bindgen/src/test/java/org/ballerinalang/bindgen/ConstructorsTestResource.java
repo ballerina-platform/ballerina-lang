@@ -18,7 +18,6 @@
 package org.ballerinalang.bindgen;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Java resources for the unit testing of different constructor bindings generated.
@@ -76,15 +75,15 @@ public class ConstructorsTestResource {
     }
 
     // Constructor with a primitive parameter and a checked exception.
-    public ConstructorsTestResource(double x) throws IOException {
+    public ConstructorsTestResource(double x) {
     }
 
     // Constructor with a string parameter, primitive parameter and a checked exception.
-    public ConstructorsTestResource(String x, int y) throws IOException {
+    public ConstructorsTestResource(String x, int y) {
     }
 
     // Constructor with an object parameter, primitive parameter and a checked exception.
-    public ConstructorsTestResource(File x, boolean y) throws InterruptedException {
+    public ConstructorsTestResource(File x, boolean y) {
     }
 
     // Constructor with a primitive parameter and an unchecked exception.

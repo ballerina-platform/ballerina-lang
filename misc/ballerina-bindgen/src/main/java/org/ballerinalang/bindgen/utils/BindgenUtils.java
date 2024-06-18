@@ -106,7 +106,8 @@ public class BindgenUtils {
         PrintWriter writer = null;
         FileWriterWithEncoding fileWriter = null;
         try {
-            fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
+            fileWriter = FileWriterWithEncoding.builder()
+                    .setFile(outPath).setCharset(StandardCharsets.UTF_8).setAppend(append).get();
             writer = new PrintWriter(fileWriter);
             writer.println(Formatter.format(content));
             fileWriter.close();

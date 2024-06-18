@@ -44,7 +44,7 @@ public class TestarinaTestCase extends BaseTest {
     private BMainInstance balClient;
 
     @BeforeClass(enabled = false)
-    public void setUp() throws IOException, BallerinaTestException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
         // copy TestProject1 to a temp

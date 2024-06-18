@@ -48,8 +48,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeDefinitionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeDefinitionNode node) {
         if (this.onTypeNameContext(context, node)) {
             return new ArrayList<>();
         }

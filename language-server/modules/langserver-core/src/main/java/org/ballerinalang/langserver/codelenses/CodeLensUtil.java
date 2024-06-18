@@ -16,12 +16,9 @@
 package org.ballerinalang.langserver.codelenses;
 
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.util.ArrayList;
@@ -46,14 +43,8 @@ public class CodeLensUtil {
                 .getInstance(codeLensContext.languageServercontext()).getProviders();
         LSClientLogger clientLogger = LSClientLogger.getInstance(codeLensContext.languageServercontext());
         for (LSCodeLensesProvider provider : providers) {
-            try {
-                codeLensContext.checkCancelled();
-                lenses.addAll(provider.getLenses(codeLensContext));
-            } catch (LSCodeLensesProviderException e) {
-                clientLogger.logError(LSContextOperation.TXT_CODE_LENS,
-                        "Error while retrieving lenses from: " + provider.getName(), e, txtDoc,
-                        (Position) null);
-            }
+            codeLensContext.checkCancelled();
+            lenses.addAll(provider.getLenses(codeLensContext));
         }
         return lenses;
     }

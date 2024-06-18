@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.command.executors;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.telemetry.LSFeatureUsageTelemetryEvent;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
@@ -37,7 +36,7 @@ public class ReportFeatureUsageExecutor implements LSCommandExecutor {
     public static final String COMMAND = "REPORT_FEATURE_USAGE";
 
     @Override
-    public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) {
         List<CommandArgument> arguments = context.getArguments();
 
         if (arguments == null || arguments.isEmpty()) {

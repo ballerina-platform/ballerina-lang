@@ -16,11 +16,8 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.InvalidTypeException;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
 /**
  * Value modifier implementation.
@@ -34,11 +31,11 @@ public interface Modifier {
     /**
      * sets the value to the expression.
      */
-    void setValue(Value value) throws ClassNotLoadedException, InvalidTypeException, EvaluationException;
+    void setValue(Value value);
 
     /**
      * @return the expected type of the expression or null is class was not loaded.
      */
-    Type getExpectedType() throws ClassNotLoadedException, EvaluationException;
+    Type getExpectedType();
 
 }

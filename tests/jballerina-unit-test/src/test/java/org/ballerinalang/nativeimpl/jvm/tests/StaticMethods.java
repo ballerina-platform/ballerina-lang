@@ -63,7 +63,6 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import org.testng.Assert;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,12 +213,11 @@ public class StaticMethods {
         return uuid.toString() + ": Sameera";
     }
 
-    public static void acceptNothingReturnNothingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
+    public static void acceptNothingReturnNothingAndThrowsCheckedException() {
 
     }
 
-    public static void acceptNothingReturnNothingAndThrowsMultipleCheckedException()
-            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+    public static void acceptNothingReturnNothingAndThrowsMultipleCheckedException() {
 
     }
 
@@ -228,17 +226,16 @@ public class StaticMethods {
     }
 
     public static void acceptNothingReturnNothingAndThrowsCheckedAndUncheckedException()
-            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+            throws UnsupportedOperationException {
 
     }
 
 
-    public static Date acceptNothingReturnSomethingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
+    public static Date acceptNothingReturnSomethingAndThrowsCheckedException() {
         return new Date();
     }
 
-    public static Date acceptNothingReturnSomethingAndThrowsMultipleCheckedException()
-            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+    public static Date acceptNothingReturnSomethingAndThrowsMultipleCheckedException() {
         return new Date();
     }
 
@@ -247,22 +244,20 @@ public class StaticMethods {
     }
 
     public static Date acceptNothingReturnSomethingAndThrowsCheckedAndUncheckedException()
-            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+            throws UnsupportedOperationException {
         return new Date();
     }
 
     public static Date acceptSomethingReturnSomethingAndThrowsCheckedAndUncheckedException(Date date)
-            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+            throws UnsupportedOperationException {
         return date;
     }
 
-    public static Date acceptSomethingReturnSomethingAndThrowsCheckedException(Date date)
-            throws JavaInteropTestCheckedException {
+    public static Date acceptSomethingReturnSomethingAndThrowsCheckedException(Date date) {
         return date;
     }
 
-    public static Date acceptSomethingReturnSomethingAndThrowsMultipleCheckedException(Date date)
-            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+    public static Date acceptSomethingReturnSomethingAndThrowsMultipleCheckedException(Date date) {
         return date;
     }
 
@@ -271,7 +266,7 @@ public class StaticMethods {
         return date;
     }
 
-    public static int acceptIntReturnIntThrowsCheckedException(long a) throws JavaInteropTestCheckedException {
+    public static int acceptIntReturnIntThrowsCheckedException(long a) {
         return (int) (a + 5);
     }
 
@@ -284,8 +279,7 @@ public class StaticMethods {
         }
     }
 
-    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
-            throws JavaInteropTestCheckedException {
+    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue) {
         ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
@@ -297,8 +291,7 @@ public class StaticMethods {
                                                                                               ArrayValue b, Object c,
                                                                                               ErrorValue d, Object e,
                                                                                               Object f,
-                                                                                              MapValue g)
-            throws JavaInteropTestCheckedException {
+                                                                                              MapValue g) {
         BMap<BString, Object> mapValue = ValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), a);
         mapValue.put(StringUtils.fromString("b"), b);
@@ -309,13 +302,11 @@ public class StaticMethods {
         return mapValue;
     }
 
-    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
-            throws JavaInteropTestCheckedException {
+    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg) {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static Object acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag)
-            throws JavaInteropTestCheckedException {
+    public static Object acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag) {
         if (flag == 0) {
             return 5;
         } else {
@@ -323,8 +314,7 @@ public class StaticMethods {
         }
     }
 
-    public static Object returnDistinctErrorUnionWhichThrowsCheckedException(int flag, BString errorName)
-            throws JavaInteropTestCheckedException {
+    public static Object returnDistinctErrorUnionWhichThrowsCheckedException(int flag, BString errorName) {
         if (flag == 0) {
             return 5;
         } else if (flag == 1) {
@@ -341,8 +331,7 @@ public class StaticMethods {
         return 5;
     }
 
-    public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
-            throws JavaInteropTestCheckedException {
+    public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag) {
         switch (flag) {
             case 1:
                 return 25;
@@ -355,20 +344,18 @@ public class StaticMethods {
         }
     }
 
-    public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
-            throws JavaInteropTestCheckedException {
+    public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
-            MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
+            MapValue<BString, Object> e, BString newVal) {
         e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
-    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
-            throws JavaInteropTestCheckedException {
+    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef) {
         BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(

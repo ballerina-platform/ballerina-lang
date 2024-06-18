@@ -412,8 +412,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 
             int depth = dir.getNameCount() - startingPath.getNameCount();
             if (depth >= 10) {
@@ -423,8 +422,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 
             if (FILE_MATCHER.matches(file)) {
                 setBallerinaTomlFound(true);

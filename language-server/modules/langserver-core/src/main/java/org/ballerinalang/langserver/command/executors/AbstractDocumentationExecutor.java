@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -58,7 +57,7 @@ public abstract class AbstractDocumentationExecutor implements LSCommandExecutor
      * @param ctx
      */
     @Override
-    public Object execute(ExecuteCommandContext ctx) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext ctx) {
         String documentUri = "";
         Range nodeRange = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();

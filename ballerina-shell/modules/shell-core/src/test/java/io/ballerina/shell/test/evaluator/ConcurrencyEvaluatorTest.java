@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -31,7 +30,7 @@ public class ConcurrencyEvaluatorTest extends AbstractEvaluatorTest {
     private static final String LOCK_EVALUATOR_TESTCASE = "testcases/evaluator/concurrency.lock.json";
 
     @Test
-    public void testEvaluateLock() throws BallerinaShellException {
+    public void testEvaluateLock() {
         testEvaluate(LOCK_EVALUATOR_TESTCASE);
     }
 }

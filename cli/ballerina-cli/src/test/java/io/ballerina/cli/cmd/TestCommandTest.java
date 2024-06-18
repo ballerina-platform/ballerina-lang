@@ -435,7 +435,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test the emission of testable fat jar for a project with tests")
-    public void testTestableFatJarEmission() throws IOException {
+    public void testTestableFatJarEmission() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
@@ -640,7 +640,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test the emission of testable fat jar for a single test bal file")
-    public void testEmissionOfTestableFatJarForSingleTestBalFile() throws IOException {
+    public void testEmissionOfTestableFatJarForSingleTestBalFile() {
         Path projectPath = this.testResources.resolve("validProjectWithTests")
                 .resolve("tests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
