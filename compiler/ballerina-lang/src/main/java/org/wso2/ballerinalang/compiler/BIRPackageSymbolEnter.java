@@ -1960,6 +1960,7 @@ public class BIRPackageSymbolEnter {
                         case LIST_ATOM -> offsets.listOffset();
                         case FUNCTION_ATOM -> offsets.functionOffset();
                         case MAPPING_ATOM -> offsets.mappingOffset();
+                        case XML_ATOM -> 0;
                         case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
                     };
                     index += offset;

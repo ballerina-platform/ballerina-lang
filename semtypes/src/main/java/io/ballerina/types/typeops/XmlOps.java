@@ -39,7 +39,7 @@ import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_RO_SINGLET
 public class XmlOps implements BasicTypeOps {
 
     public static final XmlSubtype XML_SUBTYPE_RO = XmlSubtype.from(XML_PRIMITIVE_RO_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XML_PRIMITIVE_RO_SINGLETON)));
+            BddCommonOps.bddAtom(RecAtom.createXMLRecAtom(XML_PRIMITIVE_RO_SINGLETON)));
     public static final XmlSubtype XML_SUBTYPE_TOP = XmlSubtype.from(XML_PRIMITIVE_ALL_MASK, BddAllOrNothing.bddAll());
 
     @Override

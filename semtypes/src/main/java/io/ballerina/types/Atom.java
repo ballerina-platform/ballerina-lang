@@ -51,6 +51,7 @@ public interface Atom {
         LIST_ATOM,
         FUNCTION_ATOM,
         MAPPING_ATOM,
-        CELL_ATOM
+        CELL_ATOM,
+        XML_ATOM,
     }
 }
