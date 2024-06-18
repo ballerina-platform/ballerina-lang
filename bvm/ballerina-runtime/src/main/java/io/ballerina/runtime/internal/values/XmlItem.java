@@ -52,7 +52,6 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;

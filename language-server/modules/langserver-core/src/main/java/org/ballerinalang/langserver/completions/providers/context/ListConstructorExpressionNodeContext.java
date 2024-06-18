@@ -58,7 +58,8 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListConstructorExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 ListConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {

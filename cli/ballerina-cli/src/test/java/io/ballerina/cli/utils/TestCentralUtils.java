@@ -1,7 +1,6 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.Settings;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;

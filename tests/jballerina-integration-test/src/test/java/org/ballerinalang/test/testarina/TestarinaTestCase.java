@@ -19,7 +19,6 @@ package org.ballerinalang.test.testarina;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
