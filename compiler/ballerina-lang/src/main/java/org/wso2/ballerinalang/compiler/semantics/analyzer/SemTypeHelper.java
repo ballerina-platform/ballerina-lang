@@ -157,12 +157,11 @@ public final class SemTypeHelper {
             return includesNonSemTypes(((BTypeReferenceType) t).referredType);
         }
 
-        if (isFullSemType(t.tag)) {
+        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON) {
             return false;
         }
 
-        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON ||
-                t.tag == TypeTags.READONLY) {
+        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.READONLY) {
             return true;
         }
 

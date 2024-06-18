@@ -4126,35 +4126,12 @@ public class Types {
      * @return a boolean
      */
     boolean isXmlSubType(BType type) {
-        if (TypeTags.isXMLTypeTag(type.tag)) {
-            return true;
+        if (SemTypeHelper.includesNonSemTypes(type)) {
+            return false;
         }
 
-        switch (type.tag) {
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                if (!SemTypes.isSubtypeSimple(unionType.semType(), PredefinedType.NEVER)) {
-                    return false;
-                }
-
-                LinkedHashSet<BType> memberNonSemTypes = unionType.memberNonSemTypes;
-                if (memberNonSemTypes.isEmpty()) {
-                    return false;
-                }
-
-                for (BType nonSemMember : memberNonSemTypes) {
-                    if (!isXmlSubType(nonSemMember)) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isXmlSubType(getImpliedType(type));
-            case TypeTags.INTERSECTION:
-                return isXmlSubType(((BIntersectionType) type).effectiveType);
-            default:
-                return false;
-        }
+        SemType t = SemTypeHelper.semTypeComponent(type);
+        return SemTypes.isSubtypeSimple(t, PredefinedType.XML);
     }
 
     /**

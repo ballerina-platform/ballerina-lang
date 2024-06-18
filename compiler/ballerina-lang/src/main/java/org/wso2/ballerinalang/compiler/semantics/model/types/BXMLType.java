@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -76,7 +77,18 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
         if (constraint == null) {
             s = PredefinedType.XML;
         } else {
-            s = SemTypes.xmlSequence(constraint.semType());
+            SemType contraintSemtype;
+            if (constraint instanceof BParameterizedType parameterizedType) {
+                contraintSemtype = parameterizedType.paramValueType.semType();
+            } else {
+                contraintSemtype = constraint.semType();
+            }
+
+            if (!Core.isSubtypeSimple(contraintSemtype, PredefinedType.XML)) {
+                // we reach here for negative semantics
+                contraintSemtype = PredefinedType.NEVER;
+            }
+            s = SemTypes.xmlSequence(contraintSemtype);
         }
 
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
