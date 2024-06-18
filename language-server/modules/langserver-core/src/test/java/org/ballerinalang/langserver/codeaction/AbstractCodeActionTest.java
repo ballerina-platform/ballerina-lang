@@ -96,9 +96,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
 
         Range finalRange = range;
-        diags = new ArrayList<>(diags.stream()
+        diags = diags.stream()
                 .filter(diag -> PositionUtil.isRangeWithinRange(finalRange, diag.getRange()))
-                .toList());
+                .toList();
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         String res = getResponse(sourcePath, finalRange, codeActionContext);

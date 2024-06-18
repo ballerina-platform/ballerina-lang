@@ -100,8 +100,7 @@ public class BallerinaTomlCompletionContext implements TomlCompletionContext {
             throw new RuntimeException("Cannot find a valid document");
         }
 
-        return ((ModulePartNode) document.get().syntaxTree().rootNode()).imports().stream()
-                .toList();
+        return ((ModulePartNode) document.get().syntaxTree().rootNode()).imports().stream().toList();
     }
 
     @Override
