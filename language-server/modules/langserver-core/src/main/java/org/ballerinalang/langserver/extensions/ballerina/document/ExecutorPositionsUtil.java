@@ -59,7 +59,7 @@ public final class ExecutorPositionsUtil {
     static final String TEST = "test";
     static final String TEST_CONFIG = "test:Config";
 
-    private static final Gson GSON = new Gson();
+    static final Gson GSON = new Gson();
 
     private ExecutorPositionsUtil() {
     }
