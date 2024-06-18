@@ -53,6 +53,7 @@ public class DidChangeWatchedFilesContextImpl
             this.serverContext = serverContext;
         }
 
+        @Override
         public DidChangeWatchedFilesContext build() {
             return new DidChangeWatchedFilesContextImpl(
                     this.wsManager,

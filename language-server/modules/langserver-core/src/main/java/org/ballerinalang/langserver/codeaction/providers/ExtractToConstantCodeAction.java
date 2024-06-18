@@ -68,6 +68,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     private static final String CONSTANT_NAME_PREFIX = "CONST";
     private static final String EXTRACT_COMMAND = "ballerina.action.extract";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
                 SyntaxKind.STRING_LITERAL, SyntaxKind.BINARY_EXPRESSION, SyntaxKind.UNARY_EXPRESSION);

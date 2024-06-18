@@ -969,6 +969,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return constantNode;
     }
 
+    @Override
     public BLangNode transform(TypeDefinitionNode typeDefNode) {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         BLangIdentifier identifierNode =
@@ -2281,6 +2282,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return errorConstructorExpr;
     }
 
+    @Override
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
         BLangInvocation bLInvocation = createBLangInvocation(methodCallExprNode.methodName(),
                                                              methodCallExprNode.arguments(),
@@ -3835,6 +3837,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return arrayTypeNode;
     }
 
+    @Override
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
         Boolean publicQualifier = false;
         if (enumDeclarationNode.qualifier().isPresent() && enumDeclarationNode.qualifier().get().kind()
@@ -3980,6 +3983,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return collectClause;
     }
 
+    @Override
     public BLangNode transform(OnFailClauseNode onFailClauseNode) {
         Location pos = getPosition(onFailClauseNode);
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();

@@ -114,6 +114,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      * Serialize the value to given {@code Writer}.
      * @param writer {@code Writer} to be used
      */
+    @Override
     public void serialize(Writer writer) {
         try (JsonGenerator gen = new JsonGenerator(writer)) {
             serialize(gen);

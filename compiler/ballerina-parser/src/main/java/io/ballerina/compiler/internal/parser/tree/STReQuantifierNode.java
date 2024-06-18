@@ -56,6 +56,7 @@ public class STReQuantifierNode extends STNode {
                 nonGreedyChar);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReQuantifierNode(
                 this.reBaseQuantifier,
@@ -78,6 +79,7 @@ public class STReQuantifierNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReQuantifierNode(this, position, parent);
     }

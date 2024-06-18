@@ -62,6 +62,7 @@ public class STTypeParameterNode extends STNode {
                 gtToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypeParameterNode(
                 this.ltToken,
@@ -88,6 +89,7 @@ public class STTypeParameterNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeParameterNode(this, position, parent);
     }

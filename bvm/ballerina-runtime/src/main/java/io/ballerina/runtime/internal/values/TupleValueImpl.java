@@ -251,6 +251,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public boolean getBoolean(long index) {
         return (Boolean) get(index);
     }

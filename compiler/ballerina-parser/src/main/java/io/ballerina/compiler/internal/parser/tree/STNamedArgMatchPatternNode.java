@@ -62,6 +62,7 @@ public class STNamedArgMatchPatternNode extends STNode {
                 matchPattern);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedArgMatchPatternNode(
                 this.identifier,
@@ -88,6 +89,7 @@ public class STNamedArgMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgMatchPatternNode(this, position, parent);
     }

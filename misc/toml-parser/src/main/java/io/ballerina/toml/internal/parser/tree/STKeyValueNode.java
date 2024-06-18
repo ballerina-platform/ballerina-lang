@@ -62,6 +62,7 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
                 value);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STKeyValueNode(
                 this.identifier,
@@ -88,6 +89,7 @@ public class STKeyValueNode extends STDocumentMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeyValueNode(this, position, parent);
     }

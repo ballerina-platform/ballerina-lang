@@ -71,6 +71,7 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 endBacktick);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTemplateExpressionNode(
                 this.kind,
@@ -104,6 +105,7 @@ public class STTemplateExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TemplateExpressionNode(this, position, parent);
     }
