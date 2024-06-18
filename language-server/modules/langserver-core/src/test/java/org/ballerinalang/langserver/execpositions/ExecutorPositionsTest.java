@@ -80,8 +80,8 @@ public class ExecutorPositionsTest {
         Path expectedPath = this.resourceRoot.resolve("expected").resolve(expected + ".json");
         JsonArray expectedJsonArray =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray(EXEC_POSITIONS);
-        JsonArray actualJsonArray =
-                JsonParser.parseString(response).getAsJsonObject().getAsJsonObject("result").getAsJsonArray(EXEC_POSITIONS);
+        JsonArray actualJsonArray = JsonParser.parseString(response)
+                .getAsJsonObject().getAsJsonObject("result").getAsJsonArray(EXEC_POSITIONS);
         actualJsonArray.forEach(jsonExec -> {
             JsonPrimitive name = jsonExec.getAsJsonObject().getAsJsonPrimitive(NAME);
             List<JsonObject> execObjects = new ArrayList<>();
