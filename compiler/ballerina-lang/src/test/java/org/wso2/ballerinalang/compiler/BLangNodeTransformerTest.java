@@ -50,10 +50,7 @@ import java.util.StringJoiner;
  */
 public class BLangNodeTransformerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BLangNodeTransformerTest.class);
-    private static final JsonParser JSON_PARSER = new JsonParser();
     public static final Path RES_DIR = Paths.get("src/test/resources/node-tree/").toAbsolutePath();
-
-    private final JsonParser jsonParser = new JsonParser();
 
     @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
@@ -67,7 +64,7 @@ public class BLangNodeTransformerTest {
         BLangPackage bLangPackage = pkg.getCompilation().defaultModuleBLangPackage();
         Set<Class<?>> skipList = new HashSet<>();
         String jsonStr = generateFieldJson(bLangPackage.getClass(), bLangPackage, skipList, bLangPackage);
-        JsonObject actualJsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
+        JsonObject actualJsonObj = JsonParser.parseString(jsonStr).getAsJsonObject();
 
         // Fix test cases replacing expected using responses
 //        if (!expJsonObj.equals(actualJsonObj)) {
@@ -242,7 +239,7 @@ public class BLangNodeTransformerTest {
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage());
         }
-        return JSON_PARSER.parse(contentAsString).getAsJsonObject();
+        return JsonParser.parseString(contentAsString).getAsJsonObject();
     }
 
     private static Project loadProject(String sourceFilePath) {

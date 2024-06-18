@@ -38,7 +38,6 @@ public class MetadataTest {
     private static final String PACKAGE_NAME = "packageName";
     private static final String PATH = "path";
     private static final String KIND = "kind";
-    private static final JsonParser JSON_PARSER = new JsonParser();
 
     private Path resourceRoot;
     private Endpoint serviceEndpoint;
@@ -67,7 +66,7 @@ public class MetadataTest {
         Path expectedPath = this.resourceRoot.resolve("metadata").resolve(projectName);
         JsonObject expectedJsonObject =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonObject();
-        JsonObject responseJsonObject = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result");
+        JsonObject responseJsonObject = JsonParser.parseString(response).getAsJsonObject().getAsJsonObject("result");
         JsonPrimitive packageName = expectedJsonObject.getAsJsonPrimitive(PACKAGE_NAME);
         if (packageName != null) {
             Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME), packageName,
