@@ -439,8 +439,8 @@ public final class DebuggerRuntime {
      * @param args        Arguments to provide.
      * @return The result of the invocation.
      */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
+    private static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                               Class<?>[] argTypes, Object[] args) throws Exception {
         Class<?> clazz = classLoader.loadClass(className);
         Method method = clazz.getDeclaredMethod(methodName, argTypes);
         return method.invoke(null, args);

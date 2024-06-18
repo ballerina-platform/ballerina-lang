@@ -22,7 +22,7 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  */
 public final class Constants {
 
-    protected static final String CAPABILITY_NAME = "ballerinaConnector";
+    static final String CAPABILITY_NAME = "ballerinaConnector";
 
     private Constants() {
     }

@@ -151,7 +151,7 @@ public final class RegexUtil {
         return value.length();
     }
 
-    protected static void checkIndexWithinRange(BString str, long startIndex) {
+    static void checkIndexWithinRange(BString str, long startIndex) {
         if (startIndex != (int) startIndex) {
             throw ErrorHelper.getRuntimeException(ErrorReasons.REGEXP_OPERATION_ERROR,
                     ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndex);

@@ -559,10 +559,10 @@ public final class JvmCodeGenUtil {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
+    static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                         int yieldLocationVarIndex, Location terminatorPos,
+                                         String fullyQualifiedFuncName, String yieldStatus,
+                                         int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
