@@ -78,7 +78,7 @@ dependencies {
     launchListenerTestUtils project(':test-launch-listener-03')
     launchListenerTestUtils project(':test-launch-listener-04')
 
-    testLibs 'org.hsqldb:hsqldb:2.4.1'
+    testLibs 'org.hsqldb:hsqldb:2.7.1'
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
