@@ -52,6 +52,9 @@ public class RegexpCompletionProvider {
 
     private static final HashSet<String> RE_FLAGS = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
 
+    private RegexpCompletionProvider() {
+    }
+
     public static List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor,
                                                              BallerinaCompletionContext ctx) {
         

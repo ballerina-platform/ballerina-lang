@@ -33,6 +33,9 @@ import java.nio.file.Paths;
  */
 public class TestUtils {
 
+    private TestUtils() {
+    }
+
     public static Path getConfigPath(String configFileName) {
         return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", configFileName);
     }

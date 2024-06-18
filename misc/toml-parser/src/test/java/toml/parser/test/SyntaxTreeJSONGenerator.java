@@ -57,6 +57,9 @@ public class SyntaxTreeJSONGenerator {
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
+    private SyntaxTreeJSONGenerator() {
+    }
+
     public static void main(String[] args) throws IOException {
         Path syntax = RESOURCE_DIRECTORY.resolve(Paths.get("syntax"));
 

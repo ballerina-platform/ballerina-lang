@@ -37,6 +37,9 @@ public class Slice {
 
     private static final String OPERATION = "slice xml";
 
+    private Slice() {
+    }
+
     public static BXml slice(BXml xml, long startIndex, long endIndex) {
         try {
             return xml.slice(startIndex, endIndex);

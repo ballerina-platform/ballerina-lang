@@ -28,6 +28,9 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  */
 public class SetData {
 
+    private SetData() {
+    }
+
     public static void setData(Object data) {
 
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;

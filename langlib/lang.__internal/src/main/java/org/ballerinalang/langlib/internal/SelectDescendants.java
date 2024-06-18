@@ -35,6 +35,9 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
+    private SelectDescendants() {
+    }
+
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();

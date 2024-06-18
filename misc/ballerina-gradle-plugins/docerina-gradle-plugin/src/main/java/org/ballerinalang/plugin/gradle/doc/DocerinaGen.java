@@ -30,6 +30,9 @@ public class DocerinaGen {
 
     private static final PrintStream out = System.out;
 
+    private DocerinaGen() {
+    }
+
     public static void main(String[] args) {
         BallerinaDocGenerator.mergeApiDocs(Path.of(args[0]));
     }

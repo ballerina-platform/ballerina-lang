@@ -65,6 +65,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_C
  */
 public class JsonUtils {
 
+    private JsonUtils() {
+    }
+
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
      *

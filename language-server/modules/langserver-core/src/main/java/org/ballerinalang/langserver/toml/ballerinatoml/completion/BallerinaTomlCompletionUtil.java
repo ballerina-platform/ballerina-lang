@@ -43,6 +43,9 @@ import java.util.Optional;
  */
 public class BallerinaTomlCompletionUtil {
 
+    private BallerinaTomlCompletionUtil() {
+    }
+
     public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx,
                                                           LanguageServerContext serverContext) {
         List<CompletionItem> completionItems = new ArrayList<>();

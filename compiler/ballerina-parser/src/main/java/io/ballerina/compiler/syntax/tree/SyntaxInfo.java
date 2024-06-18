@@ -36,6 +36,9 @@ public class SyntaxInfo {
             .map(SyntaxKind::stringValue)
             .collect(Collectors.toList());
 
+    private SyntaxInfo() {
+    }
+
     /**
      * Gives a list of all keywords in the ballerina.
      *

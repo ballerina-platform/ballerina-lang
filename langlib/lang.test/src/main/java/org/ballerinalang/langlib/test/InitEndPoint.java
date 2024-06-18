@@ -22,6 +22,9 @@ package org.ballerinalang.langlib.test;
  * @since 2.0.0
  */
 public class InitEndPoint {
+    private InitEndPoint() {
+    }
+
     public static void initEndPoint() {
 
     }

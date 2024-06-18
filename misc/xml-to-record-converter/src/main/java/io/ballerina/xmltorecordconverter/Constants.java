@@ -25,4 +25,7 @@ package io.ballerina.xmltorecordconverter;
  */
 public class Constants {
     public static final String CAPABILITY_NAME = "xmlToRecord";
+
+    private Constants() {
+    }
 }

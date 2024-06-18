@@ -37,6 +37,9 @@ public class Copy {
 
     private static final String OPERATION = "copy xml";
 
+    private Copy() {
+    }
+
     public static BXml copy(Strand strand, BXml xml) {
         try {
             return (BXml) xml.copy(new HashMap<>());

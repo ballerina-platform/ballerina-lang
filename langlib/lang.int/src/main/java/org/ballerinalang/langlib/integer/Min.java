@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.integer;
 //)
 public class Min {
 
+    private Min() {
+    }
+
     public static long min(long n, long[] ns) {
         long min = n;
         int size = ns.length;

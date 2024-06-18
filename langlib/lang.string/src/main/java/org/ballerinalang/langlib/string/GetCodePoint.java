@@ -34,6 +34,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class GetCodePoint {
 
+    private GetCodePoint() {
+    }
+
     public static long getCodePoint(BString str, long i) {
         try {
             return str.getCodePoint((int) i);

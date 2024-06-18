@@ -48,6 +48,9 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
  */
 public class RecordUtil {
 
+    private RecordUtil() {
+    }
+
     /**
      * Get completion items list for struct fields.
      *

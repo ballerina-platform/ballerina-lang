@@ -59,6 +59,9 @@ public class TypeIds {
     private static final ArrayType typeIdArrayType =
             new BArrayType(createTypeId(createModuleId(BALLERINA_TYPEDESC_PKG_ID), "empty").getType());
 
+    private TypeIds() {
+    }
+
     public static Object typeIds(BTypedesc t, boolean primaryOnly) {
         Type describingType = t.getDescribingType();
         BTypeIdSet typeIdSet = getTypeIdSetForType(describingType);

@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BTable;
  * @since 1.3.0
  */
 public class NextKey {
+    private NextKey() {
+    }
+
     public static long nextKey(BTable tbl) {
         return tbl.getNextKey();
     }

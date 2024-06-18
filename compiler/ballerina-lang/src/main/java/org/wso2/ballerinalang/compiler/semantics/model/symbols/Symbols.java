@@ -39,6 +39,9 @@ import java.util.Set;
  */
 public class Symbols {
 
+    private Symbols() {
+    }
+
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable,
                                                      SymbolOrigin origin) {

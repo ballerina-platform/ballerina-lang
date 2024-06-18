@@ -29,6 +29,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class BCompileUtil {
 
+    private BCompileUtil() {
+    }
+
     public static String readFileAsString(String path) throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(path);
         InputStreamReader inputStreamREader = null;

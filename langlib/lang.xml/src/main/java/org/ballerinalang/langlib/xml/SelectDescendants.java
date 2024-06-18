@@ -41,6 +41,9 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
+    private SelectDescendants() {
+    }
+
     public static BXml selectDescendants(Strand strand, BXml xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.

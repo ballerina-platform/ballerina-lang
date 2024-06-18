@@ -46,6 +46,9 @@ public class Cast {
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 
+    private Cast() {
+    }
+
     public static Object cast(BObject value, BTypedesc castType) {
         BHandle handleObj;
         ObjectType objType = (ObjectType) TypeUtils.getImpliedType(value.getType());

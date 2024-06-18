@@ -27,6 +27,9 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class ConverterUtils {
+    private ConverterUtils() {
+    }
+
     /**
      * Method for mapping openApi type to ballerina type.
      *

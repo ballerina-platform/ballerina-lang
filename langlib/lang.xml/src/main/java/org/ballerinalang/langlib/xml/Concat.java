@@ -34,6 +34,9 @@ import java.util.List;
  */
 public class Concat {
 
+    private Concat() {
+    }
+
     public static BXml concat(Object... arrayValue) {
         List<BXml> backingArray = new ArrayList<>();
         BXml lastItem = null;

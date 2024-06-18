@@ -37,6 +37,9 @@ import java.util.Scanner;
 public class FileUtils {
     private static final String SPECIAL_DELIMITER = "\\A";
 
+    private FileUtils() {
+    }
+
     /**
      * Reads the file content from the resources.
      *

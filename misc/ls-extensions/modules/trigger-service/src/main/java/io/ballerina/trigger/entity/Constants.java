@@ -22,4 +22,7 @@ package io.ballerina.trigger.entity;
  */
 public class Constants {
     public static final String CAPABILITY_NAME = "ballerinaTrigger";
+
+    private Constants() {
+    }
 }

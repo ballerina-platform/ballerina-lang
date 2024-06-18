@@ -130,6 +130,9 @@ public class ProjectUtils {
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
 
+    private ProjectUtils() {
+    }
+
     /**
      * Validates the org-name.
      *

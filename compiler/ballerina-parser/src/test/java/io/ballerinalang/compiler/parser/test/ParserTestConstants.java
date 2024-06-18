@@ -39,4 +39,6 @@ public class ParserTestConstants {
 
     public static final String TRAILING_MINUTIAE = "trailingMinutiae";
 
+    private ParserTestConstants() {
+    }
 }

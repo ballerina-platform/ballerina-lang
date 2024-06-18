@@ -31,6 +31,9 @@ import java.util.Objects;
  */
 public class WorkerChannels {
 
+    private WorkerChannels() {
+    }
+
     /**
      * Auto-closes the specified worker channels if they exist; otherwise, closes them upon creation.
      *

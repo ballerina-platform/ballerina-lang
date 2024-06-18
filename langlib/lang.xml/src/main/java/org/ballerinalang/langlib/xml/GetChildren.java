@@ -35,6 +35,9 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //)
 public class GetChildren {
 
+    private GetChildren() {
+    }
+
     public static BXml getChildren(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "getChildren", "element");

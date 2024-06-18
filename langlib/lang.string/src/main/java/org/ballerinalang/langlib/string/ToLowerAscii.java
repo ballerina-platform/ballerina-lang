@@ -32,6 +32,9 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  */
 public class ToLowerAscii {
 
+    private ToLowerAscii() {
+    }
+
     public static BString toLowerAscii(BString str) {
         if (str == null) {
             throw createNullReferenceError();

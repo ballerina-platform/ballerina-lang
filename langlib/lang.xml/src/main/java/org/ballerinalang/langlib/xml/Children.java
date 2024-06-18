@@ -39,6 +39,9 @@ import java.util.ArrayList;
 //)
 public class Children {
 
+    private Children() {
+    }
+
     public static BXml children(BXml xmlVal) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
             return xmlVal.children();

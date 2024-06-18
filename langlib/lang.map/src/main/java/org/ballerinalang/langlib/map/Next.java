@@ -39,6 +39,9 @@ import io.ballerina.runtime.api.values.BObject;
 //        isPublic = true
 //)
 public class Next {
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
         BIterator mapIterator = (BIterator) m.getNativeData("&iterator&");

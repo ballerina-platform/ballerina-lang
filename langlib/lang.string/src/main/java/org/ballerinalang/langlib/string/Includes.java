@@ -30,6 +30,9 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  */
 
 public class Includes {
+    private Includes() {
+    }
+
     public static boolean includes(BString str, BString substr, long index) {
         if (index  > Integer.MAX_VALUE) {
             throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,

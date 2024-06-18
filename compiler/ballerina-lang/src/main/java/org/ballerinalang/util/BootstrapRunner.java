@@ -50,6 +50,9 @@ public class BootstrapRunner {
     private static final String COMPILER_BACKEND_LLVM = "ballerina.compiler_backend_llvm.$_init";
     private static String javaCommand = System.getProperty("java.command");
 
+    private BootstrapRunner() {
+    }
+
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
         //Load all Jars from module dependency set.

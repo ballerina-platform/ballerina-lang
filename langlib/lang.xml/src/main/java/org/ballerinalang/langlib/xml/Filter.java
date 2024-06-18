@@ -51,6 +51,9 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
+    private Filter() {
+    }
+
     public static BXml filter(BXml x, BFunctionPointer<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{x, true};

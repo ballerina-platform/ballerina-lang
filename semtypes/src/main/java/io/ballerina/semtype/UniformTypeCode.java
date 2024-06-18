@@ -65,4 +65,7 @@ public class UniformTypeCode {
     static final int UT_READONLY = (1 << UT_COUNT_RO) - 1;
 
     static final int UT_RW_MASK = UT_MASK ^ ~UT_READONLY;
+
+    private UniformTypeCode() {
+    }
 }

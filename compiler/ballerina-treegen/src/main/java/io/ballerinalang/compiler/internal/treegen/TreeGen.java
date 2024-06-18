@@ -57,6 +57,9 @@ import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TR
  */
 public class TreeGen {
 
+    private TreeGen() {
+    }
+
     public static void main(String[] args) {
         // 1) Load the configuration properties
         TreeGenConfig config = TreeGenConfig.getInstance();

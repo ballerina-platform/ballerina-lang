@@ -52,6 +52,9 @@ import java.util.Optional;
  */
 public class TypeResolverUtil {
 
+    private TypeResolverUtil() {
+    }
+
     /**
      * Given a set of argument nodes and a function or method call expression node, 
      * this method returns the type symbol of the argument corresponding to the cursor position provided.

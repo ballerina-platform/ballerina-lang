@@ -59,6 +59,9 @@ import java.util.stream.Collectors;
  */
 public class ConfigReader {
 
+    private ConfigReader() {
+    }
+
     /**
      * Retrieve configurable variables in a package as a per module map.
      *

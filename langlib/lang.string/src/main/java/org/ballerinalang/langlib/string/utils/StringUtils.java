@@ -34,6 +34,9 @@ public class StringUtils {
     private static final BString NULL_REF_EXCEPTION = io.ballerina.runtime.api.utils.StringUtils
             .fromString("NullReferenceException");
 
+    private StringUtils() {
+    }
+
     public static void checkForNull(String... values) {
         Arrays.stream(values).forEach(value -> {
             if (value == null) {

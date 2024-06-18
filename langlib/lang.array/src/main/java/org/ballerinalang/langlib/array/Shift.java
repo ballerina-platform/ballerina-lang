@@ -36,6 +36,9 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 //)
 public class Shift {
 
+    private Shift() {
+    }
+
     public static Object shift(BArray arr) {
         checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "shift()");
         return arr.shift(0);

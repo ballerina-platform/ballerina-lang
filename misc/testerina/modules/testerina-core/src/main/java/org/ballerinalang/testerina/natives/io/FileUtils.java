@@ -39,6 +39,9 @@ import java.util.regex.Pattern;
  */
 public class FileUtils {
 
+    private FileUtils() {
+    }
+
     public static void writeContent(BString targetPath, BString content) throws Exception {
 
         // Escape the control characters of the JSON string

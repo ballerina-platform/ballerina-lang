@@ -36,6 +36,9 @@ import java.util.List;
  */
 public class GetFilteredChildrenFlat {
 
+    private GetFilteredChildrenFlat() {
+    }
+
     public static BXml getFilteredChildrenFlat(BXml xmlVal, long index, BString[] elemNames) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
             BXmlItem element = (BXmlItem) xmlVal;

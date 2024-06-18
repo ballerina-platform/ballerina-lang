@@ -46,6 +46,10 @@ public class Next {
 
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
+
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
         BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");

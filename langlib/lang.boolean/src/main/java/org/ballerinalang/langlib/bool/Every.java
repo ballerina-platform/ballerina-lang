@@ -23,6 +23,9 @@ package org.ballerinalang.langlib.bool;
  * @since 2201.5.0
  */
 public class Every {
+    private Every() {
+    }
+
     public static boolean every(boolean[] bs) {
         for (boolean b : bs) {
             if (!b) {

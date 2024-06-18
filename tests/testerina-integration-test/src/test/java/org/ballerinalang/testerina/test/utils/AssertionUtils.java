@@ -37,6 +37,9 @@ public class AssertionUtils {
     private static final Path commandOutputsDir = Paths
             .get("src", "test", "resources", "command-outputs");
 
+    private AssertionUtils() {
+    }
+
     public static void assertForTestFailures(String programOutput, String errMessage) {
         if (programOutput.contains("error: there are test failures")) {
             Assert.fail("Test failed due to " + errMessage + " in test framework");

@@ -66,6 +66,9 @@ public class ParserTestUtils {
      */
     private static final boolean UPDATE_ASSERTS = false;
 
+    private ParserTestUtils() {
+    }
+
     /**
      * Test parsing a valid source.
      *

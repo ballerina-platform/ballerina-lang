@@ -36,6 +36,9 @@ import java.util.jar.Manifest;
  */
 public class JarWriter {
 
+    private JarWriter() {
+    }
+
     public static ByteArrayOutputStream write(CompiledJarFile compiledJarFile, Map<String, byte[]> resources)
             throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

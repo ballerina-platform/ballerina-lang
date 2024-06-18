@@ -67,6 +67,9 @@ public class PackageUtils {
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
+    private PackageUtils() {
+    }
+
     /**
      * Returns the corresponding debug source path based on the given stack frame location.
      *

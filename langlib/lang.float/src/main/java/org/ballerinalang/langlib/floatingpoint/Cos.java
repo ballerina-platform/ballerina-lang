@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Cos {
 
+    private Cos() {
+    }
+
     public static double cos(double x) {
         return Math.cos(x);
     }

@@ -40,6 +40,9 @@ import java.util.Optional;
  */
 public class DocumentSymbolUtil {
 
+    private DocumentSymbolUtil() {
+    }
+
     /**
      * get document symbols given the context.
      *

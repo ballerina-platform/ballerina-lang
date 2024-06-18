@@ -107,6 +107,9 @@ public class VariableFactory {
 
     private static final String TYPEDESC_IDENTIFIER = "$typedesc$";
 
+    private VariableFactory() {
+    }
+
     public static BVariable getVariable(SuspendedContext context, Value value) {
         return getVariable(context, "unknown", value);
     }

@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class ToBitsInt {
 
+    private ToBitsInt() {
+    }
+
     public static long toBitsInt(double x) {
         return Double.doubleToLongBits(x);
     }

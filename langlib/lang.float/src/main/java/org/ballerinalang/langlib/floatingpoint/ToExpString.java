@@ -34,6 +34,9 @@ import java.text.DecimalFormat;
  */
 public class ToExpString {
 
+    private ToExpString() {
+    }
+
     public static BString toExpString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
         BString str = FloatUtils.getBStringIfInfiniteOrNaN(x);

@@ -39,6 +39,9 @@ import io.ballerina.runtime.internal.types.BServiceType;
  */
 public class Async {
 
+    private Async() {
+    }
+
     public static long getFieldValWithNoArgs(Environment env, BObject obj) {
         invokeMethodAsyncSequentially(env, obj, "getFieldValWithNoArgs");
         return 0;

@@ -28,6 +28,9 @@ public class DefaultMetricRegistry {
 
     private static MetricRegistry instance = new MetricRegistry(new NoOpMetricProvider());
 
+    private DefaultMetricRegistry() {
+    }
+
     /**
      * Get the default {@link MetricRegistry}.
      *

@@ -85,6 +85,9 @@ public class VariableReturnType {
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
 
+    private VariableReturnType() {
+    }
+
     public static Object echo(BValue value, BTypedesc td) {
         return value;
     }

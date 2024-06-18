@@ -30,6 +30,9 @@ import java.util.List;
  */
 public class IsProcessingInstruction {
 
+    private IsProcessingInstruction() {
+    }
+
     public static boolean isProcessingInstruction(BXml xmlValue) {
         if (xmlValue.getNodeType() == XmlNodeType.PI) {
             return true;

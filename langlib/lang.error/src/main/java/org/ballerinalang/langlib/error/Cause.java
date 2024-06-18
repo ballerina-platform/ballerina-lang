@@ -32,6 +32,9 @@ import io.ballerina.runtime.api.values.BError;
 public class Cause {
 
 
+    private Cause() {
+    }
+
     @Deprecated
     public static Object cause(BError value) {
         return value.getCause();

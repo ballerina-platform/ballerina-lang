@@ -29,6 +29,9 @@ import io.ballerina.tools.text.LineRange;
  */
 class PositionUtil {
 
+    private PositionUtil() {
+    }
+
     static boolean withinBlock(LinePosition cursorPos, Location symbolPosition) {
         if (symbolPosition == null) {
             return false;

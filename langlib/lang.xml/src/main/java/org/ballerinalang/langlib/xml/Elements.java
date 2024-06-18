@@ -42,6 +42,9 @@ public class Elements {
 
     private static final String OPERATION = "get elements from xml";
 
+    private Elements() {
+    }
+
     public static BXml elements(BXml xml, Object name) {
         try {
             if (name instanceof BString) {

@@ -36,6 +36,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //)
 public class Sum {
 
+    private Sum() {
+    }
+
     public static long sum(long[] ns) {
         long sum = 0;
         BString errorMsg = getModulePrefixedReason(INT_LANG_LIB,

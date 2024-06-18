@@ -35,6 +35,9 @@ import io.ballerina.runtime.internal.TypeConverter;
 //)
 public class FromString {
 
+    private FromString() {
+    }
+
     public static Object fromString(BString string) {
         try {
             return TypeConverter.stringToXml(string.getValue());

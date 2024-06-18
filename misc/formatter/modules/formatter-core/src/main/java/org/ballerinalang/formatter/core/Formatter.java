@@ -60,6 +60,9 @@ import org.ballerinalang.formatter.core.options.FormattingOptions;
  */
 public class Formatter {
 
+    private Formatter() {
+    }
+
     /**
      * Formats the provided source string and returns back the formatted source string.
      *

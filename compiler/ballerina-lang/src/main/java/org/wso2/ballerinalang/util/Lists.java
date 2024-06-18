@@ -27,6 +27,9 @@ import java.util.List;
  */
 public class Lists {
 
+    private Lists() {
+    }
+
     @SafeVarargs
     public static <E> List<E> of(E... values) {
         List<E> list = new ArrayList<>();

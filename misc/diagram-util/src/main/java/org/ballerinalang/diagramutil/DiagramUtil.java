@@ -33,6 +33,9 @@ import io.ballerina.projects.Document;
  */
 public class DiagramUtil {
 
+    private DiagramUtil() {
+    }
+
     /**
      * Get the Modified JSON ST with type info.
      *

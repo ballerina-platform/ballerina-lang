@@ -33,6 +33,9 @@ import io.ballerina.runtime.internal.values.XmlPi;
 
 public class GetTarget {
 
+    private GetTarget() {
+    }
+
     public static BString getTarget(BXml xmlValue) {
         if (!IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR,

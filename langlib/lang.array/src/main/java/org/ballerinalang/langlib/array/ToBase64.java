@@ -43,6 +43,9 @@ public class ToBase64 {
     private static final BString NOT_SUPPORT_DETAIL_ERROR = StringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
+    private ToBase64() {
+    }
+
     public static BString toBase64(BArray arr) {
         Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||

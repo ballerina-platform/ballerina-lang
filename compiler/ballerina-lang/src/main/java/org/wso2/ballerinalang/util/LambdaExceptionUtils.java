@@ -28,6 +28,9 @@ import java.util.function.Consumer;
  */
 public class LambdaExceptionUtils {
 
+    private LambdaExceptionUtils() {
+    }
+
     /**
      * Represents a {@code Consumer} interface which can throw exceptions.
      *

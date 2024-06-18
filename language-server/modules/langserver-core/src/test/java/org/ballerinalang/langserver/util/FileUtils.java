@@ -39,6 +39,9 @@ public class FileUtils {
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
 
+    private FileUtils() {
+    }
+
     /**
      * Get the file content.
      * @param filePath path to the file

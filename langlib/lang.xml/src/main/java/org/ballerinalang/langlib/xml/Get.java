@@ -43,6 +43,9 @@ public class Get {
 
     public static final int LENGTH_OF_ONE = 1;
 
+    private Get() {
+    }
+
     public static BXml get(BXml xmlVal, long i) {
         // Handle single xml items
         XmlNodeType nodeType = xmlVal.getNodeType();

@@ -35,6 +35,9 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  */
 public class ProjectPaths {
 
+    private ProjectPaths() {
+    }
+
     /**
      * Finds the root directory of a Ballerina package using the filepath provided.
      *

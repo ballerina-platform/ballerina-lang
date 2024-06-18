@@ -29,6 +29,9 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
  */
 
 public class SyntaxTreeDiagnosticsUtil {
+    private SyntaxTreeDiagnosticsUtil() {
+    }
+
     public static JsonArray getDiagnostics(Iterable<Diagnostic> diagnostics) {
         JsonArray diagnosticsArray = new JsonArray();
         for (Diagnostic diagnostic : diagnostics) {

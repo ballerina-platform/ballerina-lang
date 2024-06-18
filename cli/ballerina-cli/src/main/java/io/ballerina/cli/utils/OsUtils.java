@@ -27,6 +27,9 @@ public class OsUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    private OsUtils() {
+    }
+
     public static boolean isWindows() {
         return (OS.contains("win"));
     }

@@ -88,6 +88,9 @@ public class TypeTags {
 
     public static final int REG_EXP_TYPE_TAG = TYPE_REFERENCED_TYPE_TAG + 1;
 
+    private TypeTags() {
+    }
+
     public static boolean isIntegerTypeTag(int tag) {
 
         // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.

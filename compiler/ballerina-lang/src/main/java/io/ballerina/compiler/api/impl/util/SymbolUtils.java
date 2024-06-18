@@ -46,6 +46,9 @@ import java.util.Optional;
  */
 public class SymbolUtils {
 
+    private SymbolUtils() {
+    }
+
     public static String unescapeUnicode(String value) {
         if (value.startsWith("'")) {
             return Utils.unescapeUnicodeCodepoints(value.substring(1));

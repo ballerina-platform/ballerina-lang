@@ -32,6 +32,9 @@ public class RuntimeAPICallNegative {
 
     private static final PrintStream out = System.out;
 
+    private RuntimeAPICallNegative() {
+    }
+
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);

@@ -36,6 +36,9 @@ public class GetElements {
     public static final String EMPTY = "";
     public static final String STAR = "*";
 
+    private GetElements() {
+    }
+
     /**
      * Expected element name format.
      * elemNames: {nsUrl}elemName | elemName | {nsUrl}* | *

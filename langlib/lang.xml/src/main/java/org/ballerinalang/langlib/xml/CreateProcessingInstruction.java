@@ -37,6 +37,9 @@ import io.ballerina.runtime.internal.XmlFactory;
 //)
 public class CreateProcessingInstruction {
 
+    private CreateProcessingInstruction() {
+    }
+
     public static BXml createProcessingInstruction(BString target, BString content) {
         return XmlFactory.createXMLProcessingInstruction(target, content);
     }

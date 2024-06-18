@@ -26,6 +26,9 @@ import io.ballerina.runtime.api.Runtime;
  */
 public class ModuleStartCallNegative {
 
+    private ModuleStartCallNegative() {
+    }
+
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation_negative", "1");
         Runtime balRuntime = Runtime.from(module);

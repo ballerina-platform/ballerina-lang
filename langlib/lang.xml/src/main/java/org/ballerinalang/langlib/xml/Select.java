@@ -38,6 +38,9 @@ public class Select {
 
     private static final String OPERATION = "select elements from xml";
 
+    private Select() {
+    }
+
     public static BXml select(Strand strand, BXml xml, String qname) {
         try {
             return xml.elements(qname);

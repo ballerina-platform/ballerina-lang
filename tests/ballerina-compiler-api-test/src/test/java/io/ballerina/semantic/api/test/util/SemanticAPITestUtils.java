@@ -57,6 +57,9 @@ import static org.testng.Assert.assertTrue;
  */
 public class SemanticAPITestUtils {
 
+    private SemanticAPITestUtils() {
+    }
+
     public static Document getDocumentForSingleSource(Project project) {
         Package currentPackage = project.currentPackage();
         DocumentId id = currentPackage.getDefaultModule().documentIds().iterator().next();

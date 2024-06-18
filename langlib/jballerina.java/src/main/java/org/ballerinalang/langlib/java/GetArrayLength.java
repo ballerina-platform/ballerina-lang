@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BHandle;
 
 public class GetArrayLength {
 
+    private GetArrayLength() {
+    }
+
     public static long getArrayLength(BHandle bHandle) {
         Object[] arr = (Object[]) bHandle.getValue();
         if (arr == null) {

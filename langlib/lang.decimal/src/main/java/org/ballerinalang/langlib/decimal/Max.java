@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BDecimal;
 //)
 public class Max {
 
+    private Max() {
+    }
+
     public static BDecimal max(BDecimal n, BDecimal[] ns) {
         BDecimal max = n;
         int size = ns.length;

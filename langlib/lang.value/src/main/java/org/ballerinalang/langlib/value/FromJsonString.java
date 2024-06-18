@@ -31,6 +31,9 @@ import io.ballerina.runtime.internal.JsonParser;
  */
 public class FromJsonString {
 
+    private FromJsonString() {
+    }
+
     public static Object fromJsonString(BString value) {
 
         String str = value.getValue();

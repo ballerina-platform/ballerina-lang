@@ -36,6 +36,9 @@ import java.util.Map;
  */
 public class IteratorUtils {
 
+    private IteratorUtils() {
+    }
+
     /**
      * Returns the pure type and anydata type flags if they are available, otherwise 0. This is only used to check if
      * the record type returned fro the next function of an iterator, is a pure type or anydata.

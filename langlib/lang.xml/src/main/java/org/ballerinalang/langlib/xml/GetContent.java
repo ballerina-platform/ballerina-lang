@@ -33,6 +33,9 @@ import io.ballerina.runtime.internal.values.XmlSequence;
  */
 public class GetContent {
 
+    private GetContent() {
+    }
+
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;
         if (IsProcessingInstruction.isProcessingInstruction(value)) {

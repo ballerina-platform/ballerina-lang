@@ -35,6 +35,9 @@ public class MockListener {
     private static BObject service;
     private static BError err;
 
+    private MockListener() {
+    }
+
     public static Object attach(BObject servObj) {
         service = servObj;
         return null;

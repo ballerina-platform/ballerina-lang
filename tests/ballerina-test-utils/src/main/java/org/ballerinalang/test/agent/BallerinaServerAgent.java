@@ -77,6 +77,9 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
+    private BallerinaServerAgent() {
+    }
+
     /**
      * This method will be called before invoking ballerina Main method.
      *

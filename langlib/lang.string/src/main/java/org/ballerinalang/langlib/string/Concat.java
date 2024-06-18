@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Concat {
 
+    private Concat() {
+    }
+
     public static BString concat(BString[] str) {
         StringBuilder stringBuilder = new StringBuilder();
         int size = str.length;

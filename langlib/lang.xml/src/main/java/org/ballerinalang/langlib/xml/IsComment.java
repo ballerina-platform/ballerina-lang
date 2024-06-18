@@ -30,6 +30,9 @@ import java.util.List;
  */
 public class IsComment {
 
+    private IsComment() {
+    }
+
     public static boolean isComment(BXml xmlValue) {
         if (xmlValue.getNodeType() == XmlNodeType.COMMENT) {
             return true;

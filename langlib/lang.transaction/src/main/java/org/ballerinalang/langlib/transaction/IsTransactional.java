@@ -27,6 +27,9 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
  */
 public class IsTransactional {
 
+    private IsTransactional() {
+    }
+
     public static boolean isTransactional() {
         return Scheduler.getStrand().isInTransaction();
     }

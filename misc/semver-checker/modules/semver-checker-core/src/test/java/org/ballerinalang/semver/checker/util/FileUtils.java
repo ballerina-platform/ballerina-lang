@@ -30,6 +30,9 @@ import java.nio.charset.Charset;
  */
 public class FileUtils {
 
+    private FileUtils() {
+    }
+
     /**
      * @param file    Name of the expected file
      * @param content string data which we want to write into the file

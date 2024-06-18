@@ -64,6 +64,9 @@ class TypeEmitter {
 
     static final Map<String, BType> B_TYPES = new HashMap<>();
 
+    private TypeEmitter() {
+    }
+
     static String emitType(BType bType, int tabs) {
 
         switch (bType.tag) {

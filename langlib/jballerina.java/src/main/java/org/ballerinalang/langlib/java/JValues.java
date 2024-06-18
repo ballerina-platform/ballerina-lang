@@ -29,6 +29,9 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  */
 class JValues {
 
+    private JValues() {
+    }
+
     static BError getJavaNullReferenceError() {
         return ErrorHelper.getRuntimeException(ErrorReasons.JAVA_NULL_REFERENCE_ERROR,
                 ErrorCodes.JAVA_NULL_REFERENCE);

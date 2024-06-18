@@ -36,6 +36,9 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 //)
 public class Remove {
 
+    private Remove() {
+    }
+
     public static Object remove(BArray arr, long i) {
         checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "remove()");
         return arr.shift(i);
