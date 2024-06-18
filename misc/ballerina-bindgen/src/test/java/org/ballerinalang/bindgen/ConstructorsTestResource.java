@@ -18,12 +18,14 @@
 package org.ballerinalang.bindgen;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Java resources for the unit testing of different constructor bindings generated.
  *
  * @since 2.0.0
  */
+@SuppressWarnings("all")
 public class ConstructorsTestResource {
 
     // The tool should not generate constructors with private access modifier.
@@ -75,15 +77,17 @@ public class ConstructorsTestResource {
     }
 
     // Constructor with a primitive parameter and a checked exception.
-    public ConstructorsTestResource(double x) {
+    public ConstructorsTestResource(double x) throws IOException {
+        var y = 1;
+
     }
 
     // Constructor with a string parameter, primitive parameter and a checked exception.
-    public ConstructorsTestResource(String x, int y) {
+    public ConstructorsTestResource(String x, int y) throws IOException {
     }
 
     // Constructor with an object parameter, primitive parameter and a checked exception.
-    public ConstructorsTestResource(File x, boolean y) {
+    public ConstructorsTestResource(File x, boolean y) throws InterruptedException {
     }
 
     // Constructor with a primitive parameter and an unchecked exception.
