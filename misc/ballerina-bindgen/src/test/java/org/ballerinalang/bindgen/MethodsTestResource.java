@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
+@SuppressWarnings("all")
 public class MethodsTestResource extends AbstractTestResource implements InterfaceTestResource {
 
     // Different instance method combinations
@@ -46,7 +48,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
     public void returnVoid() {
     }
 
-    public void returnOptionalError() {
+    public void returnOptionalError() throws Exception {
     }
 
     public IOException returnError() {
@@ -97,15 +99,15 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new File("test.txt");
     }
 
-    public File returnObjectThrowable() {
+    public File returnObjectThrowable() throws FileNotFoundException {
         return new File("test.txt");
     }
 
-    public File[] returnObjectThrowableError() {
+    public File[] returnObjectThrowableError() throws FileNotFoundException {
         return new File[2];
     }
 
-    public File returnObjectThrowableError(int[] x) {
+    public File returnObjectThrowableError(int[] x) throws FileNotFoundException {
         return new File("test.txt");
     }
 
@@ -201,7 +203,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return x;
     }
 
-    public String[] returnStringArray2(String[] x, StringBuffer y, int z) {
+    public String[] returnStringArray2(String[] x, StringBuffer y, int z) throws InterruptedException {
         return x;
     }
 
@@ -247,7 +249,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
     public static void join() {
     }
 
-    public static void returnStaticOptionalError() {
+    public static void returnStaticOptionalError() throws Exception {
     }
 
     public static IOException returnStaticError() {
@@ -288,7 +290,7 @@ public class MethodsTestResource extends AbstractTestResource implements Interfa
         return new File("test.txt");
     }
 
-    public static File[] returnStaticObjectThrowableError1() {
+    public static File[] returnStaticObjectThrowableError1() throws FileNotFoundException {
         return new File[2];
     }
 
