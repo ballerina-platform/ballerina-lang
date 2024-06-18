@@ -32,7 +32,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SpreadCompletionItem;
 import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
@@ -58,8 +57,8 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListConstructorExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 ListConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {

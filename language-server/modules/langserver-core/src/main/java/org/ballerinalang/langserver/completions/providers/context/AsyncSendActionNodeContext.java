@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -37,8 +36,7 @@ public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<Asyn
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AsyncSendActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AsyncSendActionNode node) {
         List<LSCompletionItem> completionItems = this.getFilteredItems(context, node, node.expression());
         this.sort(context, node, completionItems);
         

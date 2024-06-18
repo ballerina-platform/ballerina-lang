@@ -27,7 +27,7 @@ public class DocumentSymbolTest {
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("documentsymbol").resolve("config");
         this.sourceRoot = FileUtils.RES_DIR.resolve("documentsymbol").resolve("source");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -53,7 +53,7 @@ public class DocumentSymbolTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

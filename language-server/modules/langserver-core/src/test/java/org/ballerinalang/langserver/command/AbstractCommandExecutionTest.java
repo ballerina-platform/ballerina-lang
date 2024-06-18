@@ -53,7 +53,7 @@ public abstract class AbstractCommandExecutionTest {
     private static final Logger log = LoggerFactory.getLogger(AbstractCommandExecutionTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

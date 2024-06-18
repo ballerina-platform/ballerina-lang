@@ -43,19 +43,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void literalEvaluationTest() throws BallerinaTestException {
+    public void literalEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void listConstructorEvaluationTest() throws BallerinaTestException {
+    public void listConstructorEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void mappingConstructorEvaluationTest() throws BallerinaTestException {
+    public void mappingConstructorEvaluationTest() {
         // Todo
     }
 
@@ -70,7 +70,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void xmlTemplateEvaluationTest() throws BallerinaTestException {
+    public void xmlTemplateEvaluationTest() {
         // Todo
     }
 
@@ -112,13 +112,13 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+    public void builtInNameReferenceEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void fieldAccessEvaluationTest() throws BallerinaTestException {
+    public void fieldAccessEvaluationTest() {
         // Todo
     }
 
@@ -275,7 +275,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
+    public void typeOfExpressionEvaluationTest() {
         // Todo
     }
 
@@ -360,7 +360,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void equalityEvaluationTest() throws BallerinaTestException {
+    public void equalityEvaluationTest() {
         // Todo
     }
 
@@ -391,19 +391,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
+    public void conditionalExpressionEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void checkingExpressionEvaluationTest() throws BallerinaTestException {
+    public void checkingExpressionEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void trapExpressionEvaluationTest() throws BallerinaTestException {
+    public void trapExpressionEvaluationTest() {
         // Todo
     }
 

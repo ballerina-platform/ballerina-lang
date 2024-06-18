@@ -49,7 +49,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
@@ -457,13 +456,9 @@ public final class CommandUtil {
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
             Settings settings;
-        try {
-            settings = readSettings();
-            // Ignore Settings.toml diagnostics in the pull command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(),

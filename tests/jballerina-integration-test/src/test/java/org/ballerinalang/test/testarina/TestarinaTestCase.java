@@ -19,7 +19,6 @@ package org.ballerinalang.test.testarina;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +44,7 @@ public class TestarinaTestCase extends BaseTest {
     private BMainInstance balClient;
 
     @BeforeClass(enabled = false)
-    public void setUp() throws IOException, BallerinaTestException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
 
         // copy TestProject1 to a temp

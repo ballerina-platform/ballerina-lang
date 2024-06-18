@@ -56,7 +56,7 @@ public class DefinitionTest {
     private static final Logger log = LoggerFactory.getLogger(DefinitionTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
         this.serviceEndpoint = getServiceEndpoint();
@@ -132,7 +132,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    protected Object[][] testDataProvider() throws IOException {
+    protected Object[][] testDataProvider() {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"defProject1.json", "project"},
@@ -163,7 +163,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    protected Object[][] testStdLibDataProvider() throws IOException {
+    protected Object[][] testStdLibDataProvider() {
         log.info("Test textDocument/definition for Std Lib Cases");
         return new Object[][]{
                 {"defProject8.json", "project"},
@@ -175,7 +175,7 @@ public class DefinitionTest {
     }
 
     @DataProvider
-    protected Object[][] testInterStdLibDataProvider() throws IOException {
+    protected Object[][] testInterStdLibDataProvider() {
         log.info("Test textDocument/definition for Inter Std Lib Cases");
         return new Object[][]{
                 {"inter_stdlib_config1.json", "stdlib"},
@@ -184,7 +184,7 @@ public class DefinitionTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

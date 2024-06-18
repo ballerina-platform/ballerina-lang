@@ -45,7 +45,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
@@ -76,7 +75,7 @@ public class ClientResourceAccessActionNodeContext
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
-                                                 ClientResourceAccessActionNode node) throws LSCompletionException {
+                                                 ClientResourceAccessActionNode node) {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (onSuggestClients(node, context)) {

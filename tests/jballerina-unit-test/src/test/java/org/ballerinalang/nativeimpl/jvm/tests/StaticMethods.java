@@ -79,6 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @since 1.0.0
  */
+@SuppressWarnings({"all"})
 public final class StaticMethods {
 
     private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);

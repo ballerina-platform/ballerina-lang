@@ -45,7 +45,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
 
     @Override
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         testProjectName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);

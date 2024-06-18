@@ -56,7 +56,7 @@ public class ReferencesTest {
     private static final Logger log = LoggerFactory.getLogger(ReferencesTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         configRoot = FileUtils.RES_DIR.resolve("references").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("references").resolve("sources");
         this.serviceEndpoint = getLanguageServerEndpoint();
@@ -136,7 +136,7 @@ public class ReferencesTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

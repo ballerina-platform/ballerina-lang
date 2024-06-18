@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -49,8 +48,7 @@ public class IncludedRecordParameterNodeContext extends AbstractCompletionProvid
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, IncludedRecordParameterNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, IncludedRecordParameterNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION

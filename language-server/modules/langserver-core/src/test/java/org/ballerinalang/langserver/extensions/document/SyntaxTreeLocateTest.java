@@ -45,7 +45,7 @@ public class SyntaxTreeLocateTest {
             .resolve("source.bal");
 
     @BeforeClass
-    public void startLanguageServer() throws Exception {
+    public void startLanguageServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

@@ -22,7 +22,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -338,7 +337,7 @@ public final class RepoUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() throws SettingsTomlException {
+    public static Settings readSettings() {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument

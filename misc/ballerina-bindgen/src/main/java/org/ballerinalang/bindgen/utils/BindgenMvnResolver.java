@@ -119,7 +119,8 @@ public class BindgenMvnResolver {
     private void populateBallerinaToml(String groupId, String artifactId, String version,
                                        File tomlFile, Path projectRoot, String parent,
                                        JvmTarget parentJvmTarget) throws BindgenException {
-        try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
+        try (FileWriterWithEncoding fileWriter = FileWriterWithEncoding.builder()
+                .setFile(tomlFile).setCharset(StandardCharsets.UTF_8).setAppend(true).get()) {
             TomlDocument tomlDocument = env.getTomlDocument();
             if (tomlDocument == null) {
                 return;

@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -44,8 +43,7 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, PanicStatementNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, PanicStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()

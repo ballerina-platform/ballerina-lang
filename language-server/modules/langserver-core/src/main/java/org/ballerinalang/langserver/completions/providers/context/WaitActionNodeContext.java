@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -60,8 +59,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitActionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitActionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

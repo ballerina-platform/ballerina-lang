@@ -59,6 +59,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
  *
  * @since 1.0.0
  */
+@SuppressWarnings({"unused", "RedundantThrows"})
 public class RefTypeWithBValueAPITests {
 
     private CompileResult result;

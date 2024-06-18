@@ -54,7 +54,7 @@ public abstract class AbstractSignatureHelpTest {
     private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

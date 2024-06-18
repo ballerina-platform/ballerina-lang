@@ -533,9 +533,8 @@ public final class TestUtil {
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
      * @param content         File content
-     * @throws IOException Exception while reading the file content
      */
-    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
 

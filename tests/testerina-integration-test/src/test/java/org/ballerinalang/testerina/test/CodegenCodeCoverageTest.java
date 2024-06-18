@@ -57,7 +57,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     private JsonObject resultObj;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException, IOException {
+    public void setup() throws IOException {
         balClient = new BMainInstance(balServer);
         FileUtils.copyFolder(Paths.get("build").resolve("compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
