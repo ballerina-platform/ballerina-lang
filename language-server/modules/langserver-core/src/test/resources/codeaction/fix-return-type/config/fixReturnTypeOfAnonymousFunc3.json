@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 17
+    "line": 12,
+    "character": 28
   },
-  "source": "fixReturnTypeOfAnonymousFunc2.bal",
+  "source": "fixReturnTypeOfAnonymousFunc.bal",
   "expected": [
     {
       "title": "Change return type to 'string|error'",
@@ -12,12 +12,12 @@
         {
           "range": {
             "start": {
-              "line": 0,
-              "character": 43
+              "line": 11,
+              "character": 78
             },
             "end": {
-              "line": 0,
-              "character": 48
+              "line": 11,
+              "character": 84
             }
           },
           "newText": "string|error"

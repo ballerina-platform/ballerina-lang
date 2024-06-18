@@ -4,7 +4,7 @@ function fn1 = function (string s) returns error {
 };
 
 public function main() returns error? {
-    function _ = function (string s) returns error {
+    function fn2 = function (string s) {
         string _ = check getVal(s);
         return "string";
     };

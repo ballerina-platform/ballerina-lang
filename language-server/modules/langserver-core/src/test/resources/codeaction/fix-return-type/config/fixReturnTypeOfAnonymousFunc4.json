@@ -1,26 +1,26 @@
 {
   "position": {
-    "line": 1,
-    "character": 23
+    "line": 2,
+    "character": 15
   },
-  "source": "fixReturnTypeOfAnonymousFunc.bal",
+  "source": "fixReturnTypeOfAnonymousFunc2.bal",
   "expected": [
     {
-      "title": "Change return type to 'error?'",
+      "title": "Change return type to 'string|error'",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
               "line": 0,
-              "character": 34
+              "character": 43
             },
             "end": {
               "line": 0,
-              "character": 34
+              "character": 48
             }
           },
-          "newText": " returns error?"
+          "newText": "string|error"
         }
       ],
       "resolvable": false
