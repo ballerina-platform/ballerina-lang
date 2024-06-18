@@ -2814,8 +2814,8 @@ public final class TypeChecker {
         return false;
     }
 
-    protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
-                                               boolean allowNumericConversion) {
+    static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
+                                     boolean allowNumericConversion) {
         Type valueSpaceItemType = getType(valueSpaceItem);
         int sourceTypeTag = getImpliedType(sourceType).getTag();
         int valueSpaceItemTypeTag = getImpliedType(valueSpaceItemType).getTag();

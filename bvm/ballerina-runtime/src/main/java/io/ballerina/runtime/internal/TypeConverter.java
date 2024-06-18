@@ -528,7 +528,7 @@ public final class TypeConverter {
         return returnVal;
     }
 
-    protected static String getShortSourceValue(Object sourceValue) {
+    static String getShortSourceValue(Object sourceValue) {
         if (sourceValue == null) {
             return "()";
         }
@@ -542,7 +542,7 @@ public final class TypeConverter {
         return sourceValueName;
     }
 
-    protected static String getLongFieldName(String varName, String fieldName) {
+    static String getLongFieldName(String varName, String fieldName) {
         if (varName == null) {
             return fieldName;
         } else {

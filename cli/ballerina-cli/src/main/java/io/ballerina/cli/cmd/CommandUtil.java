@@ -1007,7 +1007,7 @@ public final class CommandUtil {
         write(balToolToml, balToolManifest.getBytes(StandardCharsets.UTF_8));
     }
 
-    protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
         }
@@ -1018,7 +1018,7 @@ public final class CommandUtil {
         return latestVersion;
     }
 
-    protected static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
         boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
@@ -1044,7 +1044,7 @@ public final class CommandUtil {
         return pathToVersions(versions);
     }
 
-    protected static List<PackageVersion> pathToVersions(List<Path> versions) {
+    private static List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)
