@@ -35,6 +35,9 @@ public class FromString {
     private static final BString ERROR_REASON = getModulePrefixedReason(REGEXP_LANG_LIB,
             REG_EXP_PARSING_ERROR_IDENTIFIER);
 
+    private FromString() {
+    }
+
     public static Object fromString(BString string) {
         try {
             return TypeConverter.stringToRegExp(string.getValue());

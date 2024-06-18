@@ -27,6 +27,9 @@ public class TypeFlags {
     public static final int ANYDATA = NILABLE << 1;
     public static final int PURETYPE = ANYDATA << 1;
 
+    private TypeFlags() {
+    }
+
     public static int asMask(boolean isNilable, boolean isAnydata, boolean isPureType) {
         int mask = 0;
         if (isNilable) {

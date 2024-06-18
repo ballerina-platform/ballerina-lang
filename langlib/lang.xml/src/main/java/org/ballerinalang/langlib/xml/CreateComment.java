@@ -35,6 +35,9 @@ import io.ballerina.runtime.internal.XmlFactory;
 //)
 public class CreateComment {
 
+    private CreateComment() {
+    }
+
     public static BXml createComment(BString string) {
         return XmlFactory.createXMLComment(string);
     }

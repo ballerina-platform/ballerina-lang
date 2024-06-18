@@ -36,6 +36,9 @@ import java.util.Optional;
  */
 public class PositionUtil {
 
+    private PositionUtil() {
+    }
+
     /**
      * Convert the syntax-node line range into a lsp4j range.
      *

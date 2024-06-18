@@ -42,6 +42,9 @@ public class JavaUtils {
     private static final Module JAVA_PACKAGE_ID = new Module(RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
                                                              "0.9.0");
 
+    private JavaUtils() {
+    }
+
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
      *

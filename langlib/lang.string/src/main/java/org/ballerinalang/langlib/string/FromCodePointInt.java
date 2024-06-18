@@ -29,6 +29,9 @@ import org.ballerinalang.langlib.string.utils.Constants;
  */
 public class FromCodePointInt {
 
+    private FromCodePointInt() {
+    }
+
     public static Object fromCodePointInt(long codePoint) {
 
         if (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE) {

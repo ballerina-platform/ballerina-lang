@@ -36,6 +36,9 @@ import java.nio.charset.StandardCharsets;
 //)
 public class ToBytes {
 
+    private ToBytes() {
+    }
+
     public static BArray toBytes(BString value) {
 
         byte[] bytes = value.getValue().getBytes(StandardCharsets.UTF_8);

@@ -93,6 +93,9 @@ public class Values {
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
 
+    private Values() {
+    }
+
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
         address.put("city", StringUtils.fromString("Nugegoda"));

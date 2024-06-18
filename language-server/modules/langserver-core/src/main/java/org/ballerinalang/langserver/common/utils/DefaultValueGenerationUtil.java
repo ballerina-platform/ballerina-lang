@@ -41,6 +41,9 @@ import java.util.Optional;
  */
 public class DefaultValueGenerationUtil {
 
+    private DefaultValueGenerationUtil() {
+    }
+
     /**
      * Get the default value for the given BType.
      *

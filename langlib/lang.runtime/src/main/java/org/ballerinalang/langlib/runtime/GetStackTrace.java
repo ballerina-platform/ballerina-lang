@@ -44,6 +44,9 @@ public class GetStackTrace {
 
     private static final BString EMPTY_ERROR_MESSAGE = StringUtils.fromString("");
 
+    private GetStackTrace() {
+    }
+
     public static BArray getStackTrace() {
         List<StackTraceElement> filteredStack = ErrorCreator.createError(EMPTY_ERROR_MESSAGE).getCallStack();
         Type recordType = ValueCreator.createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID,

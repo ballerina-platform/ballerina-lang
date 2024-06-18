@@ -49,6 +49,9 @@ import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
  */
 public class LauncherUtils {
 
+    private LauncherUtils() {
+    }
+
     public static Path getSourceRootPath(String sourceRoot) {
         // Get source root path.
         Path sourceRootPath;

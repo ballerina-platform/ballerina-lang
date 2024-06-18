@@ -65,6 +65,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TesterinaCompilerPluginUtils {
 
+    private TesterinaCompilerPluginUtils() {
+    }
+
     public static void addSetTestOptionsCall(List<StatementNode> statements) {
         // Add the statement, 'test:setTestOptions(<args[]>);'
         statements.add(getFunctionCallStatement(

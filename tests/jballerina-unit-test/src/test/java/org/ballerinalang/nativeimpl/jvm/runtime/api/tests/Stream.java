@@ -34,6 +34,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class Stream {
 
+    private Stream() {
+    }
+
     public static Object convertStringToType(BString s, BTypedesc t) {
         String str = s.getValue();
         InputStream stream = new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));

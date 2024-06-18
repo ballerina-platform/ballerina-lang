@@ -25,6 +25,9 @@ package org.ballerinalang.langlib.floatingpoint;
  */
 public class Tanh {
 
+    private Tanh() {
+    }
+
     public static double tanh(double x) {
         return Math.tanh(x);
     }

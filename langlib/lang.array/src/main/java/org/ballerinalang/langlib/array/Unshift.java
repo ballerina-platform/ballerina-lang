@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BArray;
  */
 public class Unshift {
 
+    private Unshift() {
+    }
+
     public static void unshift(BArray arr, Object... vals) {
         arr.unshift(vals);
     }

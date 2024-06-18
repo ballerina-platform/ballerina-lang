@@ -35,6 +35,9 @@ import java.util.Scanner;
 public class FileReaderUtils {
     private static final String SPECIAL_DELIMITER = "\\A";
 
+    private FileReaderUtils() {
+    }
+
     /**
      * Reads a file path content from the resources directory.
      *

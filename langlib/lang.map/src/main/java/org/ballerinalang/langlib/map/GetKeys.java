@@ -36,6 +36,9 @@ import io.ballerina.runtime.api.values.BString;
 //)
 public class GetKeys {
 
+    private GetKeys() {
+    }
+
     public static BArray keys(BMap<?, ?> m) {
         return ValueCreator.createArrayValue((BString[]) m.getKeys());
     }

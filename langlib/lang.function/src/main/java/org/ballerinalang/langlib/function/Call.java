@@ -51,6 +51,9 @@ public class Call {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, FUNCTION_LANG_LIB,
                                                                       "1.0.0", "call");
 
+    private Call() {
+    }
+
     public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();

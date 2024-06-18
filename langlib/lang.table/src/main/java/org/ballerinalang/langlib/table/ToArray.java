@@ -42,6 +42,9 @@ import java.util.Collection;
 //)
 public class ToArray {
 
+    private ToArray() {
+    }
+
     public static BArray toArray(BTable tbl) {
         Type constrainedType = ((TableType) TypeUtils.getImpliedType(tbl.getType())).getConstrainedType();
 

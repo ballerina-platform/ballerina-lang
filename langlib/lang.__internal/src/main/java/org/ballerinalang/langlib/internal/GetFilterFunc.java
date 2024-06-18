@@ -33,6 +33,9 @@ import java.util.List;
  */
 public class GetFilterFunc {
 
+    private GetFilterFunc() {
+    }
+
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
         FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(bFunctionPointer.getType());

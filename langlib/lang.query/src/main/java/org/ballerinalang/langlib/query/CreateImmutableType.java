@@ -19,6 +19,9 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
 
 public class CreateImmutableType {
 
+    private CreateImmutableType() {
+    }
+
     public static void createImmutableValue(BRefValue value) {
         value.freezeDirect();
     }

@@ -46,6 +46,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
 public class FileUtils {
     private static final String SRC_DIR = "src";
 
+    private FileUtils() {
+    }
+
     public static void deleteFile(Path filePath) throws IOException {
         Files.deleteIfExists(filePath);
     }

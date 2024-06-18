@@ -44,6 +44,9 @@ public class RuntimeApi {
     private static final Module recordModule = new Module("testorg", "runtime_api", "1");
     private static Module errorModule = new Module("testorg", "runtime_api", "1");
 
+    private RuntimeApi() {
+    }
+
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();

@@ -70,7 +70,10 @@ public class RepoUtils {
             System.getenv(BALLERINA_DEV_CENTRAL));
 
     private static final String UNKNOWN = "unknown";
-    
+
+    private RepoUtils() {
+    }
+
     /**
      * Create and get the home repository path.
      *

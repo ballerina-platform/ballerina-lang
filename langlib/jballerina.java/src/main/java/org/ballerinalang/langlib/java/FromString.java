@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class FromString {
 
+    private FromString() {
+    }
+
     public static BHandle fromString(BString strValue) {
         return ValueCreator.createHandleValue(strValue == null ? null : strValue.getValue());
     }

@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.integer;
 //)
 public class Max {
 
+    private Max() {
+    }
+
     public static long max(long n, long[] ns) {
         long max = n;
         int size = ns.length;

@@ -84,6 +84,9 @@ public class Flags {
     public static final long EFFECTIVE_TYPE_DEF = QUERY_LAMBDA << 1;            //  43
     public static final long SOURCE_ANNOTATION = EFFECTIVE_TYPE_DEF << 1;       //  44
 
+    private Flags() {
+    }
+
     public static long asMask(Set<Flag> flagSet) {
         long mask = 0;
         for (Flag flag : flagSet) {

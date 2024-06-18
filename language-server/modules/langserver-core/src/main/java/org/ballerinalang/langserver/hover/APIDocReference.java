@@ -24,6 +24,9 @@ public class APIDocReference {
 
     private static final String BASE_URL = "https://lib.ballerina.io/";
 
+    private APIDocReference() {
+    }
+
     public static String from(String orgName,
                               String moduleName,
                               String version,

@@ -38,6 +38,9 @@ public class AssertionDiffEvaluator {
     private static final String PARTITION_REGEX = "(?<=\\G.{80})";
     private static final int MAX_ARG_LENGTH = 80;
 
+    private AssertionDiffEvaluator() {
+    }
+
     /**
      * Get a list of String values by separating the lines from a String value.
      * @param value String

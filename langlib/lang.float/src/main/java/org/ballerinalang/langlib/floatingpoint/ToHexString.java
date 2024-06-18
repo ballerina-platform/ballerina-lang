@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToHexString {
 
+    private ToHexString() {
+    }
+
     public static BString toHexString(double n) {
         return StringUtils.fromString(Double.toHexString(n));
     }

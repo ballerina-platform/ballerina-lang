@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BTable;
 //        isPublic = true
 //)
 public class GetIterator {
+    private GetIterator() {
+    }
+
     public static BIterator iterator(BTable tbl) {
         return tbl.getIterator();
     }

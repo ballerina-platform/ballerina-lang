@@ -43,6 +43,9 @@ import static io.ballerina.runtime.api.utils.JsonUtils.convertJSONToRecord;
  */
 public class JsonValues {
 
+    private JsonValues() {
+    }
+
     public static BMap<BString, Object> testConvertJSONToRecord(Object record, BTypedesc t) throws BError {
         Type describingType = t.getDescribingType();
         if (describingType instanceof StructureType) {

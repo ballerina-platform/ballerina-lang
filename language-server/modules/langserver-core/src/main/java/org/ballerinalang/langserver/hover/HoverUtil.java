@@ -53,6 +53,9 @@ import java.util.Optional;
  */
 public class HoverUtil {
 
+    private HoverUtil() {
+    }
+
     /**
      * Get the hover content.
      *

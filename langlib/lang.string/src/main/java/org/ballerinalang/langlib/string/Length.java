@@ -35,6 +35,9 @@ import org.ballerinalang.langlib.string.utils.StringUtils;
 //)
 public class Length {
 
+    private Length() {
+    }
+
     public static long length(BString value) {
         if (value == null) {
             throw StringUtils.createNullReferenceError();

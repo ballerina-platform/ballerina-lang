@@ -57,6 +57,9 @@ public class ServiceValue {
     private static String[] names;
     private static MapValue annotationMap; // captured at attach method
 
+    private ServiceValue() {
+    }
+
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
         return env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null, new HashMap<>(),

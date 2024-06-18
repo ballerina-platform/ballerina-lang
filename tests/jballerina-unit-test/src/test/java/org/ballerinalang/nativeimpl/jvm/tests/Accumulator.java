@@ -37,6 +37,9 @@ import org.testng.Assert;
  */
 public class Accumulator {
 
+    private Accumulator() {
+    }
+
     public static void accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
         Future future = env.markAsync();

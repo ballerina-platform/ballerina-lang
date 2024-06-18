@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BFuture;
 //)
 public class Cancel {
 
+    private Cancel() {
+    }
+
     public static void cancel(BFuture futureValue) {
         futureValue.cancel();
     }

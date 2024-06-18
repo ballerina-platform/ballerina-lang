@@ -30,6 +30,9 @@ import java.util.Map;
  */
 public class RenameTestUtil {
 
+    private RenameTestUtil() {
+    }
+
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
         if (expected == null) {
             return;

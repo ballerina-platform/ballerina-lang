@@ -57,4 +57,7 @@ public class MockConstants {
     public static final String REST_PARAMETER_INDICATOR = "::";
     public static final String REST_PARAM_PLACEHOLDER = "^^";
     public static final String CASE_ID_DELIMITER = "-";
+
+    private MockConstants() {
+    }
 }

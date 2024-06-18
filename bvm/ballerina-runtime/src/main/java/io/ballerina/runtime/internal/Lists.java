@@ -31,6 +31,9 @@ import io.ballerina.runtime.internal.values.ArrayValue;
  */
 public class Lists {
 
+    private Lists() {
+    }
+
     public static Object get(ArrayValue array, long index) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             return array.getRefValue(index);

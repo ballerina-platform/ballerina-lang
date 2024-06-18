@@ -55,4 +55,7 @@ public class SymTag {
     public static final long ANNOTATION_ATTACHMENT = 1 << 30;
     public static final long RESOURCE_PATH_SEGMENT = 1 << 31;
     public static final long SEQUENCE = 1L << 32 | MAIN;
+
+    private SymTag() {
+    }
 }

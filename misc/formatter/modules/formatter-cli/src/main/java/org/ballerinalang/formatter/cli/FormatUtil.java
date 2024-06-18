@@ -51,6 +51,9 @@ class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
 
+    private FormatUtil() {
+    }
+
     /**
      * Execute formatter.
      *

@@ -46,6 +46,9 @@ public class BallerinaLocateSyntaxTreeUtil {
     private static final String END_LINE = "endLine";
     private static final String END_COLUMN = "endColumn";
 
+    private BallerinaLocateSyntaxTreeUtil() {
+    }
+
     private enum NodeRange {
         INCLUSIVE,
         EQUALS,

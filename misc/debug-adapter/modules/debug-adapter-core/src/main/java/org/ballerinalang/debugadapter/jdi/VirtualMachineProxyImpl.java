@@ -701,6 +701,9 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
             }
         }
 
+        private JNITypeParserReflect() {
+        }
+
         static String typeNameToSignature(String name) {
             if (typeNameToSignatureMethod != null) {
                 try {

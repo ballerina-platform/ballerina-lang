@@ -167,4 +167,7 @@ public class ItemResolverConstants {
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
     public static final String OUTER_KEYWORD = "outer";
+
+    private ItemResolverConstants() {
+    }
 }

@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToJsonString {
 
+    private ToJsonString() {
+    }
+
     public static BString toJsonString(Object value) {
         return StringUtils.fromString(StringUtils.getJsonString(value));
     }

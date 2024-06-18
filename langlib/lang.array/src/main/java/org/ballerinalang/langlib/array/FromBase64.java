@@ -32,6 +32,9 @@ import java.util.Base64;
  */
 public class FromBase64 {
 
+    private FromBase64() {
+    }
+
     public static Object fromBase64(BString str) {
         try {
             byte[] decodedArr = Base64.getDecoder().decode(str.getValue());

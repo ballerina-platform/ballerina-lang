@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Cosh {
 
+    private Cosh() {
+    }
+
     public static double cosh(double x) {
         return Math.cosh(x);
     }

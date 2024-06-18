@@ -36,6 +36,9 @@ import java.math.RoundingMode;
 //)
 public class Ceiling {
 
+    private Ceiling() {
+    }
+
     public static BDecimal ceiling(BDecimal x) {
         return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));
     }

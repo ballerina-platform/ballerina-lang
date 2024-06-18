@@ -23,6 +23,9 @@ package io.ballerina.compiler.internal.parser.tree;
  * @since 2.0.0
  */
 public class STTreeModifiers {
+    private STTreeModifiers() {
+    }
+
     /**
      * Replaces the given target node with the replacement node and return new root node.
      *

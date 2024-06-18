@@ -41,6 +41,9 @@ import java.util.List;
 //)
 public class ElementChildren {
 
+    private ElementChildren() {
+    }
+
     public static BXml elementChildren(BXml xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;
         String name = namedQuery ? ((BString) nameObj).getValue() : null;

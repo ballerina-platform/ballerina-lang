@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
  */
 public class ResourcePathCompletionItemBuilder {
 
+    private ResourcePathCompletionItemBuilder() {
+    }
+
     /**
      * Creates and returns completion items given a resource method symbol.
      *

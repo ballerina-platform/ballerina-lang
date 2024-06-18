@@ -34,6 +34,9 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
  * @since 2201.3.0
  */
 public class Matches {
+    private Matches() {
+    }
+
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);

@@ -34,6 +34,9 @@ public class SymbolServiceTestUtil {
     public static final String INTERSECTION = "intersection";
     public static final String READ_ONLY = "readonly";
 
+    private SymbolServiceTestUtil() {
+    }
+
     public static boolean isPositionsEquals(LinePosition expectedPosition, LinePosition actualPosition) {
         return expectedPosition.line() == actualPosition.line()
                 && expectedPosition.offset() == actualPosition.offset();

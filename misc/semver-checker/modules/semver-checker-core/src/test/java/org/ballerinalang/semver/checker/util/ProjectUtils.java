@@ -42,6 +42,9 @@ public class ProjectUtils {
     private static final String PACKAGE_NAME = "test_package";
     private static final String PACKAGE_VERSION = "1.0.0";
 
+    private ProjectUtils() {
+    }
+
     public static BuildProject createProject(String mainBalContent) throws Exception {
         // Creates a new directory in the default temporary file directory.
         tempProjectDir = Files.createTempDirectory(TEMP_DIR_PREFIX + System.currentTimeMillis());

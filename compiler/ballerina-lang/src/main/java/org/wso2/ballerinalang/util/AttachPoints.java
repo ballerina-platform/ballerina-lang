@@ -46,6 +46,9 @@ public class AttachPoints {
     public static final int WORKER = CONST << 1;
     public static final int CLASS = WORKER << 1;
 
+    private AttachPoints() {
+    }
+
     public static int asMask(Set<AttachPoint.Point> attachPoints) {
         int mask = 0;
         for (AttachPoint.Point point : attachPoints) {

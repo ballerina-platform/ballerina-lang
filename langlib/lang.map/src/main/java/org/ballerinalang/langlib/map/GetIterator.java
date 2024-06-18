@@ -34,6 +34,9 @@ import io.ballerina.runtime.api.values.BMap;
 //)
 public class GetIterator {
 
+    private GetIterator() {
+    }
+
     public static BIterator iterator(BMap<?, ?> map) {
         return map.getIterator();
     }

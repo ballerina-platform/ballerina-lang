@@ -245,6 +245,9 @@ public class XMLValidator {
         }
     }
 
+    private XMLValidator() {
+    }
+
     /*
      * Public Methods.
      */

@@ -33,6 +33,9 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  */
 public class Info {
 
+    private Info() {
+    }
+
     public static BMap<BString, Object> info() {
         Strand strand = Scheduler.getStrand();
         if (IsTransactional.isTransactional()) {

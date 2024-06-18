@@ -47,6 +47,9 @@ public class CreateElement {
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
     private static final String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
+    private CreateElement() {
+    }
+
     public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
         String prefix = getPrefix(name.getValue(), attributes);
         BXmlQName xmlqName;

@@ -31,6 +31,9 @@ public class SemverUtils {
     private static final String SEMVER_FORMAT = "%d.%d.%d";
     public static final String BAL_FILE_EXT = ".bal";
 
+    private SemverUtils() {
+    }
+
     public static String calculateSuggestedVersion(SemanticVersion prevVersion, PackageDiff packageDiff) {
         if (packageDiff == null) {
             return prevVersion.toString();

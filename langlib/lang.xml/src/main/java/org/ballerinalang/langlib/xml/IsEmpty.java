@@ -37,6 +37,9 @@ public class IsEmpty {
 
     private static final String OPERATION = "check xml is empty";
 
+    private IsEmpty() {
+    }
+
     public static boolean isEmpty(Strand strand, BXml xml) {
         try {
             return xml.isEmpty();

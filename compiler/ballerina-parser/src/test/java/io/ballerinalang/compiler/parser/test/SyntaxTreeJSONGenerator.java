@@ -67,6 +67,9 @@ public class SyntaxTreeJSONGenerator {
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
+    private SyntaxTreeJSONGenerator() {
+    }
+
     public static void main(String[] args) throws IOException {
         // Using a string source as input
         // generateJSON("a 7", ParserRuleContext.EXPRESSION);

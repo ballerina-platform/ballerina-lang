@@ -50,6 +50,9 @@ public class CodeActionUtils {
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     public static final String NEW = ".new";
 
+    private CodeActionUtils() {
+    }
+
     /**
      * Get codeactions for the provided cursor position in the provided source file.
      *

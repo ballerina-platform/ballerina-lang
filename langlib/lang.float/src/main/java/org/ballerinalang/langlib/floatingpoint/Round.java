@@ -34,6 +34,9 @@ import java.math.RoundingMode;
 //)
 public class Round {
 
+    private Round() {
+    }
+
     public static double round(double x, long fractionDigits) {
         if (Double.isInfinite(x) || Double.isNaN(x) || x == 0.0d) {
             return x;

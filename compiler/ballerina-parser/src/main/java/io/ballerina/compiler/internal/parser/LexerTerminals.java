@@ -173,4 +173,7 @@ public class LexerTerminals {
     public static final char FORM_FEED = 0xC;
 
     public static final String RE = "re";
+
+    private LexerTerminals() {
+    }
 }

@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BString;
 public class Message {
 
 
+    private Message() {
+    }
+
     @Deprecated
     public static BString message(BError value) {
         return value.getErrorMessage();

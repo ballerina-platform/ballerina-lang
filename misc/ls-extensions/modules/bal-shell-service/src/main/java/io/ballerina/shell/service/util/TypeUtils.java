@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.utils.StringUtils;
  * @since 2201.1.1
  */
 public class TypeUtils {
+    private TypeUtils() {
+    }
+
     /**
      * Get applicable mime type for a given type.
      *

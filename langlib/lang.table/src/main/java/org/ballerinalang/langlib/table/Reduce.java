@@ -48,6 +48,9 @@ public class Reduce {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
 
+    private Reduce() {
+    }
+
     public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);

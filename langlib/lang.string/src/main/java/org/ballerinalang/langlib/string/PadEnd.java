@@ -34,6 +34,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 
 public class PadEnd {
 
+    private PadEnd() {
+    }
+
     public static BString padEnd(BString str, long len, BString padChar) {
         int strLength = str.length();
         if (len <= strLength) {

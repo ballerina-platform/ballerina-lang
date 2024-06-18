@@ -31,6 +31,9 @@ import io.ballerina.syntaxapicallsgen.segment.factories.NodeSegmentFactory;
  * @since 2.0.0
  */
 public class SyntaxApiCallsGen {
+    private SyntaxApiCallsGen() {
+    }
+
     /**
      * Run the process with the given configurations.
      *

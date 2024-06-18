@@ -27,6 +27,9 @@ import io.ballerina.runtime.internal.CloneUtils;
  */
 public class CloneReadOnly {
 
+    private CloneReadOnly() {
+    }
+
     public static Object cloneReadOnly(Object value) {
         return CloneUtils.cloneReadOnly(value);
     }

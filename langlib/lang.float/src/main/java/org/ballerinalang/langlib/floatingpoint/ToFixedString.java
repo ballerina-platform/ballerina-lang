@@ -33,6 +33,9 @@ import java.math.RoundingMode;
  */
 public class ToFixedString {
 
+    private ToFixedString() {
+    }
+
     public static BString toFixedString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
         // If fractionalDigits is `()`, use the minimum number of digits required to accurately represent the value.

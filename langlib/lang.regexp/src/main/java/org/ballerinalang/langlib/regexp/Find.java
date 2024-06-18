@@ -37,6 +37,9 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
  */
 public class Find {
 
+    private Find() {
+    }
+
     public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         int[] surrogates = getSurrogatePositions(str);

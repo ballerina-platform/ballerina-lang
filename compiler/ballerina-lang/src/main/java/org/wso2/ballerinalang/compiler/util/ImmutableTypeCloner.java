@@ -90,6 +90,9 @@ public class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
 
+    private ImmutableTypeCloner() {
+    }
+
     public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   BType type, SymbolEnv env,
                                                   SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,

@@ -32,6 +32,9 @@ import io.ballerina.runtime.api.values.BMap;
 //)
 public class Length {
 
+    private Length() {
+    }
+
     public static long length(BMap<?, ?> m) {
         return m.size();
     }

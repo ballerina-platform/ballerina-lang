@@ -57,6 +57,9 @@ import java.util.Optional;
  */
 public class GeneratorUtils {
 
+    private GeneratorUtils() {
+    }
+
     public static String getDocCodeBlockString(MarkdownCodeBlockNode markdownCodeBlockNode) {
         StringBuilder doc = new StringBuilder();
 

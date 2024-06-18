@@ -31,6 +31,9 @@ import java.util.Optional;
  */
 public class FoldingRangeProvider {
 
+    private FoldingRangeProvider() {
+    }
+
     /**
      * Returns the list of folding ranges for the given syntax tree.
      *

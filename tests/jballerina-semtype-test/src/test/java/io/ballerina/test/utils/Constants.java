@@ -27,4 +27,7 @@ public class Constants {
     public static final String COMMENT = "// ";
     public static final String FAILING_FILE = "-f.bal";
     public static final String DISABLED_FILE = "-d.bal";
+
+    private Constants() {
+    }
 }

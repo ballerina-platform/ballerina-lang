@@ -112,6 +112,9 @@ public class Generator {
     public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
     public static final String DOC_HEADER_PREFIX = "# ";
 
+    private Generator() {
+    }
+
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
      *

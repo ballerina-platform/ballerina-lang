@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToHexString {
 
+    private ToHexString() {
+    }
+
     public static BString toHexString(long n) {
         if (n < 0) {
            return StringUtils.fromString("-" + Long.toHexString(-1 * n));

@@ -64,6 +64,9 @@ public class TesterinaUtils {
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
+    private TesterinaUtils() {
+    }
+
     /**
      * Cleans up any remaining testerina metadata.
      *

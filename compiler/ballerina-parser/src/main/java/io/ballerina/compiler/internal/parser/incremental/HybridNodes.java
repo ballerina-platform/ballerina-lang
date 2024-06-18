@@ -32,6 +32,9 @@ import io.ballerina.tools.text.TextRange;
  */
 class HybridNodes {
 
+    private HybridNodes() {
+    }
+
     /**
      * Returns the next node based on the previous node's state and the given kind.
      *

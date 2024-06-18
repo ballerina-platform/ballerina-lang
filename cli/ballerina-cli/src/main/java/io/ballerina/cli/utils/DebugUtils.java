@@ -16,6 +16,9 @@ public class DebugUtils {
     private static final String JAVA_VERSION_PROP = "java.version";
     private static final String COMPATIBLE_JRE_VERSION = "17";
 
+    private DebugUtils() {
+    }
+
     /**
      * Evaluates whether the ballerina program should be running on debug mode.
      *

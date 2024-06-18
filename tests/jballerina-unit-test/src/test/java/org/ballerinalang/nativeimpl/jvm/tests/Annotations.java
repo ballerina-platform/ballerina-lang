@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Annotations {
 
+    private Annotations() {
+    }
+
     public static BString externalFunction(boolean b) {
         if (b) {
             return StringUtils.fromString("true");

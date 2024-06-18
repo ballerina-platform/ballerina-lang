@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Floor {
 
+    private Floor() {
+    }
+
     public static double floor(double x) {
         return Math.floor(x);
     }

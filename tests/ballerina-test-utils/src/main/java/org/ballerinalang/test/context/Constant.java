@@ -50,4 +50,7 @@ public class Constant {
     public static final String BALLERINA_AGENT_PATH = "ballerina.agent.path";
 
     public static final String JACOCO_AGENT_ARG_LINE = "jacoco.agent.argLine";
+
+    private Constant() {
+    }
 }

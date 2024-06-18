@@ -37,6 +37,9 @@ public class GetTextValue {
 
     private static final String OPERATION = "get text from xml";
 
+    private GetTextValue() {
+    }
+
     public static String getTextValue(Strand strand, BXml xml) {
         try {
             return xml.getTextValue();

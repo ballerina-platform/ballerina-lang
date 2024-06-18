@@ -64,6 +64,9 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_STRING));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
+    private PredefinedType() {
+    }
+
     private static UniformTypeBitSet uniformTypeUnion(int bitset) {
         return new UniformTypeBitSet(bitset);
     }

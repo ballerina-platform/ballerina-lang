@@ -46,6 +46,9 @@ public class FromString {
     private static final BString ERROR_REASON = getModulePrefixedReason(DECIMAL_LANG_LIB,
                                                                         NUMBER_PARSING_ERROR_IDENTIFIER);
 
+    private FromString() {
+    }
+
     public static Object fromString(BString s) {
         String decimalFloatingPointNumber = s.getValue();
         try {

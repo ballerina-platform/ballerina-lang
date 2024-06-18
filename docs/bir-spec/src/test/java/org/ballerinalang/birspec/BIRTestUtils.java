@@ -63,6 +63,9 @@ class BIRTestUtils {
     private static final String LANG_LIB_TEST_SRC_ROOT = "../../langlib/langlib-test/src/test/resources/test-src";
     private static final Path LANG_LIB_TEST_ROOT_PATH = Paths.get(LANG_LIB_TEST_SRC_ROOT);
 
+    private BIRTestUtils() {
+    }
+
     @DataProvider(name = "createTestSources")
     public static Object[][] createTestDataProvider() throws IOException {
         assert LANG_LIB_TEST_ROOT_PATH.toFile().exists();

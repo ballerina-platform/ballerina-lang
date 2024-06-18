@@ -37,6 +37,9 @@ public class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
 
+    private GetElementName() {
+    }
+
     public static String getElementName(Strand strand, BXml xml) {
         try {
             return xml.getElementName();

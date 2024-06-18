@@ -37,6 +37,9 @@ import java.util.Optional;
  */
 public class GraalVMCompatibilityUtils {
 
+    private GraalVMCompatibilityUtils() {
+    }
+
     private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg) {
         // Check if external platform dependencies are defined
         Map<String, PackageManifest.Platform> platforms = pkg.manifest().platforms();

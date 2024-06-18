@@ -34,6 +34,9 @@ import java.math.BigDecimal;
 //)
 public class Sum {
 
+    private Sum() {
+    }
+
     public static BDecimal sum(BDecimal[] ns) {
         BDecimal sum = ValueCreator.createDecimalValue(BigDecimal.ZERO);
         int size = ns.length;

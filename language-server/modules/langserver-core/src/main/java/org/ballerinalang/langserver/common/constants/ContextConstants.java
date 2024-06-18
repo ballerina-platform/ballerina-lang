@@ -37,4 +37,7 @@ public class ContextConstants {
     public static final String DOC_RECEIVER = "RECEIVER";
     public static final String DOC_RETURN = "RETURN";
     public static final String DOC_VARIABLE = "VARIABLE";
+
+    private ContextConstants() {
+    }
 }

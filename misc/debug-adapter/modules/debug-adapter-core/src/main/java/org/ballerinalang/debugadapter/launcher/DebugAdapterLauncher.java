@@ -38,6 +38,9 @@ public class DebugAdapterLauncher {
     private static final int DEFAULT_PORT = 4711;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugAdapterLauncher.class);
 
+    private DebugAdapterLauncher() {
+    }
+
     public static void main(String[] args) {
         // Configures debug server port.
         int debugServerPort = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;

@@ -92,6 +92,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  */
 public class TestUtils {
 
+    private TestUtils() {
+    }
+
     public static void generateCoverage(Project project, TestReport testReport, JBallerinaBackend jBallerinaBackend,
                                         String includesInCoverage, String coverageReportFormat,
                                         Map<String, Module> coverageModules, Set<String> exclusionClassList)

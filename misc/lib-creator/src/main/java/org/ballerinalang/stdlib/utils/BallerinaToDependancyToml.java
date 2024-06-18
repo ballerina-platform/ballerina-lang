@@ -15,6 +15,9 @@ import java.util.Map;
 
 public class BallerinaToDependancyToml {
 
+    private BallerinaToDependancyToml() {
+    }
+
     public static void main(String... args) throws IOException {
         if (args.length == 0) {
             System.out.println("Please specify a path");

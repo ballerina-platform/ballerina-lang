@@ -22,4 +22,7 @@ package io.ballerina.shell.service;
  */
 public class Constants {
     public static final String CAPABILITY_NAME = "balShell";
+
+    private Constants() {
+    }
 }

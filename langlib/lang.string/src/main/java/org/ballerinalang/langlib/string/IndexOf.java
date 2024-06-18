@@ -34,6 +34,9 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  */
 public class IndexOf {
 
+    private IndexOf() {
+    }
+
     public static Object indexOf(BString bStr, BString subString, long startIndx) {
 
         if (bStr == null || subString == null) {

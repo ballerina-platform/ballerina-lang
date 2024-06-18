@@ -109,6 +109,9 @@ public class NativeUtils {
             "io.ballerina.runtime.api.values.BString"
     });
 
+    private NativeUtils() {
+    }
+
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
                                            Map<String, TestSuite> testSuiteMap) throws IOException {

@@ -43,6 +43,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_CYCLIC
 
 public class TableUtils {
 
+    private TableUtils() {
+    }
+
     /**
      * Generates a hash value which is same for the same shape.
      *

@@ -37,6 +37,9 @@ public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 
+    private RemoveAttribute() {
+    }
+
     public static void removeAttribute(Strand strand, BXml xml, String qname) {
         try {
             xml.removeAttribute(qname);

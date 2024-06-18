@@ -36,6 +36,9 @@ import java.math.RoundingMode;
 //)
 public class Floor {
 
+    private Floor() {
+    }
+
     public static BDecimal floor(BDecimal x) {
         return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.FLOOR));
     }

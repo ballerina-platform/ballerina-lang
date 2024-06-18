@@ -36,6 +36,9 @@ public class FileUtils {
     static final String FILE_SEPARATOR = File.separator;
     static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
+    private FileUtils() {
+    }
+
     /**
      * Recursively copy a directory from a source to destination.
      *

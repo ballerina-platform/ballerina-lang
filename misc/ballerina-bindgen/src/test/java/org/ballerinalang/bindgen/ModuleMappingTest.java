@@ -28,4 +28,7 @@ public class ModuleMappingTest {
 
     // Verifies that the module imports are correctly added in a final field.
     public static final Comparator BUILD_AWARE_ORDER = null;
+
+    private ModuleMappingTest() {
+    }
 }

@@ -24,6 +24,9 @@ package io.ballerina.converters.util;
  */
 public class ErrorMessages {
 
+    private ErrorMessages() {
+    }
+
     public static String parserException(String json) {
         return String.format("Couldn't read the JSON Schema from the given string: %s", json);
     }

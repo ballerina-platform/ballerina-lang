@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Ceiling {
 
+    private Ceiling() {
+    }
+
     public static double ceiling(double x) {
         return Math.ceil(x);
     }

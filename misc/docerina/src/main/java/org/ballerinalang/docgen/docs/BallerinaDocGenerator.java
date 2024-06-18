@@ -107,6 +107,9 @@ public class BallerinaDocGenerator {
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
 
+    private BallerinaDocGenerator() {
+    }
+
     /**
      * API to merge multiple api docs.
      *  @param apiDocsRoot api doc root

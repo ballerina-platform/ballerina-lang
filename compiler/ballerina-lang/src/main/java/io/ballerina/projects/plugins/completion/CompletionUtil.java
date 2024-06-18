@@ -25,6 +25,9 @@ public class CompletionUtil {
     public static final String LINE_BREAK = System.lineSeparator();
     public static final String PADDING = "\t";
 
+    private CompletionUtil() {
+    }
+
     public static String getPlaceHolderText(int index, String defaultValue) {
         return "${" + index + ":" + defaultValue + "}";
     }

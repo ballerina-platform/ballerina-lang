@@ -34,6 +34,9 @@ import java.io.StringReader;
 
 public class FromJsonDecimalString {
 
+    private FromJsonDecimalString() {
+    }
+
     public static Object fromJsonDecimalString(BString value) {
 
         String str = value.getValue();

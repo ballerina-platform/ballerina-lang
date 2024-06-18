@@ -23,6 +23,9 @@ import java.io.File;
  * Utilities for Maven dependency resolving.
  */
 public class Utils {
+    private Utils() {
+    }
+
     /**
      * Provides jar location path fpr provided maven dependency.
      * @param targetPath target path dependencies have been resolved

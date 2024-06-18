@@ -56,6 +56,9 @@ import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
  */
 public class StackTrace {
 
+    private StackTrace() {
+    }
+
     public static BObject stackTrace(BError value) {
 
         ObjectType callStackObjType = TypeCreator

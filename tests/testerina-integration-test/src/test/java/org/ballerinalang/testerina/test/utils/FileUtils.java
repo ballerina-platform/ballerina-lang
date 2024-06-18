@@ -29,6 +29,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class FileUtils {
 
+    private FileUtils() {
+    }
+
     /**
      * Recursively copy a directory from a source to destination.
      *

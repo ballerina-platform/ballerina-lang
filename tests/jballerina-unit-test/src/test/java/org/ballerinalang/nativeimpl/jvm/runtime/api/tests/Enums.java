@@ -51,6 +51,9 @@ public class Enums {
 
     private static final Module enumModule = new Module("testorg", "values.enum", "1");
 
+    private Enums() {
+    }
+
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);
         Set<Object> valuesSpace = new LinkedHashSet<>();

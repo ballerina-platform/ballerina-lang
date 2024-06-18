@@ -250,6 +250,9 @@ public class XmlValidator {
         }
     }
 
+    private XmlValidator() {
+    }
+
     /*
      * Public Methods.
      */

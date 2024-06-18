@@ -33,6 +33,9 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  */
 public class RemoveAll {
 
+    private RemoveAll() {
+    }
+
     public static void removeAll(BTable tbl) {
         try {
             tbl.clear();

@@ -40,6 +40,9 @@ public class JacocoInstrumentUtils {
 
     private static final Instrumenter instrumenter = new Instrumenter(new OfflineInstrumentationAccessGenerator());
 
+    private JacocoInstrumentUtils() {
+    }
+
     public static void instrumentOffline(List<URL> projectModuleJarList, Path destDir, List<String> mockClassNames)
             throws IOException, ClassNotFoundException {
         URLClassLoader classLoader = new URLClassLoader(projectModuleJarList.toArray(new URL[0]));

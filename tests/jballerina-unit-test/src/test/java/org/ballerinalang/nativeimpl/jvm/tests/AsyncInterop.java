@@ -34,6 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class AsyncInterop {
 
+    private AsyncInterop() {
+    }
+
     public static int countSlowly() {
         CompletableFuture<Object> future = AsyncUtils.markAsync();
 

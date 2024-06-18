@@ -37,6 +37,9 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
 //)
 public class Trim {
 
+    private Trim() {
+    }
+
     public static BString trim(BString str) {
         if (str == null) {
             throw createNullReferenceError();

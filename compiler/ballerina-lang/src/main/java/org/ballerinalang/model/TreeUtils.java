@@ -55,6 +55,9 @@ public class TreeUtils {
         stringTypeKindMap.put("readonly", TypeKind.READONLY);
     }
 
+    private TreeUtils() {
+    }
+
     public static TypeKind stringToTypeKind(String typeName) {
         return stringTypeKindMap.get(typeName);
     }

@@ -27,6 +27,9 @@ import io.ballerina.compiler.internal.parser.ParserFactory;
  */
 public class NodeParser {
 
+    private NodeParser() {
+    }
+
     /**
      * Parses the input as an action or expression.
      *

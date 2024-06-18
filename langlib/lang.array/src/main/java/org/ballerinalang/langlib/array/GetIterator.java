@@ -34,6 +34,9 @@ import io.ballerina.runtime.api.values.BIterator;
 //)
 public class GetIterator {
 
+    private GetIterator() {
+    }
+
     public static BIterator iterator(BArray arr) {
         return arr.getIterator();
     }

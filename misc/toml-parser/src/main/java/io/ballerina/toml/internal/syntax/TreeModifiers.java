@@ -27,6 +27,9 @@ import io.ballerina.toml.syntax.tree.NonTerminalNode;
  */
 public class TreeModifiers {
 
+    private TreeModifiers() {
+    }
+
     /**
      * Replaces the given target node with the replacement node and return new root node.
      *

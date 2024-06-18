@@ -78,6 +78,9 @@ public class LSExtensionTestUtil {
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
+    private LSExtensionTestUtil() {
+    }
+
     /**
      * Get the ballerinaDocument/syntaxTree modification response.
      *

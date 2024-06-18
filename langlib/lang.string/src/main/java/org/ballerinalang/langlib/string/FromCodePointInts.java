@@ -30,6 +30,9 @@ import org.ballerinalang.langlib.string.utils.Constants;
  */
 public class FromCodePointInts {
 
+    private FromCodePointInts() {
+    }
+
     public static Object fromCodePointInts(BArray codePoints) {
         int codePoint = 0;
         try {

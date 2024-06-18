@@ -37,6 +37,9 @@ public class ServiceAnnotValue {
     private static boolean started;
     private static int serviceCount = 0;
 
+    private ServiceAnnotValue() {
+    }
+
     public static Object attach(BObject servObj, Object name) {
         // get service annotation and add it to the hash map
         BServiceType serviceType = (BServiceType) servObj.getType();

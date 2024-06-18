@@ -42,6 +42,9 @@ public class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 
+    private ErrorCreator() {
+    }
+
     /**
      * Create an error with given reason.
      *

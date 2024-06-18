@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class FloatUtils {
 
+    private FloatUtils() {
+    }
+
     public static BString getBStringIfInfiniteOrNaN(double x) {
         if (Double.isInfinite(x) || Double.isNaN(x)) {
             return StringUtils.fromString(StringUtils.getStringValue(x));

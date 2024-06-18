@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToString {
 
+    private ToString() {
+    }
+
     public static Object toString(BHandle value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {

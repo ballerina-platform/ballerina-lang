@@ -32,6 +32,9 @@ import java.io.IOException;
 @Deprecated
 public class PackageFileWriter {
 
+    private PackageFileWriter() {
+    }
+
     public static byte[] writePackage(PackageFile packageFile) throws IOException {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {

@@ -45,6 +45,9 @@ import java.util.Optional;
  */
 public class DefinitionUtil {
 
+    private DefinitionUtil() {
+    }
+
     /**
      * Get the definition.
      *

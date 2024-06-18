@@ -37,6 +37,9 @@ public class MinutiaeSegmentFactory {
     private static final String CREATE_WHITESPACE_METHOD_NAME = "createWhitespaceMinutiae";
     private static final String CREATE_EOL_METHOD_NAME = "createEndOfLineMinutiae";
 
+    private MinutiaeSegmentFactory() {
+    }
+
     /**
      * Converts a {@link MinutiaeList} to a {@link Segment}.
      *

@@ -32,4 +32,7 @@ public class Constants {
     static final String NEXT_NODE = "nextNode";
     static final String WORKERS = "workers";
     public static final String MAIN_WORKER = "mainWorker";
+
+    private Constants() {
+    }
 }

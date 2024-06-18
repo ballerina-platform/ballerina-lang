@@ -28,6 +28,9 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  */
 public class GetRollbackOnly {
 
+    private GetRollbackOnly() {
+    }
+
     public static boolean getRollbackOnly() {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         return transactionLocalContext.getRollbackOnly() != null;

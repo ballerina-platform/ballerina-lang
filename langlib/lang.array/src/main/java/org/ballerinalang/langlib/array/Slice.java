@@ -42,6 +42,9 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  */
 public class Slice {
 
+    private Slice() {
+    }
+
     public static BArray slice(BArray arr, long startIndex, long endIndex) {
         int size = arr.size();
 

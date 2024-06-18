@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BArray;
 //)
 public class Length {
 
+    private Length() {
+    }
+
     public static long length(BArray arr) {
         return arr.size();
     }

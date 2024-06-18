@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BHandle;
  */
 public class GetArrayElement {
 
+    private GetArrayElement() {
+    }
+
     public static BHandle getArrayElement(BHandle bHandle, long index) {
         Object[] arr = (Object[]) bHandle.getValue();
         if (arr == null) {

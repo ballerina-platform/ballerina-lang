@@ -33,6 +33,9 @@ import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInv
  */
 public class RuntimeAPICall {
 
+    private RuntimeAPICall() {
+    }
+
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);

@@ -33,6 +33,9 @@ import java.util.List;
  */
 public class GetMapFunc {
 
+    private GetMapFunc() {
+    }
+
     public static BFunctionPointer getMapFunc(Object obj) {
         BFunctionPointer functionPointer = (BFunctionPointer) obj;
         FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(functionPointer.getType());

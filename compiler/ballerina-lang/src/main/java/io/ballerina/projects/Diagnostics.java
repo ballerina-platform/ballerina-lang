@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
  */
 public class Diagnostics {
 
+    private Diagnostics() {
+    }
+
     public static Collection<Diagnostic> filterErrors(Collection<Diagnostic> diagnostics) {
         return filterDiagnostics(diagnostics, DiagnosticSeverity.ERROR);
     }

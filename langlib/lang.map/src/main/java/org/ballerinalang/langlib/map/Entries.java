@@ -46,6 +46,9 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 //)
 public class Entries {
 
+    private Entries() {
+    }
+
     public static BMap<?, ?> entries(BMap<?, ?> m) {
         Type newFieldType = getFieldType(m.getType(), "entries()");
         TupleType entryType = TypeCreator.createTupleType(Arrays.asList(PredefinedTypes.TYPE_STRING, newFieldType));

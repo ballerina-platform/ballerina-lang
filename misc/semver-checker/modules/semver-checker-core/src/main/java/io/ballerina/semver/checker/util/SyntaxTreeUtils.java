@@ -42,6 +42,9 @@ import static io.ballerina.semver.checker.util.PackageUtils.capitalize;
  */
 public class SyntaxTreeUtils {
 
+    private SyntaxTreeUtils() {
+    }
+
     /**
      * Returns the node typename of the given {@link SyntaxKind} instance.
      *

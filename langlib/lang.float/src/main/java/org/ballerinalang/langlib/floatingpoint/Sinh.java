@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Sinh {
 
+    private Sinh() {
+    }
+
     public static double sinh(double x) {
         return Math.sinh(x);
     }

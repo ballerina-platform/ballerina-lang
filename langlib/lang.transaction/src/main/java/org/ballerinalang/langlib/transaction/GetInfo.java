@@ -28,6 +28,9 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
  */
 public class GetInfo {
 
+    private GetInfo() {
+    }
+
     public static Object getInfo(BArray xid) {
         return TransactionResourceManager.getInstance().getTransactionRecord(xid);
     }

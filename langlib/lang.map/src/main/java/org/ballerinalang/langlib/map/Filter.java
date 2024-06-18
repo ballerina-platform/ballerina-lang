@@ -50,6 +50,9 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "filter");
 
+    private Filter() {
+    }
+
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
         Type constraint;

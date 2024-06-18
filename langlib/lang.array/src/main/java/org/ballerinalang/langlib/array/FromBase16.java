@@ -33,6 +33,9 @@ import java.util.List;
  */
 public class FromBase16 {
 
+    private FromBase16() {
+    }
+
     public static Object fromBase16(BString str) {
         if (str.length() % 2 != 0) {
             return ErrorCreator

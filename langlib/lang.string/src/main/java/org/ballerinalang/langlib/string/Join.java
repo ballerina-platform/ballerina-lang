@@ -37,6 +37,9 @@ import java.util.StringJoiner;
 //)
 public class Join {
 
+    private Join() {
+    }
+
     public static BString join(BString separator, Object... strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
         int size = strs.length;

@@ -25,6 +25,9 @@ import java.nio.file.Path;
  */
 public class FileUtil {
 
+    private FileUtil() {
+    }
+
     public static boolean deleteDirectory(Path directoryPath) {
         File directory = new File(String.valueOf(directoryPath));
         if (directory.isDirectory()) {

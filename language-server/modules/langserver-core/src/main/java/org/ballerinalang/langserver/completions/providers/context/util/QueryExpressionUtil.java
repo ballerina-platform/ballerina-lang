@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
  */
 public class QueryExpressionUtil {
 
+    private QueryExpressionUtil() {
+    }
+
     public static List<LSCompletionItem> getCommonKeywordCompletions(BallerinaCompletionContext context) {
         return Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),

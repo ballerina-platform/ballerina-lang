@@ -30,6 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     private static Profiler profiler;
 
+    private Main() {
+    }
+
     public static void main(String[] args) throws ProfilerException {
         profiler = new Profiler(TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS));
         profiler.start(args);

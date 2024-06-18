@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BDecimal;
 //)
 public class Min {
 
+    private Min() {
+    }
+
     public static BDecimal min(BDecimal n, BDecimal[] ns) {
         BDecimal min = n;
         int size = ns.length;

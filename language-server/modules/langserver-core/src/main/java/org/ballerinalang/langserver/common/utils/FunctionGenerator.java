@@ -41,6 +41,9 @@ public class FunctionGenerator {
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
 
+    private FunctionGenerator() {
+    }
+
     /**
      * Returns signature of the provided type.
      *

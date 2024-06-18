@@ -23,6 +23,9 @@ package org.ballerinalang.langlib.floatingpoint;
  * @since 2201.6.0
  */
 public class Avg {
+    private Avg() {
+    }
+
     public static double avg(double[] ns) {
         int size = ns.length;
         if (size == 0) {

@@ -47,6 +47,9 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");
 
+    private Map() {
+    }
+
     public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
         Type newConstraintType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         TableType tblType = (TableType) TypeUtils.getImpliedType(tbl.getType());

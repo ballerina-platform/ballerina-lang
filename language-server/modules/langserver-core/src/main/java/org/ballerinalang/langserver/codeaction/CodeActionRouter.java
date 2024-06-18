@@ -54,6 +54,9 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
  */
 public class CodeActionRouter {
 
+    private CodeActionRouter() {
+    }
+
     /**
      * Returns a list of supported code actions.
      *

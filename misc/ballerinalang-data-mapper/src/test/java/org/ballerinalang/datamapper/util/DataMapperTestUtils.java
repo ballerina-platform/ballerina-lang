@@ -50,6 +50,9 @@ public class DataMapperTestUtils {
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
     private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
 
+    private DataMapperTestUtils() {
+    }
+
 
     /**
      * Convert Data-mapper response to Jason Object.

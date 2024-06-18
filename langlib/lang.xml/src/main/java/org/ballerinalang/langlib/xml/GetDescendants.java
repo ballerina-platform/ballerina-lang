@@ -28,6 +28,9 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  */
 public class GetDescendants {
 
+    private GetDescendants() {
+    }
+
     public static BXml getDescendants(BXml element) {
         if (!IsElement.isElement(element)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR,

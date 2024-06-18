@@ -25,4 +25,7 @@ public class Constants {
     public static final String MIME_TYPE_TABLE = "ballerina-notebook/table-view";
     public static final String MIME_TYPE_JSON = "ballerina-notebook/json-view";
     public static final String MIME_TYPE_XML = "ballerina-notebook/xml-view";
+
+    private Constants() {
+    }
 }

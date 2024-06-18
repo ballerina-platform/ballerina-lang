@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class IsNaN {
 
+    private IsNaN() {
+    }
+
     public static boolean isNaN(double x) {
         return Double.isNaN(x);
     }

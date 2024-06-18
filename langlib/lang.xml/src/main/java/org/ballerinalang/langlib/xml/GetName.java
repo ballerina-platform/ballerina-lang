@@ -39,6 +39,9 @@ public class GetName {
 
     private static final String OPERATION = "get element name in xml";
 
+    private GetName() {
+    }
+
     public static BString getName(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "getName", "element");

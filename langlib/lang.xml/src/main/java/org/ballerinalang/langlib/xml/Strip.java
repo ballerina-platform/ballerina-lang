@@ -40,6 +40,9 @@ public class Strip {
 
     private static final String OPERATION = "strip xml";
 
+    private Strip() {
+    }
+
     public static BXml strip(BXml xml) {
         try {
             return xml.strip();

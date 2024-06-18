@@ -388,6 +388,9 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  */
 public class TreeBuilder {
 
+    private TreeBuilder() {
+    }
+
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
     }

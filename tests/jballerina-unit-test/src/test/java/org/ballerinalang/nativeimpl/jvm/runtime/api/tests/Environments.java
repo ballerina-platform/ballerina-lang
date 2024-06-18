@@ -34,6 +34,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Environments {
 
+    private Environments() {
+    }
+
     public static void callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
                                              BString t2, boolean tn) {
         long returnVal = 1;

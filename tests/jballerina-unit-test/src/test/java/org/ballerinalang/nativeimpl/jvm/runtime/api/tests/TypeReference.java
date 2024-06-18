@@ -59,6 +59,9 @@ import java.util.List;
  */
 public class TypeReference {
 
+    private TypeReference() {
+    }
+
     public static Boolean validateGetDetailType(BTypedesc typedesc) {
         BErrorType errorType = (BErrorType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         Type detailType = errorType.getDetailType();

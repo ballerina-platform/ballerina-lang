@@ -32,4 +32,7 @@ public class ProgramFileConstants {
     // todo move this to a proper place
     public static final String[] SUPPORTED_PLATFORMS = {"java17", "java11"};
     public static final String ANY_PLATFORM = "any";
+
+    private ProgramFileConstants() {
+    }
 }

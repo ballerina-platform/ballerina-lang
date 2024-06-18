@@ -41,4 +41,7 @@ public class PackageServiceConstants {
     protected static final String CLASSES = "classes";
     protected static final String LISTENERS = "listeners";
     protected static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
+
+    private PackageServiceConstants() {
+    }
 }

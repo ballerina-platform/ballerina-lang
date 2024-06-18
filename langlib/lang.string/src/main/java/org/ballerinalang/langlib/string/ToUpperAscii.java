@@ -32,6 +32,9 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  */
 public class ToUpperAscii {
 
+    private ToUpperAscii() {
+    }
+
     public static BString toUpperAscii(BString str) {
         if (str == null) {
             throw createNullReferenceError();

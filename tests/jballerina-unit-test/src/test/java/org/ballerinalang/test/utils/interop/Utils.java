@@ -37,6 +37,9 @@ public class Utils {
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
+    private Utils() {
+    }
+
     public static void sleep(Environment env, long delayMillis) {
         Future balFuture = env.markAsync();
         executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);

@@ -53,6 +53,9 @@ public class Main {
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
 
+    private Main() {
+    }
+
     public static void main(String... args) {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);

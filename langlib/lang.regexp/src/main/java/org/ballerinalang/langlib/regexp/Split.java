@@ -32,6 +32,9 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  */
 public class Split {
 
+    private Split() {
+    }
+
     public static BArray split(BRegexpValue regExp, BString str) {
         String originalString = str.getValue();
         RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regExp);

@@ -32,6 +32,9 @@ import org.testng.Assert;
  */
 public class Timer {
 
+    private Timer() {
+    }
+
     public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
         Runtime runtime = env.getRuntime();
 

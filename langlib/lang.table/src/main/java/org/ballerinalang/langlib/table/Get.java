@@ -34,6 +34,9 @@ import io.ballerina.runtime.api.values.BTable;
 //)
 public class Get {
 
+    private Get() {
+    }
+
     public static BMap get(BTable tbl, Object key) {
         return (BMap) tbl.getOrThrow(key);
     }

@@ -39,6 +39,9 @@ public class TelemetryUtil {
     private static final String ARG_FEATURE_CLASS = "feature.Class";
     private static final String ARG_FEATURE_TITLE = "feature.Title";
 
+    private TelemetryUtil() {
+    }
+
     /**
      * Sends the provided telemetry event to LS client.
      *

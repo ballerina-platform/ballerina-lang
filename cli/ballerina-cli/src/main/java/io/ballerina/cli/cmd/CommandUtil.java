@@ -126,6 +126,9 @@ public class CommandUtil {
     private static boolean exitWhenFinish;
     private static String platform;
 
+    private CommandUtil() {
+    }
+
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
     }

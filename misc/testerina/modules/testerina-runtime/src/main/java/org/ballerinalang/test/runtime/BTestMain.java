@@ -73,6 +73,9 @@ public class BTestMain {
     static ClassLoader classLoader;
     static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
 
+    private BTestMain() {
+    }
+
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
         int result;
