@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
@@ -127,12 +128,17 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         if (foundType.isEmpty() && !checkExprDiagnostic) {
             return Collections.emptyList();
         }
+        if (context.currentSemanticModel().isEmpty() || context.currentDocument().isEmpty()) {
+            return Collections.emptyList();
+        }
 
+        SemanticModel semanticModel = context.currentSemanticModel().get();
         FunctionSignatureNode functionSignatureNode;
         Optional<FunctionDefinitionNode> funcDef = Optional.empty();
         Optional<ExplicitAnonymousFunctionExpressionNode> anonFunc = CodeActionUtil
                 .getEnclosingAnonFuncExpr(positionDetails.matchedNode());
         boolean isMainFunction = false;
+        Optional<TypeSymbol> expectedReturnType = Optional.empty();
         if (anonFunc.isEmpty()) {
             funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
             if (funcDef.isEmpty()) {
@@ -143,10 +149,19 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             functionSignatureNode = funcDef.get().functionSignature();
         } else {
             functionSignatureNode = anonFunc.get().functionSignature();
+            Optional<TypeSymbol> annoExpectedTypeSymbol = semanticModel.expectedType(context.currentDocument().get(),
+                    anonFunc.get().lineRange().startLine());
+            if (annoExpectedTypeSymbol.isEmpty() || annoExpectedTypeSymbol.get().typeKind() != TypeDescKind.FUNCTION) {
+                return Collections.emptyList();
+            }
+            expectedReturnType = ((FunctionTypeSymbol) annoExpectedTypeSymbol.get()).returnTypeDescriptor();
         }
 
         StartEndPositionDetails startEndPositionDetails = extractStartAndEndPosOfReturnNode(functionSignatureNode);
         if (checkExprDiagnostic) {
+            if (expectedReturnType.isPresent() && !semanticModel.types().ERROR.subtypeOf(expectedReturnType.get())) {
+                return Collections.emptyList();
+            }
             // Add error return type for check expression
             String returnTypeDesc = functionSignatureNode.returnTypeDesc().isEmpty() ? "error?" :
                     functionSignatureNode.returnTypeDesc().get().type().toString().trim()
@@ -177,11 +192,14 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 return Collections.emptyList();
             }
             ExpressionNode expression = returnStatementNode.expression().get();
-            SemanticModel semanticModel = context.currentSemanticModel().get();
             Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
             if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 return Collections.emptyList();
             }
+            if (expectedReturnType.isPresent() && !typeSymbol.get().subtypeOf(expectedReturnType.get())) {
+               continue;
+            }
+
             if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
                 combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
                         importEdits, context).get(0) + ")"));
@@ -197,7 +215,9 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             anonFunc.get().accept(checkExprNodeFinder);
         }
         if (checkExprNodeFinder.containCheckExprNode()) {
-            combinedTypes.add(Collections.singletonList("error"));
+            if (expectedReturnType.isEmpty() || semanticModel.types().ERROR.subtypeOf(expectedReturnType.get())) {
+                combinedTypes.add(Collections.singletonList("error"));
+            }
         }
 
         types = getPossibleCombinations(combinedTypes, types);
