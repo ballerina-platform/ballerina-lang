@@ -153,9 +153,9 @@ public class ProjectFiles {
 
     private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
-        List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : new ArrayList<>();
+        List<DocumentData> testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) :
+                new ArrayList<>();
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
@@ -178,7 +178,7 @@ public class ProjectFiles {
                             loadTestDocuments(generatedSourcesRoot.resolve(TEST_DIR_NAME));
                     verifyDuplicateNames(testSrcDocs, generatedTestDocs, moduleDirPath.toFile().getName(),
                             moduleDirPath, true);
-                    testSrcDocs.addAll(generatedTestDocs);
+                    testSrcDocs = Stream.concat(testSrcDocs.stream(), generatedTestDocs.stream()).toList();
                 }
             }
         }
