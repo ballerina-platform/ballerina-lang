@@ -122,6 +122,9 @@ public class BalToolsUtil {
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);
 
+    private BalToolsUtil() {
+    }
+
     public static boolean isNonBuiltInToolCommand(String commandName) {
         return isToolCommand(commandName) && !builtInToolCommands.contains(commandName);
     }

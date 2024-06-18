@@ -29,6 +29,9 @@ public class Transactions {
     public static final String TRX_ONCOMMIT_FUNC = "oncommit";
     public static final String TRX_ONABORT_FUNC = "onabort";
 
+    private Transactions() {
+    }
+
     public static boolean isTransactionsAnnotation(String orgName, String pkgName) {
         StringBuilder pathBuilder = new StringBuilder();
         String createdPath = pathBuilder.append(orgName).append(ORG_NAME_SEPARATOR).append(pkgName).toString();

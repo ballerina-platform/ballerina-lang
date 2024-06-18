@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Atan {
 
+    private Atan() {
+    }
+
     public static double atan(double x) {
         return Math.atan(x);
     }

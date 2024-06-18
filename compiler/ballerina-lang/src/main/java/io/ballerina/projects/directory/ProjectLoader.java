@@ -37,6 +37,9 @@ import java.util.Optional;
  */
 public class ProjectLoader {
 
+    private ProjectLoader() {
+    }
+
     public static Project loadProject(Path path) {
         return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), BuildOptions.builder().build());
     }

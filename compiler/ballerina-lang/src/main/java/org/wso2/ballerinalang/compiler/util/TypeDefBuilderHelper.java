@@ -83,6 +83,9 @@ public class TypeDefBuilderHelper {
 
     public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
 
+    private TypeDefBuilderHelper() {
+    }
+
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();

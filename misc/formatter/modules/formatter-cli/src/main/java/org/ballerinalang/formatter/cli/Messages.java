@@ -59,6 +59,9 @@ public class Messages {
 
     private static final String MODIFIED_FILES = "modified files:";
 
+    private Messages() {
+    }
+
     static String getArgumentError() {
         return ARGUMENT_ERROR;
     }

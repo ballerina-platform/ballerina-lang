@@ -36,6 +36,9 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
  */
 public class ValueComparisonUtils {
 
+    private ValueComparisonUtils() {
+    }
+
     /**
      * Check if left hand side ordered type value is less than right hand side ordered type value.
      *

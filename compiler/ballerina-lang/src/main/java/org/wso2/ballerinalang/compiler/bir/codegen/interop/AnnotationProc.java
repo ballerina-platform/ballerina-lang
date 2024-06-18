@@ -50,6 +50,9 @@ public class AnnotationProc {
     public static final String PARAM_TYPES_FIELD_NAME = "paramTypes";
     public static final String DIMENSIONS_FIELD_NAME = "dimensions";
 
+    private AnnotationProc() {
+    }
+
     static InteropValidationRequest getInteropAnnotValue(BIRFunction birFunc) {
 
         BIRAnnotationAttachment annotAttach = getInteropAnnotAttachment(birFunc);

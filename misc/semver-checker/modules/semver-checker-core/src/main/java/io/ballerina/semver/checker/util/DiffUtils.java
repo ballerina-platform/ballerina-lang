@@ -53,6 +53,9 @@ public class DiffUtils {
     public static final String DIFF_ATTR_CHILDREN = "childDiffs";
     private static final String UNKNOWN = "unknown";
 
+    private DiffUtils() {
+    }
+
     /**
      * Returns the summary of changes in string format based on the current version, last published version and the set
      * of detected changes.

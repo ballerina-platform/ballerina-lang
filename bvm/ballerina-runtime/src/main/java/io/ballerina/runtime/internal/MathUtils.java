@@ -31,6 +31,9 @@ public class MathUtils {
 
     private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
 
+    private MathUtils() {
+    }
+
     public static long divide(long numerator, long denominator) {
         try {
             if (numerator == Long.MIN_VALUE && denominator == -1) {

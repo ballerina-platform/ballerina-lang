@@ -52,6 +52,9 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "map");
 
+    private Map() {
+    }
+
     public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         MapType newMapType = TypeCreator.createMapType(
                 ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType());

@@ -30,6 +30,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ER
  */
 public class GetElementNameNilLifting {
 
+    private GetElementNameNilLifting() {
+    }
+
     public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();

@@ -213,4 +213,6 @@ public class CommandConstants {
 
     public static final String CLONE_READONLY_VALUE = "Clone as a readonly value";
 
+    private CommandConstants() {
+    }
 }

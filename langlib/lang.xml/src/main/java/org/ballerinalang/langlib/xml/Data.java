@@ -29,6 +29,9 @@ import io.ballerina.runtime.api.values.BXml;
 public class Data {
     private static final BString empty = StringUtils.fromString("");
 
+    private Data() {
+    }
+
     public static BString data(BXml xmlValue) {
         if (xmlValue.isEmpty()
                 || IsComment.isComment(xmlValue)

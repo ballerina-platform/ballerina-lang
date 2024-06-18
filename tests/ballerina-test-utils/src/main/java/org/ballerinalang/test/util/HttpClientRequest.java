@@ -45,6 +45,9 @@ public class HttpClientRequest {
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
 
+    private HttpClientRequest() {
+    }
+
     /**
      * Sends an HTTP GET request to a url.
      *

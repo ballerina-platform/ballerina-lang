@@ -39,6 +39,9 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  */
 public class Remove {
 
+    private Remove() {
+    }
+
     public static Object remove(BMap<?, ?> m, BString k) {
         Type type = TypeUtils.getImpliedType(m.getType());
 

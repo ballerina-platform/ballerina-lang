@@ -49,6 +49,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class MapLibUtils {
 
+    private MapLibUtils() {
+    }
+
     public static Type getFieldType(Type mapType, String funcName) {
         mapType = TypeUtils.getImpliedType(mapType);
         switch (mapType.getTag()) {

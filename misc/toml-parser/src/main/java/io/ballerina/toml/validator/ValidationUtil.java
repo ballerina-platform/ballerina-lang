@@ -36,6 +36,9 @@ import java.util.Map;
  */
 public class ValidationUtil {
 
+    private ValidationUtil() {
+    }
+
     public static String getTypeErrorMessage(AbstractSchema schema, TomlType found, String key) {
         Map<String, String> message = schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.TYPE);

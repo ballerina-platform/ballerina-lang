@@ -30,6 +30,9 @@ import java.util.List;
  */
 public class IsText {
 
+    private IsText() {
+    }
+
     public static boolean isText(BXml xmlValue) {
         if (xmlValue.getNodeType() == XmlNodeType.TEXT || xmlValue.isEmpty()) {
             return true;

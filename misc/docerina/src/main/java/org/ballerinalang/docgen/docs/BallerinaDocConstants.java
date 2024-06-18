@@ -29,4 +29,7 @@ public class BallerinaDocConstants {
     // config registry environment variables -e flags
     static final String ORG_NAME = "org-name";
     static final String VERSION = "version";
+
+    private BallerinaDocConstants() {
+    }
 }

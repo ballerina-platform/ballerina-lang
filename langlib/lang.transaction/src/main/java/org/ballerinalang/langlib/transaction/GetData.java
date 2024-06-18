@@ -27,6 +27,9 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
  */
 public class GetData {
 
+    private GetData() {
+    }
+
     public static Object getData() {
 
         return Scheduler.getStrand().currentTrxContext.getTransactionData();

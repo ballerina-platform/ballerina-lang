@@ -34,6 +34,9 @@ import java.nio.charset.StandardCharsets;
 public class ResponseReader {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseReader.class);
 
+    private ResponseReader() {
+    }
+
     /**
      * Get the response value from input stream.
      *

@@ -28,6 +28,9 @@ import io.ballerina.runtime.internal.JsonInternalUtils;
  */
 public class MergeJson {
 
+    private MergeJson() {
+    }
+
     public static Object mergeJson(Object j1, Object j2) {
         return JsonInternalUtils.mergeJson(j1, j2, true);
     }

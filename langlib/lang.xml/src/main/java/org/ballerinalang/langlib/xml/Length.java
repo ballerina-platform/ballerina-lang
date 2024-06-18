@@ -33,6 +33,9 @@ import io.ballerina.runtime.api.values.BXml;
 //)
 public class Length {
 
+    private Length() {
+    }
+
     public static long length(BXml xml) {
         return xml.size();
     }

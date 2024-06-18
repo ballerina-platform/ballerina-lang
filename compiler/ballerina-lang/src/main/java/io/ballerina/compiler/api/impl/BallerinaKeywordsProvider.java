@@ -34,6 +34,9 @@ public class BallerinaKeywordsProvider {
         BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
+    private BallerinaKeywordsProvider() {
+    }
+
     private static List<String> getBallerinaKeywords() {
         // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with an appropriate API.
         // The same implementation can be found in the language server common utils.

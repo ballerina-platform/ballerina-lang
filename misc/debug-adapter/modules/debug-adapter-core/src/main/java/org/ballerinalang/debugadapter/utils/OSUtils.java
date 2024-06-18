@@ -29,6 +29,9 @@ public class OSUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    private OSUtils() {
+    }
+
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
      *

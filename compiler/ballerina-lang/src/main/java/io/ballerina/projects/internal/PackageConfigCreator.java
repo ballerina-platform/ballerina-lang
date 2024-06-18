@@ -52,6 +52,9 @@ import java.util.stream.Collectors;
  */
 public class PackageConfigCreator {
 
+    private PackageConfigCreator() {
+    }
+
     public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 

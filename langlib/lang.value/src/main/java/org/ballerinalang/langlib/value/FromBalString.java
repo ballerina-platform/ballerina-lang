@@ -32,6 +32,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.FROM_BAL_STRING_
  * @since 2.0.0
  */
 public class FromBalString {
+    private FromBalString() {
+    }
+
     public static Object fromBalString(BString value) {
         String str = value.getValue();
         if (str.equals("null")) {

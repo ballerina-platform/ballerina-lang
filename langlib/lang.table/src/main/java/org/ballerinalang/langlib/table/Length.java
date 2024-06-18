@@ -34,6 +34,9 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //)
 public class Length {
 
+    private Length() {
+    }
+
     public static long length(BTable tbl) {
         return tbl.size();
     }

@@ -48,6 +48,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class MapUtils {
 
+    private MapUtils() {
+    }
+
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }

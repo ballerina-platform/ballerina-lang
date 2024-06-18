@@ -62,6 +62,9 @@ public class BuildLangLib {
     static Path distCache;
     static boolean skipBootstrap = false;
 
+    private BuildLangLib() {
+    }
+
 
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;

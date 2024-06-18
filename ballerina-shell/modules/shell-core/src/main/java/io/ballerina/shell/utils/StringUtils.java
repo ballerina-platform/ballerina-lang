@@ -41,6 +41,9 @@ public class StringUtils {
     private static final String CARET = "^";
     private static final String DASH = "-";
 
+    private StringUtils() {
+    }
+
     /**
      * Creates an quoted identifier to use for variable names.
      *

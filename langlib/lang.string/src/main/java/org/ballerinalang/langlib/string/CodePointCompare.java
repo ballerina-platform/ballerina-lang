@@ -35,6 +35,9 @@ import java.util.PrimitiveIterator;
 //)
 public class CodePointCompare {
 
+    private CodePointCompare() {
+    }
+
     public static long codePointCompare(BString str1, BString str2) {
         // Compare each code point of str1 with str2's codepoint at corresponding position.
         // If all all previous codepoints being equal and str1 is exhausted and str2 has more

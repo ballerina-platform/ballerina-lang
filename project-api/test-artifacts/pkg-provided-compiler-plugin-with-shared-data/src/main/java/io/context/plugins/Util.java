@@ -36,6 +36,9 @@ import io.ballerina.tools.text.TextRange;
  */
 public class Util {
 
+    private Util() {
+    }
+
     public static void reportDiagnostic(SyntaxNodeAnalysisContext context, CompilationDiagnostic diagnosticCode,
                                         Location location, Object... args) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticCode.getDiagnosticCode(),

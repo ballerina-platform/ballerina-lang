@@ -47,6 +47,9 @@ public class Errors {
 
     private static Module errorModule = new Module("testorg", "errors.error_utils", "1");
 
+    private Errors() {
+    }
+
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("cause"), StringUtils.fromString("Person age cannot be negative"));

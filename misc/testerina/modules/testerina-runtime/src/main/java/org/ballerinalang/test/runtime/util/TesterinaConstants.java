@@ -124,5 +124,8 @@ public class TesterinaConstants {
         public static final int IS_RERUN_TEST_EXECUTION = 9;
         public static final int LIST_GROUPS = 10;
         public static final int IS_PARALLEL_EXECUTION = 11;
+
+        private RunTimeArgs() {
+        }
     }
 }

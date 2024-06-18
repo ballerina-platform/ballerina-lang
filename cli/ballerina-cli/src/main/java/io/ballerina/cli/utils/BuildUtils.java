@@ -29,6 +29,9 @@ import java.util.ServiceLoader;
  */
 
 public class BuildUtils {
+    private BuildUtils() {
+    }
+
     public static void notifyPlugins(Project project, Target target) {
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         for (CompilerPlugin plugin : processorServiceLoader) {

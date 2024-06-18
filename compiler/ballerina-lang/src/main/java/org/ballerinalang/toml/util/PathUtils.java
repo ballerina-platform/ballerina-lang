@@ -26,6 +26,9 @@ import java.util.Locale;
 public class PathUtils {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    private PathUtils() {
+    }
+
     public static String getPath(String path) {
         if (path != null) {
             if (OS.contains("win")) {

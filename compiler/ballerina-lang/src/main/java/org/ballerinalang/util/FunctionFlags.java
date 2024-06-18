@@ -26,6 +26,9 @@ public class FunctionFlags {
     public static final int ASYNC = 1;
     public static final int OBSERVED = ASYNC << 1;
 
+    private FunctionFlags() {
+    }
+
     public static boolean isAsync(int flags) {
         return (flags & FunctionFlags.ASYNC) == FunctionFlags.ASYNC;
     }

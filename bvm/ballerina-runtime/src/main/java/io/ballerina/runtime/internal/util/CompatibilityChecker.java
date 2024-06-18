@@ -32,6 +32,9 @@ public class CompatibilityChecker {
     private static final String VERSION_ZERO = "0";
     private static final PrintStream stderr = System.err;
 
+    private CompatibilityChecker() {
+    }
+
     /**
      * Check for the compatibility of a given java version against the current java runtime version.
      * This assumes the versions are in the following formats:

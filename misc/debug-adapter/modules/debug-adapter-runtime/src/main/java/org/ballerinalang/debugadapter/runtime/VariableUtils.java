@@ -32,6 +32,9 @@ public class VariableUtils {
     private static final String MAP_TYPE_TEMPLATE = "map<%s>";
     private static final String UNKNOWN = "unknown";
 
+    private VariableUtils() {
+    }
+
     /**
      * Extract map type with constraint from a given BMapValue.
      *

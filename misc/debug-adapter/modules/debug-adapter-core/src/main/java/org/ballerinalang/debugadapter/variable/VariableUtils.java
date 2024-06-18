@@ -59,6 +59,9 @@ public class VariableUtils {
     public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
     public static final String INTERNAL_TYPE_INTERSECTION_TYPE = "BIntersectionType";
 
+    private VariableUtils() {
+    }
+
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
      *

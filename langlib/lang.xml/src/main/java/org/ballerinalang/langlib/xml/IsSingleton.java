@@ -37,6 +37,9 @@ public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
 
+    private IsSingleton() {
+    }
+
     public static boolean isSingleton(Strand strand, BXml xml) {
         try {
             return xml.isSingleton();

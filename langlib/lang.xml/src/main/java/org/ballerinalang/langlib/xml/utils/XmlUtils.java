@@ -27,6 +27,9 @@ import java.util.List;
  */
 public class XmlUtils {
 
+    private XmlUtils() {
+    }
+
     @SafeVarargs
     public static <E> List<E> getList(E... values) {
         List<E> list = new ArrayList<>();

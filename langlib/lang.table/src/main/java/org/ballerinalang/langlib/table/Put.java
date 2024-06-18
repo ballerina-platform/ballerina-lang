@@ -34,6 +34,9 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //)
 public class Put {
 
+    private Put() {
+    }
+
     public static void put(BTable tbl, BMap val) {
         tbl.put(val);
     }

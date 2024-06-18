@@ -36,6 +36,9 @@ import java.nio.file.Path;
  * @since 0.982.0
  */
 public class TomlParserUtils {
+    private TomlParserUtils() {
+    }
+
     /**
      * Read Settings.toml to populate the configurations.
      *

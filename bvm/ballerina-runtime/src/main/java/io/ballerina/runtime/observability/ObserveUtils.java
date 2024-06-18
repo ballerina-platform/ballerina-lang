@@ -96,6 +96,9 @@ public class ObserveUtils {
         enabled = metricsEnabled || tracingEnabled;
     }
 
+    private ObserveUtils() {
+    }
+
     private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
         T value;
         if (ConfigMap.containsKey(specificKey)) {

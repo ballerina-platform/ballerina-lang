@@ -32,6 +32,9 @@ public class InvokerMemory {
     private static final String QUOTE = "'";
     private static final HashMap<String, HashMap<String, Object>> memory = new HashMap<>();
 
+    private InvokerMemory() {
+    }
+
     /**
      * Recalls the variable value.
      * This will return null if variable is not cached.

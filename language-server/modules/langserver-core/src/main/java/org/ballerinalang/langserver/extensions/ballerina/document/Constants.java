@@ -22,4 +22,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
  */
 public class Constants {
     public static final String CAPABILITY_NAME = "ballerinaDocument";
+
+    private Constants() {
+    }
 }

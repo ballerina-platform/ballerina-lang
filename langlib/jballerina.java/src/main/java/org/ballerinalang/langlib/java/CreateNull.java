@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.values.BHandle;
  */
 public class CreateNull {
 
+    private CreateNull() {
+    }
+
     public static BHandle createNull() {
         return ValueCreator.createHandleValue(null);
     }

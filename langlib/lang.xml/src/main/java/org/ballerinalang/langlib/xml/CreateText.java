@@ -28,6 +28,9 @@ import io.ballerina.runtime.internal.XmlFactory;
  */
 public class CreateText {
 
+    private CreateText() {
+    }
+
     public static BXml createText(BString string) {
         return XmlFactory.createXMLText(string);
     }

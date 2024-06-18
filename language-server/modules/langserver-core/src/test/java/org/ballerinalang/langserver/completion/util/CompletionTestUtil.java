@@ -31,6 +31,9 @@ public class CompletionTestUtil {
 
     private static final Gson GSON = new Gson();
 
+    private CompletionTestUtil() {
+    }
+
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
         // TODO: Need to add kind and sort text as well

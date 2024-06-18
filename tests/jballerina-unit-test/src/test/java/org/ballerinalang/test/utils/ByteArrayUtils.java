@@ -28,6 +28,9 @@ import java.util.Base64;
  */
 public class ByteArrayUtils {
 
+    private ByteArrayUtils() {
+    }
+
     public static byte[] decodeBase64(String b64) {
         return Base64.getDecoder().decode(b64.getBytes(StandardCharsets.UTF_8));
     }

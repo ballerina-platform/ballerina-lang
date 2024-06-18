@@ -59,5 +59,8 @@ public class LexerTerminals {
     public static final char FORM_FEED = 0xC;
     public static final char BACKSLASH = '\\';
 
+    private LexerTerminals() {
+    }
+
     //New
 }

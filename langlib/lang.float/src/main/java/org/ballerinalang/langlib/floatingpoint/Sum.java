@@ -29,6 +29,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Sum {
 
+    private Sum() {
+    }
+
     public static double sum(double[] ns) {
         double sum = 0;
         int size = ns.length;

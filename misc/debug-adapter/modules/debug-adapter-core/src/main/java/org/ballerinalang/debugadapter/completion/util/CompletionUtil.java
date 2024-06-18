@@ -59,6 +59,9 @@ public class CompletionUtil {
     private static final String PARENTHESIS = "()";
     private static final List<String> triggerCharacters = Arrays.asList(".", ">");
 
+    private CompletionUtil() {
+    }
+
     /**
      * Get the updated bal file content which includes debug console expression.
      *

@@ -26,6 +26,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class BStringUtils {
 
+    private BStringUtils() {
+    }
+
     public static BString[] getBStringArray(String[] s) {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {

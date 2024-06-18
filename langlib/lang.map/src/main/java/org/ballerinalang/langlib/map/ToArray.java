@@ -48,6 +48,9 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 //)
 public class ToArray {
 
+    private ToArray() {
+    }
+
     public static BArray toArray(BMap<?, ?> m) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
         Type arrElemType;

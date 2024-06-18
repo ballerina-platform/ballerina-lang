@@ -43,6 +43,9 @@ import java.util.Map;
  */
 public class PackageUtils {
 
+    private PackageUtils() {
+    }
+
     /**
      * Loads the target ballerina source package instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.

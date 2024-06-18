@@ -32,6 +32,9 @@ import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FU
  */
 public class FunctionMock {
 
+    private FunctionMock() {
+    }
+
     public static BError thenReturn(BObject caseObj) {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));

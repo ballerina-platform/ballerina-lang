@@ -31,6 +31,9 @@ public class BAssertUtil {
     private static final String CARRIAGE_RETURN_CHAR = "\\r";
     private static final String EMPTY_STRING = "";
 
+    private BAssertUtil() {
+    }
+
     /**
      * Assert an error.
      *

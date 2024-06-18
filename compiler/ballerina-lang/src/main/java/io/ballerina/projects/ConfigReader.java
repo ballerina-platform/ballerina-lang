@@ -59,6 +59,9 @@ import java.util.stream.Collectors;
  */
 public class ConfigReader {
 
+    private ConfigReader() {
+    }
+
     /**
      * Retrieve all the configurable variables for a package.
      *

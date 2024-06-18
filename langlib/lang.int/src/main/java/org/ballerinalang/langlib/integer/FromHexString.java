@@ -33,6 +33,9 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class FromHexString {
 
+    private FromHexString() {
+    }
+
     public static Object fromHexString(BString s) {
         try {
             return Long.parseLong(s.getValue(), 16);

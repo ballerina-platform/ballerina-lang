@@ -37,6 +37,9 @@ public class Quantize {
     //  128-bit decimal (radix 10) floating-point number equals 34.
     private static final int MAX_DIGITS_IN_SIGNIFICAND = 34;
 
+    private Quantize() {
+    }
+
     public static BDecimal quantize(BDecimal x, BDecimal y) {
         BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
         if (quantizeValue.precision() > MAX_DIGITS_IN_SIGNIFICAND) {

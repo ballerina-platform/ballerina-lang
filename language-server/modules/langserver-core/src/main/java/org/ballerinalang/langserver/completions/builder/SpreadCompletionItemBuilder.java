@@ -37,6 +37,9 @@ public class SpreadCompletionItemBuilder {
     
     public static final String  SPREAD_OPERATOR = "...";
 
+    private SpreadCompletionItemBuilder() {
+    }
+
     /**
      * Build the constant {@link CompletionItem}.
      *

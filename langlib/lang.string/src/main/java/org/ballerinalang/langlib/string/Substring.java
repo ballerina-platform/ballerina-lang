@@ -37,6 +37,9 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
 //)
 public class Substring {
 
+    private Substring() {
+    }
+
     public static BString substring(BString value, long startIndex, long endIndex) {
         if (value == null) {
             throw createNullReferenceError();

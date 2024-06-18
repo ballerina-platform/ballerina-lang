@@ -53,6 +53,9 @@ public class TransactionUtils {
                                                                           TRANSACTION_PACKAGE_NAME,
                                                                           TRANSACTION_PACKAGE_VERSION, "onAbort");
 
+    private TransactionUtils() {
+    }
+
     public static void notifyTransactionAbort(Strand strand, String globalTransactionId, String transactionBlockId) {
         executeFunction(strand.scheduler, TransactionUtils.class.getClassLoader(), TRANSACTION_PACKAGE_FQN,
                         TRANSACTION_BLOCK_CLASS_NAME, COORDINATOR_ABORT_TRANSACTION, globalTransactionId,

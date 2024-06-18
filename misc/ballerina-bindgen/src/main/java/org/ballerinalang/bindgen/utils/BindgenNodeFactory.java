@@ -128,6 +128,9 @@ class BindgenNodeFactory {
             createToken(SyntaxKind.OPEN_BRACKET_TOKEN),
             createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
 
+    private BindgenNodeFactory() {
+    }
+
     /**
      * Create an import declaration name node while providing the organization name, optional prefix, and module names.
      *

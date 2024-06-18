@@ -46,6 +46,9 @@ public class ParserUtil {
     public static final String CLIENT_URL_ATTR_NAME = "url";
     public static final String ACTION_PATH_ATTR_NAME = "path";
 
+    private ParserUtil() {
+    }
+
     public static boolean isSourceUnit(BLangCompilationUnit compilationUnit) {
 
         return !(TEST_DIR.equals(compilationUnit.getName().split("/")[0]));

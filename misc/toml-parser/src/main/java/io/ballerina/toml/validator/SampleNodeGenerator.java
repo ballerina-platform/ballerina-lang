@@ -39,6 +39,9 @@ import io.ballerina.toml.syntax.tree.Token;
 public class SampleNodeGenerator {
     private static final String NEW_LINE = System.lineSeparator();
 
+    private SampleNodeGenerator() {
+    }
+
     public static KeyValueNode createStringKV(String key, String value, String description) {
         KeyNode keyNode = getKeyNode(key);
         Token assign = getAssignToken();

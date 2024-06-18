@@ -26,6 +26,9 @@ import io.ballerina.runtime.api.values.BXmlSequence;
  */
 public class IsElement {
 
+    private IsElement() {
+    }
+
     public static boolean isElement(BXml bxml) {
         if (bxml.getNodeType() == XmlNodeType.ELEMENT) {
             return true;

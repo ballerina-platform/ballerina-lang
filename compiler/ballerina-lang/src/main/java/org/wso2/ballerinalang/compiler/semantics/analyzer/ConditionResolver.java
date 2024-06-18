@@ -39,6 +39,9 @@ import java.util.HashSet;
  */
 public class ConditionResolver {
 
+    private ConditionResolver() {
+    }
+
     static BType checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {
             case GROUP_EXPR:

@@ -26,6 +26,9 @@ public class DebugUtils {
 
     public static final String JBAL_DEBUG_CMD_NAME = "start-debugger-adapter";
 
+    private DebugUtils() {
+    }
+
     /**
      * Finds an available port.
      *

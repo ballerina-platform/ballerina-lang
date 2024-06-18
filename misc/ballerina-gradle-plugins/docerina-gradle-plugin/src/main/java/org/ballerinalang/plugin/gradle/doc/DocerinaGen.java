@@ -30,6 +30,9 @@ public class DocerinaGen {
 
     private static final PrintStream out = System.out;
 
+    private DocerinaGen() {
+    }
+
     /**
      * Main method to generate Ballerina API docs.
      * @param args command line arguments

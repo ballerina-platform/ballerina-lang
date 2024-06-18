@@ -28,6 +28,9 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
  */
 public class WrapRollbackError {
 
+    private WrapRollbackError() {
+    }
+
     public static void wrapRollbackError(Object error) {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         transactionLocalContext.setRollbackOnlyError(error);

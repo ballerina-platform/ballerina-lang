@@ -35,6 +35,9 @@ public class BIRSpecGenerator {
     private static final String BIR_SPEC_FILE = "/kaitai/bir.ksy";
     private static final Yaml yaml = new Yaml();
 
+    private BIRSpecGenerator() {
+    }
+
     public static void main(String[] args) throws IOException {
         try (PrintWriter out = new PrintWriter("../compiler/bir-spec.md")) {
             generateBirSpecMd(out);

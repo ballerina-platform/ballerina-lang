@@ -30,6 +30,9 @@ import io.ballerina.tools.diagnostics.Location;
  */
 public class DiagnosticUtils {
 
+    private DiagnosticUtils() {
+    }
+
     public static Diagnostic createDiagnostic(String code,
                                               String messageFormat,
                                               Location location,

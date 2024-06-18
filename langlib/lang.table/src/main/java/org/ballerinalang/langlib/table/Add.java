@@ -34,6 +34,9 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //)
 public class Add {
 
+    private Add() {
+    }
+
     public static void add(BTable tbl, BMap val) {
         tbl.add(val);
     }

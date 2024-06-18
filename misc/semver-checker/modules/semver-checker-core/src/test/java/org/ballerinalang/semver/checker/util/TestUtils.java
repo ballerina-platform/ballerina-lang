@@ -40,6 +40,9 @@ public class TestUtils {
     private static final String JSON_ATTR_NEW_CODE = "newCode";
     private static final String JSON_ATTR_EXPECTED_RESULTS = "expectedOutput";
 
+    private TestUtils() {
+    }
+
     /**
      * Executes test cases using the provided data set.
      *

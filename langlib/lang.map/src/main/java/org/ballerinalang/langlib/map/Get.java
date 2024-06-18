@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Get {
 
+    private Get() {
+    }
+
     public static Object get(BMap<?, ?> m, BString k) {
         return m.getOrThrow(k);
     }

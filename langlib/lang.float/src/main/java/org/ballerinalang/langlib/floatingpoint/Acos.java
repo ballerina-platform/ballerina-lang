@@ -31,6 +31,9 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Acos {
 
+    private Acos() {
+    }
+
     public static double acos(double x) {
         return Math.acos(x);
     }

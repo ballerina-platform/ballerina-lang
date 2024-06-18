@@ -45,6 +45,9 @@ import java.util.Map;
  */
 public class BIRWriterUtils {
 
+    private BIRWriterUtils() {
+    }
+
     public static void writePosition(Location pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;

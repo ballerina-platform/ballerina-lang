@@ -39,6 +39,9 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
 //)
 public class LastIndexOf {
 
+    private LastIndexOf() {
+    }
+
     public static Object lastIndexOf(BArray arr, Object val, long startIndex) {
         Type arrType = arr.getType();
         int size = arr.size();

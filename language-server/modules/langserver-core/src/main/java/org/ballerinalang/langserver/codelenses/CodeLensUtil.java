@@ -34,6 +34,9 @@ import java.util.List;
  */
 public class CodeLensUtil {
 
+    private CodeLensUtil() {
+    }
+
     /**
      * Compile and get code lenses.
      *

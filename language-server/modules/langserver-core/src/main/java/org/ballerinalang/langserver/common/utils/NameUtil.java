@@ -48,6 +48,9 @@ import java.util.stream.Collectors;
  */
 public class NameUtil {
 
+    private NameUtil() {
+    }
+
     /**
      * Generates a random name.
      *

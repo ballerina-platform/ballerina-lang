@@ -34,6 +34,9 @@ import java.io.StringReader;
 
 public class FromJsonFloatString {
 
+    private FromJsonFloatString() {
+    }
+
     public static Object fromJsonFloatString(BString value) {
 
         String str = value.getValue();

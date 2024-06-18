@@ -52,7 +52,10 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  * @since 2201.1.1
  */
 public class ModuleUtil {
-    
+
+    private ModuleUtil() {
+    }
+
     /**
      * Filter a type in the module by the name.
      *
