@@ -76,7 +76,6 @@ public class LSExtensionTestUtil {
     private static final String GET_NODE_DEFINITION_BY_POSITION = "ballerinaDocument/syntaxTreeNodeByPosition";
 
     private static final Gson GSON = new Gson();
-    private static final JsonParser parser = new JsonParser();
 
     /**
      * Get the ballerinaDocument/syntaxTree modification response.
@@ -179,7 +178,7 @@ public class LSExtensionTestUtil {
     }
 
     private static JsonObject getResult(CompletableFuture result) {
-        return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
+        return JsonParser.parseString(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
 
     public static BallerinaConnectorListResponse getConnectors(BallerinaConnectorListRequest request,

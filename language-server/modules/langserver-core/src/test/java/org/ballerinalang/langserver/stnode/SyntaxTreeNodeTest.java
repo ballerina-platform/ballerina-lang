@@ -35,7 +35,6 @@ import java.nio.file.Path;
  */
 public class SyntaxTreeNodeTest {
 
-    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final String STRING_LITERAL = "STRING_LITERAL";
     private static final String MINUTIAE = "WHITESPACE_MINUTIAE";
 
@@ -54,7 +53,7 @@ public class SyntaxTreeNodeTest {
         Range range = new Range(new Position(start, end), new Position(start, end));
         String response = TestUtil.getSyntaxTreeNodeResponse(serviceEndpoint,
                 this.resource.toAbsolutePath().toString(), range);
-        String actual = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result")
+        String actual = JsonParser.parseString(response).getAsJsonObject().getAsJsonObject("result")
                 .getAsJsonPrimitive("kind").getAsString();
         Assert.assertEquals(actual, expected,
                 "Document syntaxTreeNode testcase failed for range " + start + " and " + end + ".");

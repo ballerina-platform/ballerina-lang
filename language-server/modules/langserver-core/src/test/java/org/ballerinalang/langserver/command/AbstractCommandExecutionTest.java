@@ -48,8 +48,6 @@ public abstract class AbstractCommandExecutionTest {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    private final JsonParser parser = new JsonParser();
-
     private final Path resourcesPath = new File(getClass().getClassLoader().getResource("command").getFile()).toPath();
 
     private static final Logger log = LoggerFactory.getLogger(AbstractCommandExecutionTest.class);
@@ -126,7 +124,7 @@ public abstract class AbstractCommandExecutionTest {
         List argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
         String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }

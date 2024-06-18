@@ -757,8 +757,7 @@ class AIDataMapperCodeActionUtil {
                     throw new IOException("Error: AI service error");
                 }
             }
-            JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
+            return JsonParser.parseString(response.getData()).getAsJsonObject().get("answer").toString();
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
@@ -876,7 +875,7 @@ class AIDataMapperCodeActionUtil {
         //To generate the default values
         try {
             Map<String, Object> responseMap = new Gson().fromJson(
-                    new JsonParser().parse(mappingFromServer).getAsJsonObject(),
+                    JsonParser.parseString(mappingFromServer).getAsJsonObject(),
                     new TypeToken<HashMap<String, Object>>() {
                     }.getType());
             getResponseKeys(responseMap, "");
