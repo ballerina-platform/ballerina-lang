@@ -86,6 +86,7 @@ public class STObjectConstructorExpressionNode extends STExpressionNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STObjectConstructorExpressionNode(
                 this.annotations,
@@ -128,6 +129,7 @@ public class STObjectConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectConstructorExpressionNode(this, position, parent);
     }

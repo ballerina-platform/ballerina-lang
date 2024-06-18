@@ -48,6 +48,7 @@ public interface BObject extends BRefValue {
      * @deprecated use {@link BObject#getOriginalType()} ()} instead.
      * The API {@link BValue#getType()} should be used after fixing the issue #39850.
      */
+    @Override
     @Deprecated
     ObjectType getType();
 

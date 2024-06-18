@@ -56,6 +56,7 @@ public class STDocumentNode extends STNode {
                 eofToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDocumentNode(
                 this.members,
@@ -78,6 +79,7 @@ public class STDocumentNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DocumentNode(this, position, parent);
     }

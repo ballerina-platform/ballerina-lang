@@ -56,6 +56,7 @@ public class STDistinctTypeDescriptorNode extends STTypeDescriptorNode {
                 typeDescriptor);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDistinctTypeDescriptorNode(
                 this.distinctKeyword,
@@ -78,6 +79,7 @@ public class STDistinctTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DistinctTypeDescriptorNode(this, position, parent);
     }

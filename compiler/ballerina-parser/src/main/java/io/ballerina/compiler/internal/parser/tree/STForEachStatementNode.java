@@ -80,6 +80,7 @@ public class STForEachStatementNode extends STStatementNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STForEachStatementNode(
                 this.forEachKeyword,
@@ -118,6 +119,7 @@ public class STForEachStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForEachStatementNode(this, position, parent);
     }

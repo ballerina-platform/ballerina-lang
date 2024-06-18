@@ -68,6 +68,7 @@ public class STSpecificFieldNode extends STMappingFieldNode {
                 valueExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpecificFieldNode(
                 this.readonlyKeyword,
@@ -98,6 +99,7 @@ public class STSpecificFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpecificFieldNode(this, position, parent);
     }

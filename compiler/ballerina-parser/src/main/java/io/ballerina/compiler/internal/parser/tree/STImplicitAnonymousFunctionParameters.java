@@ -62,6 +62,7 @@ public class STImplicitAnonymousFunctionParameters extends STNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImplicitAnonymousFunctionParameters(
                 this.openParenToken,
@@ -88,6 +89,7 @@ public class STImplicitAnonymousFunctionParameters extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionParameters(this, position, parent);
     }

@@ -62,6 +62,7 @@ public class STReturnTypeDescriptorNode extends STNode {
                 type);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReturnTypeDescriptorNode(
                 this.returnsKeyword,
@@ -88,6 +89,7 @@ public class STReturnTypeDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnTypeDescriptorNode(this, position, parent);
     }

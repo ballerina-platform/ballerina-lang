@@ -165,7 +165,7 @@ public class TypeDefBuilderHelper {
         initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
 
         // Create the function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
+        Name funcSymbolName = Names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
                                       env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,

@@ -56,6 +56,7 @@ public class STOrderKeyNode extends STNode {
                 orderDirection);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOrderKeyNode(
                 this.expression,
@@ -78,6 +79,7 @@ public class STOrderKeyNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OrderKeyNode(this, position, parent);
     }

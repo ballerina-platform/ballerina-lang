@@ -120,6 +120,7 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
         return cursor > lastOrderKey.textRange().endOffset();
     }
 
+    @Override
     protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, OrderByClauseNode node) {
         if (node.orderKey().isEmpty()) {
             return false;

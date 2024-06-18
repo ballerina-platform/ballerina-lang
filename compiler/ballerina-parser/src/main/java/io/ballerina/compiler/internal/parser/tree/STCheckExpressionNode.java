@@ -59,6 +59,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STCheckExpressionNode(
                 this.kind,
@@ -84,6 +85,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CheckExpressionNode(this, position, parent);
     }

@@ -98,6 +98,7 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAnnotationDeclarationNode(
                 this.metadata,
@@ -148,6 +149,7 @@ public class STAnnotationDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationDeclarationNode(this, position, parent);
     }

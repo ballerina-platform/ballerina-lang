@@ -62,6 +62,7 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
                 closeBracketToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTupleTypeDescriptorNode(
                 this.openBracketToken,
@@ -88,6 +89,7 @@ public class STTupleTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TupleTypeDescriptorNode(this, position, parent);
     }

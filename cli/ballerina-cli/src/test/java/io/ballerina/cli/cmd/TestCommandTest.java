@@ -477,9 +477,7 @@ public class TestCommandTest extends BaseCommandTest {
         int exitCode = -1;
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                br.lines().forEach(line -> {
-                    output.append(line).append("\n");
-                });
+                br.lines().forEach(line -> output.append(line).append("\n"));
             }
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
@@ -537,9 +535,7 @@ public class TestCommandTest extends BaseCommandTest {
         int exitCode = -1;
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                br.lines().forEach(line -> {
-                    output.append(line).append("\n");
-                });
+                br.lines().forEach(line -> output.append(line).append("\n"));
             }
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
@@ -627,9 +623,7 @@ public class TestCommandTest extends BaseCommandTest {
             int exitCode = -1;
             try {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    br.lines().forEach(line -> {
-                        output.append(line).append("\n");
-                    });
+                    br.lines().forEach(line -> output.append(line).append("\n"));
                 }
                 exitCode = process.waitFor();
             } catch (InterruptedException e) {

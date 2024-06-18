@@ -43,14 +43,17 @@ public class STInvalidToken extends STToken {
         this.tokenText = tokenText;
     }
 
+    @Override
     public String text() {
         return tokenText;
     }
 
+    @Override
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STInvalidToken(this.tokenText, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
+    @Override
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STInvalidToken(this.tokenText, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }

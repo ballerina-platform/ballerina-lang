@@ -53,18 +53,22 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BType targetType;
     public boolean checkTypes = true;
 
+    @Override
     public ExpressionNode getExpression() {
         return expr;
     }
 
+    @Override
     public void setExpression(ExpressionNode expr) {
         this.expr = (BLangExpression) expr;
     }
 
+    @Override
     public BLangType getTypeNode() {
         return typeNode;
     }
 
+    @Override
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
     }

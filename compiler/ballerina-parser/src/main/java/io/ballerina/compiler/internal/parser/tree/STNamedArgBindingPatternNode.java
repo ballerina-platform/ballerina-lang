@@ -62,6 +62,7 @@ public class STNamedArgBindingPatternNode extends STBindingPatternNode {
                 bindingPattern);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedArgBindingPatternNode(
                 this.argName,
@@ -88,6 +89,7 @@ public class STNamedArgBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgBindingPatternNode(this, position, parent);
     }

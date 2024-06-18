@@ -56,14 +56,17 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         this.compilerPluginUserData = userData;
     }
 
+    @Override
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
         codeAnalyzers.add(new CodeAnalyzerManager.CodeAnalyzerInfo(codeAnalyzer, compilerPluginInfo));
     }
 
+    @Override
     public void addCodeGenerator(CodeGenerator codeGenerator) {
         codeGenerators.add(new CodeGeneratorManager.CodeGeneratorInfo(codeGenerator, compilerPluginInfo));
     }
 
+    @Override
     public void addCodeModifier(CodeModifier codeModifier) {
         codeModifiers.add(new CodeModifierManager.CodeModifierInfo(codeModifier, compilerPluginInfo));
     }
@@ -112,6 +115,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return compilerPluginInfo;
     }
 
+    @Override
     public Map<String, Object> userData() {
         return this.compilerPluginUserData;
     }

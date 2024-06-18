@@ -267,6 +267,7 @@ public interface BXml extends BRefValue, BCollection {
      * 
      * @return length of this XML sequence.
      */
+    @Override
     int size();
 
     /**

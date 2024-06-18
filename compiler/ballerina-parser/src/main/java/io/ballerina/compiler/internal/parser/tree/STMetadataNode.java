@@ -56,6 +56,7 @@ public class STMetadataNode extends STNode {
                 annotations);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMetadataNode(
                 this.documentationString,
@@ -78,6 +79,7 @@ public class STMetadataNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MetadataNode(this, position, parent);
     }
