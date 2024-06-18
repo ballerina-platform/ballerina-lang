@@ -78,8 +78,6 @@ public class ConstructorsTestResource {
 
     // Constructor with a primitive parameter and a checked exception.
     public ConstructorsTestResource(double x) throws IOException {
-        var y = 1;
-
     }
 
     // Constructor with a string parameter, primitive parameter and a checked exception.
