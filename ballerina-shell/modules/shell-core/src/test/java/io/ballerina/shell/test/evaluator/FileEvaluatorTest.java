@@ -32,22 +32,22 @@ public class FileEvaluatorTest extends AbstractEvaluatorTest {
     private static final String RECURSIVE_EVALUATOR_TESTCASE = "testcases/evaluator/files.mu.recursive.json";
 
     @Test
-    public void testEvaluateFileBasic() throws Exception {
+    public void testEvaluateFileBasic() {
         testEvaluate(BASIC_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateFileUnordered() throws Exception {
+    public void testEvaluateFileUnordered() {
         testEvaluate(UNORDERED_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateFileMutuallyUsed() throws Exception {
+    public void testEvaluateFileMutuallyUsed() {
         testEvaluate(MU_USED_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateFileRecursive() throws Exception {
+    public void testEvaluateFileRecursive() {
         testEvaluate(RECURSIVE_EVALUATOR_TESTCASE);
     }
 }

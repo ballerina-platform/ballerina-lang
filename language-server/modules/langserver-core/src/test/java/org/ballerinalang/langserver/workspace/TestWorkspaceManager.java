@@ -96,7 +96,7 @@ public class TestWorkspaceManager {
     }
 
     @Test(dataProvider = "fileOpenUpdateTestDataProvider")
-    public void testOpenDocument(Path filePath) throws IOException, WorkspaceDocumentException {
+    public void testOpenDocument(Path filePath) throws WorkspaceDocumentException {
         // Inputs from lang server
         openFile(filePath);
 
@@ -107,8 +107,7 @@ public class TestWorkspaceManager {
     }
 
     @Test(dataProvider = "fileOpenWithDuplicateFilesDataProvider")
-    public void testOpenDocumentWithDuplicateFiles(Path filePath) throws IOException,
-            WorkspaceDocumentException {
+    public void testOpenDocumentWithDuplicateFiles(Path filePath) {
         try {
             // Inputs from lang server
             openFile(filePath);
@@ -557,7 +556,7 @@ public class TestWorkspaceManager {
 
     @Test
     public void testWSRunStopProject()
-            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException, IOException {
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("long_running");
         Path filePath = projectPath.resolve("main.bal");
         ExecuteCommandContext execContext = runViaLs(filePath);
@@ -639,8 +638,7 @@ public class TestWorkspaceManager {
         return execContext;
     }
 
-    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath)
-            throws LSCommandExecutorException {
+    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath) {
         StopExecutor stopExecutor = new StopExecutor();
         Boolean didStop = stopExecutor.execute(execContext);
         Assert.assertTrue(didStop);

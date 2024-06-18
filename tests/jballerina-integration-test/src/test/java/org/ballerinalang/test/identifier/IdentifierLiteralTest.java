@@ -42,7 +42,7 @@ public class IdentifierLiteralTest  extends BaseTest {
     private BMainInstance bMainInstance;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         bMainInstance = new BMainInstance(balServer);
         bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "testProject").toString(),
                 "a_b-foo-any-0.1.0");

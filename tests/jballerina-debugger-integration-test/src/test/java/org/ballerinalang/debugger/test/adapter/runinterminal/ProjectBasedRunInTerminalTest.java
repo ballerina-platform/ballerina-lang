@@ -33,7 +33,7 @@ public class ProjectBasedRunInTerminalTest {
     boolean didRunInIntegratedTerminal;
 
     @BeforeMethod(alwaysRun = true)
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         String testFolderName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testFolderName, testSingleFileName, true);

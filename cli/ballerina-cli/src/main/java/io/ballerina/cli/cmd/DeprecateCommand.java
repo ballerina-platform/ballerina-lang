@@ -23,7 +23,6 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -157,13 +156,9 @@ public class DeprecateCommand implements BLauncherCmd {
     private void deprecateInCentral(String packageInfo) {
         try {
             Settings settings;
-            try {
-                settings = RepoUtils.readSettings();
-                // Ignore Settings.toml diagnostics in the deprecate command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the deprecate command
+
             String packageValue = packageInfo;
             if (packageInfo.split(":").length != 2) {
                 packageValue = packageInfo + ":*";

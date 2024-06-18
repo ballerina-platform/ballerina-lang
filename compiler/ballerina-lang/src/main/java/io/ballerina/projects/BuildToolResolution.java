@@ -31,7 +31,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
@@ -227,11 +226,7 @@ public class BuildToolResolution {
     private List<BuildTool> getToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest)
             throws CentralClientException {
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),

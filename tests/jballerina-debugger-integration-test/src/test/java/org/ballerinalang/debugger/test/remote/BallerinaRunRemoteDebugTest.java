@@ -44,7 +44,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     private static final String REMOTE_DEBUG_LISTENING = "Listening for transport dt_socket at address: ";
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         testProjectName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);

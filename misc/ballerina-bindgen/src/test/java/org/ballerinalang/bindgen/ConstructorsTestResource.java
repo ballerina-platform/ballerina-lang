@@ -25,6 +25,7 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
+@SuppressWarnings("all")
 public class ConstructorsTestResource {
 
     // The tool should not generate constructors with private access modifier.

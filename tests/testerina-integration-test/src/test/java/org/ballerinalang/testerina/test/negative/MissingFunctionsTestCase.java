@@ -36,7 +36,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = singleFileTestsPath.resolve("missing-functions").toString();
     }

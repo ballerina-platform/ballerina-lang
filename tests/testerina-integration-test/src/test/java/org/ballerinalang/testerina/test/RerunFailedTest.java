@@ -41,7 +41,7 @@ public class RerunFailedTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
     }

@@ -86,7 +86,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
     }
 
     @Override
-    public void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
+    public void didClose(DidCloseTextDocumentParams params) {
         String uri = params.getTextDocument().getUri();
         Optional<Path> path = PathUtil.getPathFromURI(uri);
         if (path.isEmpty()) {

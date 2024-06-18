@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -39,8 +38,7 @@ public class MethodDeclarationNodeContext extends AbstractCompletionProvider<Met
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodDeclarationNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.functionKeyword().isMissing()) {

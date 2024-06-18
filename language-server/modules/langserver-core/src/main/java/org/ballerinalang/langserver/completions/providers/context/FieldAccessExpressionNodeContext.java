@@ -20,7 +20,6 @@ import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.List;
@@ -38,8 +37,7 @@ public class FieldAccessExpressionNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node) {
         ExpressionNode expression = node.expression();
         List<LSCompletionItem> completionItems = getEntries(context, expression);
         this.sort(context, node, completionItems);

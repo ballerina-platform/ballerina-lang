@@ -15,7 +15,6 @@
  */
 package io.ballerina.shell.service;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class ConsoleOutCollector extends OutputStream {
     }
 
     @Override
-    public void write(int characterInt) throws IOException {
+    public void write(int characterInt) {
         if (characterInt == '\n') {
             String buffered = collectFromBuffer();
             lines.add(buffered);

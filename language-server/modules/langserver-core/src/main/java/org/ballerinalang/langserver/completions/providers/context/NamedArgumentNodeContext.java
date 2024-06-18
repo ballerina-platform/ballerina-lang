@@ -27,7 +27,6 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -51,8 +50,7 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedArgumentNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedArgumentNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.expression())) {
             /*
