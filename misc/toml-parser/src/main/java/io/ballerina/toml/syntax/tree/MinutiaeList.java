@@ -161,7 +161,7 @@ public final class MinutiaeList implements Iterable<Minutiae> {
         };
     }
 
-    protected STNode internalNode() {
+    STNode internalNode() {
         return internalListNode;
     }
 

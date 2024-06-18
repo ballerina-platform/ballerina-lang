@@ -22,7 +22,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
  */
 public final class Constants {
 
-    protected static final String CAPABILITY_NAME = "ballerinaSymbol";
+    static final String CAPABILITY_NAME = "ballerinaSymbol";
 
     private Constants() {
     }
