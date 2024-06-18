@@ -28,7 +28,7 @@
   *
   * @since 0.995.0
   */
- public class WorkerUtils {
+ public final class WorkerUtils {
 
      /**
       * Notify worker data channels if this is a error return in a union type.

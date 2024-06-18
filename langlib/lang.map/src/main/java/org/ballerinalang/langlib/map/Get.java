@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class Get {
+public final class Get {
 
     private Get() {
     }

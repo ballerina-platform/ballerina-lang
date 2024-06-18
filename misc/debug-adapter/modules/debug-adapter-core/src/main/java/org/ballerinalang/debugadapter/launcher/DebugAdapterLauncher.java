@@ -33,7 +33,7 @@ import java.net.Socket;
 /**
  * Launch debugger adapter protocol server instance.
  */
-public class DebugAdapterLauncher {
+public final class DebugAdapterLauncher {
 
     private static final int DEFAULT_PORT = 4711;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugAdapterLauncher.class);

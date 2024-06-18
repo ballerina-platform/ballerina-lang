@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BHandle;
  *
  * @since 1.0.0
  */
-public class GetArrayElement {
+public final class GetArrayElement {
 
     private GetArrayElement() {
     }

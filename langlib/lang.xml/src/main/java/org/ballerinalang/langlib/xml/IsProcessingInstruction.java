@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class IsProcessingInstruction {
+public final class IsProcessingInstruction {
 
     private IsProcessingInstruction() {
     }

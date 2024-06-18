@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BFuture;
 //        args = {@Argument(name = "f", type = TypeKind.FUTURE)},
 //        isPublic = true
 //)
-public class Cancel {
+public final class Cancel {
 
     private Cancel() {
     }

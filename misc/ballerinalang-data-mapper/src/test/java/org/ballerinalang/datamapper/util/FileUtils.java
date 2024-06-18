@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 /**
  * File utils for reading the file content.
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final JsonParser JSON_PARSER = new JsonParser();
 

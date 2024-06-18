@@ -23,7 +23,7 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-public class Tanh {
+public final class Tanh {
 
     private Tanh() {
     }

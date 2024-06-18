@@ -30,7 +30,7 @@ import java.io.IOException;
  * @since 0.963.0
  */
 @Deprecated
-public class PackageFileWriter {
+public final class PackageFileWriter {
 
     private PackageFileWriter() {
     }

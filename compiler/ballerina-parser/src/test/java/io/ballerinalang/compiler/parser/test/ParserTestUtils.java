@@ -64,7 +64,7 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
  *
  * @since 1.2.0
  */
-public class ParserTestUtils {
+public final class ParserTestUtils {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 

@@ -41,7 +41,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaTomlCompletionUtil {
+public final class BallerinaTomlCompletionUtil {
 
     private BallerinaTomlCompletionUtil() {
     }

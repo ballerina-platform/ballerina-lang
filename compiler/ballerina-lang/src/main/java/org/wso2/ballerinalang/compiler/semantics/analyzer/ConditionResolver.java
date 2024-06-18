@@ -37,7 +37,7 @@ import java.util.HashSet;
  *
  * @since 2.0.0
  */
-public class ConditionResolver {
+public final class ConditionResolver {
 
     private ConditionResolver() {
     }

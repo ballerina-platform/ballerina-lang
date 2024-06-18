@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class SyntaxInfo {
+public final class SyntaxInfo {
 
     private static final List<String> BALLERINA_KEYWORDS = Arrays.stream(SyntaxKind.values())
             .filter(syntaxKind -> SyntaxKind.RE_KEYWORD.compareTo(syntaxKind) > 0)

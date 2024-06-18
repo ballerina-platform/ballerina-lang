@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  * @since 2.0.0
  */
 
-public class Includes {
+public final class Includes {
     private Includes() {
     }
 

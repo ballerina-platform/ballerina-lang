@@ -40,7 +40,7 @@ import java.util.Collection;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class ToArray {
+public final class ToArray {
 
     private ToArray() {
     }

@@ -55,7 +55,7 @@ import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TR
  *
  * @since 1.3.0
  */
-public class TreeGen {
+public final class TreeGen {
 
     private TreeGen() {
     }

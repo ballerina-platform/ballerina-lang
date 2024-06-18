@@ -59,7 +59,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  * 
  * @since 1.0
  */
-public class LaunchUtils {
+public final class LaunchUtils {
 
     private static final PrintStream outStream = System.out;
 

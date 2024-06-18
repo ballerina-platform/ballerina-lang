@@ -56,7 +56,7 @@ import static io.ballerina.toml.internal.syntax.SyntaxUtils.isSTNodePresent;
  *
  * @since 1.2.0
  */
-public class ParserTestUtils {
+public final class ParserTestUtils {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 

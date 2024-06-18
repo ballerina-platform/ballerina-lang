@@ -26,7 +26,7 @@ import java.util.UUID;
  *
  * @since 2.0.0
  */
-public class LSClientUtil {
+public final class LSClientUtil {
 
     public static final String EXECUTE_COMMAND_CAPABILITY_ID = UUID.randomUUID().toString();
 

@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class PrintUtils {
+public final class PrintUtils {
 
     private static final PrintStream outStream = System.out;
 

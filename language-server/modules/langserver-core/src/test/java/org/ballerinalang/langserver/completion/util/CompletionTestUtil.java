@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Message utils for manipulating the Message objects.
  */
-public class CompletionTestUtil {
+public final class CompletionTestUtil {
 
     private static final Gson GSON = new Gson();
 

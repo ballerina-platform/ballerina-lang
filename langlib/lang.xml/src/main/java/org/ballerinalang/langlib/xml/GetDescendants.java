@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
  *
  * @since 2.0.0
  */
-public class GetDescendants {
+public final class GetDescendants {
 
     private GetDescendants() {
     }

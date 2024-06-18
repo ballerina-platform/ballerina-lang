@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 /**
  * Home repository util methods.
  */
-public class RepoUtils {
+public final class RepoUtils {
 
     public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     public static final String COMPILE_BALLERINA_ORG_PROP = "BALLERINA_DEV_COMPILE_BALLERINA_ORG";

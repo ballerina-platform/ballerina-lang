@@ -33,7 +33,7 @@ import java.util.IllegalFormatConversionException;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final BString NOT_ENOUGH_FORMAT_ARGUMENTS = StringUtils.fromString("not enough format arguments");
 

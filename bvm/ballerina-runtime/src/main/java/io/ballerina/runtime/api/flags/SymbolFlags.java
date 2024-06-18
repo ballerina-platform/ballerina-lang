@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.flags;
  *
  * @since 0.95.7
  */
-public class SymbolFlags {
+public final class SymbolFlags {
 
     public static final long PUBLIC = 1;
     public static final long NATIVE = 2;

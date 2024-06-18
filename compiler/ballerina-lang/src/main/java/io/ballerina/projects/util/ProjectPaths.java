@@ -33,7 +33,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  *
  * @since 2.0.0
  */
-public class ProjectPaths {
+public final class ProjectPaths {
 
     private ProjectPaths() {
     }

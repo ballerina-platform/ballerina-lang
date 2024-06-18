@@ -37,7 +37,7 @@ import io.ballerina.runtime.internal.types.BServiceType;
  *
  * @since 2.0.0
  */
-public class Async {
+public final class Async {
 
     private Async() {
     }

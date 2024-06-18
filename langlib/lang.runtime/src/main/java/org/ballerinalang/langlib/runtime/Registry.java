@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BObject;
  *
  * @since 2.0.0
  */
-public class Registry {
+public final class Registry {
 
     public static void registerListener(Environment env, BObject listener) {
         env.getRuntime().registerListener(listener);

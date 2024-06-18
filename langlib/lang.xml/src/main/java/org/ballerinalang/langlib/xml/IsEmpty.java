@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsEmpty {
+public final class IsEmpty {
 
     private static final String OPERATION = "check xml is empty";
 

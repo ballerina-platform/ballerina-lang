@@ -22,7 +22,7 @@ package io.ballerina.test.utils;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
     public static final String SUBTYPE_SYMBOL = "<:";
     public static final String COMMENT = "// ";
     public static final String FAILING_FILE = "-f.bal";

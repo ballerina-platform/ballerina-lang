@@ -57,7 +57,7 @@ import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStri
  * 
  * @since 0.95.3
  */
-public class StringUtils {
+public final class StringUtils {
 
     /**
      * Convert input stream to String.

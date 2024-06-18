@@ -35,7 +35,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetName {
+public final class GetName {
 
     private static final String OPERATION = "get element name in xml";
 

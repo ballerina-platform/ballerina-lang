@@ -54,7 +54,7 @@ import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
  *
  * @since 0.990.4
  */
-public class StackTrace {
+public final class StackTrace {
 
     private StackTrace() {
     }

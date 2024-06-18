@@ -28,7 +28,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class TomlCommonUtil {
+public final class TomlCommonUtil {
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
 

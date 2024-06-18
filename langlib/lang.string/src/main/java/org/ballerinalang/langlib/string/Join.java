@@ -35,7 +35,7 @@ import java.util.StringJoiner;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class Join {
+public final class Join {
 
     private Join() {
     }

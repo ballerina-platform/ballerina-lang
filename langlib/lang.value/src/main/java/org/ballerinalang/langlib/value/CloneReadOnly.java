@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.CloneUtils;
  *
  * @since 1.0
  */
-public class CloneReadOnly {
+public final class CloneReadOnly {
 
     private CloneReadOnly() {
     }

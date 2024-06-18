@@ -41,7 +41,7 @@ import java.util.Objects;
  *
  * @since 0.975.0
  */
-public class BFileUtil {
+public final class BFileUtil {
 
     private static final String IGNORE = ".gitignore";
 

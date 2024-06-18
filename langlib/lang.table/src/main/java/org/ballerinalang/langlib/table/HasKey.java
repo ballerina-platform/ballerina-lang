@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class HasKey {
+public final class HasKey {
 
     private HasKey() {
     }

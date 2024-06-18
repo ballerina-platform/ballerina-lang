@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class VariableUtils {
+public final class VariableUtils {
 
     private static final String MAP_TYPE_TEMPLATE = "map<%s>";
     private static final String UNKNOWN = "unknown";

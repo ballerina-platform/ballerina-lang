@@ -34,7 +34,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
  *
  * @since 2.0.0
  */
-public class ValueComparisonUtils {
+public final class ValueComparisonUtils {
 
     private ValueComparisonUtils() {
     }

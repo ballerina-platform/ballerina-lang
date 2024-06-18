@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetElementName {
+public final class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
 

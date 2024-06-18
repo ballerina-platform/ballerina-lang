@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.Runtime;
  *
  * @since 2201.9.0
  */
-public class ModuleStartCallNegative {
+public final class ModuleStartCallNegative {
 
     private ModuleStartCallNegative() {
     }

@@ -85,7 +85,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntime {
+public final class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
     private static final String XML_STEP_SEPARATOR = "/";

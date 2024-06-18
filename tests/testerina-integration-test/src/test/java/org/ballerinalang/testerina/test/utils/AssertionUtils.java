@@ -30,7 +30,7 @@ import java.util.Locale;
  *
  * @since 2.0.0
  */
-public class AssertionUtils {
+public final class AssertionUtils {
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
 

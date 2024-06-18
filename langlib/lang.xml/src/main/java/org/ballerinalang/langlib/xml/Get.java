@@ -39,7 +39,7 @@ import java.util.List;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Get {
+public final class Get {
 
     public static final int LENGTH_OF_ONE = 1;
 

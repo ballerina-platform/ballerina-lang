@@ -48,7 +48,7 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 2.0.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
     private static List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r",

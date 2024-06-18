@@ -43,7 +43,7 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class BIRWriterUtils {
+public final class BIRWriterUtils {
 
     private BIRWriterUtils() {
     }

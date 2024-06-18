@@ -33,7 +33,7 @@ import io.ballerina.tools.text.LineRange;
  *
  * @since 2.0.0
  */
-public class ManifestUtils {
+public final class ManifestUtils {
 
     private ManifestUtils() {
     }

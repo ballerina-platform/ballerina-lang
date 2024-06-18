@@ -71,7 +71,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.SHORT;
  *
  * @since 1.2.0
  */
-public class BindgenUtils {
+public final class BindgenUtils {
 
     private BindgenUtils() {
     }

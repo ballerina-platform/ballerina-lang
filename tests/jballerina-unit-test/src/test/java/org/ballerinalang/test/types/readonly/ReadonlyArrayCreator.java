@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 /**
  * Interop functions for readonly array creation.
  */
-public class ReadonlyArrayCreator {
+public final class ReadonlyArrayCreator {
 
     private ReadonlyArrayCreator() {
     }

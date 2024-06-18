@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class Flags {
+public final class Flags {
 
     public static final long PUBLIC = 1;                                        //  0
     public static final long NATIVE = PUBLIC << 1;                              //  1

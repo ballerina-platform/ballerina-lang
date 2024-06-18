@@ -43,7 +43,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  *
  * @since 2.0.0
  */
-public class VariableUtils {
+public final class VariableUtils {
 
     /**
      * Returns runtime value of the matching constant variable, for the given name.

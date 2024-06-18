@@ -79,7 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @since 1.0.0
  */
-public class StaticMethods {
+public final class StaticMethods {
 
     private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);
     private static final BArrayType jsonArrayType = new BArrayType(PredefinedTypes.TYPE_JSON);

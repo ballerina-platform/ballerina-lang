@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class Symbols {
+public final class Symbols {
 
     private Symbols() {
     }

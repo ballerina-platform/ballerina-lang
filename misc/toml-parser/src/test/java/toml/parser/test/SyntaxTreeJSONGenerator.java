@@ -48,7 +48,7 @@ import java.util.Collection;
  *
  * @since 1.2.0
  */
-public class SyntaxTreeJSONGenerator {
+public final class SyntaxTreeJSONGenerator {
 
     /*
      * Change the below two constants as required, depending on the type of test.

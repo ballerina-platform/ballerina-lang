@@ -40,7 +40,7 @@ import static io.ballerina.semver.checker.util.PackageUtils.capitalize;
  *
  * @since 2201.2.0
  */
-public class SyntaxTreeUtils {
+public final class SyntaxTreeUtils {
 
     private SyntaxTreeUtils() {
     }

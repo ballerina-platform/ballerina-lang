@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ProjectLoader {
+public final class ProjectLoader {
 
     private ProjectLoader() {
     }

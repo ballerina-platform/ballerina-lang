@@ -22,7 +22,7 @@ package org.ballerinalang.langlib.value;
  *
  * @since 2201.6.0
  */
-public class Last {
+public final class Last {
     private Last() {
     }
 

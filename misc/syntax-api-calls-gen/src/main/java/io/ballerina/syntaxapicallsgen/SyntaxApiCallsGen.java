@@ -30,7 +30,7 @@ import io.ballerina.syntaxapicallsgen.segment.factories.NodeSegmentFactory;
  *
  * @since 2.0.0
  */
-public class SyntaxApiCallsGen {
+public final class SyntaxApiCallsGen {
     private SyntaxApiCallsGen() {
     }
 

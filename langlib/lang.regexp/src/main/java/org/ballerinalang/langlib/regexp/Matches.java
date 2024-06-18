@@ -33,7 +33,7 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
  *
  * @since 2201.3.0
  */
-public class Matches {
+public final class Matches {
     private Matches() {
     }
 

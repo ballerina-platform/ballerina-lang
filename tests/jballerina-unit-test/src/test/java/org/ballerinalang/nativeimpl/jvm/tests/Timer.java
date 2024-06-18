@@ -30,7 +30,7 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class Timer {
+public final class Timer {
 
     private Timer() {
     }

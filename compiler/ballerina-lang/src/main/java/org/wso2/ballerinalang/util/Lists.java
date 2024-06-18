@@ -25,7 +25,7 @@ import java.util.List;
 /***
  * @since 0.94
  */
-public class Lists {
+public final class Lists {
 
     private Lists() {
     }

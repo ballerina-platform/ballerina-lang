@@ -42,7 +42,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJType
  *
  * @since 1.2.0
  */
-public class AnnotationProc {
+public final class AnnotationProc {
 
     public static final String NAME_FIELD_NAME = "name";
     public static final String CLASS_FIELD_NAME = "class";

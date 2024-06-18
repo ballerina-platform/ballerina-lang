@@ -46,7 +46,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
  *
  * @since 2201.1.1
  */
-public class RecordUtil {
+public final class RecordUtil {
 
     private RecordUtil() {
     }

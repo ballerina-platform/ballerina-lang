@@ -20,7 +20,7 @@ package io.ballerina;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
 
     public static final String CAPABILITY_NAME = "performanceAnalyzer";
     static final String ERROR = "error";

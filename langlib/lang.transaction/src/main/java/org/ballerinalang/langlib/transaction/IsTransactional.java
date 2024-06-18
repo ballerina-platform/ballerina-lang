@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
  *
  * @since 2.0.0-preview1
  */
-public class IsTransactional {
+public final class IsTransactional {
 
     private IsTransactional() {
     }

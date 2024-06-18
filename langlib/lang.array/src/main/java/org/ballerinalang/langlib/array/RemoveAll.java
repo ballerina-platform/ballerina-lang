@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BArray;
 //        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
 //        isPublic = true
 //)
-public class RemoveAll {
+public final class RemoveAll {
 
     private RemoveAll() {
     }

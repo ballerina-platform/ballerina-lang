@@ -23,7 +23,7 @@ package org.ballerinalang.testerina.test.utils;
  * Common utility functions to handle integration test outputs .
  *
  */
-public class CommonUtils {
+public final class CommonUtils {
 
     private CommonUtils() {
     }

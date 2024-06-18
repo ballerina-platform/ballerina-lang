@@ -29,7 +29,7 @@ import java.math.MathContext;
  *
  * @since 0.90
  */
-public class RuntimeConstants {
+public final class RuntimeConstants {
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";

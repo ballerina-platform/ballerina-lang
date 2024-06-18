@@ -103,7 +103,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
  * <li> never - no value
  * </ul>
  */
-public class VariableFactory {
+public final class VariableFactory {
 
     private static final String TYPEDESC_IDENTIFIER = "$typedesc$";
 

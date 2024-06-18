@@ -31,7 +31,7 @@ import java.nio.file.Paths;
  * Utils class for runtime unit tests.
  * @since 2.0.0
  */
-public class TestUtils {
+public final class TestUtils {
 
     private TestUtils() {
     }

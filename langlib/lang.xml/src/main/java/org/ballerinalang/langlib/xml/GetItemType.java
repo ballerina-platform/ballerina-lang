@@ -34,7 +34,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class GetItemType {
+public final class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 

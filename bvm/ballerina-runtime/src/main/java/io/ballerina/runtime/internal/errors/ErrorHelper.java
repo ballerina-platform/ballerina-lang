@@ -36,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * @since 2201.7.0
  */
-public class ErrorHelper {
+public final class ErrorHelper {
 
     private static final ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");

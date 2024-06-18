@@ -39,7 +39,7 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
 //        isPublic = true
 //)
-public class GetKeys {
+public final class GetKeys {
 
     private GetKeys() {
     }

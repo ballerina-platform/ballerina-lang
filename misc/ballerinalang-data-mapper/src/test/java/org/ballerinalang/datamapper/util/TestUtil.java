@@ -67,7 +67,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 

@@ -32,7 +32,7 @@ import java.io.PrintStream;
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICall {
+public final class RuntimeAPICall {
 
     private static final PrintStream out = System.out;
 

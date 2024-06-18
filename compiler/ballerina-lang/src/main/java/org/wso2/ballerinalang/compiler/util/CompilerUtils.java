@@ -41,7 +41,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
  *
  * @since 0.965.0
  */
-public class CompilerUtils {
+public final class CompilerUtils {
 
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
 
