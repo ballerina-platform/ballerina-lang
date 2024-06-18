@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
  */
 public class ClientAction {
 
-    public ClientAction() {
+    private ClientAction() {
     }
 
     public static Object get(BString path, BTypedesc targetType) {
