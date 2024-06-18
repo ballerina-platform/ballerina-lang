@@ -39,6 +39,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
+import org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -57,6 +58,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
  *
  * @since 1.0.0
  */
+@SuppressWarnings({"unused", "RedundantThrows"})
 public class RefTypeWithBValueAPITests {
 
     private CompileResult result;
@@ -316,8 +318,7 @@ public class RefTypeWithBValueAPITests {
         }
     }
 
-    public static BObject
-    acceptObjectAndObjectReturn(BObject p, int newVal) {
+    public static BObject acceptObjectAndObjectReturn(BObject p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
@@ -327,16 +328,18 @@ public class RefTypeWithBValueAPITests {
         return e;
     }
 
-    public static int acceptIntReturnIntThrowsCheckedException(long a) {
+    public static int acceptIntReturnIntThrowsCheckedException(long a) throws JavaInteropTestCheckedException {
         return (int) (a + 5);
     }
 
-    public static BMap acceptRecordAndRecordReturnWhichThrowsCheckedException(BMap e, BString newVal) {
+    public static BMap acceptRecordAndRecordReturnWhichThrowsCheckedException(BMap e, BString newVal)
+            throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
     }
 
-    public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag) {
+    public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
+            throws JavaInteropTestCheckedException {
         switch (flag) {
             case 1:
                 return 25;
@@ -350,7 +353,8 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static BMap acceptRefTypesAndReturnMapWhichThrowsCheckedException(
-            BObject a, BArray b, Object c, BError d, Object e, Object f, BMap g) {
+            BObject a, BArray b, Object c, BError d, Object e, Object f, BMap g)
+            throws JavaInteropTestCheckedException {
         io.ballerina.runtime.api.values.BMap<String, Object> mapValue = new MapValueImpl<>();
         mapValue.put("a", a);
         mapValue.put("b", b);
@@ -361,11 +365,13 @@ public class RefTypeWithBValueAPITests {
         return mapValue;
     }
 
-    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg) {
+    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
+            throws JavaInteropTestCheckedException {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static BArray getArrayValueFromMapWhichThrowsCheckedException(BString key, BMap mapValue) {
+    public static BArray getArrayValueFromMapWhichThrowsCheckedException(BString key, BMap mapValue)
+            throws JavaInteropTestCheckedException {
         BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
