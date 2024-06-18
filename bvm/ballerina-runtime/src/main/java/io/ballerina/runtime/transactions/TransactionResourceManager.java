@@ -88,6 +88,8 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
+    public static final String TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY = "transactionAutoCommitTimeout";
+    public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
@@ -198,7 +200,7 @@ public class TransactionResourceManager {
      */
     public int getTransactionAutoCommitTimeout() {
         VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
-                "transactionAutoCommitTimeout", PredefinedTypes.TYPE_INT, false);
+                TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, PredefinedTypes.TYPE_INT, false);
         Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
         if (value == null) {
             return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
@@ -235,7 +237,8 @@ public class TransactionResourceManager {
      * @return int transaction cleanup after value
      */
     public int getTransactionCleanupTimeout() {
-        VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID, "transactionCleanupTimeout",
+        VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
+                TRANSACTION_CLEANUP_TIMEOUT_KEY,
                 PredefinedTypes.TYPE_INT, false);
         Object value = ConfigMap.get(transactionCleanupTimeoutKey);
         if (value == null) {
