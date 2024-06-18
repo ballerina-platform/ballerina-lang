@@ -208,7 +208,7 @@ public class TransactionResourceManager {
             } else {
                 return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
             }
-            if (transactionAutoCommitTimeout < DEFAULT_TRX_AUTO_COMMIT_TIMEOUT) {
+            if (transactionAutoCommitTimeout < 0) {
                 return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
             } else {
                 return transactionAutoCommitTimeout;
@@ -236,7 +236,7 @@ public class TransactionResourceManager {
             } else {
                 return DEFAULT_TRX_CLEANUP_TIMEOUT;
             }
-            if (transactionCleanupTimeout < DEFAULT_TRX_CLEANUP_TIMEOUT) {
+            if (transactionCleanupTimeout < 0) {
                 return DEFAULT_TRX_CLEANUP_TIMEOUT;
             } else {
                 return transactionCleanupTimeout;
