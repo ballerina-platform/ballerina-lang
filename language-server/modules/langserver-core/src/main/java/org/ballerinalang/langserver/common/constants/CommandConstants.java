@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @since v0.964.0
  */
-public class CommandConstants {
+public final class CommandConstants {
 
     public static final String UNDEFINED_MODULE = "undefined module";
     public static final String UNDEFINED_FUNCTION = "undefined function";

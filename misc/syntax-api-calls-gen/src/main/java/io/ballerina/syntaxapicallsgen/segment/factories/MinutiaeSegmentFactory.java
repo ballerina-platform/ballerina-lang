@@ -30,7 +30,7 @@ import io.ballerina.syntaxapicallsgen.segment.Segment;
  *
  * @since 2.0.0
  */
-public class MinutiaeSegmentFactory {
+public final class MinutiaeSegmentFactory {
     private static final String CREATE_EMPTY_MINUTIAE_LIST_METHOD_NAME = "createEmptyMinutiaeList";
     private static final String CREATE_MINUTIAE_LIST_METHOD_NAME = "createMinutiaeList";
     private static final String CREATE_COMMENT_METHOD_NAME = "createCommentMinutiae";

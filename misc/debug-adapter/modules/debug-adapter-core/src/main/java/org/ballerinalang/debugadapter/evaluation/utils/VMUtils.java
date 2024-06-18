@@ -29,7 +29,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
  *
  * @since 2.0.0
  */
-public class VMUtils {
+public final class VMUtils {
 
     private VMUtils() {
     }

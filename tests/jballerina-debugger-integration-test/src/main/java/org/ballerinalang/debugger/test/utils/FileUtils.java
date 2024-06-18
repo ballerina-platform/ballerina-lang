@@ -28,7 +28,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Util class for file operations.
  */
-public class FileUtils {
+public final class FileUtils {
 
     static final String URI_SCHEME_BALA = "bala";
     static final String URI_SCHEME_FILE = "file";

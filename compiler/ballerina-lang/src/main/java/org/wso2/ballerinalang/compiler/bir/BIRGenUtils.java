@@ -28,7 +28,7 @@ import java.util.Comparator;
  *
  * @since 2201.6.0
  */
-public class BIRGenUtils {
+public final class BIRGenUtils {
 
     private BIRGenUtils () {
 

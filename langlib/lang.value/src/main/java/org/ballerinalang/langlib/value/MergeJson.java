@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.JsonInternalUtils;
  *
  * @since 1.0
  */
-public class MergeJson {
+public final class MergeJson {
 
     private MergeJson() {
     }

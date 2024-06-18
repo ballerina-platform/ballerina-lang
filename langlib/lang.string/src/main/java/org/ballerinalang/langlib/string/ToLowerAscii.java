@@ -30,7 +30,7 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  *
  * @since 0.8.0
  */
-public class ToLowerAscii {
+public final class ToLowerAscii {
 
     private ToLowerAscii() {
     }

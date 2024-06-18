@@ -34,7 +34,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Remove {
+public final class Remove {
 
     private Remove() {
     }

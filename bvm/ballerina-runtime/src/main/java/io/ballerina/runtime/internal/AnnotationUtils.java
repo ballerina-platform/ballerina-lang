@@ -38,7 +38,7 @@ import io.ballerina.runtime.internal.values.MapValue;
  *
  * @since 0.995.0
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
 
     private AnnotationUtils() {
     }

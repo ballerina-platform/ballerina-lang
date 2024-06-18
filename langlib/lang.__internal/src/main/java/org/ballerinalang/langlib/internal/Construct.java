@@ -29,7 +29,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 1.2.0
  */
-public class Construct {
+public final class Construct {
 
     private Construct() {
     }

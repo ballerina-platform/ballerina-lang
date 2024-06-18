@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2201.8.0
  */
-public class Main {
+public final class Main {
     private static Profiler profiler;
 
     private Main() {

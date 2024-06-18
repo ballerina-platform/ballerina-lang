@@ -63,7 +63,7 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE
  *
  * @since 0.985.0
  */
-public class ObserveUtils {
+public final class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
     private static final boolean metricsEnabled;

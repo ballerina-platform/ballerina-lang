@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 

@@ -22,7 +22,7 @@ package org.ballerinalang.bindgen.utils;
  *
  * @since 1.2.0
  */
-public class BindgenConstants {
+public final class BindgenConstants {
 
     private BindgenConstants() {
     }

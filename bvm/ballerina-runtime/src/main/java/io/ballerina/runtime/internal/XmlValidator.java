@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.values.XmlQName;
  * 
  * @since 0.995.0
  */
-public class XmlValidator {
+public final class XmlValidator {
 
     /*
      * Constants

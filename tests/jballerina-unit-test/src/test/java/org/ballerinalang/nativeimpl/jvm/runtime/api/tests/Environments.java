@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 2201.5.0
  */
-public class Environments {
+public final class Environments {
 
     private Environments() {
     }

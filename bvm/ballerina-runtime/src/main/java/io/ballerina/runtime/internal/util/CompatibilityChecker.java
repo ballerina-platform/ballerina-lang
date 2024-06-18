@@ -26,7 +26,7 @@ import java.io.PrintStream;
  * @since 1.0.1
  */
 
-public class CompatibilityChecker {
+public final class CompatibilityChecker {
 
     private static final String JAVA_VERSION = "java.version";
     private static final String VERSION_ZERO = "0";

@@ -86,7 +86,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  *
  * @since 1.3.0
  */
-public class ImmutableTypeCloner {
+public final class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
 

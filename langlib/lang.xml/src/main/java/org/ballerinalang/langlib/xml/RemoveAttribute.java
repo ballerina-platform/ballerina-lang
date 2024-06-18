@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        args = {@Argument(name = "qname", type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class RemoveAttribute {
+public final class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 

@@ -38,7 +38,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class DotGraphs {
+public final class DotGraphs {
 
     private DotGraphs() {
     }

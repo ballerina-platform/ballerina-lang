@@ -26,7 +26,7 @@ import org.testng.Assert;
  *
  * @since 2.0.0
  */
-public class BAssertUtil {
+public final class BAssertUtil {
 
     private static final String CARRIAGE_RETURN_CHAR = "\\r";
     private static final String EMPTY_STRING = "";

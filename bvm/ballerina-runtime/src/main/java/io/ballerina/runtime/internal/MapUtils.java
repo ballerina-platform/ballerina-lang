@@ -46,7 +46,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 0.995.0
  */
-public class MapUtils {
+public final class MapUtils {
 
     private MapUtils() {
     }

@@ -34,7 +34,7 @@ import java.util.Optional;
  *
  * @since 2201.2.0
  */
-public class TestUtils {
+public final class TestUtils {
 
     private static final String JSON_ATTR_OLD_CODE = "oldCode";
     private static final String JSON_ATTR_NEW_CODE = "newCode";

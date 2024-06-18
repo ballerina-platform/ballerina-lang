@@ -153,7 +153,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 /**
  * The common functions used in CodeGen.
  */
-public class JvmCodeGenUtil {
+public final class JvmCodeGenUtil {
     public static final Unifier UNIFIER = new Unifier();
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";

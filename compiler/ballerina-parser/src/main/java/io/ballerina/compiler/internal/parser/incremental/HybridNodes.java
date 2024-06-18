@@ -30,7 +30,7 @@ import io.ballerina.tools.text.TextRange;
  *
  * @since 1.3.0
  */
-class HybridNodes {
+final class HybridNodes {
 
     private HybridNodes() {
     }

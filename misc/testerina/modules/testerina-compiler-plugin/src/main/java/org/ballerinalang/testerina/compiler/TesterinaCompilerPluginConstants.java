@@ -23,7 +23,7 @@ package org.ballerinalang.testerina.compiler;
  *
  * @since 2201.3.0
  */
-public class TesterinaCompilerPluginConstants {
+public final class TesterinaCompilerPluginConstants {
 
     public static final String TEST_REGISTER_FUNCTION = "registerTest";
     public static final String SET_OPTIONS_FUNCTION = "setTestOptions";

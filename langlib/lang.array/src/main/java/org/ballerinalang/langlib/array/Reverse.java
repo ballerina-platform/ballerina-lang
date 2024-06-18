@@ -33,7 +33,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Reverse {
+public final class Reverse {
 
     public static BArray reverse(BArray arr) {
         Type arrType = TypeUtils.getImpliedType(arr.getType());

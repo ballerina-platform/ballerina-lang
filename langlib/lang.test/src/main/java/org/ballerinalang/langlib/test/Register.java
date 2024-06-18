@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.test;
 /**
  * @since 2.0.0
  */
-public class Register {
+public final class Register {
     private Register() {
     }
 

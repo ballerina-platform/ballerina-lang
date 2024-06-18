@@ -96,7 +96,7 @@ public class TestCaseFilePaths {
      *
      * @since 2.0.0
      */
-    public static class TestCaseFilePathsBuilder {
+    public static final class TestCaseFilePathsBuilder {
 
         private TestCaseFilePathsBuilder() {
         }

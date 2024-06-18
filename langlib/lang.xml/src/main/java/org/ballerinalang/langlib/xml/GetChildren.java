@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class GetChildren {
+public final class GetChildren {
 
     private GetChildren() {
     }

@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  *
  * @since 1.2.0
  */
-class InstructionEmitter {
+final class InstructionEmitter {
 
     private static final byte INITIAL_VALUE_COUNT = 10;
 

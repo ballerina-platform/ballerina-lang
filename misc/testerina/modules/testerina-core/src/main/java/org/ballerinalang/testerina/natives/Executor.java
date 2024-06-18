@@ -39,7 +39,7 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class Executor {
+public final class Executor {
 
     private Executor() {
     }

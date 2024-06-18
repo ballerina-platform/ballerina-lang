@@ -42,7 +42,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 2.0.0
  */
 
-public class ErrorUtils {
+public final class ErrorUtils {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");

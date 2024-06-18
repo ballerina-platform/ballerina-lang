@@ -76,7 +76,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
  *
  * @since 2.0.0
  */
-public class BRunUtil {
+public final class BRunUtil {
 
     private static final Boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");

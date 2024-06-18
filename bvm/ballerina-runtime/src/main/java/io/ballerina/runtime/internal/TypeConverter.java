@@ -94,7 +94,7 @@ import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinI
  *
  * @since 0.995.0
  */
-public class TypeConverter {
+public final class TypeConverter {
 
     private static final String NAN = "NaN";
     private static final String POSITIVE_INFINITY = "Infinity";

@@ -23,7 +23,7 @@ import java.nio.file.Path;
 /**
  * Utilities required for test cases.
  */
-public class FileUtil {
+public final class FileUtil {
 
     private FileUtil() {
     }

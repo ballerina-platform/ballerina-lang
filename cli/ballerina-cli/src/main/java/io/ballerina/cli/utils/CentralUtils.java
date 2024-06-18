@@ -38,7 +38,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
  *
  * @since 2.0.0
  */
-public class CentralUtils {
+public final class CentralUtils {
 
     private static final String BALLERINA_CENTRAL_PRODUCTION_URL = "https://central.ballerina.io";
     private static final String BALLERINA_CENTRAL_STAGING_URL = "https://staging-central.ballerina.io";

@@ -23,7 +23,7 @@ package io.ballerina.runtime.internal.configurable.providers.cli;
  *
  * @since 2.0.0
  */
-public class CliConstants {
+public final class CliConstants {
 
     static final String CLI_PREFIX = "-C";
 

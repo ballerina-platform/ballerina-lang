@@ -51,7 +51,7 @@ import java.util.Optional;
 /**
  * Utility class for Hover functionality of language server.
  */
-public class HoverUtil {
+public final class HoverUtil {
 
     private HoverUtil() {
     }

@@ -45,7 +45,7 @@ import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
  *
  * @since 0.8.0
  */
-public class LauncherUtils {
+public final class LauncherUtils {
 
     private LauncherUtils() {
     }

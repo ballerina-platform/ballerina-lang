@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class GetFilteredChildrenFlat {
+public final class GetFilteredChildrenFlat {
 
     private GetFilteredChildrenFlat() {
     }

@@ -41,7 +41,7 @@ import java.util.Map;
  *
  * @since 2201.2.0
  */
-public class PackageUtils {
+public final class PackageUtils {
 
     private PackageUtils() {
     }

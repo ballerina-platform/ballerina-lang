@@ -34,7 +34,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        args = {@Argument(name = "qname", type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class RemoveChildren {
+public final class RemoveChildren {
 
     private static final String OPERATION = "remove children from xml element";
 

@@ -27,7 +27,7 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Sum {
+public final class Sum {
 
     private Sum() {
     }

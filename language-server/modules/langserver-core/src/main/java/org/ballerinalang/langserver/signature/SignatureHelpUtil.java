@@ -86,7 +86,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 /**
  * Utility functions for the signature help.
  */
-public class SignatureHelpUtil {
+public final class SignatureHelpUtil {
 
     private SignatureHelpUtil() {
     }

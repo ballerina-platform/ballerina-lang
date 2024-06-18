@@ -23,7 +23,7 @@ import java.util.Locale;
  *
  * @since 2.0.0
  */
-public class OsUtils {
+public final class OsUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 

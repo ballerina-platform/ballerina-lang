@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.util;
 /**
  * @since 0.94
  */
-public class TypeTags {
+public final class TypeTags {
 
     public static final int INT = 1;
     public static final int BYTE = INT + 1;

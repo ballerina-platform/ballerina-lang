@@ -29,7 +29,7 @@ import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInv
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICallNegative {
+public final class RuntimeAPICallNegative {
 
     private static final PrintStream out = System.out;
 

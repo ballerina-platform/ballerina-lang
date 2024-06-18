@@ -52,7 +52,7 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class BallerinaTriggerModifyUtil {
+public final class BallerinaTriggerModifyUtil {
 
 //    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 

@@ -34,7 +34,7 @@ import java.math.RoundingMode;
 //        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
 //        isPublic = true
 //)
-public class Ceiling {
+public final class Ceiling {
 
     private Ceiling() {
     }

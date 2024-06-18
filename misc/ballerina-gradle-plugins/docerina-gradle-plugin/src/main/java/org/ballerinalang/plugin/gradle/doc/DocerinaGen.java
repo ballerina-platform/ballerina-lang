@@ -26,7 +26,7 @@ import java.nio.file.Path;
 /**
  * Generates Ballerina API docs for a given ballerina package.
  */
-public class DocerinaGen {
+public final class DocerinaGen {
 
     private static final PrintStream out = System.out;
 

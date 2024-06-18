@@ -24,7 +24,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.ORG_NAME_SEPARATOR;
  *
  * @since 0.95.5
  */
-public class Transactions {
+public final class Transactions {
     public static final String TRANSACTION_ANNOTATION_NAME = "transactions" + ORG_NAME_SEPARATOR + "Participant";
     public static final String TRX_ONCOMMIT_FUNC = "oncommit";
     public static final String TRX_ONABORT_FUNC = "onabort";

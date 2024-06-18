@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.string.utils;
  *
  * @since 2201.9.0
  */
-public class Constants {
+public final class Constants {
 
     public static final int MIN_UNICODE = 0xD800;
     public static final int MIDDLE_LIMIT_UNICODE = 0xDFFF;

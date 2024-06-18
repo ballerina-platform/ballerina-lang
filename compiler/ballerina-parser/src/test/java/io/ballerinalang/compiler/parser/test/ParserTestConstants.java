@@ -22,7 +22,7 @@ package io.ballerinalang.compiler.parser.test;
  * 
  * @since 1.2.0
  */
-public class ParserTestConstants {
+public final class ParserTestConstants {
 
     public static final String KIND_FIELD = "kind";
 

@@ -31,7 +31,7 @@ import java.util.StringJoiner;
  *
  * @since 2201.2.0
  */
-public class ProjectUtils {
+public final class ProjectUtils {
 
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
     public static final String BAL_FILE_EXT = ".bal";

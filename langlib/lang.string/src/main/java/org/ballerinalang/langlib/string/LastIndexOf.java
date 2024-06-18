@@ -40,7 +40,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class LastIndexOf {
+public final class LastIndexOf {
     private LastIndexOf() {
     }
 

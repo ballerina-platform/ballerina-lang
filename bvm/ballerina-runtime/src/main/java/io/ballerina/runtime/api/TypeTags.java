@@ -22,7 +22,7 @@ package io.ballerina.runtime.api;
  *
  * @since 0.995.0
  */
-public class TypeTags {
+public final class TypeTags {
 
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = INT_TAG + 1;

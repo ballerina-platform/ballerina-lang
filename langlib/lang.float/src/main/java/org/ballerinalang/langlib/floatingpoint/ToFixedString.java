@@ -31,7 +31,7 @@ import java.math.RoundingMode;
  *
  * @since 2201.1.0
  */
-public class ToFixedString {
+public final class ToFixedString {
 
     private ToFixedString() {
     }

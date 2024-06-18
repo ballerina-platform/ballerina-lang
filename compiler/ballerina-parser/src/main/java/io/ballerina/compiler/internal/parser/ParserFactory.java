@@ -34,7 +34,7 @@ import io.ballerina.tools.text.TextDocuments;
  *
  * @since 1.3.0
  */
-public class ParserFactory {
+public final class ParserFactory {
 
     private ParserFactory() {
     }

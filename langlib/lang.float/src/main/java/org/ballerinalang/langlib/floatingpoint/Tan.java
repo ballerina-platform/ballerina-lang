@@ -29,7 +29,7 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Tan {
+public final class Tan {
 
     private Tan() {
     }

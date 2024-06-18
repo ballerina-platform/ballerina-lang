@@ -47,7 +47,7 @@ import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION
  *
  * @since 1.0
  */
-public class TransactionUtils {
+public final class TransactionUtils {
 
     private static final StrandMetadata TRX_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                           TRANSACTION_PACKAGE_NAME,

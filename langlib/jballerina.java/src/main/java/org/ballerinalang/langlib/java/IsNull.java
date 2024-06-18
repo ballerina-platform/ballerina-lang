@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BHandle;
  *
  * @since 1.0.0
  */
-public class IsNull {
+public final class IsNull {
 
     private IsNull() {
     }

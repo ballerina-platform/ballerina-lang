@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsSingleton {
+public final class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
 

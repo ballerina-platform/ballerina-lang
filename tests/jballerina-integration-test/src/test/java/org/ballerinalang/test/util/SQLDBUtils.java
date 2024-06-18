@@ -36,7 +36,7 @@ import java.sql.Statement;
 /**
  * Util class for SQL DB Tests.
  */
-public class SQLDBUtils {
+public final class SQLDBUtils {
 
     public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);

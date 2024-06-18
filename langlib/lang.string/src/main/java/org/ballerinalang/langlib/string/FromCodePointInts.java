@@ -28,7 +28,7 @@ import org.ballerinalang.langlib.string.utils.Constants;
  *
  * @since 1.0
  */
-public class FromCodePointInts {
+public final class FromCodePointInts {
 
     private FromCodePointInts() {
     }

@@ -36,7 +36,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  *
  * @since 2201.2.0
  */
-public class JvmConstantGenCommons {
+public final class JvmConstantGenCommons {
 
     private JvmConstantGenCommons() {
     }

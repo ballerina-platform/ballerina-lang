@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 /**
  * Utility methods to help with testing BIR model.
  */
-class BIRTestUtils {
+final class BIRTestUtils {
 
     private static final String TEST_RESOURCES_ROOT = "src/test/resources/test-src";
     private static final Path TEST_RESOURCES_ROOT_PATH = Paths.get(TEST_RESOURCES_ROOT);

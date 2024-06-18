@@ -20,7 +20,7 @@ package org.ballerinalang.util;
 /**
  * This represents the function related flags. The flags are set/get using bit masks. 
  */
-public class FunctionFlags {
+public final class FunctionFlags {
 
     public static final int NOTHING = 0;
     public static final int ASYNC = 1;

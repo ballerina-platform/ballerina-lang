@@ -34,7 +34,7 @@ import java.util.jar.Manifest;
  *
  * @since 2.0.0
  */
-public class JarWriter {
+public final class JarWriter {
 
     private JarWriter() {
     }

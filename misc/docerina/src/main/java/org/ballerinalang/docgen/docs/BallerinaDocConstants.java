@@ -21,7 +21,7 @@ package org.ballerinalang.docgen.docs;
 /**
  * Constants used in docerina.
  */
-public class BallerinaDocConstants {
+public final class BallerinaDocConstants {
 
     public static final String ENABLE_DEBUG_LOGS = "debugDocerina";
     public static final String OUTPUT_ZIP_PATH = "output.zip.path";

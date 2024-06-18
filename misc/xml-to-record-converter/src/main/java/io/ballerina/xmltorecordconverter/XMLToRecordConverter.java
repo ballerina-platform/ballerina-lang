@@ -87,7 +87,7 @@ import static io.ballerina.xmltorecordconverter.util.ConverterUtils.sortTypeDesc
  *
  * @since 2201.7.2
  */
-public class XMLToRecordConverter {
+public final class XMLToRecordConverter {
 
     private XMLToRecordConverter() {}
 

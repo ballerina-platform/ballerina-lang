@@ -32,7 +32,7 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  *
  * @since 0.8.0
  */
-public class IndexOf {
+public final class IndexOf {
 
     private IndexOf() {
     }

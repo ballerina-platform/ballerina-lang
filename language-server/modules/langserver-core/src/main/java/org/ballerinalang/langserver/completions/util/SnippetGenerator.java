@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 0.982.0
  */
-public class SnippetGenerator {
+public final class SnippetGenerator {
 
     private static final String FILTER_TEXT_SEPARATOR = "_";
 

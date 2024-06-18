@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.1
  */
-public class NameUtil {
+public final class NameUtil {
 
     private NameUtil() {
     }

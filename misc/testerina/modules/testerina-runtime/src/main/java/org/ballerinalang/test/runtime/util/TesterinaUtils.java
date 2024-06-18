@@ -52,7 +52,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_M
 /**
  * Utility methods.
  */
-public class TesterinaUtils {
+public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 

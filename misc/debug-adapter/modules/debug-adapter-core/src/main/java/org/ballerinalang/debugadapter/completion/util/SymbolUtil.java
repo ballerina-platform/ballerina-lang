@@ -38,7 +38,7 @@ import java.util.Optional;
  *
  * @since 2201.1.0
  */
-public class SymbolUtil {
+public final class SymbolUtil {
 
     private SymbolUtil() {
     }

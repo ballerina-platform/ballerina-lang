@@ -34,7 +34,7 @@ import java.io.Reader;
  *
  * @since 2.0.0
  */
-public class XmlUtils {
+public final class XmlUtils {
 
     private XmlUtils() {}
 

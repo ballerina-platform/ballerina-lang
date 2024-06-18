@@ -24,7 +24,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 /**
  * Constants related to mocking.
  */
-public class MockConstants {
+public final class MockConstants {
 
     public static final String DEFAULT_MOCK_OBJ_ANON = "$anonType$";
     public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";

@@ -32,7 +32,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final JsonParser JSON_PARSER = new JsonParser();
 

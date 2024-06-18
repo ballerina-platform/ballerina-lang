@@ -28,7 +28,7 @@ import java.util.ServiceLoader;
  * @since 2201.9.0
  */
 
-public class BuildUtils {
+public final class BuildUtils {
     private BuildUtils() {
     }
 
