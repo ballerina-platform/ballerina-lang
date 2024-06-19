@@ -204,31 +204,8 @@ public class TransactionResourceManager {
         Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
         if (value == null) {
             return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
-        } else {
-            int transactionAutoCommitTimeout;
-            if (value instanceof Long) {
-                transactionAutoCommitTimeout = ((Long) value).intValue();
-            } else if (value instanceof Integer) {
-                transactionAutoCommitTimeout = (Integer) value;
-            } else {
-                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_AUTO_COMMIT_TIMEOUT, null, value,
-                        DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
-                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
-                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
-                }
-                return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
-            }
-            if (transactionAutoCommitTimeout <= 0) {
-                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null,
-                        transactionAutoCommitTimeout, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
-                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
-                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
-                }
-                return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
-            } else {
-                return transactionAutoCommitTimeout;
-            }
         }
+        return parseTimeoutValue(value, TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
     }
 
     /**
@@ -243,31 +220,27 @@ public class TransactionResourceManager {
         Object value = ConfigMap.get(transactionCleanupTimeoutKey);
         if (value == null) {
             return DEFAULT_TRX_CLEANUP_TIMEOUT;
-        } else {
-            int transactionCleanupTimeout;
-            if (value instanceof Long) {
-                transactionCleanupTimeout = ((Long) value).intValue();
-            } else if (value instanceof Integer) {
-                transactionCleanupTimeout = (Integer) value;
-            } else {
-                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null, value,
-                        DEFAULT_TRX_CLEANUP_TIMEOUT);
-                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
-                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
-                }
-                return DEFAULT_TRX_CLEANUP_TIMEOUT;
-            }
-            if (transactionCleanupTimeout <= 0) {
-                diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_CLEANUP_TIMEOUT, null,
-                        transactionCleanupTimeout, DEFAULT_TRX_CLEANUP_TIMEOUT);
-                if (!diagnosticLog.getDiagnosticList().isEmpty()) {
-                    RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
-                }
-                return DEFAULT_TRX_CLEANUP_TIMEOUT;
-            } else {
-                return transactionCleanupTimeout;
-            }
         }
+        return parseTimeoutValue(value, TRANSACTION_CLEANUP_TIMEOUT_KEY, DEFAULT_TRX_CLEANUP_TIMEOUT);
+    }
+
+    private int parseTimeoutValue(Object value, String key, int defaultValue) {
+        int timeoutValue;
+        if (value instanceof Long longVal) {
+            timeoutValue = longVal.intValue();
+        } else if (value instanceof Integer intVal) {
+            timeoutValue = intVal;
+        } else {
+            diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_TIMEOUT, null, key, value, defaultValue);
+            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+            return defaultValue;
+        }
+        if (timeoutValue <= 0) {
+            diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_TIMEOUT, null, key, value, defaultValue);
+            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+            return defaultValue;
+        }
+        return timeoutValue;
     }
 
     /**
