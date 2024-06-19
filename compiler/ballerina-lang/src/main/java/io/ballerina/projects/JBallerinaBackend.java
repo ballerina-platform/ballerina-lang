@@ -278,13 +278,15 @@ public class JBallerinaBackend extends CompilerBackend {
 
         if (this.packageContext.project().buildOptions().optimizeReport()) {
             this.codeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
-                    this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportPath(),
-                    packageContext.project().kind());
+                    this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportParentPath());
         }
     }
 
-    private Path getOptimizationReportPath() {
-        return this.packageContext.project().sourceRoot;
+    private Path getOptimizationReportParentPath() {
+        if (packageContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return this.packageContext.project().sourceRoot.toAbsolutePath().getParent();
+        }
+        return this.packageContext.project().targetDir();
     }
 
     protected Set<PackageID> getOptimizedPackageIDs() {
@@ -901,8 +903,8 @@ public class JBallerinaBackend extends CompilerBackend {
             this.codeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
             if (this.packageContext.project().buildOptions().optimizeReport()) {
                 NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
-                        nativeDependencyOptimizer.getNativeDependencyOptimizationReport(), getOptimizationReportPath(),
-                        packageContext.project().kind());
+                        nativeDependencyOptimizer.getNativeDependencyOptimizationReport(),
+                        getOptimizationReportParentPath());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
