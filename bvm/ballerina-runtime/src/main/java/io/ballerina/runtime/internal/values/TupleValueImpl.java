@@ -836,8 +836,8 @@ public class TupleValueImpl extends AbstractArrayValue {
             targetType = (i + offset >= this.tupleType.getTupleTypes().size()) ?
                     this.tupleType.getRestType() : this.tupleType.getTupleTypes().get((int) (i + offset));
             if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
-                throw ErrorHelper.getRuntimeException(
-                        getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         ErrorCodes.INCOMPATIBLE_TYPE, TypeChecker.getType(this.getRefValue(i)), targetType);
             }
         }
