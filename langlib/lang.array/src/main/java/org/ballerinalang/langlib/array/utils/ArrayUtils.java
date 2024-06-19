@@ -73,14 +73,11 @@ public class ArrayUtils {
     }
 
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
-        switch (TypeUtils.getImpliedType(arrType).getTag()) {
-            case TypeTags.ARRAY_TAG:
-                return BArray::get;
-            case TypeTags.TUPLE_TAG:
-                return BArray::getRefValue;
-            default:
-                throw createOpNotSupportedError(arrType, funcName);
-        }
+        return switch (TypeUtils.getImpliedType(arrType).getTag()) {
+            case TypeTags.ARRAY_TAG -> BArray::get;
+            case TypeTags.TUPLE_TAG -> BArray::getRefValue;
+            default -> throw createOpNotSupportedError(arrType, funcName);
+        };
     }
 
     public static void checkIsArrayOnlyOperation(Type arrType, String op) {

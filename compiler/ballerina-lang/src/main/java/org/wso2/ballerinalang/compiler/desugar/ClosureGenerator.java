@@ -746,25 +746,21 @@ public class ClosureGenerator extends BLangNodeVisitor {
         if (parent == null) {
             return DOLLAR + name;
         }
-        switch (parent.getKind()) {
-            case CLASS_DEFN:
-                return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case FUNCTION:
-                name = ((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE) + UNDERSCORE + name;
-                return generateName(name, parent.parent);
-            case RESOURCE_FUNC:
-                return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
-            case VARIABLE:
-                return generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case TYPE_DEFINITION:
-                return generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case RECORD_TYPE:
-                name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER
-                        + name;
-                return generateName(name, parent.parent);
-            default:
-                return generateName(name, parent.parent);
-        }
+        return switch (parent.getKind()) {
+            case CLASS_DEFN ->
+                    generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case FUNCTION -> generateName(((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE)
+                    + UNDERSCORE + name, parent.parent);
+            case RESOURCE_FUNC ->
+                    generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
+            case VARIABLE ->
+                    generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case TYPE_DEFINITION ->
+                    generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
+            case RECORD_TYPE -> generateName(RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue()
+                    + RECORD_DELIMITER + name, parent.parent);
+            default -> generateName(name, parent.parent);
+        };
     }
     @Override
     public void visit(BLangTupleVariable varNode) {

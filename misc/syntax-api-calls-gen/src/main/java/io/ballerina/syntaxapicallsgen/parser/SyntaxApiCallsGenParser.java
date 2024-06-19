@@ -57,14 +57,11 @@ public abstract class SyntaxApiCallsGenParser {
      */
     public static SyntaxApiCallsGenParser fromConfig(SyntaxApiCallsGenConfig config) {
         long timeoutMs = config.parserTimeout();
-        switch (config.parser()) {
-            case EXPRESSION:
-                return new ExpressionParser(timeoutMs);
-            case STATEMENT:
-                return new StatementParser(timeoutMs);
-            default:
-                return new ModuleParser(timeoutMs);
-        }
+        return switch (config.parser()) {
+            case EXPRESSION -> new ExpressionParser(timeoutMs);
+            case STATEMENT -> new StatementParser(timeoutMs);
+            default -> new ModuleParser(timeoutMs);
+        };
     }
 
     /**

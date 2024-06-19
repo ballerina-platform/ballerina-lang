@@ -108,106 +108,78 @@ public class TypeConverter {
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
-        switch (targetType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return anyToInt(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_INT));
-            case TypeTags.DECIMAL_TAG:
-                return anyToDecimal(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_DECIMAL));
-            case TypeTags.FLOAT_TAG:
-                return anyToFloat(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_FLOAT));
-            case TypeTags.STRING_TAG:
-                return StringUtils.fromString(anyToString(inputValue));
-            case TypeTags.BOOLEAN_TAG:
-                return anyToBoolean(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
-            case TypeTags.BYTE_TAG:
-                return anyToByte(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
-            default:
-                throw ErrorCreator.createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
-                        ErrorHelper.getErrorDetails(
-                                                          ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                          inputType, inputValue, targetType));
-        }
+        return switch (targetType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.SIGNED32_INT_TAG,
+                 TypeTags.SIGNED16_INT_TAG,
+                 TypeTags.SIGNED8_INT_TAG,
+                 TypeTags.UNSIGNED32_INT_TAG,
+                 TypeTags.UNSIGNED16_INT_TAG,
+                 TypeTags.UNSIGNED8_INT_TAG -> anyToInt(inputValue, () ->
+                    ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_INT));
+            case TypeTags.DECIMAL_TAG -> anyToDecimal(inputValue, () ->
+                    ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_DECIMAL));
+            case TypeTags.FLOAT_TAG -> anyToFloat(inputValue, () ->
+                    ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_FLOAT));
+            case TypeTags.STRING_TAG -> StringUtils.fromString(anyToString(inputValue));
+            case TypeTags.BOOLEAN_TAG -> anyToBoolean(inputValue, () ->
+                    ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
+            case TypeTags.BYTE_TAG -> anyToByte(inputValue, () ->
+                    ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
+            default -> throw ErrorCreator.createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
+                    ErrorHelper.getErrorDetails(
+                            ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
+        };
     }
 
     public static Object castValues(Type targetType, Object inputValue) {
-        switch (targetType.getTag()) {
-            case TypeTags.SIGNED32_INT_TAG:
-                return anyToSigned32(inputValue);
-            case TypeTags.SIGNED16_INT_TAG:
-                return anyToSigned16(inputValue);
-            case TypeTags.SIGNED8_INT_TAG:
-                return anyToSigned8(inputValue);
-            case TypeTags.UNSIGNED32_INT_TAG:
-                return anyToUnsigned32(inputValue);
-            case TypeTags.UNSIGNED16_INT_TAG:
-                return anyToUnsigned16(inputValue);
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return anyToUnsigned8(inputValue);
-            case TypeTags.INT_TAG:
-                return anyToIntCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
-            case TypeTags.DECIMAL_TAG:
-                return anyToDecimalCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
-            case TypeTags.FLOAT_TAG:
-                return anyToFloatCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
-            case TypeTags.STRING_TAG:
-                return anyToStringCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
-            case TypeTags.BOOLEAN_TAG:
-                return anyToBooleanCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
-            case TypeTags.BYTE_TAG:
-                return anyToByteCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
-            default:
-                throw ErrorUtils.createTypeCastError(inputValue, targetType);
-        }
+        return switch (targetType.getTag()) {
+            case TypeTags.SIGNED32_INT_TAG -> anyToSigned32(inputValue);
+            case TypeTags.SIGNED16_INT_TAG -> anyToSigned16(inputValue);
+            case TypeTags.SIGNED8_INT_TAG -> anyToSigned8(inputValue);
+            case TypeTags.UNSIGNED32_INT_TAG -> anyToUnsigned32(inputValue);
+            case TypeTags.UNSIGNED16_INT_TAG -> anyToUnsigned16(inputValue);
+            case TypeTags.UNSIGNED8_INT_TAG -> anyToUnsigned8(inputValue);
+            case TypeTags.INT_TAG -> anyToIntCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
+            case TypeTags.DECIMAL_TAG -> anyToDecimalCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
+            case TypeTags.FLOAT_TAG -> anyToFloatCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
+            case TypeTags.STRING_TAG -> anyToStringCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
+            case TypeTags.BOOLEAN_TAG -> anyToBooleanCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
+            case TypeTags.BYTE_TAG -> anyToByteCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
+            default -> throw ErrorUtils.createTypeCastError(inputValue, targetType);
+        };
     }
 
     static boolean isConvertibleToByte(Object value) {
         Type inputType = TypeChecker.getType(value);
-        switch (inputType.getTag()) {
-            case TypeTags.BYTE_TAG:
-                return true;
-            case TypeTags.INT_TAG:
-                return TypeChecker.isByteLiteral((long) value);
-            case TypeTags.FLOAT_TAG:
+        return switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG -> true;
+            case TypeTags.INT_TAG -> TypeChecker.isByteLiteral((long) value);
+            case TypeTags.FLOAT_TAG -> {
                 Double doubleValue = (Double) value;
-                return isFloatWithinIntRange(doubleValue) && TypeChecker.isByteLiteral(doubleValue.longValue());
-            case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((DecimalValue) value)
-                        && TypeChecker.isByteLiteral(((DecimalValue) value).value().longValue());
-            default:
-                return false;
-        }
+                yield isFloatWithinIntRange(doubleValue) && TypeChecker.isByteLiteral(doubleValue.longValue());
+            }
+            case TypeTags.DECIMAL_TAG -> isDecimalWithinIntRange((DecimalValue) value) &&
+                    TypeChecker.isByteLiteral(((DecimalValue) value).value().longValue());
+            default -> false;
+        };
     }
 
     static boolean isConvertibleToInt(Object value) {
         Type inputType = TypeChecker.getType(value);
-        switch (inputType.getTag()) {
-            case TypeTags.BYTE_TAG:
-            case TypeTags.INT_TAG:
-                return true;
-            case TypeTags.FLOAT_TAG:
-                return isFloatWithinIntRange((double) value);
-            case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((DecimalValue) value);
-            default:
-                return false;
-        }
+        return switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG,
+                 TypeTags.INT_TAG -> true;
+            case TypeTags.FLOAT_TAG -> isFloatWithinIntRange((double) value);
+            case TypeTags.DECIMAL_TAG -> isDecimalWithinIntRange((DecimalValue) value);
+            default -> false;
+        };
     }
 
     static boolean isConvertibleToIntSubType(Object value, Type targetType) {
@@ -259,15 +231,10 @@ public class TypeConverter {
 
     static boolean isConvertibleToFloatingPointTypes(Object value) {
         Type inputType = TypeChecker.getType(value);
-        switch (inputType.getTag()) {
-            case TypeTags.BYTE_TAG:
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-                return true;
-            default:
-                return false;
-        }
+        return switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG, TypeTags.INT_TAG, TypeTags.FLOAT_TAG, TypeTags.DECIMAL_TAG -> true;
+            default -> false;
+        };
     }
 
     public static Type getConvertibleType(Object inputValue, Type targetType, String varName,
@@ -965,15 +932,10 @@ public class TypeConverter {
             return false;
         }
 
-        switch (value.charAt(length - 1)) {
-            case 'F':
-            case 'f':
-            case 'D':
-            case 'd':
-                return true;
-            default:
-                return false;
-        }
+        return switch (value.charAt(length - 1)) {
+            case 'F', 'f', 'D', 'd' -> true;
+            default -> false;
+        };
     }
 
     public static Boolean stringToBoolean(String value) throws NumberFormatException {

@@ -878,29 +878,22 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        switch (firstPatternKind) {
-            case WILDCARD_MATCH_PATTERN:
-            case REST_MATCH_PATTERN:
-                return true;
-            case CONST_MATCH_PATTERN:
-                return checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
-                        (BLangConstPattern) secondPattern);
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return checkSimilarBindingPatterns(
-                        ((BLangVarBindingPatternMatchPattern) firstPattern).getBindingPattern(),
-                        ((BLangVarBindingPatternMatchPattern) secondPattern).getBindingPattern());
-            case LIST_MATCH_PATTERN:
-                return checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
-                        (BLangListMatchPattern) secondPattern);
-            case MAPPING_MATCH_PATTERN:
-                return checkSimilarMappingMatchPattern((BLangMappingMatchPattern) firstPattern,
-                        (BLangMappingMatchPattern) secondPattern);
-            case ERROR_MATCH_PATTERN:
-                return checkSimilarErrorMatchPattern((BLangErrorMatchPattern) firstPattern,
-                        (BLangErrorMatchPattern) secondPattern);
-            default:
-                return false;
-        }
+        return switch (firstPatternKind) {
+            case WILDCARD_MATCH_PATTERN,
+                 REST_MATCH_PATTERN -> true;
+            case CONST_MATCH_PATTERN -> checkSimilarConstMatchPattern((BLangConstPattern) firstPattern,
+                    (BLangConstPattern) secondPattern);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN -> checkSimilarBindingPatterns(
+                    ((BLangVarBindingPatternMatchPattern) firstPattern).getBindingPattern(),
+                    ((BLangVarBindingPatternMatchPattern) secondPattern).getBindingPattern());
+            case LIST_MATCH_PATTERN -> checkSimilarListMatchPattern((BLangListMatchPattern) firstPattern,
+                    (BLangListMatchPattern) secondPattern);
+            case MAPPING_MATCH_PATTERN -> checkSimilarMappingMatchPattern((BLangMappingMatchPattern) firstPattern,
+                    (BLangMappingMatchPattern) secondPattern);
+            case ERROR_MATCH_PATTERN -> checkSimilarErrorMatchPattern((BLangErrorMatchPattern) firstPattern,
+                    (BLangErrorMatchPattern) secondPattern);
+            default -> false;
+        };
     }
 
     private boolean checkEmptyListOrMapMatchWithVarBindingPatternMatch(BLangMatchPattern firstPattern,
@@ -1162,23 +1155,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        switch (firstBindingPatternKind) {
-            case WILDCARD_BINDING_PATTERN:
-            case REST_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
-                return true;
-            case LIST_BINDING_PATTERN:
-                return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
-                        (BLangListBindingPattern) secondBindingPattern);
-            case MAPPING_BINDING_PATTERN:
-                return checkSimilarMappingBindingPattern((BLangMappingBindingPattern) firstBidingPattern,
-                        (BLangMappingBindingPattern) secondBindingPattern);
-            case ERROR_BINDING_PATTERN:
-                return checkSimilarErrorBindingPatterns((BLangErrorBindingPattern) firstBidingPattern,
-                        (BLangErrorBindingPattern) secondBindingPattern);
-            default:
-                return false;
-        }
+        return switch (firstBindingPatternKind) {
+            case WILDCARD_BINDING_PATTERN,
+                 REST_BINDING_PATTERN,
+                 CAPTURE_BINDING_PATTERN -> true;
+            case LIST_BINDING_PATTERN -> checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
+                    (BLangListBindingPattern) secondBindingPattern);
+            case MAPPING_BINDING_PATTERN ->
+                    checkSimilarMappingBindingPattern((BLangMappingBindingPattern) firstBidingPattern,
+                            (BLangMappingBindingPattern) secondBindingPattern);
+            case ERROR_BINDING_PATTERN ->
+                    checkSimilarErrorBindingPatterns((BLangErrorBindingPattern) firstBidingPattern,
+                            (BLangErrorBindingPattern) secondBindingPattern);
+            default -> false;
+        };
     }
 
     private boolean checkSimilarMappingBindingPattern(BLangMappingBindingPattern firstMappingBindingPattern,
@@ -1435,27 +1425,27 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
-        switch (matchPattern.getKind()) {
-            case CONST_MATCH_PATTERN:
-                return true;
-            case LIST_MATCH_PATTERN:
+        return switch (matchPattern.getKind()) {
+            case CONST_MATCH_PATTERN -> true;
+            case LIST_MATCH_PATTERN -> {
                 for (BLangMatchPattern memberMatchPattern : ((BLangListMatchPattern) matchPattern).matchPatterns) {
                     if (isConstMatchPatternExist(memberMatchPattern)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            case MAPPING_MATCH_PATTERN:
+                yield false;
+            }
+            case MAPPING_MATCH_PATTERN -> {
                 for (BLangFieldMatchPattern fieldMatchPattern :
                         ((BLangMappingMatchPattern) matchPattern).fieldMatchPatterns) {
                     if (isConstMatchPatternExist(fieldMatchPattern.matchPattern)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            default:
-                return false;
-        }
+                yield false;
+            }
+            default -> false;
+        };
     }
 
     @Override
@@ -1755,17 +1745,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isValidContextForInferredArray(BLangNode node) {
-        switch (node.getKind()) {
-            case PACKAGE:
-            case EXPR_FUNCTION_BODY:
-            case BLOCK_FUNCTION_BODY:
-            case BLOCK:
-                return true;
-            case VARIABLE_DEF:
-                return isValidContextForInferredArray(node.parent);
-            default:
-                return false;
-        }
+        return switch (node.getKind()) {
+            case PACKAGE,
+                 EXPR_FUNCTION_BODY,
+                 BLOCK_FUNCTION_BODY,
+                 BLOCK -> true;
+            case VARIABLE_DEF -> isValidContextForInferredArray(node.parent);
+            default -> false;
+        };
     }
 
     private boolean isValidVariableForInferredArray(BLangNode node) {

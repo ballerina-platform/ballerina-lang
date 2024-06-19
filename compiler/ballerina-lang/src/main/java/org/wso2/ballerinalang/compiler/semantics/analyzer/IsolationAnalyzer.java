@@ -3115,28 +3115,26 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDependentlyIsolatedExpressionKind(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LIST_CONSTRUCTOR_EXPR:
-            case TABLE_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case XML_COMMENT_LITERAL:
-            case XML_TEXT_LITERAL:
-            case XML_PI_LITERAL:
-            case XML_ELEMENT_LITERAL:
-            case XML_SEQUENCE_LITERAL:
-            case RAW_TEMPLATE_LITERAL:
-            case STRING_TEMPLATE_LITERAL:
-            case TYPE_CONVERSION_EXPR:
-            case CHECK_EXPR:
-            case CHECK_PANIC_EXPR:
-            case TRAP_EXPR:
-            case TERNARY_EXPR:
-            case ELVIS_EXPR:
-                return true;
-            case GROUP_EXPR:
-                return isDependentlyIsolatedExpressionKind(((BLangGroupExpr) expression).expression);
-        }
-        return false;
+        return switch (expression.getKind()) {
+            case LIST_CONSTRUCTOR_EXPR,
+                 TABLE_CONSTRUCTOR_EXPR,
+                 RECORD_LITERAL_EXPR,
+                 XML_COMMENT_LITERAL,
+                 XML_TEXT_LITERAL,
+                 XML_PI_LITERAL,
+                 XML_ELEMENT_LITERAL,
+                 XML_SEQUENCE_LITERAL,
+                 RAW_TEMPLATE_LITERAL,
+                 STRING_TEMPLATE_LITERAL,
+                 TYPE_CONVERSION_EXPR,
+                 CHECK_EXPR,
+                 CHECK_PANIC_EXPR,
+                 TRAP_EXPR,
+                 TERNARY_EXPR,
+                 ELVIS_EXPR -> true;
+            case GROUP_EXPR -> isDependentlyIsolatedExpressionKind(((BLangGroupExpr) expression).expression);
+            default -> false;
+        };
     }
 
     private boolean isCloneOrCloneReadOnlyInvocation(BLangInvocation invocation) {

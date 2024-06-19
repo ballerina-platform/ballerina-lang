@@ -111,15 +111,11 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
     }
 
     private String getParameterName(Node paramNode) {
-        switch (paramNode.kind()) {
-            case REQUIRED_PARAM:
-                return ((RequiredParameterNode) paramNode).paramName().orElseThrow().text();
-            case DEFAULTABLE_PARAM:
-                return ((DefaultableParameterNode) paramNode).paramName().orElseThrow().text();
-            case REST_PARAM:
-                return ((RestParameterNode) paramNode).paramName().orElseThrow().text();
-            default:
-                return ""; // Todo
-        }
+        return switch (paramNode.kind()) {
+            case REQUIRED_PARAM -> ((RequiredParameterNode) paramNode).paramName().orElseThrow().text();
+            case DEFAULTABLE_PARAM -> ((DefaultableParameterNode) paramNode).paramName().orElseThrow().text();
+            case REST_PARAM -> ((RestParameterNode) paramNode).paramName().orElseThrow().text();
+            default -> ""; // Todo
+        };
     }
 }

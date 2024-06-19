@@ -1158,15 +1158,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private TypeKind getParameterizedTypeKind(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            case TYPEDESC_TYPE_DESC:
-                return TypeKind.TYPEDESC;
-            case FUTURE_TYPE_DESC:
-                return TypeKind.FUTURE;
-            case XML_TYPE_DESC:
-            default:
-                return TypeKind.XML;
-        }
+        return switch (syntaxKind) {
+            case TYPEDESC_TYPE_DESC -> TypeKind.TYPEDESC;
+            case FUTURE_TYPE_DESC -> TypeKind.FUTURE;
+            default -> TypeKind.XML;
+        };
     }
     
     private BLangNode transformErrorTypeDescriptor(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
@@ -1963,18 +1959,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
                     Token secondIndent = idents.get(1);
-                    switch (secondIndent.kind()) {
-                        case FUNCTION_KEYWORD:
-                            bLAttachPoint =
-                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_METHOD.getValue(), source);
-                            break;
-                        case FIELD_KEYWORD:
-                            bLAttachPoint =
-                                    AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_FIELD.getValue(), source);
-                            break;
-                        default:
-                            throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
-                    }
+                    bLAttachPoint = switch (secondIndent.kind()) {
+                        case FUNCTION_KEYWORD ->
+                                AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_METHOD.getValue(), source);
+                        case FIELD_KEYWORD ->
+                                AttachPoint.getAttachmentPoint(AttachPoint.Point.OBJECT_FIELD.getValue(), source);
+                        default -> throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
+                    };
                     break;
                 case SERVICE_KEYWORD:
                     String value;
@@ -2429,54 +2420,50 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(Token token) {
         SyntaxKind kind = token.kind();
-        switch (kind) {
-            case XML_TEXT_CONTENT:
-            case TEMPLATE_STRING:
-            case CLOSE_BRACE_TOKEN:
-                return createSimpleLiteral(token);
-            default:
+        return switch (kind) {
+            case XML_TEXT_CONTENT, TEMPLATE_STRING, CLOSE_BRACE_TOKEN -> createSimpleLiteral(token);
+            default -> {
                 if (isTokenInRegExp(kind)) {
-                    return createSimpleLiteral(token);
+                    yield createSimpleLiteral(token);
                 }
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
-        }
+            }
+        };
     }
 
     private boolean isTokenInRegExp(SyntaxKind kind) {
-        switch (kind) {
-            case RE_LITERAL_CHAR:
-            case RE_CONTROL_ESCAPE:
-            case RE_NUMERIC_ESCAPE:
-            case RE_SIMPLE_CHAR_CLASS_CODE:
-            case RE_PROPERTY:
-            case RE_UNICODE_SCRIPT_START:
-            case RE_UNICODE_PROPERTY_VALUE:
-            case RE_UNICODE_GENERAL_CATEGORY_START:
-            case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_FLAGS_VALUE:
-            case DIGIT:
-            case ASTERISK_TOKEN:
-            case PLUS_TOKEN:
-            case QUESTION_MARK_TOKEN:
-            case DOT_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case DOLLAR_TOKEN:
-            case BITWISE_XOR_TOKEN:
-            case COLON_TOKEN:
-            case BACK_SLASH_TOKEN:
-            case MINUS_TOKEN:
-            case ESCAPED_MINUS_TOKEN:
-            case PIPE_TOKEN:
-            case COMMA_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case RE_LITERAL_CHAR,
+                 RE_CONTROL_ESCAPE,
+                 RE_NUMERIC_ESCAPE,
+                 RE_SIMPLE_CHAR_CLASS_CODE,
+                 RE_PROPERTY,
+                 RE_UNICODE_SCRIPT_START,
+                 RE_UNICODE_PROPERTY_VALUE,
+                 RE_UNICODE_GENERAL_CATEGORY_START,
+                 RE_UNICODE_GENERAL_CATEGORY_NAME,
+                 RE_FLAGS_VALUE,
+                 DIGIT,
+                 ASTERISK_TOKEN,
+                 PLUS_TOKEN,
+                 QUESTION_MARK_TOKEN,
+                 DOT_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 OPEN_BRACKET_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 OPEN_PAREN_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 DOLLAR_TOKEN,
+                 BITWISE_XOR_TOKEN,
+                 COLON_TOKEN,
+                 BACK_SLASH_TOKEN,
+                 MINUS_TOKEN,
+                 ESCAPED_MINUS_TOKEN,
+                 PIPE_TOKEN,
+                 COMMA_TOKEN -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -4444,14 +4431,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             for (Node node : xmlNamePatternChainingNode.xmlNamePattern()) {
                 filters.add(createXMLElementFilter(node));
             }
-            switch (xmlNamePatternChainingNode.startToken().kind()) {
-                case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-                    starCount = 2;
-                    break;
-                case SLASH_ASTERISK_TOKEN:
-                    starCount = 1;
-                    break;
-            }
+            starCount = switch (xmlNamePatternChainingNode.startToken().kind()) {
+                case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN -> 2;
+                case SLASH_ASTERISK_TOKEN -> 1;
+                default -> starCount;
+            };
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
@@ -4839,26 +4823,22 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangBindingPattern transformBindingPattern(Node bindingPattern) {
         Location pos = getPosition(bindingPattern);
         SyntaxKind patternKind = bindingPattern.kind();
-        switch (patternKind) {
-            case CAPTURE_BINDING_PATTERN:
-                return transformCaptureBindingPattern((CaptureBindingPatternNode) bindingPattern, pos);
-            case LIST_BINDING_PATTERN:
-                return transformListBindingPattern((ListBindingPatternNode) bindingPattern, pos);
-            case NAMED_ARG_BINDING_PATTERN:
-                return transformNamedArgBindingPattern((NamedArgBindingPatternNode) bindingPattern, pos);
-            case REST_BINDING_PATTERN:
-                return transformRestBindingPattern((RestBindingPatternNode) bindingPattern, pos);
-            case MAPPING_BINDING_PATTERN:
-                return transformMappingBindingPattern((MappingBindingPatternNode) bindingPattern, pos);
-            case FIELD_BINDING_PATTERN:
-                return transformFieldBindingPattern(bindingPattern, pos);
-            case ERROR_BINDING_PATTERN:
-                return transformErrorBindingPattern((ErrorBindingPatternNode) bindingPattern, pos);
-            case WILDCARD_BINDING_PATTERN:
-            default:
+        return switch (patternKind) {
+            case CAPTURE_BINDING_PATTERN ->
+                    transformCaptureBindingPattern((CaptureBindingPatternNode) bindingPattern, pos);
+            case LIST_BINDING_PATTERN -> transformListBindingPattern((ListBindingPatternNode) bindingPattern, pos);
+            case NAMED_ARG_BINDING_PATTERN ->
+                    transformNamedArgBindingPattern((NamedArgBindingPatternNode) bindingPattern, pos);
+            case REST_BINDING_PATTERN -> transformRestBindingPattern((RestBindingPatternNode) bindingPattern, pos);
+            case MAPPING_BINDING_PATTERN ->
+                    transformMappingBindingPattern((MappingBindingPatternNode) bindingPattern, pos);
+            case FIELD_BINDING_PATTERN -> transformFieldBindingPattern(bindingPattern, pos);
+            case ERROR_BINDING_PATTERN -> transformErrorBindingPattern((ErrorBindingPatternNode) bindingPattern, pos);
+            default -> {
                 assert patternKind == SyntaxKind.WILDCARD_BINDING_PATTERN;
-                return transformWildCardBindingPattern(pos);
-        }
+                yield transformWildCardBindingPattern(pos);
+            }
+        };
     }
 
     private BLangWildCardBindingPattern transformWildCardBindingPattern(Location pos) {
@@ -6658,28 +6638,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
-        switch (refTypeName) {
-            case "type":
-                return DocumentationReferenceType.TYPE;
-            case "service":
-                return DocumentationReferenceType.SERVICE;
-            case "variable":
-                return DocumentationReferenceType.VARIABLE;
-            case "var":
-                return DocumentationReferenceType.VAR;
-            case "annotation":
-                return DocumentationReferenceType.ANNOTATION;
-            case "module":
-                return DocumentationReferenceType.MODULE;
-            case "function":
-                return DocumentationReferenceType.FUNCTION;
-            case "parameter":
-                return DocumentationReferenceType.PARAMETER;
-            case "const":
-                return DocumentationReferenceType.CONST;
-            default:
-                return DocumentationReferenceType.BACKTICK_CONTENT;
-        }
+        return switch (refTypeName) {
+            case "type" -> DocumentationReferenceType.TYPE;
+            case "service" -> DocumentationReferenceType.SERVICE;
+            case "variable" -> DocumentationReferenceType.VARIABLE;
+            case "var" -> DocumentationReferenceType.VAR;
+            case "annotation" -> DocumentationReferenceType.ANNOTATION;
+            case "module" -> DocumentationReferenceType.MODULE;
+            case "function" -> DocumentationReferenceType.FUNCTION;
+            case "parameter" -> DocumentationReferenceType.PARAMETER;
+            case "const" -> DocumentationReferenceType.CONST;
+            default -> DocumentationReferenceType.BACKTICK_CONTENT;
+        };
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue) {
@@ -6768,56 +6738,48 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private boolean isSimpleLiteral(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            case STRING_LITERAL:
-            case NUMERIC_LITERAL:
-            case BOOLEAN_LITERAL:
-            case NIL_LITERAL:
-            case NULL_LITERAL:
-                return true;
-            default:
-                return false;
-        }
+        return switch (syntaxKind) {
+            case STRING_LITERAL, NUMERIC_LITERAL, BOOLEAN_LITERAL, NIL_LITERAL, NULL_LITERAL -> true;
+            default -> false;
+        };
     }
 
     static boolean isType(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case RECORD_TYPE_DESC:
-            case OBJECT_TYPE_DESC:
-            case NIL_TYPE_DESC:
-            case OPTIONAL_TYPE_DESC:
-            case ARRAY_TYPE_DESC:
-            case INT_TYPE_DESC:
-            case BYTE_TYPE_DESC:
-            case FLOAT_TYPE_DESC:
-            case DECIMAL_TYPE_DESC:
-            case STRING_TYPE_DESC:
-            case BOOLEAN_TYPE_DESC:
-            case XML_TYPE_DESC:
-            case JSON_TYPE_DESC:
-            case HANDLE_TYPE_DESC:
-            case ANY_TYPE_DESC:
-            case ANYDATA_TYPE_DESC:
-            case NEVER_TYPE_DESC:
-            case VAR_TYPE_DESC:
-            case SERVICE_TYPE_DESC:
-            case MAP_TYPE_DESC:
-            case UNION_TYPE_DESC:
-            case ERROR_TYPE_DESC:
-            case STREAM_TYPE_DESC:
-            case TABLE_TYPE_DESC:
-            case FUNCTION_TYPE_DESC:
-            case TUPLE_TYPE_DESC:
-            case PARENTHESISED_TYPE_DESC:
-            case READONLY_TYPE_DESC:
-            case DISTINCT_TYPE_DESC:
-            case INTERSECTION_TYPE_DESC:
-            case SINGLETON_TYPE_DESC:
-            case TYPE_REFERENCE_TYPE_DESC:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nodeKind) {
+            case RECORD_TYPE_DESC,
+                 OBJECT_TYPE_DESC,
+                 NIL_TYPE_DESC,
+                 OPTIONAL_TYPE_DESC,
+                 ARRAY_TYPE_DESC,
+                 INT_TYPE_DESC,
+                 BYTE_TYPE_DESC,
+                 FLOAT_TYPE_DESC,
+                 DECIMAL_TYPE_DESC,
+                 STRING_TYPE_DESC,
+                 BOOLEAN_TYPE_DESC,
+                 XML_TYPE_DESC,
+                 JSON_TYPE_DESC,
+                 HANDLE_TYPE_DESC,
+                 ANY_TYPE_DESC,
+                 ANYDATA_TYPE_DESC,
+                 NEVER_TYPE_DESC,
+                 VAR_TYPE_DESC,
+                 SERVICE_TYPE_DESC,
+                 MAP_TYPE_DESC,
+                 UNION_TYPE_DESC,
+                 ERROR_TYPE_DESC,
+                 STREAM_TYPE_DESC,
+                 TABLE_TYPE_DESC,
+                 FUNCTION_TYPE_DESC,
+                 TUPLE_TYPE_DESC,
+                 PARENTHESISED_TYPE_DESC,
+                 READONLY_TYPE_DESC,
+                 DISTINCT_TYPE_DESC,
+                 INTERSECTION_TYPE_DESC,
+                 SINGLETON_TYPE_DESC,
+                 TYPE_REFERENCE_TYPE_DESC -> true;
+            default -> false;
+        };
     }
 
     private boolean isInTypeDefinitionContext(Node parent) {
@@ -6831,12 +6793,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private boolean isNumericLiteral(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            case NUMERIC_LITERAL:
-                return true;
-            default:
-                return false;
-        }
+        return switch (syntaxKind) {
+            case NUMERIC_LITERAL -> true;
+            default -> false;
+        };
     }
 
     private boolean isPresent(Node node) {
