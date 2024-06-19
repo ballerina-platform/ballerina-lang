@@ -158,8 +158,7 @@ public enum ErrorCodes implements DiagnosticCode {
     NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0128"),
     INVALID_METHOD_CALL("invalid.method.call", "RUNTIME_0129"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130"),
-    INVALID_TRANSACTION_AUTO_COMMIT_TIMEOUT("invalid.transaction.auto.commit.value", "RUNTIME_0131"),
-    INVALID_TRANSACTION_CLEANUP_TIMEOUT("invalid.transaction.cleanup.timeout", "RUNTIME_0132");
+    INVALID_TRANSACTION_TIMEOUT("invalid.transaction.value", "RUNTIME_0131");
 
     private final String errorMsgKey;
     private final String errorCode;
