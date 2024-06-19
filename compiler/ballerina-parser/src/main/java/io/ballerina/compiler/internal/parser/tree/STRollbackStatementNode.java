@@ -62,6 +62,7 @@ public class STRollbackStatementNode extends STStatementNode {
                 semicolon);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRollbackStatementNode(
                 this.rollbackKeyword,
@@ -88,6 +89,7 @@ public class STRollbackStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RollbackStatementNode(this, position, parent);
     }

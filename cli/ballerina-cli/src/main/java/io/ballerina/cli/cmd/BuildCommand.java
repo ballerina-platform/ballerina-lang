@@ -205,6 +205,7 @@ public class BuildCommand implements BLauncherCmd {
             defaultValue = "false")
     private Boolean optimizeReport;
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {

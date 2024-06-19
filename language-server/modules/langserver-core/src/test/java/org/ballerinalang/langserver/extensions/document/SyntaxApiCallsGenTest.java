@@ -54,12 +54,12 @@ public class SyntaxApiCallsGenTest {
                 .getBallerinaSyntaxApiCalls(emptyFile.toString(), false, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
         Assert.assertEquals(response.getSource(), "");
-        Assert.assertEquals(response.getCode(), "" +
-                "NodeFactory.createModulePartNode(\n" +
-                "    NodeFactory.createNodeList(),\n" +
-                "    NodeFactory.createNodeList(),\n" +
-                "    NodeFactory.createToken(SyntaxKind.EOF_TOKEN)\n" +
-                ")");
+        Assert.assertEquals(response.getCode(), """
+                NodeFactory.createModulePartNode(
+                    NodeFactory.createNodeList(),
+                    NodeFactory.createNodeList(),
+                    NodeFactory.createToken(SyntaxKind.EOF_TOKEN)
+                )""");
         TestUtil.closeDocument(this.serviceEndpoint, emptyFile);
     }
 

@@ -60,6 +60,7 @@ public class BReadonlyType extends BBuiltInRefType {
         analyzer.visit(this, data);
     }
 
+    @Override
     public boolean isNullable() {
         return nullable;
     }

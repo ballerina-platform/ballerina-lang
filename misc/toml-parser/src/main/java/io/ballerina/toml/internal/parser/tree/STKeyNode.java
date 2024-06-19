@@ -50,6 +50,7 @@ public class STKeyNode extends STNode {
                 value);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STKeyNode(
                 this.value,
@@ -68,6 +69,7 @@ public class STKeyNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeyNode(this, position, parent);
     }

@@ -72,8 +72,8 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED("BCE20406", "strand.annotation.will.be.deprecated"),
     ;
 
-    private String diagnosticId;
-    private String messageKey;
+    private final String diagnosticId;
+    private final String messageKey;
 
     DiagnosticWarningCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

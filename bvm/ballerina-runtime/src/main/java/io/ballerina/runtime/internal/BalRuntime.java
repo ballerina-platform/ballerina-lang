@@ -78,12 +78,14 @@ public class BalRuntime extends Runtime {
         this.module = module;
     }
 
+    @Override
     public void init() {
         invokeConfigInit();
         invokeMethodAsync("$moduleInit", null, PredefinedTypes.TYPE_NULL, "init", new Object[1]);
         moduleInitialized = true;
     }
 
+    @Override
     public void start() {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "start");
@@ -91,6 +93,7 @@ public class BalRuntime extends Runtime {
         invokeMethodAsync("$moduleStart", null, PredefinedTypes.TYPE_NULL, "start", new Object[1]);
     }
 
+    @Override
     public void invokeMethodAsync(String functionName, Callback callback, Object... args) {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION, functionName);
@@ -98,6 +101,7 @@ public class BalRuntime extends Runtime {
         invokeMethodAsync(functionName, callback, PredefinedTypes.TYPE_ANY, functionName, args);
     }
 
+    @Override
     public void stop() {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
@@ -137,6 +141,7 @@ public class BalRuntime extends Runtime {
      * This method needs to be called if object.getType().isIsolated() or
      * object.getType().isIsolated(methodName) returns false.
      */
+    @Override
     public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
                                                  Callback callback, Map<String, Object> properties,
@@ -184,6 +189,7 @@ public class BalRuntime extends Runtime {
      * This method needs to be called if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
+    @Override
     public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
                                                  Callback callback, Map<String, Object> properties,
@@ -237,6 +243,7 @@ public class BalRuntime extends Runtime {
      * We can decide the object method isolation if and only if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
+    @Override
     @Deprecated
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Map<String, Object> properties,
@@ -289,6 +296,7 @@ public class BalRuntime extends Runtime {
      * We can decide the object method isolation if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
+    @Override
     @Deprecated
     public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                     Callback callback, Object... args) {
@@ -305,14 +313,17 @@ public class BalRuntime extends Runtime {
         }
     }
 
+    @Override
     public void registerListener(BObject listener) {
         scheduler.getRuntimeRegistry().registerListener(listener);
     }
 
+    @Override
     public void deregisterListener(BObject listener) {
         scheduler.getRuntimeRegistry().deregisterListener(listener);
     }
 
+    @Override
     public void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
         scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
     }

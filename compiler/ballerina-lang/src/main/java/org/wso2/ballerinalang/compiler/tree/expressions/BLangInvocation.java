@@ -115,7 +115,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         }
         br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
         br.append("(");
-        if (argExprs.size() > 0) {
+        if (!argExprs.isEmpty()) {
             String s = Arrays.toString(argExprs.toArray());
             br.append(s, 1, s.length() - 1);
         }

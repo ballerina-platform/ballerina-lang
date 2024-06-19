@@ -81,6 +81,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         }
     }
 
+    @Override
     public List<BXml> getChildrenList() {
         return children;
     }
@@ -319,7 +320,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             this.type = getSequenceType(tempExprType);
             return;
         }
-        this.type = PredefinedTypes.TYPE_XML;;
+        this.type = PredefinedTypes.TYPE_XML;
     }
 
     /**
@@ -418,6 +419,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         return new XmlSequence(descendants);
     }
 
+    @Override
     public XmlValue descendants() {
         List<BXml> descendants = new ArrayList<>();
         if (children.size() == 1) {

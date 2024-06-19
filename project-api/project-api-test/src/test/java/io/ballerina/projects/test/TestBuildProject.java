@@ -317,7 +317,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().toList();
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -2124,12 +2124,13 @@ public class TestBuildProject extends BaseTest {
                         name = "ro"
                         version = "1.2.3\"""";
         List<String> warnings10 =
-                List.of("WARNING [Ballerina.toml:(1:1,7:18)] missing table '[package]' in 'Ballerina.toml'. " +
-                        "Defaulting to:\n" +
-                        "[package]\n" +
-                        "org = \"testuserorg\"\n" +
-                        "name = \"app1994\"\n" +
-                        "version = \"0.1.0\"");
+                List.of("""
+                        WARNING [Ballerina.toml:(1:1,7:18)] missing table '[package]' in 'Ballerina.toml'. \
+                        Defaulting to:
+                        [package]
+                        org = "testuserorg"
+                        name = "app1994"
+                        version = "0.1.0\"""");
 
         return new Object[][]{
                 {myPkgDir, content1, warnings1},

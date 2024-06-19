@@ -66,18 +66,19 @@ public class ParseExpressionTest {
 
     @Test
     public void testMappingConstructorExpr() {
-        String mappingConstructor = "{    age:20, \n" +
-                "  ...marks1,\n" +
-                "  \"name\":\"John\",\n" +
-                "  parent: { age:50,\n" +
-                "            ...marks2,\n" +
-                "            \"name\":\"Jane\",\n" +
-                "            address2,\n" +
-                "            [expr2]:\"value2\"\n" +
-                "           },\n" +
-                "  address,\n" +
-                "  [expr1]: \"value1\"\n" +
-                "}";
+        String mappingConstructor = """
+                {    age:20,\s
+                  ...marks1,
+                  "name":"John",
+                  parent: { age:50,
+                            ...marks2,
+                            "name":"Jane",
+                            address2,
+                            [expr2]:"value2"
+                           },
+                  address,
+                  [expr1]: "value1"
+                }""";
         ExpressionNode expressionNode = NodeParser.parseExpression(mappingConstructor);
         Assert.assertEquals(expressionNode.kind(), SyntaxKind.MAPPING_CONSTRUCTOR);
         Assert.assertFalse(expressionNode.hasDiagnostics());

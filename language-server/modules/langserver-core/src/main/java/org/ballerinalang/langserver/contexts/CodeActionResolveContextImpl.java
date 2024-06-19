@@ -47,6 +47,7 @@ public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext
             super(LSContextOperation.TXT_RESOLVE_CODE_ACTION, serverContext);
         }
 
+        @Override
         public CodeActionResolveContext build() {
             return new CodeActionResolveContextImpl(
                     this.operation,

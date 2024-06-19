@@ -218,6 +218,7 @@ class CompilerLifecycleManager {
             diagnostics.add(diagnostic);
         }
 
+        @Override
         public BalCommand balCommand() {
             return balCommand;
         }

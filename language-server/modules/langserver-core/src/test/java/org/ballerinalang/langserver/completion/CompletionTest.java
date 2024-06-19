@@ -46,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion Test Interface.
@@ -78,9 +77,9 @@ public abstract class CompletionTest extends AbstractLSTest {
             // Fix test cases replacing expected using responses
 //            updateConfig(configJsonPath, testConfig, responseItemList);
             List<CompletionItem> mismatchedList1 = responseItemList.stream()
-                    .filter(item -> !testConfig.getItems().contains(item)).collect(Collectors.toList());
+                    .filter(item -> !testConfig.getItems().contains(item)).toList();
             List<CompletionItem> mismatchedList2 = testConfig.getItems().stream()
-                    .filter(item -> !responseItemList.contains(item)).collect(Collectors.toList());
+                    .filter(item -> !responseItemList.contains(item)).toList();
             LOG.info("Completion items which are in response but not in test config : " + mismatchedList1);
             LOG.info("Completion items which are in test config but not in response : " + mismatchedList2);
             Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));

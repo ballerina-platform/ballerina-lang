@@ -56,6 +56,7 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
                 xmlStepStart);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLStepExpressionNode(
                 this.expression,
@@ -78,6 +79,7 @@ public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLStepExpressionNode(this, position, parent);
     }

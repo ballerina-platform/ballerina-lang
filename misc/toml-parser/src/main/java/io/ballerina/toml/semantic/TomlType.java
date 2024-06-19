@@ -36,5 +36,5 @@ public enum TomlType {
     ARRAY,
     INLINE_TABLE,
     
-    NONE;
+    NONE
 }

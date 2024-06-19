@@ -219,6 +219,7 @@ public class TestCommand implements BLauncherCmd {
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {

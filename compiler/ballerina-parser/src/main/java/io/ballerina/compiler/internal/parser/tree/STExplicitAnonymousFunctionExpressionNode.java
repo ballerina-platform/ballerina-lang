@@ -74,6 +74,7 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 functionBody);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STExplicitAnonymousFunctionExpressionNode(
                 this.annotations,
@@ -108,6 +109,7 @@ public class STExplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExplicitAnonymousFunctionExpressionNode(this, position, parent);
     }

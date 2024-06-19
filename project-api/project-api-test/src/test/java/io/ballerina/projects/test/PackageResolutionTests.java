@@ -85,7 +85,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
@@ -436,8 +435,12 @@ public class PackageResolutionTests extends BaseTest {
         // Step 9 : Modify ProjectA again with the old content
 
         // - Step 9.1 : Get the main.bal file document
-        String oldMainProjectAContent = "import samjs/projectB;\n" + "\n" + "public function getHello() returns " +
-                "(string) {\n" + "    return projectB:hello();\n" + "}";
+        String oldMainProjectAContent = """
+                import samjs/projectB;
+
+                public function getHello() returns (string) {
+                    return projectB:hello();
+                }""";
 
         Module oldModuleProjectA = loadProjectA.currentPackage().getDefaultModule();
 
@@ -625,11 +628,12 @@ public class PackageResolutionTests extends BaseTest {
     @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
     public void testResolveDependencyFromCustomRepo() {
         Path projectDirPath = tempResourceDir.resolve("package_b");
-        String dependencyContent = "[[dependency]]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_c\"\n" +
-                "version = \"0.1.0\"\n" +
-                "repository = \"local\"";
+        String dependencyContent = """
+                [[dependency]]
+                org = "samjs"
+                name = "package_c"
+                version = "0.1.0"
+                repository = "local\"""";
 
         // 1) load the build project
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
@@ -651,11 +655,12 @@ public class PackageResolutionTests extends BaseTest {
     @Test (enabled = false)
     public void testResolveDependencyFromUnsupportedCustomRepo() {
         Path projectDirPath = tempResourceDir.resolve("package_b");
-        String dependencyContent = "[[dependency]]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_c\"\n" +
-                "version = \"0.1.0\"\n" +
-                "repository = \"stdlib.local\"";
+        String dependencyContent = """
+                [[dependency]]
+                org = "samjs"
+                name = "package_c"
+                version = "0.1.0"
+                repository = "stdlib.local\"""";
 
         // 2) load the build project
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
@@ -670,7 +675,7 @@ public class PackageResolutionTests extends BaseTest {
         // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
         Assert.assertEquals(diagnosticResult.errorCount(), 3);
         List<String> diagnosticMsgs = diagnosticResult.errors().stream()
-                .map(Diagnostic::message).collect(Collectors.toList());
+                .map(Diagnostic::message).toList();
         Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
     }
 

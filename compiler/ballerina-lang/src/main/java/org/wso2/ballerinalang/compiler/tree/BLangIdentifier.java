@@ -49,6 +49,7 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
         return isLiteral;
     }
 
+    @Override
     public void setLiteral(boolean isLiteral) {
         this.isLiteral = isLiteral;
     }

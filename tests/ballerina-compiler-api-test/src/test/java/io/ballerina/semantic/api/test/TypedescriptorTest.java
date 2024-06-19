@@ -849,7 +849,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(198, 18);
         assertEquals(symbol.kind(), TYPE);
         assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
+        assertEquals(symbol.getName().get(), "CancelledError");
     }
 
     @Test(dataProvider = "ConstantPosProvider")
@@ -1040,9 +1040,7 @@ public class TypedescriptorTest {
         Collection<ModuleId> moduleIds = currentPackage.moduleIds();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         List<Symbol> symbolList = new ArrayList<>();
-        moduleIds.forEach(moduleId -> {
-            symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols());
-        });
+        moduleIds.forEach(moduleId -> symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols()));
 
         List<SymbolInfo> expectedSymbolList = createSymbolInfoList(getSymbolModuleInfo());
         assertList(symbolList, expectedSymbolList);

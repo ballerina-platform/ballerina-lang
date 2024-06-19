@@ -145,6 +145,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
     }
 
+    @Override
     public void setMethods(MethodType[] methodTypes) {
         this.methodTypes = methodTypes;
     }

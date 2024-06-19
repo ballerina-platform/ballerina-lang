@@ -62,6 +62,7 @@ public class STBlockStatementNode extends STStatementNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBlockStatementNode(
                 this.openBraceToken,
@@ -88,6 +89,7 @@ public class STBlockStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatementNode(this, position, parent);
     }

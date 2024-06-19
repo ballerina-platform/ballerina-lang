@@ -809,7 +809,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
                 .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
-                .collect(Collectors.toList());
+                .toList();
 
         // Copy all the jars
         for (JarLibrary library : sortedJarLibraries) {
@@ -1301,7 +1301,7 @@ public class JBallerinaBackend extends CompilerBackend {
         OPTIMIZE_CODEGEN("optimize_codegen")
         ;
 
-        private String value;
+        private final String value;
 
         OutputType(String value) {
             this.value = value;
