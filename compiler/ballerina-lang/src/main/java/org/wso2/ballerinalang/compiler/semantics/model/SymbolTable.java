@@ -136,7 +136,7 @@ public class SymbolTable {
     public final BType tupleType;
     public final BType recordType;
     public final BType stringArrayType;
-    public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
+    public final BType handleType = new BHandleType(TypeTags.HANDLE, null, PredefinedType.HANDLE);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(null);
     public final BType pathParamAllowedType;

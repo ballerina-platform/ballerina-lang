@@ -1658,7 +1658,7 @@ public class TypeResolver {
                 exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
             }
 
-            if (SemTypeHelper.isFullSemType(exprOrLiteral.getBType().getKind())) {
+            if (SemTypeHelper.isSimpleOrString(exprOrLiteral.getBType().getKind())) {
                 if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
                     exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
                     // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
