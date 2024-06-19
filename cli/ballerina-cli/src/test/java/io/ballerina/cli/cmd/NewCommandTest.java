@@ -132,11 +132,11 @@ public class NewCommandTest extends BaseCommandTest {
                 # Ballerina generates this directory during the compilation of a package.
                 # It contains compiler-generated artifacts and the final executable if this is an application package.
                 target/
-                
+
                 # Ballerina maintains the compiler-generated source code here.
                 # Remove this if you want to commit generated sources.
                 generated/
-                
+
                 # Contains configuration values used during development time.
                 # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
                 Config.toml
@@ -186,11 +186,11 @@ public class NewCommandTest extends BaseCommandTest {
                 # Ballerina generates this directory during the compilation of a package.
                 # It contains compiler-generated artifacts and the final executable if this is an application package.
                 target/
-                
+
                 # Ballerina maintains the compiler-generated source code here.
                 # Remove this if you want to commit generated sources.
                 generated/
-                
+
                 # Contains configuration values used during development time.
                 # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
                 Config.toml
@@ -244,11 +244,11 @@ public class NewCommandTest extends BaseCommandTest {
                 # Ballerina generates this directory during the compilation of a package.
                 # It contains compiler-generated artifacts and the final executable if this is an application package.
                 target/
-                
+
                 # Ballerina maintains the compiler-generated source code here.
                 # Remove this if you want to commit generated sources.
                 generated/
-                
+
                 # Contains configuration values used during development time.
                 # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
                 Config.toml
@@ -386,11 +386,11 @@ public class NewCommandTest extends BaseCommandTest {
                 # Ballerina generates this directory during the compilation of a package.
                 # It contains compiler-generated artifacts and the final executable if this is an application package.
                 target/
-                
+
                 # Ballerina maintains the compiler-generated source code here.
                 # Remove this if you want to commit generated sources.
                 generated/
-                
+
                 # Contains configuration values used during development time.
                 # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
                 Config.toml
@@ -447,11 +447,11 @@ public class NewCommandTest extends BaseCommandTest {
                 # Ballerina generates this directory during the compilation of a package.
                 # It contains compiler-generated artifacts and the final executable if this is an application package.
                 target/
-                
+
                 # Ballerina maintains the compiler-generated source code here.
                 # Remove this if you want to commit generated sources.
                 generated/
-                
+
                 # Contains configuration values used during development time.
                 # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
                 Config.toml
@@ -764,10 +764,10 @@ public class NewCommandTest extends BaseCommandTest {
                 version = "1.0.0"
                 export = ["sample_provided_template"]
                 distribution = "2201.9.0-SNAPSHOT"
-                
+
                 [build-options]
                 observabilityIncluded = true
-                
+
                 [[platform.java17.dependency]]
                 artifactId = "project1"
                 groupId = "com.example"
@@ -802,7 +802,7 @@ public class NewCommandTest extends BaseCommandTest {
                 version = "0.1.5"
                 export = ["sample_pull_local"]
                 distribution = "slbeta4"
-                
+
                 [build-options]
                 observabilityIncluded = true
                 """;
@@ -835,7 +835,7 @@ public class NewCommandTest extends BaseCommandTest {
                 version = "1.0.1"
                 export = ["sample_pull_WO_Module_Version"]
                 distribution = "slbeta4"
-                
+
                 [build-options]
                 observabilityIncluded = true
                 """;
@@ -867,7 +867,7 @@ public class NewCommandTest extends BaseCommandTest {
                 version = "1.0.0"
                 export = ["sample_pull"]
                 distribution = "slbeta4"
-                
+
                 [build-options]
                 observabilityIncluded = true
                 """;
@@ -1002,11 +1002,10 @@ public class NewCommandTest extends BaseCommandTest {
                 export = ["sample_pull_libs"]
                 distribution = "slbeta4"
                 """;
-        String expectedTomlLibContent =
-                """
-                        artifactId = "snakeyaml"
-                        groupId = "org.yaml"
-                        version = "2.0\"""";
+        String expectedTomlLibContent = """
+                artifactId = "snakeyaml"
+                groupId = "org.yaml"
+                version = "2.0\"""";
 
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));

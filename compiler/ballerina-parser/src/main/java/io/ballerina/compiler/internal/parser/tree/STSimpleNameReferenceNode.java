@@ -50,6 +50,7 @@ public class STSimpleNameReferenceNode extends STNameReferenceNode {
                 name);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSimpleNameReferenceNode(
                 this.name,
@@ -68,6 +69,7 @@ public class STSimpleNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SimpleNameReferenceNode(this, position, parent);
     }

@@ -62,6 +62,7 @@ public class STGroupByClauseNode extends STIntermediateClauseNode {
                 groupingKey);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STGroupByClauseNode(
                 this.groupKeyword,
@@ -88,6 +89,7 @@ public class STGroupByClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new GroupByClauseNode(this, position, parent);
     }

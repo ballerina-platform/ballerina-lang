@@ -146,6 +146,7 @@ public interface BMap<K, V> extends BRefValue, BCollection {
      *
      * @return the number of key-value mappings in this map
      */
+    @Override
     int size();
 
     /**

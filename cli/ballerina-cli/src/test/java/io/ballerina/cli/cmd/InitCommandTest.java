@@ -290,9 +290,8 @@ public class InitCommandTest extends BaseCommandTest {
 
         String initLog = readOutput().replace("\r", "");
         Assert.assertTrue(initLog.contains("""
-                package name is derived as 'my_app'. \
-                Edit the Ballerina.toml to change it.
-                
+                package name is derived as 'my_app'. Edit the Ballerina.toml to change it.
+
                 Created new package 'my_app'.
                 """));
     }

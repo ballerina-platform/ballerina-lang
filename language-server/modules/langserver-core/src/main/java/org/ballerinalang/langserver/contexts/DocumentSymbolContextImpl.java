@@ -117,6 +117,7 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
             this.params = params;
         }
 
+        @Override
         public DocumentSymbolContext build() {
             return new DocumentSymbolContextImpl(this.operation,
                     this.fileUri,

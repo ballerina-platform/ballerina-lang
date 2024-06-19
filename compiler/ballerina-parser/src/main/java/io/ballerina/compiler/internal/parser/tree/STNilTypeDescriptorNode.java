@@ -56,6 +56,7 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNilTypeDescriptorNode(
                 this.openParenToken,
@@ -78,6 +79,7 @@ public class STNilTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilTypeDescriptorNode(this, position, parent);
     }

@@ -69,10 +69,12 @@ public class STToken extends STNode {
         return kind.stringValue();
     }
 
+    @Override
     public STNode leadingMinutiae() {
         return leadingMinutiae;
     }
 
+    @Override
     public STNode trailingMinutiae() {
         return trailingMinutiae;
     }
@@ -81,22 +83,27 @@ public class STToken extends STNode {
         return lookback;
     }
 
+    @Override
     public List<STToken> tokens() {
         return Collections.singletonList(this);
     }
 
+    @Override
     protected void tokensInternal(List<STToken> tokens) {
         tokens.add(this);
     }
 
+    @Override
     public STToken firstToken() {
         return this;
     }
 
+    @Override
     public STToken lastToken() {
         return this;
     }
 
+    @Override
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STToken(this.kind, this.width, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }

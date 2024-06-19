@@ -80,6 +80,7 @@ public class STMatchStatementNode extends STStatementNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMatchStatementNode(
                 this.matchKeyword,
@@ -118,6 +119,7 @@ public class STMatchStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MatchStatementNode(this, position, parent);
     }

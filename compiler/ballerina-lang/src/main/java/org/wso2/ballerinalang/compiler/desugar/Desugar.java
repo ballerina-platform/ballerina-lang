@@ -1389,10 +1389,12 @@ public class Desugar extends BLangNodeVisitor {
         result = ASTBuilderUtil.createTypedescExpr(inferTypedescExpr.pos, inferTypedescExpr.getBType(), constraintType);
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode) {
         annotationNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
     }
 
+    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
             BType attachedType =
@@ -3416,6 +3418,7 @@ public class Desugar extends BLangNodeVisitor {
         result = generatedXMLNSNode;
     }
 
+    @Override
     public void visit(BLangCompoundAssignment compoundAssignment) {
 
         BLangValueExpression varRef = compoundAssignment.varRef;
@@ -7171,6 +7174,7 @@ public class Desugar extends BLangNodeVisitor {
         return literal;
     }
 
+    @Override
     public void visit(BLangTypeInit typeInitExpr) {
         if (Types.getImpliedType(typeInitExpr.getBType()).tag == TypeTags.STREAM) {
             result = rewriteExpr(desugarStreamTypeInit(typeInitExpr));
@@ -7870,6 +7874,7 @@ public class Desugar extends BLangNodeVisitor {
                 binaryExpr.opKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
     }
 
+    @Override
     public void visit(BLangElvisExpr elvisExpr) {
         Location pos = elvisExpr.pos;
         String resultVarName = "_$result$_";

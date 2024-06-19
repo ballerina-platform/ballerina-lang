@@ -112,6 +112,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         return new SemanticTokens(data);
     }
 
+    @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {
         Optional<ImportPrefixNode> importPrefixNode = importDeclarationNode.prefix();
         importPrefixNode.ifPresent(prefixNode -> this.addSemanticToken(prefixNode.prefix(),
@@ -119,6 +120,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 TokenTypes.NAMESPACE.getId(), 0));
     }
 
+    @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
         int type = functionDefinitionNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION ? TokenTypes.METHOD.getId() :
                 TokenTypes.FUNCTION.getId();
@@ -136,12 +138,14 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(functionDefinitionNode);
     }
 
+    @Override
     public void visit(MethodDeclarationNode methodDeclarationNode) {
         this.addSemanticToken(methodDeclarationNode.methodName(), TokenTypes.METHOD.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
         visitSyntaxNode(methodDeclarationNode);
     }
 
+    @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         Node functionName = functionCallExpressionNode.functionName();
         if (functionName instanceof QualifiedNameReferenceNode) {
@@ -151,12 +155,14 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(functionCallExpressionNode);
     }
 
+    @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         this.addSemanticToken(methodCallExpressionNode.methodName(), TokenTypes.METHOD.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
         visitSyntaxNode(methodCallExpressionNode);
     }
 
+    @Override
     public void visit(RequiredParameterNode requiredParameterNode) {
         boolean isReadonly = isReadonly(requiredParameterNode.typeName());
         requiredParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token, TokenTypes.PARAMETER.getId(),
@@ -173,6 +179,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(typedBindingPatternNode);
     }
 
+    @Override
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
         boolean readonly = false;
         if (captureBindingPatternNode.parent() instanceof TypedBindingPatternNode) {
@@ -185,6 +192,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(captureBindingPatternNode);
     }
 
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         if (!SemanticTokensConstants.SELF.equals(simpleNameReferenceNode.name().text())) {
             processSymbols(simpleNameReferenceNode, simpleNameReferenceNode.lineRange().startLine());
@@ -192,6 +200,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(simpleNameReferenceNode);
     }
 
+    @Override
     public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         this.addSemanticToken(qualifiedNameReferenceNode.modulePrefix(), TokenTypes.NAMESPACE.getId(), 0, false, -1,
                 -1);
@@ -200,6 +209,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(qualifiedNameReferenceNode);
     }
 
+    @Override
     public void visit(ConstantDeclarationNode constantDeclarationNode) {
         this.addSemanticToken(constantDeclarationNode.variableName(), TokenTypes.VARIABLE.getId(),
                 TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId(), true,
@@ -207,6 +217,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(constantDeclarationNode);
     }
 
+    @Override
     public void visit(ClassDefinitionNode classDefinitionNode) {
         boolean isReadonly = false;
         if (!classDefinitionNode.classTypeQualifiers().isEmpty() &&
@@ -221,6 +232,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(classDefinitionNode);
     }
 
+    @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
         serviceDeclarationNode.absoluteResourcePath().forEach(serviceName -> {
             LinePosition startLine = serviceName.lineRange().startLine();
@@ -232,12 +244,14 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(serviceDeclarationNode);
     }
 
+    @Override
     public void visit(EnumDeclarationNode enumDeclarationNode) {
         this.addSemanticToken(enumDeclarationNode.identifier(), TokenTypes.ENUM.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.ENUM.getId(), 0);
         visitSyntaxNode(enumDeclarationNode);
     }
 
+    @Override
     public void visit(EnumMemberNode enumMemberNode) {
         this.addSemanticToken(enumMemberNode.identifier(), TokenTypes.ENUM_MEMBER.getId(),
                 TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId(), true,
@@ -245,11 +259,13 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(enumMemberNode);
     }
 
+    @Override
     public void visit(AnnotationNode annotationNode) {
         this.addSemanticToken(annotationNode.atToken(), TokenTypes.NAMESPACE.getId(), 0, false, -1, -1);
         visitSyntaxNode(annotationNode);
     }
 
+    @Override
     public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
         //TODO: handle readonly modifier for document parameter
         if (!markdownParameterDocumentationLineNode.parameterName().text().equals(SemanticTokensConstants.RETURN)) {
@@ -279,6 +295,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
+    @Override
     public void visit(TypeDefinitionNode typeDefinitionNode) {
         int type = TokenTypes.TYPE.getId();
         int modifiers = 0;
@@ -318,6 +335,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(typeDefinitionNode);
     }
 
+    @Override
     public void visit(RecordFieldNode recordFieldNode) {
         Token token = recordFieldNode.fieldName();
         LinePosition startLine = token.lineRange().startLine();
@@ -340,6 +358,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(recordFieldNode);
     }
 
+    @Override
     public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         Token token = recordFieldWithDefaultValueNode.fieldName();
         LinePosition startLine = token.lineRange().startLine();
@@ -362,18 +381,21 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(recordFieldWithDefaultValueNode);
     }
 
+    @Override
     public void visit(KeySpecifierNode keySpecifierNode) {
         keySpecifierNode.fieldNames().forEach(field -> this.addSemanticToken(field, TokenTypes.PROPERTY.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), false, -1, -1));
         visitSyntaxNode(keySpecifierNode);
     }
 
+    @Override
     public void visit(SpecificFieldNode specificFieldNode) {
         processSymbols(specificFieldNode.fieldName(),
                 specificFieldNode.fieldName().location().lineRange().startLine());
         visitSyntaxNode(specificFieldNode);
     }
 
+    @Override
     public void visit(ObjectFieldNode objectFieldNode) {
         SyntaxKind kind = objectFieldNode.parent().kind();
         int type = kind == SyntaxKind.CLASS_DEFINITION || kind == SyntaxKind.OBJECT_TYPE_DESC ||
@@ -388,12 +410,14 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(objectFieldNode);
     }
 
+    @Override
     public void visit(AnnotationDeclarationNode annotationDeclarationNode) {
         this.addSemanticToken(annotationDeclarationNode.annotationTag(), TokenTypes.TYPE.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.TYPE.getId(), 0);
         visitSyntaxNode(annotationDeclarationNode);
     }
 
+    @Override
     public void visit(DefaultableParameterNode defaultableParameterNode) {
         defaultableParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token,
                 TokenTypes.PARAMETER.getId(), TokenTypeModifiers.DECLARATION.getId(), true,
@@ -401,6 +425,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(defaultableParameterNode);
     }
 
+    @Override
     public void visit(IncludedRecordParameterNode includedRecordParameterNode) {
         includedRecordParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token,
                 TokenTypes.PARAMETER.getId(), TokenTypeModifiers.DECLARATION.getId(), true,
@@ -408,12 +433,14 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(includedRecordParameterNode);
     }
 
+    @Override
     public void visit(RestParameterNode restParameterNode) {
         restParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token, TokenTypes.PARAMETER.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.PARAMETER.getId(), 0));
         visitSyntaxNode(restParameterNode);
     }
 
+    @Override
     public void visit(NamedArgumentNode namedArgumentNode) {
         this.addSemanticToken(namedArgumentNode.argumentName(), TokenTypes.VARIABLE.getId(),
                 TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);

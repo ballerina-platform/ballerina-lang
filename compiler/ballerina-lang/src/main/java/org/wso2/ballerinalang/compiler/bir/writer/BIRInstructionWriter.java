@@ -129,6 +129,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(BIRBasicBlock birBasicBlock) {
         //Name of the basic block
         addCpAndWriteString(birBasicBlock.id.value);
@@ -163,6 +164,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         errorEntries.forEach(birErrorEntry -> birErrorEntry.accept(this));
     }
 
+    @Override
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         addCpAndWriteString(errorEntry.trapBB.id.value);
         addCpAndWriteString(errorEntry.endBB.id.value);
@@ -172,14 +174,17 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Terminating instructions
 
+    @Override
     public void visit(BIRTerminator.GOTO birGoto) {
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.Lock lock) {
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.FieldLock lock) {
         // TODO properly use operand instead of variablDcl.name here
         addCpAndWriteString(lock.localVar.variableDcl.name.value);
@@ -187,14 +192,17 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.Unlock unlock) {
         addCpAndWriteString(unlock.unlockBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.Return birReturn) {
         // do nothing
     }
 
+    @Override
     public void visit(BIRTerminator.Branch birBranch) {
         birBranch.op.accept(this);
         // true:BB
@@ -203,6 +211,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birBranch.falseBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.Wait waitEntry) {
         buf.writeInt(waitEntry.exprList.size());
         for (BIROperand expr : waitEntry.exprList) {
@@ -212,6 +221,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(waitEntry.thenBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.Flush entry) {
         buf.writeInt(entry.channels.length);
         for (BIRNode.ChannelDetails detail : entry.channels) {
@@ -223,6 +233,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.WorkerReceive entry) {
         buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
         entry.lhsOp.accept(this);
@@ -230,6 +241,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.WorkerSend entry) {
         buf.writeInt(addStringCPEntry(entry.channel.getValue()));
         entry.data.accept(this);
@@ -281,16 +293,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.dataOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.Move birMove) {
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
     }
 
+    @Override
     public void visit(BIRTerminator.Call birCall) {
         writeCallInstruction(birCall);
         addCpAndWriteString(birCall.thenBB.id.value);
     }
 
+    @Override
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
         BIRWriterUtils.writeAnnotAttachments(this.cp, buf, birAsyncCall.annotAttachments);
@@ -315,6 +330,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(BIRTerminator.FPCall fpCall) {
         fpCall.fp.accept(this);
         buf.writeInt(fpCall.args.size());
@@ -331,17 +347,20 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(fpCall.thenBB.id.value);
     }
 
+    @Override
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         birBinaryOp.rhsOp1.accept(this);
         birBinaryOp.rhsOp2.accept(this);
         birBinaryOp.lhsOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
         birUnaryOp.rhsOp.accept(this);
         birUnaryOp.lhsOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         writeType(birConstantLoad.type);
         birConstantLoad.lhsOp.accept(this);
@@ -383,6 +402,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(NewStructure birNewStructure) {
         birNewStructure.rhsOp.accept(this);
         birNewStructure.lhsOp.accept(this);
@@ -402,6 +422,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         buf.writeBoolean(newInstance.isExternalDef);
         if (newInstance.isExternalDef) {
@@ -414,6 +435,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         newInstance.lhsOp.accept(this);
     }
 
+    @Override
     public void visit(NewArray birNewArray) {
         writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
@@ -430,6 +452,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         if (birFieldAccess.kind == InstructionKind.MAP_LOAD || birFieldAccess.kind == InstructionKind.ARRAY_LOAD) {
             buf.writeBoolean(birFieldAccess.optionalFieldAccess);
@@ -440,6 +463,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birFieldAccess.rhsOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.TypeCast birTypeCast) {
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
@@ -447,12 +471,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeBoolean(birTypeCast.checkTypes);
     }
 
+    @Override
     public void visit(BIRNonTerminator.IsLike birIsLike) {
         writeType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
         writeType(birTypeTest.type);
         birTypeTest.lhsOp.accept(this);
@@ -460,6 +486,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Operands
+    @Override
     public void visit(BIROperand birOperand) {
         if (birOperand.variableDcl.ignoreVariable) {
             buf.writeBoolean(true);
@@ -482,6 +509,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    @Override
     public void visit(BIRNonTerminator.NewError birNewError) {
         writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
@@ -490,6 +518,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.detailOp.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.FPLoad fpLoad) {
         fpLoad.lhsOp.accept(this);
 
@@ -519,6 +548,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
     }
 
+    @Override
     public void visit(BIRTerminator.Panic birPanic) {
         birPanic.errorOp.accept(this);
     }

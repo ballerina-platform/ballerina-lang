@@ -102,11 +102,13 @@ public class SubsequentBuildTests {
         // package_d --> package_e
 
         // update package_c version and push to local repo
-        String pkgDBallerinaTomlContent = "[package]\n"
-                + "org = \"samjs\"\n"
-                + "name = \"package_c\"\n"
-                + "version = \"0.2.0\"\n"
-                + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
+        String pkgDBallerinaTomlContent = """
+                [package]
+                org = "samjs"
+                name = "package_c"
+                version = "0.2.0"
+                export = ["package_c", "package_c.mod_c1", "package_c.mod_c2"]
+                """;
         Files.write(tempResourceDir.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
@@ -131,11 +133,13 @@ public class SubsequentBuildTests {
         Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         // revert package_c version
-        String pkgDBallerinaTomlContent = "[package]\n"
-                + "org = \"samjs\"\n"
-                + "name = \"package_c\"\n"
-                + "version = \"0.1.0\"\n"
-                + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
+        String pkgDBallerinaTomlContent = """
+                [package]
+                org = "samjs"
+                name = "package_c"
+                version = "0.1.0"
+                export = ["package_c", "package_c.mod_c1", "package_c.mod_c2"]
+                """;
         Files.write(tempResourceDir.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
         // Delete package_c build file
