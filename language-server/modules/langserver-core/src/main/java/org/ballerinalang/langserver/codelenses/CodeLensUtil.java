@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
-import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.eclipse.lsp4j.CodeLens;
@@ -41,7 +40,6 @@ public class CodeLensUtil {
         List<CodeLens> lenses = new ArrayList<>();
         List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder
                 .getInstance(codeLensContext.languageServercontext()).getProviders();
-        LSClientLogger clientLogger = LSClientLogger.getInstance(codeLensContext.languageServercontext());
         for (LSCodeLensesProvider provider : providers) {
             codeLensContext.checkCancelled();
             lenses.addAll(provider.getLenses(codeLensContext));
