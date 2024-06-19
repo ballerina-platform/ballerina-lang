@@ -122,30 +122,22 @@ public class LangLibUtils {
     }
 
     public static String getAssociatedLangLibName(BVariableType bVarType) {
-        switch (bVarType) {
-            case INT:
-            case BYTE:
-                return INT.getString();
-            case ARRAY:
-            case TUPLE:
-                return ARRAY.getString();
-            case RECORD:
-            case MAP:
-                return MAP.getString();
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case BOOLEAN:
-            case STREAM:
-            case OBJECT:
-            case ERROR:
-            case FUTURE:
-            case TYPE_DESC:
-            case XML:
-            case TABLE:
-                return bVarType.getString();
-            default:
-                return LANG_LIB_VALUE;
-        }
+        return switch (bVarType) {
+            case INT, BYTE -> INT.getString();
+            case ARRAY, TUPLE -> ARRAY.getString();
+            case RECORD, MAP -> MAP.getString();
+            case FLOAT,
+                 DECIMAL,
+                 STRING,
+                 BOOLEAN,
+                 STREAM,
+                 OBJECT,
+                 ERROR,
+                 FUTURE,
+                 TYPE_DESC,
+                 XML,
+                 TABLE -> bVarType.getString();
+            default -> LANG_LIB_VALUE;
+        };
     }
 }

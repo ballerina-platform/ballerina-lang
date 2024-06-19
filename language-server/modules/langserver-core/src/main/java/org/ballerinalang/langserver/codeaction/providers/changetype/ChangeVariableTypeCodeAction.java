@@ -224,18 +224,13 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 return getLetVarDeclTypeNode((LetVariableDeclarationNode) matchedNode);
             case LET_EXPRESSION:
                 Node parent = matchedNode.parent();
-                switch (parent.kind()) {
-                    case LOCAL_VAR_DECL:
-                        return getLocalVarTypeNode((VariableDeclarationNode) parent);
-                    case MODULE_VAR_DECL:
-                        return getModuleVarTypeNode((ModuleVariableDeclarationNode) parent);
-                    case OBJECT_FIELD:
-                        return getObjectFieldTypeNode((ObjectFieldNode) parent);
-                    case LET_VAR_DECL:
-                        return getLetVarDeclTypeNode((LetVariableDeclarationNode) parent);    
-                    default:
-                        return Optional.empty();
-                }
+                return switch (parent.kind()) {
+                    case LOCAL_VAR_DECL -> getLocalVarTypeNode((VariableDeclarationNode) parent);
+                    case MODULE_VAR_DECL -> getModuleVarTypeNode((ModuleVariableDeclarationNode) parent);
+                    case OBJECT_FIELD -> getObjectFieldTypeNode((ObjectFieldNode) parent);
+                    case LET_VAR_DECL -> getLetVarDeclTypeNode((LetVariableDeclarationNode) parent);
+                    default -> Optional.empty();
+                };
             default:
                 return Optional.empty();
         }
@@ -258,44 +253,37 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     }
 
     private Optional<String> getVariableName(Node matchedNode) {
-        switch (matchedNode.kind()) {
-            case LOCAL_VAR_DECL:
-                return getLocalVarName((VariableDeclarationNode) matchedNode);
-            case MODULE_VAR_DECL:
-                return getModuleVarName((ModuleVariableDeclarationNode) matchedNode);
-            case ASSIGNMENT_STATEMENT:
+        return switch (matchedNode.kind()) {
+            case LOCAL_VAR_DECL -> getLocalVarName((VariableDeclarationNode) matchedNode);
+            case MODULE_VAR_DECL -> getModuleVarName((ModuleVariableDeclarationNode) matchedNode);
+            case ASSIGNMENT_STATEMENT -> {
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
                 if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                    return Optional.of(((SimpleNameReferenceNode) varRef).name().text());
+                    yield Optional.of(((SimpleNameReferenceNode) varRef).name().text());
                 } else if (varRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                    return Optional.of(((QualifiedNameReferenceNode) varRef).identifier().text());
+                    yield Optional.of(((QualifiedNameReferenceNode) varRef).identifier().text());
                 }
-                return Optional.empty();
-            case CONST_DECLARATION:
+                yield Optional.empty();
+            }
+            case CONST_DECLARATION -> {
                 ConstantDeclarationNode constantDecl = (ConstantDeclarationNode) matchedNode;
-                return Optional.of(constantDecl.variableName().text());
-            case OBJECT_FIELD:
-                return getObjectFieldName((ObjectFieldNode) matchedNode);
-            case LET_VAR_DECL:
-                return getLetVarName((LetVariableDeclarationNode) matchedNode);
-            case LET_EXPRESSION:
+                yield Optional.of(constantDecl.variableName().text());
+            }
+            case OBJECT_FIELD -> getObjectFieldName((ObjectFieldNode) matchedNode);
+            case LET_VAR_DECL -> getLetVarName((LetVariableDeclarationNode) matchedNode);
+            case LET_EXPRESSION -> {
                 Node parent = matchedNode.parent();
-                switch (parent.kind()) {
-                    case LOCAL_VAR_DECL:
-                        return getLocalVarName((VariableDeclarationNode) parent);
-                    case MODULE_VAR_DECL:
-                        return getModuleVarName((ModuleVariableDeclarationNode) parent);
-                    case OBJECT_FIELD:
-                        return getObjectFieldName((ObjectFieldNode) parent);    
-                    case LET_VAR_DECL:
-                        return getLetVarName((LetVariableDeclarationNode) parent);
-                    default:
-                        return Optional.empty();
-                }
-            default:
-                return Optional.empty();
-        }
+                yield switch (parent.kind()) {
+                    case LOCAL_VAR_DECL -> getLocalVarName((VariableDeclarationNode) parent);
+                    case MODULE_VAR_DECL -> getModuleVarName((ModuleVariableDeclarationNode) parent);
+                    case OBJECT_FIELD -> getObjectFieldName((ObjectFieldNode) parent);
+                    case LET_VAR_DECL -> getLetVarName((LetVariableDeclarationNode) parent);
+                    default -> Optional.empty();
+                };
+            }
+            default -> Optional.empty();
+        };
     }
     
     private Optional<String> getLocalVarName(VariableDeclarationNode node) {

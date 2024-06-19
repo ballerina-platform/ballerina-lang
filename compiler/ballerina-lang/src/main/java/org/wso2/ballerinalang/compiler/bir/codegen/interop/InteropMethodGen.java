@@ -480,26 +480,17 @@ public class InteropMethodGen {
             return "[" + getJTypeSignature(eType);
         }
 
-        switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                return "B";
-            case JTypeTags.JCHAR:
-                return "C";
-            case JTypeTags.JSHORT:
-                return "S";
-            case JTypeTags.JINT:
-                return "I";
-            case JTypeTags.JLONG:
-                return "J";
-            case JTypeTags.JFLOAT:
-                return "F";
-            case JTypeTags.JDOUBLE:
-                return "D";
-            case JTypeTags.JBOOLEAN:
-                return "Z";
-            default:
-                throw new BLangCompilerException("invalid element type: " + jType);
-        }
+        return switch (jType.jTag) {
+            case JTypeTags.JBYTE -> "B";
+            case JTypeTags.JCHAR -> "C";
+            case JTypeTags.JSHORT -> "S";
+            case JTypeTags.JINT -> "I";
+            case JTypeTags.JLONG -> "J";
+            case JTypeTags.JFLOAT -> "F";
+            case JTypeTags.JDOUBLE -> "D";
+            case JTypeTags.JBOOLEAN -> "Z";
+            default -> throw new BLangCompilerException("invalid element type: " + jType);
+        };
     }
 
     public static String getSignatureForJType(JType jType) {
@@ -513,28 +504,18 @@ public class InteropMethodGen {
                 sig += "[";
             }
 
-            switch (eType.jTag) {
-                case JTypeTags.JREF:
-                    return sig + "L" + getSignatureForJType(eType) + ";";
-                case JTypeTags.JBYTE:
-                    return sig + "B";
-                case JTypeTags.JCHAR:
-                    return sig + "C";
-                case JTypeTags.JSHORT:
-                    return sig + "S";
-                case JTypeTags.JINT:
-                    return sig + "I";
-                case JTypeTags.JLONG:
-                    return sig + "J";
-                case JTypeTags.JFLOAT:
-                    return sig + "F";
-                case JTypeTags.JDOUBLE:
-                    return sig + "D";
-                case JTypeTags.JBOOLEAN:
-                    return sig + "Z";
-                default:
-                    throw new BLangCompilerException("invalid element type: " + eType);
-            }
+            return switch (eType.jTag) {
+                case JTypeTags.JREF -> sig + "L" + getSignatureForJType(eType) + ";";
+                case JTypeTags.JBYTE -> sig + "B";
+                case JTypeTags.JCHAR -> sig + "C";
+                case JTypeTags.JSHORT -> sig + "S";
+                case JTypeTags.JINT -> sig + "I";
+                case JTypeTags.JLONG -> sig + "J";
+                case JTypeTags.JFLOAT -> sig + "F";
+                case JTypeTags.JDOUBLE -> sig + "D";
+                case JTypeTags.JBOOLEAN -> sig + "Z";
+                default -> throw new BLangCompilerException("invalid element type: " + eType);
+            };
         } else {
             throw new BLangCompilerException("invalid element type: " + jType);
         }
@@ -632,34 +613,16 @@ public class InteropMethodGen {
 
     private static void genArrayStore(MethodVisitor mv, JType jType) {
 
-        int code;
-        switch (jType.jTag) {
-            case JTypeTags.JINT:
-                code = IASTORE;
-                break;
-            case JTypeTags.JLONG:
-                code = LASTORE;
-                break;
-            case JTypeTags.JDOUBLE:
-                code = DASTORE;
-                break;
-            case JTypeTags.JBYTE:
-            case JTypeTags.JBOOLEAN:
-                code = BASTORE;
-                break;
-            case JTypeTags.JSHORT:
-                code = SASTORE;
-                break;
-            case JTypeTags.JCHAR:
-                code = CASTORE;
-                break;
-            case JTypeTags.JFLOAT:
-                code = FASTORE;
-                break;
-            default:
-                code = AASTORE;
-                break;
-        }
+        int code = switch (jType.jTag) {
+            case JTypeTags.JINT -> IASTORE;
+            case JTypeTags.JLONG -> LASTORE;
+            case JTypeTags.JDOUBLE -> DASTORE;
+            case JTypeTags.JBYTE, JTypeTags.JBOOLEAN -> BASTORE;
+            case JTypeTags.JSHORT -> SASTORE;
+            case JTypeTags.JCHAR -> CASTORE;
+            case JTypeTags.JFLOAT -> FASTORE;
+            default -> AASTORE;
+        };
 
         mv.visitInsn(code);
     }

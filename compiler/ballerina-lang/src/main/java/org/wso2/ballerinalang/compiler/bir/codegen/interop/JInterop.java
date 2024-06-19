@@ -148,16 +148,12 @@ class JInterop {
 
     private static ParamTypeConstraint buildParamTypeConstraint(JType javaTypeConstraint, ClassLoader classLoader) {
 
-        switch (javaTypeConstraint.jTag) {
-            case JREF:
-                return buildConstraintFromJavaRefType((JType.JRefType) javaTypeConstraint, classLoader);
-            case JARRAY:
-                return buildConstraintFromJavaArrayType((JType.JArrayType) javaTypeConstraint, classLoader);
-            case JNO:
-                return ParamTypeConstraint.NO_CONSTRAINT;
-            default:
-                return buildConstraintFromJavaPrimitiveType(javaTypeConstraint);
-        }
+        return switch (javaTypeConstraint.jTag) {
+            case JREF -> buildConstraintFromJavaRefType((JType.JRefType) javaTypeConstraint, classLoader);
+            case JARRAY -> buildConstraintFromJavaArrayType((JType.JArrayType) javaTypeConstraint, classLoader);
+            case JNO -> ParamTypeConstraint.NO_CONSTRAINT;
+            default -> buildConstraintFromJavaPrimitiveType(javaTypeConstraint);
+        };
     }
 
     private static ParamTypeConstraint buildConstraintFromJavaRefType(JType.JRefType javaRefType,
@@ -192,62 +188,35 @@ class JInterop {
 
     private static ParamTypeConstraint buildConstraintFromJavaPrimitiveType(JType primitiveTypeName) {
         // Java primitive types: byte, short, char, int, long, float, double, boolean
-        Class<?> constraintClass;
-        switch (primitiveTypeName.jTag) {
-            case JBYTE:
-                constraintClass = byte.class;
-                break;
-            case JSHORT:
-                constraintClass = short.class;
-                break;
-            case JCHAR:
-                constraintClass = char.class;
-                break;
-            case JINT:
-                constraintClass = int.class;
-                break;
-            case JLONG:
-                constraintClass = long.class;
-                break;
-            case JFLOAT:
-                constraintClass = float.class;
-                break;
-            case JDOUBLE:
-                constraintClass = double.class;
-                break;
-            case JBOOLEAN:
-                constraintClass = boolean.class;
-                break;
-            default:
-                throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
-                        "Unsupported Java primitive type '" + primitiveTypeName + "'");
-        }
+        Class<?> constraintClass = switch (primitiveTypeName.jTag) {
+            case JBYTE -> byte.class;
+            case JSHORT -> short.class;
+            case JCHAR -> char.class;
+            case JINT -> int.class;
+            case JLONG -> long.class;
+            case JFLOAT -> float.class;
+            case JDOUBLE -> double.class;
+            case JBOOLEAN -> boolean.class;
+            default -> throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
+                    "Unsupported Java primitive type '" + primitiveTypeName + "'");
+        };
         return new ParamTypeConstraint(constraintClass);
     }
 
     private static String getSignatureFromJavaPrimitiveType(JType primitiveTypeName) {
         // Java primitive types: byte, short, char, int, long, float, double, boolean
-        switch (primitiveTypeName.jTag) {
-            case JBYTE:
-                return "B";
-            case JSHORT:
-                return "S";
-            case JCHAR:
-                return "C";
-            case JINT:
-                return "I";
-            case JLONG:
-                return "J";
-            case JFLOAT:
-                return "F";
-            case JDOUBLE:
-                return "D";
-            case JBOOLEAN:
-                return "Z";
-            default:
-                throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
-                        "Unsupported Java primitive type '" + primitiveTypeName + "'");
-        }
+        return switch (primitiveTypeName.jTag) {
+            case JBYTE -> "B";
+            case JSHORT -> "S";
+            case JCHAR -> "C";
+            case JINT -> "I";
+            case JLONG -> "J";
+            case JFLOAT -> "F";
+            case JDOUBLE -> "D";
+            case JBOOLEAN -> "Z";
+            default -> throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
+                    "Unsupported Java primitive type '" + primitiveTypeName + "'");
+        };
     }
 
     static Class<?> loadClass(String className, ClassLoader classLoader) {
@@ -279,15 +248,10 @@ class JInterop {
 
     static boolean isInteropAnnotationTag(String annotTag) {
 
-        switch (annotTag) {
-            case CONSTRUCTOR_ANNOT_TAG:
-            case METHOD_ANNOT_TAG:
-            case FIELD_GET_ANNOT_TAG:
-            case FIELD_PUT_ANNOT_TAG:
-                return true;
-            default:
-                return false;
-        }
+        return switch (annotTag) {
+            case CONSTRUCTOR_ANNOT_TAG, METHOD_ANNOT_TAG, FIELD_GET_ANNOT_TAG, FIELD_PUT_ANNOT_TAG -> true;
+            default -> false;
+        };
     }
 
     static boolean isMethodAnnotationTag(String annotTag) {

@@ -206,37 +206,19 @@ public class CompletionUtil {
     }
 
     private static CompletionItemType getCompletionItemType(Symbol symbol) {
-        switch (symbol.kind()) {
-            case MODULE:
-                return CompletionItemType.MODULE;
-            case FUNCTION:
-                return CompletionItemType.FUNCTION;
-            case METHOD:
-            case RESOURCE_METHOD:
-                return CompletionItemType.METHOD;
-            case VARIABLE:
-                return CompletionItemType.VARIABLE;
-            case CLASS:
-                return CompletionItemType.CLASS;
-            case RECORD_FIELD:
-            case OBJECT_FIELD:
-            case CLASS_FIELD:
-                return CompletionItemType.FIELD;
-            case ENUM:
-                return CompletionItemType.ENUM;
-            case XMLNS:
-            case CONSTANT:
-            case TYPE_DEFINITION:
-            case TYPE:
-            case SERVICE_DECLARATION:
-            case WORKER:
-            case ANNOTATION:
-            case ENUM_MEMBER:
-            case PARAMETER:
-            case PATH_PARAMETER:
-            default:
-                return null;
-        }
+        return switch (symbol.kind()) {
+            case MODULE -> CompletionItemType.MODULE;
+            case FUNCTION -> CompletionItemType.FUNCTION;
+            case METHOD,
+                 RESOURCE_METHOD -> CompletionItemType.METHOD;
+            case VARIABLE -> CompletionItemType.VARIABLE;
+            case CLASS -> CompletionItemType.CLASS;
+            case RECORD_FIELD,
+                 OBJECT_FIELD,
+                 CLASS_FIELD -> CompletionItemType.FIELD;
+            case ENUM -> CompletionItemType.ENUM;
+            default -> null;
+        };
     }
 
     /**

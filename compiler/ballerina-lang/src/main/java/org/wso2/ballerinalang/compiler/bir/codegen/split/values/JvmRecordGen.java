@@ -891,17 +891,11 @@ public class JvmRecordGen {
 
     private boolean checkIfValueIsJReferenceType(BType bType) {
 
-        switch (bType.getKind()) {
-            case INT:
-            case BOOLEAN:
-            case FLOAT:
-            case BYTE:
-                return false;
-            case TYPEREFDESC:
-                return checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
-            default:
-                return true;
-        }
+        return switch (bType.getKind()) {
+            case INT, BOOLEAN, FLOAT, BYTE -> false;
+            case TYPEREFDESC -> checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
+            default -> true;
+        };
     }
 
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

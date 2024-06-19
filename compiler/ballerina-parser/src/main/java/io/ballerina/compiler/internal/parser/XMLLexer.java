@@ -45,53 +45,37 @@ public class XMLLexer extends AbstractLexer {
      */
     @Override
     public STToken nextToken() {
-        STToken token;
-        switch (this.mode) {
-            case XML_CONTENT:
-                token = readTokenInXMLContent();
-                break;
-            case XML_ELEMENT_START_TAG:
+        STToken token = switch (this.mode) {
+            case XML_CONTENT -> readTokenInXMLContent();
+            case XML_ELEMENT_START_TAG -> {
                 processLeadingXMLTrivia();
-                token = readTokenInXMLElement(true);
-                break;
-            case XML_ELEMENT_END_TAG:
+                yield readTokenInXMLElement(true);
+            }
+            case XML_ELEMENT_END_TAG -> {
                 processLeadingXMLTrivia();
-                token = readTokenInXMLElement(false);
-                break;
-            case XML_TEXT:
-                // XML text have no trivia. Whitespace is part of the text.
-                token = readTokenInXMLText();
-                break;
-            case INTERPOLATION:
-                token = readTokenInInterpolation();
-                break;
-            case XML_ATTRIBUTES:
+                yield readTokenInXMLElement(false);
+            }
+            // XML text have no trivia. Whitespace is part of the text.
+            case XML_TEXT -> readTokenInXMLText();
+            case INTERPOLATION -> readTokenInInterpolation();
+            case XML_ATTRIBUTES -> {
                 processLeadingXMLTrivia();
-                token = readTokenInXMLAttributes(true);
-                break;
-            case XML_COMMENT:
-                token = readTokenInXMLCommentOrCDATA(false);
-                break;
-            case XML_PI:
+                yield readTokenInXMLAttributes(true);
+            }
+            case XML_COMMENT -> readTokenInXMLCommentOrCDATA(false);
+            case XML_PI -> {
                 processLeadingXMLTrivia();
-                token = readTokenInXMLPI();
-                break;
-            case XML_PI_DATA:
+                yield readTokenInXMLPI();
+            }
+            case XML_PI_DATA -> {
                 processLeadingXMLTrivia();
-                token = readTokenInXMLPIData();
-                break;
-            case XML_SINGLE_QUOTED_STRING:
-                token = processXMLSingleQuotedString();
-                break;
-            case XML_DOUBLE_QUOTED_STRING:
-                token = processXMLDoubleQuotedString();
-                break;
-            case XML_CDATA_SECTION:
-                token = readTokenInXMLCommentOrCDATA(true);
-                break;
-            default:
-                token = null;
-        }
+                yield readTokenInXMLPIData();
+            }
+            case XML_SINGLE_QUOTED_STRING -> processXMLSingleQuotedString();
+            case XML_DOUBLE_QUOTED_STRING -> processXMLDoubleQuotedString();
+            case XML_CDATA_SECTION -> readTokenInXMLCommentOrCDATA(true);
+            default -> null;
+        };
 
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);

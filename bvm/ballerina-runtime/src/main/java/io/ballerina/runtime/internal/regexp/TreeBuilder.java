@@ -114,33 +114,23 @@ public class TreeBuilder {
             return readRegAssertion();
         }
 
-        RegExpAtom reAtom;
-        switch (nextToken.kind) {
-            case RE_LITERAL_CHAR:
-            case RE_NUMERIC_ESCAPE:
-            case RE_CONTROL_ESCAPE:
-            case COMMA_TOKEN:
-            case DOT_TOKEN:
-            case DIGIT:
-            case MINUS_TOKEN:
-            case COLON_TOKEN:    
-                reAtom = readRegChars();
-                break;
-            case BACK_SLASH_TOKEN:
-                reAtom = readRegEscapeChar();
-                break;
-            case OPEN_BRACKET_TOKEN:
-                reAtom = readRegCharacterClass();
-                break;
-            case OPEN_PAREN_TOKEN:
-                reAtom = readRegCapturingGroups();
-                break;
-            default:
-                // Here the token is a syntax char, which is invalid. Syntax char tokens should be 
-                // proceeded by backslashes.
-                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        ErrorCodes.REGEXP_MISSING_BACKSLASH.messageKey(), nextToken.value));
-        }
+        RegExpAtom reAtom = switch (nextToken.kind) {
+            case RE_LITERAL_CHAR,
+                 RE_NUMERIC_ESCAPE,
+                 RE_CONTROL_ESCAPE,
+                 COMMA_TOKEN,
+                 DOT_TOKEN,
+                 DIGIT,
+                 MINUS_TOKEN,
+                 COLON_TOKEN -> readRegChars();
+            case BACK_SLASH_TOKEN -> readRegEscapeChar();
+            case OPEN_BRACKET_TOKEN -> readRegCharacterClass();
+            case OPEN_PAREN_TOKEN -> readRegCapturingGroups();
+            // Here the token is a syntax char, which is invalid. Syntax char tokens should be
+            // proceeded by backslashes.
+            default -> throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
+                            ErrorCodes.REGEXP_MISSING_BACKSLASH.messageKey(), nextToken.value));
+        };
 
         RegExpQuantifier quantifier = readOptionalQuantifier();
         if (quantifier == null) {
@@ -164,31 +154,30 @@ public class TreeBuilder {
 
     private String readRegEscape(Token backSlash) {
         Token nextToken = peek();
-        switch (nextToken.kind) {
-            case RE_PROPERTY:
-                return readRegUnicodePropertyEscape(backSlash.value);
-            case BITWISE_XOR_TOKEN:
-            case DOLLAR_TOKEN:
-            case BACK_SLASH_TOKEN:
-            case DOT_TOKEN:
-            case ASTERISK_TOKEN:
-            case PLUS_TOKEN:
-            case QUESTION_MARK_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case PIPE_TOKEN:
-                return readRegQuoteEscape(backSlash.value);
-            default:
+        return switch (nextToken.kind) {
+            case RE_PROPERTY -> readRegUnicodePropertyEscape(backSlash.value);
+            case BITWISE_XOR_TOKEN,
+                 DOLLAR_TOKEN,
+                 BACK_SLASH_TOKEN,
+                 DOT_TOKEN,
+                 ASTERISK_TOKEN,
+                 PLUS_TOKEN,
+                 QUESTION_MARK_TOKEN,
+                 OPEN_PAREN_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 OPEN_BRACKET_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 PIPE_TOKEN -> readRegQuoteEscape(backSlash.value);
+            default -> {
                 if (isReSimpleCharClassCode(nextToken)) {
-                    return readRegSimpleCharClassEscape(backSlash.value);
+                    yield readRegSimpleCharClassEscape(backSlash.value);
                 }
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         ErrorCodes.REGEXP_INVALID_CHAR_AFTER_BACKSLASH.messageKey(), nextToken.value));
-        }
+            }
+        };
     }
 
     /**
@@ -434,15 +423,10 @@ public class TreeBuilder {
 
     private RegExpQuantifier readOptionalQuantifier() {
         Token nextToken = peek();
-        switch (nextToken.kind) {
-            case QUESTION_MARK_TOKEN:
-            case ASTERISK_TOKEN:
-            case PLUS_TOKEN:
-            case OPEN_BRACE_TOKEN:
-                return readReQuantifier();
-            default:
-                return null;
-        }
+        return switch (nextToken.kind) {
+            case QUESTION_MARK_TOKEN, ASTERISK_TOKEN, PLUS_TOKEN, OPEN_BRACE_TOKEN -> readReQuantifier();
+            default -> null;
+        };
     }
 
     private RegExpQuantifier readReQuantifier() {
@@ -562,45 +546,31 @@ public class TreeBuilder {
     }
 
     private boolean isEndOfReDisjunction(TokenKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_PAREN_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private boolean isEndOfReSequence(TokenKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case PIPE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, PIPE_TOKEN, CLOSE_PAREN_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private boolean isCharacterClassEnd(TokenKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private boolean isReCharSetLiteralChar(String tokenText) {
-        switch (tokenText) {
-            case "\\":
-            case "-":
-            case "]":
-                return false;
-            default:
-                return true;
-        }
+        return switch (tokenText) {
+            case "\\", "-", "]" -> false;
+            default -> true;
+        };
     }
 
     private boolean isEndOfFlagExpression(TokenKind kind) {
@@ -612,15 +582,11 @@ public class TreeBuilder {
     }
 
     private boolean isEndOfDigits(TokenKind kind, boolean isLeastDigits) {
-        switch (kind) {
-            case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            case COMMA_TOKEN:
-                return isLeastDigits;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case CLOSE_BRACE_TOKEN, EOF_TOKEN -> true;
+            case COMMA_TOKEN -> isLeastDigits;
+            default -> false;
+        };
     }
 
     static boolean isIncorrectCharRange(String lhsValue, String rhsValue) {
@@ -634,32 +600,20 @@ public class TreeBuilder {
         if (token.kind != TokenKind.RE_LITERAL_CHAR) {
             return false;
         }
-        switch (token.value) {
-            case "d":
-            case "D":
-            case "s":
-            case "S":
-            case "w":
-            case "W":
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.value) {
+            case "d", "D", "s", "S", "w", "W" -> true;
+            default -> false;
+        };
     }
 
     static boolean isReFlag(Token nextToken) {
         if (nextToken.kind != TokenKind.RE_LITERAL_CHAR) {
             return false;
         }
-        switch (nextToken.value) {
-            case "m":
-            case "s":
-            case "i":
-            case "x":
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextToken.value) {
+            case "m", "s", "i", "x" -> true;
+            default -> false;
+        };
     }
 
     private BString getErrorMsg(Token nextToken) {

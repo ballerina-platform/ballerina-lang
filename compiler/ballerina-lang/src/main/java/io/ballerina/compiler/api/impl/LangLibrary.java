@@ -149,32 +149,24 @@ public class LangLibrary {
     }
 
     private String getAssociatedLangLibName(TypeKind typeKind) {
-        switch (typeKind) {
-            case INT:
-            case BYTE:
-                return TypeKind.INT.typeName();
-            case ARRAY:
-            case TUPLE:
-                return "array";
-            case RECORD:
-            case MAP:
-                return TypeKind.MAP.typeName();
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case BOOLEAN:
-            case STREAM:
-            case OBJECT:
-            case ERROR:
-            case FUTURE:
-            case TYPEDESC:
-            case XML:
-            case TABLE:
-            case REGEXP:
-                return typeKind.typeName();
-            default:
-                return LANG_VALUE;
-        }
+        return switch (typeKind) {
+            case INT, BYTE -> TypeKind.INT.typeName();
+            case ARRAY, TUPLE -> "array";
+            case RECORD, MAP -> TypeKind.MAP.typeName();
+            case FLOAT,
+                 DECIMAL,
+                 STRING,
+                 BOOLEAN,
+                 STREAM,
+                 OBJECT,
+                 ERROR,
+                 FUTURE,
+                 TYPEDESC,
+                 XML,
+                 TABLE,
+                 REGEXP -> typeKind.typeName();
+            default -> LANG_VALUE;
+        };
     }
 
     private static void addLangLibMethods(String basicType, BPackageSymbol langLibModule,

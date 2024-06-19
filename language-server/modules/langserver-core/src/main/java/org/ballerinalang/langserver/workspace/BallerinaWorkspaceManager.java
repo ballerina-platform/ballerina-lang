@@ -1422,23 +1422,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private boolean hasDocumentOrToml(Path filePath, Project project) {
         String fileName = Optional.of(filePath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-                return project.currentPackage().ballerinaToml().isPresent();
-            case ProjectConstants.CLOUD_TOML:
-                return project.currentPackage().cloudToml().isPresent();
-            case ProjectConstants.COMPILER_PLUGIN_TOML:
-                return project.currentPackage().compilerPluginToml().isPresent();
-            case ProjectConstants.BAL_TOOL_TOML:
-                return project.currentPackage().balToolToml().isPresent();
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return project.currentPackage().dependenciesToml().isPresent();
-            default:
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML -> project.currentPackage().ballerinaToml().isPresent();
+            case ProjectConstants.CLOUD_TOML -> project.currentPackage().cloudToml().isPresent();
+            case ProjectConstants.COMPILER_PLUGIN_TOML -> project.currentPackage().compilerPluginToml().isPresent();
+            case ProjectConstants.BAL_TOOL_TOML -> project.currentPackage().balToolToml().isPresent();
+            case ProjectConstants.DEPENDENCIES_TOML -> project.currentPackage().dependenciesToml().isPresent();
+            default -> {
                 if (fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    return document(filePath, project, null).isPresent();
+                    yield document(filePath, project, null).isPresent();
                 }
-                return false;
-        }
+                yield false;
+            }
+        };
     }
 
     private void reloadProject(ProjectContext projectContext, Path filePath, String operationName) {

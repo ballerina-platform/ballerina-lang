@@ -96,36 +96,25 @@ public class RegExpParser extends AbstractParser {
             return parseReAssertion();
         }
 
-        STNode reAtom;
-        switch (nextToken.kind) {
-            case RE_LITERAL_CHAR:
-            case RE_NUMERIC_ESCAPE:
-            case RE_CONTROL_ESCAPE:
-            case COMMA_TOKEN:
-            case DOT_TOKEN:
-            case DIGIT:
-                reAtom = parseChars();
-                break;
-            case BACK_SLASH_TOKEN:
-                reAtom = parseReEscape();
-                break;
-            case OPEN_BRACKET_TOKEN:
-                reAtom = parseCharacterClass();
-                break;
-            case OPEN_PAREN_TOKEN:
-                reAtom = parseCapturingGroup();
-                break;
-            case INTERPOLATION_START_TOKEN:
-                reAtom = parseInterpolation();
-                break;
-            default:
+        STNode reAtom = switch (nextToken.kind) {
+            case RE_LITERAL_CHAR,
+                 RE_NUMERIC_ESCAPE,
+                 RE_CONTROL_ESCAPE,
+                 COMMA_TOKEN,
+                 DOT_TOKEN,
+                 DIGIT -> parseChars();
+            case BACK_SLASH_TOKEN -> parseReEscape();
+            case OPEN_BRACKET_TOKEN -> parseCharacterClass();
+            case OPEN_PAREN_TOKEN -> parseCapturingGroup();
+            case INTERPOLATION_START_TOKEN -> parseInterpolation();
+            default -> {
                 // Here the token is a syntax char, which is invalid. A syntax char should have a backslash prior
                 // to the token.
                 STNode missingBackSlash =
                         SyntaxErrors.createMissingRegExpTokenWithDiagnostics(SyntaxKind.BACK_SLASH_TOKEN);
-                reAtom = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingBackSlash, consume());
-                break;
-        }
+                yield SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingBackSlash, consume());
+            }
+        };
 
         nextToken = peek();
         STNode quantifier = parseOptionalQuantifier(nextToken.kind);
@@ -138,15 +127,10 @@ public class RegExpParser extends AbstractParser {
     }
 
     private STNode parseOptionalQuantifier(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case PLUS_TOKEN:
-            case ASTERISK_TOKEN:
-            case QUESTION_MARK_TOKEN:
-            case OPEN_BRACE_TOKEN:
-                return parseReQuantifier();
-            default:
-                return null;
-        }
+        return switch (tokenKind) {
+            case PLUS_TOKEN, ASTERISK_TOKEN, QUESTION_MARK_TOKEN, OPEN_BRACE_TOKEN -> parseReQuantifier();
+            default -> null;
+        };
     }
 
     /**
@@ -304,17 +288,10 @@ public class RegExpParser extends AbstractParser {
         if (token.kind != SyntaxKind.RE_LITERAL_CHAR) {
             return false;
         }
-        switch (token.text()) {
-            case "d":
-            case "D":
-            case "s":
-            case "S":
-            case "w":
-            case "W":
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.text()) {
+            case "d", "D", "s", "S", "w", "W" -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -445,24 +422,17 @@ public class RegExpParser extends AbstractParser {
     }
 
     private boolean isReCharSetLiteralChar(String tokenText) {
-        switch (tokenText) {
-            case "\\":
-            case "-":
-            case "]":
-                return false;
-            default:
-                return true;
-        }
+        return switch (tokenText) {
+            case "\\", "-", "]" -> false;
+            default -> true;
+        };
     }
 
     private boolean isCharacterClassEnd(SyntaxKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -550,15 +520,11 @@ public class RegExpParser extends AbstractParser {
     }
 
     private boolean isEndOfDigits(SyntaxKind kind, boolean isLeastDigits) {
-        switch (kind) {
-            case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            case COMMA_TOKEN:
-                return isLeastDigits;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case CLOSE_BRACE_TOKEN, EOF_TOKEN -> true;
+            case COMMA_TOKEN -> isLeastDigits;
+            default -> false;
+        };
     }
 
     /**
@@ -637,15 +603,10 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.RE_LITERAL_CHAR) {
             return false;
         }
-        switch (nextToken.text()) {
-            case "m":
-            case "s":
-            case "i":
-            case "x":
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextToken.text()) {
+            case "m", "s", "i", "x" -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -749,24 +710,17 @@ public class RegExpParser extends AbstractParser {
     }
 
     private boolean isEndOfReDisjunction(SyntaxKind kind, boolean inCapturingGroup) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-                return true;
-            default:
-                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, BACKTICK_TOKEN -> true;
+            default -> kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
+        };
     }
 
     private boolean isEndOfReSequence(SyntaxKind kind, boolean inCapturingGroup) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-            case PIPE_TOKEN:
-                return true;
-            default:
-                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, BACKTICK_TOKEN, PIPE_TOKEN -> true;
+            default -> kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
+        };
     }
 
     private STNode getToken(STToken token, SyntaxKind syntaxKind) {

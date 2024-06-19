@@ -77,32 +77,26 @@ public enum TypeDescKind {
     }
 
     public boolean isIntegerType() {
-        switch (this) {
-            case INT:
-            case INT_SIGNED8:
-            case INT_UNSIGNED8:
-            case INT_SIGNED16:
-            case INT_UNSIGNED16:
-            case INT_SIGNED32:
-            case INT_UNSIGNED32:
-            case BYTE:
-                return true;
-        }
+        return switch (this) {
+            case INT,
+                 INT_SIGNED8,
+                 INT_UNSIGNED8,
+                 INT_SIGNED16,
+                 INT_UNSIGNED16,
+                 INT_SIGNED32,
+                 INT_UNSIGNED32,
+                 BYTE -> true;
+            default -> false;
+        };
 
-        return false;
     }
 
     public boolean isXMLType() {
-        switch (this) {
-            case XML:
-            case XML_COMMENT:
-            case XML_ELEMENT:
-            case XML_PROCESSING_INSTRUCTION:
-            case XML_TEXT:
-                return true;
-        }
+        return switch (this) {
+            case XML, XML_COMMENT, XML_ELEMENT, XML_PROCESSING_INSTRUCTION, XML_TEXT -> true;
+            default -> false;
+        };
 
-        return false;
     }
 
     public boolean isStringType() {

@@ -866,18 +866,13 @@ public class JvmInstructionGen {
     }
 
     private String getCompareFuncName(int opcode) {
-        switch (opcode) {
-            case IFGT:
-                return "compareValueGreaterThan";
-            case IFGE:
-                return "compareValueGreaterThanOrEqual";
-            case IFLT:
-                return "compareValueLessThan";
-            case IFLE:
-                return "compareValueLessThanOrEqual";
-            default:
-                throw new BLangCompilerException("Opcode: '" + opcode + "' is not a comparison opcode.");
-        }
+        return switch (opcode) {
+            case IFGT -> "compareValueGreaterThan";
+            case IFGE -> "compareValueGreaterThanOrEqual";
+            case IFLT -> "compareValueLessThan";
+            case IFLE -> "compareValueLessThanOrEqual";
+            default -> throw new BLangCompilerException("Opcode: '" + opcode + "' is not a comparison opcode.");
+        };
     }
 
     private void generateEqualIns(BIRNonTerminator.BinaryOp binaryIns) {

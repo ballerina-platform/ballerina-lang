@@ -2662,74 +2662,44 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private InstructionKind getBinaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case ADD:
-                return InstructionKind.ADD;
-            case SUB:
-                return InstructionKind.SUB;
-            case MUL:
-                return InstructionKind.MUL;
-            case DIV:
-                return InstructionKind.DIV;
-            case MOD:
-                return InstructionKind.MOD;
-            case EQUAL:
-            case EQUALS:
-                return InstructionKind.EQUAL;
-            case NOT_EQUAL:
-                return InstructionKind.NOT_EQUAL;
-            case GREATER_THAN:
-                return InstructionKind.GREATER_THAN;
-            case GREATER_EQUAL:
-                return InstructionKind.GREATER_EQUAL;
-            case LESS_THAN:
-                return InstructionKind.LESS_THAN;
-            case LESS_EQUAL:
-                return InstructionKind.LESS_EQUAL;
-            case AND:
-                return InstructionKind.AND;
-            case OR:
-                return InstructionKind.OR;
-            case REF_EQUAL:
-                return InstructionKind.REF_EQUAL;
-            case REF_NOT_EQUAL:
-                return InstructionKind.REF_NOT_EQUAL;
-            case CLOSED_RANGE:
-                return InstructionKind.CLOSED_RANGE;
-            case HALF_OPEN_RANGE:
-                return InstructionKind.HALF_OPEN_RANGE;
-            case ANNOT_ACCESS:
-                return InstructionKind.ANNOT_ACCESS;
-            case BITWISE_AND:
-                return InstructionKind.BITWISE_AND;
-            case BITWISE_OR:
-                return InstructionKind.BITWISE_OR;
-            case BITWISE_XOR:
-                return InstructionKind.BITWISE_XOR;
-            case BITWISE_LEFT_SHIFT:
-                return InstructionKind.BITWISE_LEFT_SHIFT;
-            case BITWISE_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_RIGHT_SHIFT;
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
-            default:
-                throw new IllegalStateException("unsupported binary operation: " + opKind.value());
-        }
+        return switch (opKind) {
+            case ADD -> InstructionKind.ADD;
+            case SUB -> InstructionKind.SUB;
+            case MUL -> InstructionKind.MUL;
+            case DIV -> InstructionKind.DIV;
+            case MOD -> InstructionKind.MOD;
+            case EQUAL,
+                 EQUALS -> InstructionKind.EQUAL;
+            case NOT_EQUAL -> InstructionKind.NOT_EQUAL;
+            case GREATER_THAN -> InstructionKind.GREATER_THAN;
+            case GREATER_EQUAL -> InstructionKind.GREATER_EQUAL;
+            case LESS_THAN -> InstructionKind.LESS_THAN;
+            case LESS_EQUAL -> InstructionKind.LESS_EQUAL;
+            case AND -> InstructionKind.AND;
+            case OR -> InstructionKind.OR;
+            case REF_EQUAL -> InstructionKind.REF_EQUAL;
+            case REF_NOT_EQUAL -> InstructionKind.REF_NOT_EQUAL;
+            case CLOSED_RANGE -> InstructionKind.CLOSED_RANGE;
+            case HALF_OPEN_RANGE -> InstructionKind.HALF_OPEN_RANGE;
+            case ANNOT_ACCESS -> InstructionKind.ANNOT_ACCESS;
+            case BITWISE_AND -> InstructionKind.BITWISE_AND;
+            case BITWISE_OR -> InstructionKind.BITWISE_OR;
+            case BITWISE_XOR -> InstructionKind.BITWISE_XOR;
+            case BITWISE_LEFT_SHIFT -> InstructionKind.BITWISE_LEFT_SHIFT;
+            case BITWISE_RIGHT_SHIFT -> InstructionKind.BITWISE_RIGHT_SHIFT;
+            case BITWISE_UNSIGNED_RIGHT_SHIFT -> InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
+            default -> throw new IllegalStateException("unsupported binary operation: " + opKind.value());
+        };
     }
 
     private InstructionKind getUnaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case TYPEOF:
-                return InstructionKind.TYPEOF;
-            case NOT:
-                return InstructionKind.NOT;
-            case SUB:
-                return InstructionKind.NEGATE;
-            case ADD:
-                return InstructionKind.MOVE;
-            default:
-                throw new IllegalStateException("unsupported unary operator: " + opKind.value());
-        }
+        return switch (opKind) {
+            case TYPEOF -> InstructionKind.TYPEOF;
+            case NOT -> InstructionKind.NOT;
+            case SUB -> InstructionKind.NEGATE;
+            case ADD -> InstructionKind.MOVE;
+            default -> throw new IllegalStateException("unsupported unary operator: " + opKind.value());
+        };
     }
 
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {

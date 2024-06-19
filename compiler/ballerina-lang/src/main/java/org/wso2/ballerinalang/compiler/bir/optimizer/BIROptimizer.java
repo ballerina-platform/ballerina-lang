@@ -513,14 +513,10 @@ public class BIROptimizer {
                 return false;
             }
             int typeTag = variableDcl.type.tag;
-            switch (typeTag) {
-                case TypeTags.BYTE:
-                case TypeTags.BOOLEAN:
-                case TypeTags.FLOAT:
-                    return true;
-                default:
-                    return TypeTags.isIntegerTypeTag(typeTag);
-            }
+            return switch (typeTag) {
+                case TypeTags.BYTE, TypeTags.BOOLEAN, TypeTags.FLOAT -> true;
+                default -> TypeTags.isIntegerTypeTag(typeTag);
+            };
         }
 
         @Override

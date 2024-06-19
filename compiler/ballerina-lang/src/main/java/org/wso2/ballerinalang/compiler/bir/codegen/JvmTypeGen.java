@@ -507,53 +507,36 @@ public class JvmTypeGen {
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
         } else {
-            switch (bType.tag) {
-                case TypeTags.NEVER:
-                    return LOAD_NEVER_TYPE;
-                case TypeTags.INT:
-                case TypeTags.UNSIGNED8_INT:
-                case TypeTags.UNSIGNED16_INT:
-                case TypeTags.UNSIGNED32_INT:
-                case TypeTags.SIGNED8_INT:
-                case TypeTags.SIGNED16_INT:
-                case TypeTags.SIGNED32_INT:
-                    return LOAD_INTEGER_TYPE;
-                case TypeTags.FLOAT:
-                    return LOAD_FLOAT_TYPE;
-                case TypeTags.STRING:
-                case TypeTags.CHAR_STRING:
-                    return LOAD_STRING_TYPE;
-                case TypeTags.DECIMAL:
-                    return LOAD_DECIMAL_TYPE;
-                case TypeTags.BOOLEAN:
-                    return LOAD_BOOLEAN_TYPE;
-                case TypeTags.BYTE:
-                    return LOAD_BYTE_TYPE;
-                case TypeTags.ANY:
-                    return LOAD_ANY_TYPE;
-                case TypeTags.ANYDATA:
-                case TypeTags.REGEXP:
-                    return LOAD_ANYDATA_TYPE;
-                case TypeTags.JSON:
-                    return LOAD_JSON_TYPE;
-                case TypeTags.XML:
-                case TypeTags.XML_TEXT:
-                    return LOAD_XML_TYPE;
-                case TypeTags.XML_ELEMENT:
-                case TypeTags.XML_PI:
-                case TypeTags.XML_COMMENT:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
-                case TypeTags.OBJECT:
-                    return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
-                case TypeTags.HANDLE:
-                    return LOAD_HANDLE_TYPE;
-                case TypeTags.READONLY:
-                    return LOAD_READONLY_TYPE;
-                case TypeTags.UNION:
-                    return LOAD_UNION_TYPE;
-                default:
-                    return LOAD_TYPE;
-            }
+            return switch (bType.tag) {
+                case TypeTags.NEVER -> LOAD_NEVER_TYPE;
+                case TypeTags.INT,
+                     TypeTags.UNSIGNED8_INT,
+                     TypeTags.UNSIGNED16_INT,
+                     TypeTags.UNSIGNED32_INT,
+                     TypeTags.SIGNED8_INT,
+                     TypeTags.SIGNED16_INT,
+                     TypeTags.SIGNED32_INT -> LOAD_INTEGER_TYPE;
+                case TypeTags.FLOAT -> LOAD_FLOAT_TYPE;
+                case TypeTags.STRING,
+                     TypeTags.CHAR_STRING -> LOAD_STRING_TYPE;
+                case TypeTags.DECIMAL -> LOAD_DECIMAL_TYPE;
+                case TypeTags.BOOLEAN -> LOAD_BOOLEAN_TYPE;
+                case TypeTags.BYTE -> LOAD_BYTE_TYPE;
+                case TypeTags.ANY -> LOAD_ANY_TYPE;
+                case TypeTags.ANYDATA,
+                     TypeTags.REGEXP -> LOAD_ANYDATA_TYPE;
+                case TypeTags.JSON -> LOAD_JSON_TYPE;
+                case TypeTags.XML,
+                     TypeTags.XML_TEXT -> LOAD_XML_TYPE;
+                case TypeTags.XML_ELEMENT,
+                     TypeTags.XML_PI,
+                     TypeTags.XML_COMMENT -> Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
+                case TypeTags.OBJECT -> Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
+                case TypeTags.HANDLE -> LOAD_HANDLE_TYPE;
+                case TypeTags.READONLY -> LOAD_READONLY_TYPE;
+                case TypeTags.UNION -> LOAD_UNION_TYPE;
+                default -> LOAD_TYPE;
+            };
         }
     }
 
@@ -1050,49 +1033,33 @@ public class JvmTypeGen {
             return GET_REGEXP;
         }
 
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-                return "I";
-            case TypeTags.FLOAT:
-                return "D";
-            case TypeTags.BOOLEAN:
-                return "Z";
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.UNION:
-            case TypeTags.JSON:
-            case TypeTags.FINITE:
-            case TypeTags.READONLY:
-                return GET_OBJECT;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return GET_ARRAY_VALUE;
-            case TypeTags.ERROR:
-                return GET_ERROR_VALUE;
-            case TypeTags.FUTURE:
-                return GET_FUTURE_VALUE;
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return GET_MAP_VALUE;
-            case TypeTags.TYPEDESC:
-                return GET_TYPEDESC;
-            case TypeTags.STREAM:
-                return GET_STREAM_VALUE;
-            case TypeTags.TABLE:
-                return GET_TABLE_VALUE;
-            case TypeTags.DECIMAL:
-                return GET_BDECIMAL;
-            case TypeTags.OBJECT:
-                return GET_BOBJECT;
-            case TypeTags.HANDLE:
-                return GET_HANDLE_VALUE;
-            case TypeTags.INVOKABLE:
-                return GET_FUNCTION_POINTER;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
-        }
+        return switch (bType.tag) {
+            case TypeTags.BYTE -> "I";
+            case TypeTags.FLOAT -> "D";
+            case TypeTags.BOOLEAN -> "Z";
+            case TypeTags.NIL,
+                 TypeTags.NEVER,
+                 TypeTags.ANY,
+                 TypeTags.ANYDATA,
+                 TypeTags.UNION,
+                 TypeTags.JSON,
+                 TypeTags.FINITE,
+                 TypeTags.READONLY -> GET_OBJECT;
+            case TypeTags.ARRAY,
+                 TypeTags.TUPLE -> GET_ARRAY_VALUE;
+            case TypeTags.ERROR -> GET_ERROR_VALUE;
+            case TypeTags.FUTURE -> GET_FUTURE_VALUE;
+            case TypeTags.MAP,
+                 TypeTags.RECORD -> GET_MAP_VALUE;
+            case TypeTags.TYPEDESC -> GET_TYPEDESC;
+            case TypeTags.STREAM -> GET_STREAM_VALUE;
+            case TypeTags.TABLE -> GET_TABLE_VALUE;
+            case TypeTags.DECIMAL -> GET_BDECIMAL;
+            case TypeTags.OBJECT -> GET_BOBJECT;
+            case TypeTags.HANDLE -> GET_HANDLE_VALUE;
+            case TypeTags.INVOKABLE -> GET_FUNCTION_POINTER;
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+        };
     }
 
     private void loadFiniteType(MethodVisitor mv, BFiniteType finiteType) {

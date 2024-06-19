@@ -91,17 +91,12 @@ public class DocumentationParser extends AbstractParser {
     private STNode parseSingleDocumentationLine() {
         STNode hashToken = consume();
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case PLUS_TOKEN:
-                return parseParameterDocumentationLine(hashToken);
-            case DEPRECATION_LITERAL:
-                return parseDeprecationDocumentationLine(hashToken);
-            case TRIPLE_BACKTICK_TOKEN:
-            case DOUBLE_BACKTICK_TOKEN:
-                return parseCodeBlockOrInlineCodeRef(hashToken);
-            default:
-                return parseDocumentationLine(hashToken);
-        }
+        return switch (nextToken.kind) {
+            case PLUS_TOKEN -> parseParameterDocumentationLine(hashToken);
+            case DEPRECATION_LITERAL -> parseDeprecationDocumentationLine(hashToken);
+            case TRIPLE_BACKTICK_TOKEN, DOUBLE_BACKTICK_TOKEN -> parseCodeBlockOrInlineCodeRef(hashToken);
+            default -> parseDocumentationLine(hashToken);
+        };
     }
 
     /**
@@ -128,16 +123,11 @@ public class DocumentationParser extends AbstractParser {
     }
 
     private boolean isInlineCodeRef(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case HASH_TOKEN:
-                return getNextNextToken().kind == SyntaxKind.DOCUMENTATION_DESCRIPTION;
-            case CODE_CONTENT:
-                return getNextNextToken().kind != SyntaxKind.HASH_TOKEN;
-            case DOUBLE_BACKTICK_TOKEN:
-            case TRIPLE_BACKTICK_TOKEN:
-            default:
-                return true;
-        }
+        return switch (nextTokenKind) {
+            case HASH_TOKEN -> getNextNextToken().kind == SyntaxKind.DOCUMENTATION_DESCRIPTION;
+            case CODE_CONTENT -> getNextNextToken().kind != SyntaxKind.HASH_TOKEN;
+            default -> true;
+        };
     }
 
     /**
@@ -408,13 +398,12 @@ public class DocumentationParser extends AbstractParser {
         STNode nextToken = peek();
         if (nextToken.kind == SyntaxKind.HASH_TOKEN) {
             STNode nextNextToken = getNextNextToken();
-            switch (nextNextToken.kind) {
-                case CODE_CONTENT:
-                case HASH_TOKEN: // case where code line description is empty
-                    return false;
-                default:
-                    return true;
-            }
+            return switch (nextNextToken.kind) {
+                case CODE_CONTENT,
+                     // case where code line description is empty
+                     HASH_TOKEN -> false;
+                default -> true;
+            };
         }
 
         return true;
@@ -478,22 +467,14 @@ public class DocumentationParser extends AbstractParser {
     private boolean isBallerinaNameRefTokenSequence(ReferenceGenre refGenre) {
         boolean hasMatch;
         Lookahead lookahead = new Lookahead();
-        switch (refGenre) {
-            case SPECIAL_KEY:
-                // Look for x, m:x match
-                hasMatch = hasQualifiedIdentifier(lookahead);
-                break;
-            case FUNCTION_KEY:
-                // Look for x, m:x, x(), m:x(), T.y(), m:T.y() match
-                hasMatch = hasBacktickExpr(lookahead, true);
-                break;
-            case NO_KEY:
-                // Look for x(), m:x(), T.y(), m:T.y() match
-                hasMatch = hasBacktickExpr(lookahead, false);
-                break;
-            default:
-                throw new IllegalStateException("Unsupported backtick reference genre");
-        }
+        hasMatch = switch (refGenre) {
+            // Look for x, m:x match
+            case SPECIAL_KEY -> hasQualifiedIdentifier(lookahead);
+            // Look for x, m:x, x(), m:x(), T.y(), m:T.y() match
+            case FUNCTION_KEY -> hasBacktickExpr(lookahead, true);
+            // Look for x(), m:x(), T.y(), m:T.y() match
+            case NO_KEY -> hasBacktickExpr(lookahead, false);
+        };
 
         return hasMatch && peek(lookahead.offset).kind == SyntaxKind.BACKTICK_TOKEN;
     }
@@ -568,20 +549,18 @@ public class DocumentationParser extends AbstractParser {
     }
 
     private boolean isDocumentReferenceType(SyntaxKind kind) {
-        switch (kind) {
-            case TYPE_DOC_REFERENCE_TOKEN:
-            case SERVICE_DOC_REFERENCE_TOKEN:
-            case VARIABLE_DOC_REFERENCE_TOKEN:
-            case VAR_DOC_REFERENCE_TOKEN:
-            case ANNOTATION_DOC_REFERENCE_TOKEN:
-            case MODULE_DOC_REFERENCE_TOKEN:
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-            case PARAMETER_DOC_REFERENCE_TOKEN:
-            case CONST_DOC_REFERENCE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case TYPE_DOC_REFERENCE_TOKEN,
+                 SERVICE_DOC_REFERENCE_TOKEN,
+                 VARIABLE_DOC_REFERENCE_TOKEN,
+                 VAR_DOC_REFERENCE_TOKEN,
+                 ANNOTATION_DOC_REFERENCE_TOKEN,
+                 MODULE_DOC_REFERENCE_TOKEN,
+                 FUNCTION_DOC_REFERENCE_TOKEN,
+                 PARAMETER_DOC_REFERENCE_TOKEN,
+                 CONST_DOC_REFERENCE_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -610,21 +589,19 @@ public class DocumentationParser extends AbstractParser {
     }
 
     private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
-        switch (kind) {
-            case DOCUMENTATION_DESCRIPTION:
-            case PLUS_TOKEN:
-            case PARAMETER_NAME:
-            case MINUS_TOKEN:
-            case BACKTICK_TOKEN:
-            case DOUBLE_BACKTICK_TOKEN:
-            case TRIPLE_BACKTICK_TOKEN:
-            case CODE_CONTENT:
-            case RETURN_KEYWORD:
-            case DEPRECATION_LITERAL:
-                return false;
-            default:
-                return !isDocumentReferenceType(kind);
-        }
+        return switch (kind) {
+            case DOCUMENTATION_DESCRIPTION,
+                 PLUS_TOKEN,
+                 PARAMETER_NAME,
+                 MINUS_TOKEN,
+                 BACKTICK_TOKEN,
+                 DOUBLE_BACKTICK_TOKEN,
+                 TRIPLE_BACKTICK_TOKEN,
+                 CODE_CONTENT,
+                 RETURN_KEYWORD,
+                 DEPRECATION_LITERAL -> false;
+            default -> !isDocumentReferenceType(kind);
+        };
     }
 
     /**
@@ -710,17 +687,15 @@ public class DocumentationParser extends AbstractParser {
     }
 
     private boolean isBacktickExprToken(SyntaxKind kind) {
-        switch (kind) {
-            case DOT_TOKEN:
-            case COLON_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case IDENTIFIER_TOKEN:
-            case CODE_CONTENT:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case DOT_TOKEN,
+                 COLON_TOKEN,
+                 OPEN_PAREN_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 IDENTIFIER_TOKEN,
+                 CODE_CONTENT -> true;
+            default -> false;
+        };
     }
 
     private STNode parseNameReferenceContent() {
@@ -742,18 +717,16 @@ public class DocumentationParser extends AbstractParser {
         STNode referenceName = parseQualifiedIdentifier(identifier);
 
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case BACKTICK_TOKEN:
-                return referenceName;
-            case DOT_TOKEN:
+        return switch (nextToken.kind) {
+            case BACKTICK_TOKEN -> referenceName;
+            case DOT_TOKEN -> {
                 STNode dotToken = consume();
-                return parseMethodCall(referenceName, dotToken);
-            case OPEN_PAREN_TOKEN:
-                return parseFuncCall(referenceName);
-            default:
-                // Since we have validated the token sequence beforehand, code should not reach here.
-                throw new IllegalStateException("Unsupported token kind");
-        }
+                yield parseMethodCall(referenceName, dotToken);
+            }
+            case OPEN_PAREN_TOKEN -> parseFuncCall(referenceName);
+            // Since we have validated the token sequence beforehand, code should not reach here.
+            default -> throw new IllegalStateException("Unsupported token kind");
+        };
     }
 
     /**

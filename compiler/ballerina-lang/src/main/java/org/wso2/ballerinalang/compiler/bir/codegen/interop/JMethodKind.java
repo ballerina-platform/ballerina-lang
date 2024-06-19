@@ -34,15 +34,11 @@ enum JMethodKind {
     }
 
     static JMethodKind getKind(String value) {
-
-        switch (value) {
-            case "method":
-                return METHOD;
-            case "constructor":
-                return CONSTRUCTOR;
-            default:
-                throw new IllegalStateException("Unknown Java method modifier '" + value + "'");
-        }
+        return switch (value) {
+            case "method" -> METHOD;
+            case "constructor" -> CONSTRUCTOR;
+            default -> throw new IllegalStateException("Unknown Java method modifier '" + value + "'");
+        };
     }
 
     String getStringValue() {

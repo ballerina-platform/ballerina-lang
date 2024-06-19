@@ -663,19 +663,13 @@ public class MethodGen {
     }
 
     private String getYieldStatusByTerminator(BIRTerminator terminator) {
-        switch (terminator.kind) {
-            case WK_SEND:
-                return "BLOCKED ON WORKER MESSAGE SEND";
-            case WK_RECEIVE:
-                return "BLOCKED ON WORKER MESSAGE RECEIVE";
-            case FLUSH:
-                return "BLOCKED ON WORKER MESSAGE FLUSH";
-            case WAIT:
-            case WAIT_ALL:
-                return "WAITING";
-            default:
-                return "BLOCKED";
-        }
+        return switch (terminator.kind) {
+            case WK_SEND -> "BLOCKED ON WORKER MESSAGE SEND";
+            case WK_RECEIVE -> "BLOCKED ON WORKER MESSAGE RECEIVE";
+            case FLUSH -> "BLOCKED ON WORKER MESSAGE FLUSH";
+            case WAIT, WAIT_ALL -> "WAITING";
+            default -> "BLOCKED";
+        };
     }
 
     private void pushShort(MethodVisitor mv, int stateVarIndex, int caseIndex) {
@@ -1135,70 +1129,33 @@ public class MethodGen {
             return GET_REGEXP;
         }
 
-        String jvmType;
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-                jvmType = "I";
-                break;
-            case TypeTags.FLOAT:
-                jvmType = "D";
-                break;
-            case TypeTags.BOOLEAN:
-                jvmType = "Z";
-                break;
-            case TypeTags.DECIMAL:
-                jvmType = GET_BDECIMAL;
-                break;
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                jvmType = GET_MAP_VALUE;
-                break;
-            case TypeTags.STREAM:
-                jvmType = GET_STREAM_VALUE;
-                break;
-            case TypeTags.TABLE:
-                jvmType = GET_TABLE_VALUE;
-                break;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                jvmType = GET_ARRAY_VALUE;
-                break;
-            case TypeTags.OBJECT:
-                jvmType = GET_BOBJECT;
-                break;
-            case TypeTags.ERROR:
-                jvmType = GET_ERROR_VALUE;
-                break;
-            case TypeTags.FUTURE:
-                jvmType = GET_FUTURE_VALUE;
-                break;
-            case TypeTags.INVOKABLE:
-                jvmType = GET_FUNCTION_POINTER;
-                break;
-            case TypeTags.HANDLE:
-                jvmType = GET_HANDLE_VALUE;
-                break;
-            case TypeTags.TYPEDESC:
-                jvmType = GET_TYPEDESC;
-                break;
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.UNION:
-            case TypeTags.JSON:
-            case TypeTags.FINITE:
-            case TypeTags.READONLY:
-                jvmType = GET_OBJECT;
-                break;
-            case JTypeTags.JTYPE:
-                jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
-                break;
-            default:
-                throw new BLangCompilerException("JVM code generation is not supported for type " +
-                        bType);
-        }
-
-        return jvmType;
+        return switch (bType.tag) {
+            case TypeTags.BYTE -> "I";
+            case TypeTags.FLOAT -> "D";
+            case TypeTags.BOOLEAN -> "Z";
+            case TypeTags.DECIMAL -> GET_BDECIMAL;
+            case TypeTags.MAP,
+                 TypeTags.RECORD -> GET_MAP_VALUE;
+            case TypeTags.STREAM -> GET_STREAM_VALUE;
+            case TypeTags.TABLE -> GET_TABLE_VALUE;
+            case TypeTags.ARRAY,
+                 TypeTags.TUPLE -> GET_ARRAY_VALUE;
+            case TypeTags.OBJECT -> GET_BOBJECT;
+            case TypeTags.ERROR -> GET_ERROR_VALUE;
+            case TypeTags.FUTURE -> GET_FUTURE_VALUE;
+            case TypeTags.INVOKABLE -> GET_FUNCTION_POINTER;
+            case TypeTags.HANDLE -> GET_HANDLE_VALUE;
+            case TypeTags.TYPEDESC -> GET_TYPEDESC;
+            case TypeTags.NIL,
+                 TypeTags.NEVER,
+                 TypeTags.ANY,
+                 TypeTags.ANYDATA,
+                 TypeTags.UNION,
+                 TypeTags.JSON,
+                 TypeTags.FINITE,
+                 TypeTags.READONLY -> GET_OBJECT;
+            case JTypeTags.JTYPE -> InteropMethodGen.getJTypeSignature((JType) bType);
+            default -> throw new BLangCompilerException("JVM code generation is not supported for type " + bType);
+        };
     }
 }
