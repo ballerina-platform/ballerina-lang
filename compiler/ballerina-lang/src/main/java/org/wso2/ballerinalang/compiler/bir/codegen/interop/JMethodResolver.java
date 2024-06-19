@@ -250,7 +250,7 @@ class JMethodResolver {
         //  https://github.com/ballerina-platform/ballerina-lang/issues/42456.
         if (jMethodRequest.receiverType == null || functionParamCount < 1
                 || count < reducedParamCount || count > reducedParamCount + 2
-                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)) {
+                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].getFlags(), Flags.SERVICE)) {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
