@@ -833,7 +833,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     private void validateInherentTypeOfExistingMembers(long index, int offset) {
         Type targetType;
         for (long i = index; i < this.size; i++) {
-            targetType = i + offset >= this.tupleType.getTupleTypes().size() ?
+            targetType = (i + offset >= this.tupleType.getTupleTypes().size()) ?
                     this.tupleType.getRestType() : this.tupleType.getTupleTypes().get((int) (i + offset));
             if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
                 throw ErrorHelper.getRuntimeException(
