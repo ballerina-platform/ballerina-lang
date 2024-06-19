@@ -62,6 +62,7 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STListConstructorExpressionNode(
                 this.openBracket,
@@ -88,6 +89,7 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListConstructorExpressionNode(this, position, parent);
     }

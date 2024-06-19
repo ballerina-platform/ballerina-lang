@@ -37,14 +37,17 @@ public class BField implements Field {
         this.flags = flags;
     }
 
+    @Override
     public Type getFieldType() {
         return type;
     }
 
+    @Override
     public String getFieldName() {
         return name;
     }
 
+    @Override
     public long getFlags() {
         return flags;
     }

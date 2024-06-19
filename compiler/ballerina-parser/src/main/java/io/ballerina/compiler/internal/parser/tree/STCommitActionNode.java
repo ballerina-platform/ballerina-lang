@@ -50,6 +50,7 @@ public class STCommitActionNode extends STActionNode {
                 commitKeyword);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STCommitActionNode(
                 this.commitKeyword,
@@ -68,6 +69,7 @@ public class STCommitActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CommitActionNode(this, position, parent);
     }

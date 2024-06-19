@@ -68,6 +68,7 @@ public class STKeySpecifierNode extends STNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STKeySpecifierNode(
                 this.keyKeyword,
@@ -98,6 +99,7 @@ public class STKeySpecifierNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeySpecifierNode(this, position, parent);
     }

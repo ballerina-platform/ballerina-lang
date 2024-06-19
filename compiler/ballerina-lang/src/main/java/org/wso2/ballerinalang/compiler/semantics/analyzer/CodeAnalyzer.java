@@ -674,7 +674,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRetrySpec retrySpec, AnalyzerData data) {
         if (retrySpec.retryManagerType != null) {
             BSymbol retryManagerTypeSymbol = symTable.langErrorModuleSymbol.scope
-                    .lookup(names.fromString("RetryManager")).symbol;
+                    .lookup(Names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.getBType(), abstractRetryManagerType)) {
                 dlog.error(retrySpec.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
@@ -2055,7 +2055,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
-                || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
+                || (!isWorkerFromFunction(data.env, Names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2211,7 +2211,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         Set<Flag> flagSet = funcNode.flagSet;
         // Analyze worker interactions inside workers
-        Name workerDerivedName = names.fromString("0" + otherWorker.name.value);
+        Name workerDerivedName = Names.fromString("0" + otherWorker.name.value);
         if (flagSet.contains(Flag.WORKER)) {
             // Interacting with default worker from a worker within a fork.
             if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {

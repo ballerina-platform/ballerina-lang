@@ -71,14 +71,15 @@ public class ParseBlockStatementTest {
 
     @Test
     public void testMultipleStmtsWithNewlines() {
-        String blockStmt = "{\n" +
-                "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n" +
-                "}";
+        String blockStmt = """
+                {
+                int[] nums = [1, 2, 3, 4];
+                int[] evenNums = from var i in nums
+                                 where i % 2 == 0
+                                 select i;
+                int[] evenNums = from var i in nums
+                                 select i * 10;
+                }""";
 
         BlockStatementNode blockStmtNode = NodeParser.parseBlockStatement(blockStmt);
         Assert.assertEquals(blockStmtNode.kind(), SyntaxKind.BLOCK_STATEMENT);

@@ -277,13 +277,15 @@ public class DependenciesTomlTests {
         Iterator<Diagnostic> iterator = depsManifest.diagnostics().warnings().iterator();
         Assert.assertEquals(iterator.next().message(),
                             "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
-        String localDepsWarning = "Detected local dependency declarations in Dependencies.toml file. "
-                + "Add them to Ballerina.toml using following syntax:\n"
-                + "[[dependency]]\n"
-                + "org = \"wso2\"\n"
-                + "name = \"locally\"\n"
-                + "version = \"1.2.3\"\n"
-                + "repository = \"local\"\n";
+        String localDepsWarning = """
+                Detected local dependency declarations in Dependencies.toml file. \
+                Add them to Ballerina.toml using following syntax:
+                [[dependency]]
+                org = "wso2"
+                name = "locally"
+                version = "1.2.3"
+                repository = "local"
+                """;
         Assert.assertEquals(iterator.next().message(), localDepsWarning);
     }
 

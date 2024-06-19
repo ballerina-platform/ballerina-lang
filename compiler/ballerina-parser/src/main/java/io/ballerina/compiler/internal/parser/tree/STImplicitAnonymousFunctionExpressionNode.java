@@ -62,6 +62,7 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImplicitAnonymousFunctionExpressionNode(
                 this.params,
@@ -88,6 +89,7 @@ public class STImplicitAnonymousFunctionExpressionNode extends STAnonymousFuncti
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionExpressionNode(this, position, parent);
     }

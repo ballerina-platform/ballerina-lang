@@ -35,16 +35,19 @@ import java.util.Locale;
  */
 public class ManifestProcessorTest {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-    private String validProjectBlock = "[project]\n" +
-                                       "org-name = \"foo\"\n" +
-                                       "version = \"1.0.0\"\n";
+    private String validProjectBlock = """
+            [project]
+            org-name = "foo"
+            version = "1.0.0"
+            """;
     
     @Test(description = "Empty Ballerina.toml file", expectedExceptions = TomlException.class,
-          expectedExceptionsMessageRegExp = ".*invalid Ballerina.toml file: organization name and the version of the " +
-                                            "project is missing. example: \n" +
-                                            "\\[project\\]\n" +
-                                            "org-name=\"my_org\"\n" +
-                                            "version=\"1.0.0\".*")
+          expectedExceptionsMessageRegExp = """
+                  .*invalid Ballerina.toml file: organization name and the version of the \
+                  project is missing. example:\s
+                  \\[project\\]
+                  org-name="my_org"
+                  version="1.0.0".*""")
     public void testEmpty() throws TomlException {
         ManifestProcessor.parseTomlContentFromString("");
     }
@@ -58,17 +61,22 @@ public class ManifestProcessorTest {
 
     @Test(description = "Attribute with single comment doesn't have an effect")
     public void testAttributeWithSingleComment() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the module \n org-name = \"foo\" \n" +
-                 "version = \"1.0.0\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString("""
+                [project]\s
+                #Name of the module\s
+                 org-name = "foo"\s
+                version = "1.0.0\"""");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
     }
 
     @Test(description = "Attribute with multiline comments doesn't have an effect")
     public void testAttributeWithMultilineComments() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "# Name of the module \n #This is the module config section \n org-name = \"foo/string\"\n" +
-                                                                         "version = \"1.0.0\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString("""
+                [project]\s
+                # Name of the module\s
+                 #This is the module config section\s
+                 org-name = "foo/string"
+                version = "1.0.0\"""");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo/string");
     }
 

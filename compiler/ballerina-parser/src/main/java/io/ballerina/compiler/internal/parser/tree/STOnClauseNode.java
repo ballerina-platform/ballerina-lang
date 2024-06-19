@@ -68,6 +68,7 @@ public class STOnClauseNode extends STClauseNode {
                 rhsExpression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnClauseNode(
                 this.onKeyword,
@@ -98,6 +99,7 @@ public class STOnClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OnClauseNode(this, position, parent);
     }
