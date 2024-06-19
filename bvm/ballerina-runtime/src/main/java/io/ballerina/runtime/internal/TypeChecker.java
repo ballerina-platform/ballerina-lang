@@ -637,7 +637,8 @@ public class TypeChecker {
                             sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG;
             case TypeTags.UNSIGNED32_INT_TAG ->
                     sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
-                            sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG || sourceTypeTag == TypeTags.UNSIGNED32_INT_TAG;
+                            sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG ||
+                            sourceTypeTag == TypeTags.UNSIGNED32_INT_TAG;
             case TypeTags.ANY_TAG -> checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG -> sourceType.isAnydata();
             case TypeTags.SERVICE_TAG -> checkIsServiceType(sourceType, targetType,

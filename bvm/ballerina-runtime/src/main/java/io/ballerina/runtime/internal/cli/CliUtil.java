@@ -79,8 +79,9 @@ public class CliUtil {
             case TypeTags.DECIMAL_TAG -> getDecimalValue(value, parameterName);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG -> getBValue(TypeUtils.getImpliedType(type), value, parameterName);
             case TypeTags.BOOLEAN_TAG ->
-                    throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
-                            "'boolean' is expected without a value"));
+                    throw ErrorCreator.createError(
+                            StringUtils.fromString("the option '" + parameterName + "' of type " +
+                                    "'boolean' is expected without a value"));
             default -> throw getUnsupportedTypeException(type);
         };
     }

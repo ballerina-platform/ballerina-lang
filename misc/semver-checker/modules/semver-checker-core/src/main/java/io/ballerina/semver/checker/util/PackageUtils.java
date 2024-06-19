@@ -55,8 +55,8 @@ public class PackageUtils {
             return switch (project.kind()) {
                 case BUILD_PROJECT,
                      BALA_PROJECT -> project.currentPackage();
-                case SINGLE_FILE_PROJECT ->
-                        throw new SemverToolException("semver checker tool is not applicable for single file projects.");
+                case SINGLE_FILE_PROJECT -> throw new SemverToolException(
+                        "semver checker tool is not applicable for single file projects.");
             };
         } catch (ProjectException e) {
             throw new SemverToolException(String.format("failed to load Ballerina package at: '%s'%sreason: %s",
