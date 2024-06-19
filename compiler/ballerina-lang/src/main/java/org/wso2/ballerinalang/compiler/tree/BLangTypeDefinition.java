@@ -67,14 +67,17 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
         return name;
     }
 
+    @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
     }
 
+    @Override
     public BLangType getTypeNode() {
         return typeNode;
     }
 
+    @Override
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
     }

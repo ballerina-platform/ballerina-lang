@@ -126,17 +126,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.\s
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -178,17 +180,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.\s
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -234,17 +238,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.\s
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -374,17 +380,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.\s
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -433,17 +441,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.\s
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -513,8 +523,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedContent = """
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
@@ -743,21 +755,23 @@ public class NewCommandTest extends BaseCommandTest {
         newCommand.execute();
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"testorg\"\n" +
-                "name = \"sample_provided_template\"\n" +
-                "version = \"1.0.0\"\n" +
-                "export = [\"sample_provided_template\"]\n" +
-                "distribution = \"2201.9.0-SNAPSHOT\"\n" +
-                "\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n" +
-                "\n" +
-                "[[platform.java17.dependency]]\n" +
-                "artifactId = \"project1\"\n" +
-                "groupId = \"com.example\"\n" +
-                "version = \"1.0\"\n" +
-                "scope = \"provided\"\n";
+        String expectedTomlContent = """
+                [package]
+                org = "testorg"
+                name = "sample_provided_template"
+                version = "1.0.0"
+                export = ["sample_provided_template"]
+                distribution = "2201.9.0-SNAPSHOT"
+
+                [build-options]
+                observabilityIncluded = true
+
+                [[platform.java17.dependency]]
+                artifactId = "project1"
+                groupId = "com.example"
+                version = "1.0"
+                scope = "provided"
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(readOutput().contains("WARNING: path for the platform dependency project1 with provided " +
@@ -778,14 +792,17 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"admin\"\n" +
-                "name = \"sample_pull_local\"\n" +
-                "version = \"0.1.5\"\n" +
-                "export = [\"sample_pull_local\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "admin"
+                name = "sample_pull_local"
+                version = "0.1.5"
+                export = ["sample_pull_local"]
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
 
@@ -808,14 +825,17 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"parkavik\"\n" +
-                "name = \"sample_pull_WO_Module_Version\"\n" +
-                "version = \"1.0.1\"\n" +
-                "export = [\"sample_pull_WO_Module_Version\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "parkavik"
+                name = "sample_pull_WO_Module_Version"
+                version = "1.0.1"
+                export = ["sample_pull_WO_Module_Version"]
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -837,14 +857,17 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"parkavik\"\n" +
-                "name = \"sample_pull\"\n" +
-                "version = \"1.0.0\"\n" +
-                "export = [\"sample_pull\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "parkavik"
+                name = "sample_pull"
+                version = "1.0.0"
+                export = ["sample_pull"]
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -965,16 +988,18 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
-        String expectedTomlPkgContent = "[package]\n" +
-                "org = \"admin\"\n" +
-                "name = \"sample_pull_libs\"\n" +
-                "version = \"0.1.0\"\n" +
-                "export = [\"sample_pull_libs\"]\n" +
-                "distribution = \"slbeta4\"\n";
-        String expectedTomlLibContent =
-                "artifactId = \"snakeyaml\"\n" +
-                "groupId = \"org.yaml\"\n" +
-                "version = \"2.0\"";
+        String expectedTomlPkgContent = """
+                [package]
+                org = "admin"
+                name = "sample_pull_libs"
+                version = "0.1.0"
+                export = ["sample_pull_libs"]
+                distribution = "slbeta4"
+                """;
+        String expectedTomlLibContent = """
+                artifactId = "snakeyaml"
+                groupId = "org.yaml"
+                version = "2.0\"""";
 
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));
@@ -1013,10 +1038,11 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String depsTomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML), StandardCharsets.UTF_8);
-        Assert.assertTrue(depsTomlContent.contains("[[package]]\n" +
-                "org = \"pramodya\"\n" +
-                "name = \"winery\"\n" +
-                "version = \"0.1.0\""));
+        Assert.assertTrue(depsTomlContent.contains("""
+                [[package]]
+                org = "pramodya"
+                name = "winery"
+                version = "0.1.0\""""));
     }
     @Test(description = "Test new command by pulling a central template that has simple include patterns")
     public void testNewCommandTemplateWithSimpleIncludePatterns() throws IOException {

@@ -68,6 +68,7 @@ public class STFromClauseNode extends STIntermediateClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFromClauseNode(
                 this.fromKeyword,
@@ -98,6 +99,7 @@ public class STFromClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FromClauseNode(this, position, parent);
     }

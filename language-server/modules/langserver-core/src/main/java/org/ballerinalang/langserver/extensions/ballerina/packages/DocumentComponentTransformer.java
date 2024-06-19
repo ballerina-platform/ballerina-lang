@@ -61,16 +61,19 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return Optional.empty();
     }
 
+    @Override
     public Optional<MapperObject> transform(FunctionDefinitionNode functionDefinitionNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
                 createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ListenerDeclarationNode listenerDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.LISTENERS,
                 createDataObject(listenerDeclarationNode.variableName().text(), listenerDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ServiceDeclarationNode serviceDeclarationNode) {
         String name = serviceDeclarationNode.absoluteResourcePath().stream().map(node -> String.join("_",
                 node.toString())).collect(Collectors.joining());
@@ -84,6 +87,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return Optional.of(new MapperObject(PackageServiceConstants.SERVICES, dataObject));
     }
 
+    @Override
     public Optional<MapperObject> transform(ClassDefinitionNode classDefinitionNode) {
         DataObject dataObject = createDataObject(classDefinitionNode.className().text(), classDefinitionNode);
         classDefinitionNode.members().forEach(member -> {
@@ -95,6 +99,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return Optional.of(new MapperObject(PackageServiceConstants.CLASSES, dataObject));
     }
 
+    @Override
     public Optional<MapperObject> transform(TypeDefinitionNode typeDefinitionNode) {
         if (typeDefinitionNode.typeDescriptor().kind() == SyntaxKind.RECORD_TYPE_DESC) {
             return Optional.of(new MapperObject(PackageServiceConstants.RECORDS,
@@ -108,17 +113,20 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         }
     }
 
+    @Override
     public Optional<MapperObject> transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
                 createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
                 moduleVariableDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ConstantDeclarationNode constantDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.CONSTANTS,
                 createDataObject(constantDeclarationNode.variableName().text(), constantDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(EnumDeclarationNode enumDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.ENUMS,
                 createDataObject(enumDeclarationNode.identifier().text(), enumDeclarationNode)));

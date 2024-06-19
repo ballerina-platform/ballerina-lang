@@ -59,6 +59,7 @@ public class BTableType extends BType implements TableType {
         this.readonly = readonly;
     }
 
+    @Override
     public Type getConstrainedType() {
         return constraint;
     }
@@ -67,6 +68,7 @@ public class BTableType extends BType implements TableType {
         return keyType;
     }
 
+    @Override
     public String[] getFieldNames() {
         return fieldNames;
     }

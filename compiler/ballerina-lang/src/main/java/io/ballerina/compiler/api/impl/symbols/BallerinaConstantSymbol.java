@@ -175,6 +175,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             super(name, symbol, context);
         }
 
+        @Override
         public BallerinaConstantSymbol build() {
             return new BallerinaConstantSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
                                                this.typeDescriptor, this.broaderType, this.constantValue, this.bSymbol,

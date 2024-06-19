@@ -40,6 +40,7 @@ public class TestCaseVisitor extends NodeVisitor {
         visitSyntaxNode(node);
     }
 
+    @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
         if (functionDefinitionNode.metadata().isPresent()) {
             functionDefinitionNode.metadata().get().annotations().stream()

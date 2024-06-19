@@ -89,6 +89,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
         return Utils.decodeIdentifier(typeName);
     }
 
+    @Override
     public Type getDetailType() {
         return detailType;
     }

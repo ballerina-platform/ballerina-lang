@@ -963,6 +963,7 @@ public class QueryTypeChecker extends TypeChecker {
         }
     }
 
+    @Override
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
         if (!hasSequenceArgs(iExpr, data)) {
             super.visit(iExpr, data);
@@ -1074,6 +1075,7 @@ public class QueryTypeChecker extends TypeChecker {
         data.queryData.withinSequenceContext = false;
     }
 
+    @Override
     public void visit(BLangCollectContextInvocation collectContextInvocation, TypeChecker.AnalyzerData data) {
         BLangInvocation invocation = collectContextInvocation.invocation;
         data.resultType = checkExpr(invocation, data.env, data);
@@ -1083,6 +1085,7 @@ public class QueryTypeChecker extends TypeChecker {
         collectContextInvocation.setBType(data.resultType);
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;

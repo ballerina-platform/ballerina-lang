@@ -30,6 +30,7 @@ public interface ParameterSymbol extends Symbol, Annotatable, Qualifiable {
      *
      * @return {@link Optional} name of the field
      */
+    @Override
     Optional<String> getName();
 
     /**

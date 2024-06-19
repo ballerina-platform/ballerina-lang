@@ -234,10 +234,11 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation documentationAttachment =
                 packageNode.getFunctions().get(7).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
-                "`false`) for a given key. Please note that #foo will always be bigger than #bar.\n" +
-                "Example:\n" +
-                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), """
+                Gets a access parameter value (`true` or \
+                `false`) for a given key. Please note that #foo will always be bigger than #bar.
+                Example:
+                `SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`""");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 1);
@@ -621,10 +622,12 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation documentationAttachment =
                 packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "``string s = string `hello ${name}`;``\n\n" +
-                "Example for an xml literal:\n" +
-                "``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), """
+                Example of a string template:
+                ``string s = string `hello ${name}`;``
+
+                Example for an xml literal:
+                ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``""");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 0);
@@ -643,10 +646,11 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation documentationAttachment =
                 packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "```string s = string `hello ${name}`;```\n" +
-                "Example for an xml literal:\n" +
-                "```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), """
+                Example of a string template:
+                ```string s = string `hello ${name}`;```
+                Example for an xml literal:
+                ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```""");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 0);
@@ -710,9 +714,11 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation documentationAttachment = packageNode.getFunctions().get(0)
                 .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or "
-                + "`false`) for a given key. Please note that `foo` will always be bigger than `bar`.\n" + "Example:\n"
-                + "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), """
+                Gets a access parameter value (`true` or \
+                `false`) for a given key. Please note that `foo` will always be bigger than `bar`.
+                Example:
+                `SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`""");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 1);
@@ -736,21 +742,29 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation documentationAttachment =
                 packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "description line 1\n" +
-                "description line 2\n" + "description line 3");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), """
+                description line 1
+                description line 2
+                description line 3""");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 2);
         Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "param1");
-        Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "param1 description line 1\n" +
-                "param1 description line 2\nparam1 description line 3");
+        Assert.assertEquals(parameters.get(0).getParameterDocumentation(), """
+                param1 description line 1
+                param1 description line 2
+                param1 description line 3""");
         Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "param2");
-        Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "param2 description line 1\n" +
-                "param2 description line 2\nparam2 description line 3");
+        Assert.assertEquals(parameters.get(1).getParameterDocumentation(), """
+                param2 description line 1
+                param2 description line 2
+                param2 description line 3""");
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNotNull(returnParameter);
-        Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "return description line 1\n" +
-                "return description line 2\nreturn description line 3");
+        Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), """
+                return description line 1
+                return description line 2
+                return description line 3""");
     }
 
     @Test(description = "Test lambda in object init")

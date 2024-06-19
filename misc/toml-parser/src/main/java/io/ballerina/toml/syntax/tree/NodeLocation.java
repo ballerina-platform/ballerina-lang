@@ -35,10 +35,12 @@ public class NodeLocation implements Location {
         this.node = node;
     }
 
+    @Override
     public LineRange lineRange() {
         return node.lineRange();
     }
 
+    @Override
     public TextRange textRange() {
         return node.textRange();
     }

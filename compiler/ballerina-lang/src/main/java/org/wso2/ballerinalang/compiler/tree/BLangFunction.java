@@ -64,10 +64,12 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public String anonForkName;
     public boolean mapSymbolUpdated;
 
+    @Override
     public SimpleVariableNode getReceiver() {
         return receiver;
     }
 
+    @Override
     public void setReceiver(SimpleVariableNode receiver) {
         this.receiver = (BLangSimpleVariable) receiver;
     }

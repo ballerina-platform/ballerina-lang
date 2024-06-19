@@ -74,6 +74,7 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STObjectTypeDescriptorNode(
                 this.objectTypeQualifiers,
@@ -108,6 +109,7 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectTypeDescriptorNode(this, position, parent);
     }

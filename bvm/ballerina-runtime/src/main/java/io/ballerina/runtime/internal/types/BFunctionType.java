@@ -81,6 +81,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return types;
     }
 
+    @Override
     public Type getReturnParameterType() {
         return retType;
     }
@@ -200,6 +201,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return true;
     }
 
+    @Override
     public Type getRestType() {
         return restType;
     }
@@ -209,10 +211,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return parameters;
     }
 
+    @Override
     public Type getReturnType() {
         return retType;
     }
 
+    @Override
     public long getFlags() {
         return flags;
     }

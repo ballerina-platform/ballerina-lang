@@ -74,6 +74,7 @@ public class STReUnicodePropertyEscapeNode extends STNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReUnicodePropertyEscapeNode(
                 this.slashToken,
@@ -108,6 +109,7 @@ public class STReUnicodePropertyEscapeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReUnicodePropertyEscapeNode(this, position, parent);
     }

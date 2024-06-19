@@ -74,6 +74,7 @@ public class STRetryStatementNode extends STStatementNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRetryStatementNode(
                 this.retryKeyword,
@@ -108,6 +109,7 @@ public class STRetryStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RetryStatementNode(this, position, parent);
     }

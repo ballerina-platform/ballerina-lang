@@ -68,6 +68,7 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypeCastExpressionNode(
                 this.ltToken,
@@ -98,6 +99,7 @@ public class STTypeCastExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastExpressionNode(this, position, parent);
     }

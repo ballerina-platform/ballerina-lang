@@ -62,6 +62,7 @@ public class STMappingMatchPatternNode extends STNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMappingMatchPatternNode(
                 this.openBraceToken,
@@ -88,6 +89,7 @@ public class STMappingMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingMatchPatternNode(this, position, parent);
     }

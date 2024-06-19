@@ -34,6 +34,7 @@ public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable
      *
      * @return An ordered map containing the symbols of the fields
      */
+    @Override
     Map<String, ClassFieldSymbol> fieldDescriptors();
 
     /**

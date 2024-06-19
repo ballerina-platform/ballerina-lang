@@ -78,6 +78,7 @@ public class TypedescValueImpl implements TypedescValue {
      * Returns the {@code BType} of the value describe by this type descriptor.
      * @return describing type
      */
+    @Override
     public Type getDescribingType() {
         return describingType;
     }

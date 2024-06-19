@@ -62,6 +62,7 @@ public class STRequiredParameterNode extends STParameterNode {
                 paramName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRequiredParameterNode(
                 this.annotations,
@@ -88,6 +89,7 @@ public class STRequiredParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RequiredParameterNode(this, position, parent);
     }

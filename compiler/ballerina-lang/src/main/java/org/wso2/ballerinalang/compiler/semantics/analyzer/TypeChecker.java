@@ -446,6 +446,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     // Expressions
 
+    @Override
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
 
         BType literalType = setLiteralValueAndGetType(literalExpr, data.expType, data);
@@ -2360,6 +2361,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
 
+    @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         BType expType = data.expType;
         int expTypeTag = Types.getImpliedType(expType).tag;
@@ -3131,6 +3133,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = constRef.getBType();
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr, AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -3523,6 +3526,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkFieldBasedAccess(nsPrefixedFieldBasedAccess, true, data);
     }
 
+    @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {
         checkFieldBasedAccess(fieldAccessExpr, false, data);
     }
@@ -3655,6 +3659,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
+    @Override
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr, AnalyzerData data) {
         markLeafNode(indexBasedAccessExpr);
 
@@ -3718,6 +3723,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = this.types.checkType(indexBasedAccessExpr, actualType, data.expType);
     }
 
+    @Override
     public void visit(BLangInvocation iExpr, AnalyzerData data) {
         // Variable ref expression null means this is the leaf node of the variable ref expression tree
         // e.g. foo();, foo(), foo().k;
@@ -3761,6 +3767,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr, AnalyzerData data) {
         BLangUserDefinedType userProvidedTypeRef = errorConstructorExpr.errorTypeRef;
         if (userProvidedTypeRef != null) {
@@ -3995,6 +4002,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return expandedCandidates;
     }
 
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation aInv, AnalyzerData data) {
         // For an action invocation, this will only be satisfied when it's an async call of a function.
         // e.g., start foo();
@@ -4204,6 +4212,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
+    @Override
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
                                               new Name(String.format("$let_symbol_%d$",
@@ -4484,6 +4493,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
+    @Override
     public void visit(BLangTypeInit cIExpr, AnalyzerData data) {
         BType referredExpType = Types.getImpliedType(data.expType);
         if ((referredExpType.tag == TypeTags.ANY && cIExpr.userDefinedType == null) ||
@@ -4864,6 +4874,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return requiredParams.size() <= 0;
     }
 
+    @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr, AnalyzerData data) {
         setResultTypeForWaitForAllExpr(waitForAllExpr, data.expType, data);
         waitForAllExpr.setBType(data.resultType);
@@ -5184,6 +5195,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
+    @Override
     public void visit(BLangTernaryExpr ternaryExpr, AnalyzerData data) {
         BType condExprType = checkExpr(ternaryExpr.expr, this.symTable.booleanType, data);
 
@@ -5217,6 +5229,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return BUnionType.create(null, lhsType, rhsType);
     }
 
+    @Override
     public void visit(BLangWaitExpr waitExpr, AnalyzerData data) {
         data.expType = new BFutureType(TypeTags.FUTURE, data.expType, null);
         checkExpr(waitExpr.getExpression(), data.expType, data);
@@ -5298,6 +5311,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         // Bitwise operator should be applied for the future types in the wait expression
         if (Types.getImpliedType(data.expType).tag == TypeTags.FUTURE &&
@@ -5442,10 +5456,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Override
     public void visit(BLangTransactionalExpr transactionalExpr, AnalyzerData data) {
         data.resultType = types.checkType(transactionalExpr, symTable.booleanType, data.expType);
     }
 
+    @Override
     public void visit(BLangCommitExpr commitExpr, AnalyzerData data) {
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         data.resultType = types.checkType(commitExpr, actualType, data.expType);
@@ -5462,6 +5478,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return constituent;
     }
 
+    @Override
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, data);
         BType lhsActualType = lhsType == symTable.semanticError ?
@@ -5486,6 +5503,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = checkExpr(groupExpr.expression, data.expType, data);
     }
 
+    @Override
     public void visit(BLangTypedescExpr accessExpr, AnalyzerData data) {
         if (accessExpr.resolvedType == null) {
             accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, data.env);
@@ -5719,6 +5737,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return exprCompatibleType;
     }
 
+    @Override
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         BType exprType;
 
@@ -5739,6 +5758,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(unaryExpr, actualType, data.expType);
     }
 
+    @Override
     public void visit(BLangTypeConversionExpr conversionExpr, AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -5879,6 +5899,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = bLangArrowFunction.funcType = expectedInvocation;
     }
 
+    @Override
     public void visit(BLangXMLQName bLangXMLQName, AnalyzerData data) {
         String prefix = bLangXMLQName.prefix.value;
         data.resultType = types.checkType(bLangXMLQName, symTable.stringType, data.expType);
@@ -5968,6 +5989,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return null;
     }
 
+    @Override
     public void visit(BLangXMLAttribute bLangXMLAttribute, AnalyzerData data) {
         SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(bLangXMLAttribute, data.env);
 
@@ -5986,6 +6008,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         symbolEnter.defineNode(bLangXMLAttribute, data.env);
     }
 
+    @Override
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral, AnalyzerData data) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, data.env);
 
@@ -6070,6 +6093,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral, AnalyzerData data) {
         BType expType = Types.getImpliedType(data.expType);
         if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT
@@ -6127,6 +6151,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = symTable.semanticError;
     }
 
+    @Override
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral, AnalyzerData data) {
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
         checkStringTemplateExprs(literalValues, data);
@@ -6139,6 +6164,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, data.expType);
     }
 
+    @Override
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral, AnalyzerData data) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, data);
 
@@ -6150,6 +6176,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                          data.expType, data);
     }
 
+    @Override
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral, AnalyzerData data) {
         checkExpr(bLangXMLProcInsLiteral.target, symTable.stringType, data);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, data);
@@ -6161,11 +6188,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 checkXmlSubTypeLiteralCompatibility(bLangXMLProcInsLiteral.pos, symTable.xmlPIType, data.expType, data);
     }
 
+    @Override
     public void visit(BLangXMLQuotedString bLangXMLQuotedString, AnalyzerData data) {
         checkStringTemplateExprs(bLangXMLQuotedString.textFragments, data);
         data.resultType = types.checkType(bLangXMLQuotedString, symTable.stringType, data.expType);
     }
 
+    @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
         checkStringTemplateExprs(stringTemplateLiteral.exprs, data);
         data.resultType = types.checkType(stringTemplateLiteral, symTable.stringType, data.expType);
@@ -6387,6 +6416,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
+    @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
         onFailClause.body.stmts.forEach(stmt -> stmt.accept(this, data));
     }
@@ -6579,6 +6609,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(typeTestExpr, symTable.booleanType, data.expType);
     }
 
+    @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr, AnalyzerData data) {
         checkExpr(annotAccessExpr.expr, symTable.typeDesc, data);
 

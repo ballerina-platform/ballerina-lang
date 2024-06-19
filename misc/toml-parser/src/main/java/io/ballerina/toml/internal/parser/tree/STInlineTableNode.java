@@ -62,6 +62,7 @@ public class STInlineTableNode extends STValueNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STInlineTableNode(
                 this.openBrace,
@@ -88,6 +89,7 @@ public class STInlineTableNode extends STValueNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InlineTableNode(this, position, parent);
     }

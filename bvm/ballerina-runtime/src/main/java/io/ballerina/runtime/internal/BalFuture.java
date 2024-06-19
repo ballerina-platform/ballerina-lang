@@ -40,6 +40,7 @@ public class BalFuture extends Future {
         this.strand = strand;
     }
 
+    @Override
     public void complete(Object returnValue) {
         if (visited.getAndSet(true)) {
             throw ErrorCreator.createError(StringUtils.fromString("cannot complete the same future twice."),

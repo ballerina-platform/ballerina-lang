@@ -74,6 +74,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
         return TypeTags.ANYDATA_TAG;
     }
 
+    @Override
     public boolean isNilable() {
         return true;
     }

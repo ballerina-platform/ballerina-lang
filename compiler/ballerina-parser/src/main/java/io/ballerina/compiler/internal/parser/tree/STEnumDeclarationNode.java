@@ -92,6 +92,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STEnumDeclarationNode(
                 this.metadata,
@@ -138,6 +139,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumDeclarationNode(this, position, parent);
     }

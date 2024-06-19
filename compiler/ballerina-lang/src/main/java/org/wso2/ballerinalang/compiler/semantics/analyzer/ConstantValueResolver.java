@@ -297,10 +297,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
     }
 
+    @Override
     public void visit(BLangGroupExpr groupExpr) {
         this.result = constructBLangConstantValue(groupExpr.expression);
     }
 
+    @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         BLangConstantValue value = constructBLangConstantValue(unaryExpr.expr);
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);

@@ -68,6 +68,7 @@ public class STQueryExpressionNode extends STExpressionNode {
                 onConflictClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryExpressionNode(
                 this.queryConstructType,
@@ -98,6 +99,7 @@ public class STQueryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
     }

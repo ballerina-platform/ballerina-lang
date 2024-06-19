@@ -74,6 +74,7 @@ public class STModuleXMLNamespaceDeclarationNode extends STModuleMemberDeclarati
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModuleXMLNamespaceDeclarationNode(
                 this.xmlnsKeyword,
@@ -108,6 +109,7 @@ public class STModuleXMLNamespaceDeclarationNode extends STModuleMemberDeclarati
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModuleXMLNamespaceDeclarationNode(this, position, parent);
     }

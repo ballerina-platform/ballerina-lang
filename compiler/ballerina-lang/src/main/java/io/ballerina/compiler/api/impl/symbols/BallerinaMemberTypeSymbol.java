@@ -54,6 +54,7 @@ public class BallerinaMemberTypeSymbol extends BallerinaSymbol implements Member
         return Optional.empty();
     }
 
+    @Override
     public TypeSymbol typeDescriptor() {
         return this.type;
     }

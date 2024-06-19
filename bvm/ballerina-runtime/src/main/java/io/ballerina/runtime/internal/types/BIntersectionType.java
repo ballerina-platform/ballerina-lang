@@ -201,6 +201,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.immutableType = immutableType;
     }
 
+    @Override
     public Type getEffectiveType() {
         return this.effectiveType;
     }

@@ -68,6 +68,7 @@ public class STByteArrayLiteralNode extends STExpressionNode {
                 endBacktick);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STByteArrayLiteralNode(
                 this.type,
@@ -98,6 +99,7 @@ public class STByteArrayLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ByteArrayLiteralNode(this, position, parent);
     }

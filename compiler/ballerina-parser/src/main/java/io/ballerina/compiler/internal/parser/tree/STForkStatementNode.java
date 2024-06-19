@@ -68,6 +68,7 @@ public class STForkStatementNode extends STStatementNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STForkStatementNode(
                 this.forkKeyword,
@@ -98,6 +99,7 @@ public class STForkStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForkStatementNode(this, position, parent);
     }
