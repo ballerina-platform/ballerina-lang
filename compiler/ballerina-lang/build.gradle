@@ -88,7 +88,6 @@ ext.moduleName = 'ballerina.lang'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        println(classpath.asPath)
         options.compilerArgs = [
                 '--module-path', classpath.asPath,
         ]
