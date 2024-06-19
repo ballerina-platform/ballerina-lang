@@ -371,8 +371,7 @@ public class LambdaGen {
 
         mv.visitInsn(DUP);
 
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS , IS_BLOCKED_ON_EXTERN_FIELD, "()Z",
-                false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS , IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
         mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
         mv.visitInsn(DUP);
@@ -380,17 +379,14 @@ public class LambdaGen {
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , BLOCKED_ON_EXTERN_FIELD, "Z");
 
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD,
-                GET_BERROR);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         Label panicLabel = new Label();
         mv.visitJumpInsn(IFNULL, panicLabel);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD,
-                GET_BERROR);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         mv.visitVarInsn(ASTORE, closureMapsCount + 1);
         mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , PANIC_FIELD,
-                GET_BERROR);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         mv.visitVarInsn(ALOAD, closureMapsCount + 1);
         mv.visitInsn(ATHROW);
         mv.visitLabel(panicLabel);

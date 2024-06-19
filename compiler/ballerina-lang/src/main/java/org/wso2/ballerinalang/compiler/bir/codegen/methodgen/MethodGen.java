@@ -428,7 +428,7 @@ public class MethodGen {
 
     private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv,
                                            int invocationVarIndex) {
-        // these channel info is required to notify data channels, when there is a panic
+        // this channel info is required to notify data channels when there is a panic
         // we cannot set this during strand creation, because function call do not have this info.
         if (func.workerChannels.length == 0) {
             return;

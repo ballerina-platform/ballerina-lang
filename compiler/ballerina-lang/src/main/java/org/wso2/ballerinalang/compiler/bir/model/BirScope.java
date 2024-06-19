@@ -22,8 +22,8 @@ package org.wso2.ballerinalang.compiler.bir.model;
 /**
  * Hold the scope of the instruction w.r.t variable declarations.
  *
- * @param id bir scope id
- * @param parent parent scope
+ * @param id the BIR scope id
+ * @param parent the parent scope
  * @since 2.0.0
  */
 public record BirScope(int id, BirScope parent) {

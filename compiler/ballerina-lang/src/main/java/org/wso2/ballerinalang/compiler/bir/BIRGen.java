@@ -252,7 +252,7 @@ public class BIRGen extends BLangNodeVisitor {
     // This map is used to create dependencies for imported module global variables
     private final Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
 
-    // This is to cache the lock stmt to BIR Lock
+    // This is to cache the lock statement to BIR Lock
     private final Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
     private final Unifier unifier;
