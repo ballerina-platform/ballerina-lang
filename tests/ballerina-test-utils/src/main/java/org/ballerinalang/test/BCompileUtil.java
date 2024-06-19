@@ -123,7 +123,7 @@ public final class BCompileUtil {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions =
                 buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).setOptimizeReport(Boolean.TRUE).build();
-        Project project = loadProject(sourceFilePath, buildOptions);
+        Project project = ProjectLoader.loadProject(testSourcesDirectory.resolve(sourceFilePath), buildOptions);
 
         Package currentPackage = project.currentPackage();
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
@@ -133,7 +133,6 @@ public final class BCompileUtil {
         CompilationOptions.resetStaticCompilationOptions();
         return new CompileResult(currentPackage, jBallerinaBackend);
     }
-
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {
         Project project = loadProject(sourceFilePath);
