@@ -40,8 +40,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
-
 /**
  * Emits time durations and optimized node details for codegen optimization.
  *
@@ -111,21 +109,11 @@ public class CodeGenOptimizationReportEmitter {
         }
     }
 
-    protected void emitCodegenOptimizationReport(
-            Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap, Path projectDirectoryPath,
-            ProjectKind projectKind) {
-        Path reportParentDirectoryPath = projectDirectoryPath.resolve(TARGET_DIR_NAME).toAbsolutePath().normalize();
-
-        if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectDirectoryPath = projectDirectoryPath.toAbsolutePath().getParent();
-            if (projectDirectoryPath != null) {
-                reportParentDirectoryPath = projectDirectoryPath;
-            }
-        }
-
-        if (!Files.exists(reportParentDirectoryPath)) {
+    protected void emitCodegenOptimizationReport(Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap,
+                                                 Path targetDirectoryPath) {
+        if (!Files.exists(targetDirectoryPath)) {
             try {
-                Files.createDirectories(reportParentDirectoryPath);
+                Files.createDirectories(targetDirectoryPath);
             } catch (IOException e) {
                 throw new ProjectException("Failed to create optimization report directory ", e);
             }
@@ -133,7 +121,7 @@ public class CodeGenOptimizationReportEmitter {
 
         Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>();
         invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
-        Path jsonFilePath = reportParentDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
+        Path jsonFilePath = targetDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
         File jsonFile = new File(jsonFilePath.toString());
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {

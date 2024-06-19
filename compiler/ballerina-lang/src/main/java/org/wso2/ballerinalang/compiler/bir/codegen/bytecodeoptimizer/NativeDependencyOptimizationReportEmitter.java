@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ProjectKind;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,8 +30,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
 /**
  * Emits optimized class file details for native dependency optimization.
@@ -44,17 +41,7 @@ public class NativeDependencyOptimizationReportEmitter {
     private static final String NATIVE_DEPENDENCY_OPTIMIZATION_REPORT = "native_dependency_optimization_report.json";
 
     public static void emitCodegenOptimizationReport(NativeDependencyOptimizationReport report,
-                                                        Path projectDirectoryPath, ProjectKind projectKind) {
-
-        Path reportParentDirectoryPath = projectDirectoryPath.resolve(TARGET_DIR_NAME).toAbsolutePath().normalize();
-
-        if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectDirectoryPath = projectDirectoryPath.toAbsolutePath().getParent();
-            if (projectDirectoryPath != null) {
-                reportParentDirectoryPath = projectDirectoryPath;
-            }
-        }
-
+                                                     Path reportParentDirectoryPath) {
         if (!Files.exists(reportParentDirectoryPath)) {
             try {
                 Files.createDirectories(reportParentDirectoryPath);
