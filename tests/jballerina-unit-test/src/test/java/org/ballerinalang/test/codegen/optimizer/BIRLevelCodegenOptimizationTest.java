@@ -86,15 +86,16 @@ public class BIRLevelCodegenOptimizationTest {
     public Object[] getSingleFileFunctionProjectPaths() {
         File[] functionFiles = SINGLE_FILE_FUNCTION_TESTS_PATH.toFile().listFiles();
         Assert.assertNotNull(functionFiles);
-        return Arrays.stream(functionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
+        return Arrays.stream(functionFiles).filter(file -> file.toString().endsWith(".bal"))
+                .map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
     }
 
     @DataProvider(name = "SingleFileTypeDefinitionProjectPaths")
     public Object[] getSingleFileTypeDefinitionProjectPaths() {
         File[] typeDefinitionFiles = SINGLE_FILE_TYPE_DEFINITION_TESTS_PATH.toFile().listFiles();
         Assert.assertNotNull(typeDefinitionFiles);
-        return Arrays.stream(typeDefinitionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize())
-                .toArray();
+        return Arrays.stream(typeDefinitionFiles).filter(file -> file.toString().endsWith(".bal"))
+                .map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
     }
 
     @DataProvider(name = "BuildProjectFunctionPaths")
