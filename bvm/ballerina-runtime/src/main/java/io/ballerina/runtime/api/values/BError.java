@@ -56,6 +56,7 @@ public abstract class BError extends RuntimeException implements BValue {
      *
      * @return error cause
      */
+    @Override
     public abstract BError getCause();
 
     /**
@@ -63,6 +64,7 @@ public abstract class BError extends RuntimeException implements BValue {
      *
      * @param printWriter {@code PrintWriter} to be used
      */
+    @Override
     public void printStackTrace(PrintWriter printWriter) {
         printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }

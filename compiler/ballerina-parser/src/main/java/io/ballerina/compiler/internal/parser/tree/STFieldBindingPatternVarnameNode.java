@@ -50,6 +50,7 @@ public class STFieldBindingPatternVarnameNode extends STFieldBindingPatternNode 
                 variableName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFieldBindingPatternVarnameNode(
                 this.variableName,
@@ -68,6 +69,7 @@ public class STFieldBindingPatternVarnameNode extends STFieldBindingPatternNode 
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldBindingPatternVarnameNode(this, position, parent);
     }

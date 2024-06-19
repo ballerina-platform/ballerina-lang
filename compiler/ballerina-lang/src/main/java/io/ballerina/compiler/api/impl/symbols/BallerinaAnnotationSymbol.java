@@ -145,6 +145,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             withAttachPoints(annotationSymbol);
         }
 
+        @Override
         public BallerinaAnnotationSymbol build() {
             return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor, this.attachPoints,
                                                  this.annots, this.annotAttachments, this.bSymbol, this.context);

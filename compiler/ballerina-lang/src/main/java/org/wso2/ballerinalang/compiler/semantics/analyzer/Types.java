@@ -3107,6 +3107,7 @@ public class Types {
             return hasSameMembers(sourceValueSpace, targetValueSpace);
         }
 
+        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
             s = getImpliedType(s);
             if (s.tag != TypeTags.TYPEREFDESC) {
@@ -4551,18 +4552,16 @@ public class Types {
                 break;
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) referredType;
-                expType.getValueSpace().forEach(value -> {
-                    memberTypes.add(value.getBType());
-                });
+                expType.getValueSpace().forEach(value -> memberTypes.add(value.getBType()));
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) referredType;
                 if (!visited.add(unionType)) {
                     return memberTypes;
                 }
-                unionType.getMemberTypes().forEach(member -> {
-                    memberTypes.addAll(expandAndGetMemberTypesRecursiveHelper(member, visited));
-                });
+                unionType.getMemberTypes().forEach(member ->
+                    memberTypes.addAll(expandAndGetMemberTypesRecursiveHelper(member, visited))
+                );
                 break;
             case TypeTags.ARRAY:
                 BType arrayElementType = ((BArrayType) referredType).getElementType();
@@ -4575,9 +4574,7 @@ public class Types {
 
                 if (getImpliedType(arrayElementType).tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
-                    elementUnionTypes.forEach(elementUnionType -> {
-                        memberTypes.add(new BArrayType(elementUnionType));
-                    });
+                    elementUnionTypes.forEach(elementUnionType -> memberTypes.add(new BArrayType(elementUnionType)));
                 }
                 memberTypes.add(bType);
                 break;
@@ -4586,9 +4583,8 @@ public class Types {
                 if (getImpliedType(mapConstraintType).tag == TypeTags.UNION) {
                     Set<BType> constraintUnionTypes =
                             expandAndGetMemberTypesRecursiveHelper(mapConstraintType, visited);
-                    constraintUnionTypes.forEach(constraintUnionType -> {
-                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
-                    });
+                    constraintUnionTypes.forEach(constraintUnionType ->
+                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol)));
                 }
                 memberTypes.add(bType);
                 break;

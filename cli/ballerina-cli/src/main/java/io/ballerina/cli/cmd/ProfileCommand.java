@@ -107,6 +107,7 @@ public class ProfileCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    @Override
     public void execute() {
         if (this.helpFlag) {
             printCommandUsageInfo();

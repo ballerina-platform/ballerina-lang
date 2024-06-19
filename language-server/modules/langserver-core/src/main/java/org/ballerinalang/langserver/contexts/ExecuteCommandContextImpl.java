@@ -102,6 +102,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
             this.languageServer = languageServer;
         }
 
+        @Override
         public ExecuteCommandContext build() {
             return new ExecuteCommandContextImpl(
                     this.wsManager,

@@ -68,6 +68,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     private static final String CONSTANT_NAME_PREFIX = "CONST";
     private static final String EXTRACT_COMMAND = "ballerina.action.extract";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
                 SyntaxKind.STRING_LITERAL, SyntaxKind.BINARY_EXPRESSION, SyntaxKind.UNARY_EXPRESSION);
@@ -132,10 +133,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        nodeList.forEach(extractableNode -> {
+        nodeList.forEach(extractableNode ->
             textEditMap.put(extractableNode.toSourceCode().strip(),
-                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
-        });
+                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();

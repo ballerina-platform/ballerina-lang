@@ -155,6 +155,7 @@ public class RunCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {

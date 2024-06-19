@@ -50,6 +50,7 @@ public class STIdentifierLiteralNode extends STValueNode {
                 value);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STIdentifierLiteralNode(
                 this.value,
@@ -68,6 +69,7 @@ public class STIdentifierLiteralNode extends STValueNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IdentifierLiteralNode(this, position, parent);
     }
