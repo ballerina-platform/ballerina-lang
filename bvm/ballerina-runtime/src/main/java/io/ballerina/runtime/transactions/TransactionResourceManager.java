@@ -195,14 +195,14 @@ public class TransactionResourceManager {
      *
      * @return int transaction auto commit timeout value
      */
-    public int getTransactionAutoCommitTimeout() {
+    public static int getTransactionAutoCommitTimeout() {
         VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
                 TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, PredefinedTypes.TYPE_INT, false);
         Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
         if (value == null) {
             return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
         }
-        return parseTimeoutValue(value, TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
+        return parseTimeoutValue(value, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
     }
 
     /**
@@ -210,7 +210,7 @@ public class TransactionResourceManager {
      *
      * @return int transaction cleanup after value
      */
-    public int getTransactionCleanupTimeout() {
+    public static int getTransactionCleanupTimeout() {
         VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
                 TRANSACTION_CLEANUP_TIMEOUT_KEY,
                 PredefinedTypes.TYPE_INT, false);
@@ -218,18 +218,14 @@ public class TransactionResourceManager {
         if (value == null) {
             return DEFAULT_TRX_CLEANUP_TIMEOUT;
         }
-        return parseTimeoutValue(value, TRANSACTION_CLEANUP_TIMEOUT_KEY, DEFAULT_TRX_CLEANUP_TIMEOUT);
+        return parseTimeoutValue(value, DEFAULT_TRX_CLEANUP_TIMEOUT);
     }
 
-    private int parseTimeoutValue(Object value, String key, int defaultValue) {
-        int timeoutValue;
-        if (value instanceof Long longVal) {
-            timeoutValue = longVal.intValue();
-        } else if (value instanceof Integer intVal) {
-            timeoutValue = intVal;
-        } else {
+    private static int parseTimeoutValue(Object value, int defaultValue) {
+        if (!(value instanceof Number number)) {
             return defaultValue;
         }
+        int timeoutValue = number.intValue();
         if (timeoutValue <= 0) {
             return defaultValue;
         }
