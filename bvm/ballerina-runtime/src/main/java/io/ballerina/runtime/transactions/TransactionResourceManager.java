@@ -27,8 +27,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -105,7 +103,6 @@ public class TransactionResourceManager {
 
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
-    RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
 
     Map<ByteBuffer, Object> transactionInfoMap;
 
@@ -231,13 +228,9 @@ public class TransactionResourceManager {
         } else if (value instanceof Integer intVal) {
             timeoutValue = intVal;
         } else {
-            diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_TIMEOUT, null, key, value, defaultValue);
-            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
             return defaultValue;
         }
         if (timeoutValue <= 0) {
-            diagnosticLog.warn(ErrorCodes.INVALID_TRANSACTION_TIMEOUT, null, key, value, defaultValue);
-            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
             return defaultValue;
         }
         return timeoutValue;

@@ -149,9 +149,7 @@ public enum ErrorCodes implements DiagnosticCode {
     REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120"),
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
                                                                "RUNTIME_0121"),
-    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
-    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130"),
-    INVALID_TRANSACTION_TIMEOUT("invalid.transaction.timeout", "RUNTIME_0131");
+    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122");
 
     private final String errorMsgKey;
     private final String errorCode;
