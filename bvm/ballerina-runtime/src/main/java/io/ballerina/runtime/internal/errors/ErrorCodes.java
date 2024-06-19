@@ -151,7 +151,7 @@ public enum ErrorCodes implements DiagnosticCode {
                                                                "RUNTIME_0121"),
     EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130"),
-    INVALID_TRANSACTION_TIMEOUT("invalid.transaction.value", "RUNTIME_0131");
+    INVALID_TRANSACTION_TIMEOUT("invalid.transaction.timeout", "RUNTIME_0131");
 
     private final String errorMsgKey;
     private final String errorCode;
