@@ -39,6 +39,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ public class JarResolver {
     private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
-    public HashSet<Path> optimizedJarLibraryPaths = new HashSet<>();
+    public Set<Path> optimizedJarLibraryPaths = new HashSet<>();
 
     JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
@@ -217,20 +218,20 @@ public class JarResolver {
                                          PlatformLibraryScope scope,
                                          Set<JarLibrary> libraryPaths, boolean addOnlyUsedLibraries) {
         // Add all the jar library dependencies of current package (packageId)
-        Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
-                packageContext.packageId(), scope);
-        Set<String> usedNativeClassPaths =
-                addOnlyUsedLibraries ? jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId()) : null;
-        // FIXME: where do we get this variable?
+        PackageId packageId = packageContext.packageId();
+        Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(packageId, scope);
+        Set<String> usedNativeClassPaths = getUsedNativeClassPaths(addOnlyUsedLibraries, packageId);
+
         if (addProvidedJars) {
             providedPlatformLibs.addAll(otherJarDependencies);
         }
+
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
             // If there are more than one platform dependency, there could be secondary dependencies
-            if (addOnlyUsedLibraries &&
-                    !isUsedDependency(newEntry, usedNativeClassPaths, otherJarDependencies.size())) {
+            if (addOnlyUsedLibraries && otherJarDependencies.size() == 1 &&
+                    !isUsedDependency(newEntry, usedNativeClassPaths)) {
                 continue;
             }
             if (hasEmptyIdOrVersion(newEntry)) {
@@ -265,20 +266,23 @@ public class JarResolver {
         }
     }
 
+    private Set<String> getUsedNativeClassPaths(boolean addOnlyUsedLibraries, PackageId packageID) {
+        if (addOnlyUsedLibraries) {
+            return jBalBackend.pkgWiseUsedNativeClassPaths.getOrDefault(packageID, Collections.emptySet());
+        }
+        return Collections.emptySet();
+    }
+
     private static boolean hasEmptyIdOrVersion(JarLibrary entry) {
         return entry.groupId().isEmpty() || entry.artifactId().isEmpty() || entry.version().isEmpty();
     }
 
-    private boolean isUsedDependency(JarLibrary otherJarDependency, Set<String> usedNativeClassPaths,
-                                     int totalJarDependencies) {
-        String pkgName = otherJarDependency.packageName().get();
-        if (totalJarDependencies != 1) {
-            return true;
-        }
+    private boolean isUsedDependency(JarLibrary otherJarDependency, Set<String> usedNativeClassPaths) {
+        String pkgName = otherJarDependency.packageName().orElseThrow();
         if (isWhiteListedPkg(pkgName)) {
             return true;
         }
-        if (usedNativeClassPaths == null) {
+        if (usedNativeClassPaths.isEmpty()) {
             return false;
         }
         try (JarFile jarFile = new JarFile(otherJarDependency.path().toFile())) {

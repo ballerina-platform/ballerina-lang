@@ -45,7 +45,7 @@ import java.util.Set;
  *
  * @since 2201.10.0
  */
-public class CodeGenOptimizationReportEmitter {
+public final class CodeGenOptimizationReportEmitter {
 
     private static final CompilerContext.Key<CodeGenOptimizationReportEmitter> CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY =
             new CompilerContext.Key<>();
@@ -119,7 +119,7 @@ public class CodeGenOptimizationReportEmitter {
             }
         }
 
-        Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>();
+        Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>(invocationDataMap.size());
         invocationDataMap.forEach((key, value) -> reports.put(key.toString(), getCodegenOptimizationReport(value)));
         Path jsonFilePath = targetDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
         File jsonFile = new File(jsonFilePath.toString());

@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2201.10.0
  */
-public record CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
+record CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
                                         TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
                                         Set<String> usedNativeClassPaths) {
 
@@ -39,7 +39,7 @@ public record CodegenOptimizationReport(FunctionNames usedFunctionNames, Functio
      * @param sourceFunctions  BIR functions directly derived from source
      * @param virtualFunctions BIR functions generated during desugar
      */
-    protected record FunctionNames(Set<String> sourceFunctions, Set<String> virtualFunctions) {
+    record FunctionNames(Set<String> sourceFunctions, Set<String> virtualFunctions) {
 
     }
 
@@ -47,7 +47,7 @@ public record CodegenOptimizationReport(FunctionNames usedFunctionNames, Functio
      * @param sourceTypeDefinitions  BIR type definitions directly derived from source
      * @param virtualTypeDefinitions BIR type definitions generated during desugar
      */
-    protected record TypeDefinitions(Set<String> sourceTypeDefinitions, Set<String> virtualTypeDefinitions) {
+    record TypeDefinitions(Set<String> sourceTypeDefinitions, Set<String> virtualTypeDefinitions) {
 
     }
 }
