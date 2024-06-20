@@ -43,7 +43,7 @@ public class OpenTracerBallerinaWrapper {
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
     private final boolean enabled;
-    private Map<Long, ObserverContext> observerContextList = new HashMap<>();
+    private ConcurrentMap<Long, ObserverContext> observerContextList = new ConcurrentHashMap<>();
     private AtomicLong spanId = new AtomicLong();
     private static final int SYSTEM_TRACE_INDICATOR = -1;
 
@@ -126,7 +126,10 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextList.get(spanId);
+        ObserverContext observerContext = null;
+        if (observerContextList.containsKey(spanId)) {
+            observerContext = observerContextList.get(spanId);
+        }
         if (observerContext != null) {
             if (observerContext.isSystemSpan()) {
                 ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext.getParent());
@@ -153,7 +156,10 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextList.get(spanId);
+        ObserverContext observerContext = null;
+        if (observerContextList.containsKey(spanId)) {
+            observerContext = observerContextList.get(spanId);
+        }
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(strand);
             if (observer.isPresent()) {
