@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.StructureType;
-import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.HashMap;
 import java.util.Map;
