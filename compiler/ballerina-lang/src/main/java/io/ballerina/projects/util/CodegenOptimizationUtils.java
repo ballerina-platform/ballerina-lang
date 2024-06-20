@@ -31,7 +31,7 @@ import static io.ballerina.projects.util.CodegenOptimizationConstants.DOT_DRIVER
  *
  * @since 2201.10.0
  */
-public class CodegenOptimizationUtils {
+public final class CodegenOptimizationUtils {
 
     public static boolean isObserveModule(PackageID packageID) {
         return packageID.getPackageNameWithOrg().equals(BALLERINA_OBSERVE);
