@@ -264,6 +264,10 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
             return Optional.of(get(cx));
         }
         BArray value = (BArray) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
         int size = value.size();
         SemType[] memberTypes = new SemType[size];
         for (int i = 0; i < size; i++) {
@@ -274,8 +278,8 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
             memberTypes[i] = memberType.get();
         }
         ListDefinition ld = new ListDefinition();
-        // TODO: cache this in the array value
-        return Optional.of(
-                ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE));
+        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE);
+        value.cacheShape(semType);
+        return Optional.of(semType);
     }
 }

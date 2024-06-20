@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Collection;
 import java.util.Map;
@@ -194,13 +193,4 @@ public interface BMap<K, V> extends BRefValue, BCollection {
     Object merge(BMap<?, ?> v2, boolean checkMergeability);
 
     void populateInitialValue(K key, V value);
-
-    // FIXME: lift this to collection
-    default SemType shapeOf() {
-        return null;
-    }
-
-    default void cacheShape(SemType semType) {
-
-    }
 }
