@@ -137,12 +137,8 @@ public final class Context {
             return;
         }
         if (resetProvisionalTypes) {
-            BType head = provisionalTypes.get(0);
             for (int i = 1; i < provisionalTypes.size(); i++) {
                 BType type = provisionalTypes.get(i);
-                if (type == head) {
-                    continue;
-                }
                 type.resetSemTypeCache();
             }
         }
