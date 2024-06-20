@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,20 +14,14 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.types.semtype.BMappingProj;
+public record FieldPair(String name, SemType type1, SemType type2, Integer index1, Integer index2) {
 
-public final class MappingProj {
-
-    private MappingProj() {
+    public static FieldPair create(String name, SemType type1, SemType type2, Integer index1,
+                                   Integer index2) {
+        return new FieldPair(name, type1, type2, index1, index2);
     }
-
-    public static SemType mappingMemberTypeInnerVal(Context cx, SemType t, SemType k) {
-        return BMappingProj.mappingMemberTypeInnerVal(cx, t, k);
-    }
-
 }

@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.semtype.MappingAtomicType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
@@ -37,85 +36,10 @@ import static io.ballerina.runtime.api.types.semtype.Core.diff;
 import static io.ballerina.runtime.api.types.semtype.Core.getComplexSubtypeData;
 import static io.ballerina.runtime.api.types.semtype.Core.isNothingSubtype;
 import static io.ballerina.runtime.api.types.semtype.Core.stringSubtype;
-import static io.ballerina.runtime.internal.types.semtype.BStringSubType.stringSubtypeListCoverage;
 
 public final class BMappingProj {
 
     private BMappingProj() {
-    }
-
-    // TODO: refactor things to avoid duplication (Bench method ref vs duplication)
-    public static SemType mappingMemberType(Context cx, SemType t, SemType k) {
-        // FIXME: cell containting undef
-        SemType result = diff(mappingMemberTypeAux(cx, t, k), Builder.undef());
-        assert Core.isSubType(cx, result, Builder.cell()) : "map field type should be wrapped in a cell";
-        return result;
-    }
-
-    // Same as mappingMemberTypeInner except don't remove the cell
-    private static SemType mappingMemberTypeAux(Context cx, SemType t, SemType k) {
-        if (t.some() == 0) {
-            SemType res = (t.all() & Builder.mappingType().all()) != 0 ? (Builder.valType()) : Builder.undef();
-            return Builder.cellContaining(cx.env, res);
-        } else {
-            SubTypeData keyData = stringSubtype(k);
-            if (isNothingSubtype(keyData)) {
-                return Builder.cellContaining(cx.env, Builder.undef());
-            }
-            return bddMappingMemberType(cx, (Bdd) getComplexSubtypeData(t, BT_MAPPING), keyData,
-                    Builder.cell());
-        }
-    }
-
-    static SemType bddMappingMemberType(Context cx, Bdd b, SubTypeData key, SemType accum) {
-        if (b instanceof BddAllOrNothing allOrNothing) {
-            return allOrNothing.isAll() ? accum : Builder.neverType();
-        } else {
-            BddNode bdd = (BddNode) b;
-            return Core.union(
-                    bddMappingMemberType(cx, bdd.left(), key,
-                            Core.intersect(mappingAtomicMemberType(cx.mappingAtomType(bdd.atom()), key),
-                                    accum)),
-                    Core.union(bddMappingMemberType(cx, bdd.middle(), key, accum),
-                            bddMappingMemberType(cx, bdd.right(), key, accum)));
-        }
-    }
-
-    static SemType mappingAtomicMemberType(MappingAtomicType atomic, SubTypeData key) {
-        SemType memberType = null;
-        for (SemType ty : mappingAtomicApplicableMemberTypes(atomic, key)) {
-            if (memberType == null) {
-                memberType = ty;
-            } else {
-                memberType = Core.union(memberType, ty);
-            }
-        }
-        // FIXME: wrap in cell
-        return memberType == null ? Builder.undef() : memberType;
-    }
-
-    static List<SemType> mappingAtomicApplicableMemberTypes(MappingAtomicType atomic, SubTypeData key) {
-        // FIXME:
-        List<SemType> types = new ArrayList<>(atomic.types().length);
-        Collections.addAll(types, atomic.types());
-
-        List<SemType> memberTypes = new ArrayList<>();
-        SemType rest = atomic.rest();
-        if (isAllSubtype(key)) {
-            memberTypes.addAll(types);
-            memberTypes.add(rest);
-        } else {
-            BStringSubType.StringSubtypeListCoverage coverage =
-                    stringSubtypeListCoverage((BStringSubType.StringSubTypeData) key,
-                            atomic.names());
-            for (int index : coverage.indices()) {
-                memberTypes.add(types.get(index));
-            }
-            if (!coverage.isSubType()) {
-                memberTypes.add(rest);
-            }
-        }
-        return memberTypes;
     }
 
     public static SemType mappingMemberTypeInnerVal(Context cx, SemType t, SemType k) {
@@ -177,8 +101,7 @@ public final class BMappingProj {
             memberTypes.add(rest);
         } else {
             BStringSubType.StringSubtypeListCoverage coverage =
-                    stringSubtypeListCoverage((BStringSubType.StringSubTypeData) key,
-                            atomic.names());
+                    ((BStringSubType.StringSubTypeData) key).stringSubtypeListCoverage(atomic.names());
             for (int index : coverage.indices()) {
                 memberTypes.add(types.get(index));
             }

@@ -136,11 +136,13 @@ public final class Context {
         if (startingSize != 0) {
             return;
         }
-        // FIXME: reset all (if we have cycles we will reset the top one as well)
         if (resetProvisionalTypes) {
+            BType head = provisionalTypes.get(0);
             for (int i = 1; i < provisionalTypes.size(); i++) {
                 BType type = provisionalTypes.get(i);
-                // TODO: we should be able to be more selective about resetting the cache
+                if (type == head) {
+                    continue;
+                }
                 type.resetSemTypeCache();
             }
         }

@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -74,6 +75,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     private final boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
+    private SemType shape;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     public TupleValueImpl(Object[] values, TupleType type) {
@@ -826,5 +828,15 @@ public class TupleValueImpl extends AbstractArrayValue {
         if (index >= size) {
             size = index + 1;
         }
+    }
+
+    @Override
+    public void cacheShape(SemType semType) {
+        shape = semType;
+    }
+
+    @Override
+    public SemType shapeOf() {
+        return shape;
     }
 }
