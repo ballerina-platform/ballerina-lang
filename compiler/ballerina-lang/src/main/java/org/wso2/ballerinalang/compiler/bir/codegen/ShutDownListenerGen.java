@@ -80,7 +80,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -134,7 +134,6 @@ public class ShutDownListenerGen {
                               AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", VOID_METHOD_DESC, null, null);
         mv.visitCode();
-
         // Create a scheduler. A new scheduler is used here, to make the stop function to not
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
         mv.visitTypeInsn(NEW, SCHEDULER);
@@ -143,14 +142,12 @@ public class ShutDownListenerGen {
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
         mv.visitVarInsn(ASTORE, 1); // Scheduler var1
-
         String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
         generateCallStopDynamicLambda(mv, lambdaName, initClass, asyncDataCollector);
-
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD, MODULE_STOP_METHOD_DESC, false);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD, MODULE_STOP, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "run", innerClassName);
         mv.visitEnd();
@@ -183,13 +180,11 @@ public class ShutDownListenerGen {
                                                AsyncDataCollector asyncDataCollector) {
         addRuntimeRegistryAsParameter(mv, moduleInitClass + "$SignalListener");
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector);
-
         // handle any runtime errors
         Label labelIf = new Label();
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitJumpInsn(IFNULL, labelIf);
-
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC, false);
@@ -214,10 +209,8 @@ public class ShutDownListenerGen {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass + "$SignalListener", stopFuncName);
         mv.visitInsn(ACONST_NULL);
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
-
         MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
         mv.visitVarInsn(ASTORE, 3);
-
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);

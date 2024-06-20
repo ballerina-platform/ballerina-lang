@@ -304,13 +304,10 @@ public class JvmPackageGen {
 
         fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_PARENT_ATTEMPTED, "Z", null, null);
         fv.visitEnd();
-
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_PARENT_ATTEMPTED, "Z");
-
         fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, NO_OF_DEPENDANT_MODULES, "I", null, null);
         fv.visitEnd();
-
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
     }

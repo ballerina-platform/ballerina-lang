@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -79,7 +77,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
@@ -104,7 +102,7 @@ public class ModuleStopMethodGen {
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
                                             AsyncDataCollector asyncDataCollector, Set<PackageID> immediateImports) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP_METHOD,
-                MODULE_STOP_METHOD_DESC, null, null);
+                MODULE_STOP, null, null);
         mv.visitCode();
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
@@ -120,14 +118,11 @@ public class ModuleStopMethodGen {
         mv.visitLabel(labelIf);
 
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
-
-        Iterator<PackageID> immediateImportsIterator = (new LinkedList<>(immediateImports)).descendingIterator();
-        while (immediateImportsIterator.hasNext()) {
-            PackageID id = immediateImportsIterator.next();
-            moduleInitClass = getModuleInitClassName(id);
+        for (PackageID immediateImport : immediateImports) {
+            moduleInitClass = getModuleInitClassName(immediateImport);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP_METHOD_DESC, false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP, false);
         }
 
         mv.visitInsn(RETURN);
@@ -184,11 +179,11 @@ public class ModuleStopMethodGen {
                            false);
         mv.visitJumpInsn(GOTO, labelJump);
         mv.visitLabel(labelIf);
-        genHandleErrorReturn(mv, indexMap);
+        genHandleErrorReturn(mv);
         mv.visitLabel(labelJump);
     }
 
-    private void genHandleErrorReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
+    private void genHandleErrorReturn(MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE, "result", GET_OBJECT);
         mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT,
