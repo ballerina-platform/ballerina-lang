@@ -196,7 +196,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
         Map<BIRNode.BIRVariableDcl, FunctionPointerData> previousLocalFpHolders = localFpHolders;
         currentInstructionArr = birBasicBlock.instructions;
-        localFpHolders = new HashMap<>();
+        localFpHolders = new HashMap<>(currentInvocationData.globalVarFPDataPool);
         localFpHolders.putAll(currentInvocationData.globalVarFPDataPool);
 
         birBasicBlock.instructions.forEach(instruction -> {
@@ -221,7 +221,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.Call call) {
         // If function pointers are passed as parameters, they will be bound to the parent function
-        Set<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
+        Set<BIRNode.BIRVariableDcl> argVars = new HashSet<>(call.args.size());
         call.args.forEach(birOperand -> argVars.add(birOperand.variableDcl));
         argVars.retainAll(localFpHolders.keySet());
         if (!argVars.isEmpty()) {

@@ -575,26 +575,7 @@ public class JBallerinaBackend extends CompilerBackend {
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
 
         if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
-            // Duplicate codegen
-            BIRNode.BIRPackage optimizableBirPkg = bLangPackage.symbol.bir;
-            bLangPackage.symbol.bir = bLangPackage.symbol.duplicateBir;
-            interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
-            if (bLangPackage.getErrorCount() > 0) {
-                return;
-            }
-            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
-            bLangPackage.symbol.bir = optimizableBirPkg;
-
-            if (originalJarFile == null) {
-                throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-            }
-            String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
-            try {
-                ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
-                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
-            } catch (IOException e) {
-                throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
-            }
+            duplicateCodegen(moduleContext, isRemoteMgtEnabled);
         }
 
         if (isRootModule(moduleContext)) {
@@ -648,7 +629,30 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
-    public void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
+    private void duplicateCodegen(ModuleContext moduleContext, boolean isRemoteMgtEnabled) {
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
+        BIRNode.BIRPackage optimizableBirPkg = bLangPackage.symbol.bir;
+        bLangPackage.symbol.bir = bLangPackage.symbol.duplicateBir;
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
+            return;
+        }
+        CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
+        bLangPackage.symbol.bir = optimizableBirPkg;
+
+        if (originalJarFile == null) {
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+        }
+        String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
+            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+    }
+
+    private void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
         UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
 
@@ -820,13 +824,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private void assembleOptimizedExecutableJar(Path executableFilePath,
                                        Manifest manifest,
                                        Collection<JarLibrary> jarLibraries) throws IOException {
-        // Used to prevent adding duplicated entries during the final jar creation.
-        HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
-
-        // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
-        // service loader related information should be merged together in the final executable jar creation.
-        HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
-
         String birOptimizedJarPath = executableFilePath.toString()
                 .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT, ProjectConstants.BIR_OPTIMIZED_JAR_SUFFIX);
         String bytecodeOptimizedJarPath = executableFilePath.toString()
@@ -841,6 +838,12 @@ public class JBallerinaBackend extends CompilerBackend {
             List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
                     .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
                     .collect(Collectors.toList());
+
+            // Used to prevent adding duplicated entries during the final jar creation.
+            HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
+            // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+            // service loader related information should be merged together in the final executable jar creation.
+            HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
 
             // Copy all the jars
             for (JarLibrary library : sortedJarLibraries) {
@@ -859,7 +862,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
                 outStream.closeArchiveEntry();
             }
-
             outStream.close();
 
             this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
@@ -886,7 +888,7 @@ public class JBallerinaBackend extends CompilerBackend {
                         getOptimizationReportParentPath());
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
     }
 
@@ -895,9 +897,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return "$_init";
         }
 
-        String orgName = rootPkgContext.descriptor().org().toString();
-        String pkgName = rootPkgContext.descriptor().name().toString();
-        return String.format("%s/%s/0/$_init", orgName, pkgName);
+        return String.format("%s/%s/0/$_init", rootPkgContext.descriptor().org(), rootPkgContext.descriptor().name());
     }
 
     private void writeManifest(Manifest manifest, ZipArchiveOutputStream outStream) throws IOException {
@@ -1030,7 +1030,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private ZipFile getZipFile(JarLibrary jarLibrary) throws IOException {
         ByteArrayOutputStream optimizedStream = getOptimizedStream(jarLibrary.path().toString());
-        if (optimizedStream == null) {
+        if (optimizedStream.size() == 0) {
             return new ZipFile(jarLibrary.path().toFile());
         }
         SeekableByteChannel seekableByteChannel = new SeekableInMemoryByteChannel(optimizedStream.toByteArray());
@@ -1039,7 +1039,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private ByteArrayOutputStream getOptimizedStream(String pathName) {
         if (this.optimizedJarStreams == null) {
-            return null;
+            return new ByteArrayOutputStream(0);
         }
 
         for (Map.Entry<String, ByteArrayOutputStream> entry : this.optimizedJarStreams.entrySet()) {
@@ -1047,7 +1047,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 return entry.getValue();
             }
         }
-        return null;
+        return new ByteArrayOutputStream(0);
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
