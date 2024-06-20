@@ -31,7 +31,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * {@code BType} represents a type in Ballerina.

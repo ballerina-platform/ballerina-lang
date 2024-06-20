@@ -40,7 +40,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
@@ -168,10 +167,6 @@ public final class Builder {
 
     public static SemType cell() {
         return from(BT_CELL);
-    }
-
-    protected static SemType cellSemTypeInner() {
-        return CELL_SEMTYPE_INNER;
     }
 
     public static SemType inner() {

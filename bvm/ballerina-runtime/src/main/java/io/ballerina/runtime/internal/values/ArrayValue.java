@@ -17,9 +17,6 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BArray;
 
 /**
