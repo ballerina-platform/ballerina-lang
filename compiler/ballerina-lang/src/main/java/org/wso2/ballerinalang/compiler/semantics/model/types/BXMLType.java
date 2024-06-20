@@ -84,7 +84,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
                 contraintSemtype = constraint.semType();
             }
 
-            if (!Core.isSubtypeSimple(contraintSemtype, PredefinedType.XML)) {
+            if (contraintSemtype == null || !Core.isSubtypeSimple(contraintSemtype, PredefinedType.XML)) {
                 // we reach here for negative semantics
                 contraintSemtype = PredefinedType.NEVER;
             }
