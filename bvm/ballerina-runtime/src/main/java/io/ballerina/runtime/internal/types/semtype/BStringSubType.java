@@ -164,38 +164,6 @@ public final class BStringSubType extends SubType {
         return data;
     }
 
-    // FIXME: make this an instance method
-    // Returns a description of the relationship between a StringSubtype and a list of strings
-    // `values` must be ordered.
-    static StringSubtypeListCoverage stringSubtypeListCoverage(StringSubTypeData stringData, String[] values) {
-        List<Integer> indices = new ArrayList<>();
-        ValueData ch = stringData.chars();
-        ValueData nonChar = stringData.nonChars();
-        int stringConsts = 0;
-        if (ch.allowed) {
-            stringListIntersect(values, ch.values, indices);
-            stringConsts = ch.values.length;
-        } else if (ch.values.length == 0) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i].length() == 1) {
-                    indices.add(i);
-                }
-            }
-        }
-        if (nonChar.allowed) {
-            stringListIntersect(values, nonChar.values, indices);
-            stringConsts += nonChar.values.length;
-        } else if (nonChar.values.length == 0) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i].length() != 1) {
-                    indices.add(i);
-                }
-            }
-        }
-        int[] inds = indices.stream().mapToInt(i -> i).toArray();
-        return new StringSubtypeListCoverage(stringConsts == indices.size(), inds);
-    }
-
     static void stringListIntersect(String[] values, String[] target, List<Integer> indices) {
         int i1 = 0;
         int i2 = 0;
@@ -237,6 +205,34 @@ public final class BStringSubType extends SubType {
 
     record StringSubTypeData(ValueData chars, ValueData nonChars) implements SubTypeData {
 
+        StringSubtypeListCoverage stringSubtypeListCoverage(String[] values) {
+            List<Integer> indices = new ArrayList<>();
+            ValueData ch = chars();
+            ValueData nonChar = nonChars();
+            int stringConsts = 0;
+            if (ch.allowed) {
+                stringListIntersect(values, ch.values, indices);
+                stringConsts = ch.values.length;
+            } else if (ch.values.length == 0) {
+                for (int i = 0; i < values.length; i++) {
+                    if (values[i].length() == 1) {
+                        indices.add(i);
+                    }
+                }
+            }
+            if (nonChar.allowed) {
+                stringListIntersect(values, nonChar.values, indices);
+                stringConsts += nonChar.values.length;
+            } else if (nonChar.values.length == 0) {
+                for (int i = 0; i < values.length; i++) {
+                    if (values[i].length() != 1) {
+                        indices.add(i);
+                    }
+                }
+            }
+            int[] inds = indices.stream().mapToInt(i -> i).toArray();
+            return new StringSubtypeListCoverage(stringConsts == indices.size(), inds);
+        }
     }
 
     record StringSubtypeListCoverage(boolean isSubType, int[] indices) {

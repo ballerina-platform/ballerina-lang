@@ -24,8 +24,7 @@ public final class Common {
     private Common() {
     }
 
-    // FIXME: not sure this is needed (java string comparision should support unicode)
-    static boolean codePointCompare(String s1, String s2) {
+    public static boolean codePointCompare(String s1, String s2) {
         if (s1.equals(s2)) {
             return false;
         }
