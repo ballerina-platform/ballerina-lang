@@ -127,7 +127,6 @@ final class BTypeConverter {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
             return splitFiniteType(cx, finiteType);
-            // FIXME: introduce a marker type for these
         } else if (type instanceof PartialSemTypeSupplier supplier) {
             return splitSemTypeSupplier(cx, supplier);
         } else {

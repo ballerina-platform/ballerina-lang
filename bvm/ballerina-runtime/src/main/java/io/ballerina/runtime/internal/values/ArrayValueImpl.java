@@ -24,9 +24,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -90,6 +87,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private double[] floatValues;
     private BString[] bStringValues;
     private BTypedesc typedesc;
+
+    private SemType shape;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     public ArrayValueImpl(Object[] values, ArrayType type) {
@@ -1409,5 +1408,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
             }
         }
         return result;
+    }
+
+    @Override
+    public void cacheShape(SemType semType) {
+        shape = semType;
+    }
+
+    @Override
+    public SemType shapeOf() {
+        return shape;
     }
 }
