@@ -213,6 +213,7 @@ public final class SemTypeHelper {
             case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
             case TypeTags.HANDLE:
+            case TypeTags.REGEXP:
                 return true;
             default:
                 return false;

@@ -38,27 +38,28 @@ public class BasicTypeCode {
     public static final BasicTypeCode BT_TYPEDESC = from(0x07);
     public static final BasicTypeCode BT_HANDLE = from(0x08);
     public static final BasicTypeCode BT_FUNCTION = from(0x09);
+    public static final BasicTypeCode BT_REGEXP = from(0x0A);
 
     // Inherently mutable
-    public static final BasicTypeCode BT_FUTURE = from(0x0A);
-    public static final BasicTypeCode BT_STREAM = from(0x0B);
+    public static final BasicTypeCode BT_FUTURE = from(0x0B);
+    public static final BasicTypeCode BT_STREAM = from(0x0C);
 
     // Selectively immutable
-    public static final BasicTypeCode BT_LIST = from(0x0C);
-    public static final BasicTypeCode BT_MAPPING = from(0x0D);
-    public static final BasicTypeCode BT_TABLE = from(0x0E);
-    public static final BasicTypeCode BT_XML = from(0x0F);
-    public static final BasicTypeCode BT_OBJECT = from(0x10);
+    public static final BasicTypeCode BT_LIST = from(0x0D);
+    public static final BasicTypeCode BT_MAPPING = from(0x0E);
+    public static final BasicTypeCode BT_TABLE = from(0x0F);
+    public static final BasicTypeCode BT_XML = from(0x10);
+    public static final BasicTypeCode BT_OBJECT = from(0x11);
 
     // Non-val
-    public static final BasicTypeCode BT_CELL = from(0x11);
-    public static final BasicTypeCode BT_UNDEF = from(0x12);
+    public static final BasicTypeCode BT_CELL = from(0x12);
+    public static final BasicTypeCode BT_UNDEF = from(0x13);
 
     // Helper bit fields (does not represent basic type tag)
     static final int VT_COUNT = BT_OBJECT.code + 1;
     static final int VT_MASK = (1 << VT_COUNT) - 1;
 
-    static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
+    static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0B;
     public static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
 
     public final int code;

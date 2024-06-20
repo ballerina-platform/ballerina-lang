@@ -180,7 +180,7 @@ public class SymbolTable {
                                                               SemTypes.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
                                                            SemTypes.XML_TEXT);
-    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
+    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE, PredefinedType.REGEXP);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
 
     public final BType xmlType;

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -30,8 +31,8 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BRegexpType extends BType {
 
-    public BRegexpType(int tag, Name name) {
-        super(tag, null, name, Flags.READONLY);
+    public BRegexpType(int tag, Name name, SemType semType) {
+        super(tag, null, name, Flags.READONLY, semType);
     }
 
     @Override

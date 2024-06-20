@@ -18,6 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -93,4 +96,10 @@ public class BAnydataType extends BUnionType {
         return visitor.visit(this, t);
     }
 
+    @Override
+    public SemType semType() {
+        // Overrides here because SymbolResolver#bootstrapAnydataType() does not contain regexp as a member
+        // Cannot add to SymbolTable#defineAnydataCyclicTypeAndDependentTypes() either as it could clash with former
+        return SemTypes.union(super.semType(), PredefinedType.REGEXP);
+    }
 }
