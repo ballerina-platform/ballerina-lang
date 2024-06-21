@@ -73,10 +73,12 @@ public abstract class NonTerminalNode extends Node {
                         .collect(Collectors.toList()));
     }
 
+    @Override
     public MinutiaeList leadingMinutiae() {
         return this.internalNode.firstToken().createUnlinkedFacade().leadingMinutiae();
     }
 
+    @Override
     public MinutiaeList trailingMinutiae() {
         return this.internalNode.lastToken().createUnlinkedFacade().trailingMinutiae();
     }
@@ -163,6 +165,7 @@ public abstract class NonTerminalNode extends Node {
         return TreeModifiers.replace((T) this, target, replacement);
     }
 
+    @Override
     public Iterable<Diagnostic> diagnostics() {
         if (!internalNode.hasDiagnostics()) {
             return Collections::emptyIterator;

@@ -68,6 +68,7 @@ public class STEnumMemberNode extends STNode {
                 constExprNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STEnumMemberNode(
                 this.metadata,
@@ -98,6 +99,7 @@ public class STEnumMemberNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumMemberNode(this, position, parent);
     }

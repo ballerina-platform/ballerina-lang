@@ -56,6 +56,7 @@ public class STNamedWorkerDeclarator extends STNode {
                 namedWorkerDeclarations);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedWorkerDeclarator(
                 this.workerInitStatements,
@@ -78,6 +79,7 @@ public class STNamedWorkerDeclarator extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarator(this, position, parent);
     }

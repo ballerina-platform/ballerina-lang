@@ -86,6 +86,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedWorkerDeclarationNode(
                 this.annotations,
@@ -128,6 +129,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarationNode(this, position, parent);
     }

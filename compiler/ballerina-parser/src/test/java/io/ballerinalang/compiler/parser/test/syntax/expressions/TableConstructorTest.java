@@ -47,8 +47,11 @@ public class TableConstructorTest extends AbstractExpressionsTest {
         test("table key(age) []", "table-constructor/table_constructor_assert_04.json");
         test("table key() [{age:24},{age:25}]", "table-constructor/table_constructor_assert_05.json");
         test("table key(age,name) [{age:24}]", "table-constructor/table_constructor_assert_06.json");
-        test("table key(email, bu) [\n" + "   { email: \"supuns@wso2.com\", bu: \"IPaaS\" },\n" +
-                "   { email: \"lochanaj@wso2.com\", bu: \"IPaaS\" }\n" + "]",
+        test("""
+                table key(email, bu) [
+                   { email: "supuns@wso2.com", bu: "IPaaS" },
+                   { email: "lochanaj@wso2.com", bu: "IPaaS" }
+                ]""",
                 "table-constructor/table_constructor_assert_07.json");
     }
 

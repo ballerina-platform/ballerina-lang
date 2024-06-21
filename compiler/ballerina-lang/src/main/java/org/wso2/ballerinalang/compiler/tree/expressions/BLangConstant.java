@@ -60,14 +60,17 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
         this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
+    @Override
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
     }
 
+    @Override
     public IdentifierNode getName() {
         return name;
     }
 
+    @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
     }

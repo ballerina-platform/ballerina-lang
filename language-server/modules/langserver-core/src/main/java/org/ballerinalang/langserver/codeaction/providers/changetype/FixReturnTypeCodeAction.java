@@ -260,6 +260,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
 
         private CheckExpressionNode checkExpressionNode = null;
 
+        @Override
         public void visit(FunctionDefinitionNode functionDefinitionNode) {
             functionDefinitionNode.functionBody().accept(this);
         }

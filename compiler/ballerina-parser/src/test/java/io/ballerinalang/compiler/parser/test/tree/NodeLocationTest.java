@@ -235,25 +235,29 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testNodeLocationEqualsAndHashCodeMethods() {
-        String inputSrc = "import ballerina/http;\n" +
-                "import ballerina/log;\n" +
-                "\n" +
-                "public function func1() returns string {\n" +
-                "    log:printDebug(\"A debug message\");\n" +
-                "    http:Client cl = check new (\"\");\n" +
-                "}\n";
+        String inputSrc = """
+                import ballerina/http;
+                import ballerina/log;
+
+                public function func1() returns string {
+                    log:printDebug("A debug message");
+                    http:Client cl = check new ("");
+                }
+                """;
         TextDocument textDocument = TextDocuments.from(inputSrc);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         ModulePartNode modulePartNode1 = syntaxTree.rootNode();
 
-        String modifiedSrc = "import ballerina/http;\n" +
-                "import ballerina/log;\n" +
-                "\n" +
-                "public function func1() returns string {\n" +
-                "    log:printDebug(\"A debug message\");\n" +
-                "    http:Client cl = check new (\"http://example.com\");\n" +
-                "    json resp = cl->get(\"/path\");\n" +
-                "}\n";
+        String modifiedSrc = """
+                import ballerina/http;
+                import ballerina/log;
+
+                public function func1() returns string {
+                    log:printDebug("A debug message");
+                    http:Client cl = check new ("http://example.com");
+                    json resp = cl->get("/path");
+                }
+                """;
         textDocument = TextDocuments.from(modifiedSrc);
         syntaxTree = SyntaxTree.from(textDocument);
         ModulePartNode modulePartNode2 = syntaxTree.rootNode();

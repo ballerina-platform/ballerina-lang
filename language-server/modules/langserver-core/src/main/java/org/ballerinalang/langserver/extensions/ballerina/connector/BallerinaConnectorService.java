@@ -271,9 +271,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
-                module.documentIds().forEach(documentId -> {
-                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
-                });
+                module.documentIds().forEach(documentId ->
+                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor));
 
 
                 TypeDefinitionNode recordNode = null;

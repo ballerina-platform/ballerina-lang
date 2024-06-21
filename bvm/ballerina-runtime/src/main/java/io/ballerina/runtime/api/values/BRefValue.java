@@ -41,6 +41,7 @@ public interface BRefValue extends BValue {
      *
      * @return  A new copy of the value
      */
+    @Override
     Object copy(Map<Object, Object> refs);
 
     /**
@@ -51,6 +52,7 @@ public interface BRefValue extends BValue {
      *
      * @return  A new copy of the value
      */
+    @Override
     Object frozenCopy(Map<Object, Object> refs);
 
     /**

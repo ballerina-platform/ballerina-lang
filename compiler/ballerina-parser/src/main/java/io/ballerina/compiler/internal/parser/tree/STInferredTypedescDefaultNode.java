@@ -56,6 +56,7 @@ public class STInferredTypedescDefaultNode extends STExpressionNode {
                 gtToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STInferredTypedescDefaultNode(
                 this.ltToken,
@@ -78,6 +79,7 @@ public class STInferredTypedescDefaultNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InferredTypedescDefaultNode(this, position, parent);
     }

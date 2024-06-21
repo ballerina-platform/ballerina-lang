@@ -1024,6 +1024,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return ifResult.definiteFailureReached && elseResult.definiteFailureReached;
     }
 
+    @Override
     public void visit(BLangFail failNode) {
         if (isOnFailEnclosed()) {
             this.possibleFailureReached = true;
@@ -1043,8 +1044,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
 
         // marks the injected import as used
-        Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
+        Name transactionPkgName = Names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name compUnitName = Names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -2363,6 +2364,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(trapExpr.expr, env);
     }
 
+    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
             addDependency(this.currDependentSymbolDeque.peek(),
@@ -2729,7 +2731,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             BObjectTypeSymbol objTypeSymbol = (BObjectTypeSymbol) type.tsymbol;
-            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
             BSymbol funcSymbol = symResolver.resolveObjectMethod(pos, env, funcName, objTypeSymbol);
 
             // Object member functions are inherently final

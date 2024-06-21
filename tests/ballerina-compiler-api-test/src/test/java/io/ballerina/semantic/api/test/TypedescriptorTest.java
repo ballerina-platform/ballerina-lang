@@ -1040,9 +1040,7 @@ public class TypedescriptorTest {
         Collection<ModuleId> moduleIds = currentPackage.moduleIds();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         List<Symbol> symbolList = new ArrayList<>();
-        moduleIds.forEach(moduleId -> {
-            symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols());
-        });
+        moduleIds.forEach(moduleId -> symbolList.addAll(packageCompilation.getSemanticModel(moduleId).moduleSymbols()));
 
         List<SymbolInfo> expectedSymbolList = createSymbolInfoList(getSymbolModuleInfo());
         assertList(symbolList, expectedSymbolList);

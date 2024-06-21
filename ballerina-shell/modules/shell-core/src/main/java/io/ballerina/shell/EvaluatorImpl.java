@@ -80,6 +80,7 @@ public class EvaluatorImpl extends Evaluator {
         }
     }
 
+    @Override
     public ShellCompilation getCompilation(String source) {
         PackageCompilation compilation;
         ExceptionStatus exceptionStatus;

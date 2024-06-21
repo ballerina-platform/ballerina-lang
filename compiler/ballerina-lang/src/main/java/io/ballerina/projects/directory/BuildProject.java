@@ -266,6 +266,7 @@ public class BuildProject extends Project {
         return true;
     }
 
+    @Override
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();

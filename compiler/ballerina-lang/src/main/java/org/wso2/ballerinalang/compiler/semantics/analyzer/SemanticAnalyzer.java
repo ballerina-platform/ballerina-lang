@@ -1075,8 +1075,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode, AnalyzerData data) {
         BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, data.env,
-                names.fromString(annAttachmentNode.pkgAlias.getValue()),
-                names.fromString(annAttachmentNode.getAnnotationName().getValue()));
+                Names.fromString(annAttachmentNode.pkgAlias.getValue()),
+                Names.fromString(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
@@ -1514,6 +1514,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Override
     public void visit(BLangRecordVariable varNode, AnalyzerData data) {
 
         // Only simple variables are allowed to be configurable.
@@ -1568,6 +1569,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     }
 
+    @Override
     public void visit(BLangTupleVariable varNode, AnalyzerData data) {
 
         // Only simple variables are allowed to be configurable.
@@ -1802,13 +1804,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateErrorDetailBindingPatterns(BLangErrorVariable errorVariable) {
-        BType rhsType = types.getImpliedType(errorVariable.expr.getBType());
+        BType rhsType = Types.getImpliedType(errorVariable.expr.getBType());
         if (rhsType.getKind() != TypeKind.ERROR) {
             return;
         }
 
         BErrorType errorType = (BErrorType) rhsType;
-        BType detailType = types.getImpliedType(errorType.detailType);
+        BType detailType = Types.getImpliedType(errorType.detailType);
 
         if (detailType.getKind() != TypeKind.RECORD) {
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
@@ -4340,7 +4342,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node,  AnalyzerData data) {
+    @Override
+    public void analyzeNode(BLangNode node, AnalyzerData data) {
         analyzeNode(node, symTable.noType, data);
     }
 
