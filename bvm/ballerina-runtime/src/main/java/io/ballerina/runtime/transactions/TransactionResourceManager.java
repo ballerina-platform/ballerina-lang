@@ -198,11 +198,15 @@ public class TransactionResourceManager {
     public static int getTransactionAutoCommitTimeout() {
         VariableKey transactionAutoCommitTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
                 TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY, PredefinedTypes.TYPE_INT, false);
-        Object value = ConfigMap.get(transactionAutoCommitTimeoutKey);
-        if (value == null) {
+        if (!ConfigMap.containsKey(transactionAutoCommitTimeoutKey)) {
             return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionAutoCommitTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
         }
-        return parseTimeoutValue(value, DEFAULT_TRX_AUTO_COMMIT_TIMEOUT);
     }
 
     /**
@@ -214,15 +218,19 @@ public class TransactionResourceManager {
         VariableKey transactionCleanupTimeoutKey = new VariableKey(TRANSACTION_PACKAGE_ID,
                 TRANSACTION_CLEANUP_TIMEOUT_KEY,
                 PredefinedTypes.TYPE_INT, false);
-        Object value = ConfigMap.get(transactionCleanupTimeoutKey);
-        if (value == null) {
-            return DEFAULT_TRX_CLEANUP_TIMEOUT;
+        if (!ConfigMap.containsKey(transactionCleanupTimeoutKey)) {
+            return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+        } else {
+            Object configValue = ConfigMap.get(transactionCleanupTimeoutKey);
+            if (configValue == null) {
+                return DEFAULT_TRX_CLEANUP_TIMEOUT;
+            }
+            return parseTimeoutValue(configValue, DEFAULT_TRX_CLEANUP_TIMEOUT);
         }
-        return parseTimeoutValue(value, DEFAULT_TRX_CLEANUP_TIMEOUT);
     }
 
-    private static int parseTimeoutValue(Object value, int defaultValue) {
-        if (!(value instanceof Number number)) {
+    private static int parseTimeoutValue(Object configValue, int defaultValue) {
+        if (!(configValue instanceof Number number)) {
             return defaultValue;
         }
         int timeoutValue = number.intValue();
