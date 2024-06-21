@@ -57,7 +57,6 @@ public class ProfilerTest extends BaseTest {
         String packageName = "projectForProfile" + File.separator + "package_a";
         String sourceRoot = testFileLocation + File.separator;
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         String htmlFilePath = Paths.get(sourceRoot, packageName, "target", "profiler", outputFile).toString();
         List<LogLeecher> leechers = getProfilerLogLeechers(htmlFilePath);
         leechers.add(new LogLeecher("Is the array sorted? true"));
@@ -73,7 +72,6 @@ public class ProfilerTest extends BaseTest {
         String packageName = "projectForProfile" + File.separator + "package_b";
         String sourceRoot = testFileLocation + File.separator + packageName;
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         List<LogLeecher> leechers = getProfilerLogLeechers(packageName + File.separator + "target" +
                 File.separator + "profiler" + File.separator + outputFile);
         leechers.add(new LogLeecher("Tests passed"));
@@ -104,7 +102,6 @@ public class ProfilerTest extends BaseTest {
         String sourceRoot = testFileLocation + File.separator;
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         envProperties.put(BALLERINA_HOME, bMainInstance.getBalServerHome());
         List<LogLeecher> leechers = getProfilerLogLeechers(sourceRoot + "profiler" + File.separator + outputFile);
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
