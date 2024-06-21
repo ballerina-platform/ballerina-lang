@@ -22,6 +22,8 @@ configurations {
     testLibs {
         transitive false
     }
+    annotations
+    internal
     balRuntime
     jballerinaTools
     ballerina {
@@ -43,11 +45,10 @@ configurations {
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m2-SNAPSHOT'
-    implementation project(':ballerina-io-internal')
+    internal project(':ballerina-io-internal')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-lang:annotations')
+    annotations project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-cli')
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -107,6 +108,21 @@ test {
     }
     jacoco {
         destinationFile = file("$buildDir/jacoco/test.exec")
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        project.configurations.getByName("implementation").getAllDependencies().withType(ProjectDependency).each {
+            Object path = it.getDependencyProject().buildDir;
+            getClassDirectories().getFrom().add("$path/classes")
+        }
+        String langProjectBuildDir = project(":ballerina-runtime").buildDir
+        getClassDirectories().getFrom().add("$langProjectBuildDir/classes/java/main/io/ballerina/runtime")
+    }
+    reports {
+        xml.required = true
     }
 }
 
