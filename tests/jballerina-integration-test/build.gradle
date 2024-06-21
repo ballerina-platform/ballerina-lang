@@ -49,6 +49,7 @@ dependencies {
     implementation project(':ballerina-lang')
     annotations project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-profiler')
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -113,16 +114,17 @@ test {
 }
 
 jacocoTestReport {
+    dependsOn test
     afterEvaluate {
         project.configurations.getByName("implementation").getAllDependencies().withType(ProjectDependency).each {
             Object path = it.getDependencyProject().buildDir;
             getClassDirectories().getFrom().add("$path/classes")
         }
-        String langProjectBuildDir = project(":ballerina-runtime").buildDir
-        getClassDirectories().getFrom().add("$langProjectBuildDir/classes/java/main/io/ballerina/runtime")
     }
     reports {
         xml.required = true
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
 }
 
