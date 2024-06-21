@@ -67,7 +67,6 @@ public class StrandDumpTest extends BaseTest {
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         bMainInstance.runMain("build", new String[]{packageName}, envProperties, null, null, sourceRoot);
 
         String jarPath = Paths.get(Paths.get(sourceRoot, packageName).toString(), "target", "bin",
@@ -102,7 +101,6 @@ public class StrandDumpTest extends BaseTest {
         String commandDir = balServer.getServerHome();
         String balFile = testFileLocation + "/singleBalFiles/balProgram1.bal";
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         bMainInstance.runMain("build", new String[]{balFile}, envProperties, null, null, commandDir);
 
         String balFileName = Paths.get(balFile).getFileName().toString();
