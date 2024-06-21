@@ -567,6 +567,7 @@ public class BMainInstance implements BMain {
     private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, String[] clientArgs,
                                 LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         try {
+            addJavaAgents(envProperties);
             List<String> runCmdSet = new ArrayList<>();
             runCmdSet.add("java");
             if (envProperties.containsKey(JAVA_OPTS)) {
