@@ -219,7 +219,7 @@ public class TransactionResourceManager {
                 TRANSACTION_CLEANUP_TIMEOUT_KEY,
                 PredefinedTypes.TYPE_INT, false);
         if (!ConfigMap.containsKey(transactionCleanupTimeoutKey)) {
-            return DEFAULT_TRX_AUTO_COMMIT_TIMEOUT;
+            return DEFAULT_TRX_CLEANUP_TIMEOUT;
         } else {
             Object configValue = ConfigMap.get(transactionCleanupTimeoutKey);
             if (configValue == null) {
