@@ -119,7 +119,7 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags,
                         String[] args, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, flags, args, null, new String[]{}, leechers);
+        runMain(balFile, flags, args, new HashMap<>(), new String[]{}, leechers);
     }
 
     @Override
@@ -146,7 +146,6 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
 
         runMain("build", new String[]{balFile}, envProperties, null, leechers, balServer.getServerHome());
         runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
@@ -200,8 +199,6 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
-
         runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
         runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
                 envProperties, clientArgs, leechers, sourceRoot);
@@ -259,6 +256,7 @@ public class BMainInstance implements BMain {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
+            addJavaAgents(processBuilder.environment());
 
             Process process = processBuilder.start();
 
