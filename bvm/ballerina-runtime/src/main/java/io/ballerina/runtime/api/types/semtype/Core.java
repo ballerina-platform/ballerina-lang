@@ -80,7 +80,8 @@ public final class Core {
         if (some == 0) {
             return SemType.from(all);
         }
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             SubType data1 = pair.subType1();
             SubType data2 = pair.subType2();
@@ -99,15 +100,16 @@ public final class Core {
             } else if (data.isNothing()) {
                 some &= ~(1 << code);
             } else {
-                subtypes[code] = data;
+                subtypes[i] = data;
             }
+            i++;
         }
         return SemType.from(all, some, subtypes);
     }
 
     public static SubType getComplexSubtypeData(SemType t, BasicTypeCode code) {
         assert (t.some() & (1 << code.code())) != 0;
-        SubType subType = t.subTypeData()[code.code()];
+        SubType subType = t.subTypeByCode(code.code());
         if (subType instanceof DelegatedSubType wrapper) {
             return wrapper.inner();
         }
@@ -148,7 +150,8 @@ public final class Core {
         if (some == 0) {
             return Builder.basicTypeUnion(all);
         }
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             int code = pair.typeCode();
             SubType data1 = pair.subType1();
@@ -165,8 +168,9 @@ public final class Core {
                 all |= 1 << code;
                 some &= ~(1 << code);
             } else {
-                subtypes[code] = data;
+                subtypes[i] = data;
             }
+            i++;
         }
         if (some == 0) {
             return SemType.from(all);
@@ -207,7 +211,8 @@ public final class Core {
             return SemType.from(all);
         }
 
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             int code = pair.typeCode();
             SubType data1 = pair.subType1();
@@ -223,10 +228,11 @@ public final class Core {
             }
 
             if (!data.isNothing()) {
-                subtypes[code] = data;
+                subtypes[i] = data;
             } else {
                 some &= ~(1 << code);
             }
+            i++;
         }
         if (some == 0) {
             return SemType.from(all);
@@ -242,9 +248,7 @@ public final class Core {
             return false;
         }
         for (SubType subType : t.subTypeData()) {
-            if (subType == null) {
-                continue;
-            }
+            assert subType != null : "subtype array must not be sparse";
             if (!subType.isEmpty(cx)) {
                 return false;
             }
@@ -298,7 +302,9 @@ public final class Core {
         if (s.some == 0) {
             return AllOrNothing.NOTHING;
         }
-        return s.subTypeData()[code.code()].data();
+        SubType subType = s.subTypeByCode(code.code());
+        assert subType != null;
+        return subType.data();
     }
 
     public static boolean containsBasicType(SemType t1, SemType t2) {

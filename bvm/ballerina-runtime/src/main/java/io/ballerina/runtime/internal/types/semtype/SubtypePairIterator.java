@@ -34,12 +34,12 @@ final class SubtypePairIterator implements Iterator<SubtypePair> {
     // NOTE: this needs to be very efficient since pretty much all type operations depends on it
     private int index = 0;
     private static final int maxIndex = BasicTypeCode.CODE_B_TYPE + 1;
-    private final int bits;
+    private final int some;
     private final SemType t1;
     private final SemType t2;
 
-    SubtypePairIterator(SemType t1, SemType t2, int bits) {
-        this.bits = bits;
+    SubtypePairIterator(SemType t1, SemType t2, int some) {
+        this.some = some;
         this.t1 = t1;
         this.t2 = t2;
         incrementIndex();
@@ -51,22 +51,16 @@ final class SubtypePairIterator implements Iterator<SubtypePair> {
     }
 
     private void incrementIndex() {
-        int rest = bits >> index;
+        int rest = some >> index;
         int offset = Integer.numberOfTrailingZeros(rest);
         index += offset;
     }
 
-    private SubType subTypeAtIndex(SemType t, int index) {
-        if ((t.some() & (1 << index)) != 0) {
-            return t.subTypeData()[index];
-        }
-        return null;
-    }
-
     @Override
     public SubtypePair next() {
-        SubType subType1 = subTypeAtIndex(t1, index);
-        SubType subType2 = subTypeAtIndex(t2, index);
+        SubType subType1 = t1.subTypeByCode(index);
+        SubType subType2 = t2.subTypeByCode(index);
+        assert (subType1 == null || subType2 == null) || (subType1.getClass().equals(subType2.getClass()));
         int typeCode = index;
         index++;
         incrementIndex();
