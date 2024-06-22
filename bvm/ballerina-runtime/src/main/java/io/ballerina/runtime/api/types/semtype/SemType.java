@@ -169,4 +169,13 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
             return cachedData ? CachedResult.TRUE : CachedResult.FALSE;
         }
     }
+
+    public final SubType subTypeByCode(int code) {
+        if ((some() & (1 << code)) == 0) {
+            return null;
+        }
+        int someMask = (1 << code) - 1;
+        int some = some() & someMask;
+        return subTypeData()[Integer.bitCount(some)];
+    }
 }
