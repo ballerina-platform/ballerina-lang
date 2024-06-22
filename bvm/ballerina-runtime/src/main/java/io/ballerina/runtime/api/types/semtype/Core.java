@@ -24,6 +24,8 @@ import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
 import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
@@ -80,7 +82,9 @@ public final class Core {
         if (some == 0) {
             return SemType.from(all);
         }
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
+        boolean filterNulls = false;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             SubType data1 = pair.subType1();
             SubType data2 = pair.subType2();
@@ -96,18 +100,21 @@ public final class Core {
             if (data.isAll()) {
                 all |= 1 << code;
                 some &= ~(1 << code);
+                filterNulls = true;
             } else if (data.isNothing()) {
                 some &= ~(1 << code);
+                filterNulls = true;
             } else {
-                subtypes[code] = data;
+                subtypes[i] = data;
             }
+            i++;
         }
-        return SemType.from(all, some, subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
     }
 
     public static SubType getComplexSubtypeData(SemType t, BasicTypeCode code) {
         assert (t.some() & (1 << code.code())) != 0;
-        SubType subType = t.subTypeData()[code.code()];
+        SubType subType = t.subTypeByCode(code.code());
         if (subType instanceof DelegatedSubType wrapper) {
             return wrapper.inner();
         }
@@ -148,7 +155,9 @@ public final class Core {
         if (some == 0) {
             return Builder.basicTypeUnion(all);
         }
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
+        boolean filterNulls = false;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             int code = pair.typeCode();
             SubType data1 = pair.subType1();
@@ -162,16 +171,22 @@ public final class Core {
                 data = data1.union(data2);
             }
             if (data.isAll()) {
+                filterNulls = true;
                 all |= 1 << code;
                 some &= ~(1 << code);
             } else {
-                subtypes[code] = data;
+                subtypes[i] = data;
             }
+            i++;
         }
         if (some == 0) {
             return SemType.from(all);
         }
-        return SemType.from(all, some, subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
+    }
+
+    private static SubType[] filterNulls(SubType[] subtypes) {
+        return Arrays.stream(subtypes).filter(Objects::nonNull).toArray(SubType[]::new);
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
@@ -207,7 +222,9 @@ public final class Core {
             return SemType.from(all);
         }
 
-        SubType[] subtypes = Builder.initializeSubtypeArray();
+        SubType[] subtypes = Builder.initializeSubtypeArray(some);
+        int i = 0;
+        boolean filterNulls = false;
         for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
             int code = pair.typeCode();
             SubType data1 = pair.subType1();
@@ -223,15 +240,17 @@ public final class Core {
             }
 
             if (!data.isNothing()) {
-                subtypes[code] = data;
+                subtypes[i] = data;
             } else {
                 some &= ~(1 << code);
+                filterNulls = true;
             }
+            i++;
         }
         if (some == 0) {
             return SemType.from(all);
         }
-        return SemType.from(all, some, subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
@@ -242,9 +261,7 @@ public final class Core {
             return false;
         }
         for (SubType subType : t.subTypeData()) {
-            if (subType == null) {
-                continue;
-            }
+            assert subType != null : "subtype array must not be sparse";
             if (!subType.isEmpty(cx)) {
                 return false;
             }
@@ -252,8 +269,8 @@ public final class Core {
         return true;
     }
 
-    public static SemType complement(SemType t1) {
-        throw new IllegalStateException("Unimplemented");
+    public static SemType complement(SemType t) {
+        return diff(Builder.valType(), t);
     }
 
     public static boolean isNever(SemType t) {
@@ -262,12 +279,12 @@ public final class Core {
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
         // IF t1 and t2 are not pure semtypes calling this is an undefined
-        SemType.CachedResult cached = t1.cachedSubTypeRelation(t2);
-        if (cached != SemType.CachedResult.NOT_FOUND) {
-            return cached == SemType.CachedResult.TRUE;
-        }
+//        SemType.CachedResult cached = t1.cachedSubTypeRelation(t2);
+//        if (cached != SemType.CachedResult.NOT_FOUND) {
+//            return cached == SemType.CachedResult.TRUE;
+//        }
         boolean result = isEmpty(cx, diff(t1, t2));
-        t1.cacheSubTypeRelation(t2, result);
+//        t1.cacheSubTypeRelation(t2, result);
         return result;
     }
 
@@ -298,7 +315,9 @@ public final class Core {
         if (s.some == 0) {
             return AllOrNothing.NOTHING;
         }
-        return s.subTypeData()[code.code()].data();
+        SubType subType = s.subTypeByCode(code.code());
+        assert subType != null;
+        return subType.data();
     }
 
     public static boolean containsBasicType(SemType t1, SemType t2) {

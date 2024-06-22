@@ -227,9 +227,10 @@ public final class Builder {
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
         assert !(subType instanceof Bdd) : "BDD should always be wrapped with a delegate";
-        SubType[] subTypes = initializeSubtypeArray();
-        subTypes[basicTypeCode.code()] = subType;
-        return SemType.from(0, 1 << basicTypeCode.code(), subTypes);
+        int some = 1 << basicTypeCode.code();
+        SubType[] subTypes = initializeSubtypeArray(some);
+        subTypes[0] = subType;
+        return SemType.from(0, some, subTypes);
     }
 
     public static SemType intConst(long value) {
@@ -275,8 +276,8 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_STRING, subType);
     }
 
-    static SubType[] initializeSubtypeArray() {
-        return new SubType[CODE_B_TYPE + 2];
+    static SubType[] initializeSubtypeArray(int some) {
+        return new SubType[Integer.bitCount(some)];
     }
 
     public static Optional<SemType> shapeOf(Context cx, Object object) {
