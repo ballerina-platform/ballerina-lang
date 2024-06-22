@@ -74,6 +74,7 @@ public class STStreamTypeParamsNode extends STNode {
                 gtToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STStreamTypeParamsNode(
                 this.ltToken,
@@ -108,6 +109,7 @@ public class STStreamTypeParamsNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StreamTypeParamsNode(this, position, parent);
     }

@@ -50,6 +50,7 @@ public class STReAtomCharOrEscapeNode extends STNode {
                 reAtomCharOrEscape);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReAtomCharOrEscapeNode(
                 this.reAtomCharOrEscape,
@@ -68,6 +69,7 @@ public class STReAtomCharOrEscapeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReAtomCharOrEscapeNode(this, position, parent);
     }

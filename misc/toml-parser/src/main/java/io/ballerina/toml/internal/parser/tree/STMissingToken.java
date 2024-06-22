@@ -48,10 +48,12 @@ public class STMissingToken extends STToken {
         super(kind, 0,  leadingMinutiae, trailingMinutiae, diagnostics);
     }
 
+    @Override
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMissingToken(this.kind, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
+    @Override
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STMissingToken(this.kind, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }

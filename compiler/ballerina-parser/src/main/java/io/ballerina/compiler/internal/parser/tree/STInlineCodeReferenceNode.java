@@ -62,6 +62,7 @@ public class STInlineCodeReferenceNode extends STDocumentationNode {
                 endBacktick);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STInlineCodeReferenceNode(
                 this.startBacktick,
@@ -88,6 +89,7 @@ public class STInlineCodeReferenceNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new InlineCodeReferenceNode(this, position, parent);
     }

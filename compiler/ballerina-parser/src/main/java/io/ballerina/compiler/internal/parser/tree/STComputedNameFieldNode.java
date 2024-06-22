@@ -74,6 +74,7 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
                 valueExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STComputedNameFieldNode(
                 this.openBracket,
@@ -108,6 +109,7 @@ public class STComputedNameFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ComputedNameFieldNode(this, position, parent);
     }

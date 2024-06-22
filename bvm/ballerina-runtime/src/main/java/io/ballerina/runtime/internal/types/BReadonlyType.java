@@ -48,6 +48,7 @@ public class BReadonlyType extends BType implements ReadonlyType {
         return TypeTags.READONLY_TAG;
     }
 
+    @Override
     public boolean isNilable() {
         return true;
     }

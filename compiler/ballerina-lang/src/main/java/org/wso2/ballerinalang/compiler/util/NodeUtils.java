@@ -40,7 +40,7 @@ public class NodeUtils {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
                 .toList());
-        return names.fromString(pkgName);
+        return Names.fromString(pkgName);
     }
 
     public static Name getName(String localname, String namespaceURI) {

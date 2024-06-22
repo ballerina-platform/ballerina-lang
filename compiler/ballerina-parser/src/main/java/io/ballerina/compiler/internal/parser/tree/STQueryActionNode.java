@@ -62,6 +62,7 @@ public class STQueryActionNode extends STActionNode {
                 blockStatement);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryActionNode(
                 this.queryPipeline,
@@ -88,6 +89,7 @@ public class STQueryActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryActionNode(this, position, parent);
     }

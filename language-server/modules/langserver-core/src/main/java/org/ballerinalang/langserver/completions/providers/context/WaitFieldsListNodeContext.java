@@ -74,6 +74,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
         return completionItems;
     }
     
+    @Override
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream() 
