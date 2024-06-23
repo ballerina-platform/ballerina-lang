@@ -359,6 +359,41 @@ type MedicalNeed record {
 
 };
 
+public type AnnotationRecord record {|
+    string summary?;
+    Examples examples?;
+|};
+
+public type Examples record {|
+    map<ExampleItem> response;
+|};
+
+public type ExampleItem record {
+    map<string> headers?;
+};
+
+const annotation AnnotationRecord annot on type;
+
+@annot {
+    examples: {
+        response: {}
+    }
+}
+type Employee record {|
+    int id;
+    string name;
+|};
+
+Employee employee = {id: 1, name: "chirans"};
+
+function testConstTypeAnnotAccess() {
+    typedesc<any> t = typeof employee;
+    AnnotationRecord? annot = t.@annot;
+    assertTrue(annot is AnnotationRecord);
+    AnnotationRecord config = <AnnotationRecord> annot;
+    assertEquality({"response":{}}, config.examples);
+}
+
 function testListExprInConstAnnot() {
     EntityConfig? annot = MedicalNeed.@Entity;
     assertTrue(annot is EntityConfig);
