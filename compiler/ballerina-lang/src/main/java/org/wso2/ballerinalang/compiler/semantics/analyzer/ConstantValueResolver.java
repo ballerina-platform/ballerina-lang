@@ -927,11 +927,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return false;
                 }
                 keyValuePair.setBType(newType);
-                if (newType.getKind() != TypeKind.FINITE) {
+                TypeKind kind = newType.getKind();
+                if (kind != TypeKind.FINITE) {
                     constValueMap.get(key).type = newType;
-                    if (newType.getKind() == TypeKind.INTERSECTION) {
-                        exprValueField.setBType(((BIntersectionType) newType).effectiveType);
-                    }
+                    BType type = kind == TypeKind.INTERSECTION ? ((BIntersectionType) newType).effectiveType : newType;
+                    exprValueField.setBType(type);
                 }
 
                 recordType.fields.put(key, createField(newSymbol, newType, key, pos));
