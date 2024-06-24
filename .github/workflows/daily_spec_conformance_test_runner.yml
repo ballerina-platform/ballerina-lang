@@ -13,12 +13,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: spec-conformance-test-runner
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
@@ -35,7 +35,7 @@ jobs:
           ./gradlew ballerina-spec-conformance-tests:test --configure-on-demand --no-daemon
 
       - name: Spec conformance report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: spec-conformance-test-report

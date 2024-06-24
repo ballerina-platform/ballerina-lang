@@ -125,13 +125,11 @@ public class JvmRecordGen {
     private final BType booleanType;
     private final BType intType;
     private final BType floatType;
-    private final BType stringType;
 
     public JvmRecordGen(SymbolTable symbolTable) {
         this.booleanType = symbolTable.booleanType;
         this.intType = symbolTable.intType;
         this.floatType = symbolTable.floatType;
-        this.stringType = symbolTable.stringType;
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -891,17 +889,11 @@ public class JvmRecordGen {
 
     private boolean checkIfValueIsJReferenceType(BType bType) {
 
-        switch (bType.getKind()) {
-            case INT:
-            case BOOLEAN:
-            case FLOAT:
-            case BYTE:
-                return false;
-            case TYPEREFDESC:
-                return checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
-            default:
-                return true;
-        }
+        return switch (bType.getKind()) {
+            case INT, BOOLEAN, FLOAT, BYTE -> false;
+            case TYPEREFDESC -> checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
+            default -> true;
+        };
     }
 
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

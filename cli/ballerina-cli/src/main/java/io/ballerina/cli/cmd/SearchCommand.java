@@ -47,9 +47,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 @CommandLine.Command(name = SEARCH_COMMAND, description = "Search Ballerina Central for packages")
 public class SearchCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -148,7 +148,8 @@ public class SearchCommand implements BLauncherCmd {
                                                             settings.getCentral().getConnectTimeout(),
                                                             settings.getCentral().getReadTimeout(),
                                                             settings.getCentral().getWriteTimeout(),
-                                                            settings.getCentral().getCallTimeout());
+                                                            settings.getCentral().getCallTimeout(),
+                                                            settings.getCentral().getMaxRetries());
             boolean foundSearch = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(target -> target.code())

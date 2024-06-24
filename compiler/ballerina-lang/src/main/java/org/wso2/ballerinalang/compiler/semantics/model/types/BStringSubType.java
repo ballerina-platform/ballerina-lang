@@ -35,11 +35,13 @@ public class BStringSubType extends BType {
         super(tag, null, name, Flags.READONLY);
     }
 
+    @Override
     public boolean isNullable() {
 
         return false;
     }
 
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
 
         return visitor.visit(this, t);
@@ -63,6 +65,7 @@ public class BStringSubType extends BType {
         return Names.STRING.value + Names.ALIAS_SEPARATOR + name;
     }
 
+    @Override
     public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value

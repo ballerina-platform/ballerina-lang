@@ -6,6 +6,26 @@
   "source": "source1.bal",
   "expected": [
     {
+      "title": "Create variable with 'module1:Response|anydata'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "module1:Response|anydata forward = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
       "title": "Create variable with 'anydata'",
       "kind": "quickfix",
       "edits": [

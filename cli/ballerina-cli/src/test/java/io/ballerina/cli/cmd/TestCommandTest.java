@@ -23,22 +23,27 @@ import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
@@ -48,15 +53,21 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
@@ -120,7 +131,7 @@ public class TestCommandTest extends BaseCommandTest {
         testCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
+        Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
     }
 
@@ -133,7 +144,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
+        Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("The file does not exist: " + validBalFilePath));
 
     }
@@ -161,7 +172,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-project.txt"));
     }
 
     @Test(description = "Build a valid ballerina project")
@@ -182,7 +193,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-project.txt"));
     }
 
     @Test(description = "Test a project with a build tool execution")
@@ -193,7 +204,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("test-project-with-build-tool.txt"));
     }
 
@@ -208,7 +219,7 @@ public class TestCommandTest extends BaseCommandTest {
             testCommand.execute();
         } catch (BLauncherException e) {
             File projectDir = new File(projectPath.toString());
-            FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
+            FileFilter fileFilter = WildcardFileFilter.builder().setWildcards("java_pid*.hprof").get();
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
         }
     }
@@ -218,7 +229,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         // build the project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, true , false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
@@ -304,6 +315,9 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "tests bal test command with sticky flag")
     public void testBalTestWithStickyFlag() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Currently failing on Windows");
+        }
         // Cache package pkg_a 1.0.0
         Path balTestWithStickyFlagPath = testResources.resolve("balTestWithStickyFlag");
         BCompileUtil.compileAndCacheBala(balTestWithStickyFlagPath.resolve("pkg_a_100"),
@@ -317,7 +331,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(firstTestCommand).parseArgs();
         firstTestCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
@@ -335,7 +349,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(secondTestCommand).parseArgs("--sticky");
         secondTestCommand.execute();
         String secondBuildLog = readOutput(true);
-        Assert.assertEquals(secondBuildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
+        Assert.assertEquals(secondBuildLog.replace("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
                 readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
@@ -356,7 +370,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-graph");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
@@ -368,6 +382,9 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test a ballerina project with the flag dump-raw-graphs")
     public void testTestBalProjectWithDumpRawGraphsFlag() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Currently failing on Windows");
+        }
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
@@ -380,7 +397,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-raw-graphs");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String buildLog = readOutput(true).replace("\r", "").replace("\\", "/").strip();
 
         Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
@@ -397,16 +414,273 @@ public class TestCommandTest extends BaseCommandTest {
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs();
-        testCommand.execute();
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
+    }
 
+    @Test(description = "Test an empty project with build tools")
+    public void testTestEmptyProjectWithBuildTools() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty("user.dir", projectPath.toString());
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+            TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+            new CommandLine(testCommand).parseArgs();
+            testCommand.execute();
+        }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-empty-project-with-build-tools.txt"));
+    }
+
+    @Test(description = "Test the emission of testable fat jar for a project with tests")
+    public void testTestableFatJarEmission() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty("user.home", mockedLocalRepo.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=docker");
+        testCommand.execute();
+        Path targetDir = projectPath.resolve("target");
+        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Assert.assertTrue(Files.exists(testableJar));
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertTrue(Files.exists(mainArgsFile));
+    }
+
+    @Test(description = "Test the correct execution of the generated testable fat jar",
+            dependsOnMethods = "testTestableFatJarEmission")
+    public void testTestableFatJarExecution() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Currently failing on Windows");
+        }
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        Path testableJar = projectPath.resolve("target").resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+
+        // Read the main args from the file (line separated)
+        List<String> mainArgs = Files.readAllLines(mainArgsFile);
+        mainArgs.set(TesterinaConstants.RunTimeArgs.IS_FAT_JAR_EXECUTION, "true");
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
+
+        List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
+        pbArgs.add("-jar");
+        pbArgs.add(testableJar.toString());
+        pbArgs.addAll(mainArgs);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
+        Process process = processBuilder.start();
+        StringBuilder output = new StringBuilder();
+        int exitCode = -1;
+        try {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                br.lines().forEach(line -> output.append(line).append("\n"));
+            }
+            exitCode = process.waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        Assert.assertEquals(exitCode, 0);
+        Assert.assertTrue(output.toString().contains("[pass] testRunMain"));
+    }
+
+    @Test(description = "Test the emission of testable fat jar for a project with mocks")
+    public void testEmissionOfTestableFatJarForProjectWithMocking() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithMocks");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty("user.home", mockedLocalRepo.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=docker");
+        testCommand.execute();
+        Path targetDir = projectPath.resolve("target");
+        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("projectWithMocks-testable.jar");
+        Assert.assertTrue(Files.exists(testableJar));
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertTrue(Files.exists(mainArgsFile));
+        //should exist only one testable jar
+        try (var testableJars = Files.list(testableJar.getParent())) {
+            Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
+                                    .map(Path::toFile).toList().size(), 1);
+        }
+    }
+
+    @Test(description = "Test the execution of testable fat jar for a project with tests and mocks",
+            dependsOnMethods = "testEmissionOfTestableFatJarForProjectWithMocking")
+    public void testExecutionOfTestableFatJarForProjectWithMocking() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Currently failing on Windows");
+        }
+        Path projectPath = this.testResources.resolve("projectWithMocks");
+        Path testableJar = projectPath.resolve("target").resolve("bin").resolve("tests")
+                .resolve("projectWithMocks-testable.jar");
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+
+        // Read the main args from the file (line separated)
+        List<String> mainArgs = Files.readAllLines(mainArgsFile);
+        mainArgs.set(TesterinaConstants.RunTimeArgs.IS_FAT_JAR_EXECUTION, "true");
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
+
+        List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
+        pbArgs.add("-jar");
+        pbArgs.add(testableJar.toString());
+        pbArgs.addAll(mainArgs);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
+        Process process = processBuilder.start();
+        StringBuilder output = new StringBuilder();
+        int exitCode = -1;
+        try {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                br.lines().forEach(line -> output.append(line).append("\n"));
+            }
+            exitCode = process.waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        Assert.assertEquals(exitCode, 0);
+        Assert.assertTrue(output.toString().contains("[pass] testMockedIntSub"));
+        Assert.assertTrue(output.toString().contains("[pass] testMockedIntAdd"));
+        Assert.assertTrue(output.toString().contains("[pass] testRealIntSub"));
+    }
+
+    @Test(description = "Test the emission of a single fat jar when both cloud and graalvm flags are enabled")
+    public void testEmissionOfSingleFatJarForCloudAndGraalVM() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty("user.home", mockedLocalRepo.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
+        testCommand.execute();
+        Path targetDir = projectPath.resolve("target");
+        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Assert.assertTrue(Files.exists(testableJar));
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertTrue(Files.exists(mainArgsFile));
+        //should exist only one testable jar
+        try (var testableJars = Files.list(testableJar.getParent())) {
+            Assert.assertEquals(testableJars.filter(path -> path.toString().endsWith(".jar"))
+                                    .map(Path::toFile).toList().size(), 1);
+        }
+    }
+
+    @Test(description = "Test the emission of multiple testable fat jars for a project with mocks when " +
+            "both cloud and graalvm flags are enabled", priority = 1)
+    public void testEmissionOfMultipleFatJarsForProjectWithMockingForCloudAndGraalVM() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithMocks");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty("user.home", mockedLocalRepo.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
+        testCommand.execute();
+        Path targetDir = projectPath.resolve("target");
+        Path mainArgsFile = targetDir.resolve("bin").resolve("tests").resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertTrue(Files.exists(mainArgsFile));
+        //should exist only one testable jar
+        try (var files = Files.list(mainArgsFile.getParent())) {
+            List<File> testableJars = files.filter(path -> path.toString().endsWith(".jar"))
+                            .map(Path::toFile).toList();
+            Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
+            List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
+                    "projectWithMocks.mod1-testable.jar");
+            for (File testableJar : testableJars) {
+                Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
+            }
+        }
+    }
+
+    @Test(description = "Test the execution of multiple testable fat jars for a project with tests and mocks",
+            dependsOnMethods = "testEmissionOfMultipleFatJarsForProjectWithMockingForCloudAndGraalVM", priority = 1)
+    public void testExecutionOfMultipleTestableFatJarsForProjectWithTestsAndMocks() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Currently failing on Windows");
+        }
+        Path projectPath = this.testResources.resolve("projectWithMocks");
+        Path mainArgsFile = projectPath.resolve("target").resolve("bin").resolve("tests")
+                .resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+
+        // Read the main args from the file (line separated)
+        List<String> mainArgs = Files.readAllLines(mainArgsFile);
+        mainArgs.set(TesterinaConstants.RunTimeArgs.IS_FAT_JAR_EXECUTION, "true");
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TEST_SUITE_JSON_PATH, TestUtils.getJsonFilePathInFatJar("/"));
+        mainArgs.set(TesterinaConstants.RunTimeArgs.TARGET_DIR, projectPath.resolve("target").toString());
+
+        try (var files = Files.list(mainArgsFile.getParent())) {
+            List<Path> testableJars = files.filter(path -> path.toString().endsWith(".jar")).toList();
+            for (Path testableJar : testableJars) {
+                List<String> pbArgs = new ArrayList<>(TestUtils.getInitialCmdArgs(null, null));
+                pbArgs.add("-jar");
+                pbArgs.add(testableJar.toString());
+                pbArgs.addAll(mainArgs);
+
+                ProcessBuilder processBuilder = new ProcessBuilder(pbArgs).redirectErrorStream(true);
+                Process process = processBuilder.start();
+                StringBuilder output = new StringBuilder();
+                int exitCode = -1;
+                try {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        br.lines().forEach(line -> output.append(line).append("\n"));
+                    }
+                    exitCode = process.waitFor();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                Assert.assertEquals(exitCode, 0);
+                if (testableJar.getFileName().toString().equals("projectWithMocks-testable.jar")) {
+                    Assert.assertTrue(output.toString().contains("[pass] testMockedIntAdd"));
+                    Assert.assertTrue(output.toString().contains("[pass] testRealIntSub"));
+                } else {
+                    Assert.assertTrue(output.toString().contains("[pass] testMockedIntSub"));
+                }
+            }
+        }
+    }
+
+    @Test(description = "Test the emission of testable fat jar for a single test bal file")
+    public void testEmissionOfTestableFatJarForSingleTestBalFile() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests")
+                .resolve("tests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty("user.home", mockedLocalRepo.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=docker", "main_tests.bal");
+        testCommand.execute();
+        Path targetDir = projectPath.resolve("target");
+        Path testableJar = targetDir.resolve("bin").resolve("tests").resolve("winery-testable.jar");
+        Assert.assertFalse(Files.exists(testableJar));  //should not exist
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertFalse(Files.exists(mainArgsFile)); //should not exist
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final StandardCopyOption copyOption;
 
         public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;

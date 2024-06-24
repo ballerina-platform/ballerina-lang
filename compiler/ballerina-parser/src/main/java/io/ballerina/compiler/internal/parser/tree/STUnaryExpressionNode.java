@@ -56,6 +56,7 @@ public class STUnaryExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STUnaryExpressionNode(
                 this.unaryOperator,
@@ -78,6 +79,7 @@ public class STUnaryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnaryExpressionNode(this, position, parent);
     }

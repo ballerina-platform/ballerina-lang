@@ -39,11 +39,13 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         super(tag, null, name, flags);
     }
 
+    @Override
     public boolean isNullable() {
 
         return false;
     }
 
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
 
         return visitor.visit(this, t);
@@ -67,6 +69,7 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         return Names.XML.value + Names.ALIAS_SEPARATOR + name;
     }
 
+    @Override
     public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value

@@ -54,9 +54,11 @@ public class DocumentationTest {
 
         Assert.assertNotNull(functionSymbol.markdownDocumentation);
         Assert.assertEquals(functionSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "Gets a access parameter value (`true` or `false`) for a given key. Please note that " +
-                "#foo will always be bigger than #bar.\nExample:\n``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get" +
-                "(pkgNode.symbol);``");
+                EMPTY_STRING), """
+                Gets a access parameter value (`true` or `false`) for a given key. Please note that \
+                #foo will always be bigger than #bar.
+                Example:
+                ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``""");
         Assert.assertEquals(functionSymbol.markdownDocumentation.parameters.size(), 1);
         Assert.assertEquals(functionSymbol.markdownDocumentation.parameters.get(0).description
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "read or write mode");

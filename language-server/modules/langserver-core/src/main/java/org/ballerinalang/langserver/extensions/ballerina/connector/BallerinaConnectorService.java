@@ -112,7 +112,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
                         settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout());
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
 
                 JsonElement connectorSearchResult = client.getConnectors(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
@@ -200,7 +200,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                     getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             if (request.getConnectorId() != null) {
                 // Fetch connector by connector Id.
                 connector = client.getConnector(request.getConnectorId(), "any", RepoUtils.getBallerinaVersion());
@@ -271,9 +271,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
-                module.documentIds().forEach(documentId -> {
-                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
-                });
+                module.documentIds().forEach(documentId ->
+                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor));
 
 
                 TypeDefinitionNode recordNode = null;

@@ -110,7 +110,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public void setMemberTypes(LinkedHashSet<BType> memberTypes) {
-        assert memberTypes.size() == 0;
+        assert memberTypes.isEmpty();
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
     }

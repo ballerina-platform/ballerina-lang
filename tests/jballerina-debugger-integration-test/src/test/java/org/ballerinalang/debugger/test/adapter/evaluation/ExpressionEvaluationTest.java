@@ -181,6 +181,8 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
+        // regex variable test
+        debugTestRunner.assertExpression(context, REGEX_VAR, "re `[a-zA-Z0-9]`", "regexp");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test

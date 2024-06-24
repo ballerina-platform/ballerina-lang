@@ -50,6 +50,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
     public static final String NAME = "Implement All";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,

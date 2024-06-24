@@ -28,14 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'function.node.analyzer.compiler.plugin'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

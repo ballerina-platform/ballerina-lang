@@ -112,6 +112,7 @@ public class ServerLogReader implements Runnable {
     /**
      * This will get executed when log reading is started.
      */
+    @Override
     public void run() {
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;

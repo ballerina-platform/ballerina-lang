@@ -43,9 +43,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 @CommandLine.Command(name = DEPRECATE_COMMAND, description = "Deprecate a package in Ballerina Central")
 public class DeprecateCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     private static final String USAGE_TEXT =
             "bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]";
@@ -173,13 +173,13 @@ public class DeprecateCommand implements BLauncherCmd {
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             client.deprecatePackage(packageValue, deprecationMsg,
                     JvmTarget.JAVA_17.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

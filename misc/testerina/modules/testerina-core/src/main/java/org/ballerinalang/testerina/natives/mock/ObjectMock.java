@@ -71,7 +71,7 @@ public class ObjectMock {
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
-                    objectValueType.getFields().size() == 0 &&
+                    objectValueType.getFields().isEmpty() &&
                     (objectValueType instanceof BClientType &&
                             ((BClientType) objectValueType).getResourceMethods().length == 0)) {
                 String detail = "mock object type '" + objectValueType.getName()

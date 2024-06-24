@@ -1013,3 +1013,255 @@ function testNamespaces() {
     xml:Element element4 = xml:createElement("{http://sample.com/test}bookStore", attributes4, xml ``);
     assertEquals(element4.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
 }
+
+function testIterableOperationsOnUnionType() {
+    xml x;
+    int index = 0;
+    xml result;
+
+    xml:Element|xml:Comment x1 = xml `<item><name>book</name><price>10</price></item>`;
+    x = <xml>x1;
+    assertEquals(xml:map(xml:elements(x),
+                    v => xml:getChildren(v)), xml `<name>book</name><price>10</price>`);
+    assertEquals(xml:filter(xml:elements(x),
+                    v => xml:length(xml:getChildren(v)) > 0), xml `<item><name>book</name><price>10</price></item>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml:Element|xml:ProcessingInstruction x2 = xml `<?data?>`;
+    x = <xml>x2;
+    string s = "";
+    assertEquals(xml:map(x, v => v), xml `<?data?>`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v) == "data"), xml `<?data?>`);
+    xml:forEach(x, function(xml v) {
+                s += xml:getTarget(<xml:ProcessingInstruction>v);
+            });
+    assertEquals(s, "data");
+
+    xml:Element|xml:Text x3 = xml `this is a text in xml`;
+    x = <xml>x3;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:concat(v, "new")).get(0), xml `this is a text in xmlnew`);
+    assertEquals(xml:filter(x, v => xml:length(<xml>v) > 0), xml `this is a text in xml`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml:Text|xml:Comment x4 = xml `<!--comment-->`;
+    x = <xml>x4;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:concat(v, xml `<a/>`)), xml `<!--comment--><a/>`);
+    assertEquals(xml:filter(x, v => xml:data(<xml>v).length() == 0), xml `<!--comment-->`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Element>|xml<xml:ProcessingInstruction> x5 = xml `<item><name>book</name><price>10</price></item>`;
+    x = <xml>x5;
+    index = 0;
+    result = xml:map(xml:elements(x), v => xml:getDescendants(v));
+    assertEquals(result.get(0), xml `<name>book</name>`);
+    assertEquals(result.get(1), xml `book`);
+    assertEquals(result.get(2), xml `<price>10</price>`);
+    assertEquals(result.get(3), xml `10`);
+    assertEquals(xml:filter(xml:elements(x), v => xml:length(xml:getDescendants(v)) > 0),
+            xml `<item><name>book</name><price>10</price></item>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction>|xml<xml:Comment> x6 = xml `<!--comment-->`;
+    x = <xml>x6;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:children(<xml>v)), xml ``);
+    assertEquals(xml:filter(x, v => xml:getContent(<xml:Comment>v).length() > 0), xml `<!--comment-->`);
+    xml:forEach(x, function(xml v) {
+                index += xml:length(v);
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction>|xml<xml:Comment>|xml:Text x7 = xml `An xml text`;
+    x = <xml>x7;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:text(<xml>v)), xml `An xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0), xml `An xml text`);
+    xml:forEach(x, function(xml v) {
+                index += xml:length(xml:text(v));
+            });
+    assertEquals(index, 1);
+
+    xml<xml:ProcessingInstruction|xml:Element>|xml<xml:Comment|xml:Text> x8 = xml `<?data2 descending?>`;
+    x = <xml>x8;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:createText(xml:getContent(<xml:ProcessingInstruction>v))), xml `descending`);
+    assertEquals(xml:filter(x, v => xml:getTarget(<xml:ProcessingInstruction>v).length() > 0), xml `<?data2 descending?>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Comment|xml:Element>|xml<xml:ProcessingInstruction|xml:Text> x9 = xml `<box><!--comment--><width>10</width><height>5</height></box>`;
+    x = <xml>x9;
+    index = 0;
+    result = xml:map(xml:elements(x), v => xml:elementChildren(v));
+    assertEquals(result.get(0), xml `<width>10</width>`);
+    assertEquals(result.get(1), xml `<height>5</height>`);
+    assertEquals(xml:filter(xml:elements(x), v => xml:getName(v) == "box"), xml `<box><!--comment--><width>10</width><height>5</height></box>`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Text|xml:ProcessingInstruction>|xml<xml:Comment|xml:Text> x10 = xml `A second xml text`;
+    x = <xml>x10;
+    index = 0;
+    assertEquals(xml:map(x, v => xml:createText(xml:data(<xml>v))), xml `A second xml text`);
+    assertEquals(xml:filter(x, v => xml:length(xml:text(<xml>v)) > 0), xml `A second xml text`);
+    xml:forEach(x, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+
+    xml<xml:Element|xml:ProcessingInstruction>|xml<xml:Comment|xml:Text> x11 = xml `<a><b/><c/></a>`;
+    index = 0;
+    assertEquals(xml:map(xml:elements(<xml>x11), v => xml:getChildren(v)), xml `<b/><c/>`);
+    assertEquals(xml:filter(<xml>x11, v => xml:getAttributes(<xml:Element>v).length() > 0), xml ``);
+    xml:forEach(<xml>x11, function(xml v) {
+                index += 1;
+            });
+    assertEquals(index, 1);
+}
+
+function testXmlMapOnXmlElementSequence() {
+    xml result;
+    xml<xml:Element> x1 = xml `<item><name>book</name><price>10</price></item>`;
+    result = xml:map(xml:elements(x1), v => xml:getChildren(v));
+    assertEquals(result.length(), 2);
+    assertEquals(result, xml `<name>book</name><price>10</price>`);
+    assertXmlSequenceItems(result, [xml `<name>book</name>`, xml `<price>10</price>`]);
+
+    xml<xml:Element> x2 = xml `<item><name>book</name><price>10</price></item><item><name>pen</name><price>12</price></item>`;
+    result = xml:map(xml:elements(x2), v => xml:getDescendants(v));
+    assertEquals(result.length(), 8);
+    assertEquals(result, xml `<name>book</name>book<price>10</price>10<name>pen</name>pen<price>12</price>12`);
+    assertXmlSequenceItems(result, [
+                xml `<name>book</name>`,
+                xml `book`,
+                xml `<price>10</price>`,
+                xml `10`,
+                xml `<name>pen</name>`,
+                xml `pen`,
+                xml `<price>12</price>`,
+                xml `12`
+            ]);
+
+    xml x3 = xml `<?data?><a><!--comment--><b/></a>text<c><d/></c>`;
+    result = xml:map(x3, v => xml:children(<xml>v));
+    assertEquals(result.length(), 3);
+    assertEquals(result, xml `<!--comment--><b/><d/>`);
+    assertXmlSequenceItems(result, [xml `<!--comment-->`, xml `<b/>`, xml `<d/>`]);
+
+    xml<xml:Element> x4 = xml `<a><!--comment--></a><c><d/></c>`;
+    result = xml:map(x4, v => xml:elementChildren(v));
+    assertEquals(result.length(), 1);
+    assertXmlSequenceItems(result, [xml `<d/>`]);
+
+    xml<xml:Element> x5 = xml `<a><!--comment--><?data?></a><c><d/>text one two</c>`;
+    result = xml:map(x5, v => xml:children(v));
+    assertEquals(result.length(), 4);
+    assertXmlSequenceItems(result, [xml `<!--comment-->`, xml `<?data?>`, xml `<d/>`, xml `text one two`]);
+
+    xml x6 = xml `<a><!--comment--><?data?></a><c>text one two</c>`;
+    result = xml:map(x6, v => xml:elementChildren(<xml:Element>v));
+    assertEquals(result.length(), 0);
+    assertEquals(result, xml ``);
+}
+
+function testErrorsOnNXmlMapResult() {
+    xml x1 = xml `<?data?><a><!--comment--><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x1), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError", "incompatible types: 'lang.xml:Comment' cannot be cast to 'lang.xml:Element'");
+
+    xml x2 = xml `<?data?><a>xml text<b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x2), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError", "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
+
+    xml x3 = xml `<?data?><a><?data?><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x3), v => xml:getChildren(v)), k => xml:getChildren(<xml:Element>k)),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Element'");
+
+    xml x4 = xml `<?data?><a><?data?><b/></a>text<c><d/></c>`;
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createProcessingInstruction("data", xml:getContent(<xml:ProcessingInstruction>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Element' cannot be cast to 'lang.xml:ProcessingInstruction'");
+
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createComment(xml:getContent(<xml:Comment>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Comment'");
+
+    assertError(trap xml:map(xml:map(xml:elements(x4), v => xml:getChildren(v)),
+                    k => xml:createComment(xml:data(<xml:Text>k))),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Text'");
+}
+
+function assertXmlSequenceItems(xml actual, xml[] expected) {
+    int expectedLen = expected.length();
+    int actualLen = actual.length();
+    if actualLen != expectedLen {
+        string reason = "expected xml sequence with items " + expected.toString() + " of size " + expectedLen.toString()
+                            + ", but found xml sequence " + actual.toString() + " of size " + actualLen.toString();
+        panic error(reason);
+    }
+    foreach int i in 0 ... expectedLen - 1 {
+        assertEquals(actual.get(i), expected[i]);
+    }
+}
+
+function testXmlFilterValueAndErrorWithNonElementSingletonValues() {
+    xml<xml:ProcessingInstruction> x1 = xml `<?data?>`;
+    assertEquals(xml:filter(x1, v => true), xml `<?data?>`);
+    assertEquals(xml:filter(xml:filter(x1, v => true), v => v is xml:ProcessingInstruction), xml `<?data?>`);
+    assertError(trap xml:filter(xml:filter(x1, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:ProcessingInstruction' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Comment> x2 = xml `<!--comment-->`;
+    assertEquals(xml:filter(xml:filter(x2, v => true), v => v is xml:Comment), xml `<!--comment-->`);
+    assertEquals(xml:filter(x2, v => true), xml `<!--comment-->`);
+
+    assertError(trap xml:filter(xml:filter(x2, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Comment' cannot be cast to 'lang.xml:Element'");
+
+    xml<xml:Text> x3 = xml `this is a text`;
+    assertEquals(xml:filter(x3, v => true), xml `this is a text`);
+    assertEquals(xml:filter(xml:filter(x3, v => true), v => v is xml:Text), xml `this is a text`);
+    assertError(trap xml:filter(xml:filter(x3, v => true), y => xml:getChildren(<xml:Element>y).length() == 0),
+            "{ballerina}TypeCastError",
+            "incompatible types: 'lang.xml:Text' cannot be cast to 'lang.xml:Element'");
+}
+
+type Error error<record {string message;}>;
+
+function assertError(any|error value, string errorMessage, string expDetailMessage) {
+    if value is Error {
+        if value.message() != errorMessage {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+
+        if value.detail().message == expDetailMessage {
+            return;
+        }
+        panic error("Expected error detail message: " + expDetailMessage + " found: " + value.detail().message);
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
+}
