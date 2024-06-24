@@ -26,6 +26,8 @@ import org.jline.reader.UserInterruptException;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
+import java.io.PrintWriter;
+
 /**
  * Terminal adapter which encapsulates Jline.
  *
@@ -59,7 +61,7 @@ public class JlineTerminalAdapter extends TerminalAdapter {
     @SuppressWarnings("resource")
     @Override
     public void println(String text) {
-        var writer = lineReader.getTerminal().writer();
+        PrintWriter writer = lineReader.getTerminal().writer();
         writer.println(text);
         writer.flush();
     }

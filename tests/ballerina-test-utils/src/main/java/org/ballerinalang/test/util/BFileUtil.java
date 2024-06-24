@@ -35,6 +35,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for doing file operations.
@@ -110,7 +111,7 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
-                        try (var paths = Files.list(dir)) {
+                        try (Stream<Path> paths = Files.list(dir)) {
                             paths.forEach(BFileUtil::delete);
                         }
                     }
@@ -134,7 +135,7 @@ public class BFileUtil {
             return;
         }
         List<Path> files;
-        try (var paths = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
+        try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
                         p.toString().contains(pattern))) {
             files = paths.toList();
         }

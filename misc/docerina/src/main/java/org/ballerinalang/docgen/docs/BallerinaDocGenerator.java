@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -537,7 +538,7 @@ public class BallerinaDocGenerator {
         Path resourcesDirPath = absolutePkgPath.resolve("resources");
         List<Path> resources = new ArrayList<>();
         if (resourcesDirPath.toFile().exists()) {
-            try (var paths = Files.walk(resourcesDirPath)) {
+            try (Stream<Path> paths = Files.walk(resourcesDirPath)) {
                 resources = paths.filter(path -> !path.equals(resourcesDirPath)).toList();
             }
         }

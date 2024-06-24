@@ -100,8 +100,8 @@ public class TestBirAndJarCache {
                 Module module = currentPackage.module(moduleId);
                 ModuleName moduleName = module.moduleName();
                 String jarName = getThinJarFileName(module.descriptor().org(),
-                        moduleName.toString(),
-                        module.descriptor().version());
+                                                    moduleName.toString(),
+                                                    module.descriptor().version());
                 Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
             }
         }

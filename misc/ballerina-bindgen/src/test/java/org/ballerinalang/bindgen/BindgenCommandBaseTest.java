@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Command test supper class.
@@ -75,7 +76,7 @@ public abstract class BindgenCommandBaseTest {
 
     @AfterClass (alwaysRun = true)
     public void cleanup() throws IOException {
-        try (var paths = Files.walk(tmpDir)) {
+        try (Stream<Path> paths = Files.walk(tmpDir)) {
             paths.sorted(Comparator.reverseOrder())
                     .forEach(path -> {
                         try {

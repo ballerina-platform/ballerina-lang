@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -45,7 +46,7 @@ public class PackerinaTestUtils {
         if (dirPath == null) {
             return;
         }
-        try (var paths = Files.walk(dirPath)) {
+        try (Stream<Path> paths = Files.walk(dirPath)) {
             paths.sorted(Comparator.reverseOrder())
                 .forEach(path -> {
                     try {
@@ -77,7 +78,7 @@ public class PackerinaTestUtils {
      * @throws IOException throw if there is any error occur while copying directories.
      */
     public static void copyFolder(Path src, Path dest) throws IOException {
-        try (var paths = Files.walk(src)) {
+        try (Stream<Path> paths = Files.walk(src)) {
             paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
         }
     }

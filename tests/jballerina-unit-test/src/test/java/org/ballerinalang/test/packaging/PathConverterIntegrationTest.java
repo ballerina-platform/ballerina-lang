@@ -83,7 +83,7 @@ public class PathConverterIntegrationTest {
         Files.delete(tempFile);
         Files.delete(tempSemVerFile);
         Files.delete(tempNonSourceFile);
-        try (var paths = Files.walk(tempDirectory)) {
+        try (Stream<Path> paths = Files.walk(tempDirectory)) {
             paths.sorted(Comparator.reverseOrder())
                 .filter(Files::isDirectory)
                 .forEach(path -> {

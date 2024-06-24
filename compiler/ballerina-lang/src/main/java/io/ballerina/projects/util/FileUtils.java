@@ -169,7 +169,7 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            try (var paths = Files.list(path)) {
+            try (Stream<Path> paths = Files.list(path)) {
                 for (Path dir : paths.toList()) {
                     deletePath(dir);
                 }

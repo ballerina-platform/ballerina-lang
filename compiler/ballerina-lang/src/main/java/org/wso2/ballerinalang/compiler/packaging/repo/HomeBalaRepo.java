@@ -159,7 +159,7 @@ public class HomeBalaRepo implements Repo<Path> {
             try (Stream<Path> list = Files.list(balaFilePath)) {
                 PathMatcher pathMatcher = balaFilePath.getFileSystem()
                         .getPathMatcher("glob:**/" + pkgName + "-*-" +
-                        platform + "-" + versionStr + ".bala");
+                                platform + "-" + versionStr + ".bala");
                 for (Path file : (Iterable<Path>) list::iterator) {
                     if (pathMatcher.matches(file)) {
                         return file;

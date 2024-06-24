@@ -20,10 +20,12 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Test the formatting of parser test cases.
@@ -205,7 +207,7 @@ public class ParserTestFormatter extends FormatterTest {
     }
 
     private Optional<String> getFilePath(String fileName, String directoryPath) {
-        try (var paths = Files.walk(Paths.get(directoryPath))) {
+        try (Stream<Path> paths = Files.walk(Paths.get(directoryPath))) {
             return Optional.ofNullable(paths.filter(f -> f.getFileName().toString().equals(fileName))
                     .toList().get(0).toString());
         } catch (IOException e) {

@@ -38,6 +38,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Test maven package repository.
@@ -241,7 +242,7 @@ public class MavenPackageRepositoryTests {
                 resolve("local-custom-repo")
                 .resolve("bala").resolve("luheerathan").resolve("pact");
         if (Files.exists(destinationFolderPath)) {
-            try (var paths = Files.walk(destinationFolderPath)) {
+            try (Stream<Path> paths = Files.walk(destinationFolderPath)) {
                 paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
