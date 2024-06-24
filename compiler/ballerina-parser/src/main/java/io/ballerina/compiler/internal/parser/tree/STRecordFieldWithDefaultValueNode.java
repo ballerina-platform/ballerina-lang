@@ -86,6 +86,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordFieldWithDefaultValueNode(
                 this.metadata,
@@ -128,6 +129,7 @@ public class STRecordFieldWithDefaultValueNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldWithDefaultValueNode(this, position, parent);
     }

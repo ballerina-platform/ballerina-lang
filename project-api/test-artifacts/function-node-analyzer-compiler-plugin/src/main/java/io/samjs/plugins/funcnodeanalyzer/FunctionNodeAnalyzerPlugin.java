@@ -81,12 +81,11 @@ public class FunctionNodeAnalyzerPlugin extends CompilerPlugin {
         }
 
         private final AnalysisTask<SyntaxNodeAnalysisContext> functionCallAnalysisTask =
-                syntaxNodeAnalysisContext -> {
+                syntaxNodeAnalysisContext ->
                     syntaxNodeAnalysisContext.reportDiagnostic(
                             DiagnosticUtils.createDiagnostic("FUNC_NODE_INVALID_FUNC_CALL",
                                     "Function call related error message",
                                     syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.ERROR));
-                };
 
         private final AnalysisTask<SyntaxNodeAnalysisContext> moduleLevelNodeAnalysisTask =
                 syntaxNodeAnalysisContext -> {

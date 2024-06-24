@@ -500,7 +500,7 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangJoinClause joinClause) {
         lookupNode(joinClause.collection);
         lookupNode((BLangNode) joinClause.variableDefinitionNode);
-        lookupNode((BLangNode) joinClause.onClause);
+        lookupNode(joinClause.onClause);
     }
 
     @Override
@@ -639,7 +639,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         lookupNodes(varRefExpr.expressions);
-        lookupNode((BLangNode) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override

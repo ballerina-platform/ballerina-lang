@@ -86,7 +86,7 @@ public class CreateExecutableTask implements Task {
                 start = System.currentTimeMillis();
             }
             EmitResult emitResult;
-            if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
+            if (project.buildOptions().nativeImage() && project.buildOptions().cloud().isEmpty()) {
                 String warnings = GraalVMCompatibilityUtils.getAllWarnings(
                         project.currentPackage(), jBallerinaBackend.targetPlatform().code(), false);
                 if (!warnings.isEmpty()) {

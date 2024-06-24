@@ -385,7 +385,7 @@ public class PackageResolution {
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
-        if (dependencyGraph.findCycles().size() > 0) {
+        if (!dependencyGraph.findCycles().isEmpty()) {
             for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -405,7 +405,7 @@ public class PackageResolution {
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleDescriptor> sortedModuleDescriptors
                     = moduleDependencyGraph.toTopologicallySortedList();
-            if (moduleDependencyGraph.findCycles().size() > 0) {
+            if (!moduleDependencyGraph.findCycles().isEmpty()) {
                 for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),

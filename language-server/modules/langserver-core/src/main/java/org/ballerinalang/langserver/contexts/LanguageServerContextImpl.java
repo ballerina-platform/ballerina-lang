@@ -34,19 +34,23 @@ public class LanguageServerContextImpl implements LanguageServerContext {
     public LanguageServerContextImpl() {
     }
 
+    @Override
     public <V> void put(LanguageServerContext.Key<V> key, V value) {
         props.put(key, value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V> V get(LanguageServerContext.Key<V> key) {
         return (V) props.get(key);
     }
 
+    @Override
     public <V> void put(Class<V> clazz, V value) {
         objects.put(clazz, value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V> V get(Class<V> clazz) {
         return (V) objects.get(clazz);

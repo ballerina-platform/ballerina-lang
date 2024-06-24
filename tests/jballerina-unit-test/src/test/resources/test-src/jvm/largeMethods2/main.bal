@@ -20,4 +20,5 @@ public function main() {
     r:testLargeRecord();
     r:testQueryExpressionsWithLargeArraysAndRecords();
     r:testAnnotationsOnLocalRecordFields();
+    r:testLargeNumberOfRecords();
 }

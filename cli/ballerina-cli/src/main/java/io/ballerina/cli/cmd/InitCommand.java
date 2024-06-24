@@ -45,9 +45,9 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
         "release. Use `bal new .` instead")
 public class InitCommand implements BLauncherCmd {
 
-    private Path userDir;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;

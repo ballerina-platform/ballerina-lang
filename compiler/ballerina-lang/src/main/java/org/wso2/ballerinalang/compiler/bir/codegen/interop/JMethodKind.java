@@ -26,7 +26,7 @@ enum JMethodKind {
     METHOD("method"),
     CONSTRUCTOR("constructor");
 
-    private String strValue;
+    private final String strValue;
 
     JMethodKind(String strValue) {
 

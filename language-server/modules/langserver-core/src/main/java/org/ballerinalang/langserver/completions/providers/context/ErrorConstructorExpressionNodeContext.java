@@ -259,7 +259,7 @@ public class ErrorConstructorExpressionNodeContext extends
             return completionItems;
         }
         List<String> existingNamedArgs = node.arguments().stream().filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
-                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
+                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).toList();
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();

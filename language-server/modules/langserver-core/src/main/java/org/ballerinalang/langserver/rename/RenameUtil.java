@@ -464,10 +464,10 @@ public class RenameUtil {
         QUOTED_KEYWORD("Quoted Rename", "Rename to keyword with a quote", true, "quoted"),
         UNQUOTED_KEYWORD("Un-quoted Rename", "Rename to keyword without a quote", true, "unquoted");
 
-        private String id;
-        private String label;
-        private String description;
-        private Boolean needsConfirmation;
+        private final String id;
+        private final String label;
+        private final String description;
+        private final Boolean needsConfirmation;
 
         RenameChangeAnnotation(String label, String description, Boolean needsConfirmation, String id) {
             this.id = id;

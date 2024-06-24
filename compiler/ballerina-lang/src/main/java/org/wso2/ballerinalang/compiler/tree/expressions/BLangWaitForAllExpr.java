@@ -43,6 +43,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
     // BLangNodes
     public List<BLangWaitKeyValue> keyValuePairs = new ArrayList<>();
 
+    @Override
     public List<BLangWaitKeyValue> getKeyValuePairs() {
         return keyValuePairs;
     }

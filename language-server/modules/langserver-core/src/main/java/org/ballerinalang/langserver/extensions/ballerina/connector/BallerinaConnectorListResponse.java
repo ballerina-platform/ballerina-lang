@@ -48,7 +48,7 @@ public class BallerinaConnectorListResponse {
     }
 
     public void setCentralConnectors(List<Connector> central) {
-        if (central != null && central.size() > 0) {
+        if (central != null && !central.isEmpty()) {
             this.central = central;
         }
     }
@@ -58,7 +58,7 @@ public class BallerinaConnectorListResponse {
     }
 
     public void setLocalConnectors(List<Connector> local) {
-        if (local != null && local.size() > 0) {
+        if (local != null && !local.isEmpty()) {
             this.local = local;
         }
     }

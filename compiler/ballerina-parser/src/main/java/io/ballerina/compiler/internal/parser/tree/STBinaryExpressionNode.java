@@ -65,6 +65,7 @@ public class STBinaryExpressionNode extends STExpressionNode {
                 rhsExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBinaryExpressionNode(
                 this.kind,
@@ -94,6 +95,7 @@ public class STBinaryExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BinaryExpressionNode(this, position, parent);
     }

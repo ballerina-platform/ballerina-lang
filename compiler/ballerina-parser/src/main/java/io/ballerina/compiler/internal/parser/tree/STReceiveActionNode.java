@@ -56,6 +56,7 @@ public class STReceiveActionNode extends STActionNode {
                 receiveWorkers);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReceiveActionNode(
                 this.leftArrow,
@@ -78,6 +79,7 @@ public class STReceiveActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveActionNode(this, position, parent);
     }

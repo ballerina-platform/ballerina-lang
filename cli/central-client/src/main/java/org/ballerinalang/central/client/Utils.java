@@ -60,7 +60,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
@@ -102,7 +101,7 @@ public class Utils {
      *
      * @param balaDownloadResponse http response for downloading the bala file
      * @param pkgPathInBalaCache   package path in bala cache,
-     *                             <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     *                             {@literal <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>}
      * @param pkgOrg               package org
      * @param pkgName              package name
      * @param isNightlyBuild       is nightly build
@@ -457,7 +456,7 @@ public class Utils {
 
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).toList();
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala

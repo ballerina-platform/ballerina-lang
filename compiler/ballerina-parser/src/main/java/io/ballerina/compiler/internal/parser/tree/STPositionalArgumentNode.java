@@ -50,6 +50,7 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STPositionalArgumentNode(
                 this.expression,
@@ -68,6 +69,7 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PositionalArgumentNode(this, position, parent);
     }

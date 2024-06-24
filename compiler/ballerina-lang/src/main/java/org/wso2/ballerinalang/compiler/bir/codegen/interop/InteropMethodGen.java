@@ -141,7 +141,7 @@ public class InteropMethodGen {
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
         mv.visitCode();
 
         Label paramLoadLabel = labelGen.getLabel("param_load");

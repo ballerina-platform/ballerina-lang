@@ -515,7 +515,7 @@ public class PushCommand implements BLauncherCmd {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
 
-                    errorMessage = errorMessage.replaceAll("error: ", "");
+                    errorMessage = errorMessage.replace("error: ", "");
 
                     // when unauthorized access token for organization is given
                     if (errorMessage.contains("subject claims missing in the user info repsonse")) {

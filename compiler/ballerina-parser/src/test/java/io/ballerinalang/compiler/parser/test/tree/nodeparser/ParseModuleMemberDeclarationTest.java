@@ -46,10 +46,11 @@ public class ParseModuleMemberDeclarationTest {
 
     @Test
     public void testFuncDefn() {
-        String funcDef = "function foo() {\n" +
-                "    int n = 0;\n" +
-                "    n += 1;\n" +
-                "}";
+        String funcDef = """
+                function foo() {
+                    int n = 0;
+                    n += 1;
+                }""";
         ModuleMemberDeclarationNode moduleMemDeclNode = NodeParser.parseModuleMemberDeclaration(funcDef);
         Assert.assertEquals(moduleMemDeclNode.kind(), SyntaxKind.FUNCTION_DEFINITION);
         Assert.assertFalse(moduleMemDeclNode.hasDiagnostics());
