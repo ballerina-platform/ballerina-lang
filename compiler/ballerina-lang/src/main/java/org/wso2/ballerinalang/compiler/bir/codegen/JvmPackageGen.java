@@ -116,7 +116,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
@@ -302,10 +302,10 @@ public class JvmPackageGen {
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
 
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_PARENT_ATTEMPTED, "Z", null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, PARENT_MODULE_START_ATTEMPTED, "Z", null, null);
         fv.visitEnd();
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_PARENT_ATTEMPTED, "Z");
+        mv.visitFieldInsn(PUTSTATIC, initClass, PARENT_MODULE_START_ATTEMPTED, "Z");
         fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, NO_OF_DEPENDANT_MODULES, "I", null, null);
         fv.visitEnd();
         mv.visitInsn(ICONST_0);
