@@ -2984,6 +2984,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                                                                   bLangLambdaFunction.function);
             }
         }
+
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = false;
         // If this is a worker we are already in a worker action system,
         // if not we need to initiate a worker action system
         if (isWorker) {
@@ -3000,6 +3003,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 this.finalizeCurrentWorkerActionSystem(data);
             }
         }
+        data.failureHandled = failureHandled;
 
         if (isWorker) {
             data.workerActionSystemStack.peek().endWorkerActionStateMachine();
