@@ -15,7 +15,7 @@ allprojects {
     group = project.group
     version = project.version
 
-    task printPath {
+    tasks.register('printPath') {
         doLast{
             println projectDir
         }
@@ -67,7 +67,8 @@ dependencies {
 def classFilesArray = []
 def execFilesArray = []
 
-task copyExecFilesAndJavaClassFiles {
+
+tasks.register('copyExecFilesAndJavaClassFiles') {
     subprojects.forEach { subproject ->
         fileTree("${subproject.buildDir}/jacoco").matching {
             include "**/*.exec"
@@ -84,7 +85,8 @@ task copyExecFilesAndJavaClassFiles {
     }
 }
 
-task copyBallerinaClassFiles {
+
+tasks.register('copyBallerinaClassFiles') {
     subprojects.forEach { subproject ->
         def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
         if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
@@ -100,7 +102,7 @@ task copyBallerinaClassFiles {
     }
 }
 
-task createCodeCoverageReport(type: JacocoReport) {
+tasks.register('createCodeCoverageReport', JacocoReport) {
     executionData files(execFilesArray)
     additionalClassDirs files(classFilesArray)
     reports {

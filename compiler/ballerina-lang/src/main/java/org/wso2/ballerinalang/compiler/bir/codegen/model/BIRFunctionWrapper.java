@@ -15,31 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
-import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 /**
- * Java cast instruction.
+ * A wrapper used with JInterop to wrap Ballerina Functions with JFunc description and data.
  *
  * @since 1.2.0
+ *
+ * @param packageID Package ID
+ * @param func BIR function
+ * @param fullQualifiedClassName full qualified class name
+ * @param jvmMethodDescription JVM method description
  */
-public class JCast extends JInstruction {
+public record BIRFunctionWrapper(PackageID packageID, BIRNode.BIRFunction func, String fullQualifiedClassName,
+                                 String jvmMethodDescription) {
 
-    public BIROperand rhsOp;
-    public BType targetType;
-
-    JCast(Location pos) {
-
-        super(pos);
-        jKind = JInsKind.JCAST;
-    }
-
-    @Override
-    public void accept(BIRVisitor visitor) {
-        // do nothing
-    }
 }

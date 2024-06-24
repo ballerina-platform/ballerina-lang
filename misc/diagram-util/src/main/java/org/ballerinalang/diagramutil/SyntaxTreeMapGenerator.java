@@ -70,7 +70,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Generates a Map<String, Object> for a given SyntaxTree.
+ * Generates a {@code Map<String, Object>} for a given SyntaxTree.
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;

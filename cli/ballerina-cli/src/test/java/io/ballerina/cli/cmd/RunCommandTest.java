@@ -88,7 +88,7 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-bal.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("run-bal.txt"));
 
         Assert.assertTrue(tempFile.toFile().exists());
 
@@ -104,7 +104,7 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parseArgs(validBalFilePath.toString());
         runCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
+        Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("The file does not exist: " + validBalFilePath));
 
     }
@@ -182,7 +182,7 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parseArgs();
         runCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("run-project-with-build-tool.txt"));
     }
 
@@ -270,7 +270,7 @@ public class RunCommandTest extends BaseCommandTest {
             runCommand.execute();
         } catch (RuntimePanicException e) {
             File projectDir = new File(projectPath.toString());
-            FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
+            FileFilter fileFilter = WildcardFileFilter.builder().setWildcards("java_pid*.hprof").get();
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
         }
     }

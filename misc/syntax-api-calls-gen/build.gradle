@@ -38,13 +38,3 @@ test {
 description = 'Ballerina - Syntax API Calls Gennerator'
 
 ext.moduleName = 'syntax-api-calls-gen'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

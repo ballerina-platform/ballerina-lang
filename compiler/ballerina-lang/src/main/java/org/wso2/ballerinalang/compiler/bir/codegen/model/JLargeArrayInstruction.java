@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;

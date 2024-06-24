@@ -92,7 +92,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         public BinaryOp(Location pos,
                         InstructionKind kind,
-                        BType type,
                         BIROperand lhsOp,
                         BIROperand rhsOp1,
                         BIROperand rhsOp2) {

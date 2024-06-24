@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
@@ -133,6 +134,20 @@ public class BalRuntime extends Runtime {
         }
         invokeModuleStop();
         moduleStopped = true;
+        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Scheduler(false), null);
+    }
+
+    private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
+                                   Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
+        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
+        Object[] argsWithStrand = new Object[args.length + 1];
+        argsWithStrand[0] = future.strand;
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        scheduler.schedule(argsWithStrand, func, future);
+        scheduler.start();
     }
 
     /**
@@ -356,8 +371,9 @@ public class BalRuntime extends Runtime {
         ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         try {
-            final Method method = configClass.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
-            method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
+            final Method method =
+                    configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
+            method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
                     RuntimeUtils.formatErrorMessage(e)), e);

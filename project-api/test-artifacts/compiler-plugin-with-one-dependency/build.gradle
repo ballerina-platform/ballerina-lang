@@ -28,14 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.plugin.with.one.dependency'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

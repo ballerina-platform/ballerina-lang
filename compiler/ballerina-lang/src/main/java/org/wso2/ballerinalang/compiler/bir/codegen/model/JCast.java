@@ -15,17 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * Java catch instruction.
+ * Java cast instruction.
  *
  * @since 1.2.0
  */
-public class CatchIns {
+public class JCast extends JInstruction {
 
-    public String errorClass;
-    public BIRTerminator.Return term;
+    public BIROperand rhsOp;
+    public BType targetType;
+
+    public JCast(Location pos) {
+
+        super(pos);
+        jKind = JInsKind.J_CAST;
+    }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        // do nothing
+    }
 }
