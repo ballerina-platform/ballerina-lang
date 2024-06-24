@@ -68,8 +68,7 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the GET request
      */
     public static HttpResponse doGet(String requestUrl, int readTimeout,
-                                     CheckedFunction<BufferedReader, String> responseBuilder)
-            throws IOException {
+            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), readTimeout,
                 responseBuilder);
     }
@@ -201,8 +200,8 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-            Map<String, String> headers, int readTimeout, CheckedFunction<BufferedReader,
-            String> responseBuilder) throws IOException {
+            Map<String, String> headers, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
         HttpURLConnection conn = null;
         try {
             conn = getURLConnection(requestUrl, readTimeout);
@@ -217,9 +216,8 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-                                                                 Map<String, String> headers, int readTimeout,
-                                                                 CheckedFunction<BufferedReader,
-                                                                 String> responseBuilder, boolean throwError)
+            Map<String, String> headers, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder, boolean throwError)
             throws IOException {
         HttpURLConnection conn = null;
         try {
@@ -292,7 +290,7 @@ public class HttpClientRequest {
                     }
                     throw ex;
                 } else {
-                    LOG.error("Error in building HTTP response", ex.getMessage());
+                    LOG.error("Error in building HTTP response: {}", ex.getMessage());
                     return null;
                 }
             }

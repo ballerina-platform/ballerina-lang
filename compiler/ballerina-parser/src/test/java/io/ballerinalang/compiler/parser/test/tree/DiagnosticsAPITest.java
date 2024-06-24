@@ -100,9 +100,10 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "This is a test case for https://github.com/ballerina-platform/ballerina-lang/issues/24304")
     public void testLocationWithInvalidMissingNodes() {
-        String input = "public function main() {\n" +
-                "    string s = string ```;\n" +
-                "}";
+        String input = """
+                public function main() {
+                    string s = string ```;
+                }""";
         int expectedLength = input.length();
         TextDocument textDocument = TextDocuments.from(input);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);

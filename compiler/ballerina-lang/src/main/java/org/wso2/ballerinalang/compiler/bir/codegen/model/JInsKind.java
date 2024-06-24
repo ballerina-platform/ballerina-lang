@@ -15,32 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * Type tag values for JTypes.
+ * An enum to model the JInstruction kind.
  *
  * @since 1.2.0
  */
-public class JTypeTags {
-
-    public static final int JBYTE = 1;
-    public static final int JCHAR = 2;
-    public static final int JSHORT = 3;
-    public static final int JINT = 4;
-    public static final int JLONG = 5;
-    public static final int JFLOAT = 6;
-    public static final int JDOUBLE = 7;
-    public static final int JBOOLEAN = 8;
-    public static final int JARRAY = 9;
-    public static final int JREF = 10;
-    public static final int JVOID = 11;
-    public static final int JNO = 12;
-
-    public static final int JTYPE = Integer.MAX_VALUE;
-
-    private JTypeTags() {
-
-    }
+public enum JInsKind {
+    J_CAST(),
+    CALL(),
+    LARGE_ARRAY(),
+    LARGE_MAP()
 }
-

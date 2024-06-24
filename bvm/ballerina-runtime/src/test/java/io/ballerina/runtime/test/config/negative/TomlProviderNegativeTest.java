@@ -84,10 +84,12 @@ public class TomlProviderNegativeTest {
                 {"NoConfig.toml",
                         "warning: configuration file is not found in path '" +
                                 getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
-                {"InvalidConfig.toml", "warning: invalid TOML file : \n" +
-                        "[InvalidConfig.toml:(1:8,1:8)] missing identifier\n" +
-                        "[InvalidConfig.toml:(1:26,1:26)] missing identifier\n" +
-                        "[InvalidConfig.toml:(1:27,1:27)] missing identifier\n", 1},
+                {"InvalidConfig.toml", """
+                        warning: invalid TOML file :\s
+                        [InvalidConfig.toml:(1:8,1:8)] missing identifier
+                        [InvalidConfig.toml:(1:26,1:26)] missing identifier
+                        [InvalidConfig.toml:(1:27,1:27)] missing identifier
+                        """, 1},
                 {"InvalidByteRange.toml", "error: [InvalidByteRange.toml:(2:11,2:14)] value provided for byte " +
                         "variable 'byteVar' is out of range. Expected range is (0-255), found '355'", 0}
         };
@@ -456,8 +458,10 @@ public class TomlProviderNegativeTest {
         VariableKey[] clashingVariableKeys = getSimpleVariableKeys(clashingModule);
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
-        String errorMsg = "warning: invalid TOML file : \n" +
-                "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
+        String errorMsg = """
+                warning: invalid TOML file :\s
+                [ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'
+                """;
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,

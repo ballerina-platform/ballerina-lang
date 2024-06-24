@@ -201,7 +201,6 @@ import java.util.List;
  * The {@link SimpleBLangNodeAnalyzer} transforms each {@link BLangNode} objects to another object of type T.
  * <p>
  * This is simplified node visitor of the {@link BLangNodeAnalyzer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with transform methods.
  * @since 2.0.0

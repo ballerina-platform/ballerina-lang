@@ -237,11 +237,12 @@ public class RefTypeTests {
         }
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: 'class java.lang.String' cannot be assigned to type 'anydata'\n" +
-                "\tat ballerina_types_as_interop_types:" +
-                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:203)\n" +
-                "\t   ballerina_types_as_interop_types:" +
-                "interopWithJavaStringReturn(ballerina_types_as_interop_types.bal:174)");
+        Assert.assertEquals(message, """
+                error: 'class java.lang.String' cannot be assigned to type 'anydata'
+                \tat ballerina_types_as_interop_types:\
+                acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:203)
+                \t   ballerina_types_as_interop_types:\
+                interopWithJavaStringReturn(ballerina_types_as_interop_types.bal:174)""");
     }
 
     @Test
@@ -329,10 +330,11 @@ public class RefTypeTests {
         Object returns = BRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
-        Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:450)\n" +
-                "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "439)");
+        Assert.assertEquals(error.getPrintableStackTrace(), """
+                java.util.EmptyStackException
+                \tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:450)
+                \t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:\
+                439)""");
     }
 
     @Test(dataProvider = "functionsToTestRefTypes")

@@ -236,27 +236,26 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "function";
-    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
-    private Names names;
+    private final Names names;
     private final SymbolTable symTable;
-    private BIROptimizer birOptimizer;
+    private final BIROptimizer birOptimizer;
     private final Types types;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
-    private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private final Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
     // This map is used to create dependencies for imported module global variables
-    private Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
+    private final Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
 
-    // This is to cache the lockstmt to BIR Lock
-    private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
+    // This is to cache the lock statement to BIR Lock
+    private final Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
-    private Unifier unifier;
+    private final Unifier unifier;
 
     private BirScope currentScope;
 
@@ -1085,7 +1084,7 @@ public class BIRGen extends BLangNodeVisitor {
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        BirScope newScope = new BirScope(this.currentScope.id() + 1, this.currentScope);
         birVarDcl.insScope = newScope;
         this.currentScope = newScope;
 
@@ -1762,7 +1761,7 @@ public class BIRGen extends BLangNodeVisitor {
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
                                               astMapAccessExpr.isLValue && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1789,7 +1788,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1960,7 +1959,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create binary instruction
         BinaryOp binaryIns = new BinaryOp(astBinaryExpr.pos, getBinaryInstructionKind(astBinaryExpr.opKind),
-                                          astBinaryExpr.getBType(), lhsOp, rhsOp1, rhsOp2);
+                lhsOp, rhsOp1, rhsOp2);
         setScopeAndEmit(binaryIns);
     }
 
@@ -2070,7 +2069,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        // If the QName is use outside of XML, treat it as string.
+        // If the QName is use outside XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
             String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
                     : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
@@ -2356,8 +2355,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB, this.currentScope);
             this.env.enclBB.terminator = unlock;
-            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
-            unlock.relatedLock = lock;
+            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -2662,74 +2660,43 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private InstructionKind getBinaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case ADD:
-                return InstructionKind.ADD;
-            case SUB:
-                return InstructionKind.SUB;
-            case MUL:
-                return InstructionKind.MUL;
-            case DIV:
-                return InstructionKind.DIV;
-            case MOD:
-                return InstructionKind.MOD;
-            case EQUAL:
-            case EQUALS:
-                return InstructionKind.EQUAL;
-            case NOT_EQUAL:
-                return InstructionKind.NOT_EQUAL;
-            case GREATER_THAN:
-                return InstructionKind.GREATER_THAN;
-            case GREATER_EQUAL:
-                return InstructionKind.GREATER_EQUAL;
-            case LESS_THAN:
-                return InstructionKind.LESS_THAN;
-            case LESS_EQUAL:
-                return InstructionKind.LESS_EQUAL;
-            case AND:
-                return InstructionKind.AND;
-            case OR:
-                return InstructionKind.OR;
-            case REF_EQUAL:
-                return InstructionKind.REF_EQUAL;
-            case REF_NOT_EQUAL:
-                return InstructionKind.REF_NOT_EQUAL;
-            case CLOSED_RANGE:
-                return InstructionKind.CLOSED_RANGE;
-            case HALF_OPEN_RANGE:
-                return InstructionKind.HALF_OPEN_RANGE;
-            case ANNOT_ACCESS:
-                return InstructionKind.ANNOT_ACCESS;
-            case BITWISE_AND:
-                return InstructionKind.BITWISE_AND;
-            case BITWISE_OR:
-                return InstructionKind.BITWISE_OR;
-            case BITWISE_XOR:
-                return InstructionKind.BITWISE_XOR;
-            case BITWISE_LEFT_SHIFT:
-                return InstructionKind.BITWISE_LEFT_SHIFT;
-            case BITWISE_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_RIGHT_SHIFT;
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                return InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
-            default:
-                throw new IllegalStateException("unsupported binary operation: " + opKind.value());
-        }
+        return switch (opKind) {
+            case ADD -> InstructionKind.ADD;
+            case SUB -> InstructionKind.SUB;
+            case MUL -> InstructionKind.MUL;
+            case DIV -> InstructionKind.DIV;
+            case MOD -> InstructionKind.MOD;
+            case EQUAL, EQUALS -> InstructionKind.EQUAL;
+            case NOT_EQUAL -> InstructionKind.NOT_EQUAL;
+            case GREATER_THAN -> InstructionKind.GREATER_THAN;
+            case GREATER_EQUAL -> InstructionKind.GREATER_EQUAL;
+            case LESS_THAN -> InstructionKind.LESS_THAN;
+            case LESS_EQUAL -> InstructionKind.LESS_EQUAL;
+            case AND -> InstructionKind.AND;
+            case OR -> InstructionKind.OR;
+            case REF_EQUAL -> InstructionKind.REF_EQUAL;
+            case REF_NOT_EQUAL -> InstructionKind.REF_NOT_EQUAL;
+            case CLOSED_RANGE -> InstructionKind.CLOSED_RANGE;
+            case HALF_OPEN_RANGE -> InstructionKind.HALF_OPEN_RANGE;
+            case ANNOT_ACCESS -> InstructionKind.ANNOT_ACCESS;
+            case BITWISE_AND -> InstructionKind.BITWISE_AND;
+            case BITWISE_OR -> InstructionKind.BITWISE_OR;
+            case BITWISE_XOR -> InstructionKind.BITWISE_XOR;
+            case BITWISE_LEFT_SHIFT -> InstructionKind.BITWISE_LEFT_SHIFT;
+            case BITWISE_RIGHT_SHIFT -> InstructionKind.BITWISE_RIGHT_SHIFT;
+            case BITWISE_UNSIGNED_RIGHT_SHIFT -> InstructionKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
+            default -> throw new IllegalStateException("unsupported binary operation: " + opKind.value());
+        };
     }
 
     private InstructionKind getUnaryInstructionKind(OperatorKind opKind) {
-        switch (opKind) {
-            case TYPEOF:
-                return InstructionKind.TYPEOF;
-            case NOT:
-                return InstructionKind.NOT;
-            case SUB:
-                return InstructionKind.NEGATE;
-            case ADD:
-                return InstructionKind.MOVE;
-            default:
-                throw new IllegalStateException("unsupported unary operator: " + opKind.value());
-        }
+        return switch (opKind) {
+            case TYPEOF -> InstructionKind.TYPEOF;
+            case NOT -> InstructionKind.NOT;
+            case SUB -> InstructionKind.NEGATE;
+            case ADD -> InstructionKind.MOVE;
+            default -> throw new IllegalStateException("unsupported unary operator: " + opKind.value());
+        };
     }
 
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
@@ -2813,7 +2780,7 @@ public class BIRGen extends BLangNodeVisitor {
                                               astArrayAccessExpr.isLValue && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr, boolean except) {
@@ -2863,7 +2830,7 @@ public class BIRGen extends BLangNodeVisitor {
             } else if (types.isAssignable(astAccessExprExprType, symTable.xmlType)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
-                this.varAssignment = variableStore;
+                this.varAssignment = false;
                 return;
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&

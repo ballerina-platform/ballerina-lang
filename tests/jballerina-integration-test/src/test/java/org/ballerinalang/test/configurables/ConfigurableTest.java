@@ -199,10 +199,18 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
-        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
-                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
-                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
-                "decimalArr = [8.9, 4.5, 6.2]";
+        String configData = """
+                [envVarPkg]
+                intVar = 42
+                floatVar = 3.5
+                stringVar = "abc"
+                booleanVar = true
+                decimalVar = 24.87
+                intArr = [1,2,3]
+                floatArr = [9.0, 5.6]
+                stringArr = ["red", "yellow", "green"]
+                booleanArr = [true, false,false, true]
+                decimalArr = [8.9, 4.5, 6.2]""";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
 

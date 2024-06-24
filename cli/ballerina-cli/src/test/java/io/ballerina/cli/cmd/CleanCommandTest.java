@@ -110,9 +110,9 @@ public class CleanCommandTest extends BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
         cleanCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("clean-non-existent-target.txt")
-                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
+                .replace("%TARGET_LOCATION%", customTargetDir.toString()));
     }
 
     @Test(description = "Test clean command on a regular file as the custom target dir.")
@@ -124,8 +124,8 @@ public class CleanCommandTest extends BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
         cleanCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("clean-regular-file.txt")
-                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
+                .replace("%TARGET_LOCATION%", customTargetDir.toString()));
     }
 }

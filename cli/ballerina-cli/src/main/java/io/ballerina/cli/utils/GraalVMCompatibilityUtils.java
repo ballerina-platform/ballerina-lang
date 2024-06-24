@@ -72,7 +72,7 @@ public class GraalVMCompatibilityUtils {
             if (platform == null || platform.graalvmCompatible() == null) {
                 String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
                         pkg.manifest().platforms());
-                if (graalvmCompatiblePlatform.equals("")) {
+                if (graalvmCompatiblePlatform.isEmpty()) {
                     return String.format(
                             "************************************************************%n" +
                                     "* WARNING: Package is not verified with GraalVM.           *%n" +

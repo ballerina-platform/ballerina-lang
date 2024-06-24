@@ -144,21 +144,25 @@ public class OldPackageMigrationTests extends BaseTest {
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check detected local dependency declarations warnings
         Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected local dependency declarations in Dependencies.toml file. "
-                        + "Add them to Ballerina.toml using following syntax:\n"
-                        + "[[dependency]]\n"
-                        + "org = \"samjs\"\n"
-                        + "name = \"package_b\"\n"
-                        + "version = \"0.1.0\"\n"
-                        + "repository = \"local\"\n");
+                """
+                        Detected local dependency declarations in Dependencies.toml file. \
+                        Add them to Ballerina.toml using following syntax:
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_b"
+                        version = "0.1.0"
+                        repository = "local"
+                        """);
         Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected local dependency declarations in Dependencies.toml file. "
-                        + "Add them to Ballerina.toml using following syntax:\n"
-                        + "[[dependency]]\n"
-                        + "org = \"samjs\"\n"
-                        + "name = \"package_d\"\n"
-                        + "version = \"0.1.0\"\n"
-                        + "repository = \"local\"\n");
+                """
+                        Detected local dependency declarations in Dependencies.toml file. \
+                        Add them to Ballerina.toml using following syntax:
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_d"
+                        version = "0.1.0"
+                        repository = "local"
+                        """);
         // Check updated Dependencies.toml
         assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
                 packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));

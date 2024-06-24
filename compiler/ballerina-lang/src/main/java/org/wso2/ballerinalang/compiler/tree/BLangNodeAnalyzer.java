@@ -193,7 +193,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * The {@link BLangNodeAnalyzer} is a {@link BLangNode} visitor.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns object with a type, see {@link BLangNodeTransformer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with visit methods.
  * @since 2.0.0

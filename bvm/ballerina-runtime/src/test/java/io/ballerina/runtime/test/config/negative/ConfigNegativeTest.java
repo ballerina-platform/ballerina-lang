@@ -173,17 +173,19 @@ public class ConfigNegativeTest {
                 // invalid toml but valid cli
                 {new String[]{"-Corg.mod1.intVar=2"}, "Invalid.toml", new HashMap<>(),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
-                        new String[]{
-                                "warning: invalid TOML file : \n" +
-                                        "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
-                                        "[Invalid.toml:(3:1,3:1)] missing value\n"}},
+                        new String[]{"""
+                            warning: invalid TOML file :\s
+                            [Invalid.toml:(3:1,3:1)] missing equal token
+                            [Invalid.toml:(3:1,3:1)] missing value
+                            """}},
                 // invalid toml but valid env var
                 {new String[]{}, "Invalid.toml", Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "2"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
-                        new String[]{
-                                "warning: invalid TOML file : \n" +
-                                "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
-                                "[Invalid.toml:(3:1,3:1)] missing value\n"}},
+                        new String[]{"""
+                            warning: invalid TOML file :\s
+                            [Invalid.toml:(3:1,3:1)] missing equal token
+                            [Invalid.toml:(3:1,3:1)] missing value
+                            """}},
                 // supported toml type but not cli type and cli value given
                 {new String[]{"-Corg.mod1.intArr=3"}, "MatchedTypeValues.toml", new HashMap<>(),
                         new VariableKey[]{new VariableKey(MODULE, "intArr",
