@@ -101,7 +101,7 @@ public final class DependencyCollector {
      * Get the parameter types and return type of a method using method description.
      */
     public void addMethodDesc(String desc) {
-        if (desc.length() <= 1) {
+        if (desc.length() <= 3) {
             return;
         }
         addType(Type.getReturnType(desc));
