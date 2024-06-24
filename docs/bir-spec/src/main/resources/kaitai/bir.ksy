@@ -186,12 +186,9 @@ types:
       - id: string_subtype
         type: semtype_string_subtype
         if: proper_subtype_data_kind == 6
-      - id: rw_table_subtype
-        type: semtype_rw_table_subtype
-        if: proper_subtype_data_kind == 7
       - id: xml_subtype
         type: semtype_xml_subtype
-        if: proper_subtype_data_kind == 8
+        if: proper_subtype_data_kind == 7
   semtype_bdd:
     seq:
       - id: is_bdd_node
@@ -349,12 +346,6 @@ types:
     seq:
       - id: string_cp_index
         type: s4
-  semtype_rw_table_subtype:
-    seq:
-      - id: ro
-        type: semtype_bdd
-      - id: rw
-        type: semtype_bdd
   semtype_xml_subtype:
     seq:
       - id: primitives

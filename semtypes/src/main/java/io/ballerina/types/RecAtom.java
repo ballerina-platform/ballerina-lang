@@ -33,11 +33,20 @@ public class RecAtom implements Atom {
         this.index = index;
     }
 
+    private RecAtom(int index, Kind targetKind) {
+        this.index = index;
+        this.targetKind = targetKind;
+    }
+
     public static RecAtom createRecAtom(int index) {
         if (index == BDD_REC_ATOM_READONLY) {
             return ZERO;
         }
         return new RecAtom(index);
+    }
+
+    public static RecAtom createXMLRecAtom(int index) {
+        return new RecAtom(index, Kind.XML_ATOM);
     }
 
     public void setKind(Kind targetKind) {

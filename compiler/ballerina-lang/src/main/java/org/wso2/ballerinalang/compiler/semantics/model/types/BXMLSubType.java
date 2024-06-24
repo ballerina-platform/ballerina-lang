@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,14 +30,14 @@ import org.wso2.ballerinalang.compiler.util.Names;
  * @since 1.2.0
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
-    public BXMLSubType(int tag, Name name) {
+    public BXMLSubType(int tag, Name name, SemType semType) {
 
-        super(tag, null, name, 0);
+        super(tag, null, name, 0, semType);
     }
 
-    public BXMLSubType(int tag, Name name, long flags) {
+    public BXMLSubType(int tag, Name name, long flags, SemType semType) {
 
-        super(tag, null, name, flags);
+        super(tag, null, name, flags, semType);
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

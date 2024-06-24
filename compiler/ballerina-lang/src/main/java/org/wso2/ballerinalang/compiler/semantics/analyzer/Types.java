@@ -916,10 +916,6 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
-            return isXMLTypeAssignable(source, target, unresolvedTypes);
-        }
-
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -929,7 +925,8 @@ public class Types {
         if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON) ||
                 sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING ||
                 sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT ||
-                sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
+                sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC ||
+                (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag))) {
             throw new IllegalStateException(); // TODO: remove
         }
 
@@ -1232,46 +1229,6 @@ public class Types {
         unresolvedTypes.add(pair);
         return isAssignable(source.detailType, target.detailType, unresolvedTypes)
                 && target.typeIdSet.isAssignableFrom(source.typeIdSet);
-    }
-
-    private boolean isXMLTypeAssignable(BType sourceT, BType targetT, Set<TypePair> unresolvedTypes) {
-        BType sourceType = getImpliedType(sourceT);
-        BType targetType = getImpliedType(targetT);
-        int sourceTag = sourceType.tag;
-        int targetTag = targetType.tag;
-
-        if (targetTag == TypeTags.XML) {
-            BXMLType target = (BXMLType) targetType;
-            if (target.constraint != null) {
-                if (TypeTags.isXMLNonSequenceType(sourceTag)) {
-                    return isAssignable(sourceType, target.constraint, unresolvedTypes);
-                }
-                BXMLType source = (BXMLType) sourceType;
-                if (getImpliedType(source.constraint).tag == TypeTags.NEVER) {
-                    if (sourceTag == targetTag) {
-                        return true;
-                    }
-                    return isAssignable(source, target.constraint, unresolvedTypes);
-                }
-                return isAssignable(source.constraint, target, unresolvedTypes);
-            }
-            return true;
-        }
-        if (sourceTag == TypeTags.XML) {
-            BXMLType source = (BXMLType) sourceType;
-            if (targetTag == TypeTags.XML_TEXT) {
-                if (source.constraint != null) {
-                    int constraintTag = getImpliedType(source.constraint).tag;
-                    if (constraintTag == TypeTags.NEVER || constraintTag == TypeTags.XML_TEXT) {
-                        return true;
-                    } else {
-                        return isAssignable(source.constraint, targetType, unresolvedTypes);
-                    }
-                }
-                return false;
-            }
-        }
-        return sourceTag == targetTag;
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -4169,35 +4126,12 @@ public class Types {
      * @return a boolean
      */
     boolean isXmlSubType(BType type) {
-        if (TypeTags.isXMLTypeTag(type.tag)) {
-            return true;
+        if (SemTypeHelper.includesNonSemTypes(type)) {
+            return false;
         }
 
-        switch (type.tag) {
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                if (!SemTypes.isSubtypeSimple(unionType.semType(), PredefinedType.NEVER)) {
-                    return false;
-                }
-
-                LinkedHashSet<BType> memberNonSemTypes = unionType.memberNonSemTypes;
-                if (memberNonSemTypes.isEmpty()) {
-                    return false;
-                }
-
-                for (BType nonSemMember : memberNonSemTypes) {
-                    if (!isXmlSubType(nonSemMember)) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isXmlSubType(getImpliedType(type));
-            case TypeTags.INTERSECTION:
-                return isXmlSubType(((BIntersectionType) type).effectiveType);
-            default:
-                return false;
-        }
+        SemType t = SemTypeHelper.semTypeComponent(type);
+        return SemTypes.isSubtypeSimple(t, PredefinedType.XML);
     }
 
     /**

@@ -80,7 +80,7 @@ public class XmlSubtype implements ProperSubtypeData {
         // It is a precondition that constituentType is a subtype of XML
         assert Core.isSubtypeSimple(constituentType, PredefinedType.XML);
 
-        if (constituentType == PredefinedType.NEVER) {
+        if (Core.isNever(constituentType)) {
             return xmlSequence(xmlSingleton(XML_PRIMITIVE_NEVER));
         }
         if (constituentType instanceof BasicTypeBitSet) {
@@ -97,7 +97,7 @@ public class XmlSubtype implements ProperSubtypeData {
     private static SubtypeData makeXmlSequence(XmlSubtype d) {
         int primitives = XML_PRIMITIVE_NEVER | d.primitives;
         int atom = d.primitives & XML_PRIMITIVE_SINGLETON;
-        Bdd sequence = BddCommonOps.bddUnion(BddCommonOps.bddAtom(RecAtom.createRecAtom(atom)), d.sequence);
+        Bdd sequence = BddCommonOps.bddUnion(BddCommonOps.bddAtom(RecAtom.createXMLRecAtom(atom)), d.sequence);
         return createXmlSubtype(primitives, sequence);
     }
 

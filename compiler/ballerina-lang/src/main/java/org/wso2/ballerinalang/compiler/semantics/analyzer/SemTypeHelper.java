@@ -157,12 +157,11 @@ public final class SemTypeHelper {
             return includesNonSemTypes(((BTypeReferenceType) t).referredType);
         }
 
-        if (isFullSemType(t.tag)) {
+        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON) {
             return false;
         }
 
-        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON ||
-                t.tag == TypeTags.READONLY) {
+        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.READONLY) {
             return true;
         }
 
@@ -208,6 +207,11 @@ public final class SemTypeHelper {
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.FINITE:
+            case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
                 return true;
             default:
                 return false;
