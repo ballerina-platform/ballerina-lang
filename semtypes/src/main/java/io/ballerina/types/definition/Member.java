@@ -21,10 +21,19 @@ package io.ballerina.types.definition;
 import io.ballerina.types.SemType;
 
 import static io.ballerina.types.SemTypes.stringConst;
+import static io.ballerina.types.SemTypes.union;
 
-public record Member(String name, SemType valueTy, Kind kind) {
+public record Member(String name, SemType valueTy, Kind kind, Visibility visibility) {
 
-    public enum Kind {
+    // Various "tag" values associated with a member. Each of these tag values must be convertible to a Field in Map
+    // type for the member
+    @FunctionalInterface
+    interface MemberTag {
+
+        Field field();
+    }
+
+    public enum Kind implements MemberTag {
         Field,
         Method;
 
@@ -33,11 +42,30 @@ public record Member(String name, SemType valueTy, Kind kind) {
         private static final Field FIELD = new Field("kind", stringConst("field"), true, false);
         private static final Field METHOD = new Field("kind", stringConst("method"), true, false);
 
-        Field field() {
+        public Field field() {
             return switch (this) {
                 case Field -> FIELD;
                 case Method -> METHOD;
             };
         }
     }
+
+    public enum Visibility implements MemberTag {
+        Public,
+        Private;
+
+        private static final SemType PUBLIC_TAG = stringConst("public");
+        private static final Field PUBLIC = new Field("visibility", PUBLIC_TAG, true, false);
+        private static final SemType PRIVATE_TAG = stringConst("private");
+        private static final Field PRIVATE = new Field("visibility", PRIVATE_TAG, true, false);
+        static final Field ALL = new Field("visibility", union(PRIVATE_TAG, PUBLIC_TAG), true, false);
+
+        public Field field() {
+            return switch (this) {
+                case Public -> PUBLIC;
+                case Private -> PRIVATE;
+            };
+        }
+    }
+
 }

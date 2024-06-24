@@ -59,7 +59,8 @@ public final class ObjectDefinition implements Definition {
                 env,
                 List.of(
                         new Field("value", PredefinedType.ANY, false, false),
-                        Member.Kind.Field.field()
+                        Member.Kind.Field.field(),
+                        Member.Visibility.ALL
                 ),
                 PredefinedType.NEVER);
 
@@ -68,7 +69,8 @@ public final class ObjectDefinition implements Definition {
                 env,
                 List.of(
                         new Field("value", PredefinedType.FUNCTION, false, false),
-                        Member.Kind.Method.field()
+                        Member.Kind.Method.field(),
+                        Member.Visibility.ALL
                 ),
                 PredefinedType.NEVER);
         return cellContaining(env, union(fieldMemberType, methodMemberType));
@@ -78,7 +80,8 @@ public final class ObjectDefinition implements Definition {
         MappingDefinition md = new MappingDefinition();
         SemType semtype = md.defineMappingTypeWrapped(env, List.of(
                 new Field("value", member.valueTy(), false, false),
-                member.kind().field()
+                member.kind().field(),
+                member.visibility().field()
         ), PredefinedType.NEVER);
         return CellField.from(member.name(), cellContaining(env, semtype));
     }

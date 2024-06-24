@@ -193,14 +193,16 @@ public class SemTypeResolver {
         }
         ObjectDefinition od = new ObjectDefinition();
         Stream<Member> fieldStream = td.fields.stream().map(field -> {
-            assert field.flagSet.contains(Flag.PUBLIC) : "visibility not implemented";
+            Member.Visibility visibility = field.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
+                    Member.Visibility.Private;
             SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
-            return new Member(field.name.value, ty, Member.Kind.Field);
+            return new Member(field.name.value, ty, Member.Kind.Field, visibility);
         });
         Stream<Member> methodStream = td.getFunctions().stream().map(method -> {
-            assert method.flagSet.contains(Flag.PUBLIC) : "visibility not implemented";
+            Member.Visibility visibility = method.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
+                    Member.Visibility.Private;
             SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, method);
-            return new Member(method.name.value, ty, Member.Kind.Method);
+            return new Member(method.name.value, ty, Member.Kind.Method, visibility);
         });
         td.defn = od;
         List<Member> members = Stream.concat(fieldStream, methodStream).toList();
