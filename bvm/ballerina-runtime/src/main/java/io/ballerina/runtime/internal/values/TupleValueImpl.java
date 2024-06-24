@@ -826,10 +826,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void validateTupleSizeAndInherentType() {
-
         List<Type> tupleTypesList = this.tupleType.getTupleTypes();
         int numOfMandatoryTypes = tupleTypesList.size();
-
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
                             OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, "shift");
