@@ -19,7 +19,9 @@
 
 buildscript {
     repositories {
-        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
@@ -56,7 +58,7 @@ kaitai {
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'
 checkstyleMain.exclude '**/kaitai/**'
 
-task genBirSpec(type: JavaExec) {
+tasks.register('genBirSpec', JavaExec) {
     dependsOn classes
     classpath += sourceSets.main.runtimeClasspath
     mainClass = 'org.ballerinalang.birspec.BIRSpecGenerator'
@@ -73,9 +75,14 @@ build {
 compileJava {
     dependsOn 'kaitai'
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
     }
 }
 
@@ -92,4 +99,4 @@ test {
 }
 
 
-tasks.createJavadoc.dependsOn(':bir-spec:kaitai')
+tasks.javadoc.dependsOn(':bir-spec:kaitai')

@@ -101,7 +101,7 @@ public class Utils {
      *
      * @param balaDownloadResponse http response for downloading the bala file
      * @param pkgPathInBalaCache   package path in bala cache,
-     *                             <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     *                             {@literal <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>}
      * @param pkgOrg               package org
      * @param pkgName              package name
      * @param isNightlyBuild       is nightly build

@@ -83,7 +83,7 @@ dependencies {
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
-task createBre(type: Copy) {
+tasks.register('createBre', Copy) {
     from configurations.balRuntime
     into '$buildDir/bre/lib'
 }
@@ -117,14 +117,14 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
 }
 
 test.dependsOn(copyToLib)
 
-task createLaunchListenerUtilsLib(type: Copy) {
+tasks.register('createLaunchListenerUtilsLib', Copy) {
     from configurations.launchListenerTestUtils
     into "${buildDir}/launch-listener/libs"
 }
