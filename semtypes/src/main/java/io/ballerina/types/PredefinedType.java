@@ -183,6 +183,35 @@ public final class PredefinedType {
     public static final CellSemType CELL_SEMTYPE_INNER_RO = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_RO)
     );
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_KIND = CellAtomicType.from(
+            STRING, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+
+    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_KIND = createTypeAtom(11, CELL_ATOMIC_OBJECT_MEMBER_KIND);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_KIND = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_KIND)
+    );
+    private static final CellSemType CELL_SEMTYPE_VAL = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_VAL));
+    private static final CellSemType CELL_SEMTYPE_NEVER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_NEVER));
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT_MEMBER = MappingAtomicType.from(
+            new String[]{"kind", "value"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL},
+            CELL_SEMTYPE_NEVER);
+    public static final TypeAtom ATOM_MAPPING_OBJECT_MEMBER = createTypeAtom(9, MAPPING_ATOMIC_OBJECT_MEMBER);
+
+    private static final ComplexSemType MAPPING_SEMTYPE_OBJECT_MEMBER =
+            basicSubtype(BT_MAPPING, bddAtom(ATOM_MAPPING_OBJECT_MEMBER));
+
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER = CellAtomicType.from(
+            MAPPING_SEMTYPE_OBJECT_MEMBER, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED
+    );
+    public static final TypeAtom ATOM_CELL_OBJECT_MEMBER = createTypeAtom(10, CELL_ATOMIC_OBJECT_MEMBER);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER));
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT = MappingAtomicType.from(
+            new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_OBJECT_MEMBER
+    );
+    public static final TypeAtom ATOM_MAPPING_OBJECT = createTypeAtom(8, MAPPING_ATOMIC_OBJECT);
+    public static final BddNode MAPPING_SUBTYPE_OBJECT = bddAtom(ATOM_MAPPING_OBJECT);
 
     public static final CellAtomicType CELL_ATOMIC_UNDEF = predefinedTypeEnv.cellAtomicUndef();
     public static final TypeAtom ATOM_CELL_UNDEF = predefinedTypeEnv.atomCellUndef();
