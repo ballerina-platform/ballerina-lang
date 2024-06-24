@@ -65,7 +65,7 @@ public class FileSystemCache extends CompilationCache {
         }
     }
 
-    public static void updateBuildProjectCachePath(Path cacheDirPath) {
+    private static void updateBuildProjectCachePath(Path cacheDirPath) {
         buildProjectCacheDirPath = cacheDirPath;
     }
 
