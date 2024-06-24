@@ -614,15 +614,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
         Type type = TypeChecker.getType(value);
         switch (this.elementReferredType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                prepareForAdd(index, value, type, booleanValues.length);
+                prepareForAdd(index, value, booleanValues.length);
                 this.booleanValues[(int) index] = (Boolean) value;
                 return;
             case TypeTags.FLOAT_TAG:
-                prepareForAdd(index, value, type, floatValues.length);
+                prepareForAdd(index, value, floatValues.length);
                 this.floatValues[(int) index] = (Double) value;
                 return;
             case TypeTags.BYTE_TAG:
-                prepareForAdd(index, value, type, byteValues.length);
+                prepareForAdd(index, value, byteValues.length);
                 this.byteValues[(int) index] = ((Number) value).byteValue();
                 return;
             case TypeTags.INT_TAG:
@@ -632,16 +632,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                prepareForAdd(index, value, type, intValues.length);
+                prepareForAdd(index, value, intValues.length);
                 this.intValues[(int) index] = (Long) value;
                 return;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                prepareForAdd(index, value, type, bStringValues.length);
+                prepareForAdd(index, value, bStringValues.length);
                 this.bStringValues[(int) index] = (BString) value;
                 return;
             default:
-                prepareForAdd(index, value, type, refValues.length);
+                prepareForAdd(index, value, refValues.length);
                 this.refValues[(int) index] = value;
         }
     }
@@ -659,27 +659,27 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
+            prepareForAdd(index, value, intValues.length);
             intValues[(int) index] = value;
             return;
         }
 
-        prepareForAdd(index, value, TypeChecker.getType(value), byteValues.length);
+        prepareForAdd(index, value, byteValues.length);
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_BOOLEAN, booleanValues.length);
+        prepareForAdd(index, value, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_BYTE, byteValues.length);
+        prepareForAdd(index, value, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_FLOAT, floatValues.length);
+        prepareForAdd(index, value, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -689,7 +689,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_STRING, bStringValues.length);
+        prepareForAdd(index, value, bStringValues.length);
         bStringValues[(int) index] = value;
     }
 
@@ -1246,12 +1246,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     // Private methods
 
-    private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
+    private void prepareForAdd(long index, Object value, int currentArraySize) {
         // check types
-        if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
+        if (!TypeChecker.checkIsType(value, this.elementType)) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                     INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
-                            ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, sourceType));
+                    ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, TypeChecker.getType(value)));
         }
         prepareForAddWithoutTypeCheck(index, currentArraySize);
     }
