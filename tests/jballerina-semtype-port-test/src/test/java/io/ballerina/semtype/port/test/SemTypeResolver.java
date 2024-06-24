@@ -20,6 +20,7 @@ package io.ballerina.semtype.port.test;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
+import io.ballerina.types.Definition;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -27,10 +28,15 @@ import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
+import io.ballerina.types.definition.Member;
+import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.types.ArrayTypeNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -45,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -55,10 +62,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
@@ -68,6 +77,8 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.get
  * @since 2201.10.0
  */
 public class SemTypeResolver {
+
+    private final Map<BLangFunction, Definition> attachedDefinitions = new HashMap<>();
 
     void defineSemTypes(List<BLangNode> moduleDefs, Context cx) {
         Map<String, BLangNode> modTable = new LinkedHashMap<>();
@@ -137,7 +148,7 @@ public class SemTypeResolver {
     }
 
     public SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
-                                   BLangType td) {
+                                   TypeNode td) {
         if (td == null) {
             return null;
         }
@@ -168,9 +179,57 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangTableTypeNode) td);
             case ERROR_TYPE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangErrorType) td);
+            case OBJECT_TYPE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangObjectTypeNode) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangObjectTypeNode td) {
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+        ObjectDefinition od = new ObjectDefinition();
+        Stream<Member> fieldStream = td.fields.stream().map(field -> {
+            assert field.flagSet.contains(Flag.PUBLIC) : "visibility not implemented";
+            SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
+            return new Member(field.name.value, ty, Member.Kind.Field);
+        });
+        Stream<Member> methodStream = td.getFunctions().stream().map(method -> {
+            assert method.flagSet.contains(Flag.PUBLIC) : "visibility not implemented";
+            SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, method);
+            return new Member(method.name.value, ty, Member.Kind.Method);
+        });
+        td.defn = od;
+        List<Member> members = Stream.concat(fieldStream, methodStream).toList();
+        return od.define(cx.env, members);
+    }
+
+    // TODO: should we make definition part of BLangFunction as well?
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangFunction functionType) {
+        Definition attached = attachedDefinitions.get(functionType);
+        if (attached != null) {
+            return attached.getSemType(cx.env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        attachedDefinitions.put(functionType, fd);
+        List<SemType> params = functionType.getParameters().stream()
+                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode)).toList();
+        SemType rest;
+        if (functionType.getRestParameters() == null) {
+            rest = PredefinedType.NEVER;
+        } else {
+            ArrayTypeNode arrayType = (ArrayTypeNode) functionType.getRestParameters().getTypeNode();
+            rest = resolveTypeDesc(cx, mod, defn, depth + 1, arrayType.getElementType());
+        }
+        SemType returnType = functionType.getReturnTypeNode() != null ?
+                resolveTypeDesc(cx, mod, defn, depth + 1, functionType.getReturnTypeNode()) : PredefinedType.NIL;
+        ListDefinition paramListDefinition = new ListDefinition();
+        return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
