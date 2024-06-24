@@ -163,7 +163,7 @@ public class JvmPackageGen {
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
         methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
-        configMethodGen = new ConfigMethodGen();
+        configMethodGen = new ConfigMethodGen(isRemoteMgtEnabled);
         frameClassGen = new FrameClassGen();
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
