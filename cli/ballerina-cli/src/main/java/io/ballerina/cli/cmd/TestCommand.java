@@ -211,7 +211,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
     private Boolean optimizeCodegen;
 
-    @CommandLine.Option(names = "--optimize-report", description = "generate codegen optimization reports",
+    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
             defaultValue = "false")
     private Boolean optimizeReport;
 
