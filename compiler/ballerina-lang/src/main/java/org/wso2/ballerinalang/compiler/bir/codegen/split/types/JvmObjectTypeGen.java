@@ -386,7 +386,7 @@ public class JvmObjectTypeGen {
     }
 
     /**
-     * Create a attached function information for objects.
+     * Create an attached function information for objects.
      *
      * @param mv           method visitor
      * @param attachedFunc object attached function

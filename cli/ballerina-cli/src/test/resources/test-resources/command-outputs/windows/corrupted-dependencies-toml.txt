@@ -1,0 +1,6 @@
+Compiling source
+	luheerathan/test1:0.1.0
+WARNING [Dependencies.toml:(6:1,18:1)] Detected corrupted Dependencies.toml file. Dependencies will be updated to the latest versions.
+
+Generating executable
+	target/bin/test1.jar

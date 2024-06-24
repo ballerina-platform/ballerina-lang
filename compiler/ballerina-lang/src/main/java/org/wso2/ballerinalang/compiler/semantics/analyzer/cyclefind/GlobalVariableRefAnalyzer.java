@@ -387,7 +387,7 @@ public class GlobalVariableRefAnalyzer {
         if (sortedGlobalVars.size() != this.pkgNode.globalVars.size()) {
             List<BLangVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
                     .filter(g -> g.symbol == null)
-                    .collect(Collectors.toList());
+                    .toList();
             sortedGlobalVars.addAll(symbolLessGlobalVars);
         }
         this.pkgNode.globalVars.clear();
@@ -406,7 +406,7 @@ public class GlobalVariableRefAnalyzer {
         if (sortedConstants.size() != this.pkgNode.constants.size()) {
             List<BLangConstant> symbolLessGlobalVars = this.pkgNode.constants.stream()
                     .filter(c -> !sortedConstants.contains(c))
-                    .collect(Collectors.toList());
+                    .toList();
             sortedConstants.addAll(symbolLessGlobalVars);
         }
         this.pkgNode.constants.clear();

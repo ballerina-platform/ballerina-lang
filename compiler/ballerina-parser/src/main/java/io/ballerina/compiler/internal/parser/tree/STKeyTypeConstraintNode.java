@@ -56,6 +56,7 @@ public class STKeyTypeConstraintNode extends STNode {
                 typeParameterNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STKeyTypeConstraintNode(
                 this.keyKeywordToken,
@@ -78,6 +79,7 @@ public class STKeyTypeConstraintNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new KeyTypeConstraintNode(this, position, parent);
     }

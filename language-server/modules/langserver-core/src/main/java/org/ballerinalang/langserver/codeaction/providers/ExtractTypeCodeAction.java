@@ -57,6 +57,7 @@ public class ExtractTypeCodeAction implements RangeBasedCodeActionProvider {
 
     private static final String RECORD_NAME_PREFIX = "Record";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.RECORD_TYPE_DESC);
     }

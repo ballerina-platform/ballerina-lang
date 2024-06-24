@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
@@ -385,7 +384,7 @@ public class JsonUtils {
     }
 
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
-        BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
+        BArray newArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convertToJsonType(array.get(i), unresolvedValues);
             newArray.add(i, newValue);

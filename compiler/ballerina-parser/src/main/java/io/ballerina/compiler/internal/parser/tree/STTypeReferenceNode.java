@@ -62,6 +62,7 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypeReferenceNode(
                 this.asteriskToken,
@@ -88,6 +89,7 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeReferenceNode(this, position, parent);
     }

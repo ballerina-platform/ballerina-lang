@@ -74,6 +74,7 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTableConstructorExpressionNode(
                 this.tableKeyword,
@@ -108,6 +109,7 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableConstructorExpressionNode(this, position, parent);
     }

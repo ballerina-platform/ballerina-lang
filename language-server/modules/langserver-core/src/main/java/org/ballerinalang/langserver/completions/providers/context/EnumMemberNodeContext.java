@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link EnumMemberNode} context.
@@ -66,7 +65,7 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             List<Symbol> filteredSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                     .filter(filter)
-                    .collect(Collectors.toList());
+                    .toList();
             visibleSymbols.addAll(filteredSymbols);
         }
         completionItems.addAll(this.getCompletionItemList(visibleSymbols, ctx));

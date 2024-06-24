@@ -68,7 +68,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 
@@ -133,7 +132,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageDep = dependencyGraphOld.getNodes().stream().filter(
                 resolvedPackageDependency -> resolvedPackageDependency.packageInstance().packageName().toString()
-                        .equals("package_dep")).collect(Collectors.toList()).get(0);
+                        .equals("package_dep")).toList().get(0);
         PackageID packageDepPkgID = new PackageID(new Name(packageDep.packageInstance().packageOrg().value()),
                 new Name(packageDep.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageDep.packageInstance().packageVersion().toString()));
@@ -144,17 +143,19 @@ public class DependencyGraphTests extends BaseTest {
 
         // 2) update version of the package_dep dependency in Dependencies.toml
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                        "[package]\n" +
-                        "org = \"foo\"\n" +
-                        "name = \"test_dependencies_package\"\n" +
-                        "version = \"2.1.0\"\n" +
-                        "\n" +
-                        "[build-options]\n" +
-                        "observabilityIncluded = false\n\n" +
-                        "[[dependency]]\n" +
-                        "org = \"foo\"\n" +
-                        "name = \"package_dep\"\n" +
-                        "version = \"0.1.1\"").apply();
+                """
+                        [package]
+                        org = "foo"
+                        name = "test_dependencies_package"
+                        version = "2.1.0"
+
+                        [build-options]
+                        observabilityIncluded = false
+
+                        [[dependency]]
+                        org = "foo"
+                        name = "package_dep"
+                        version = "0.1.1\"""").apply();
 
         // 3) compare dependency graphs before and after edit
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
@@ -192,7 +193,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -236,7 +237,7 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -246,12 +247,13 @@ public class DependencyGraphTests extends BaseTest {
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
         document.modify().withContent(
-                "import samjs/package_c.mod_c1;\n" +
-                "import samjs/package_e as _;\n" +
-                "\n" +
-                "public function func2() {\n" +
-                "    mod_c1:func1();\n" +
-                "}"
+                """
+                        import samjs/package_c.mod_c1;
+                        import samjs/package_e as _;
+
+                        public function func2() {
+                            mod_c1:func1();
+                        }"""
         ).apply();
 
         // 3) compare dependency graphs before and after edit
@@ -286,7 +288,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -295,8 +297,10 @@ public class DependencyGraphTests extends BaseTest {
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
-        document.modify().withContent("import samjs/package_e as _;\n" +
-                "public function func2() {\n" + "}").apply();
+        document.modify().withContent("""
+                import samjs/package_e as _;
+                public function func2() {
+                }""").apply();
 
         // 3) compare dependency graphs before and after edit
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
@@ -329,7 +333,7 @@ public class DependencyGraphTests extends BaseTest {
         project.currentPackage().getCompilation();
         ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
                 resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         PackageID packageCPkgID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
                 new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
                 new Name(packageC.packageInstance().packageVersion().toString()));
@@ -378,14 +382,16 @@ public class DependencyGraphTests extends BaseTest {
 
         // 1) update version of the package_c dependency in Ballerina.toml. 0.3.0 is unavailable
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                "[package]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_a\"\n" +
-                "version = \"0.1.0\"\n\n" +
-                "[[dependency]]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_c\"\n" +
-                "version = \"0.3.0\"").apply();
+                """
+                        [package]
+                        org = "samjs"
+                        name = "package_a"
+                        version = "0.1.0"
+
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_c"
+                        version = "0.3.0\"""").apply();
 
         dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_b
@@ -403,10 +409,12 @@ public class DependencyGraphTests extends BaseTest {
 
         // 2) Revert Ballerina.toml changes and update the content in the default module to import package_c
         project.currentPackage().ballerinaToml().get().modify().withContent(
-                "[package]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_a\"\n" +
-                "version = \"0.1.0\"\n").apply();
+                """
+                        [package]
+                        org = "samjs"
+                        name = "package_a"
+                        version = "0.1.0"
+                        """).apply();
 
         // 3) check the new dependency graph. dependency graph should contain self package_b. package_c
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =

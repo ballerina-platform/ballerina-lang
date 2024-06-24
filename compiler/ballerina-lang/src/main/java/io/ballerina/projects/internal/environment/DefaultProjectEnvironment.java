@@ -43,6 +43,7 @@ public class DefaultProjectEnvironment extends ProjectEnvironment {
         services.put(PackageCache.class, projectPackageCache);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
         Object service = services.get(clazz);
@@ -53,6 +54,7 @@ public class DefaultProjectEnvironment extends ProjectEnvironment {
         return (T) service;
     }
 
+    @Override
     public Environment environment() {
         return environment;
     }

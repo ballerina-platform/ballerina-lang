@@ -91,6 +91,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         return params;
     }
 
+    @Override
     public BInvokableType getType() {
         if (type instanceof BInvokableType) {
             return (BInvokableType) type;

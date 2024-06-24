@@ -114,6 +114,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param node            Node for which completion is being provided
      * @param completionItems Completion items to be sorted
      */
+    @Override
     public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
 
     private boolean isMemberAccessAllowed(TypeSymbol typeSymbol, Node parentNode) {

@@ -62,6 +62,7 @@ public class STXMLAttributeNode extends STNode {
                 value);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLAttributeNode(
                 this.attributeName,
@@ -88,6 +89,7 @@ public class STXMLAttributeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAttributeNode(this, position, parent);
     }
