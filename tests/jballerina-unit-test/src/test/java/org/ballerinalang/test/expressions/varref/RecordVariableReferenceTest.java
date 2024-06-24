@@ -28,6 +28,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -136,16 +137,23 @@ public class RecordVariableReferenceTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(description = "Test variable assignment with record literal")
-    public void testVarAssignmentOfRecordLiteral() {
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral1");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral2");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral3");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral4");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral5");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral6");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral7");
-        BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral8");
+    @Test(description = "Test variable assignment with record literal", dataProvider = "VarAssignmentOfRecordLiteral")
+    public void testVarAssignmentOfRecordLiteral(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "VarAssignmentOfRecordLiteral")
+    public Object[] varAssignmentOfRecordLiteralProvider() {
+        return new Object[]{
+                "testVarAssignmentOfRecordLiteral1",
+                "testVarAssignmentOfRecordLiteral2",
+                "testVarAssignmentOfRecordLiteral3",
+                "testVarAssignmentOfRecordLiteral4",
+                "testVarAssignmentOfRecordLiteral5",
+                "testVarAssignmentOfRecordLiteral6",
+                "testVarAssignmentOfRecordLiteral7",
+                "testVarAssignmentOfRecordLiteral8",
+        };
     }
 
     @Test
