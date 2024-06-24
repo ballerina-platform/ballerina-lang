@@ -41,5 +41,5 @@ public enum UsedState {
      * Indicates a {@link BIRNode} was not analyzed.
      * These BIRNodes are treated the same way as {@link UsedState#USED}.
      */
-    UNEXPOLORED
+    UNEXPLORED
 }

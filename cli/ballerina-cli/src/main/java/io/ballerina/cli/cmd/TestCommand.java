@@ -224,7 +224,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
-    @CommandLine.Option(names = "--optimize-report", description = "generate codegen optimization reports",
+    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
             defaultValue = "false")
     private Boolean optimizeReport;
 
