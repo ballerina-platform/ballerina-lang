@@ -47,6 +47,7 @@ public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider 
 
     public static final String NAME = "Add Documentation";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
                 SyntaxKind.OBJECT_TYPE_DESC,

@@ -32,5 +32,6 @@ public interface UnionType extends SelectivelyImmutableReferenceType {
 
     boolean isCyclic();
 
+    @Override
     long getFlags();
 }

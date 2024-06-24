@@ -80,6 +80,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
                 endBacktick);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMarkdownCodeBlockNode(
                 this.startLineHashToken,
@@ -118,6 +119,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MarkdownCodeBlockNode(this, position, parent);
     }

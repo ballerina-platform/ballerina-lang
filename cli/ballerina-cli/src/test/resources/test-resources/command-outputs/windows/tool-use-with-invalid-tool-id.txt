@@ -1,0 +1,4 @@
+ballerina: invalid tool id.
+
+USAGE:
+    bal tool use <tool-id>:<version>

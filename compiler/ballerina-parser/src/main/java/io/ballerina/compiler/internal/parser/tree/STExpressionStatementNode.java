@@ -59,6 +59,7 @@ public class STExpressionStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STExpressionStatementNode(
                 this.kind,
@@ -84,6 +85,7 @@ public class STExpressionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionStatementNode(this, position, parent);
     }

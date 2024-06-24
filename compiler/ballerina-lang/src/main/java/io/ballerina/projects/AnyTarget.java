@@ -33,6 +33,7 @@ public enum AnyTarget implements CompilerBackend.TargetPlatform {
         this.code = code;
     }
 
+    @Override
     public String code() {
         return code;
     }

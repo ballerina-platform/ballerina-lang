@@ -44,9 +44,14 @@ test {
 
 compileJava {
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

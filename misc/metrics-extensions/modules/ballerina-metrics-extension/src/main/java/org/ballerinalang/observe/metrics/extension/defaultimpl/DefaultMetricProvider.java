@@ -54,6 +54,6 @@ public class DefaultMetricProvider implements MetricProvider {
 
     @Override
     public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new DefaultPolledGauge(metricId, obj, toDoubleFunction);
+        return new DefaultPolledGauge<>(metricId, obj, toDoubleFunction);
     }
 }

@@ -86,6 +86,7 @@ public class STClientResourceAccessActionNode extends STActionNode {
                 arguments);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STClientResourceAccessActionNode(
                 this.expression,
@@ -128,6 +129,7 @@ public class STClientResourceAccessActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ClientResourceAccessActionNode(this, position, parent);
     }

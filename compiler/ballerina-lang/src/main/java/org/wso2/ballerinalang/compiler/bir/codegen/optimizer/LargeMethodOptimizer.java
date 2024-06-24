@@ -21,10 +21,10 @@ package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -226,7 +226,7 @@ public class LargeMethodOptimizer {
             parentFunc.localVars.add(parentFuncTempVars.typeCastVarDcl);
         }
         // parent function would not have VarKind.LOCAL parentFunc.localVars.
-        // Hence no need to correct localVar.startBB and localVar.endBB
+        // Hence, no need to correct localVar.startBB and localVar.endBB
     }
 
     private void periodicSplitArray(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
@@ -1395,6 +1395,9 @@ public class LargeMethodOptimizer {
                 }
             }
             // so the next splitNum contains a split starts from this BB or another BB, but do not end in this BB
+            if (currentBB == null) {
+                throw new IllegalStateException("currentBB cannot be null");
+            }
             changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
             if (!splitsInSameBBList.isEmpty()) {
                 // current unfinished BB is passed to the function and a new one is returned from it
@@ -1781,7 +1784,6 @@ public class LargeMethodOptimizer {
                                                  List<BIRBasicBlock> newBBList, int startInsNum,
                                                  BIRBasicBlock currentBB, boolean fromAttachedFunction) {
         List<BIRNonTerminator> instructionList = function.basicBlocks.get(bbNum).instructions;
-
         for (Split possibleSplit : possibleSplits) {
             splitFuncNum += 1;
             String newFunctionName = SPLIT_METHOD + splitFuncNum;

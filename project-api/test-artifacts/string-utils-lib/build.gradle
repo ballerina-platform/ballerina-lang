@@ -21,14 +21,3 @@ description = 'Compiler Plugin Tests - String utils library'
 version = '1.0.0'
 
 ext.moduleName = 'compiler.plugin.test.string.utils.lib'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

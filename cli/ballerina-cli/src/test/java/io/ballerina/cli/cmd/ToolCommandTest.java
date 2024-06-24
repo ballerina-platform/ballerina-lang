@@ -79,7 +79,7 @@ public class ToolCommandTest extends BaseCommandTest {
         }
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "tool 'luhee:1.1.0' successfully set as the active version.\n");
+        Assert.assertEquals(buildLog.replace("\r", ""), "tool 'luhee:1.1.0' successfully set as the active version.\n");
         Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
         BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
@@ -106,7 +106,8 @@ public class ToolCommandTest extends BaseCommandTest {
             toolCommand.execute();
 
             String buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully set as the active version.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.2.0' successfully set as the active version.\n"), buildLog);
             Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
             BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
@@ -121,7 +122,8 @@ public class ToolCommandTest extends BaseCommandTest {
             new CommandLine(toolCommand).parseArgs("use", "luhee:1.1.0", "--repository=local");
             toolCommand.execute();
             buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
             balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
             tool = balToolsManifest.getActiveTool("luhee");
@@ -148,7 +150,8 @@ public class ToolCommandTest extends BaseCommandTest {
             toolCommand.execute();
 
             String buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully set as the active version.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.2.0' successfully set as the active version.\n"), buildLog);
             Assert.assertTrue(Files.exists(mockHomeRepo.resolve(".config").resolve("bal-tools.toml")));
             BalToolsToml balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config")
                     .resolve("bal-tools.toml"));
@@ -164,7 +167,8 @@ public class ToolCommandTest extends BaseCommandTest {
             new CommandLine(toolCommand).parseArgs("use", "luhee:1.1.0", "--repository=local");
             toolCommand.execute();
             buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.1.0' successfully set as the active version.\n"));
             balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
             tool = balToolsManifest.getActiveTool("luhee");
@@ -178,7 +182,8 @@ public class ToolCommandTest extends BaseCommandTest {
             new CommandLine(toolCommand).parseArgs("remove", "luhee:1.2.0", "--repository=local");
             toolCommand.execute();
             buildLog = readOutput(true);
-            Assert.assertTrue(buildLog.contains("tool 'luhee:1.2.0' successfully removed.\n"));
+            Assert.assertTrue(buildLog.replace("\r", "")
+                    .contains("tool 'luhee:1.2.0' successfully removed.\n"));
             balToolsToml = BalToolsToml.from(mockHomeRepo.resolve(".config").resolve("bal-tools.toml"));
             balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
             tool = balToolsManifest.getTool("luhee", "1.2.0", "local");
@@ -194,13 +199,13 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("--help");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), expected);
+        Assert.assertEquals(buildLog.replace("\r", ""), expected);
 
         toolCommand = new ToolCommand(printStream, printStream, false);
         new CommandLine(toolCommand).parseArgs("-h");
         toolCommand.execute();
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), expected);
+        Assert.assertEquals(buildLog.replace("\r", ""), expected);
     }
 
     @Test(description = "Test tool command with no arguments")
@@ -209,7 +214,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs();
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-with-no-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-with-no-args.txt"));
     }
 
     @Test(description = "Test tool command with invalid sub command")
@@ -218,7 +223,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("invalid-cmd");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-with-invalid-sub-command.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-with-invalid-sub-command.txt"));
     }
 
     @Test(description = "Test tool pull sub-command with no arguments")
@@ -227,7 +232,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("pull");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-no-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-pull-with-no-args.txt"));
     }
 
     @Test(description = "Test tool pull sub-command with too many arguments")
@@ -236,7 +241,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("pull", "arg1", "arg2");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-too-many-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-pull-with-too-many-args.txt"));
     }
 
     @Test(description = "Test tool pull sub-command with invalid argument format")
@@ -245,7 +250,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("pull", "id:1.0.1:extra");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-invalid-tool-id.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-pull-with-invalid-tool-id.txt"));
     }
 
     @Test(dataProvider = "invalidToolIds", description = "Test tool pull sub-command with invalid argument format")
@@ -254,7 +259,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("pull", toolId);
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-invalid-tool-id.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-pull-with-invalid-tool-id.txt"));
     }
 
     @Test(description = "Test tool pull sub-command with invalid tool version")
@@ -263,7 +268,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("pull", "tool_id:1.1");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-invalid-tool-version.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-pull-with-invalid-tool-version.txt"));
     }
 
     @Test(description = "Test tool list sub-command with arguments")
@@ -272,13 +277,13 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("list", "arg");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-args.txt"));
 
         toolCommand = new ToolCommand(printStream, printStream, false);
         new CommandLine(toolCommand).parseArgs("list", "arg1", "arg2");
         toolCommand.execute();
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-args.txt"));
     }
 
     @Test(description = "Test tool remove with more than one argument")
@@ -287,7 +292,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("remove", "arg1", "arg2");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-too-many-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-remove-with-too-many-args.txt"));
     }
 
     @Test(description = "Test tool remove with more than no arguments")
@@ -296,7 +301,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("remove");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-no-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-remove-with-no-args.txt"));
     }
 
     @Test(description = "Test tool remove sub-command with invalid argument format")
@@ -305,7 +310,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("remove", "id:1.0.1:extra");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
     }
 
     @Test(dataProvider = "invalidToolIds", description = "Test tool remove sub-command with invalid argument format")
@@ -314,7 +319,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("remove", toolId);
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
     }
 
     @Test(description = "Test tool pull sub-command with invalid tool version")
@@ -323,7 +328,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("remove", "tool_id:1.1");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-version.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-remove-with-invalid-tool-version.txt"));
     }
 
     @Test(description = "Test tool search with more than one argument")
@@ -332,7 +337,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("search", "arg1", "arg2");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-search-with-too-many-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-search-with-too-many-args.txt"));
     }
 
     @Test(description = "Test tool search with more than no arguments")
@@ -341,7 +346,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("search");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-search-with-no-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-search-with-no-args.txt"));
     }
 
     @Test(description = "Test tool use with more than one argument")
@@ -350,7 +355,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("use", "arg1", "arg2");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-use-with-too-many-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-use-with-too-many-args.txt"));
     }
 
     @Test(description = "Test tool use with more than no arguments")
@@ -359,7 +364,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("use");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-use-with-no-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-use-with-no-args.txt"));
     }
 
     @Test(description = "Test tool use sub-command with invalid argument format")

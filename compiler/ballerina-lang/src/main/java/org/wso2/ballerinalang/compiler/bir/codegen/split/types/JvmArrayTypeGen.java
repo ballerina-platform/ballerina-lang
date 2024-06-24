@@ -63,17 +63,10 @@ public class JvmArrayTypeGen {
 
     private void loadDimension(MethodVisitor mv, BType eType, int dimension) {
         switch (eType.tag) {
-            case TypeTags.ARRAY:
-                loadDimension(mv, ((BArrayType) eType).eType, dimension + 1);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadDimension(mv, ((BTypeReferenceType) eType).referredType, dimension);
-                break;
-            case TypeTags.INTERSECTION:
-                loadDimension(mv, ((BIntersectionType) eType).effectiveType, dimension);
-                break;
-            default:
-                mv.visitLdcInsn(dimension);
+            case TypeTags.ARRAY -> loadDimension(mv, ((BArrayType) eType).eType, dimension + 1);
+            case TypeTags.TYPEREFDESC -> loadDimension(mv, ((BTypeReferenceType) eType).referredType, dimension);
+            case TypeTags.INTERSECTION -> loadDimension(mv, ((BIntersectionType) eType).effectiveType, dimension);
+            default -> mv.visitLdcInsn(dimension);
         }
     }
 

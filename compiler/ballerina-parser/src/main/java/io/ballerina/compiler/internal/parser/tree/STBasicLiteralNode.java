@@ -53,6 +53,7 @@ public class STBasicLiteralNode extends STExpressionNode {
                 literalToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBasicLiteralNode(
                 this.kind,
@@ -74,6 +75,7 @@ public class STBasicLiteralNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BasicLiteralNode(this, position, parent);
     }

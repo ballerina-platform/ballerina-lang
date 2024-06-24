@@ -62,6 +62,7 @@ public class STTransactionStatementNode extends STStatementNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTransactionStatementNode(
                 this.transactionKeyword,
@@ -88,6 +89,7 @@ public class STTransactionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TransactionStatementNode(this, position, parent);
     }

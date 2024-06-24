@@ -34,11 +34,11 @@ public class SearchCommandTest extends BaseCommandTest {
     @Test(description = "Search without keyword")
     public void testSearchWithoutKeyword() throws IOException {
         SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
-        new CommandLine(searchCommand).parse();
+        new CommandLine(searchCommand).parseArgs();
         searchCommand.execute();
 
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         Assert.assertTrue(actual.contains("ballerina: no keyword given"));
         Assert.assertTrue(actual.contains("bal search [<org>|<package>|<text>]"));
     }
@@ -46,11 +46,11 @@ public class SearchCommandTest extends BaseCommandTest {
     @Test(description = "Search with too many args")
     public void testPullWithTooManyArgs() throws IOException {
         SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
-        new CommandLine(searchCommand).parse("wso2", "tests");
+        new CommandLine(searchCommand).parseArgs("wso2", "tests");
         searchCommand.execute();
 
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         Assert.assertTrue(actual.contains("ballerina: too many arguments"));
         Assert.assertTrue(actual.contains("bal search [<org>|<package>|<text>]"));
     }
@@ -60,7 +60,7 @@ public class SearchCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
         SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
-        new CommandLine(searchCommand).parse(args);
+        new CommandLine(searchCommand).parseArgs(args);
         searchCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-search - Search Ballerina Central for packages"));
@@ -71,7 +71,7 @@ public class SearchCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "-h" };
         SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
-        new CommandLine(searchCommand).parse(args);
+        new CommandLine(searchCommand).parseArgs(args);
         searchCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-search - Search Ballerina Central for packages"));

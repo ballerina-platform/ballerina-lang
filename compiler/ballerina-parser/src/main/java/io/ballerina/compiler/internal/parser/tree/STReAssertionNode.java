@@ -50,6 +50,7 @@ public class STReAssertionNode extends STReTermNode {
                 reAssertion);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReAssertionNode(
                 this.reAssertion,
@@ -68,6 +69,7 @@ public class STReAssertionNode extends STReTermNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReAssertionNode(this, position, parent);
     }

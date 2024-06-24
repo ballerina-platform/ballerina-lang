@@ -57,9 +57,10 @@ public class ValidatorTest {
         Assert.assertFalse(inputValidator.isComplete("while (x < y)"));
 
         // For-each statements
-        Assert.assertTrue(inputValidator.isComplete("foreach var emp in top3 {\n" +
-                "        io:println(emp);\n" +
-                "}"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                foreach var emp in top3 {
+                        io:println(emp);
+                }"""));
 
         Assert.assertFalse(inputValidator.isComplete("foreach var emp in top3"));
         // TODO : fix #34989
@@ -68,51 +69,56 @@ public class ValidatorTest {
         // Function definitions
         Assert.assertTrue(inputValidator.isComplete("function foo() {\n" +
                 "}"));
-        Assert.assertTrue(inputValidator.isComplete("\n" +
-                "\n" +
-                "function sum2(float[] v) returns float {\n" +
-                "    float r = 0.0;\n" +
-                "\n" +
-                "    foreach int i in 0 ..< v.length() {\n" +
-                "        r += v[i];\n" +
-                "    }\n" +
-                "\n" +
-                "    return r;\n" +
-                "}"));
-        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
-                "}\n" +
-                "\n" +
-                "function foo() {\n" +
-                "}"));
+        Assert.assertTrue(inputValidator.isComplete("""
+
+
+                function sum2(float[] v) returns float {
+                    float r = 0.0;
+
+                    foreach int i in 0 ..< v.length() {
+                        r += v[i];
+                    }
+
+                    return r;
+                }"""));
+        Assert.assertTrue(inputValidator.isComplete("""
+                function name() {
+                }
+
+                function foo() {
+                }"""));
         Assert.assertTrue(inputValidator.isComplete("var f = function () { x = 12; }"));
 
         Assert.assertFalse(inputValidator.isComplete("function parse(string s) returns int|error {"));
         Assert.assertFalse(inputValidator.isComplete("function parse(string s)"));
 
         // Type definitions
-        Assert.assertTrue(inputValidator.isComplete("type Coord record {\n" +
-                "    int x;\n" +
-                "    int y;\n" +
-                "};\n" +
-                "\n" +
-                "type Coord2 record {\n" +
-                "    int a;\n" +
-                "    int b;\n" +
-                "};"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                type Coord record {
+                    int x;
+                    int y;
+                };
+
+                type Coord2 record {
+                    int a;
+                    int b;
+                };"""));
 
         Assert.assertFalse(inputValidator.isComplete("type Coord record"));
         Assert.assertFalse(inputValidator.isComplete("type Coord record {\n" + "int x;"));
 
         // Query Expressions
-        Assert.assertTrue(inputValidator.isComplete("Employee[] employees = [\n" +
-                "        {firstName: \"Jones\", lastName: \"Welsh\", salary: 1000.00},\n" +
-                "    ];"));
-        Assert.assertTrue(inputValidator.isComplete("Employee[] top3 = from var e in employees\n" +
-                "                      order by e.salary descending\n" +
-                "\n" +
-                "                      limit 3\n" +
-                "\n" +
-                "                      select e;"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                Employee[] employees = [
+                        {firstName: "Jones", lastName: "Welsh", salary: 1000.00},
+                    ];"""));
+        Assert.assertTrue(inputValidator.isComplete("""
+                Employee[] top3 = from var e in employees
+                                      order by e.salary descending
+
+                                      limit 3
+
+                                      select e;"""));
 
         Assert.assertFalse(inputValidator.isComplete("from var e in employees\n" +
                 "                      order by e.salary descending"));
@@ -121,13 +127,13 @@ public class ValidatorTest {
                 "        {firstName: \"Jones\", lastName: \"Welsh\", salary: 1000.00},"));
         Assert.assertFalse(inputValidator.isComplete("Employee[] top3 = from var e in employees\n" +
                 "                      order by e.salary descending"));
-        Assert.assertFalse(inputValidator.isComplete(
-                "Employee[] top3 = from var e in employees\n" +
-                        "                      order by e.salary descending\n" +
-                        "\n" +
-                        "                      limit 3\n" +
-                        "\n" +
-                        "                      select"));
+        Assert.assertFalse(inputValidator.isComplete("""
+                        Employee[] top3 = from var e in employees
+                                              order by e.salary descending
+
+                                              limit 3
+
+                                              select"""));
         Assert.assertFalse(inputValidator.isComplete("int[] evenNums = from var i in nums\n" +
                 "                     where i % 2 == 0"));
 
@@ -137,12 +143,13 @@ public class ValidatorTest {
         Assert.assertFalse(inputValidator.isComplete("public class Counter {"));
 
         // Expressions
-        Assert.assertTrue(inputValidator.isComplete("from var e in employees\n" +
-                "                      order by e.salary descending\n" +
-                "\n" +
-                "                      limit 3\n" +
-                "\n" +
-                "                      select e;"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                from var e in employees
+                                      order by e.salary descending
+
+                                      limit 3
+
+                                      select e;"""));
 
         Assert.assertFalse(inputValidator.isComplete("x + "));
         Assert.assertFalse(inputValidator.isComplete("from var i in nums\n" +
@@ -157,88 +164,94 @@ public class ValidatorTest {
         Assert.assertFalse(inputValidator.isComplete("worker A {"));
 
         // Complete code examples
-        Assert.assertTrue(inputValidator.isComplete("import ballerina/io;\n" +
-                "\n" +
-                "public function foo() {\n" +
-                "\n" +
-                "}\n" +
-                "\n" +
-                "public function foo2() {\n" +
-                "\n" +
-                "}"));
-        Assert.assertTrue(inputValidator.isComplete("import ballerina/io;\n" +
-                "\n" +
-                "int x = 1;\n" +
-                "\n" +
-                "public function foo() {\n" +
-                "\n" +
-                "}\n" +
-                "\n" +
-                "public function name() {\n" +
-                "\n" +
-                "}"));
-        Assert.assertTrue(inputValidator.isComplete("function foo() {\n" +
-                "\n" +
-                "    int x = 5;\n" +
-                "\n" +
-                "    if (x < 10) {\n" +
-                "        io:println(x);\n" +
-                "    }\n" +
-                "\n" +
-                "    while (x < 10) {\n" +
-                "        x = x + 1;\n" +
-                "    }\n" +
-                "\n" +
-                "}"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                import ballerina/io;
+
+                public function foo() {
+
+                }
+
+                public function foo2() {
+
+                }"""));
+        Assert.assertTrue(inputValidator.isComplete("""
+                import ballerina/io;
+
+                int x = 1;
+
+                public function foo() {
+
+                }
+
+                public function name() {
+
+                }"""));
+        Assert.assertTrue(inputValidator.isComplete("""
+                function foo() {
+
+                    int x = 5;
+
+                    if (x < 10) {
+                        io:println(x);
+                    }
+
+                    while (x < 10) {
+                        x = x + 1;
+                    }
+
+                }"""));
 
         // Test case related to annotation not attached to construct error message
-        Assert.assertTrue(inputValidator.isComplete("@http:ServiceConfig {\n" +
-                "    cors: {\n" +
-                "        allowOrigins: [\"http://www.m3.com\", \"http://www.hello.com\"],\n" +
-                "        allowCredentials: false,\n" +
-                "        allowHeaders: [\"CORELATION_ID\"],\n" +
-                "        exposeHeaders: [\"X-CUSTOM-HEADER\"],\n" +
-                "        maxAge: 84900\n" +
-                "    }\n" +
-                "}"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                @http:ServiceConfig {
+                    cors: {
+                        allowOrigins: ["http://www.m3.com", "http://www.hello.com"],
+                        allowCredentials: false,
+                        allowHeaders: ["CORELATION_ID"],
+                        exposeHeaders: ["X-CUSTOM-HEADER"],
+                        maxAge: 84900
+                    }
+                }"""));
 
         // Multiple function testcases
-        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
-                "    int x = 1;\n" +
-                "}\n" +
-                "\n" +
-                "function name1() {\n" +
-                "    name();"));
-        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
-                "    int x = 1\n" +
-                "}\n" +
-                "\n" +
-                "function name1() {\n" +
-                "    name();"));
+        Assert.assertFalse(inputValidator.isComplete("""
+                function name() {
+                    int x = 1;
+                }
 
-        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
-                "    int x = 1;\n" +
-                "}\n" +
-                "\n" +
-                "function name1() {\n" +
-                "    name();" +
-                "}"));
+                function name1() {
+                    name();"""));
+        Assert.assertFalse(inputValidator.isComplete("""
+                function name() {
+                    int x = 1
+                }
 
-        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
-                "    int x = 1\n" +
-                "}\n" +
-                "\n" +
-                "function name1() {\n" +
-                "    name();" +
-                "}"));
+                function name1() {
+                    name();"""));
 
-        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
-                "    int x = 1\n" +
-                "}\n" +
-                "\n" +
-                "function name1() {\n" +
-                "    name();" +
-                "}"));
+        Assert.assertTrue(inputValidator.isComplete("""
+                function name() {
+                    int x = 1;
+                }
+
+                function name1() {
+                    name();}"""));
+
+        Assert.assertTrue(inputValidator.isComplete("""
+                function name() {
+                    int x = 1
+                }
+
+                function name1() {
+                    name();}"""));
+
+        Assert.assertTrue(inputValidator.isComplete("""
+                function name() {
+                    int x = 1
+                }
+
+                function name1() {
+                    name();}"""));
 
         // Command related testcases
         Assert.assertTrue(inputValidator.isComplete(" "));

@@ -114,8 +114,8 @@ public abstract class BaseCommandTest {
         Path balaDestPath = centralRepoPath.resolve(org).resolve(name).resolve(version).resolve(platform);
         Files.createDirectories(balaDestPath);
 
-        try (var paths = Files.walk(balaProjectDirectory)) {
-            paths.forEach(a -> {
+        try (var files = Files.walk(balaProjectDirectory)) {
+            files.forEach(a -> {
                 Path b = Paths.get(String.valueOf(balaDestPath),
                         a.toString().substring(balaProjectDirectory.toString().length()));
                 try {

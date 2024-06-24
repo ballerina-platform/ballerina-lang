@@ -30,57 +30,67 @@ public class ToSourceCodeAPITest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testToSourceCodeAPIBasic() {
-        String expectedSourceCode = "public function add() {\n" +
-                "    int z = x + y;\n" +
-                "}\n" +
-                "\n" +
-                "public function multiply() {\n" +
-                "    int z = x * (z - x) + x / (y + (a+b));\n" +
-                "}\n";
+        String expectedSourceCode = """
+                public function add() {
+                    int z = x + y;
+                }
+
+                public function multiply() {
+                    int z = x * (z - x) + x / (y + (a+b));
+                }
+                """;
         assertSourceCode(expectedSourceCode);
     }
 
     @Test
     public void testWithMissingTokens() {
-        String expectedSourceCode = "public function add() {\n" +
-                "    int z = x + ;\n" +
-                "}\n" +
-                "\n" +
-                "public function multiply() {\n" +
-                "    int z = * (z - x) + x / (y + (a+b));\n" +
-                "}\n";
+        String expectedSourceCode = """
+                public function add() {
+                    int z = x + ;
+                }
+
+                public function multiply() {
+                    int z = * (z - x) + x / (y + (a+b));
+                }
+                """;
         assertSourceCode(expectedSourceCode);
     }
 
     @Test
     public void testWithInvalidNodeMinutia() {
-        String expectedSourceCode = "public function add(int ...a, int b, int c = 10, int k) {\n" +
-                "    int z = x + y;\n" +
-                "}\n";
+        String expectedSourceCode = """
+                public function add(int ...a, int b, int c = 10, int k) {
+                    int z = x + y;
+                }
+                """;
         assertSourceCode(expectedSourceCode);
     }
 
     @Test
     public void testWithWindowNewLineChars() {
-        String expectedSourceCode = "public function add() {\r\n" +
-                "    int z = x + y;\r\n" +
-                "}\r\n" +
-                "\r\n" +
-                "public function multiply() {\r\n" +
-                "    int z = x * (z - x) + x / (y + (a+b));\r\n" +
-                "}\r\n";
+        String expectedSourceCode = """
+                public function add() {\r
+                    int z = x + y;\r
+                }\r
+                \r
+                public function multiply() {\r
+                    int z = x * (z - x) + x / (y + (a+b));\r
+                }\r
+                """;
         assertSourceCode(expectedSourceCode);
     }
 
     @Test
     public void testWithMixedNewLineChars() {
-        String expectedSourceCode = "public function add() {\r\n" +
-                "    int z = x + y;\n" +
-                "}\r\n" +
-                "\r\n" +
-                "public function multiply() {\r\n" +
-                "    int z = x * (z - x) + x / (y + (a+b));\n" +
-                "}\r\n";
+        String expectedSourceCode = """
+                public function add() {\r
+                    int z = x + y;
+                }\r
+                \r
+                public function multiply() {\r
+                    int z = x * (z - x) + x / (y + (a+b));
+                }\r
+                """;
         assertSourceCode(expectedSourceCode);
     }
 

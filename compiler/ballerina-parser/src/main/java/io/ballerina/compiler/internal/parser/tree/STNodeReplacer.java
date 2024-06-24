@@ -44,6 +44,7 @@ class STNodeReplacer extends STTreeModifier {
         return true;
     }
 
+    @Override
     protected <T extends STNode> T modifyNode(T node) {
         if (node == null) {
             return null;

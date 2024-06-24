@@ -68,6 +68,7 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STExternalFunctionBodyNode(
                 this.equalsToken,
@@ -98,6 +99,7 @@ public class STExternalFunctionBodyNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExternalFunctionBodyNode(this, position, parent);
     }

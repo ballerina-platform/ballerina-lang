@@ -67,8 +67,8 @@ public class HttpClientRequest {
      * @return - HttpResponse from the end point
      * @throws IOException If an error occurs while sending the GET request
      */
-    public static HttpResponse doGet(String requestUrl, int readTimeout, CheckedFunction responseBuilder)
-            throws IOException {
+    public static HttpResponse doGet(String requestUrl, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), readTimeout,
                 responseBuilder);
     }
@@ -197,7 +197,8 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-            Map<String, String> headers, int readTimeout, CheckedFunction responseBuilder) throws IOException {
+            Map<String, String> headers, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
         HttpURLConnection conn = null;
         try {
             conn = getURLConnection(requestUrl, readTimeout);
@@ -212,8 +213,8 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-                                                                 Map<String, String> headers, int readTimeout,
-                                                                 CheckedFunction responseBuilder, boolean throwError)
+            Map<String, String> headers, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder, boolean throwError)
             throws IOException {
         HttpURLConnection conn = null;
         try {
@@ -246,7 +247,7 @@ public class HttpClientRequest {
 
     private static Map<String, String> readHeaders(URLConnection urlConnection) {
         Iterator<String> itr = urlConnection.getHeaderFields().keySet().iterator();
-        Map<String, String> headers = new HashMap();
+        Map<String, String> headers = new HashMap<>();
         while (itr.hasNext()) {
             String key = itr.next();
             if (key != null) {
@@ -286,7 +287,7 @@ public class HttpClientRequest {
                     }
                     throw ex;
                 } else {
-                    LOG.error("Error in building HTTP response", ex.getMessage());
+                    LOG.error("Error in building HTTP response: {}", ex.getMessage());
                     return null;
                 }
             }

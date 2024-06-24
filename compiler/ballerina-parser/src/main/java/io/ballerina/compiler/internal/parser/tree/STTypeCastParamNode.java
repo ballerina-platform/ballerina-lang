@@ -56,6 +56,7 @@ public class STTypeCastParamNode extends STNode {
                 type);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypeCastParamNode(
                 this.annotations,
@@ -78,6 +79,7 @@ public class STTypeCastParamNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeCastParamNode(this, position, parent);
     }

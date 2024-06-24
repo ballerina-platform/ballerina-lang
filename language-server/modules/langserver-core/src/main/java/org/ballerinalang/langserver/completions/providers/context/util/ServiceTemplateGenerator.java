@@ -162,9 +162,8 @@ public class ServiceTemplateGenerator {
                     || moduleInfo.isModuleFromCurrentPackage()) {
                 return;
             }
-            moduleInfo.getListenerMetaData().forEach(listenerMetaData -> {
-                completionItems.add(generateServiceSnippet(listenerMetaData, ctx));
-            });
+            moduleInfo.getListenerMetaData().forEach(listenerMetaData ->
+                completionItems.add(generateServiceSnippet(listenerMetaData, ctx)));
             processedModuleList.add(moduleInfo.getModuleIdentifier());
         });
         return completionItems;

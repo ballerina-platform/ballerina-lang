@@ -72,12 +72,14 @@ public class ConnectorNodeVisitor extends NodeVisitor {
         return objectTypes;
     }
 
+    @Override
     public void visit(ModulePartNode modulePartNode) {
         for (int i = 0; i < modulePartNode.members().size(); i++) {
             modulePartNode.members().get(i).accept(this);
         }
     }
 
+    @Override
     public void visit(ClassDefinitionNode classDefinitionNode) {
         Optional<Symbol> symbol = this.semanticModel.symbol(classDefinitionNode);
 
@@ -98,6 +100,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(TypeDefinitionNode typeDefinitionNode) {
         Optional<Symbol> typeSymbol = this.semanticModel.symbol(typeDefinitionNode);
 

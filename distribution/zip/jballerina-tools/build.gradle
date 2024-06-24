@@ -227,7 +227,7 @@ dependencies {
 }
 
 
-task configured {
+tasks.register('configured') {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
 //        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
@@ -378,14 +378,14 @@ def apiDocsSpec = {
     }
 }
 
-task extractBalxBirs(type: Copy) {
+tasks.register('extractBalxBirs', Copy) {
 //    def path = "$buildDir/bir-cache"
 //    from configurations.balxBir.files
 //    into path
 }
 
 // Fix for windows class path too long issue
-task pathingJar(type: Jar) {
+tasks.register('pathingJar', Jar) {
     archiveAppendix = "pathing"
     doFirst {
         manifest {
@@ -396,7 +396,7 @@ task pathingJar(type: Jar) {
     }
 }
 
-task copyApiDocs(type: Copy) {
+tasks.register('copyApiDocs', Copy) {
     dependsOn configurations.balDoc
     from configurations.balDoc.files
     into "$buildDir/api-docs"
@@ -405,7 +405,7 @@ task copyApiDocs(type: Copy) {
     exclude "syntax-highlighter"
 }
 
-task generateDocs(type: JavaExec) {
+tasks.register('generateDocs', JavaExec) {
     dependsOn pathingJar
     dependsOn copyApiDocs
     dependsOn ':docerina-gradle-plugin:build'
@@ -417,12 +417,12 @@ task generateDocs(type: JavaExec) {
     args("$buildDir/api-docs")
 }
 
-task createApiDocsZip(type: Zip) {
+tasks.register('createApiDocsZip', Zip) {
     from generateDocs.outputs.files
     archiveFileName = "ballerina-api-docs-${project.version}.zip"
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
@@ -445,7 +445,7 @@ task createZip(type: Zip) {
     with copyToDistCache(basePath)
 }
 
-task updateBalHome(type: Copy) {
+tasks.register('updateBalHome', Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
@@ -468,7 +468,7 @@ task updateBalHome(type: Copy) {
     into System.getenv('BAL_HOME')
 }
 
-task createDistribution(type: Copy) {
+tasks.register('createDistribution', Copy) {
     mustRunAfter(':language-server:language-server-core:createZip')
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()

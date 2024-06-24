@@ -74,6 +74,7 @@ public class STErrorBindingPatternNode extends STBindingPatternNode {
                 closeParenthesis);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STErrorBindingPatternNode(
                 this.errorKeyword,
@@ -108,6 +109,7 @@ public class STErrorBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorBindingPatternNode(this, position, parent);
     }

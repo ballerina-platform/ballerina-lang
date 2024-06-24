@@ -120,10 +120,12 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         return Optional.of(fromClauseNode.expression());
     }
 
+    @Override
     public Optional<ExpressionNode> transform(BracedExpressionNode node) {
         return Optional.of(node);
     }
 
+    @Override
     public Optional<ExpressionNode> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
         return Optional.of(implicitNewExpressionNode);
     }

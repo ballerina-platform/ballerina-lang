@@ -28,13 +28,3 @@ jar {
 description = 'Ballerina - Test - Launch Listener - 01'
 
 ext.moduleName = 'ballerina.test.listener'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

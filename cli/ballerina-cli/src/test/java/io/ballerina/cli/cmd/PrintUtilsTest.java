@@ -79,7 +79,7 @@ public class PrintUtilsTest {
         if (!(outContent.toString().contains(expectedOutput))) {
             errStream.println("expected output not contains in output stream");
             errStream.println("expected output:\n" + expectedOutput);
-            errStream.println("print stream:" + outContent.toString());
+            errStream.println("print stream:" + outContent);
             Assert.fail();
         }
     }

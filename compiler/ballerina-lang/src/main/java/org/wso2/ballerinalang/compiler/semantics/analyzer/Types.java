@@ -2012,7 +2012,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
+                Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BObjectType objectType = (BObjectType) getImpliedType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation(objectType);
@@ -2035,7 +2035,7 @@ public class Types {
         }
         
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
+                Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) getImpliedType(iteratorSymbol.retType));
         bLangInputClause.resultType = getRecordType(nextMethodReturnType);
@@ -3107,6 +3107,7 @@ public class Types {
             return hasSameMembers(sourceValueSpace, targetValueSpace);
         }
 
+        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
             s = getImpliedType(s);
             if (s.tag != TypeTags.TYPEREFDESC) {
@@ -4229,7 +4230,7 @@ public class Types {
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 finiteType.tsymbol.pkgID, null,
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
@@ -4551,18 +4552,16 @@ public class Types {
                 break;
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) referredType;
-                expType.getValueSpace().forEach(value -> {
-                    memberTypes.add(value.getBType());
-                });
+                expType.getValueSpace().forEach(value -> memberTypes.add(value.getBType()));
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) referredType;
                 if (!visited.add(unionType)) {
                     return memberTypes;
                 }
-                unionType.getMemberTypes().forEach(member -> {
-                    memberTypes.addAll(expandAndGetMemberTypesRecursiveHelper(member, visited));
-                });
+                unionType.getMemberTypes().forEach(member ->
+                    memberTypes.addAll(expandAndGetMemberTypesRecursiveHelper(member, visited))
+                );
                 break;
             case TypeTags.ARRAY:
                 BType arrayElementType = ((BArrayType) referredType).getElementType();
@@ -4575,9 +4574,7 @@ public class Types {
 
                 if (getImpliedType(arrayElementType).tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
-                    elementUnionTypes.forEach(elementUnionType -> {
-                        memberTypes.add(new BArrayType(elementUnionType));
-                    });
+                    elementUnionTypes.forEach(elementUnionType -> memberTypes.add(new BArrayType(elementUnionType)));
                 }
                 memberTypes.add(bType);
                 break;
@@ -4586,9 +4583,8 @@ public class Types {
                 if (getImpliedType(mapConstraintType).tag == TypeTags.UNION) {
                     Set<BType> constraintUnionTypes =
                             expandAndGetMemberTypesRecursiveHelper(mapConstraintType, visited);
-                    constraintUnionTypes.forEach(constraintUnionType -> {
-                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
-                    });
+                    constraintUnionTypes.forEach(constraintUnionType ->
+                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol)));
                 }
                 memberTypes.add(bType);
                 break;
@@ -5662,7 +5658,7 @@ public class Types {
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                                                                                 env.enclPkg.packageID, null,
                                                                                 env.scope.owner, null, VIRTUAL);
-        recordSymbol.name = names.fromString(
+        recordSymbol.name = Names.fromString(
                 anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -5699,7 +5695,7 @@ public class Types {
 
     public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, names.fromString(name),
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, Names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
@@ -5894,7 +5890,7 @@ public class Types {
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);

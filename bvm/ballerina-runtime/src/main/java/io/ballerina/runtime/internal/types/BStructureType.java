@@ -64,14 +64,17 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
         this.fields = fields;
     }
 
+    @Override
     public Map<String, Field> getFields() {
         return fields;
     }
 
+    @Override
     public void setFields(Map<String, Field> fields) {
         this.fields = fields;
     }
 
+    @Override
     public long getFlags() {
         return flags;
     }

@@ -62,6 +62,7 @@ public class STXMLNamePatternChainingNode extends STNode {
                 gtToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLNamePatternChainingNode(
                 this.startToken,
@@ -88,6 +89,7 @@ public class STXMLNamePatternChainingNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLNamePatternChainingNode(this, position, parent);
     }

@@ -95,11 +95,11 @@ public class RunTestsTask implements Task {
     private String disableGroupList;
     private boolean report;
     private boolean coverage;
-    private String coverageReportFormat;
-    private boolean isRerunTestExecution;
+    private final String coverageReportFormat;
+    private final boolean isRerunTestExecution;
     private String singleExecTests;
-    private Map<String, Module> coverageModules;
-    private boolean listGroups;
+    private final Map<String, Module> coverageModules;
+    private final boolean listGroups;
     private final List<String> cliArgs;
     private final boolean isParallelExecution;
     TestReport testReport;

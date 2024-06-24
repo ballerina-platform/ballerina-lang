@@ -157,6 +157,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         return cursor < isKeyword.textRange().startOffset();
     }
 
+    @Override
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context,
                                                            TypeTestExpressionNode node) {
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {

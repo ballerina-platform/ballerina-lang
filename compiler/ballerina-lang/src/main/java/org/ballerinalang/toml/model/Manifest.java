@@ -105,10 +105,8 @@ public class Manifest {
                         "\nSupported platforms : " + supportedPlatforms());
             }
             // Check if module have platform specific libraries
-            List<Library> deps = platform.libraries.stream().filter(library -> {
-                return library.getModules() == null ||
-                        Arrays.stream(library.getModules()).anyMatch(moduleName::equals);
-            }).toList();
+            List<Library> deps = platform.libraries.stream().filter(library -> library.getModules() == null ||
+                Arrays.stream(library.getModules()).anyMatch(moduleName::equals)).toList();
             // If not return any
             if (!deps.isEmpty()) {
                 return platform.target;

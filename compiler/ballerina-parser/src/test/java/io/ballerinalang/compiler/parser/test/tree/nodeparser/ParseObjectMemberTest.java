@@ -35,10 +35,11 @@ public class ParseObjectMemberTest {
 
     @Test
     public void testRemoteDef() {
-        String remoteDef = "remote function bar() {\n" +
-                "    int n = 0;\n" +
-                "    n += 1;\n" +
-                "}";
+        String remoteDef = """
+                remote function bar() {
+                    int n = 0;
+                    n += 1;
+                }""";
         Node objectMemberNode = NodeParser.parseObjectMember(remoteDef);
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.OBJECT_METHOD_DEFINITION);
         Assert.assertFalse(objectMemberNode.hasDiagnostics());
@@ -46,10 +47,11 @@ public class ParseObjectMemberTest {
 
     @Test
     public void testResourceDef() {
-        String resourceDef = "resource function foo . () {\n" +
-                "    int n = 0;\n" +
-                "    n += 1;\n" +
-                "}";
+        String resourceDef = """
+                resource function foo . () {
+                    int n = 0;
+                    n += 1;
+                }""";
         Node objectMemberNode = NodeParser.parseObjectMember(resourceDef);
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.RESOURCE_ACCESSOR_DEFINITION);
         Assert.assertFalse(objectMemberNode.hasDiagnostics());
@@ -57,10 +59,11 @@ public class ParseObjectMemberTest {
 
     @Test
     public void testMethoddef() {
-        String methodDef = "function bar() {\n" +
-                "    int n = 0;\n" +
-                "    n += 1;\n" +
-                "}";
+        String methodDef = """
+                function bar() {
+                    int n = 0;
+                    n += 1;
+                }""";
         Node objectMemberNode = NodeParser.parseObjectMember(methodDef);
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.OBJECT_METHOD_DEFINITION);
         Assert.assertFalse(objectMemberNode.hasDiagnostics());
@@ -101,9 +104,10 @@ public class ParseObjectMemberTest {
 
     @Test
     public void testWithInvalidTokens() {
-        String resourceDef = "% isolated resource function foo . () {\n" +
-                "% int x = 1;\n" +
-                "};;";
+        String resourceDef = """
+                % isolated resource function foo . () {
+                % int x = 1;
+                };;""";
         Node objectMemberNode = NodeParser.parseObjectMember(resourceDef);
         Assert.assertEquals(objectMemberNode.kind(), SyntaxKind.RESOURCE_ACCESSOR_DEFINITION);
         Assert.assertTrue(objectMemberNode.hasDiagnostics());
@@ -111,9 +115,10 @@ public class ParseObjectMemberTest {
         List<Token> tokens = objectMemberNode.leadingInvalidTokens();
         Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.PERCENT_TOKEN);
-        Assert.assertEquals(objectMemberNode.toString(), " INVALID[%] isolated resource function foo . () {\n" +
-                " INVALID[%] int x = 1;\n" +
-                "}; INVALID[;]");
+        Assert.assertEquals(objectMemberNode.toString(), """
+                 INVALID[%] isolated resource function foo . () {
+                 INVALID[%] int x = 1;
+                }; INVALID[;]""");
         tokens = objectMemberNode.trailingInvalidTokens();
         Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);

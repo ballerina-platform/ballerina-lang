@@ -68,6 +68,7 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 piEnd);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLProcessingInstruction(
                 this.piStart,
@@ -98,6 +99,7 @@ public class STXMLProcessingInstruction extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLProcessingInstruction(this, position, parent);
     }

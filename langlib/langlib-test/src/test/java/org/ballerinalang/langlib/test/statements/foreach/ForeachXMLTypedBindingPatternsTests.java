@@ -33,19 +33,21 @@ import org.testng.annotations.Test;
 public class ForeachXMLTypedBindingPatternsTests {
 
     private CompileResult program;
-    private String expectedXml1 = "0:<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
-            "        <p:name>bob</p:name>\n" +
-            "        <p:address>\n" +
-            "            <p:city>NY</p:city>\n" +
-            "            <q:country>US</q:country>\n" +
-            "        </p:address>\n" +
-            "        <q:ID>1131313</q:ID>\n" +
-            "    </p:person> ";
-    private String expectedXml2 = "0:<p:name xmlns:p=\"foo\">bob</p:name> " +
-            "1:<p:address xmlns:p=\"foo\">\n" +
-            "            <p:city>NY</p:city>\n" +
-            "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
-            "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
+    private String expectedXml1 = """
+            0:<p:person xmlns:p="foo" xmlns:q="bar">
+                    <p:name>bob</p:name>
+                    <p:address>
+                        <p:city>NY</p:city>
+                        <q:country>US</q:country>
+                    </p:address>
+                    <q:ID>1131313</q:ID>
+                </p:person>\s""";
+    private String expectedXml2 = """
+            0:<p:name xmlns:p="foo">bob</p:name> \
+            1:<p:address xmlns:p="foo">
+                        <p:city>NY</p:city>
+                        <q:country xmlns:q="bar">US</q:country>
+                    </p:address> 2:<q:ID xmlns:q="bar">1131313</q:ID>\s""";
 
     @BeforeClass
     public void setup() {

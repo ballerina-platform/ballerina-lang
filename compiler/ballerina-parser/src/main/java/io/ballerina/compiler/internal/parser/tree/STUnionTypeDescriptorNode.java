@@ -62,6 +62,7 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 rightTypeDesc);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STUnionTypeDescriptorNode(
                 this.leftTypeDesc,
@@ -88,6 +89,7 @@ public class STUnionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new UnionTypeDescriptorNode(this, position, parent);
     }
