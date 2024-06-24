@@ -56,7 +56,7 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
             this.resultCache = new TypeCheckResultCache();
         } else {
             useCache = false;
-            this.resultCache = null;
+            this.resultCache = TypeCheckResultCache.EMPTY;
         }
     }
 
@@ -151,22 +151,36 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
         }
     }
 
-    private static final class TypeCheckResultCache {
+    private static sealed class TypeCheckResultCache {
 
+        private static final TypeCheckResultCache EMPTY = new EmptyTypeCheckResultCache();
         private static final int CACHE_LIMIT = 100;
         // See if we can use an identity hashmap on semtypes instead of tid
         private Map<Long, Boolean> cache = new HashMap<>();
 
-        private void cacheResult(int tid, boolean result) {
+        protected void cacheResult(int tid, boolean result) {
             cache.put((long) tid, result);
         }
 
-        private CachedResult getCachedResult(int tid) {
+        protected CachedResult getCachedResult(int tid) {
             Boolean cachedData = cache.get((long) tid);
             if (cachedData == null) {
                 return CachedResult.NOT_FOUND;
             }
             return cachedData ? CachedResult.TRUE : CachedResult.FALSE;
+        }
+    }
+
+    private static final class EmptyTypeCheckResultCache extends TypeCheckResultCache {
+
+        @Override
+        public void cacheResult(int tid, boolean result) {
+            throw new UnsupportedOperationException("Empty cache");
+        }
+
+        @Override
+        public CachedResult getCachedResult(int tid) {
+            throw new UnsupportedOperationException("Empty cache");
         }
     }
 
