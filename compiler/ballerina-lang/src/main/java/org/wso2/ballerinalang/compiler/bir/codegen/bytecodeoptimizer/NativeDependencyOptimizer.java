@@ -32,10 +32,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -45,7 +46,7 @@ import java.util.Stack;
  *
  * @since 2201.10.0
  */
-public class NativeDependencyOptimizer {
+public final class NativeDependencyOptimizer {
 
     private static final String CLASS = ".class";
     private static final String SERVICE_PROVIDER_DIRECTORY = "META-INF/services/";
@@ -56,15 +57,14 @@ public class NativeDependencyOptimizer {
 
     // These directories are whitelisted due to usages of "sun.misc.Unsafe" class
     // TODO Find a way to whitelist only the necessary class files
-    // TODO Check whether we need "com/mysql" for sure
-    private static final Set<String> WHITELISTED_DIRECTORIES = new LinkedHashSet<>(Arrays.asList("io/netty/util"));
+    private static final Set<String> WHITELISTED_DIRECTORIES = new HashSet<>(List.of("io/netty/util"));
 
     /**
      * These classes are used by GraalVM when building the native-image. Since they are not connected to the root class,
      * they will be removed by the NativeDependencyOptimizer if they are not whitelisted.
      */
     private static final Set<String> GRAALVM_FEATURE_CLASSES =
-            new LinkedHashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
+            new HashSet<>(List.of("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
 
     /**
      * key = implementation class name, value = interface class name.
@@ -72,12 +72,12 @@ public class NativeDependencyOptimizer {
      * <p>
      * TODO modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
      */
-    private static final Map<String, String> implementationWiseAllServiceProviders = new LinkedHashMap<>();
+    private static final Map<String, String> implementationWiseAllServiceProviders = new HashMap<>();
 
     /**
      * key = used interface, value = used implementation.
      */
-    private static final Map<String, Set<String>> interfaceWiseAllServiceProviders = new LinkedHashMap<>();
+    private static final Map<String, Set<String>> interfaceWiseAllServiceProviders = new HashMap<>();
     private static final Set<String> usedSpInterfaces = new LinkedHashSet<>();
     private static final Gson gson = new Gson();
     private final Set<String> startPointClasses;
@@ -176,13 +176,7 @@ public class NativeDependencyOptimizer {
             ZipArchiveEntry currentEntry = jarEntries.nextElement();
 
             if (isServiceProvider(currentEntry.getName())) {
-                String spInterfaceClassName = getServiceProviderClassName(currentEntry.getName());
-                for (String spImplementationClassName : getServiceProviderImplementations(originalJarFile,
-                        currentEntry)) {
-                    implementationWiseAllServiceProviders.put(spImplementationClassName, spInterfaceClassName);
-                    interfaceWiseAllServiceProviders.putIfAbsent(spInterfaceClassName, new LinkedHashSet<>());
-                    interfaceWiseAllServiceProviders.get(spInterfaceClassName).add(spImplementationClassName);
-                }
+                analyzeServiceProviders(currentEntry);
             }
 
             if (isReflectionConfig(currentEntry.getName())) {
@@ -192,8 +186,16 @@ public class NativeDependencyOptimizer {
                 }
             }
         }
-
         startPointClasses.addAll(GRAALVM_FEATURE_CLASSES);
+    }
+
+    private void analyzeServiceProviders(ZipArchiveEntry currentEntry) throws IOException {
+        String spInterfaceClassName = getServiceProviderClassName(currentEntry.getName());
+        for (String spImplementationClassName : getServiceProviderImplementations(originalJarFile, currentEntry)) {
+            implementationWiseAllServiceProviders.put(spImplementationClassName, spInterfaceClassName);
+            interfaceWiseAllServiceProviders.putIfAbsent(spInterfaceClassName, new LinkedHashSet<>());
+            interfaceWiseAllServiceProviders.get(spInterfaceClassName).add(spImplementationClassName);
+        }
     }
 
     private boolean isReflectionConfig(String entryName) {

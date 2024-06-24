@@ -27,7 +27,7 @@ import static org.objectweb.asm.Opcodes.ASM9;
  *
  * @since 2201.10.0
  */
-public class SignatureNodeVisitor extends SignatureVisitor {
+public final class SignatureNodeVisitor extends SignatureVisitor {
 
     String signatureClassName;
     private final DependencyCollector collector;
