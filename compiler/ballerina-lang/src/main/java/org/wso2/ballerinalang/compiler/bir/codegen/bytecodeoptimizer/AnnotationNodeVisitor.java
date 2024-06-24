@@ -28,7 +28,7 @@ import static org.objectweb.asm.Opcodes.ASM9;
  *
  * @since 2201.10.0
  */
-public class AnnotationNodeVisitor extends AnnotationVisitor {
+public final class AnnotationNodeVisitor extends AnnotationVisitor {
 
     private final DependencyCollector collector;
 

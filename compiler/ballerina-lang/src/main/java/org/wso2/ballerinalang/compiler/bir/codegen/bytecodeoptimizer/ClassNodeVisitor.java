@@ -40,14 +40,10 @@ import static org.objectweb.asm.Opcodes.ASM9;
  *
  * @since 2201.10.0
  */
-public class ClassNodeVisitor extends ClassNode {
+public final class ClassNodeVisitor extends ClassNode {
 
-    private DependencyCollector collector;
-    private ClassReader reader;
-
-    public ClassNodeVisitor() {
-        super(ASM9);
-    }
+    private final DependencyCollector collector;
+    private final ClassReader reader;
 
     public ClassNodeVisitor(byte[] classBytes) {
         super(ASM9);
@@ -55,15 +51,11 @@ public class ClassNodeVisitor extends ClassNode {
         this.collector = new DependencyCollector();
     }
 
-    public void setCollector(DependencyCollector collector) {
-        this.collector = collector;
-    }
-
-    protected void analyzeClass() {
+    void analyzeClass() {
         this.reader.accept(this, 0);
     }
 
-    protected Set<String> getDependentClasses() {
+    Set<String> getDependentClasses() {
         return this.collector.getDependencies();
     }
 

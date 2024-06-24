@@ -32,7 +32,7 @@ import static org.objectweb.asm.Opcodes.ASM9;
  *
  * @since 2201.10.0
  */
-public class MethodNodeVisitor extends MethodVisitor {
+public final class MethodNodeVisitor extends MethodVisitor {
 
     private final DependencyCollector collector;
 
@@ -80,8 +80,8 @@ public class MethodNodeVisitor extends MethodVisitor {
     public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
         collector.addMethodDesc(desc);
         collector.addConstant(bsm);
-        for (int i = 0; i < bsmArgs.length; i++) {
-            collector.addConstant(bsmArgs[i]);
+        for (Object bsmArg : bsmArgs) {
+            collector.addConstant(bsmArg);
         }
     }
 

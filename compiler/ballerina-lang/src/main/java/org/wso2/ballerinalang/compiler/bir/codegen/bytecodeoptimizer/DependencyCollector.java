@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  *
  * @since 2201.10.0
  */
-public class DependencyCollector {
+public final class DependencyCollector {
 
     private static final Pattern pattern = getPattern();
     private final Set<String> dependencies = new HashSet<>();

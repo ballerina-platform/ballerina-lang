@@ -36,7 +36,10 @@ import java.nio.file.Path;
  *
  * @since 2201.10.0
  */
-public class NativeDependencyOptimizationReportEmitter {
+public final class NativeDependencyOptimizationReportEmitter {
+
+    private NativeDependencyOptimizationReportEmitter() {
+    }
 
     private static final String NATIVE_DEPENDENCY_OPTIMIZATION_REPORT = "native_dependency_optimization_report.json";
 

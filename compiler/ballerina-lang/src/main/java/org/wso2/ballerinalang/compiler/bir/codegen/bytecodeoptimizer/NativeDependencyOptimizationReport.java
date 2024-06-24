@@ -30,7 +30,7 @@ import java.util.Set;
  *
  * @since 2201.10.0
  */
-public record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
+record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
                                                  Set<String> usedClasses, Set<String> unusedClasses) {
 
 }

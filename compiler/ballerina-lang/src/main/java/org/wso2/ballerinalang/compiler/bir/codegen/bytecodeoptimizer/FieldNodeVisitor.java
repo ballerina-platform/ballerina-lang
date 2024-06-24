@@ -28,7 +28,7 @@ import static org.objectweb.asm.Opcodes.ASM9;
  *
  * @since 2201.10.0
  */
-public class FieldNodeVisitor extends FieldVisitor {
+public final class FieldNodeVisitor extends FieldVisitor {
 
     private final DependencyCollector collector;
 
