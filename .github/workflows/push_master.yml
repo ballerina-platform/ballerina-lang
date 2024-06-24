@@ -61,7 +61,7 @@ jobs:
           java-version: '17.0.7'
 
       - name: configure Pagefile
-        uses: al-cheb/configure-pagefile-action@1.4
+        uses: al-cheb/configure-pagefile-action@v1.4
         with:
           minimum-size: 8GB
           maximum-size: 16GB
