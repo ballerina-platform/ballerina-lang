@@ -107,11 +107,13 @@ public class ManifestProcessor {
         try {
             Toml toml = new Toml().read(content);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
-                                        "project is missing. example: \n" +
-                                        "[project]\n" +
-                                        "org-name=\"my_org\"\n" +
-                                        "version=\"1.0.0\"\n");
+                throw new TomlException("""
+                        invalid Ballerina.toml file: organization name and the version of the \
+                        project is missing. example:\s
+                        [project]
+                        org-name="my_org"
+                        version="1.0.0"
+                        """);
             }
 
             if (null == toml.getTable("project")) {
@@ -141,11 +143,13 @@ public class ManifestProcessor {
         try {
             Toml toml = new Toml().read(inputStream);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
-                                        "project is missing. example: \n" +
-                                        "[project]\n" +
-                                        "org-name=\"my_org\"\n" +
-                                        "version=\"1.0.0\"\n");
+                throw new TomlException("""
+                        invalid Ballerina.toml file: organization name and the version of the \
+                        project is missing. example:\s
+                        [project]
+                        org-name="my_org"
+                        version="1.0.0"
+                        """);
             }
 
             if (null == toml.getTable("project")) {

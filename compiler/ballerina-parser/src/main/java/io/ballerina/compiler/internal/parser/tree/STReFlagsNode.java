@@ -50,6 +50,7 @@ public class STReFlagsNode extends STNode {
                 reFlag);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReFlagsNode(
                 this.reFlag,
@@ -68,6 +69,7 @@ public class STReFlagsNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReFlagsNode(this, position, parent);
     }

@@ -44,6 +44,7 @@ public class IdentifierToken extends Token {
         return modify(text, this.leadingMinutiae(), this.trailingMinutiae());
     }
 
+    @Override
     public IdentifierToken modify(MinutiaeList leadingMinutiae, MinutiaeList trailingMinutiae) {
         if (internalNode.leadingMinutiae() == leadingMinutiae.internalNode() &&
                 internalNode.trailingMinutiae() == trailingMinutiae.internalNode()) {

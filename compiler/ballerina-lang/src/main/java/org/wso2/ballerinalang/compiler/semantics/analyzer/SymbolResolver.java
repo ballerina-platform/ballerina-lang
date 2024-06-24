@@ -2085,7 +2085,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
      * @param opKind Binary operator kind
      * @param lhsType Type of the left hand side value
      * @param rhsType Type of the right hand side value
-     * @return <, <=, >, or >= symbol
+     * @return {@literal <, <=, >, or >=} symbol
      */
     public BSymbol getBinaryComparisonOpForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
         boolean validOrderedTypesExist;

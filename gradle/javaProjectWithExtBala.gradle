@@ -42,23 +42,18 @@ compileJava {
                              "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
                              "-s", "$generatedSources"]
 
-    println 'Compiler args: ' + options.compilerArgs
     doFirst {
         generatedOutputDir.exists() || generatedOutputDir.mkdirs()
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
     }
 }
 
-task createBalHome(type: Copy) {
+tasks.register('createBalHome', Copy) {
     dependsOn configurations.balaImplementation
     from configurations.balaImplementation
     into "$buildDir/ballerina-home/main/lib"
 }
 
-task createTestBalHome(type: Copy) {
+tasks.register('createTestBalHome', Copy) {
     dependsOn configurations.balaTestImplementation
     from configurations.balaTestImplementation
     into "$buildDir/ballerina-home/test/lib/"

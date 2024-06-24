@@ -62,6 +62,7 @@ public class STXMLAtomicNamePatternNode extends STNode {
                 name);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLAtomicNamePatternNode(
                 this.prefix,
@@ -88,6 +89,7 @@ public class STXMLAtomicNamePatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLAtomicNamePatternNode(this, position, parent);
     }

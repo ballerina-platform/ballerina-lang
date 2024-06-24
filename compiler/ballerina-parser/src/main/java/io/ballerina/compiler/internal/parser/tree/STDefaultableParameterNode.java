@@ -74,6 +74,7 @@ public class STDefaultableParameterNode extends STParameterNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDefaultableParameterNode(
                 this.annotations,
@@ -108,6 +109,7 @@ public class STDefaultableParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DefaultableParameterNode(this, position, parent);
     }

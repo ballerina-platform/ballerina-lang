@@ -196,11 +196,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
-        public BIROperand getLhsOperand() {
-            return lhsOp;
-        }
-
-        @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }

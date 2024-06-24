@@ -68,6 +68,7 @@ public class STLetVariableDeclarationNode extends STNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STLetVariableDeclarationNode(
                 this.annotations,
@@ -98,6 +99,7 @@ public class STLetVariableDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetVariableDeclarationNode(this, position, parent);
     }

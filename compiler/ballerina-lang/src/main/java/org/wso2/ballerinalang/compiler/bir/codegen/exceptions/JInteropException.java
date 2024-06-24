@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.exceptions;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 
@@ -26,15 +26,15 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
  */
 public class JInteropException extends RuntimeException {
 
-    private DiagnosticCode code;
+    private final DiagnosticCode code;
 
-    JInteropException(DiagnosticCode code, String message) {
+    public JInteropException(DiagnosticCode code, String message) {
 
         super(message);
         this.code = code;
     }
 
-    JInteropException(DiagnosticCode code, String message, Throwable cause) {
+    public JInteropException(DiagnosticCode code, String message, Throwable cause) {
 
         super(message, cause);
         this.code = code;

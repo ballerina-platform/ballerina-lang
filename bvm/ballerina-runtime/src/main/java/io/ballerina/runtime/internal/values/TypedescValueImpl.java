@@ -78,6 +78,7 @@ public class TypedescValueImpl implements TypedescValue {
      * Returns the {@code BType} of the value describe by this type descriptor.
      * @return describing type
      */
+    @Override
     public Type getDescribingType() {
         return describingType;
     }
@@ -96,7 +97,7 @@ public class TypedescValueImpl implements TypedescValue {
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         Type referredType = getImpliedType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
+            return new MapValueImpl<>(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
             return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues, this);
         }

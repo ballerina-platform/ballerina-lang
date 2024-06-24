@@ -103,6 +103,7 @@ public class URIConverter implements Converter<URI> {
 
     }
 
+    @Override
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
         // if path to bala is not given in the manifest file
         String orgName = moduleID.getOrgName().getValue();

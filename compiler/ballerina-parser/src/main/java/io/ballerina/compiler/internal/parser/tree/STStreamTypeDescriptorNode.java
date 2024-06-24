@@ -56,6 +56,7 @@ public class STStreamTypeDescriptorNode extends STTypeDescriptorNode {
                 streamTypeParamsNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STStreamTypeDescriptorNode(
                 this.streamKeywordToken,
@@ -78,6 +79,7 @@ public class STStreamTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StreamTypeDescriptorNode(this, position, parent);
     }

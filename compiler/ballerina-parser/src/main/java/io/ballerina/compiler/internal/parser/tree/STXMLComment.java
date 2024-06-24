@@ -62,6 +62,7 @@ public class STXMLComment extends STXMLItemNode {
                 commentEnd);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLComment(
                 this.commentStart,
@@ -88,6 +89,7 @@ public class STXMLComment extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLComment(this, position, parent);
     }

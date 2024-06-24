@@ -233,6 +233,7 @@ public final class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
             if (helpCommands == null) {
@@ -289,6 +290,7 @@ public final class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.VERSION);
@@ -337,6 +339,7 @@ public final class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.HOME);

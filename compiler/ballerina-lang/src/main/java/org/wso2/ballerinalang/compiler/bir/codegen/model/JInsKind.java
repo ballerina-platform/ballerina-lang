@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
  * An enum to model the JInstruction kind.
@@ -23,20 +23,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  * @since 1.2.0
  */
 public enum JInsKind {
-    JCAST((byte) 1),
-    CALL((byte) 2),
-    LARGE_ARRAY((byte) 3),
-    LARGE_MAP((byte) 4);
-
-    final byte value;
-
-    JInsKind(byte value) {
-
-        this.value = value;
-    }
-
-    public byte getValue() {
-
-        return this.value;
-    }
+    J_CAST(),
+    CALL(),
+    LARGE_ARRAY(),
+    LARGE_MAP()
 }

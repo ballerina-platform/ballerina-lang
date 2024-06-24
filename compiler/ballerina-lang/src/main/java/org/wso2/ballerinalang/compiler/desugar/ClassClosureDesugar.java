@@ -566,6 +566,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = panicNode;
     }
 
+    @Override
     public void visit(BLangDo doNode) {
         doNode.body = rewrite(doNode.body, env);
         result = doNode;
@@ -766,6 +767,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = errorConstructorExpr;
     }
 
+    @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
         BLangNode parent = typeInitExpr.initInvocation.parent;

@@ -1024,6 +1024,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return ifResult.definiteFailureReached && elseResult.definiteFailureReached;
     }
 
+    @Override
     public void visit(BLangFail failNode) {
         if (isOnFailEnclosed()) {
             this.possibleFailureReached = true;
@@ -2363,6 +2364,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(trapExpr.expr, env);
     }
 
+    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
             addDependency(this.currDependentSymbolDeque.peek(),

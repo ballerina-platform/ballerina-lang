@@ -490,10 +490,10 @@ public final class NativeUtils {
             String key = entry.getKey();
             String functionToMockClassName;
             String functionToMock;
-            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+            if (!key.contains(MOCK_LEGACY_DELIMITER)) {
                 functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
                 functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
-            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+            } else if (!key.contains(MOCK_FN_DELIMITER)) {
                 functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
                 functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
             } else {
@@ -576,9 +576,7 @@ public final class NativeUtils {
     private static byte[] replaceMethodBody(Method method, Method mockMethod) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
-        try {
-            InputStream ins;
-            ins = clazz.getResourceAsStream(clazz.getSimpleName() + CLASS_EXTENSION);
+        try (InputStream ins = clazz.getResourceAsStream(clazz.getSimpleName() + CLASS_EXTENSION)) {
             cr = new ClassReader(requireNonNull(ins));
         } catch (IOException e) {
             throw createLauncherException("failed to get the class reader object for the class "
@@ -611,7 +609,7 @@ public final class NativeUtils {
                 .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().forEach(classPath::add);
+        dependencies.forEach(classPath::add);
         return classPath.toString();
     }
 
@@ -710,8 +708,8 @@ public final class NativeUtils {
     }
 
     private static class ResourceConfigBundles {
-        private String name;
-        private String[] locales;
+        private final String name;
+        private final String[] locales;
 
         private ResourceConfigBundles(String name, String[] locales) {
             this.name = name;

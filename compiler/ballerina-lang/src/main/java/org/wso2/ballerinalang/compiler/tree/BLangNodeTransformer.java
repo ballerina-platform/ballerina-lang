@@ -190,7 +190,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type R.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns void, see {@link BLangNodeAnalyzer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with transform methods.
  * @param <R> the type of class that is returned by transform methods

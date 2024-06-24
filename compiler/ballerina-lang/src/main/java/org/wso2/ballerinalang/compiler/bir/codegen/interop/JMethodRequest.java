@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -52,7 +53,7 @@ class JMethodRequest {
     boolean restParamExist = false;
     BType receiverType = null;
 
-    private static Unifier unifier = new Unifier();
+    private static final Unifier unifier = new Unifier();
 
     private JMethodRequest() {
 

@@ -33,6 +33,10 @@ public final class DocerinaGen {
     private DocerinaGen() {
     }
 
+    /**
+     * Main method to generate Ballerina API docs.
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         BallerinaDocGenerator.mergeApiDocs(Path.of(args[0]));
     }

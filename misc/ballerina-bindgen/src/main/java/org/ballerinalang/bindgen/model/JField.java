@@ -107,6 +107,7 @@ public class JField extends BFunction {
         return isString;
     }
 
+    @Override
     public boolean isStatic() {
         return isStatic;
     }

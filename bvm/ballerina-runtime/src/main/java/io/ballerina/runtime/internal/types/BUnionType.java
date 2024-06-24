@@ -201,6 +201,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.isCyclic = isCyclic;
     }
 
+    @Override
     public boolean isNilable() {
         if (memberTypes == null || memberTypes.isEmpty()) {
             return true;
@@ -268,6 +269,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.readonly = readonly;
     }
 
+    @Override
     public List<Type> getMemberTypes() {
         return memberTypes;
     }
@@ -404,6 +406,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         return this.typeFlags;
     }
 
+    @Override
     public long getFlags() {
         return this.flags;
     }

@@ -56,6 +56,7 @@ public class STMapTypeDescriptorNode extends STTypeDescriptorNode {
                 mapTypeParamsNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMapTypeDescriptorNode(
                 this.mapKeywordToken,
@@ -78,6 +79,7 @@ public class STMapTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MapTypeDescriptorNode(this, position, parent);
     }

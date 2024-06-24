@@ -41,18 +41,22 @@ public class BLangRetry extends BLangStatement implements RetryNode {
     // Semantic Data
     public BLangStatement commonStmtForRetries;
 
+    @Override
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;
     }
 
+    @Override
     public void setRetrySpec(BLangRetrySpec retrySpec) {
         this.retrySpec = retrySpec;
     }
 
+    @Override
     public BLangBlockStmt getRetryBody() {
         return retryBody;
     }
 
+    @Override
     public void setRetryBody(BLangBlockStmt retryBody) {
         this.retryBody = retryBody;
     }

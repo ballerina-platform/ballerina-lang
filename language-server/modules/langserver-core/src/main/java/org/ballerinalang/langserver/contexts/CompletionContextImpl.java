@@ -97,6 +97,7 @@ public class CompletionContextImpl extends PositionedOperationContextImpl implem
             return self();
         }
 
+        @Override
         public CompletionContext build() {
             return new CompletionContextImpl(this.operation,
                     this.fileUri,

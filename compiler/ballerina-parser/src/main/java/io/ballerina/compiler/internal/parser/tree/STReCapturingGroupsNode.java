@@ -68,6 +68,7 @@ public class STReCapturingGroupsNode extends STNode {
                 closeParenthesis);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCapturingGroupsNode(
                 this.openParenthesis,
@@ -98,6 +99,7 @@ public class STReCapturingGroupsNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReCapturingGroupsNode(this, position, parent);
     }

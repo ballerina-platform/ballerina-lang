@@ -74,7 +74,7 @@ public interface CompilerPluginContext {
     /**
      * Returns user data for the compiler plugin.
      *
-     * @return Map of user data as Map<String, Object>
+     * @return Map of user data as {@link Map Map&lt;String, Object&gt;}
      */
     Map<String, Object> userData();
 }

@@ -38,6 +38,7 @@ public class BNullType extends BType implements NullType {
         super(typeName, pkg, null);
     }
 
+    @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
@@ -52,6 +53,7 @@ public class BNullType extends BType implements NullType {
         return TypeTags.NULL_TAG;
     }
 
+    @Override
     public boolean isNilable() {
         return true;
     }

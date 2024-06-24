@@ -70,6 +70,7 @@ public class BTypedescType extends BType implements TypedescType {
         return false;
     }
 
+    @Override
     public Type getConstraint() {
         return constraint;
     }

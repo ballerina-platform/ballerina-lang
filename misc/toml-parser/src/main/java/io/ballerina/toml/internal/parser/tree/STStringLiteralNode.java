@@ -62,6 +62,7 @@ public class STStringLiteralNode extends STValueNode {
                 endDoubleQuote);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STStringLiteralNode(
                 this.startDoubleQuote,
@@ -88,6 +89,7 @@ public class STStringLiteralNode extends STValueNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StringLiteralNode(this, position, parent);
     }

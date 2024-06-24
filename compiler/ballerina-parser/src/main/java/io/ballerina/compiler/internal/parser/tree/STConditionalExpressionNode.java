@@ -74,6 +74,7 @@ public class STConditionalExpressionNode extends STExpressionNode {
                 endExpression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STConditionalExpressionNode(
                 this.lhsExpression,
@@ -108,6 +109,7 @@ public class STConditionalExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConditionalExpressionNode(this, position, parent);
     }

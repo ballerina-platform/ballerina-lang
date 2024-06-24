@@ -625,6 +625,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     public void visit(BLangExternalFunctionBody body, AnalyzerData data) {
     }
 
+    @Override
     public void visit(BLangResourceFunction resourceFunction, AnalyzerData data) {
         visit((BLangFunction) resourceFunction, data);
     }

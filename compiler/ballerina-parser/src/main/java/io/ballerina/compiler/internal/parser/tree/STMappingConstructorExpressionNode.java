@@ -62,6 +62,7 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMappingConstructorExpressionNode(
                 this.openBrace,
@@ -88,6 +89,7 @@ public class STMappingConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingConstructorExpressionNode(this, position, parent);
     }

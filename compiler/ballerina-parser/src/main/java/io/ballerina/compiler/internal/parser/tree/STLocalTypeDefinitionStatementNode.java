@@ -74,6 +74,7 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STLocalTypeDefinitionStatementNode(
                 this.annotations,
@@ -108,6 +109,7 @@ public class STLocalTypeDefinitionStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LocalTypeDefinitionStatementNode(this, position, parent);
     }

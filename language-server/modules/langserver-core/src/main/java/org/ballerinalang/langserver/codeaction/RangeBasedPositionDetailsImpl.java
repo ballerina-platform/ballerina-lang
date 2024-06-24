@@ -61,6 +61,7 @@ public class RangeBasedPositionDetailsImpl implements RangeBasedPositionDetails 
      *
      * @return
      */
+    @Override
     public NonTerminalNode matchedStatementNode() {
         return matchedStmtNode;
     }
@@ -73,6 +74,7 @@ public class RangeBasedPositionDetailsImpl implements RangeBasedPositionDetails 
     /**
      * {@inheritDoc}
      */
+    @Override
     public TypeSymbol matchedTopLevelTypeSymbol() {
         return matchedTopLevelTypeSymbol;
     }
