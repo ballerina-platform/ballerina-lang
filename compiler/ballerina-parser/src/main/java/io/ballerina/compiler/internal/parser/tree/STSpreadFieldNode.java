@@ -56,6 +56,7 @@ public class STSpreadFieldNode extends STMappingFieldNode {
                 valueExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpreadFieldNode(
                 this.ellipsis,
@@ -78,6 +79,7 @@ public class STSpreadFieldNode extends STMappingFieldNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadFieldNode(this, position, parent);
     }

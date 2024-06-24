@@ -89,6 +89,7 @@ public class STMethodDeclarationNode extends STNode {
                 semicolon);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMethodDeclarationNode(
                 this.kind,
@@ -134,6 +135,7 @@ public class STMethodDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MethodDeclarationNode(this, position, parent);
     }

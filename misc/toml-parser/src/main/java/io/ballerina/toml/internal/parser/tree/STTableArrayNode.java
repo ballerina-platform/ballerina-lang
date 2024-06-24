@@ -80,6 +80,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 fields);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTableArrayNode(
                 this.firstOpenBracket,
@@ -118,6 +119,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableArrayNode(this, position, parent);
     }

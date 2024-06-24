@@ -89,6 +89,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 functionBody);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionDefinitionNode(
                 this.kind,
@@ -134,6 +135,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionDefinitionNode(this, position, parent);
     }

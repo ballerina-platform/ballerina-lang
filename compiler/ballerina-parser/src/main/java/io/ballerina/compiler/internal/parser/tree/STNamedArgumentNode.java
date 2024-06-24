@@ -62,6 +62,7 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedArgumentNode(
                 this.argumentName,
@@ -88,6 +89,7 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgumentNode(this, position, parent);
     }

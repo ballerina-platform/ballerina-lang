@@ -88,7 +88,7 @@ dependencies {
 description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
-task pathingJar(type: Jar) {
+tasks.register('pathingJar', Jar) {
     archiveAppendix = "pathing"
     doFirst {
         manifest {
@@ -99,15 +99,16 @@ task pathingJar(type: Jar) {
     }
 }
 
-task clearPathingJar(type: Delete) {
+tasks.register('clearPathingJar', Delete) {
     delete pathingJar.archiveFile
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 
-task testJar(type: Jar, dependsOn: testClasses) {
+tasks.register('testJar', Jar) {
+    dependsOn testClasses
     archiveBaseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output
 }
@@ -119,17 +120,27 @@ artifacts {
     tests testJar
 }
 
-createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
 }
 
-task deleteGeneratedModules(type:Delete) {
+javadoc {
+    doFirst {
+        logger.info(classpath.toList().toString())
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+
+tasks.register('deleteGeneratedModules', Delete) {
     delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
 }
 
 // This is need for the run via ls (fast-run) feature to be tested.
-task copyRuntime() {
+tasks.register('copyRuntime') {
     dependsOn configurations.dist
     doFirst {
         configurations.dist.each { artifact ->
@@ -154,7 +165,7 @@ test {
     }
 }
 
-task buildAndCopy(type: Copy) {
+tasks.register('buildAndCopy', Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into project(':jballerina-tools').projectDir.absolutePath +
@@ -163,3 +174,4 @@ task buildAndCopy(type: Copy) {
 }
 
 tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")

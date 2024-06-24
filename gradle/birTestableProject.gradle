@@ -4,8 +4,7 @@ configurations {
 }
 
 
-
-task createBirCache {
+tasks.register('createBirCache') {
     dependsOn configurations.bir
 
     doLast {

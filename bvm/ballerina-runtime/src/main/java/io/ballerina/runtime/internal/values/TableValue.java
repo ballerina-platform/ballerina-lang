@@ -34,13 +34,18 @@ import io.ballerina.runtime.api.values.BTable;
  */
 public interface TableValue<K, V> extends RefValue, CollectionValue, BTable<K, V> {
 
+    @Override
     void add(V data);
 
+    @Override
     V getOrThrow(Object key);
 
+    @Override
     V put(K key, V value);
 
+    @Override
     long getNextKey();
 
+    @Override
     Type getKeyType();
 }

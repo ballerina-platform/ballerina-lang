@@ -324,6 +324,7 @@ public class JsonParser {
             }
         }
 
+        @Override
         protected State finalizeObject() throws ParserException {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             switch (targetType.getTag()) {
@@ -448,6 +449,7 @@ public class JsonParser {
             }
         }
 
+        @Override
         protected State initNewObject() throws ParserException {
             if (charBuffIndex != 0) {
                 throw new ParserException(UNRECOGNIZED_TOKEN +  "{'");
@@ -537,6 +539,7 @@ public class JsonParser {
             }
         }
 
+        @Override
         protected State initNewArray() throws ParserException {
             if (charBuffIndex != 0) {
                 throw new ParserException(UNRECOGNIZED_TOKEN +  "['");
@@ -920,6 +923,7 @@ public class JsonParser {
             setValueToJsonType(type, getNonStringValueAsJson(str));
         }
 
+        @Override
         void processNonStringValue(ValueType type) throws ParserException {
             String str = value();
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
@@ -996,6 +1000,7 @@ public class JsonParser {
             this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
         }
 
+        @Override
         void setValueToJsonType(ValueType type, Object value) {
             switch (type) {
                 case ARRAY_ELEMENT:

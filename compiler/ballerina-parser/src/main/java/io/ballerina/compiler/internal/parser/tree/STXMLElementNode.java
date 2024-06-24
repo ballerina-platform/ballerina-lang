@@ -62,6 +62,7 @@ public class STXMLElementNode extends STXMLItemNode {
                 endTag);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLElementNode(
                 this.startTag,
@@ -88,6 +89,7 @@ public class STXMLElementNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLElementNode(this, position, parent);
     }

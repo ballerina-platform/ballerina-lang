@@ -29,13 +29,3 @@ dependencies {
 description = 'Ballerina - Language server - CLI Command'
 
 ext.moduleName = 'langserver-cli'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

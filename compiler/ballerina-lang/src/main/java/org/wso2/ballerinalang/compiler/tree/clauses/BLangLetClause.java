@@ -43,10 +43,12 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
     // Semantic Data
     public SymbolEnv env;
 
+    @Override
     public List<BLangLetVariable> getLetVarDeclarations() {
         return letVarDeclarations;
     }
 
+    @Override
     public void addLetVarDeclarations(List<BLangLetVariable> letVarDeclarations) {
         this.letVarDeclarations = letVarDeclarations;
     }

@@ -145,6 +145,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             this.params = params;
         }
 
+        @Override
         public CodeActionContext build() {
             return new CodeActionContextImpl(
                     this.operation,

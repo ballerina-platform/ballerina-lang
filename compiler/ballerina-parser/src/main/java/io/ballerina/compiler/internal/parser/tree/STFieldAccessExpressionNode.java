@@ -62,6 +62,7 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
                 fieldName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFieldAccessExpressionNode(
                 this.expression,
@@ -88,6 +89,7 @@ public class STFieldAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldAccessExpressionNode(this, position, parent);
     }

@@ -442,10 +442,11 @@ public class JsonToRecordConverter {
                 "    \"schemas\" : {\n" +
                 "      \"" + recordName + "\" : ";
 
-        final String suffix = "\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
+        final String suffix = """
+
+                    }
+                  }
+                }""";
 
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> jsonMap = objectMapper.readValue(schemaString, new TypeReference<>() { });

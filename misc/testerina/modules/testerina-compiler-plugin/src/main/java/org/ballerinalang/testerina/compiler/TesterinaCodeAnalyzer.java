@@ -52,15 +52,13 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
             // the class for functions
             if (syntaxNodeAnalysisContext.node() instanceof ClassDefinitionNode) {
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) syntaxNodeAnalysisContext.node();
-                classDefinitionNode.members().forEach(member -> {
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member);
-                });
+                classDefinitionNode.members().forEach(member ->
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             } else if (syntaxNodeAnalysisContext.node() instanceof ServiceDeclarationNode) {
                 ServiceDeclarationNode serviceDeclarationNode =
                         (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
-                serviceDeclarationNode.members().forEach(member -> {
-                    validateTestAnnotation(syntaxNodeAnalysisContext, member);
-                });
+                serviceDeclarationNode.members().forEach(member ->
+                    validateTestAnnotation(syntaxNodeAnalysisContext, member));
             }
         }, Arrays.asList(SyntaxKind.CLASS_DEFINITION, SyntaxKind.SERVICE_DECLARATION));
     }
@@ -68,7 +66,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
     private static void validateTestAnnotation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, Node member) {
         if (member instanceof FunctionDefinitionNode) {
             FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) member;
-            funcDefNode.metadata().ifPresent(metadata -> {
+            funcDefNode.metadata().ifPresent(metadata ->
                 metadata.annotations().forEach(annotation -> {
                     if (annotation.annotReference().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                         QualifiedNameReferenceNode qualifiedNameReferenceNode =
@@ -83,8 +81,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
                             syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
                         }
                     }
-                });
-            });
+                }));
         }
     }
 }

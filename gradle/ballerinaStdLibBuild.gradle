@@ -69,15 +69,6 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
-}
-
 class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = ''
     @Internal def distCache = ''
@@ -112,7 +103,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
 
 }
 
-task createDistributionCache() {
+tasks.register('createDistributionCache') {
     dependsOn configurations.distributionBala
     doLast {
         configurations.distributionBala.each { artifact ->
@@ -124,7 +115,7 @@ task createDistributionCache() {
     }
 }
 
-task copyRuntime() {
+tasks.register('copyRuntime') {
     dependsOn configurations.dist
     doFirst {
         configurations.dist.each { artifact ->
@@ -136,7 +127,7 @@ task copyRuntime() {
     }
 }
 
-task copyInteropImports(type: Copy) {
+tasks.register('copyInteropImports', Copy) {
     into "$buildDir/libs"
     from configurations.interopImports
 }
@@ -164,12 +155,12 @@ def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
 def jarFileName = modOrg + "-" + modName + "-" + modVersion
 
 
-task copyBallerinaProject(type: Copy) {
+tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
     into project.buildDir.toString() + "/ballerina-src"
 }
 
-task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
+tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
     standardOutput = System.out
     errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName

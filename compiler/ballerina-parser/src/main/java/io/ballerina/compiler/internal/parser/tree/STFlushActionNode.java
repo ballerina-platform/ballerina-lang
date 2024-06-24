@@ -56,6 +56,7 @@ public class STFlushActionNode extends STExpressionNode {
                 peerWorker);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFlushActionNode(
                 this.flushKeyword,
@@ -78,6 +79,7 @@ public class STFlushActionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FlushActionNode(this, position, parent);
     }

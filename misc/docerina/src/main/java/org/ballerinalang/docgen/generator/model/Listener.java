@@ -43,6 +43,7 @@ public class Listener extends BClass {
                 .toList();
     }
 
+    @Override
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
                 .filter(function -> !(function.name.equals("attach")

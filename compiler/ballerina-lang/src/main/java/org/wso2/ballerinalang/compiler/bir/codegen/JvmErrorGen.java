@@ -22,8 +22,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.CatchIns;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JErrorEntry;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 
@@ -94,8 +94,7 @@ public class JvmErrorGen {
 
         this.mv.visitLabel(endLabel);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
-        if (currentEE instanceof JErrorEntry) {
-            JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
+        if (currentEE instanceof JErrorEntry jCurrentEE) {
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
             int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
             boolean exeptionExist = false;

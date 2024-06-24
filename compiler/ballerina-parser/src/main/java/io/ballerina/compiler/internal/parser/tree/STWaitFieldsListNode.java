@@ -62,6 +62,7 @@ public class STWaitFieldsListNode extends STNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWaitFieldsListNode(
                 this.openBrace,
@@ -88,6 +89,7 @@ public class STWaitFieldsListNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldsListNode(this, position, parent);
     }

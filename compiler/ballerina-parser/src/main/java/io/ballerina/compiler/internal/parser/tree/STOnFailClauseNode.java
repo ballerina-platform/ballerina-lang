@@ -68,6 +68,7 @@ public class STOnFailClauseNode extends STClauseNode {
                 blockStatement);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnFailClauseNode(
                 this.onKeyword,
@@ -98,6 +99,7 @@ public class STOnFailClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OnFailClauseNode(this, position, parent);
     }

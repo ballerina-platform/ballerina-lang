@@ -69,13 +69,13 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODIFIED_JA
 
 public class CreateTestExecutableTask implements Task {
     private final transient PrintStream out;
-    private String groupList;
-    private String disableGroupList;
-    private boolean report;
-    private boolean coverage;
-    private boolean isRerunTestExecution;
-    private String singleExecTests;
-    private boolean listGroups;
+    private final String groupList;
+    private final String disableGroupList;
+    private final boolean report;
+    private final boolean coverage;
+    private final boolean isRerunTestExecution;
+    private final String singleExecTests;
+    private final boolean listGroups;
     private final List<String> cliArgs;
     private final boolean isParallelExecution;
 
@@ -263,7 +263,7 @@ public class CreateTestExecutableTask implements Task {
                         }
                         throw new IllegalStateException("unable to resolve dependency file name");
                     }).findFirst();
-                    if (!foundDependency.isPresent()) {
+                    if (foundDependency.isEmpty()) {
                         return;
                     }
                     JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,

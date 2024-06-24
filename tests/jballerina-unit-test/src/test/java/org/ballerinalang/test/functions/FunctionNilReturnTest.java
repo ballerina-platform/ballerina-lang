@@ -137,8 +137,11 @@ public class FunctionNilReturnTest {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
             BRunUtil.invoke(compileResult, "testNilReturnFuncInvocnInNilReturnFuncRetStmt", new Object[0]);
-            Assert.assertEquals(outputStream.toString().replace("\r", ""), "nil returns here\nexplicit nil returns" +
-                    " here\n\n");
+            Assert.assertEquals(outputStream.toString().replace("\r", ""), """
+                    nil returns here
+                    explicit nil returns here
+
+                    """);
         } finally {
             System.setOut(original);
         }

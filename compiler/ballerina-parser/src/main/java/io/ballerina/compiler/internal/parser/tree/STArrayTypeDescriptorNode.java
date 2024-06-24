@@ -56,6 +56,7 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 dimensions);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STArrayTypeDescriptorNode(
                 this.memberTypeDesc,
@@ -78,6 +79,7 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ArrayTypeDescriptorNode(this, position, parent);
     }

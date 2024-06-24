@@ -152,6 +152,7 @@ public class TypeCastBinaryExpressionCodeAction extends TypeCastCodeAction {
                 .anyMatch(t -> t.typeKind().isStringType());
     }
 
+    @Override
     public String getName() {
         return NAME;
     }

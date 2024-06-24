@@ -428,16 +428,17 @@ public class BJSONValueTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertEquals(errorMsg, "'json[]' value cannot be converted to 'Json3DArray': " +
-                "\n\t\tarray element '[0][0]' should be of type 'json[]', found '1'" +
-                "\n\t\tarray element '[0][1]' should be of type 'json[]', found '2'" +
-                "\n\t\tarray element '[0][2]' should be of type 'json[]', found '3'" +
-                "\n\t\tarray element '[1][0]' should be of type 'json[]', found '3'" +
-                "\n\t\tarray element '[1][1]' should be of type 'json[]', found '4'" +
-                "\n\t\tarray element '[1][2]' should be of type 'json[]', found '5'" +
-                "\n\t\tarray element '[2][0]' should be of type 'json[]', found '7'" +
-                "\n\t\tarray element '[2][1]' should be of type 'json[]', found '8'" +
-                "\n\t\tarray element '[2][2]' should be of type 'json[]', found '9'");
+        Assert.assertEquals(errorMsg, """
+                'json[]' value cannot be converted to 'Json3DArray':\s
+                \t\tarray element '[0][0]' should be of type 'json[]', found '1'
+                \t\tarray element '[0][1]' should be of type 'json[]', found '2'
+                \t\tarray element '[0][2]' should be of type 'json[]', found '3'
+                \t\tarray element '[1][0]' should be of type 'json[]', found '3'
+                \t\tarray element '[1][1]' should be of type 'json[]', found '4'
+                \t\tarray element '[1][2]' should be of type 'json[]', found '5'
+                \t\tarray element '[2][0]' should be of type 'json[]', found '7'
+                \t\tarray element '[2][1]' should be of type 'json[]', found '8'
+                \t\tarray element '[2][2]' should be of type 'json[]', found '9'""");
     }
 
     @Test

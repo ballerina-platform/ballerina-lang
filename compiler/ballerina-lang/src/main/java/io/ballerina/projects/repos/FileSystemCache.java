@@ -171,6 +171,7 @@ public class FileSystemCache extends CompilationCache {
             this.cacheDirPath = cacheDirPath;
         }
 
+        @Override
         public CompilationCache createCompilationCache(Project project) {
             return new FileSystemCache(project, cacheDirPath);
         }

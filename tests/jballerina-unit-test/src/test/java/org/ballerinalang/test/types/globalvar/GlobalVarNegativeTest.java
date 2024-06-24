@@ -129,10 +129,10 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person4 & " +
                 "readonly)'\n\t" +
                 "record field type '()' of field 'person4.person.nilField' is not supported", 74, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person5 & " +
-                "readonly)'\n\t" +
-                "record field type '()' of field 'person5.field1' is not supported\n\t" +
-                "record field type '()' of field 'person5.field2' is not supported", 75, 1);
+        BAssertUtil.validateError(result, i++, """
+                configurable variable currently not supported for '(Person5 & readonly)'
+                \trecord field type '()' of field 'person5.field1' is not supported
+                \trecord field type '()' of field 'person5.field2' is not supported""", 75, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<map<()>> " +
                 "& readonly)'\n\t" +
                 "map constraint type '()' is not supported", 78, 1);

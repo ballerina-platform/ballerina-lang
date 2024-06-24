@@ -34,7 +34,7 @@ dependencies {
     dependency 'commons-io:commons-io:2.7'
 }
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     dependsOn createBalHome
 }
 
@@ -43,9 +43,18 @@ artifacts {
     libs configurations.dependency.files
 }
 
-createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
 }
 
 test {

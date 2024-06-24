@@ -236,7 +236,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
-        this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
+        CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
         this.symResolver = SymbolResolver.getInstance(context);
     }
 
@@ -1125,6 +1125,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         panicNode.expr = rewriteExpr(panicNode.expr);
         result = panicNode;
     }
+    @Override
     public void visit(BLangDo doNode) {
         doNode.body = rewrite(doNode.body, env);
         result = doNode;
@@ -1307,7 +1308,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, Location location) {
-        BVarSymbol symbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type,
+        BVarSymbol symbol = new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, type,
                 ((BLangFunction) this.env.enclInvokable).originalFuncSymbol, location, VIRTUAL);
         BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(location, name, type, expr, symbol);
         BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(location);
@@ -1323,6 +1324,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = errorConstructorExpr;
     }
 
+    @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
         result = typeInitExpr;
@@ -1666,7 +1668,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @return map symbol created
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
-        return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
+        return new BVarSymbol(0, Names.fromString(mapName), symbolEnv.scope.owner.pkgID,
                               symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
@@ -1798,7 +1800,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                         SymbolEnv env = parentData.capturedClosureEnv;
 
                         BVarSymbol parentBlockSymbol = new BVarSymbol(0,
-                                names.fromString("$passThroughMap"),
+                                Names.fromString("$passThroughMap"),
                                 env.scope.owner.pkgID, parentBlockMap.getType(), env.scope.owner, body.pos, VIRTUAL);
 
                         BLangSimpleVariable blockMapVar = ASTBuilderUtil.createVariable(body.pos,

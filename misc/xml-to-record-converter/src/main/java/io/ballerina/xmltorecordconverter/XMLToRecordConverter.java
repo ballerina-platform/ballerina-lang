@@ -248,7 +248,10 @@ public class XMLToRecordConverter {
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element xmlElementNode = (Element) xmlNode;
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
-                if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 0) {
+                NamedNodeMap xmlAttributesMap = xmlElementNode.getAttributes();
+                if (!isLeafXMLElementNode || xmlAttributesMap.getLength() > 1
+                        || (xmlAttributesMap.getLength() == 1
+                                && !XMLNS_PREFIX.equals(xmlAttributesMap.item(0).getPrefix()))) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
                             recordToElementNodes, diagnosticMessages, textFieldName, withNameSpace);
                 }
@@ -320,7 +323,13 @@ public class XMLToRecordConverter {
                 }
             }
         }
-        if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
+        int attributeLength = xmlElement.getAttributes().getLength();
+        org.w3c.dom.Node attributeItem = xmlElement.getAttributes().item(0);
+        if (isLeafXMLElementNode(xmlElement) && attributeLength > 0) {
+            if (attributeLength == 1 && attributeItem.getPrefix() != null
+                    && XMLNS_PREFIX.equals(attributeItem.getPrefix())) {
+                return recordFields;
+            }
             Token fieldType = getPrimitiveTypeName(xmlElement.getFirstChild().getNodeValue());
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(textFieldName == null ?
                     escapeIdentifier("#content") : textFieldName);
@@ -328,10 +337,11 @@ public class XMLToRecordConverter {
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldType,
                     fieldName, null, semicolon);
             recordFields.add(recordFieldNode);
-            for (int j = 0; j < xmlElement.getAttributes().getLength(); j++) {
+            for (int j = 0; j < attributeLength; j++) {
                 org.w3c.dom.Node xmlAttributeNode = xmlElement.getAttributes().item(j);
-                if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
-                    RecordFieldNode recordField = (RecordFieldNode) getRecordField(xmlAttributeNode);
+                if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE
+                        && !XMLNS_PREFIX.equals(xmlAttributeNode.getPrefix())) {
+                    Node recordField = getRecordField(xmlAttributeNode);
                     recordFields.add(recordField);
                 }
             }
@@ -461,7 +471,10 @@ public class XMLToRecordConverter {
         Token optionalFieldToken = isOptionalField ? questionMarkToken : null;
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
-        if (isLeafXMLElementNode(xmlElementNode) && xmlElementNode.getAttributes().getLength() == 0) {
+        NamedNodeMap xmlAttributesMap = xmlElementNode.getAttributes();
+        if (isLeafXMLElementNode(xmlElementNode) && (xmlAttributesMap.getLength() == 0 ||
+                (xmlAttributesMap.getLength() == 1
+                        && XMLNS_PREFIX.equals(xmlAttributesMap.item(0).getPrefix())))) {
             typeName = getPrimitiveTypeName(xmlElementNode.getFirstChild().getNodeValue());
         } else {
             // At the moment all are considered as Objects here

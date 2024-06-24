@@ -62,6 +62,7 @@ public class STReceiveFieldsNode extends STNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReceiveFieldsNode(
                 this.openBrace,
@@ -88,6 +89,7 @@ public class STReceiveFieldsNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveFieldsNode(this, position, parent);
     }

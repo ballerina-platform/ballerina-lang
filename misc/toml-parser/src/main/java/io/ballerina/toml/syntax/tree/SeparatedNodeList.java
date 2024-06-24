@@ -41,6 +41,7 @@ public class SeparatedNodeList<T extends Node> extends NodeList<T> {
 
     // Positional access methods
 
+    @Override
     public T get(int index) {
         rangeCheck(index, size);
         return this.nonTerminalNode.childInBucket(index * 2);
@@ -48,30 +49,37 @@ public class SeparatedNodeList<T extends Node> extends NodeList<T> {
 
     // Modification methods
 
+    @Override
     public NodeList<T> add(T node) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> add(int index, T node) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> addAll(Collection<T> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> set(int index, T node) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> remove(int index) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> remove(T node) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NodeList<T> removeAll(Collection<T> c) {
         throw new UnsupportedOperationException();
     }

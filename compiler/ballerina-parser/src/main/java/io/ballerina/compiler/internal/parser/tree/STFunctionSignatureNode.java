@@ -68,6 +68,7 @@ public class STFunctionSignatureNode extends STNode {
                 returnTypeDesc);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionSignatureNode(
                 this.openParenToken,
@@ -98,6 +99,7 @@ public class STFunctionSignatureNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionSignatureNode(this, position, parent);
     }

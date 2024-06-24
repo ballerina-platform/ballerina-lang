@@ -74,6 +74,7 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STCompoundAssignmentStatementNode(
                 this.lhsExpression,
@@ -108,6 +109,7 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CompoundAssignmentStatementNode(this, position, parent);
     }

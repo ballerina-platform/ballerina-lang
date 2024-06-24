@@ -53,7 +53,7 @@ import javax.tools.StandardLocation;
  */
 @SupportedAnnotationTypes({ "org.ballerinalang.annotation.JavaSPIService",
         "org.ballerinalang.natives.annotations.BallerinaFunction" })
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedOptions({ "nativeEntityProviderPackage", "nativeEntityProviderClass" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
@@ -286,6 +286,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             return "new TypeKind[] { " + String.join(", ", vals) + " }";
         }
         
+        @Override
         public String code() {
             return "registerNativeFunction(new NativeFunctionDef(\"" + this.org + "\", \"" + this.pkg + "\", \"" +
                     this.version + "\", \"" + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", " +
@@ -301,6 +302,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         
         public String connectorName;
         
+        @Override
         public String code() {
             return "registerNativeAction(new NativeActionDef(\"" + this.org + "\", \""
                     + this.pkg + "\", \"" + this.version + "\", \"" + this.connectorName + "\", \""
