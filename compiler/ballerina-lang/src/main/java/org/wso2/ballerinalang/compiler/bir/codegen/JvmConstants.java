@@ -342,6 +342,8 @@ public class JvmConstants {
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
+    public static final String PARENT_MODULE_START_ATTEMPTED = "$parentModuleStartAttempted";
+    public static final String NO_OF_DEPENDANT_MODULES = "$noOfDependantModules";
     public static final String MODULE_STARTED = "$moduleStarted";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
@@ -369,6 +371,7 @@ public class JvmConstants {
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
+    public static final String CONFIGURE_INIT_ATTEMPTED = "$configureInitAttempted";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
     public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
     public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
