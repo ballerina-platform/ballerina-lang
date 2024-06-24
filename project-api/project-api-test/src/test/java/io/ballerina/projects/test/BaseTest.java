@@ -39,6 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -92,7 +93,7 @@ public class BaseTest {
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
             Path balaPath;
-            try (var paths = Files.list(localRepoBalaCache)) {
+            try (Stream<Path> paths = Files.list(localRepoBalaCache)) {
                 balaPath = paths.findAny().orElseThrow();
             }
             ProjectUtils.extractBala(balaPath, localRepoBalaCache);
@@ -140,7 +141,7 @@ public class BaseTest {
         Files.createDirectories(centralRepoBalaCache);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
         Path balaPath;
-        try (var paths = Files.list(centralRepoBalaCache)) {
+        try (Stream<Path> paths = Files.list(centralRepoBalaCache)) {
             balaPath = paths.findAny().orElseThrow();
         }
         ProjectUtils.extractBala(balaPath, centralRepoBalaCache);

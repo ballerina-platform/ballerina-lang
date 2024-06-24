@@ -894,7 +894,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     public void afterClass() throws IOException {
         Path advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("adv_res");
-        try (var paths = Files.walk(advResBalaDir)) {
+        try (Stream<Path> paths = Files.walk(advResBalaDir)) {
             paths.map(Path::toFile)
                     .sorted((o1, o2) -> -o1.compareTo(o2))
                     .forEach(File::delete);

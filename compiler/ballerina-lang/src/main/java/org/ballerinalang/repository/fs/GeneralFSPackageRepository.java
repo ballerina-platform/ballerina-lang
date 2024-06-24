@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This represents a general file system based {@link PackageRepository}.
@@ -137,7 +138,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                     }
                     List<Name> nameComps = new ArrayList<>();
                     boolean balFilesExist;
-                    try (var paths = Files.list(dir)) {
+                    try (Stream<Path> paths = Files.list(dir)) {
                         balFilesExist = paths.filter(f -> isBALFile(f)).count() > 0;
                     }
                     if (balFilesExist) {
@@ -237,7 +238,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         @Override
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
-                try (var paths = Files.walk(this.pkgPath, 1)) {
+                try (Stream<Path> paths = Files.walk(this.pkgPath, 1)) {
                     List<Path> files = paths.filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
                             toList();

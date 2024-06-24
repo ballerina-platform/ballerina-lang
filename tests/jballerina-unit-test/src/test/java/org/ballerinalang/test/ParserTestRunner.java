@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 /**
  * Test running parser tests through compiler phases.
@@ -58,7 +59,7 @@ public class ParserTestRunner {
     @DataProvider(name = "parser-test-file-provider")
     public Object[][] dataProvider() {
         HashSet<String> skippedTests = skipList();
-        try (var paths = Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))) {
+        try (Stream<Path> paths = Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))) {
             return paths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")

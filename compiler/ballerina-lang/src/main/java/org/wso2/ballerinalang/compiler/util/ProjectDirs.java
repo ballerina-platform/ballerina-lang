@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -78,7 +79,7 @@ public class ProjectDirs {
      * @return true if source files exists else false
      */
     public static boolean containsSourceFiles(Path pkgPath) throws BLangCompilerException {
-        try (var paths = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
+        try (Stream<Path> paths = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
                             path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT))) {
             return paths.findAny().isPresent();
         } catch (IOException ignored) {

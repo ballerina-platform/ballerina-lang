@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
@@ -227,7 +228,7 @@ public class TestUtils {
     }
 
     static void cleanDirectory(Path path) {
-        try (var paths = Files.walk(path)) {
+        try (Stream<Path> paths = Files.walk(path)) {
             paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .filter(item -> !item.getPath().equals(path.toString()))

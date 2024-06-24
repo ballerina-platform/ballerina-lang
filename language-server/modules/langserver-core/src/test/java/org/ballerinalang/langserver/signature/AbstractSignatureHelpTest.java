@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Test class for Signature help.
@@ -103,7 +104,8 @@ public abstract class AbstractSignatureHelpTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try (var configPaths = Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))) {
+        try (Stream<Path> configPaths = Files.walk(
+                this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))) {
             return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")

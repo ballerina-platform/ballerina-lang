@@ -337,7 +337,7 @@ public class RunTestsTask implements Task {
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
         List<Path> paths;
-        try (var stream = Files.walk(Paths.get(projectRootString), 3)) {
+        try (Stream<Path> stream = Files.walk(Paths.get(projectRootString), 3)) {
             paths = stream.toList();
         }
 

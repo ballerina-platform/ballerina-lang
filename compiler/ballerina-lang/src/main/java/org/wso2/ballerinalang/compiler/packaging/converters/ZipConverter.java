@@ -189,7 +189,7 @@ public class ZipConverter extends PathConverter {
         if (dirPath == null) {
             return;
         }
-        try (var paths = Files.walk(dirPath)) {
+        try (Stream<Path> paths = Files.walk(dirPath)) {
             paths.sorted(Comparator.reverseOrder()).forEach(path -> {
                 try {
                     Files.delete(path);

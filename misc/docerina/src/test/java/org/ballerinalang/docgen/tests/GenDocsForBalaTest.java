@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Test generating API docs for a bala.
@@ -122,7 +123,7 @@ public class GenDocsForBalaTest {
     @AfterMethod
     public void cleanUp() throws IOException {
         if (Files.exists(this.docsPath)) {
-            try (var paths = Files.walk(this.docsPath)) {
+            try (Stream<Path> paths = Files.walk(this.docsPath)) {
                 paths.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);

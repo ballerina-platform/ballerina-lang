@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
@@ -72,7 +73,7 @@ public class TesterinaUtils {
     public static void cleanUpDir(Path path) {
         try {
             if (Files.exists(path)) {
-                try (var paths = Files.walk(path)) {
+                try (Stream<Path> paths = Files.walk(path)) {
                     paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
                 }
             }

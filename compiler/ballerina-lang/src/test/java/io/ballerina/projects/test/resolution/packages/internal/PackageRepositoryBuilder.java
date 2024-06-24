@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Reads repository dot files and build test package repository instances.
@@ -93,7 +94,7 @@ public class PackageRepositoryBuilder {
             return DefaultPackageRepository.EMPTY_REPO;
         }
 
-        try (var paths = Files.list(localRepoDirPath)) {
+        try (Stream<Path> paths = Files.list(localRepoDirPath)) {
             return buildLocalRepo(paths.collect(Collectors.toList()));
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Test hover feature in language server.
@@ -87,7 +88,7 @@ public class HoverProviderTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try (var configPaths = Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))) {
+        try (Stream<Path> configPaths = Files.walk(FileUtils.RES_DIR.resolve("hover").resolve("configs"))) {
             return configPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".json")

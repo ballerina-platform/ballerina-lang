@@ -60,6 +60,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
@@ -146,7 +147,7 @@ public class Utils {
         try {
             if (Files.isDirectory(balaCacheWithPkgPath)) {
                 boolean hasChildren;
-                try (var paths = Files.list(balaCacheWithPkgPath)) {
+                try (Stream<Path> paths = Files.list(balaCacheWithPkgPath)) {
                     hasChildren = paths.findAny().isPresent();
                 }
                 if (hasChildren) {
@@ -463,7 +464,7 @@ public class Utils {
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
             List<Path> paths;
-            try (var pathStream = Files.walk(packageRoot)) {
+            try (Stream<Path> pathStream = Files.walk(packageRoot)) {
                 paths = pathStream.filter(path -> path != packageRoot).toList();
             }
 
