@@ -20,7 +20,7 @@ package io.ballerina.shell;
 
 /**
  * Return value after invoking snippet.
- * Contains result as an object & exception status related to compilation
+ * Contains result as an object &amp; exception status related to compilation
  *
  * @since 2201.1.1
  */

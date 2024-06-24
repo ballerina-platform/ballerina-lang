@@ -53,7 +53,7 @@ dependencies {
 description = 'Ballerina - Language Server Integration Tests'
 
 
-task copyCompilerPluginJars(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
 }

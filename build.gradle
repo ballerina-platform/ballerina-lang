@@ -15,7 +15,7 @@ allprojects {
     group = project.group
     version = project.version
 
-    task printPath {
+    tasks.register('printPath') {
         doLast{
             println projectDir
         }
@@ -67,8 +67,8 @@ dependencies {
 def classFilesArray = []
 def execFilesArray = []
 
-task copyExecFilesAndJavaClassFiles {
-    subprojects.forEach { subproject -> 
+tasks.register('copyExecFilesAndJavaClassFiles') {
+    subprojects.forEach { subproject ->
         def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
         if (execFile.exists()) {
             execFilesArray.push(execFile)
@@ -81,12 +81,12 @@ task copyExecFilesAndJavaClassFiles {
     }
 }
 
-task copyBallerinaClassFiles {
-    subprojects.forEach { subproject -> 
-    def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
+tasks.register('copyBallerinaClassFiles') {
+    subprojects.forEach { subproject ->
+        def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
         if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
             fileTree("${subproject.buildDir}/ballerina-src/target").include("**/*.zip").forEach { zip ->
-                def jarFiles = zipTree(zip).matching { include '**/*.jar' } 
+                def jarFiles = zipTree(zip).matching { include '**/*.jar' }
                 jarFiles.forEach { jar ->
                     zipTree(jar).matching {
                         exclude '**/tests/*'
@@ -106,7 +106,7 @@ task copyBallerinaClassFiles {
     }
 }
 
-task createCodeCoverageReport(type: JacocoReport) {
+tasks.register('createCodeCoverageReport', JacocoReport) {
     executionData files(execFilesArray)
     additionalClassDirs files(classFilesArray)
     reports {

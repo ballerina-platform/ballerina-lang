@@ -236,27 +236,26 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "function";
-    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
-    private Names names;
+    private final Names names;
     private final SymbolTable symTable;
-    private BIROptimizer birOptimizer;
+    private final BIROptimizer birOptimizer;
     private final Types types;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
-    private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private final Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
     // This map is used to create dependencies for imported module global variables
-    private Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
+    private final Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
 
-    // This is to cache the lockstmt to BIR Lock
-    private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
+    // This is to cache the lock statement to BIR Lock
+    private final Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
-    private Unifier unifier;
+    private final Unifier unifier;
 
     private BirScope currentScope;
 
@@ -1085,7 +1084,7 @@ public class BIRGen extends BLangNodeVisitor {
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        BirScope newScope = new BirScope(this.currentScope.id() + 1, this.currentScope);
         birVarDcl.insScope = newScope;
         this.currentScope = newScope;
 
@@ -1762,7 +1761,7 @@ public class BIRGen extends BLangNodeVisitor {
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
                                               astMapAccessExpr.isLValue && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1789,7 +1788,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex));
         this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     @Override
@@ -1960,7 +1959,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create binary instruction
         BinaryOp binaryIns = new BinaryOp(astBinaryExpr.pos, getBinaryInstructionKind(astBinaryExpr.opKind),
-                                          astBinaryExpr.getBType(), lhsOp, rhsOp1, rhsOp2);
+                lhsOp, rhsOp1, rhsOp2);
         setScopeAndEmit(binaryIns);
     }
 
@@ -2070,7 +2069,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        // If the QName is use outside of XML, treat it as string.
+        // If the QName is use outside XML, treat it as string.
         if (!xmlQName.isUsedInXML) {
             String qName = xmlQName.namespaceURI == null ? xmlQName.localname.value
                     : ("{" + xmlQName.namespaceURI + "}" + xmlQName.localname);
@@ -2356,8 +2355,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB, this.currentScope);
             this.env.enclBB.terminator = unlock;
-            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
-            unlock.relatedLock = lock;
+            unlock.relatedLock = toUnlock.getLock(numLocks - 1);
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -2668,8 +2666,7 @@ public class BIRGen extends BLangNodeVisitor {
             case MUL -> InstructionKind.MUL;
             case DIV -> InstructionKind.DIV;
             case MOD -> InstructionKind.MOD;
-            case EQUAL,
-                 EQUALS -> InstructionKind.EQUAL;
+            case EQUAL, EQUALS -> InstructionKind.EQUAL;
             case NOT_EQUAL -> InstructionKind.NOT_EQUAL;
             case GREATER_THAN -> InstructionKind.GREATER_THAN;
             case GREATER_EQUAL -> InstructionKind.GREATER_EQUAL;
@@ -2783,7 +2780,7 @@ public class BIRGen extends BLangNodeVisitor {
                                               astArrayAccessExpr.isLValue && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
-        this.varAssignment = variableStore;
+        this.varAssignment = false;
     }
 
     private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr, boolean except) {
@@ -2833,7 +2830,7 @@ public class BIRGen extends BLangNodeVisitor {
             } else if (types.isAssignable(astAccessExprExprType, symTable.xmlType)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
-                this.varAssignment = variableStore;
+                this.varAssignment = false;
                 return;
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&

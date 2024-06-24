@@ -74,7 +74,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 false, true, "");
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery").toFile().exists());
@@ -88,7 +88,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 false, true, "-H:Name=hoo");
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating 'hoo' (executable)"));
@@ -108,7 +108,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false, true, "");
         // name of the file as argument
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
 
         Assert.assertTrue(projectPath.resolve("target").resolve("native").resolve("winery").toFile().exists());
@@ -125,7 +125,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 false, true, "-H:Name=hoo");
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating 'hoo' (executable)"));

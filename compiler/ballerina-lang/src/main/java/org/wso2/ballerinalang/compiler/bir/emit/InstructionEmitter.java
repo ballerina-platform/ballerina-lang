@@ -82,18 +82,9 @@ class InstructionEmitter {
             case NEW_ERROR -> emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
             case FP_LOAD -> emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
             case RECORD_DEFAULT_FP_LOAD -> emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
-            case MAP_LOAD,
-                 MAP_STORE,
-                 ARRAY_LOAD,
-                 ARRAY_STORE,
-                 OBJECT_LOAD,
-                 OBJECT_STORE,
-                 XML_ATTRIBUTE_LOAD,
-                 XML_ATTRIBUTE_STORE,
-                 XML_SEQ_LOAD,
-                 STRING_LOAD,
-                 TABLE_LOAD,
-                 TABLE_STORE -> emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
+            case MAP_LOAD, MAP_STORE, ARRAY_LOAD, ARRAY_STORE, OBJECT_LOAD, OBJECT_STORE, XML_ATTRIBUTE_LOAD,
+                    XML_ATTRIBUTE_STORE, XML_SEQ_LOAD, STRING_LOAD, TABLE_LOAD, TABLE_STORE ->
+                    emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
             case TYPE_CAST -> emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
             case IS_LIKE -> emitInsIsLike((BIRNonTerminator.IsLike) ins, tabs);
             case TYPE_TEST -> emitInsTypeTest((BIRNonTerminator.TypeTest) ins, tabs);
@@ -102,8 +93,7 @@ class InstructionEmitter {
             case NEW_XML_SEQUENCE -> emitInsNewXMLSequence((BIRNonTerminator.NewXMLSequence) ins, tabs);
             case NEW_XML_QNAME -> emitInsNewXMLQName((BIRNonTerminator.NewXMLQName) ins, tabs);
             case NEW_STRING_XML_QNAME -> emitInsNewStringXMLQName((BIRNonTerminator.NewStringXMLQName) ins, tabs);
-            case XML_LOAD_ALL,
-                 XML_SEQ_STORE -> emitInsXMLAccess((BIRNonTerminator.XMLAccess) ins, tabs);
+            case XML_LOAD_ALL, XML_SEQ_STORE -> emitInsXMLAccess((BIRNonTerminator.XMLAccess) ins, tabs);
             case NEW_XML_TEXT -> emitInsNewXMLText((BIRNonTerminator.NewXMLText) ins, tabs);
             case NEW_XML_COMMENT -> emitInsNewXMLComment((BIRNonTerminator.NewXMLComment) ins, tabs);
             case NEW_XML_PI -> emitInsNewXMLPI((BIRNonTerminator.NewXMLProcIns) ins, tabs);
@@ -185,9 +175,7 @@ class InstructionEmitter {
         StringBuilder outStr = new StringBuilder();
         for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
             BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
-            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
-                BIRNode.BIRMappingConstructorKeyValueEntry entry =
-                        (BIRNode.BIRMappingConstructorKeyValueEntry) mappingEntry;
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry entry) {
                 outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
             } else {
                 outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))
@@ -622,7 +610,7 @@ class InstructionEmitter {
             case LOCK -> emitLock((BIRTerminator.Lock) term, tabs);
             case FIELD_LOCK -> emitFieldLock((BIRTerminator.FieldLock) term, tabs);
             case UNLOCK -> emitUnlock((BIRTerminator.Unlock) term, tabs);
-            case RETURN -> emitReturn((BIRTerminator.Return) term, tabs);
+            case RETURN -> emitReturn(tabs);
             case PANIC -> emitPanic((BIRTerminator.Panic) term, tabs);
             case FP_CALL -> emitFPCall((BIRTerminator.FPCall) term, tabs);
             case WAIT_ALL -> emitWaitAll((BIRTerminator.WaitAll) term, tabs);
@@ -888,18 +876,16 @@ class InstructionEmitter {
 
     private static String emitUnlock(BIRTerminator.Unlock term, int tabs) {
 
-        StringBuilder str = new StringBuilder();
-        str.append(emitTabs(tabs));
-        str.append("unlock");
-        str.append(emitSpaces(1));
-        str.append("->");
-        str.append(emitSpaces(1));
-        str.append(emitBasicBlockRef(term.unlockBB));
-        str.append(";");
-        return str.toString();
+        return emitTabs(tabs) +
+                "unlock" +
+                emitSpaces(1) +
+                "->" +
+                emitSpaces(1) +
+                emitBasicBlockRef(term.unlockBB) +
+                ";";
     }
 
-    private static String emitReturn(BIRTerminator.Return term, int tabs) {
+    private static String emitReturn(int tabs) {
 
         String retStr = "";
         retStr += emitTabs(tabs);

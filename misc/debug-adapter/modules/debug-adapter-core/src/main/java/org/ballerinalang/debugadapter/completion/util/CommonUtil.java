@@ -104,13 +104,14 @@ public class CommonUtil {
 
     /**
      * Whether the given module is a langlib module.
-     * public static String generateParameterName(String arg, Set<String> visibleNames) {
+     * <pre>
+     * public static String generateParameterName(String arg, Set&lt;String&gt; visibleNames) {
      * visibleNames.addAll(BALLERINA_KEYWORDS);
      * String newName = arg.replaceAll(".+[\\:\\.]", "");
-     * <p>
-     * <p>
-     * }
      *
+     *
+     * }
+     * </pre>
      * @param moduleID Module ID to evaluate
      * @return {@link Boolean} whether langlib or not
      */

@@ -161,30 +161,10 @@ class EmitterUtils {
 
     static boolean isBinaryInstructionKind(InstructionKind insKind) {
         return switch (insKind) {
-            case ADD,
-                 SUB,
-                 MUL,
-                 DIV,
-                 MOD,
-                 EQUAL,
-                 NOT_EQUAL,
-                 GREATER_THAN,
-                 GREATER_EQUAL,
-                 LESS_THAN,
-                 LESS_EQUAL,
-                 AND,
-                 OR,
-                 REF_EQUAL,
-                 REF_NOT_EQUAL,
-                 CLOSED_RANGE,
-                 HALF_OPEN_RANGE,
-                 ANNOT_ACCESS,
-                 BITWISE_AND,
-                 BITWISE_OR,
-                 BITWISE_XOR,
-                 BITWISE_LEFT_SHIFT,
-                 BITWISE_RIGHT_SHIFT,
-                 BITWISE_UNSIGNED_RIGHT_SHIFT -> true;
+            case ADD, SUB, MUL, DIV, MOD, EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL, AND,
+                    OR, REF_EQUAL, REF_NOT_EQUAL, CLOSED_RANGE, HALF_OPEN_RANGE, ANNOT_ACCESS, BITWISE_AND,
+                    BITWISE_OR, BITWISE_XOR, BITWISE_LEFT_SHIFT, BITWISE_RIGHT_SHIFT, BITWISE_UNSIGNED_RIGHT_SHIFT ->
+                    true;
             default -> false;
         };
     }

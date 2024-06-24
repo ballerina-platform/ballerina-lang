@@ -71,7 +71,6 @@ public abstract class BCompoundVariable implements BVariable {
 
     /**
      * Child variable types.
-     * <p>
      * <ul>
      * <li> Indexed child variables - Variable types which can contain a large number of child variable entries and
      * hence should be lazy loaded (i.e. array elements, table entries, map entries, json elements, etc.)

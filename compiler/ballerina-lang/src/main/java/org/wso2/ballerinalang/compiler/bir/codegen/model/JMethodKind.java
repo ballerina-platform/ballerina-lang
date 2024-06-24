@@ -15,14 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
  * This enum is used to indicate whether the given Java method is a static method or an instance or a constructor.
  *
  * @since 1.2.0
  */
-enum JMethodKind {
+public enum JMethodKind {
     METHOD("method"),
     CONSTRUCTOR("constructor");
 
@@ -33,7 +33,8 @@ enum JMethodKind {
         this.strValue = strValue;
     }
 
-    static JMethodKind getKind(String value) {
+    public static JMethodKind getKind(String value) {
+
         return switch (value) {
             case "method" -> METHOD;
             case "constructor" -> CONSTRUCTOR;
@@ -41,7 +42,7 @@ enum JMethodKind {
         };
     }
 
-    String getStringValue() {
+    public String getStringValue() {
 
         return this.strValue;
     }

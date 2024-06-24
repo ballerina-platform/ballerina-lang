@@ -18,22 +18,25 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeForPrimitive;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBYTE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JCHAR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JDOUBLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JFLOAT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JINT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JLONG;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JNO;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JREF;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHORT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JType.getJTypeForPrimitive;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JBYTE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JCHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JDOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JFLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JINT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JLONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JNO;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JREF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags.JSHORT;
 
 /**
  * This class contains a set of utility methods and constants used in this implementation.
@@ -83,52 +86,6 @@ class JInterop {
         jRefType.isInterface = jTypeClass.isInterface();
 
         return jRefType;
-    }
-
-    static String getMethodSig(Class<?> returnType, Class<?>... parameterTypes) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append('(');
-        for (Class<?> type : parameterTypes) {
-            sb.append(getSig(type));
-        }
-        sb.append(')');
-        return sb.append(getSig(returnType)).toString();
-    }
-
-    static String getSig(Class<?> c) {
-
-        if (c.isPrimitive()) {
-            if (int.class == c) {
-                return "I";
-            } else if (long.class == c) {
-                return "J";
-            } else if (boolean.class == c) {
-                return "Z";
-            } else if (byte.class == c) {
-                return "B";
-            } else if (short.class == c) {
-                return "S";
-            } else if (char.class == c) {
-                return "C";
-            } else if (float.class == c) {
-                return "F";
-            } else if (double.class == c) {
-                return "D";
-            } else {
-                // This is void
-                return "V";
-            }
-        } else if (void.class == c || Void.class == c) {
-            return "V";
-        } else {
-            String className = c.getName().replace('.', '/');
-            if (c.isArray()) {
-                return className;
-            } else {
-                return 'L' + className + ';';
-            }
-        }
     }
 
     static ParamTypeConstraint[] buildParamTypeConstraints(List<JType> javaTypeConstraints, ClassLoader classLoader) {

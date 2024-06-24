@@ -125,13 +125,11 @@ public class JvmRecordGen {
     private final BType booleanType;
     private final BType intType;
     private final BType floatType;
-    private final BType stringType;
 
     public JvmRecordGen(SymbolTable symbolTable) {
         this.booleanType = symbolTable.booleanType;
         this.intType = symbolTable.intType;
         this.floatType = symbolTable.floatType;
-        this.stringType = symbolTable.stringType;
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

@@ -21,9 +21,9 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -63,18 +63,16 @@ import java.util.Set;
  */
 public class BIRInstructionWriter extends BIRVisitor {
 
-    private ByteBuf buf;
-    private ByteBuf scopeBuf;
-    private ConstantPool cp;
-    private BIRBinaryWriter binaryWriter;
+    private final ByteBuf buf;
+    private final ByteBuf scopeBuf;
+    private final ConstantPool cp;
     private int instructionOffset;
-    private Set<BirScope> completedScopeSet;
+    private final Set<BirScope> completedScopeSet;
     private int scopeCount;
 
-    BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
+    BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp) {
         this.buf = buf;
         this.scopeBuf = scopeBuf;
-        this.binaryWriter = birBinaryWriter;
         this.cp = cp;
         this.instructionOffset = 0;
         this.completedScopeSet = new HashSet<>();
@@ -117,13 +115,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         this.completedScopeSet.add(currentScope);
         this.scopeCount++; // Increment the scope count so we can read the scopes iteratively
 
-        scopeBuf.writeInt(currentScope.id);
+        scopeBuf.writeInt(currentScope.id());
         scopeBuf.writeInt(this.instructionOffset);
 
-        if (currentScope.parent != null) {
+        if (currentScope.parent() != null) {
             scopeBuf.writeBoolean(true); // Parent available.
-            scopeBuf.writeInt(currentScope.parent.id);
-            writeScope(currentScope.parent);
+            scopeBuf.writeInt(currentScope.parent().id());
+            writeScope(currentScope.parent());
         } else {
             scopeBuf.writeBoolean(false);
         }

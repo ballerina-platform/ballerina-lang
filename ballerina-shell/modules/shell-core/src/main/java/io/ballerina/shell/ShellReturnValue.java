@@ -20,7 +20,7 @@ package io.ballerina.shell;
 
 /**
  * Shell Compilation class.
- * Contains package compilation & exception status related to compilation
+ * Contains package compilation &amp; exception status related to compilation
  *
  * @since 2.0.0
  */

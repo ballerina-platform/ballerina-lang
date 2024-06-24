@@ -213,8 +213,7 @@ public class JvmObjectCreatorGen {
             mv.visitLdcInsn("$init$");
             mv.visitVarInsn(ALOAD, argsIndex);
 
-            String methodDesc = BOBJECT_CALL;
-            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", BOBJECT_CALL, true);
 
             int tempResultIndex = indexMap.addIfNotExists("tempResult", symbolTable.anyType);
             mv.visitVarInsn(ASTORE, tempResultIndex);
