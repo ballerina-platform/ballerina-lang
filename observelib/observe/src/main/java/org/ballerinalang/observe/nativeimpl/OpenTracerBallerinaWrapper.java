@@ -126,10 +126,7 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = null;
-        if (observerContextList.containsKey(spanId)) {
-            observerContext = observerContextList.get(spanId);
-        }
+        ObserverContext observerContext = observerContextList.getOrDefault(spanId, null);
         if (observerContext != null) {
             if (observerContext.isSystemSpan()) {
                 ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext.getParent());
@@ -156,10 +153,7 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = null;
-        if (observerContextList.containsKey(spanId)) {
-            observerContext = observerContextList.get(spanId);
-        }
+        ObserverContext observerContext = observerContextList.getOrDefault(spanId, null);
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(strand);
             if (observer.isPresent()) {
