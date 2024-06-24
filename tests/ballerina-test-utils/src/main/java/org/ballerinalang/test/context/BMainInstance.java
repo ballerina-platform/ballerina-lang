@@ -567,9 +567,9 @@ public class BMainInstance implements BMain {
     private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, String[] clientArgs,
                                 LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         try {
-            addJavaAgents(envProperties);
             List<String> runCmdSet = new ArrayList<>();
             runCmdSet.add("java");
+            addJavaAgents(envProperties);
             if (envProperties.containsKey(JAVA_OPTS)) {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
@@ -581,9 +581,7 @@ public class BMainInstance implements BMain {
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            env.putAll(envProperties);
             Process process = processBuilder.start();
 
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
