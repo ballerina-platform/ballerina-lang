@@ -15,25 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
-
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * Java error entry model class based on BIR error entry node.
+ * A wrapper @BIRFunction to keep java function with bir function data.
  *
  * @since 1.2.0
  */
-public class JErrorEntry extends BIRNode.BIRErrorEntry {
+public class JMethodBIRFunction extends JBIRFunction {
 
-    public List<CatchIns> catchIns = new ArrayList<>();
+    public JMethod jMethod;
 
-    public JErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
-
-        super(trapBB, endBB, errorOp, targetBB);
+    public JMethodBIRFunction(BIRFunction birFunction, JMethod jMethod) {
+        super(birFunction);
+        this.jMethod = jMethod;
     }
 }

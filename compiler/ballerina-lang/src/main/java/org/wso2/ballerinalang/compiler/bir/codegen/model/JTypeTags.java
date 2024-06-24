@@ -15,27 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * This class represents constraint for a single Java method parameter and this is used in resolving a
- * Java method for Ballerina external functions.
+ * Type tag values for JTypes.
  *
  * @since 1.2.0
  */
-class ParamTypeConstraint {
+public class JTypeTags {
 
-    static final ParamTypeConstraint NO_CONSTRAINT = new ParamTypeConstraint(null);
+    public static final int JBYTE = 1;
+    public static final int JCHAR = 2;
+    public static final int JSHORT = 3;
+    public static final int JINT = 4;
+    public static final int JLONG = 5;
+    public static final int JFLOAT = 6;
+    public static final int JDOUBLE = 7;
+    public static final int JBOOLEAN = 8;
+    public static final int JARRAY = 9;
+    public static final int JREF = 10;
+    public static final int JVOID = 11;
+    public static final int JNO = 12;
 
-    private final Class<?> constraint;
+    public static final int JTYPE = Integer.MAX_VALUE;
 
-    ParamTypeConstraint(Class<?> constraint) {
+    private JTypeTags() {
 
-        this.constraint = constraint;
-    }
-
-    Class<?> get() {
-
-        return this.constraint;
     }
 }
+

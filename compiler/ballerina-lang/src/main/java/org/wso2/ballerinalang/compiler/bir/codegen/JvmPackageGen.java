@@ -30,10 +30,9 @@ import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
@@ -42,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -340,11 +340,9 @@ public class JvmPackageGen {
 
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
         BIRFunction func;
-        if (parentNode instanceof BIRTypeDefinition) {
-            BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
+        if (parentNode instanceof BIRTypeDefinition typeDef) {
             func = findFunction(typeDef.attachedFuncs, funcName);
-        } else if (parentNode instanceof BIRPackage) {
-            BIRPackage pkg = (BIRPackage) parentNode;
+        } else if (parentNode instanceof BIRPackage pkg) {
             func = findFunction(pkg.functions, funcName);
         } else {
             // some generated functions will not have bir function
@@ -611,7 +609,7 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID, birModuleClassName);
+            birFuncWrapperOrError = createExternalFunctionWrapper(true, birFunc, packageID, birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
                 addDefaultableBooleanVarsToSignature(birFunc);

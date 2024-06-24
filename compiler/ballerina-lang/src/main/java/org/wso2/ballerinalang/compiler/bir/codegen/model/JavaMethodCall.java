@@ -15,40 +15,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+
+import java.util.List;
 
 /**
- * Java specific instruction definitions.
+ * A BIR terminator instruction to model JMethod Call.
  *
  * @since 1.2.0
  */
-public class JInstruction extends BIRNonTerminator {
+public class JavaMethodCall extends JTerminator {
 
-    public JInsKind jKind;
+    public
+    List<BIROperand> args;
+    public String jClassName;
+    public String jMethodVMSig;
+    public String name;
 
-    JInstruction(Location pos) {
+    public JavaMethodCall(Location pos, List<BIROperand> args, BIROperand lhsOp, String jClassName,
+                          String jMethodVMSig, String name, BIRBasicBlock thenBB) {
 
-        super(pos, InstructionKind.PLATFORM);
+        super(pos);
+        this.jTermKind = JTermKind.J_METHOD_CALL;
+        this.args = args;
+        this.lhsOp = lhsOp;
+        this.jClassName = jClassName;
+        this.jMethodVMSig = jMethodVMSig;
+        this.name = name;
+        this.thenBB = thenBB;
     }
 
     @Override
     public void accept(BIRVisitor visitor) {
-        throw new UnsupportedOperationException();
+        // Do nothing
     }
 
     @Override
     public BIROperand[] getRhsOperands() {
-        return new BIROperand[0];
+        return args.toArray(new BIROperand[0]);
     }
 
     @Override
     public void setRhsOperands(BIROperand[] operands) {
-        // do nothing
+        this.args = List.of(operands);
+    }
+
+    @Override
+    public BIRBasicBlock[] getNextBasicBlocks() {
+        return new BIRBasicBlock[]{thenBB};
     }
 }

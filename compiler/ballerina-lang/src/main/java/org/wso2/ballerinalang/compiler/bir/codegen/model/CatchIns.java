@@ -15,35 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.internal;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
-import org.objectweb.asm.Label;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 
 /**
- * JVM bytecode label generation class.
+ * Java catch instruction.
  *
  * @since 1.2.0
  */
-public class LabelGenerator {
+public class CatchIns {
 
-    private final Map<String, Label> bbLabels = new HashMap<>();
-
-    public Label getLabel(String labelKey) {
-
-        Label result = this.bbLabels.get(labelKey);
-        if (result != null) {
-            return result;
-        } else {
-            Label label = new Label();
-            this.bbLabels.put(labelKey, label);
-            return label;
-        }
-    }
-
-    public void putLabel(String labelKey, Label label) {
-        this.bbLabels.put(labelKey, label);
-    }
+    public String errorClass;
+    public BIRTerminator.Return term;
 }
