@@ -24,6 +24,14 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -33,13 +41,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+
 /**
  * {@code {@link BTupleType}} represents a tuple type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType {
+public class BTupleType extends BAnnotatableType implements TupleType, PartialSemTypeSupplier, TypeWithShape {
 
+    private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
@@ -50,6 +62,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     private boolean resolving;
     private boolean resolvingReadonly;
     private String cachedToString;
+    private ListDefinition defn;
+    private final Env env = Env.getInstance();
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -165,6 +179,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
             this.restType = restType;
         }
         checkAllMembers();
+        defn = null;
+        resetSemTypeCache();
     }
 
     @Override
@@ -296,5 +312,71 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     @Override
     public String getAnnotationKey() {
         return Utils.decodeIdentifier(this.typeName);
+    }
+
+    @Override
+    synchronized SemType createSemType(Context cx) {
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        defn = new ListDefinition();
+        SemType[] memberTypes = new SemType[tupleTypes.size()];
+        boolean hasBTypePart = false;
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            SemType memberType = Builder.from(cx, tupleTypes.get(i));
+            if (Core.isNever(memberType)) {
+                return neverType();
+            } else if (!Core.isNever(Core.intersect(memberType, Core.B_TYPE_TOP))) {
+                hasBTypePart = true;
+                memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
+            }
+            memberTypes[i] = memberType;
+        }
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType rest = restType != null ? Builder.from(cx, restType) : neverType();
+        if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+            hasBTypePart = true;
+            rest = Core.intersect(rest, Core.SEMTYPE_TOP);
+        }
+        if (hasBTypePart) {
+            cx.markProvisionTypeReset();
+            SemType semTypePart = defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(semTypePart, bTypePart);
+        }
+        return defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(get(cx));
+        }
+        BArray value = (BArray) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+        int size = value.size();
+        SemType[] memberTypes = new SemType[size];
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = Builder.shapeOf(cx, value.get(i));
+            if (memberType.isEmpty()) {
+                return Optional.empty();
+            }
+            memberTypes[i] = memberType.get();
+        }
+        ListDefinition ld = new ListDefinition();
+        // TODO: cache this in the array value
+        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, neverType(), CELL_MUT_NONE);
+        value.cacheShape(semType);
+        return Optional.of(semType);
     }
 }

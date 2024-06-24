@@ -24,6 +24,9 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +40,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType implements IntersectionType {
+public class BIntersectionType extends BType implements IntersectionType, TypeWithShape {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";
@@ -214,5 +217,23 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    SemType createSemType(Context cx) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof SemType semType) {
+            return semType;
+        }
+        return Builder.from(cx, effectiveType);
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, object);
+        }
+        return Optional.empty();
     }
 }
