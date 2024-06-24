@@ -937,7 +937,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
         stmtExpr.setBType(configurableVar.getBType());
 
-        // This statement expression is desugared when visiting the init function
+        // This statement expression is desugared when it is visited in the init function
         return stmtExpr;
     }
 
