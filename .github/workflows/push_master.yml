@@ -35,6 +35,15 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
+
       - name: Build with Gradle
         run: |
           export DISPLAY=':99.0'
