@@ -20,10 +20,24 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.SemType;
 
+import static io.ballerina.types.SemTypes.stringConst;
+
 public record Member(String name, SemType valueTy, Kind kind) {
 
     public enum Kind {
         Field,
-        Method
+        Method;
+
+        // In nBallerina these are stings since they fit small strings. Maybe consider more efficient representation
+        // for java
+        private static final Field FIELD = new Field("kind", stringConst("field"), true, false);
+        private static final Field METHOD = new Field("kind", stringConst("method"), true, false);
+
+        Field field() {
+            return switch (this) {
+                case Field -> FIELD;
+                case Method -> METHOD;
+            };
+        }
     }
 }

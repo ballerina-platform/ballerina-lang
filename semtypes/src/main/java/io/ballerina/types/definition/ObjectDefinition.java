@@ -32,33 +32,19 @@ import java.util.List;
 
 import static io.ballerina.types.Core.createBasicSemType;
 import static io.ballerina.types.Core.union;
-import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
 public final class ObjectDefinition implements Definition {
 
-    private static final SemType MEMBER_KIND_FIELD = stringConst("field");
-    private static final SemType MEMBER_KIND_METHOD = stringConst("method");
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
     public SemType define(Env env, List<Member> members) {
         if (members.isEmpty()) {
             return PredefinedType.OBJECT;
         }
-        List<CellField> memberCells = members.stream().map(member -> switch (member.kind()) {
-            case Field -> fieldMember(env, member);
-            case Method -> methodMember(env, member);
-        }).toList();
+        List<CellField> memberCells = members.stream().map(member -> memberField(env, member)).toList();
         SemType mappingType = mappingDefinition.define(env, memberCells, restMemberType(env));
         return objectContaining(mappingType);
-    }
-
-    private CellField fieldMember(Env env, Member member) {
-        return CellField.from(member.name(), cellContaining(env, createInnerFieldType(env, member.valueTy())));
-    }
-
-    private CellField methodMember(Env env, Member member) {
-        return CellField.from(member.name(), cellContaining(env, createInnerMethodType(env, member.valueTy())));
     }
 
     private SemType objectContaining(SemType mappingType) {
@@ -68,32 +54,33 @@ public final class ObjectDefinition implements Definition {
     }
 
     private CellSemType restMemberType(Env env) {
-        SemType fieldMemberType = createInnerFieldType(env, PredefinedType.ANY);
+        MappingDefinition fieldDefn = new MappingDefinition();
+        SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
+                env,
+                List.of(
+                        new Field("value", PredefinedType.ANY, false, false),
+                        Member.Kind.Field.field()
+                ),
+                PredefinedType.NEVER);
 
-        SemType methodMemberType = createInnerMethodType(env, PredefinedType.FUNCTION);
+        MappingDefinition methodDefn = new MappingDefinition();
+        SemType methodMemberType = methodDefn.defineMappingTypeWrapped(
+                env,
+                List.of(
+                        new Field("value", PredefinedType.FUNCTION, false, false),
+                        Member.Kind.Method.field()
+                ),
+                PredefinedType.NEVER);
         return cellContaining(env, union(fieldMemberType, methodMemberType));
     }
 
-    private static SemType createInnerMethodType(Env env, SemType methodType) {
-        MappingDefinition methodDefn = new MappingDefinition();
-        return methodDefn.defineMappingTypeWrapped(
-                env,
-                List.of(
-                        new Field("value", methodType, false, false),
-                        new Field("kind", MEMBER_KIND_METHOD, true, false)
-                ),
-                PredefinedType.NEVER);
-    }
-
-    private static SemType createInnerFieldType(Env env, SemType memberType) {
-        MappingDefinition fieldDefn = new MappingDefinition();
-        return fieldDefn.defineMappingTypeWrapped(
-                env,
-                List.of(
-                        new Field("value", memberType, false, false),
-                        new Field("kind", MEMBER_KIND_FIELD, true, false)
-                ),
-                PredefinedType.NEVER);
+    private static CellField memberField(Env env, Member member) {
+        MappingDefinition md = new MappingDefinition();
+        SemType semtype = md.defineMappingTypeWrapped(env, List.of(
+                new Field("value", member.valueTy(), false, false),
+                member.kind().field()
+        ), PredefinedType.NEVER);
+        return CellField.from(member.name(), cellContaining(env, semtype));
     }
 
     @Override
