@@ -953,7 +953,7 @@ public class CodeActionUtil {
      * Returns if a new line should be appended to a new text edit at module level.
      *
      * @param enclosingNode Node at module level which is enclosing the cursor.
-     * @return @link{Boolean} W
+     * @return {@link Boolean} W
      */
     public static boolean addNewLineAtEnd(Node enclosingNode) {
         Iterator<Node> iterator = enclosingNode.parent().children().iterator();

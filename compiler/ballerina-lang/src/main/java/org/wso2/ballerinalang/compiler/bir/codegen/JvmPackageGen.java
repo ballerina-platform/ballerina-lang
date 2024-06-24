@@ -30,10 +30,9 @@ import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
@@ -42,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -116,7 +116,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
@@ -302,15 +302,12 @@ public class JvmPackageGen {
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
 
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_PARENT_ATTEMPTED, "Z", null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, PARENT_MODULE_START_ATTEMPTED, "Z", null, null);
         fv.visitEnd();
-
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_PARENT_ATTEMPTED, "Z");
-
+        mv.visitFieldInsn(PUTSTATIC, initClass, PARENT_MODULE_START_ATTEMPTED, "Z");
         fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, NO_OF_DEPENDANT_MODULES, "I", null, null);
         fv.visitEnd();
-
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
     }
@@ -352,11 +349,9 @@ public class JvmPackageGen {
 
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
         BIRFunction func;
-        if (parentNode instanceof BIRTypeDefinition) {
-            BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
+        if (parentNode instanceof BIRTypeDefinition typeDef) {
             func = findFunction(typeDef.attachedFuncs, funcName);
-        } else if (parentNode instanceof BIRPackage) {
-            BIRPackage pkg = (BIRPackage) parentNode;
+        } else if (parentNode instanceof BIRPackage pkg) {
             func = findFunction(pkg.functions, funcName);
         } else {
             // some generated functions will not have bir function
@@ -617,7 +612,7 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID, birModuleClassName);
+            birFuncWrapperOrError = createExternalFunctionWrapper(true, birFunc, packageID, birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
                 addDefaultableBooleanVarsToSignature(birFunc);

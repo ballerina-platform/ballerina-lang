@@ -78,8 +78,8 @@ public class RunNativeImageTestTask implements Task {
     private static final String WIN_EXEC_EXT = "exe";
 
     private static class StreamGobbler extends Thread {
-        private InputStream inputStream;
-        private PrintStream printStream;
+        private final InputStream inputStream;
+        private final PrintStream printStream;
 
         public StreamGobbler(InputStream inputStream, PrintStream printStream) {
             this.inputStream = inputStream;
@@ -88,9 +88,10 @@ public class RunNativeImageTestTask implements Task {
 
         @Override
         public void run() {
-            Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8);
-            while (sc.hasNextLine()) {
-                printStream.println(sc.nextLine());
+            try (Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8)) {
+                while (sc.hasNextLine()) {
+                    printStream.println(sc.nextLine());
+                }
             }
         }
     }
@@ -100,9 +101,9 @@ public class RunNativeImageTestTask implements Task {
     private String disableGroupList;
     private boolean report;
     private boolean coverage;
-    private boolean isRerunTestExecution;
+    private final boolean isRerunTestExecution;
     private String singleExecTests;
-    private boolean listGroups;
+    private final boolean listGroups;
     private final boolean  isParallelExecution;
 
     TestReport testReport;
@@ -388,8 +389,7 @@ public class RunNativeImageTestTask implements Task {
         ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
-        StreamGobbler outputGobbler =
-                new StreamGobbler(process.getInputStream(), out);
+        StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
         outputGobbler.start();
 
         if (process.waitFor() == 0) {
@@ -417,8 +417,7 @@ public class RunNativeImageTestTask implements Task {
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();
-            outputGobbler =
-                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler = new StreamGobbler(process.getInputStream(), out);
             outputGobbler.start();
             int exitCode = process.waitFor();
             outputGobbler.join();

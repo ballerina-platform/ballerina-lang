@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -37,10 +37,10 @@ public class JIConstructorCall extends JTerminator {
     public String jClassName;
     public String jMethodVMSig;
     public String name;
-    boolean varArgExist;
-    JType varArgType;
+    public boolean varArgExist;
+    public JType varArgType;
 
-    JIConstructorCall(Location pos) {
+    public JIConstructorCall(Location pos) {
 
         super(pos);
         this.jTermKind = JTermKind.JI_CONSTRUCTOR_CALL;
@@ -61,8 +61,4 @@ public class JIConstructorCall extends JTerminator {
         this.args = List.of(operands);
     }
 
-    @Override
-    public BIRBasicBlock[] getNextBasicBlocks() {
-        return new BIRBasicBlock[0];
-    }
 }

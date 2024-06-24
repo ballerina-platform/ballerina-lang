@@ -49,7 +49,7 @@ jar {
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",

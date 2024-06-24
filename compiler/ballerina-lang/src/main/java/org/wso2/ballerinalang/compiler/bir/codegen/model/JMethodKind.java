@@ -15,28 +15,35 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
- * An enum to model the JInstruction kind.
+ * This enum is used to indicate whether the given Java method is a static method or an instance or a constructor.
  *
  * @since 1.2.0
  */
-public enum JInsKind {
-    JCAST((byte) 1),
-    CALL((byte) 2),
-    LARGE_ARRAY((byte) 3),
-    LARGE_MAP((byte) 4);
+public enum JMethodKind {
+    METHOD("method"),
+    CONSTRUCTOR("constructor");
 
-    final byte value;
+    private final String strValue;
 
-    JInsKind(byte value) {
+    JMethodKind(String strValue) {
 
-        this.value = value;
+        this.strValue = strValue;
     }
 
-    public byte getValue() {
+    public static JMethodKind getKind(String value) {
 
-        return this.value;
+        return switch (value) {
+            case "method" -> METHOD;
+            case "constructor" -> CONSTRUCTOR;
+            default -> throw new IllegalStateException("Unknown Java method modifier '" + value + "'");
+        };
+    }
+
+    public String getStringValue() {
+
+        return this.strValue;
     }
 }
