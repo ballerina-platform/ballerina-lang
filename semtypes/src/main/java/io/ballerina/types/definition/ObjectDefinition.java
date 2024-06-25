@@ -35,6 +35,11 @@ import static io.ballerina.types.Core.createBasicSemType;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
+/**
+ * Represent object type desc.
+ *
+ * @since 2201.10.0
+ */
 public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
@@ -81,11 +86,14 @@ public final class ObjectDefinition implements Definition {
 
     private static CellField memberField(Env env, Member member) {
         MappingDefinition md = new MappingDefinition();
-        SemType semtype = md.defineMappingTypeWrapped(env, List.of(
-                new Field("value", member.valueTy(), false, false),
-                member.kind().field(),
-                member.visibility().field()
-        ), PredefinedType.NEVER);
+        SemType semtype = md.defineMappingTypeWrapped(
+                env,
+                List.of(
+                        new Field("value", member.valueTy(), false, false),
+                        member.kind().field(),
+                        member.visibility().field()
+                ),
+                PredefinedType.NEVER);
         return CellField.from(member.name(), cellContaining(env, semtype));
     }
 

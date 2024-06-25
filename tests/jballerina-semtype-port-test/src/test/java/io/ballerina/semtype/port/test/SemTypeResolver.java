@@ -208,7 +208,6 @@ public class SemTypeResolver {
         });
         td.defn = od;
         List<Member> members = Stream.concat(fieldStream, methodStream).toList();
-        // TODO:
         ObjectQualifiers qualifiers = getQualifiers(td);
         return od.define(cx.env, qualifiers, members);
     }

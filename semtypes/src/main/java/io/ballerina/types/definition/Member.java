@@ -23,6 +23,15 @@ import io.ballerina.types.SemType;
 import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.SemTypes.union;
 
+/**
+ * Represent a member of an object type definition.
+ *
+ * @param name       member name
+ * @param valueTy    member type
+ * @param kind       is member a field or a method
+ * @param visibility is member private or public
+ * @since 2201.10.0
+ */
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility) {
 
     public Member {
