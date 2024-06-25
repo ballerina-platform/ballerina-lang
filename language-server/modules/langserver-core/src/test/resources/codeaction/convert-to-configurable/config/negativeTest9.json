@@ -1,0 +1,18 @@
+{
+  "range": {
+    "start": {
+      "line": 24,
+      "character": 28
+    },
+    "end": {
+      "line": 24,
+      "character": 33
+    }
+  },
+  "source": "convertToConfigurableNegative.bal",
+  "expected": [
+    {
+      "title": "Convert to configurable"
+    }
+  ]
+}
