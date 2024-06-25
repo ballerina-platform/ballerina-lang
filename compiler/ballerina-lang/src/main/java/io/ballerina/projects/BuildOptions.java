@@ -446,7 +446,7 @@ public class BuildOptions {
         }
 
         public void resetStaticCompilationOptions() {
-            compilationOptionsBuilder.resetStaticCompilationOptions();
+            CompilationOptions.CompilationOptionsBuilder.resetStaticCompilationOptions();
         }
     }
 }
