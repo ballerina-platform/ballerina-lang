@@ -412,11 +412,6 @@ public class CompilationOptions {
             return this;
         }
 
-        static void resetStaticCompilationOptions() {
-            optimizeCodegen = null;
-            optimizeReport = null;
-        }
-
         public CompilationOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
             optimizeDependencyCompilation = value;
             return this;
