@@ -104,9 +104,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    jacoco {
-        destinationFile = file("$buildDir/jacoco/test.exec")
-    }
 }
 
 clean.doFirst {
