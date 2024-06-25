@@ -41,9 +41,8 @@ public class CompilationOptions {
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
-    Boolean optimizeJar = true;
-    static Boolean optimizeCodegen;
-    static Boolean optimizeReport;
+    Boolean optimizeCodegen;
+    Boolean optimizeReport;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
@@ -66,20 +65,11 @@ public class CompilationOptions {
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
-        if (CompilationOptions.optimizeCodegen == null) {
-            CompilationOptions.optimizeCodegen = optimizeCodegen;
-        }
-        if (CompilationOptions.optimizeReport == null) {
-            CompilationOptions.optimizeReport = optimizeReport;
-        }
+        this.optimizeCodegen = optimizeCodegen;
+        this.optimizeReport = optimizeReport;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
-    }
-
-    public static void resetStaticCompilationOptions() {
-        optimizeCodegen = null;
-        optimizeReport = null;
     }
 
     public boolean offlineBuild() {
@@ -318,10 +308,10 @@ public class CompilationOptions {
         private Boolean exportComponentModel;
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
+        private static Boolean optimizeCodegen;
         private Boolean remoteManagement;
         private Boolean optimizeDependencyCompilation;
-        private Boolean optimizeCodegen;
-        private Boolean verbose;
+        private static Boolean optimizeReport;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -406,8 +396,8 @@ public class CompilationOptions {
         }
 
         CompilationOptionsBuilder setOptimizeReport(Boolean value) {
-            if (verbose == null) {
-                verbose = value;
+            if (optimizeReport == null) {
+                optimizeReport = value;
             }
             return this;
         }
@@ -422,6 +412,11 @@ public class CompilationOptions {
             return this;
         }
 
+        void resetStaticCompilationOptions() {
+            optimizeCodegen = null;
+            optimizeReport = null;
+        }
+
         public CompilationOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
             optimizeDependencyCompilation = value;
             return this;
@@ -432,7 +427,7 @@ public class CompilationOptions {
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
-                    optimizeDependencyCompilation, optimizeCodegen, verbose);
+                    optimizeDependencyCompilation, optimizeCodegen, optimizeReport);
         }
     }
 }
