@@ -444,5 +444,9 @@ public class BuildOptions {
                     targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
                     showDependencyDiagnostics);
         }
+
+        public void resetStaticCompilationOptions() {
+            compilationOptionsBuilder.resetStaticCompilationOptions();
+        }
     }
 }
