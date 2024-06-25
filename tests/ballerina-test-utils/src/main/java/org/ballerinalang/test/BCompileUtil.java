@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -129,8 +130,27 @@ public final class BCompileUtil {
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         jBallerinaBackend.diagnosticResult().hasErrors();
 
-        buildOptionsBuilder.resetStaticCompilationOptions();
+        // Since all the unit tests are running on the same JVM, we have to reset the static fields used to store the
+        // compilationOptions. This is not a problem in production environments because they run on dedicated JVMs.
+        resetStaticCompilationOptions();
         return new CompileResult(currentPackage, jBallerinaBackend);
+    }
+
+    private static void resetStaticCompilationOptions() {
+        // Reflection is used here because if we were to provide a dedicated public method for resetting the static
+        // fields, future developers could use it for other unintended purposes.
+        Class<?> clazz = CompilationOptions.CompilationOptionsBuilder.class;
+        try {
+            Field optimizeCodegenField = clazz.getDeclaredField("optimizeCodegen");
+            Field optimizeReportField = clazz.getDeclaredField("optimizeReport");
+            optimizeCodegenField.setAccessible(true);
+            optimizeReportField.setAccessible(true);
+
+            optimizeCodegenField.set(null, null);
+            optimizeReportField.set(null, null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {
