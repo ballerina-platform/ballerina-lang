@@ -36,18 +36,24 @@ type OO3 object {
 type OO4 object {
     public function foo(int a) returns int;
     public int a;
-}
+};
+
+// @type OO5 <> OO4
+type OO5 object {
+    public function (int a) returns int foo;
+    public int a;
+};
 
 // @type G3 <> O3
 // @type G3 < O1
 type G3 object {
     public int a;
-    private string b;
+    string b;
 };
 
 // @type OO4 <> GG4
 // @type GG4 < O1
 type GG4 object {
-    private function foo(int a) returns int;
+    function foo(int a) returns int;
     public int a;
-}
+};

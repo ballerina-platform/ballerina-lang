@@ -25,6 +25,12 @@ import static io.ballerina.types.SemTypes.union;
 
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility) {
 
+    public Member {
+        if (name == null || valueTy == null || kind == null || visibility == null) {
+            throw new IllegalArgumentException("Member cannot have null fields");
+        }
+    }
+
     // Various "tag" values associated with a member. Each of these tag values must be convertible to a Field in Map
     // type for the member
     @FunctionalInterface
