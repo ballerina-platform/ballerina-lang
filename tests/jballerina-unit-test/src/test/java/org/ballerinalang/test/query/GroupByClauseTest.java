@@ -248,9 +248,6 @@ public class GroupByClauseTest {
                 65, 33);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found '[int...]'",
                 70, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record type', found 'other'",
-                79, 32);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'price'", 79, 42);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
                         "'seq record {| string name; int price1; |}' does not support field access", 87, 29);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
