@@ -45,3 +45,17 @@ type ICO1 isolated client object {
     int x;
     function f() returns int;
 };
+
+// @type I_TOP < TOP
+// @type IO1 < I_TOP
+type I_TOP isolated object {};
+
+// @type S_TOP < TOP
+// @type SO1 < S_TOP
+type S_TOP service object {};
+
+// @type C_TOP < TOP
+// @type CO1 < C_TOP
+type C_TOP client object {};
+
+type TOP object {};

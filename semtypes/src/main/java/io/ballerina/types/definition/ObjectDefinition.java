@@ -45,9 +45,6 @@ public final class ObjectDefinition implements Definition {
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
     public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members) {
-        if (members.isEmpty()) {
-            return PredefinedType.OBJECT;
-        }
         Stream<CellField> memberStream = members.stream().map(member -> memberField(env, member));
         Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
