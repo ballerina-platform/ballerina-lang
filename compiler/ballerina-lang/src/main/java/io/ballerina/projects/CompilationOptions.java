@@ -412,7 +412,7 @@ public class CompilationOptions {
             return this;
         }
 
-        void resetStaticCompilationOptions() {
+        static void resetStaticCompilationOptions() {
             optimizeCodegen = null;
             optimizeReport = null;
         }
