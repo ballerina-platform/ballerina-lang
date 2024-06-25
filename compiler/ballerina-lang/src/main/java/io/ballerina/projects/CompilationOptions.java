@@ -400,11 +400,6 @@ public class CompilationOptions {
             return this;
         }
 
-        static void resetStaticCompilationOptions() {
-            optimizeCodegen = null;
-            optimizeReport = null;
-        }
-
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir, dumpBirFile, cloud,
                     listConflictedClasses, sticky, dumpGraph, dumpRawGraph, withCodeGenerators, withCodeModifiers,
