@@ -143,7 +143,6 @@ public class ConfigMethodGen {
                                     String innerClassName) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, INIT_CONFIG, null, null);
         mv.visitCode();
-        generateBallerinaRuntimeInformation(mv);
         mv.visitFieldInsn(GETSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN_TYPE);
         Label labelIf = new Label();
         mv.visitJumpInsn(IFEQ, labelIf);
@@ -155,6 +154,7 @@ public class ConfigMethodGen {
             generateInvokeConfigureInit(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
+        generateBallerinaRuntimeInformation(mv);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CONFIGURE_INIT, innerClassName);
         mv.visitEnd();
