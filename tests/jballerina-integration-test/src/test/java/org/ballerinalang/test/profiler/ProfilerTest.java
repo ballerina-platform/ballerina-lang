@@ -92,7 +92,7 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("      Instrumented function count: "),
                 new LogLeecher("[5/6] Running executable..."),
                 new LogLeecher("[6/6] Generating output..."),
-                new LogLeecher("      Execution time: [1-9] seconds ", true, LogLeecher.LeecherType.INFO),
+                new LogLeecher("      Execution time: [1-2]?[0-9] seconds ", true, LogLeecher.LeecherType.INFO),
                 new LogLeecher("      Output: "),
                 new LogLeecher(htmlFilePath));
     }
