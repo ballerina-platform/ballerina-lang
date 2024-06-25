@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.environment.Environment;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import java.util.Map;
  */
 public class DefaultEnvironment extends Environment {
     private final Map<Class<?>, Object> services;
+    public Path buildProjectTargetDir;
 
     public DefaultEnvironment(Map<Class<?>, Object> services) {
         this.services = services;

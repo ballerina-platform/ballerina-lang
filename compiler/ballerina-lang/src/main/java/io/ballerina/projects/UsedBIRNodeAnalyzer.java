@@ -61,7 +61,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
  *
  * @since 2201.10.0
  */
-public class UsedBIRNodeAnalyzer extends BIRVisitor {
+public final class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
@@ -82,9 +82,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private Map<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
     // pkgWiseInvocationData is used for debugging purposes
     public final Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new LinkedHashMap<>();
-    protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
-    protected boolean isTestablePkgAnalysis = false;
-    protected PackageID currentPkgID;
+    UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
+    boolean isTestablePkgAnalysis = false;
+    PackageID currentPkgID;
     private final PackageCache pkgCache;
     private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
     private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
