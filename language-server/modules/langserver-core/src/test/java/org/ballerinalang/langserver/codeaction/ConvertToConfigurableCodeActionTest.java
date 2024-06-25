@@ -29,7 +29,24 @@ public class ConvertToConfigurableCodeActionTest extends AbstractCodeActionTest 
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"extractIntToConstant.json"},
+                {"convertLiteralValue1.json"},
+                {"convertLiteralValue2.json"},
+                {"convertLiteralValue3.json"},
+                {"convertLiteralValue4.json"},
+                {"convertLiteralValue5.json"},
+                {"convertLiteralValue6.json"},
+                {"convertLiteralValue7.json"},
+                {"convertLiteralValue8.json"},
+//                {"convertLiteralValue9.json"}, #42788
+                {"convertLiteralValue10.json"},
+                {"convertTemplateValue1.json"},
+                {"convertTemplateValue2.json"},
+                {"convertListValue1.json"},
+                {"convertListValue2.json"},
+                {"convertMappingValue1.json"},
+                {"convertMappingValue2.json"},
+                {"convertTableValue1.json"},
+
         };
     }
 
