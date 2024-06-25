@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
 import io.ballerina.projects.repos.BuildProjectCompilationCache;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -62,6 +63,9 @@ public class ProjectEnvironmentBuilder {
             switch (project.kind()) {
                 case BUILD_PROJECT:
                     compilationCache = BuildProjectCompilationCache.from(project);
+                    if (environment instanceof DefaultEnvironment defaultEnvironment) {
+                        defaultEnvironment.buildProjectTargetDir = project.targetDir();
+                    }
                     break;
                 case SINGLE_FILE_PROJECT:
                     compilationCache = TempDirCompilationCache.from(project);

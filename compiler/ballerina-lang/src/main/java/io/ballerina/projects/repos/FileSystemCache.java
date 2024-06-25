@@ -24,7 +24,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 
 /**
  * An implementation of the {@code PackageCompilationCache} that is aware of the file system structure.
@@ -55,18 +57,10 @@ public class FileSystemCache extends CompilationCache {
     private final Path cacheDirPath;
     private Path birPath;
     private Path packageCacheDirPath;
-    private static Path buildProjectCacheDirPath;
 
     public FileSystemCache(Project project, Path cacheDirPath) {
         super(project);
         this.cacheDirPath = cacheDirPath;
-        if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            updateBuildProjectCachePath(cacheDirPath);
-        }
-    }
-
-    private static void updateBuildProjectCachePath(Path cacheDirPath) {
-        buildProjectCacheDirPath = cacheDirPath;
     }
 
     @Override
@@ -179,11 +173,12 @@ public class FileSystemCache extends CompilationCache {
     private Path optimizedPackageCacheDirPath() {
         Package currentPkg = project.currentPackage();
         PackageManifest pkgDescriptor = currentPkg.manifest();
-        if (buildProjectCacheDirPath == null) {
+        DefaultEnvironment defaultEnv = (DefaultEnvironment) this.project.projectEnvironmentContext().environment();
+        if (defaultEnv.buildProjectTargetDir == null) {
             return packageCacheDirPath();
         }
-        return buildProjectCacheDirPath.resolve(pkgDescriptor.org().value()).resolve(pkgDescriptor.name().value())
-                .resolve(pkgDescriptor.version().toString());
+        return defaultEnv.buildProjectTargetDir.resolve(CACHES_DIR_NAME).resolve(pkgDescriptor.org().value())
+                .resolve(pkgDescriptor.name().value()).resolve(pkgDescriptor.version().toString());
     }
 
     /**
