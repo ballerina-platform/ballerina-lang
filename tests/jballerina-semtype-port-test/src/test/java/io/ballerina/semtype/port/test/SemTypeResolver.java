@@ -30,6 +30,7 @@ import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.definition.Member;
 import io.ballerina.types.definition.ObjectDefinition;
+import io.ballerina.types.definition.ObjectQualifiers;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -67,6 +68,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
@@ -206,7 +208,24 @@ public class SemTypeResolver {
         });
         td.defn = od;
         List<Member> members = Stream.concat(fieldStream, methodStream).toList();
-        return od.define(cx.env, members);
+        // TODO:
+        ObjectQualifiers qualifiers = getQualifiers(td);
+        return od.define(cx.env, qualifiers, members);
+    }
+
+    private static ObjectQualifiers getQualifiers(BLangObjectTypeNode td) {
+        Set<Flag> flags = td.symbol.getFlags();
+        ObjectQualifiers.NetworkQualifier networkQualifier;
+        assert !(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE)) :
+                "object can't be both client and service";
+        if (flags.contains(Flag.CLIENT)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
+        } else if (flags.contains(Flag.SERVICE)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Service;
+        } else {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.None;
+        }
+        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), networkQualifier);
     }
 
     // TODO: should we make definition part of BLangFunction as well?
