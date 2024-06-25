@@ -85,7 +85,7 @@ public class ConfigUtils {
     }
 
     private static boolean isSimpleSequenceType(int tag) {
-        return tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
+        return (tag == TypeTags.NULL_TAG) || (tag <= TypeTags.BOOLEAN_TAG) || TypeTags.isXMLTypeTag(tag);
     }
 
     public static Object getUnionValue(VariableKey key, BUnionType unionType, String value, String arg) {
@@ -104,6 +104,8 @@ public class ConfigUtils {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             switch (TypeUtils.getImpliedType(type).getTag()) {
+                case TypeTags.NULL_TAG:
+                    break;
                 case TypeTags.BYTE_TAG:
                     convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
                     break;
