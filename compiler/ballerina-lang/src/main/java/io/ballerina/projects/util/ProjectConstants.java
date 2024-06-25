@@ -122,9 +122,9 @@ public class ProjectConstants {
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.12.jar";
     public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.12.jar";
-    public static final String ASM_JAR = "asm-9.5.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
+    public static final String ASM_JAR = "asm-9.7.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.7.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.7.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
