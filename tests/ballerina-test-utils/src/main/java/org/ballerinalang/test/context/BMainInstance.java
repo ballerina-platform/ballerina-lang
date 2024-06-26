@@ -674,6 +674,9 @@ public class BMainInstance implements BMain {
             if (output.endsWith("\n")) {
                 output = output.substring(0, output.length() - 1);
             }
+            if (output.endsWith("\r")) {
+                output = output.substring(0, output.length() - 1);
+            }
             return output;
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);

@@ -59,9 +59,9 @@ public class IdentifierLiteralTest  extends BaseTest {
     @Test(description = "Test clashes in organization and module names that contain '_'")
     public void testPackageIDClash() throws BallerinaTestException {
         String importProjectPath = testFileLocation + File.separator + "testProject";
-        LogLeecher buildLeecher = new LogLeecher("target/bala/a_b-foo-any-0.1.0.bala");
-        LogLeecher pushLeecher =
-                new LogLeecher("Successfully pushed target/bala/a_b-foo-any-0.1.0.bala to 'local' repository.");
+        String targetFile = Paths.get("target", "bala", "a_b-foo-any-0.1.0.bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetFile);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetFile + " to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 importProjectPath);
