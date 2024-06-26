@@ -133,11 +133,11 @@ public class JBallerinaBackend extends CompilerBackend {
     private final SymbolTable symbolTable;
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
     private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
-    private Map<String, ByteArrayOutputStream> optimizedJarStreams;
-    protected Set<PackageID> unusedCompilerLevelPackageIds;
-    protected Set<PackageId> unusedProjectLevelPackageIds;
-    protected Set<ModuleId> unusedModuleIds;
-    protected Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
+    private final Map<String, ByteArrayOutputStream> optimizedJarStreams;
+    protected final Set<PackageID> unusedCompilerLevelPackageIds;
+    protected final Set<PackageId> unusedProjectLevelPackageIds;
+    protected final Set<ModuleId> unusedModuleIds;
+    protected final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -178,6 +178,12 @@ public class JBallerinaBackend extends CompilerBackend {
             this.unusedProjectLevelPackageIds = new HashSet<>();
             this.unusedModuleIds = new HashSet<>();
             this.pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
+        } else {
+            this.optimizedJarStreams = Collections.emptyMap();
+            this.unusedCompilerLevelPackageIds = Collections.emptySet();
+            this.unusedProjectLevelPackageIds = Collections.emptySet();
+            this.unusedModuleIds = Collections.emptySet();
+            this.pkgWiseUsedNativeClassPaths = Collections.emptyMap();
         }
         performCodeGen(shrink);
     }
@@ -207,14 +213,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 ModuleContext.shrinkDocuments(moduleContext);
             }
             Project project = moduleContext.project();
-            if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
-                if (packageCompilation.diagnosticResult().hasErrors()) {
-                    for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                        moduleDiagnostics.add(
-                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
-                    }
-                    continue;
+            if (moduleContext.moduleId().packageId().equals(packageContext.packageId()) &&
+                    packageCompilation.diagnosticResult().hasErrors()) {
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    moduleDiagnostics.add(
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                 }
+                continue;
             }
             // We can't generate backend code when one of its dependencies have errors.
             if (!this.packageContext.getResolution().diagnosticResult().hasErrors() && !hasErrors(moduleDiagnostics)) {
