@@ -1,0 +1,16 @@
+<library xmlns="http://example.com/library">
+    <book>
+        <title>The Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <genre>Drama</genre>
+    </book>
+    <book>
+        <title>1984</title>
+        <author>George Orwell</author>
+        <genre>Dystopian Fiction</genre>
+    </book>
+    <magazine>
+        <title>National Geographic</title>
+        <issue>April 2024</issue>
+    </magazine>
+</library>

@@ -17,12 +17,12 @@ jobs:
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
             ref: ${{ matrix.branch }}
 
       -   name: Set up JDK 17
-          uses: actions/setup-java@v3
+          uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
             java-version: '17.0.7'
@@ -45,7 +45,7 @@ jobs:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
-            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew clean build -x javadoc --scan --continue --rerun-tasks
             ./gradlew publish
             ./gradlew createCodeCoverageReport
             curl -X POST \
@@ -61,6 +61,6 @@ jobs:
             }"
 
       -   name: Generate Codecov Report
-          uses: codecov/codecov-action@v3
+          uses: codecov/codecov-action@v4
           with:
             files: ./.jacoco/reports/jacoco/report.xml

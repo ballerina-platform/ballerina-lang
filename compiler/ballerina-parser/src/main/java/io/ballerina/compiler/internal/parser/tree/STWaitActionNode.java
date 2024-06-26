@@ -56,6 +56,7 @@ public class STWaitActionNode extends STActionNode {
                 waitFutureExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWaitActionNode(
                 this.waitKeyword,
@@ -78,6 +79,7 @@ public class STWaitActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitActionNode(this, position, parent);
     }

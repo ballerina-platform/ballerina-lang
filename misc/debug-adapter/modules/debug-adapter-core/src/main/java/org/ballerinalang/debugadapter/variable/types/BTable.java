@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_REFERRED_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_PREFIX;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_REF_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isTypeReferenceType;
 
 /**
  * Ballerina table variable type.
@@ -51,7 +51,6 @@ public class BTable extends IndexedCompoundVariable {
     private final Map<String, Value> tableValues = new LinkedHashMap<>();
 
     private static final String FIELD_CONSTRAINT = "constraint";
-    private static final String FIELD_REFERRED_TYPE = "referredType";
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GET_ITERATOR = "getIterator";
     private static final String METHOD_HAS_NEXT = "hasNext";
@@ -123,10 +122,6 @@ public class BTable extends IndexedCompoundVariable {
         } catch (DebugVariableException e) {
             return UNKNOWN_VALUE;
         }
-    }
-
-    private boolean isTypeReferenceType(Value runtimeType) {
-        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_REF_TYPE);
     }
 
     private int getTableSize() {

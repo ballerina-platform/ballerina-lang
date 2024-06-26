@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -116,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -301,7 +303,7 @@ public class NodeCloner extends BLangNodeVisitor {
         }
         List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
-            T clone = (T) clone(node);
+            T clone = clone(node);
             cloneList.add(clone);
         }
         return cloneList;
@@ -448,6 +450,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.namespaceURI = clone(source.namespaceURI);
         clone.prefix = source.prefix;
+        clone.compUnit = source.compUnit;
     }
 
     @Override
@@ -951,6 +954,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.body = clone(source.body);
     }
 
+    @Override
     public void visit(BLangFail failNode) {
 
         BLangFail clone = new BLangFail();
@@ -1025,6 +1029,40 @@ public class NodeCloner extends BLangNodeVisitor {
         asyncSendExpr.cloneRef = clone;
         clone.expr = clone(asyncSendExpr.expr);
         clone.workerIdentifier = asyncSendExpr.workerIdentifier;
+        clone.setChannel(asyncSendExpr.getChannel());
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive source) {
+        BLangAlternateWorkerReceive clone = new BLangAlternateWorkerReceive();
+        source.cloneRef = clone;
+
+        List<BLangWorkerReceive> workerReceives = new ArrayList<>(source.getWorkerReceives().size());
+        for (BLangWorkerReceive workerReceive : source.getWorkerReceives()) {
+            workerReceives.add(clone(workerReceive));
+        }
+
+        clone.setWorkerReceives(workerReceives);
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive source) {
+        BLangMultipleWorkerReceive clone = new BLangMultipleWorkerReceive();
+        source.cloneRef = clone;
+
+        List<BLangMultipleWorkerReceive.BLangReceiveField> cloneFields =
+                new ArrayList<>(source.getReceiveFields().size());
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : source.getReceiveFields()) {
+            BLangMultipleWorkerReceive.BLangReceiveField clonedRvField =
+                    new BLangMultipleWorkerReceive.BLangReceiveField();
+            clonedRvField.setKey(clone(rvField.getKey()));
+            BLangWorkerReceive workerReceiveClone = clone(rvField.getWorkerReceive());
+            workerReceiveClone.parent = clone;
+            clonedRvField.setWorkerReceive(workerReceiveClone);
+            cloneFields.add(clonedRvField);
+        }
+
+        clone.setReceiveFields(cloneFields);
     }
 
     @Override
@@ -1034,6 +1072,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
+        clone.setChannel(source.getChannel());
     }
 
     @Override
@@ -1295,6 +1334,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.expr = clone(source.expr);
     }
 
+    @Override
     public void visit(BLangTableConstructorExpr source) {
 
         BLangTableConstructorExpr clone = new BLangTableConstructorExpr();
@@ -2191,6 +2231,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.workerIdentifier = source.workerIdentifier;
         clone.expr = clone(source.expr);
+        clone.setChannel(source.getChannel());
     }
 
     @Override

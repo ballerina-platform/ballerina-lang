@@ -217,6 +217,16 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {212, 16, location(223, 22, 24),
                         List.of(location(212, 16, 18),
                                 location(223, 22, 24))
+                },
+                // Alternate receive
+                {228, 11, location(228, 11, 13),
+                        List.of(location(228, 11, 13),
+                                location(237, 19, 21))
+                },
+                // Multiple receive
+                {246, 11, location(246, 11, 13),
+                        List.of(location(246, 11, 13),
+                                location(251, 26, 28))
                 }
         };
     }

@@ -66,8 +66,8 @@ public class BirVariableOptimizationTest {
         } catch (IOException e) {
             Assert.fail("Failed when reading file", e);
         }
-        if (!"".equals(expectedBir)) {
-            String funcBir = birEmitter.emitFunction(func, 0);
+        if (!expectedBir.isEmpty()) {
+            String funcBir = BIREmitter.emitFunction(func, 0);
             Assert.assertEquals(funcBir, expectedBir);
         }
     }

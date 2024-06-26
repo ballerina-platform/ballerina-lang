@@ -81,11 +81,13 @@ public class BLangService extends BLangNode implements ServiceNode {
         return false;
     }
 
+    @Override
     @Deprecated
     public List<BLangFunction> getResources() {
         return Collections.emptyList();
     }
 
+    @Override
     public List<BLangExpression> getAttachedExprs() {
         return this.attachedExprs;
     }

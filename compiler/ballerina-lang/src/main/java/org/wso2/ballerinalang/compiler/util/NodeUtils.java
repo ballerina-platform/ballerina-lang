@@ -39,8 +39,8 @@ public class NodeUtils {
     public static Name getName(Names names, List<BLangIdentifier> pkgNameComps) {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
-                .collect(Collectors.toList()));
-        return names.fromString(pkgName);
+                .toList());
+        return Names.fromString(pkgName);
     }
 
     public static Name getName(String localname, String namespaceURI) {

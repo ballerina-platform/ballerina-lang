@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
@@ -37,10 +36,10 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
-import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -50,10 +49,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,9 +59,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
-import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -174,42 +168,6 @@ public class PackageResolution {
         return autoUpdate;
     }
 
-    private boolean getSticky(PackageContext rootPackageContext) {
-        boolean sticky = rootPackageContext.project().buildOptions().sticky();
-        if (sticky) {
-            this.autoUpdate = false;
-            return true;
-        }
-
-        // set sticky if `build` file exists and `last_update_time` not passed 24 hours
-        if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = this.rootPackageContext.project().targetDir().resolve(BUILD_FILE);
-
-            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-                try {
-                    BuildJson buildJson = readBuildJson(buildFilePath);
-                    // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null && buildJson.distributionVersion() != null &&
-                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
-                        this.autoUpdate = false;
-                        return true;
-                    } else {
-                        this.autoUpdate = true;
-                        return false;
-                    }
-                } catch (IOException | JsonSyntaxException e) {
-                    this.autoUpdate = true;
-                    return false;
-                }
-            }
-            this.autoUpdate = true;
-            return false;
-        }
-        this.autoUpdate = true;
-        return false;
-    }
-
     /**
      * The goal of this method is to build the complete package dependency graph of this package.
      * 1) Combine {@code ModuleLoadRequest}s of all the modules in this package.
@@ -265,7 +223,6 @@ public class PackageResolution {
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
-
         return allModuleLoadRequests;
     }
 
@@ -428,7 +385,7 @@ public class PackageResolution {
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
-        if (dependencyGraph.findCycles().size() > 0) {
+        if (!dependencyGraph.findCycles().isEmpty()) {
             for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -448,7 +405,7 @@ public class PackageResolution {
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleDescriptor> sortedModuleDescriptors
                     = moduleDependencyGraph.toTopologicallySortedList();
-            if (moduleDependencyGraph.findCycles().size() > 0) {
+            if (!moduleDependencyGraph.findCycles().isEmpty()) {
                 for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -492,7 +449,8 @@ public class PackageResolution {
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
-        boolean sticky = getSticky(rootPackageContext);
+        boolean sticky = ProjectUtils.getSticky(rootPackageContext.project());
+        this.autoUpdate = !sticky;
         PackageLockingMode packageLockingMode;
         SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());

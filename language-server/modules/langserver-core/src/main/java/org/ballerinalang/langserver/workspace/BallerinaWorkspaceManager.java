@@ -171,6 +171,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath ballerina project or standalone file path
      * @return project root
      */
+    @Override
     public Path projectRoot(Path filePath) {
         return pathToSourceRootCache.computeIfAbsent(filePath, this::computeProjectRoot);
     }
@@ -610,7 +611,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (packageCompilation.isEmpty()) {
             return Optional.empty();
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
         Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
             String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
@@ -650,6 +651,24 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             lock.unlock();
         }
     }
+
+    private static JBallerinaBackend execBackend(ProjectContext projectContext,
+                                                 PackageCompilation packageCompilation) {
+        Lock lock = projectContext.lockAndGet();
+        try {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17, false);
+            Package pkg = projectContext.project.currentPackage();
+            for (Module module : pkg.modules()) {
+                for (DocumentId id : module.documentIds()) {
+                    module.document(id).modify().apply();
+                }
+            }
+            return jBallerinaBackend;
+        } finally {
+            lock.unlock();
+        }
+    }
+
 
     @Override
     public boolean stop(Path filePath) {
@@ -1590,7 +1609,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     /**
      * Represents a map of Path to ProjectContext.
-     * <p>
      *
      * @param <K> cache key
      * @param <V> cache value
@@ -1614,6 +1632,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return old;
         }
 
+        @Override
         public V remove(Object key) {
             V result = super.remove(key);
             // Clear dependent cache

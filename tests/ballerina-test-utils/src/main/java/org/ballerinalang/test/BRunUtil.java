@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -61,6 +61,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -323,6 +324,7 @@ public class BRunUtil {
         String classPathString = System.getProperty("java.class.path") + classPath;
         // Create an argument file for Windows to mitigate the long classpath issue.
         if (IS_WINDOWS) {
+            classPathString = classPathString.replace(" ", "%20");
             String classPathArgs = "classPathArgs";
             try {
                 File classPathArgsFile = File.createTempFile(classPathArgs, ".txt");
@@ -369,9 +371,10 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+        ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                new Class[]{Map.class, String[].class, Path[].class, String.class},
+                new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
         runOnSchedule(initClazz, "$moduleInit", scheduler);
         runOnSchedule(initClazz, "$moduleStart", scheduler);

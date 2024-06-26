@@ -202,7 +202,6 @@ public class TypeParamBoundTableFunctionsTest {
 
         assertEquals(params.size(), 2);
         assertFirstParam(params.get(0));
-;
         TypeSymbol removeFnRetType = removeFnType.returnTypeDescriptor().get();
         assertTypeRef(removeFnRetType);
     }

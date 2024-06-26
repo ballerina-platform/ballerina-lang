@@ -37,10 +37,8 @@ dependencies {
 compileJava {
     doFirst {
         options.compilerArgs += [
-                "-Aproject=${project.group}/${project.name}",
-                '--module-path', classpath.asPath,
+                "-Aproject=${project.group}/${project.name}"
         ]
-        classpath = files()
     }
 }
 
@@ -51,13 +49,13 @@ test {
 }
 
 def mainCliClass = 'io.ballerina.shell.cli.ReplShellApplication'
-task run(type: JavaExec) {
-    main = mainCliClass
+tasks.register('run', JavaExec) {
+    mainClass = mainCliClass
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest { attributes 'Main-Class': mainCliClass }
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }

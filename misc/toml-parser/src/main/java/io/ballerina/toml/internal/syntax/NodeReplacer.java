@@ -51,6 +51,7 @@ class NodeReplacer extends TreeModifier {
         return oldNodeTextRange.intersectionExists(node.textRangeWithMinutiae());
     }
 
+    @Override
     protected <T extends Node> T modifyNode(T node) {
         if (node == null) {
             return null;
@@ -65,6 +66,7 @@ class NodeReplacer extends TreeModifier {
         return (T) replaced;
     }
 
+    @Override
     protected <T extends Token> T modifyToken(T token) {
         if (token == null) {
             return null;

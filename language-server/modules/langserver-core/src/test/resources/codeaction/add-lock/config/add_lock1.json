@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 9
+  },
+  "source": "add_lock1.bal",
+  "description": "Wrap in a lock statement for a simple isolated variable",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    _ = i + 2;\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

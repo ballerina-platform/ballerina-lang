@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCLICall;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -81,7 +82,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -122,22 +122,15 @@ public class InitMethodGen {
      * @param cw        class visitor
      * @param pkg       bir package
      * @param initClass module init class
-     * @param depMods   dependent module list
      */
-    public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods) {
+    public void generateLambdaForPackageInit(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-
         String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
         MethodVisitor mv = visitFunction(cw, funcName);
         invokeStopFunction(initClass, mv, funcName);
-        for (PackageID id : depMods) {
-            String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, id, jvmClass);
-        }
     }
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
@@ -181,12 +174,6 @@ public class InitMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
-    }
-
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
-        String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
-        MethodVisitor mv = visitFunction(cw, lambdaName);
-        invokeStopFunction(initClass, mv, lambdaName);
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
@@ -238,7 +225,7 @@ public class InitMethodGen {
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports,
+                                          BIRNode.BIRPackage pkg, Set<PackageID> moduleImports,
                                           boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc,
                                           BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
@@ -352,7 +339,7 @@ public class InitMethodGen {
             lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef, functionArgs,
                                                                   Collections.emptyList(), typeOwnerClass);
         } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addInvocationForGracefulExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
+            lastBB = addInvocationForGracefulExitCall(modExecFunc, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
@@ -421,7 +408,7 @@ public class InitMethodGen {
         return null;
     }
 
-    private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,
+    private BIRNode.BIRFunction generateDefaultFunction(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg,
                                                         String funcName, String initName) {
         nextId = 0;
         nextVarId = 0;
@@ -431,16 +418,15 @@ public class InitMethodGen {
         BIROperand retVarRef = new BIROperand(retVar);
 
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(null, new Name(funcName), 0, funcType, null, 0,
-                                                                  VIRTUAL);
+        BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(symbolTable.builtinPos, new Name(funcName), 0,
+                funcType, null, 0, VIRTUAL);
         modInitFunc.localVars.add(retVar);
         addAndGetNextBasicBlock(modInitFunc);
 
         BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
-
+        String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(funcName);
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
@@ -466,8 +452,8 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, BIROperand retVar,
-                                                                   BIROperand boolRef, String typeOwnerClass) {
+    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func,
+                                                                   String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);

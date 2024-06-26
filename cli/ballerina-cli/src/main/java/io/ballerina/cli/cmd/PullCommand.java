@@ -72,8 +72,8 @@ public class PullCommand implements BLauncherCmd {
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -265,7 +265,7 @@ public class PullCommand implements BLauncherCmd {
 
         CommandUtil.setPrintStream(errStream);
         String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(target -> target.code())
+                .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
         try {
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
@@ -273,7 +273,7 @@ public class PullCommand implements BLauncherCmd {
                     settings.getProxy().password(), getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout());
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
             if (version.equals(Names.EMPTY.getValue())) {

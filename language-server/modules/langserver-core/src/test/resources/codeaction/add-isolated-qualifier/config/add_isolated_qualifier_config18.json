@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 13,
+    "character": 11
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source6.bal",
+  "description": "Add isolated qualifier to a class variable",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'nonIsolatedClass'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

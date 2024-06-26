@@ -74,6 +74,7 @@ public class STReBracedQuantifierNode extends STNode {
                 closeBraceToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReBracedQuantifierNode(
                 this.openBraceToken,
@@ -108,6 +109,7 @@ public class STReBracedQuantifierNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReBracedQuantifierNode(this, position, parent);
     }

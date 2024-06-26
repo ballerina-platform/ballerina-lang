@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -630,7 +632,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         find((BLangNode) joinClause.variableDefinitionNode);
-        find((BLangOnClause) joinClause.onClause);
+        find(joinClause.onClause);
         find(joinClause.collection);
     }
 
@@ -769,6 +771,21 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
+            addIfSameSymbol(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            BLangWorkerReceive workerReceive = receiveField.getWorkerReceive();
+            addIfSameSymbol(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos);
+        }
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         addIfSameSymbol(workerReceiveNode.workerSymbol, workerReceiveNode.workerIdentifier.pos);
     }
@@ -796,7 +813,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         find(varRefExpr.expressions);
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override
@@ -805,7 +822,7 @@ public class ReferenceFinder extends BaseVisitor {
             find(recordRefField.getBindingPattern());
         }
 
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override

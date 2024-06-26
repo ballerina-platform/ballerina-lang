@@ -7,7 +7,7 @@ node('COMPONENT_ECS') {
                     git clone https://github.com/ballerina-platform/ballerina-lang
                     cd ballerina-lang/
                     #Temporary javadoc creation and spot bug check will be skipped
-                    ./gradlew build --console=plain --stacktrace -scan -x createJavadoc -x spotbugsMain -x openapi-ballerina:ballerina-to-openapi-generator:test -x test -x check
+                    ./gradlew build --console=plain --stacktrace -scan -x javadoc -x spotbugsMain -x openapi-ballerina:ballerina-to-openapi-generator:test -x test -x check
                     ./gradlew publish
                 """
             }

@@ -18,12 +18,9 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -35,12 +32,10 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.AsyncFunctionCallback;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
@@ -49,13 +44,9 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
@@ -75,6 +66,22 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
         return createRecordValue(packageId, recordTypeName, new HashSet<>());
+    }
+
+    public static BMap<BString, Object> createRecordValueWithDefaultValues(Module packageId, String recordTypeName,
+                                                          List<String> notProvidedFields) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
+        try {
+            return getPopulatedRecordValue(valueCreator, recordTypeName, notProvidedFields);
+        } catch (BError e) {
+            // If record type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName,
+                        notProvidedFields);
+            }
+            throw e;
+        }
     }
 
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
@@ -100,6 +107,13 @@ public class ValueUtils {
         return populateDefaultValues(recordValue, type, providedFields);
     }
 
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
+                                                                 List<String> notProvidedFields) {
+        MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        return populateDefaultValues(recordValue, type, notProvidedFields);
+    }
+
     public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
                                                               Set<String> providedFields) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
@@ -107,21 +121,29 @@ public class ValueUtils {
             return recordValue;
         }
         defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+                                                              List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        if (defaultValues.isEmpty()) {
+            return recordValue;
+        }
+        defaultValues = getNonProvidedDefaultValues(defaultValues, notProvidedFieldNames);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    private static BMap<BString, Object> populateRecordDefaultValues(
+            BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            try {
-                final CountDownLatch latch = new CountDownLatch(defaultValues.size());
-                populateInitialValuesWithNoStrand(recordValue, latch, defaultValues);
-                latch.await();
-            } catch (InterruptedException e) {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("error occurred when populating default values"), e);
-            }
-        } else {
-            for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
-                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
-                        field.getValue().call(new Object[]{strand}));
-            }
+            // Create a dummy strand only for keep frames.
+            strand = new Strand();
+        }
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[]{strand}));
         }
         return recordValue;
     }
@@ -137,74 +159,13 @@ public class ValueUtils {
         return result;
     }
 
-    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
-                                                          Map<String, BFunctionPointer<Object, ?>> defaultValues) {
-        String[] fields = defaultValues.keySet().toArray(new String[0]);
-        invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
-                Scheduler.getDaemonStrand().getMetadata(), defaultValues.size(), o -> {
-        }, Scheduler.getDaemonStrand().scheduler, latch);
-    }
-
-    public static void invokeFPAsyncIterativelyWithNoStrand(BMap<BString, Object> recordValue,
-                                                            Map<String, BFunctionPointer<Object, ?>> defaultValues,
-                                                            String[] fields, String strandName, StrandMetadata metadata,
-                                                            int noOfIterations, Consumer<Object> futureResultConsumer,
-                                                            Scheduler scheduler, CountDownLatch latch) {
-        if (noOfIterations <= 0) {
-            return;
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer<Object, ?>> defaultValues, List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+        for (String notProvidedFieldName : notProvidedFieldNames) {
+            result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
         }
-        AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations, callCount,
-                futureResultConsumer, scheduler, latch);
-    }
-
-    private static void scheduleNextFunction(BMap<BString, Object> recordValue,
-                                             Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
-                                             String strandName, StrandMetadata metadata, int noOfIterations,
-                                             AtomicInteger callCount, Consumer<Object> futureResultConsumer,
-                                             Scheduler scheduler, CountDownLatch latch) {
-        BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
-        Type retType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
-        FutureValue future = scheduler.createFuture(null, null, null, retType, strandName, metadata);
-        AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
-            @Override
-            public void notifySuccess(Object result) {
-                futureResultConsumer.accept(getFutureResult());
-                recordValue.populateInitialValue(StringUtils.fromString(fields[callCount.get()]), result);
-                int i = callCount.incrementAndGet();
-                latch.countDown();
-                if (i != noOfIterations) {
-                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations,
-                            callCount, futureResultConsumer, scheduler, latch);
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                errStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
-            }
-        };
-
-        invokeFunctionPointerAsync(func, retType, future, callback, scheduler, strandName, metadata);
-    }
-
-    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Type returnType, FutureValue future,
-                                                   AsyncFunctionCallback callback, Scheduler scheduler,
-                                                   String strandName, StrandMetadata metadata) {
-        future.callback = callback;
-        callback.setFuture(future);
-        AsyncFunctionCallback childCallback = new AsyncFunctionCallback(future.strand) {
-            @Override
-            public void notifySuccess(Object result) {
-                callback.notifySuccess(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                callback.notifyFailure(error);
-            }
-        };
-        scheduler.scheduleFunction(new Object[1], func, null, returnType, strandName, metadata, childCallback);
+        return result;
     }
 
     /**

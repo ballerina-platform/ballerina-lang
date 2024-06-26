@@ -198,7 +198,7 @@ public class BallerinaDocGenerator {
     }
 
     private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
-        if (moduleLib.modules.size() == 0) {
+        if (moduleLib.modules.isEmpty()) {
             log.error("No modules found to create docs.");
             return;
         }
@@ -483,7 +483,7 @@ public class BallerinaDocGenerator {
             module.orgName = orgName;
             String moduleVersion = version;
             // get version from system property if not found in bLangPackage
-            module.version = moduleVersion.equals("") ?
+            module.version = moduleVersion.isEmpty() ?
                     System.getProperty(BallerinaDocConstants.VERSION) :
                     moduleVersion;
             module.summary = moduleDoc.getValue().summary;

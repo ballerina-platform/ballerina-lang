@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.internal.scheduling.State;
@@ -40,6 +41,7 @@ public class BalEnvironment extends Environment {
     private Module currentModule;
     private String funcName;
     private Parameter[] funcPathParams;
+    private Repository repository;
 
     public BalEnvironment(Strand strand) {
         this.strand = strand;
@@ -49,12 +51,14 @@ public class BalEnvironment extends Environment {
         this.strand = strand;
         this.currentModule = currentModule;
         future = new BalFuture(this.strand);
+        this.repository = new RepositoryImpl();
     }
 
     public BalEnvironment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
         this(strand, currentModule);
         this.funcName = funcName;
         this.funcPathParams = funcPathParams;
+        this.repository = new RepositoryImpl();
     }
 
     /**
@@ -62,6 +66,7 @@ public class BalEnvironment extends Environment {
      *
      * @return function name
      */
+    @Override
     public String getFunctionName() {
         return funcName;
     }
@@ -71,6 +76,7 @@ public class BalEnvironment extends Environment {
      *
      * @return array of {@link Parameter}
      */
+    @Override
     public Parameter[] getFunctionPathParameters() {
         return funcPathParams;
     }
@@ -83,6 +89,7 @@ public class BalEnvironment extends Environment {
      *
      * @return BalFuture which will resume the current strand when completed.
      */
+    @Override
     public BalFuture markAsync() {
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
@@ -94,8 +101,9 @@ public class BalEnvironment extends Environment {
      *
      * @return Ballerina runtime instance.
      */
+    @Override
     public BalRuntime getRuntime() {
-        return new BalRuntime(strand.scheduler);
+        return new BalRuntime(strand.scheduler, currentModule);
     }
 
     /**
@@ -103,6 +111,7 @@ public class BalEnvironment extends Environment {
      *
      * @return module of the environment.
      */
+    @Override
     public Module getCurrentModule() {
         return currentModule;
     }
@@ -112,6 +121,7 @@ public class BalEnvironment extends Environment {
      *
      * @return Strand id.
      */
+    @Override
     public int getStrandId() {
         return strand.getId();
     }
@@ -122,6 +132,7 @@ public class BalEnvironment extends Environment {
      *
      * @return Optional strand name.
      */
+    @Override
     public Optional<String> getStrandName() {
         return strand.getName();
     }
@@ -131,6 +142,7 @@ public class BalEnvironment extends Environment {
      *
      * @return metadata of the strand.
      */
+    @Override
     public StrandMetadata getStrandMetadata() {
         return strand.getMetadata();
     }
@@ -141,6 +153,7 @@ public class BalEnvironment extends Environment {
      * @param key   string key
      * @param value value to be store in the strand
      */
+    @Override
     public void setStrandLocal(String key, Object value) {
         strand.setProperty(key, value);
     }
@@ -151,7 +164,13 @@ public class BalEnvironment extends Environment {
      * @param key key
      * @return value stored in the strand.
      */
+    @Override
     public Object getStrandLocal(String key) {
         return strand.getProperty(key);
+    }
+
+    @Override
+    public Repository getRepository() {
+        return this.repository;
     }
 }

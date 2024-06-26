@@ -37,6 +37,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
     public final STNode workerName;
     public final STNode returnTypeDesc;
     public final STNode workerBody;
+    public final STNode onFailClause;
 
     STNamedWorkerDeclarationNode(
             STNode annotations,
@@ -44,7 +45,8 @@ public class STNamedWorkerDeclarationNode extends STNode {
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
-            STNode workerBody) {
+            STNode workerBody,
+            STNode onFailClause) {
         this(
                 annotations,
                 transactionalKeyword,
@@ -52,6 +54,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 workerName,
                 returnTypeDesc,
                 workerBody,
+                onFailClause,
                 Collections.emptyList());
     }
 
@@ -62,6 +65,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
             STNode workerName,
             STNode returnTypeDesc,
             STNode workerBody,
+            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.NAMED_WORKER_DECLARATION, diagnostics);
         this.annotations = annotations;
@@ -70,6 +74,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
         this.workerName = workerName;
         this.returnTypeDesc = returnTypeDesc;
         this.workerBody = workerBody;
+        this.onFailClause = onFailClause;
 
         addChildren(
                 annotations,
@@ -77,9 +82,11 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedWorkerDeclarationNode(
                 this.annotations,
@@ -88,6 +95,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 this.workerName,
                 this.returnTypeDesc,
                 this.workerBody,
+                this.onFailClause,
                 diagnostics);
     }
 
@@ -97,14 +105,16 @@ public class STNamedWorkerDeclarationNode extends STNode {
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
-            STNode workerBody) {
+            STNode workerBody,
+            STNode onFailClause) {
         if (checkForReferenceEquality(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody)) {
+                workerBody,
+                onFailClause)) {
             return this;
         }
 
@@ -115,9 +125,11 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 workerName,
                 returnTypeDesc,
                 workerBody,
+                onFailClause,
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarationNode(this, position, parent);
     }

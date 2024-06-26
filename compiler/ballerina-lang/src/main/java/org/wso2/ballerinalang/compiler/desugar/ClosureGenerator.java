@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -76,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -105,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -201,6 +204,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -208,6 +212,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * ClosureGenerator for creating closures for default values.
@@ -416,7 +421,50 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
+        // In the current implementation, closures generated for default values in inclusions defined in a
+        // separate module are unidentifiable.
+        // Due to that, if the inclusions are in different modules, we generate closures again.
+        // Will be fixed  with #41949 issue.
+        generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(recordTypeNode);
         result = recordTypeNode;
+    }
+
+    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for (BLangSimpleVariable field : fields) {
+            fieldNames.add(field.name.getValue());
+        }
+        return fieldNames;
+    }
+
+    private void generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(
+            BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.typeRefs.isEmpty()) {
+            return;
+        }
+        List<String> fieldNames = getFieldNames(recordTypeNode.fields);
+        BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
+        String typeName = recordTypeNode.symbol.name.value;
+        PackageID packageID = typeSymbol.pkgID;
+        for (BLangType type : recordTypeNode.typeRefs) {
+            BType bType = type.getBType();
+            if (packageID.equals(bType.tsymbol.pkgID)) {
+                continue;
+            }
+            BRecordType recordType = (BRecordType) Types.getReferredType(bType);
+            Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
+                    ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+            for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValuesOfTypeRef.entrySet()) {
+                String name = defaultValue.getKey();
+                if (fieldNames.contains(name)) {
+                    continue;
+                }
+                BInvokableSymbol symbol = defaultValue.getValue();
+                BLangInvocation invocation = getInvocation(symbol);
+                String closureName = RECORD_DELIMITER + typeName + RECORD_DELIMITER + name;
+                generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
+            }
+        }
     }
 
     @Override
@@ -549,7 +597,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             return;
         }
 
-        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
         } else {
@@ -571,13 +619,18 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
+        generateClosureForDefaultValues(closureName, paramName, varNode.expr, varNode.getBType(),
+                                        env.node.getBType().tsymbol);
+    }
+
+    private void generateClosureForDefaultValues(String closureName, String paramName, BLangExpression expr,
+                                                 BType returnType, BTypeSymbol symbol) {
         BSymbol owner = getOwner(env);
-        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
+        BLangFunction function = createFunction(closureName, expr.pos, owner.pkgID, owner, returnType);
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr = types.addConversionExprIfRequired(expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
-        BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
             BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) symbol;
             updateFunctionParams(function, invokableTypeSymbol.params, paramName);
@@ -595,18 +648,20 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateFunctionParams(BLangFunction funcNode, List<BVarSymbol> params, String paramName) {
         // Add params to the required param list if there are any.
         BInvokableSymbol funcSymbol = funcNode.symbol;
+        Location pos = funcSymbol.pos;
         for (BVarSymbol symbol : params) {
-            if (paramName.equals(symbol.name.value)) {
+            Name symbolName = symbol.name;
+            if (paramName.equals(symbolName.value)) {
                 break;
             }
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            BVarSymbol varSymbol = ASTBuilderUtil.duplicateParamSymbol(symbol, funcSymbol);
-            varSymbol.flags = 0;
-            funcSymbol.scope.define(varSymbol.name, varSymbol);
+            BType type = symbol.type;
+            BVarSymbol varSymbol = new BVarSymbol(Flags.REQUIRED_PARAM, symbolName, symbol.pkgID, type, funcSymbol, pos,
+                                                  VIRTUAL);
+            funcSymbol.scope.define(symbolName, varSymbol);
             funcSymbol.params.add(varSymbol);
-            funcType.paramTypes.add(varSymbol.type);
-            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(varSymbol.pos, varSymbol.name.value,
-                                        varSymbol.type, null, varSymbol));
+            ((BInvokableType) funcSymbol.type).paramTypes.add(type);
+            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.value, type, null,
+                                                                      varSymbol));
         }
     }
 
@@ -704,7 +759,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             case CLASS_DEFN:
                 return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case FUNCTION:
-                name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
+                name = ((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE) + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RESOURCE_FUNC:
                 return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
@@ -1048,7 +1103,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangInvocation invocation) {
         rewriteInvocationExpr(invocation);
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (encInvokable == null || !invocation.functionPointerInvocation) {
+        if (encInvokable == null || !invocation.functionPointerInvocation ||
+                !env.enclPkg.packageID.equals(invocation.symbol.pkgID)) {
             return;
         }
         updateClosureVariable((BVarSymbol) invocation.symbol, encInvokable, invocation.pos);
@@ -1144,7 +1200,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.capturedClosureEnv = env;
-        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, env);
         result = bLangLambdaFunction;
     }
 
@@ -1219,6 +1275,16 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        result = alternateWorkerReceive;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        result = multipleWorkerReceive;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         result = workerReceiveNode;
     }
@@ -1239,7 +1305,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
         Set<Flag> flagSet = encInvokable.flagSet;
         boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
-                            !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE;
+                            !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE &&
+                            !isInParameterList(varSymbol, encInvokable.requiredParams);
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, varSymbol);
@@ -1452,6 +1519,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = isLikeExpr;
     }
 
+    @Override
     public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
         result = nsPrefixedFieldBasedAccess;
     }
@@ -1572,6 +1640,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = queryExpr;
     }
 
+    @Override
     public void visit(BLangFromClause fromClause) {
         BLangExpression collection = fromClause.collection;
         rewrite(collection, env);
@@ -1626,6 +1695,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = groupByClause;
     }
 
+    @Override
     public void visit(BLangGroupingKey groupingKey) {
         rewrite((BLangNode) groupingKey.getGroupingKey(), env);
         result = groupingKey;

@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 
 /**
  * A BIR node visitor.
@@ -146,6 +146,13 @@ public abstract class BIRVisitor {
         throw new UnsupportedOperationException();
     }
 
+    public void visit(BIRTerminator.WorkerAlternateReceive altReceive) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WorkerMultipleReceive multipleReceive) {
+        throw new AssertionError();
+    }
 
     // Non-terminating instructions
 

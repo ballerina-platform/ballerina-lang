@@ -78,7 +78,7 @@ public class ShellCommand implements BLauncherCmd {
             BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
-            errStream.println("something went wrong while executing REPL: " + e.toString());
+            errStream.println("something went wrong while executing REPL: " + e);
         }
     }
 

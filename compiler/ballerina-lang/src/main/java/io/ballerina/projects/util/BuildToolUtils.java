@@ -19,6 +19,7 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.ProjectException;
@@ -27,8 +28,10 @@ import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolConfig;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -46,6 +49,7 @@ import java.util.stream.Stream;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
+import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
 
 /**
  * Utility methods required for build tools.
@@ -61,11 +65,14 @@ public class BuildToolUtils {
      * @param commandName command/ subcommand name of the build tool
      * @return diagnostic
      */
-    public static PackageDiagnostic getBuildToolCommandNotFoundDiagnostic(String commandName) {
+    public static TomlDiagnostic getBuildToolCommandNotFoundDiagnostic(String commandName, TomlNodeLocation location) {
         String message = "Build tool command '" + commandName + "' not found";
+        DiagnosticCode diagnosticCode = ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, commandName);
+                diagnosticCode.diagnosticId(),
+                diagnosticCode.messageKey(),
+                DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     /**
@@ -74,11 +81,13 @@ public class BuildToolUtils {
      * @param toolId tool id of the build tool
      * @return diagnostic
      */
-    public static PackageDiagnostic getCannotResolveBuildToolDiagnostic(String toolId) {
+    public static TomlDiagnostic getCannotResolveBuildToolDiagnostic(String toolId, TomlNodeLocation location) {
         String message = "Build tool '" + toolId + "' cannot be resolved";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, toolId);
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
+                DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     /**
@@ -103,22 +112,26 @@ public class BuildToolUtils {
      * @param fullCommandName the full name of the command. eg: health.fhir
      * @return diagnostic wrapped in Optional
      */
-    public static Optional<PackageDiagnostic> getDiagnosticIfInvalidCommandName(String fullCommandName) {
+    public static Optional<TomlDiagnostic> getDiagnosticIfInvalidCommandName(
+            String fullCommandName, TomlNodeLocation location) {
         String[] subcommandNames = fullCommandName.split("\\.");
         for (String subcommandName : subcommandNames) {
             ValidationStatus validationStatus = validateCommandName(subcommandName);
             if (validationStatus != ValidationStatus.VALID) {
-                return Optional.of(getInvalidCommandNameDiagnostic(fullCommandName, validationStatus.message()));
+                return Optional.of(getInvalidCommandNameDiagnostic(
+                        fullCommandName, validationStatus.message(), location));
             }
         }
         return Optional.empty();
     }
 
-    private static PackageDiagnostic getInvalidCommandNameDiagnostic(String cmdName, String reason) {
+    private static TomlDiagnostic getInvalidCommandNameDiagnostic(
+            String cmdName, String reason, TomlNodeLocation location) {
         String message = "Command name '" + cmdName + "' is invalid because " + reason;
+        DiagnosticCode diagnosticCode = ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, cmdName);
+                diagnosticCode.diagnosticId(), diagnosticCode.messageKey(), DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     private static Optional<CodeGeneratorTool> getTargetToolRec(
@@ -129,6 +142,9 @@ public class BuildToolUtils {
                 ToolConfig toolConfig = codeGeneratorToolClass.getAnnotation(ToolConfig.class);
                 if (toolConfig.name().equals(subcommandNames[level])) {
                     if (level + 1 == subcommandNames.length) {
+                        if (toolConfig.hidden()) {
+                            return Optional.empty();
+                        }
                         return Optional.of(buildRunner);
                     }
                     CodeGeneratorTool[] subcommands = Arrays.stream(toolConfig.subcommands()).map(cmdClz -> {
@@ -193,8 +209,8 @@ public class BuildToolUtils {
             SemanticVersion version,
             List<SemanticVersion> versions,
             PackageLockingMode packageLockingMode) {
-        CompatibleRange compatibleRange = getCompatibleRange(version, packageLockingMode);
-        List<SemanticVersion> versionsInCompatibleRange = getVersionsInCompatibleRange(
+        CompatibleRange compatibleRange = ProjectUtils.getCompatibleRange(version, packageLockingMode);
+        List<SemanticVersion> versionsInCompatibleRange = ProjectUtils.getVersionsInCompatibleRange(
                 version, versions, compatibleRange);
         return getLatestVersion(versionsInCompatibleRange);
     }
@@ -232,6 +248,24 @@ public class BuildToolUtils {
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
     }
 
+
+    /**
+     * Get the location of the first tool entry in the Ballerina.toml file. If the tool entry is not found, return null.
+     * This is used to get the diagnostic location for the tool entry error.
+     *
+     * @param toolId      tool id
+     * @param toolEntries tool entries in Ballerina.toml
+     * @return location of the first tool entry
+     */
+    public static TomlNodeLocation getFirstToolEntryLocation(String toolId, List<PackageManifest.Tool> toolEntries) {
+        for (PackageManifest.Tool toolEntry : toolEntries) {
+            if (toolEntry.type().value().equals(toolId)) {
+                return toolEntry.type().location();
+            }
+        }
+        return null;
+    }
+
     private static List<Path> getIncompatibleVersions(List<Path> versions, PackageOrg org, PackageName name) {
         List<Path> incompatibleVersions = new ArrayList<>();
         if (!versions.isEmpty()) {
@@ -250,44 +284,6 @@ public class BuildToolUtils {
             }
         }
         return incompatibleVersions;
-    }
-
-    private static CompatibleRange getCompatibleRange(SemanticVersion version, PackageLockingMode packageLockingMode) {
-        if (version == null) {
-            return CompatibleRange.LATEST;
-        }
-        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
-            return CompatibleRange.EXACT;
-        }
-        if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {
-            return CompatibleRange.LOCK_MINOR;
-        }
-        // Locking mode SOFT
-        return CompatibleRange.LOCK_MAJOR;
-    }
-
-    private static List<SemanticVersion> getVersionsInCompatibleRange(
-            SemanticVersion minVersion,
-            List<SemanticVersion> versions,
-            CompatibleRange compatibleRange) {
-        List<SemanticVersion> inRangeVersions = new ArrayList<>();
-        if (compatibleRange.equals(CompatibleRange.LATEST)) {
-            // If minVersion is null, range is LATEST
-            inRangeVersions.addAll(versions);
-        } else if (compatibleRange.equals(CompatibleRange.LOCK_MAJOR)) {
-            inRangeVersions.addAll(
-                    versions.stream().filter(version -> version.major() == minVersion.major()
-            ).toList());
-        } else if (compatibleRange.equals(CompatibleRange.LOCK_MINOR)) {
-            inRangeVersions.addAll(
-                    versions.stream().filter(
-                            version -> version.major() == minVersion.major()
-                            && version.minor() == minVersion.minor()
-                    ).toList());
-        } else if (versions.contains(minVersion)) {
-            inRangeVersions.add(minVersion);
-        }
-        return inRangeVersions;
     }
 
     private static Path getPackagePath(String org, String name, String version) {
@@ -338,7 +334,6 @@ public class BuildToolUtils {
         return Optional.of(latestVersion);
     }
 
-
     /**
      * Denote all possible validation failures of a command name plus a valid status.
      */
@@ -359,27 +354,5 @@ public class BuildToolUtils {
         public String message() {
             return message;
         }
-    }
-
-    /**
-     * Denote the compatibility range of a given tool version.
-     */
-    private enum CompatibleRange {
-        /**
-         * Latest stable (if any), else latest pre-release.
-         */
-        LATEST,
-        /**
-         * Latest minor version of the locked major version.
-         */
-        LOCK_MAJOR,
-        /**
-         * Latest patch version of the locked major and minor versions.
-         */
-        LOCK_MINOR,
-        /**
-         * Exact version provided.
-         */
-        EXACT
     }
 }

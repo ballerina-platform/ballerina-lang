@@ -59,16 +59,16 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, boolean isRemoteMgtEnabled) {
         // generate module
-        return generate(bLangPackage.symbol);
+        return generate(bLangPackage.symbol, isRemoteMgtEnabled);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
-        return generate(bLangTestablePackage.symbol);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled) {
+        return generate(bLangTestablePackage.symbol, isRemoteMgtEnabled);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean isRemoteMgtEnabled) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -77,13 +77,14 @@ public class CodeGenerator {
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types,
+                isRemoteMgtEnabled);
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir);
         cleanUpBirPackage(packageSymbol);
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);

@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 56,
+    "character": 18
+  },
+  "source": "source2.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'Rec1|Rec2|Error1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 56,
+              "character": 4
+            },
+            "end": {
+              "line": 56,
+              "character": 4
+            }
+          },
+          "newText": "Rec1|Rec2|Error1 delete = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'Rec1|Error1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 56,
+              "character": 4
+            },
+            "end": {
+              "line": 56,
+              "character": 4
+            }
+          },
+          "newText": "Rec1|Error1 delete = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'Rec2|Error1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 56,
+              "character": 4
+            },
+            "end": {
+              "line": 56,
+              "character": 4
+            }
+          },
+          "newText": "Rec2|Error1 delete = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

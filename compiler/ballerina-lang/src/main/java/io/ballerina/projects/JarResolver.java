@@ -58,6 +58,7 @@ public class JarResolver {
     private final PackageContext rootPackageContext;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
+    private List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -66,6 +67,7 @@ public class JarResolver {
         this.pkgResolution = pkgResolution;
         this.rootPackageContext = pkgResolution.packageContext();
         this.diagnosticList = new ArrayList<>();
+        this.providedPlatformLibs = new ArrayList<>();
     }
 
     DiagnosticResult diagnosticResult() {
@@ -75,12 +77,22 @@ public class JarResolver {
         return diagnosticResult;
     }
 
+    /**
+     * Returns a list of platform libraries with provided scope used in dependencies.
+     *
+     * @return list of platform libraries with provided scope
+     */
+    public List<PlatformLibrary> providedPlatformLibs() {
+        return providedPlatformLibs;
+    }
+
     // TODO These method names are too long. Refactor them soon
     public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
         // 1) Add this root package related jar files
         Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
+        addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.PROVIDED, jarFiles);
 
         // 2) Get all the dependencies of the root package including transitives.
         // Filter out PackageDependencyScope.TEST_ONLY scope dependencies and lang libs
@@ -94,6 +106,7 @@ public class JarResolver {
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
                     addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, jarFiles, true);
                 });
 
         // 3) Add the runtime library path
@@ -118,10 +131,19 @@ public class JarResolver {
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
                                          Set<JarLibrary> libraryPaths) {
+        addPlatformLibraryPaths(packageContext, scope, libraryPaths, false);
+    }
+
+    private void addPlatformLibraryPaths(PackageContext packageContext,
+                                         PlatformLibraryScope scope,
+                                         Set<JarLibrary> libraryPaths,
+                                         boolean addProvidedJars) {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
-
+        if (addProvidedJars) {
+            providedPlatformLibs.addAll(otherJarDependencies);
+        }
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
@@ -198,12 +220,14 @@ public class JarResolver {
         pkgResolution.allDependencies()
                 .stream()
                 .filter(pkgDep -> pkgDep.scope() == PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())    //filter out lang libs
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
                     addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, allJarFileForTestExec);
                 });
 
         // 6 Add other dependencies required to run Ballerina test cases

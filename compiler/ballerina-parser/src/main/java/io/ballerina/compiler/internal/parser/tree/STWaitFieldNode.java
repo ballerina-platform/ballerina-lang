@@ -62,6 +62,7 @@ public class STWaitFieldNode extends STNode {
                 waitFutureExpr);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWaitFieldNode(
                 this.fieldName,
@@ -88,6 +89,7 @@ public class STWaitFieldNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WaitFieldNode(this, position, parent);
     }

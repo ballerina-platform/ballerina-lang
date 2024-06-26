@@ -74,7 +74,7 @@ public class TestProcessor {
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
     private static final String TEST_EXECUTE_FILE_PREFIX = "test_execute-generated_";
-    private static final String MOCK_ANNOTATION_NAME = "Mock";
+            private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -104,7 +104,7 @@ public class TestProcessor {
      * Generate and return the testsuite for module tests.
      *
      * @param module  Module
-     * @return Optional<TestSuite>
+     * @return {@link Optional Optional&lt;TestSuite&gt;}
      */
     public Optional<TestSuite> testSuite(Module module) {
         if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
@@ -147,28 +147,53 @@ public class TestProcessor {
      * @return TestSuite
      */
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
-        PackageID packageID = module.descriptor().moduleTestCompilationId();
-        String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
-        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
-                module.descriptor().packageName().toString(), module.descriptor().org().value(),
-                module.descriptor().version().toString(), getExecutePath(module));
-        TesterinaRegistry.getInstance().getTestSuites().put(
-                module.descriptor().name().toString(), testSuite);
-        testSuite.setPackageName(module.descriptor().packageName().toString());
-        testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+        String testModuleName = getTestModuleName(module);
+        TestSuite testSuite = createTestSuite(module, testModuleName);
+        if (jarResolver == null) {
+            throw new IllegalStateException("Jar resolver is null");
+        }
 
-        if (jarResolver != null) {
-            List<Path> jarPaths = new ArrayList<>();
-            for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
-                jarPaths.add(jarLibrary.path());
-            }
-            testSuite.addTestExecutionDependencies(jarPaths);
+        // If not a cloud build, add the test execution dependencies
+        if (module.project().buildOptions().cloud().isEmpty()) {
+            addTestExecutionDependencies(module, jarResolver, testSuite);
+        } else if (module.project().buildOptions().nativeImage()) {
+            // If it is a cloud build, add the test execution dependencies only if native image is enabled
+            addTestExecutionDependencies(module, jarResolver, testSuite);
         }
 
         // TODO: Remove redundancy in addUtilityFunctions
         addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
+    }
+
+    private static void addTestExecutionDependencies(Module module, JarResolver jarResolver, TestSuite testSuite) {
+        List<Path> jarPaths = new ArrayList<>();
+        for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+            jarPaths.add(jarLibrary.path());
+        }
+        testSuite.addTestExecutionDependencies(jarPaths);
+    }
+
+    private TestSuite createTestSuite(Module module, String testModuleName) {
+        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
+                module.descriptor().packageName().toString(), module.descriptor().org().value(),
+                module.descriptor().version().toString(), getExecutePath(module));
+        TesterinaRegistry.getInstance().getTestSuites().put(
+                module.descriptor().name().toString(), testSuite);
+        testSuite.setPackageName(module.descriptor().packageName().toString());
+
+        if (module.project().buildOptions().cloud().isEmpty()) {
+            testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+        } else {
+            testSuite.setSourceRootPath("./");
+        }
+        return testSuite;
+    }
+
+    public static String getTestModuleName(Module module) {
+        PackageID packageID = module.descriptor().moduleTestCompilationId();
+        return packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
     }
 
     /**
@@ -380,7 +405,7 @@ public class TestProcessor {
      * @return String
      */
     private String getStringValue(Node valueExpr) {
-        return valueExpr.toString().replaceAll("\\\"", "").trim();
+        return valueExpr.toString().replace("\"", "").trim();
     }
 
     /**

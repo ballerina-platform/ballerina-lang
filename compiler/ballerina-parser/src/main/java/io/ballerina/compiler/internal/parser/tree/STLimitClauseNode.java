@@ -56,6 +56,7 @@ public class STLimitClauseNode extends STIntermediateClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STLimitClauseNode(
                 this.limitKeyword,
@@ -78,6 +79,7 @@ public class STLimitClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LimitClauseNode(this, position, parent);
     }

@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
@@ -69,28 +70,11 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected TupleType tupleType;
     protected Type type;
     Object[] refValues;
-    private int minSize;
-    private boolean hasRestElement; // cached value for ease of access
+    private final int minSize;
+    private final boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TupleValueImpl that = (TupleValueImpl) o;
-        return minSize == that.minSize &&
-                hasRestElement == that.hasRestElement &&
-                type.equals(that.type) &&
-                Arrays.equals(refValues, that.refValues);
-    }
 
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
@@ -172,8 +156,8 @@ public class TupleValueImpl extends AbstractArrayValue {
 
         int index = 0;
         for (BListInitialValueEntry listEntry : initialValues) {
-            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
-                addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
+            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry expressionEntry) {
+                addRefValue(index++, expressionEntry.value);
             } else {
                 BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
                 BIterator<?> iterator = values.getIterator();
@@ -267,6 +251,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public boolean getBoolean(long index) {
         return (Boolean) get(index);
     }
@@ -333,9 +318,28 @@ public class TupleValueImpl extends AbstractArrayValue {
         addRefValue(index, value);
     }
 
-    private void addRefValue(long index, Object value) {
+    public void addRefValue(long index, Object value) {
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
+    }
+
+    public void convertStringAndAddRefValue(long index, BString value) {
+        rangeCheck(index, size);
+        int intIndex = (int) index;
+        Type elemType;
+        if (index >= this.minSize) {
+            elemType = this.tupleType.getRestType();
+        } else {
+            elemType = this.tupleType.getTupleTypes().get(intIndex);
+        }
+        Object val = ValueConverter.getConvertedStringValue(value, elemType);
+        prepareForAddWithoutTypeCheck(refValues.length, intIndex);
+        refValues[intIndex] = val;
+    }
+
+    public void addRefValueForcefully(int index, Object value) {
+        prepareForAddForcefully(index, refValues.length);
+        refValues[index] = value;
     }
 
     /**
@@ -759,6 +763,10 @@ public class TupleValueImpl extends AbstractArrayValue {
                                                          TypeChecker.getType(value)));
         }
 
+        prepareForAddWithoutTypeCheck(currentArraySize, intIndex);
+    }
+
+    private void prepareForAddWithoutTypeCheck(int currentArraySize, int intIndex) {
         fillerValueCheck(intIndex, size, intIndex + 1);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);

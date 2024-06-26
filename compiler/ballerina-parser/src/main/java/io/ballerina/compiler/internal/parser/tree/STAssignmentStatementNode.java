@@ -68,6 +68,7 @@ public class STAssignmentStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAssignmentStatementNode(
                 this.varRef,
@@ -98,6 +99,7 @@ public class STAssignmentStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AssignmentStatementNode(this, position, parent);
     }

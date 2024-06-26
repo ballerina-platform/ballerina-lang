@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -315,7 +314,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         } else {
             BSymbol symbol =
-                    getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                            varName);
 
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
@@ -376,7 +376,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol =
-                    getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                            varName);
 
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
@@ -2017,24 +2018,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return BUnionType.create(null, memberTypes);
     }
 
-    private BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName, AnalyzerData data) {
-        if (pkgAlias == Names.EMPTY && data.modTable.containsKey(varName.value)) {
-            // modTable contains the available constants in current module.
-            BLangNode node = data.modTable.get(varName.value);
-            if (node.getKind() == NodeKind.CONSTANT) {
-                if (!typeResolver.resolvedConstants.contains((BLangConstant) node)) {
-                    typeResolver.resolveConstant(data.env, data.modTable, (BLangConstant) node);
-                }
-            } else {
-                dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-                return symTable.notFoundSymbol;
-            }
-        }
-
-        // Search and get the referenced variable from different module.
-        return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
-    }
-
     private boolean addFields(LinkedHashMap<String, BField> fields, BType keyValueType, String key, Location pos,
                            BRecordTypeSymbol recordSymbol) {
         Name fieldName = Names.fromString(key);
@@ -2214,7 +2197,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             this.types = Types.getInstance(context);
             this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
             this.names = Names.getInstance(context);
-            this.dlog = BLangDiagnosticLog.getInstance(context);;
+            this.dlog = BLangDiagnosticLog.getInstance(context);
         }
 
         public static ConstantTypeChecker.FillMembers getInstance(CompilerContext context) {

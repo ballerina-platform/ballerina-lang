@@ -27,7 +27,7 @@ public enum RepositoryKind {
     CENTRAL("central.dot"),
     DIST("dist.dot");
 
-    String filename;
+    final String filename;
 
     RepositoryKind(String filename) {
         this.filename = filename;

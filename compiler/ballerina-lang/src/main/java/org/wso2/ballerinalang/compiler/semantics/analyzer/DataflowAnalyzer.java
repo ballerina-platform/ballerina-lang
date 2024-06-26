@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -123,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1022,6 +1024,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return ifResult.definiteFailureReached && elseResult.definiteFailureReached;
     }
 
+    @Override
     public void visit(BLangFail failNode) {
         if (isOnFailEnclosed()) {
             this.possibleFailureReached = true;
@@ -1041,8 +1044,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
 
         // marks the injected import as used
-        Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
+        Name transactionPkgName = Names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name compUnitName = Names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1080,6 +1083,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         analyzeNode(syncSendExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : altWorkerReceive.getWorkerReceives()) {
+            analyzeNode(workerReceive, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : multipleWorkerReceive.getReceiveFields()) {
+            analyzeNode(rvField.getKey(), env);
+            analyzeNode(rvField.getWorkerReceive(), env);
+        }
     }
 
     @Override
@@ -1724,7 +1742,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                                             (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
-            analyzeNode((BLangNode) joinClause.onClause, env);
+            analyzeNode(joinClause.onClause, env);
         }
     }
 
@@ -1829,7 +1847,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         StringBuilder uninitializedFields =
                 getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
                         invocationExpr.expr).symbol.type);
-        if (uninitializedFields.length() != 0) {
+        if (!uninitializedFields.isEmpty()) {
             this.dlog.error(invocationExpr.pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                     uninitializedFields.toString());
             return false;
@@ -1844,7 +1862,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
-                if (uninitializedFields.length() != 0) {
+                if (!uninitializedFields.isEmpty()) {
                     this.dlog.error(location, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
@@ -1875,7 +1893,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     uninitializedFields.append(", ").append(symbol.getName().value);
                 }
             }
-            if (uninitializedFields.length() != 0) {
+            if (!uninitializedFields.isEmpty()) {
                 this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
@@ -2346,6 +2364,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(trapExpr.expr, env);
     }
 
+    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
             addDependency(this.currDependentSymbolDeque.peek(),
@@ -2607,14 +2626,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
                 recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
                 if (recordVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                    checkAssignment(recordVarRef.restParam);
                 }
                 return;
             case TUPLE_VARIABLE_REF:
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRef;
                 tupleVarRef.expressions.forEach(this::checkAssignment);
                 if (tupleVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) tupleVarRef.restParam);
+                    checkAssignment(tupleVarRef.restParam);
                 }
                 return;
             case ERROR_VARIABLE_REF:
@@ -2712,7 +2731,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             BObjectTypeSymbol objTypeSymbol = (BObjectTypeSymbol) type.tsymbol;
-            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
             BSymbol funcSymbol = symResolver.resolveObjectMethod(pos, env, funcName, objTypeSymbol);
 
             // Object member functions are inherently final
@@ -2860,7 +2879,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
                 }
 
-                populateUnusedVariableMapForMembers(unusedLocalVariables, (BLangVariable) recordVariable.restParam);
+                populateUnusedVariableMapForMembers(unusedLocalVariables, recordVariable.restParam);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;

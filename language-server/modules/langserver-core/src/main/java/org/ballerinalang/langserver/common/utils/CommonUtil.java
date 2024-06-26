@@ -226,18 +226,19 @@ public class CommonUtil {
      * @return Extracted last Item
      */
     public static <T> Optional<T> getLastItem(List<T> list) {
-        return (list.size() == 0) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
+        return (list.isEmpty()) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
     }
 
     /**
      * Whether the given module is a langlib module.
-     * public static String generateParameterName(String arg, Set<String> visibleNames) {
+     * <pre>
+     * public static String generateParameterName(String arg, Set&lt;String&gt; visibleNames) {
      * visibleNames.addAll(BALLERINA_KEYWORDS);
      * String newName = arg.replaceAll(".+[\\:\\.]", "");
-     * <p>
-     * <p>
-     * }
      *
+     *
+     * }
+     * </pre>
      * @param moduleID Module ID to evaluate
      * @return {@link Boolean} whether langlib or not
      */
@@ -250,13 +251,26 @@ public class CommonUtil {
     }
 
     /**
+     * Whether the given module is a langlib module or the Ballerina test module.
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} <code>true</code> if the given module is either a langlib module or
+     * the Ballerina test module. <code>false</code> otherwise.
+     */
+    public static boolean isLangLibOrLangTest(ModuleID moduleID) {
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return orgName.equals("ballerina") && (moduleName.startsWith("lang.") ||  moduleName.equals("test"));
+    }
+
+    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier
      * @return The identifier with escape characters escaped
      */
     public static String escapeEscapeCharsInIdentifier(String identifier) {
-        return identifier.replaceAll("\\\\", "\\\\\\\\");
+        return identifier.replace("\\", "\\\\");
     }
 
     /**
@@ -266,8 +280,8 @@ public class CommonUtil {
      * @return Processed text
      */
     public static String escapeSpecialCharsInInsertText(String text) {
-        return text.replaceAll("\\\\", "\\\\\\\\")
-                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+        return text.replace("\\", "\\\\")
+                .replace("$", "\\$");
     }
 
     /**

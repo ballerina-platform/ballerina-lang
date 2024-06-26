@@ -41,9 +41,11 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.ToolDependency;
@@ -386,7 +388,7 @@ public class ProjectUtils {
 
         // if package name has consecutive underscores, replace them with a single underscore
         if (packageName.contains("__")) {
-            packageName = packageName.replaceAll("__", "_");
+            packageName = packageName.replace("__", "_");
         }
 
         // if package name has trailing underscore remove it
@@ -432,7 +434,7 @@ public class ProjectUtils {
 
     public static String getBalaName(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -449,7 +451,7 @@ public class ProjectUtils {
      */
     public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return Paths.get(org, pkgName, version, platform);
@@ -1313,5 +1315,109 @@ public class ProjectUtils {
             }
         }
         return balaPath;
+    }
+
+    /**
+     * Get the sticky status of a project.
+     *
+     * @param project project instance
+     * @return true if the project is sticky, false otherwise
+     */
+    public static boolean getSticky(Project project) {
+        boolean sticky = project.buildOptions().sticky();
+        if (sticky) {
+            return true;
+        }
+
+        // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
+        if (project.kind() == ProjectKind.BUILD_PROJECT) {
+            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
+                try {
+                    BuildJson buildJson = readBuildJson(buildFilePath);
+                    // if distribution is not same, we anyway return sticky as false
+                    if (buildJson != null && buildJson.distributionVersion() != null &&
+                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                            !buildJson.isExpiredLastUpdateTime()) {
+                        return true;
+                    }
+                } catch (IOException | JsonSyntaxException e) {
+                    // ignore
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * From a list of versions, get the versions within the compatible range.
+     *
+     * @param minVersion minimum compatible version
+     * @param versions all versions available
+     * @param compatibleRange compatibility range
+     * @return compatible versions
+     */
+    public static List<SemanticVersion> getVersionsInCompatibleRange(
+            SemanticVersion minVersion,
+            List<SemanticVersion> versions,
+            CompatibleRange compatibleRange) {
+        if (compatibleRange.equals(CompatibleRange.LATEST)) {
+            // If minVersion is null, range is LATEST
+            return versions;
+        }
+        if (compatibleRange.equals(CompatibleRange.LOCK_MAJOR)) {
+            return versions.stream().filter(version -> version.major() == minVersion.major()).toList();
+        }
+        if (compatibleRange.equals(CompatibleRange.LOCK_MINOR)) {
+            return versions.stream().filter(version ->
+                            version.major() == minVersion.major() && version.minor() == minVersion.minor()).toList();
+        }
+        if (versions.contains(minVersion)) {
+            return Collections.singletonList(minVersion);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get the range of version compatibility of a given project.
+     *
+     * @param version minimum compatible version
+     * @param packageLockingMode locking mode of the project
+     * @return compatible range
+     */
+    public static CompatibleRange getCompatibleRange(SemanticVersion version, PackageLockingMode packageLockingMode) {
+        if (version == null) {
+            return CompatibleRange.LATEST;
+        }
+        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+            return CompatibleRange.EXACT;
+        }
+        if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {
+            return CompatibleRange.LOCK_MINOR;
+        }
+        // Locking mode SOFT
+        return CompatibleRange.LOCK_MAJOR;
+    }
+
+    /**
+     * Denote the compatibility range of a given tool version.
+     */
+    public enum CompatibleRange {
+        /**
+         * Latest stable (if any), else latest pre-release.
+         */
+        LATEST,
+        /**
+         * Latest minor version of the locked major version.
+         */
+        LOCK_MAJOR,
+        /**
+         * Latest patch version of the locked major and minor versions.
+         */
+        LOCK_MINOR,
+        /**
+         * Exact version provided.
+         */
+        EXACT
     }
 }

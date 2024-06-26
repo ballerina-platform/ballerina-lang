@@ -369,7 +369,7 @@ public class Generator {
                 EnumMemberNode enumMemberNode = (EnumMemberNode) node;
                 String memberName = enumMemberNode.identifier().text();
                 String doc = getDocFromMetadata(enumMemberNode.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
                 }
                 List<String> descSections = getDescSectionsDocFromMetaDataList(enumDeclaration.metadata());
@@ -464,7 +464,7 @@ public class Generator {
                                            Module module) {
         List<Type> memberTypes = new ArrayList<>();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
-                Type.fromNode(type, semanticModel, module)).collect(Collectors.toList()));
+                Type.fromNode(type, semanticModel, module)).toList());
         BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
                 getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode),
                 memberTypes);
@@ -782,7 +782,7 @@ public class Generator {
                 RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
@@ -798,7 +798,7 @@ public class Generator {
                 RecordFieldNode recordField = (RecordFieldNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
@@ -815,8 +815,8 @@ public class Generator {
                 if (!originType.isPublic) {
                     variables.addAll(originType.memberTypes.stream()
                             .map(type -> new DefaultableVariable(type.name, type.description, false,
-                                    type.elementType, "")).collect(Collectors.toList()));
-                } else if (originType.memberTypes.size() > 0) {
+                                    type.elementType, "")).toList());
+                } else if (!originType.memberTypes.isEmpty()) {
                     variables.add(new DefaultableVariable(originType));
                 }
             } else if (node instanceof ObjectFieldNode) {
@@ -825,7 +825,7 @@ public class Generator {
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
                     String doc = getDocFromMetadata(objectField.metadata());
-                    if (doc.equals("")) {
+                    if (doc.isEmpty()) {
                         doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                     }
                     String defaultValue;

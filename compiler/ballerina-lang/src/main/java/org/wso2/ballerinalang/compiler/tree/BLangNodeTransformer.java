@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -188,7 +190,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * The {@link BLangNodeTransformer} transforms each {@link BLangNode} objects to another object of type R.
  * <p>
  * If you are looking for a {@link BLangNode} visitor that returns void, see {@link BLangNodeAnalyzer}.
- * <p>
  *
  * @param <T> the type of data class that passed along with transform methods.
  * @param <R> the type of class that is returned by transform methods
@@ -819,6 +820,14 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangWorkerReceive node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangAlternateWorkerReceive node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangMultipleWorkerReceive node, T data) {
         return transformNode(node, data);
     }
 

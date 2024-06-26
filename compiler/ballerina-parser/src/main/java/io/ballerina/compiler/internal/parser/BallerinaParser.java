@@ -3828,7 +3828,7 @@ public class BallerinaParser extends AbstractParser {
 
             token = peek();
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-                if (recordFields.size() == 0) {
+                if (recordFields.isEmpty()) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
                             DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
                 } else {
@@ -4734,7 +4734,7 @@ public class BallerinaParser extends AbstractParser {
         // Invalidate public qualifier with isolated qualifier and declared with var
         if (publicQualifier != null) {
             if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
-                if (varDeclQuals.size() > 0) {
+                if (!varDeclQuals.isEmpty()) {
                     updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
                             DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
                 } else {
@@ -6623,7 +6623,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                if (metadata != null || qualifiers.size() > 0) {
+                if (metadata != null || !qualifiers.isEmpty()) {
                     return createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 }
                 return null;
@@ -7836,7 +7836,7 @@ public class BallerinaParser extends AbstractParser {
                                     STNode serviceKeyword, STNode serviceType) {
         // Invalidate public qualifier if present
         if (publicQualifier != null) {
-            if (qualList.size() > 0) {
+            if (!qualList.isEmpty()) {
                 updateFirstNodeInListWithLeadingInvalidNode(qualList, publicQualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             } else {
@@ -9978,9 +9978,9 @@ public class BallerinaParser extends AbstractParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] [transactional] worker worker-name return-type-descriptor { sequence-stmt }
-     * </code>
+     * [on-fail-clause]</code>
      *
-     * @param annots Annotations attached to the worker decl
+     * @param annots     Annotations attached to the worker decl
      * @param qualifiers Preceding transactional keyword in a list
      * @return Parsed node
      */
@@ -9992,8 +9992,9 @@ public class BallerinaParser extends AbstractParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode workerBody = parseBlockNode();
         endContext();
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createNamedWorkerDeclarationNode(annots, transactionalKeyword, workerKeyword, workerName,
-                returnTypeDesc, workerBody);
+                returnTypeDesc, workerBody, onFailClause);
     }
 
     private STNode getTransactionalKeyword(List<STNode> qualifierList) {
@@ -13069,7 +13070,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse receive action.
      * <p>
-     * <code>receive-action := single-receive-action | multiple-receive-action</code>
+     * <code>receive-action := single-receive-action | multiple-receive-action | alternate-receive-action</code>
+     * <p><code>
+     * single-receive-action := <- peer-worker
+     * <br></br>
+     * multiple-receive-action := <-  { receive-field (, receive-field)* }
+     * <br></br>
+     * alternate-receive-action := <- peer-worker (| peer-worker)*
+     * </code>
      *
      * @return Receive action
      */
@@ -13083,13 +13091,39 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
-                return parsePeerWorkerName();
+                return parseSingleOrAlternateReceiveWorkers();
             case OPEN_BRACE_TOKEN:
                 return parseMultipleReceiveWorkers();
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
                 return parseReceiveWorkers();
         }
+    }
+
+    private STNode parseSingleOrAlternateReceiveWorkers() {
+        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER);
+        List<STNode> workers = new ArrayList<>();
+        // Parse first peer worker name, that has no leading comma
+        STNode peerWorker = parsePeerWorkerName();
+        workers.add(peerWorker);
+
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
+            endContext();
+            return peerWorker;
+        }
+
+        // Parse the remaining peer worker names
+        while (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
+            STNode pipeToken = consume();
+            workers.add(pipeToken);
+            peerWorker = parsePeerWorkerName();
+            workers.add(peerWorker);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createAlternateReceiveNode(STNodeFactory.createNodeList(workers));
     }
 
     /**
@@ -13178,21 +13212,22 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
-                return createQualifiedReceiveField(identifier);
+                return createReceiveField(identifier);
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_FIELD);
                 return parseReceiveField();
         }
     }
 
-    private STNode createQualifiedReceiveField(STNode identifier) {
+    private STNode createReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
+        identifier = STNodeFactory.createSimpleNameReferenceNode(identifier);
         STNode colon = parseColon();
         STNode peerWorker = parsePeerWorkerName();
-        return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
+        return STNodeFactory.createReceiveFieldNode(identifier, colon, peerWorker);
     }
 
     /**
@@ -15437,7 +15472,7 @@ public class BallerinaParser extends AbstractParser {
                 argListMatchPatterns.add(argEnd);
                 argListMatchPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListMatchPatterns.size() == 0) {
+            } else if (argListMatchPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -16304,7 +16339,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListBindingPattern(STNode openBracket, List<STNode> bindingPatternsList) {
-        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.size() == 0) {
+        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.isEmpty()) {
             // Handle empty list binding pattern
             STNode closeBracket = parseCloseBracket();
             STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatternsList);
@@ -16769,7 +16804,7 @@ public class BallerinaParser extends AbstractParser {
                 argListBindingPatterns.add(argEnd);
                 argListBindingPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListBindingPatterns.size() == 0) {
+            } else if (argListBindingPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -19383,7 +19418,7 @@ public class BallerinaParser extends AbstractParser {
                 STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
                 STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
                 
-                if (keys.size() != 0) {
+                if (!keys.isEmpty()) {
                     return ambiguousNode;
                 }
                 

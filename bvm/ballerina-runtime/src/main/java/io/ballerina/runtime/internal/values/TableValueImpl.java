@@ -65,6 +65,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
@@ -218,6 +220,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     //Generates the key from the given data
+    @Override
     public V put(V value) {
         handleFrozenTableValue();
         return valueHolder.putData(value);
@@ -284,6 +287,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.get(key);
     }
 
+    @Override
     public V removeOrThrow(Object key) {
         handleFrozenTableValue();
         if (!containsKey(key)) {
@@ -293,6 +297,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.remove(key);
     }
 
+    @Override
     public long getNextKey() {
         if (!nextKeySupported) {
             throw ErrorCreator.createError(OPERATION_NOT_SUPPORTED_ERROR,
@@ -301,9 +306,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                                         + "The key sequence should only have an " +
                                                                            "Integer field."));
         }
-        return indexToKeyMap.size() == 0 ? 0 : (this.maxIntKey + 1);
+        return indexToKeyMap.isEmpty() ? 0 : (this.maxIntKey + 1);
     }
 
+    @Override
     public Type getKeyType() {
         return this.valueHolder.getKeyType();
     }
@@ -366,6 +372,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.typedesc = null;
     }
 
+    @Override
     public String stringValue(BLink parent) {
         Iterator<Map.Entry<Long, List<V>>> itr = values.entrySet().iterator();
         return createStringValueDataEntry(itr, parent);
@@ -453,12 +460,54 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.type;
     }
 
+    @Override
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(tableType.getConstrainedType());
         }
 
         return iteratorNextReturnType;
+    }
+
+    /**
+     * Check whether the given table value is equal to the current value.
+     *
+     * @param o the value to check equality with
+     * @param visitedValues the values that have already been visited
+     * @return true if the current value is equal to the given value
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair)) {
+                return true;
+            }
+        }
+        visitedValues.add(compValuePair);
+
+        if (!(o instanceof TableValueImpl<?, ?> table)) {
+            return false;
+        }
+        if (this.size() != table.size()) {
+            return false;
+        }
+
+        boolean isLhsKeyedTable =
+                ((BTableType) getImpliedType(this.getType())).getFieldNames().length > 0;
+        boolean isRhsKeyedTable =
+                ((BTableType) getImpliedType(table.getType())).getFieldNames().length > 0;
+        Object[] lhsTableValues = this.values().toArray();
+        Object[] rhsTableValues = table.values().toArray();
+        if (isLhsKeyedTable != isRhsKeyedTable) {
+            return false;
+        }
+        for (int i = 0; i < lhsTableValues.length; i++) {
+            if (!isEqual(lhsTableValues[i], rhsTableValues[i], visitedValues)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private class TableIterator implements IteratorValue {
@@ -492,7 +541,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public boolean hasNext() {
-           return cursor < noOfAddedEntries && values.size() != 0;
+           return cursor < noOfAddedEntries && !values.isEmpty();
         }
     }
 
@@ -557,17 +606,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
         }
 
+        @Override
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
-            if (containsKey((K) key)) {
+            if (containsKey(key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
                         ErrorHelper.getErrorDetails(ErrorCodes.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
-            if (nextKeySupported && (indexToKeyMap.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
+            if (nextKeySupported && (indexToKeyMap.isEmpty() || maxIntKey < TypeChecker.anyToInt(key))) {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
@@ -586,19 +636,21 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             putNewData(key, data, entry, hash);
         }
 
+        @Override
         public V getData(K key) {
             List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
             if (entryList == null) {
                 return null;
             }
             for (Map.Entry<K, V> entry: entryList) {
-                if (TypeChecker.isEqual(key, entry.getKey())) {
+                if (isEqual(key, entry.getKey())) {
                     return entry.getValue();
                 }
             }
             return null;
         }
 
+        @Override
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
@@ -627,6 +679,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return data.get(0);
         }
 
+        @Override
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
             checkInherentTypeViolation(dataMap, tableType);
@@ -637,7 +690,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entries.containsKey(hash)) {
                 return updateExistingEntry(key, data, entry, hash);
             }
-            return putNewData((K) key, data, entry, hash);
+            return putNewData(key, data, entry, hash);
         }
 
         private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {
@@ -657,13 +710,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return data;
         }
 
+        @Override
         public V remove(K key) {
             keyValues.remove(key);
             Long hash = TableUtils.hash(key, null);
             List<Map.Entry<K, V>> entryList = entries.get(hash);
             if (entryList != null && entryList.size() > 1) {
                 for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(key, entry.getKey())) {
+                    if (isEqual(key, entry.getKey())) {
                         List<V> valueList = values.get(hash);
                         valueList.remove(entry.getValue());
                         entryList.remove(entry);
@@ -691,11 +745,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return removedValue.get(0);
         }
 
+        @Override
         public boolean containsKey(K key) {
             if (entries.containsKey(TableUtils.hash(key, null))) {
                 List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
                 for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(entry.getKey(), key)) {
+                    if (isEqual(entry.getKey(), key)) {
                         return true;
                     }
                 }
@@ -703,6 +758,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return false;
         }
 
+        @Override
         public Type getKeyType() {
             return keyType;
         }
@@ -740,6 +796,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 keyType = new BTupleType(keyTypes);
             }
 
+            @Override
             public K wrapKey(MapValue data) {
                 TupleValueImpl arr = (TupleValueImpl) ValueCreator
                         .createTupleValue((BTupleType) keyType);

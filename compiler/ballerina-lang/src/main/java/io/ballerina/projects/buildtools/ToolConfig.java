@@ -45,4 +45,11 @@ public @interface ToolConfig {
      * @return Array of subcommands
      */
     Class<? extends CodeGeneratorTool>[] subcommands() default {};
+
+    /**
+     * Set whether the annotated command should be hidden from users.
+     *
+     * @return true if the command should be hidden, false otherwise
+     */
+    boolean hidden() default false;
 }

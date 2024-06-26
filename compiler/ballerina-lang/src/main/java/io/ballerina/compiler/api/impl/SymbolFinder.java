@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -114,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -820,6 +822,25 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNode(asyncSendExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
+            if (setEnclosingNode(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos)) {
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            BLangWorkerReceive workerReceive = receiveField.getWorkerReceive();
+            if (setEnclosingNode(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos)) {
+                return;
+            }
+        }
     }
 
     @Override
@@ -1760,7 +1781,7 @@ class SymbolFinder extends BaseVisitor {
         List<BResourcePathSegmentSymbol> pathSegSymbols = resourceInvocation.targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> pathExprs = resourceInvocation.resourceAccessPathSegments.exprs;
 
-        if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+        if (pathExprs.isEmpty() && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             // Returns since the resource-function has only the root-path segment
             // Assumption: If a resource-action with 0 path-expr matches with a resource function, 
             // then it must have a root-path

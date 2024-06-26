@@ -62,6 +62,7 @@ public class STRestMatchPatternNode extends STNode {
                 variableName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestMatchPatternNode(
                 this.ellipsisToken,
@@ -88,6 +89,7 @@ public class STRestMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestMatchPatternNode(this, position, parent);
     }

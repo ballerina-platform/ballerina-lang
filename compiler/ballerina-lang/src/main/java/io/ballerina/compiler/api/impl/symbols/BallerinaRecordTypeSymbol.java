@@ -41,7 +41,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
+public class BallerinaRecordTypeSymbol extends AbstractStructuredTypeSymbol implements RecordTypeSymbol {
 
     private Map<String, RecordFieldSymbol> fieldSymbols;
     private TypeSymbol restTypeDesc;
@@ -113,9 +113,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
             joiner.add(ballerinaFieldSignature);
         }
 
-        restTypeDescriptor().ifPresent(typeDescriptor -> {
-            joiner.add(typeDescriptor.signature() + "...;");
-        });
+        restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "...;"));
 
         return "record " + joiner.toString();
     }

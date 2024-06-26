@@ -34,7 +34,7 @@ public enum HoverConstructKind {
     Error("errors"),
     Type("types");
     
-    private String value;
+    private final String value;
 
     HoverConstructKind(String value) {
         this.value = value;

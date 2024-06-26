@@ -78,7 +78,7 @@ public class RemotePackageRepository implements PackageRepository {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 
@@ -260,6 +260,7 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
+    @Override
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                   ResolutionOptions options) {
         if (requests.isEmpty()) {

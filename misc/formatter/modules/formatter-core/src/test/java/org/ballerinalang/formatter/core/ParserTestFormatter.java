@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Test the formatting of parser test cases.
@@ -90,6 +89,9 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_decl_source_20.bal",
 
                 "separated_node_list_import_decl.bal", "node_location_test_03.bal",
+
+                // formatter keeps adding whitespaces #41698
+                "worker_decl_source_07.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
@@ -206,7 +208,7 @@ public class ParserTestFormatter extends FormatterTest {
         try {
             return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
                     .filter(f -> f.getFileName().toString().equals(fileName))
-                    .collect(Collectors.toList()).get(0).toString());
+                    .toList().get(0).toString());
         } catch (IOException e) {
             return Optional.empty();
         }

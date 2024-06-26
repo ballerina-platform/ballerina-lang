@@ -59,6 +59,7 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 typeParamNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STParameterizedTypeDescriptorNode(
                 this.kind,
@@ -84,6 +85,7 @@ public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParameterizedTypeDescriptorNode(this, position, parent);
     }

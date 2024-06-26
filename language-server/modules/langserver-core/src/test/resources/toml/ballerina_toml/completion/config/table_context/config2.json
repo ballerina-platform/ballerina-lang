@@ -113,6 +113,13 @@
       "detail": "Boolean",
       "sortText": "A",
       "insertText": "template=${1:false}"
+    },
+    {
+      "label": "format",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format]"
     }
   ]
 }

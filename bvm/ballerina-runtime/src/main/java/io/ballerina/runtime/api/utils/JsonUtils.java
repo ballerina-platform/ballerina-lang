@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
@@ -47,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_C
 import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
- * Class {@link JsonParser} provides APIs to handle json values.
+ * Class {@link JsonUtils} provides APIs to handle json values.
  *
  * @since 2.0.0
  */
@@ -73,7 +73,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in) throws BError {
-        return JsonParser.parse(in);
+        return JsonParser.parse(in, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -85,7 +85,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in, String charsetName) throws BError {
-        return JsonParser.parse(in, charsetName);
+        return JsonParser.parse(in, charsetName, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -108,7 +108,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(BString jsonStr, NonStringValueProcessingMode mode) throws BError {
-        return JsonParser.parse(jsonStr.getValue(), mode);
+        return JsonParser.parse(new StringReader(jsonStr.getValue()), mode);
     }
 
     /**
@@ -131,7 +131,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BError {
-        return JsonParser.parse(jsonStr, mode);
+        return JsonParser.parse(new StringReader(jsonStr), mode);
     }
 
     /**
@@ -384,7 +384,7 @@ public class JsonUtils {
     }
 
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
-        BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
+        BArray newArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convertToJsonType(array.get(i), unresolvedValues);
             newArray.add(i, newValue);

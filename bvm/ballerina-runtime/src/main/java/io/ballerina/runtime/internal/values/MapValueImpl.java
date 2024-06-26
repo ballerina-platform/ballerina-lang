@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -94,7 +95,6 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V> {
 
-    private static final long serialVersionUID = 1L;
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;
@@ -127,34 +127,58 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = this.type;
     }
 
+    @Override
     public Long getIntValue(BString key) {
-        return (Long) get(key);
+        Object value = get(key);
+        if (value instanceof Integer) { // field is an int subtype
+            return ((Integer) value).longValue();
+        }
+        return (Long) value;
     }
 
+    public long getUnboxedIntValue(BString key) {
+        return getIntValue(key);
+    }
+
+    public double getUnboxedFloatValue(BString key) {
+        return getFloatValue(key);
+    }
+
+    public boolean getUnboxedBooleanValue(BString key) {
+        return getBooleanValue(key);
+    }
+
+    @Override
     public Double getFloatValue(BString key) {
         return (Double) get(key);
     }
 
+    @Override
     public BString getStringValue(BString key) {
         return (BString) get(key);
     }
 
+    @Override
     public Boolean getBooleanValue(BString key) {
         return (Boolean) get(key);
     }
 
+    @Override
     public BMap<?, ?> getMapValue(BString key) {
         return (BMap<?, ?>) get(key);
     }
 
+    @Override
     public BObject getObjectValue(BString key) {
         return (BObject) get(key);
     }
 
+    @Override
     public BArray getArrayValue(BString key) {
         return (BArray) get(key);
     }
 
+    @Override
     public long getDefaultableIntValue(BString key) {
         if (get(key) != null) {
             return getIntValue(key);
@@ -169,6 +193,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @param key key used to get the value
      * @return value associated with the key
      */
+    @Override
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
@@ -185,6 +210,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @param key key used to get the value
      * @return value associated with the key
      */
+    @Override
     public V fillAndGet(Object key) {
         if (containsKey(key)) {
             return this.get(key);
@@ -256,10 +282,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
-     * @return the previous value associated with <tt>key</tt>, or
-     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
-     *         (A <tt>null</tt> return can also indicate that the map
-     *         previously associated <tt>null</tt> with <tt>key</tt>.)
+     * @return the previous value associated with {@code key}, or
+     *         {@code null} if there was no mapping for {@code key}.
+     *         (A {@code null} return can also indicate that the map
+     *         previously associated {@code null} with {@code key}.)
      */
     @Override
     public V put(K key, V value) {
@@ -280,6 +306,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                        StringUtils
                                                 .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
+    }
+
+    public V putForcefully(K key, V value) {
+        return putValue(key, value);
+    }
+
+    public void setTypeForcefully(Type type) {
+        this.type = type;
+        this.referredType = getImpliedType(type);
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
@@ -314,6 +349,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    @Override
     public void populateInitialValue(K key, V value) {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
@@ -330,6 +366,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     /**
      * Clear map entries.
      */
+    @Override
     public void clear() {
         validateFreezeStatus();
         super.clear();
@@ -354,22 +391,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair)) {
+                return true;
+            }
         }
+        visitedValues.add(compValuePair);
 
-        if (o == null || getClass() != o.getClass()) {
-           return false;
-        }
-
-        MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
-
-        if (mapValue.type.getTag() != this.type.getTag()) {
-            return false;
-        }
-
-        if (mapValue.referredType.getTag() != this.referredType.getTag()) {
+        if (!(o instanceof MapValueImpl<?, ?> mapValue)) {
             return false;
         }
 
@@ -377,7 +408,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return false;
         }
 
-        return entrySet().equals(mapValue.entrySet());
+        if (!this.keySet().containsAll(mapValue.keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<K, V>> mapIterator = this.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<K, V> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), mapValue.get(lhsMapEntry.getKey()), visitedValues)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -407,6 +449,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @return keys as an array
      */
+    @Override
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
@@ -424,6 +467,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @return values as an array
      */
+    @Override
     public Collection<V> values() {
         return super.values();
     }
@@ -443,6 +487,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *
      * @return Flag indicating whether the map is empty or not
      */
+    @Override
     public boolean isEmpty() {
         return this.size() == 0;
     }
@@ -613,6 +658,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @param key key to identify native value.
      * @param data value to be added.
      */
+    @Override
     public void addNativeData(String key, Object data) {
         nativeData.put(key, data);
     }
@@ -622,6 +668,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @param key key to identify native value.
      * @return value for the given key.
      */
+    @Override
     public Object getNativeData(String key) {
         return nativeData.get(key);
     }
@@ -664,6 +711,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
+    @Override
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             initializeIteratorNextReturnType();

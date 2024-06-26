@@ -58,7 +58,7 @@ class LineMap {
     }
 
     List<String> textLines() {
-        List<String> lines = new ArrayList();
+        List<String> lines = new ArrayList<>();
         for (TextLine textLine : textLines) {
             lines.add(textLine.text());
         }

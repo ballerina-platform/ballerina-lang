@@ -42,7 +42,7 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -77,7 +77,20 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
 
-        if (this.targetDir == null) {
+        if (this.targetDir != null) {
+            if (Files.notExists(this.targetDir)) {
+                CommandUtil.printError(this.outStream,
+                        "provided target directory '" + this.targetDir + "' does not exist.",
+                        null, false);
+            } else if (!Files.isDirectory(this.targetDir)) {
+                CommandUtil.printError(this.outStream,
+                        "provided target path '" + this.targetDir + "' is not a directory.",
+                        null, false);
+            } else {
+                ProjectUtils.deleteDirectory(this.targetDir);
+                this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+            }
+        } else {
             try {
                 Project project = BuildProject.load(this.projectPath);
                 this.targetDir = project.targetDir();
@@ -86,23 +99,13 @@ public class CleanCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+            if (Files.exists(this.targetDir)) {
+                ProjectUtils.deleteDirectory(this.targetDir);
+                this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+            }
         }
 
-        // Delete the target directory
-        if (Files.notExists(this.targetDir)) {
-            CommandUtil.printError(this.outStream,
-                    "provided target directory '" + this.targetDir + "' does not exist.",
-                    null, false);
-        } else if (!Files.isDirectory(this.targetDir)) {
-            CommandUtil.printError(this.outStream,
-                    "provided target path '" + this.targetDir + "' is not a directory.",
-                    null, false);
-        } else {
-            ProjectUtils.deleteDirectory(this.targetDir);
-            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
-        }
-
-        //delete the generated directory
+        // delete the generated directory
         Path generatedDir;
         try {
             Project project = BuildProject.load(this.projectPath);
@@ -112,9 +115,7 @@ public class CleanCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (Files.notExists(generatedDir)) {
-            this.outStream.println("Existing generated directory was not found");
-        } else {
+        if (Files.exists(generatedDir)) {
             ProjectUtils.deleteDirectory(generatedDir);
             this.outStream.println("Successfully deleted '" + generatedDir + "'.");
         }

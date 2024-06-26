@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 public class BallerinaDocumentServiceClientCapabilitySetter
         extends BallerinaClientCapabilitySetter<BallerinaDocumentClientCapabilities> {
     
+    @Override
     public String getCapabilityName() {
         return Constants.CAPABILITY_NAME;
     }

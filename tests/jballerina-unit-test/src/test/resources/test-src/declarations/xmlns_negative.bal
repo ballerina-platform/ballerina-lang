@@ -28,3 +28,13 @@ function foo() {
     xmlns C as ns4;
     xmlns F as ns5;
 }
+
+type G record {|
+    int a;
+|};
+
+const X = G;
+xmlns X as ns;
+
+const Z = K;
+xmlns Z as ns6;

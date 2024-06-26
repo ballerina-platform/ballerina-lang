@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 9
+  },
+  "source": "add_lock22.bal",
+  "description": "Wrap in a lock statement for a isolated variable within an if body",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 8,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    if arr[1] > 0 {\n\t        return \"positive\";\n\t    } else {\n\t        return \"negative\";\n\t    }\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
