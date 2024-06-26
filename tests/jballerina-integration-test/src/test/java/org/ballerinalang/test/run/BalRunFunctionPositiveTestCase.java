@@ -51,6 +51,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", args, Paths
                 .get("src", "test", "resources", "run", "file").toString());
-        Assert.assertTrue(output.endsWith(expected));
+        Assert.assertTrue(output.endsWith(expected),
+                "Output: [" + output + "] does not end with: [" + expected + "]");
     }
 }
