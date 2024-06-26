@@ -1643,7 +1643,8 @@ public class BIRPackageSymbolEnter {
 
                     return bTupleType;
                 case TypeTags.FUTURE:
-                    BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
+                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, null,
+                            symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     bFutureType.setFlags(flags);
                     return bFutureType;

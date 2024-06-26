@@ -102,7 +102,8 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES =
-            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE, union(REGEXP, union(LIST, MAPPING))))));
+            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
+                    union(REGEXP, union(FUTURE, union(LIST, MAPPING)))))));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =

@@ -512,7 +512,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BFutureType newFutureType = new BFutureType(originalType.tag, newConstraint, null,
+        BFutureType newFutureType = new BFutureType(originalType.env, originalType.tag, newConstraint, null,
                                                     originalType.workerDerivative);
         setFlags(newFutureType, originalType.getFlags());
         return newFutureType;

@@ -7075,7 +7075,8 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.getFlags(), Flags.PARAMETERIZED)) {
             BType retType = unifier.build(invSym.retType);
-            invocation.setBType(invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType);
+            invocation.setBType(invocation.async ?
+                    new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null) : retType);
         }
 
         if (invocation.expr == null) {

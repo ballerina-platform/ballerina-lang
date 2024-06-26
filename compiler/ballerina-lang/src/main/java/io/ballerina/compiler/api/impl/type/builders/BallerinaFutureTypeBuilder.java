@@ -63,7 +63,8 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
         BTypeSymbol futureTSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BFutureType futureType = new BFutureType(TypeTags.FUTURE, getBType(typeParam), futureTSymbol);
+        BFutureType futureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, getBType(typeParam),
+                futureTSymbol);
         futureTSymbol.type = futureType;
         FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
         this.typeParam = null;

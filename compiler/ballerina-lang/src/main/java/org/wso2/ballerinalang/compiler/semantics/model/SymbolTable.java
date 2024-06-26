@@ -127,7 +127,7 @@ public class SymbolTable {
     public final BMapType mapType;
     public final BMapType mapStringType;
 
-    public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
+    public final BFutureType futureType;
     public final BArrayType arrayType;
     public final BArrayType byteArrayType;
     public final BArrayType arrayStringType;
@@ -268,7 +268,6 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
         initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
         initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
-        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
@@ -310,12 +309,15 @@ public class SymbolTable {
 
         pathParamAllowedType = BUnionType.create(types.typeEnv(), null,
                 intType, stringType, floatType, booleanType, decimalType);
-        xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
-                xmlPIType, xmlTextType), null);
         tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
         recordType = new BRecordType(typeEnv(), null);
         invokableType = new BInvokableType(types.typeEnv(), List.of(), null, null, null);
+
+        xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
+                xmlPIType, xmlTextType), null);
+        futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
+        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,

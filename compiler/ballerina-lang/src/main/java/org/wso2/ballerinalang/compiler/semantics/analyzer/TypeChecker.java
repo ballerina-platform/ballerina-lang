@@ -5035,7 +5035,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             expr = keyVal.valueExpr;
         }
-        BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
+        BFutureType futureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, type, null);
         checkExpr(expr, futureType, data);
         setEventualTypeForExpression(expr, type, data);
     }
@@ -5212,7 +5212,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public void visit(BLangWaitExpr waitExpr, AnalyzerData data) {
-        data.expType = new BFutureType(TypeTags.FUTURE, data.expType, null);
+        data.expType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, data.expType, null);
         checkExpr(waitExpr.getExpression(), data.expType, data);
         // Handle union types in lhs
         BType referredResultType = Types.getImpliedType(data.resultType);
@@ -7658,7 +7658,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
-        return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
+        return new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
     protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {
