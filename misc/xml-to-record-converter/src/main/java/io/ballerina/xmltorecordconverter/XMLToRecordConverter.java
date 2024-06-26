@@ -263,7 +263,7 @@ public class XMLToRecordConverter {
                 Map<String, Boolean> prefixMap = hasMultipleFieldsWithSameName(xmlNodeList,
                         xmlElementNode.getLocalName());
                 RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace,
-                        prefixMap.size() > 1, withoutAttributes, withoutAttributeAnnot);
+                        prefixMap.size() > 1, withoutAttributes);
 
                 if (withNameSpace && xmlElementNode.getPrefix() != null) {
                     int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
@@ -324,7 +324,7 @@ public class XMLToRecordConverter {
                     if (elementNames.contains(xmlNode.getNodeName())) {
                         continue;
                     }
-                    Node recordField = getRecordField(xmlNode);
+                    Node recordField = getRecordField(xmlNode, withoutAttributeAnnot);
                     recordFields.add(recordField);
                 }
             }
@@ -347,7 +347,7 @@ public class XMLToRecordConverter {
                 org.w3c.dom.Node xmlAttributeNode = xmlElement.getAttributes().item(j);
                 if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE
                         && !XMLNS_PREFIX.equals(xmlAttributeNode.getPrefix())) {
-                    Node recordField = getRecordField(xmlAttributeNode);
+                    Node recordField = getRecordField(xmlAttributeNode, withoutAttributeAnnot);
                     recordFields.add(recordField);
                 }
             }
@@ -470,7 +470,7 @@ public class XMLToRecordConverter {
 
     private static RecordFieldNode getRecordField(Element xmlElementNode, boolean isOptionalField,
                                                   boolean withNameSpace, boolean sameFieldExists,
-                                                  boolean withoutAttributes, boolean withoutAttributeAnnot) {
+                                                  boolean withoutAttributes) {
         Token typeName;
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         IdentifierToken fieldName =
@@ -481,7 +481,7 @@ public class XMLToRecordConverter {
         NamedNodeMap xmlAttributesMap = xmlElementNode.getAttributes();
         if (isLeafXMLElementNode(xmlElementNode) && (xmlAttributesMap.getLength() == 0 ||
                 (xmlAttributesMap.getLength() == 1
-                        && XMLNS_PREFIX.equals(xmlAttributesMap.item(0).getPrefix()))) || withoutAttributes) {
+                        && XMLNS_PREFIX.equals(xmlAttributesMap.item(0).getPrefix())) || withoutAttributes)) {
             typeName = getPrimitiveTypeName(xmlElementNode.getFirstChild().getNodeValue());
         } else {
             // At the moment all are considered as Objects here
@@ -510,7 +510,7 @@ public class XMLToRecordConverter {
                         metadataNode, null, fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
     }
 
-    private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode) {
+    private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode, boolean withoutAttributeAnnot) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         IdentifierToken fieldName =
@@ -518,7 +518,7 @@ public class XMLToRecordConverter {
         Token equalToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList(getXMLAttributeNode());
-        MetadataNode metadataNode = NodeFactory.createMetadataNode(null, annotations);
+        MetadataNode metadataNode = withoutAttributeAnnot ? null : NodeFactory.createMetadataNode(null, annotations);
 
         if (xmlAttributeNode.getPrefix() != null &&
                 xmlAttributeNode.getPrefix().equals(XMLNS_PREFIX)) {
