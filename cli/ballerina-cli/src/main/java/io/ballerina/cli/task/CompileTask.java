@@ -65,23 +65,26 @@ public class CompileTask implements Task {
     private final transient PrintStream err;
     private final boolean compileForBalPack;
     private final boolean compileForBalBuild;
+    private final boolean compileForBalTest;
     private final boolean isPackageModified;
     private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, false, true, false);
+        this(out, err, false, false, false, true, false);
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
                        boolean compileForBalBuild,
+                       boolean compileForBalTest,
                        boolean isPackageModified,
                        boolean cachesEnabled) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
         this.compileForBalBuild = compileForBalBuild;
+        this.compileForBalTest = compileForBalTest;
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
     }
@@ -113,7 +116,10 @@ public class CompileTask implements Task {
             if (this.compileForBalBuild) {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
             }
-            addDiagnosticForInvalidVerboseFlagUsage(project, diagnostics);
+            if (this.compileForBalBuild || this.compileForBalTest) {
+                addDiagnosticForInvalidOptimizeReportFlagUsage(project, diagnostics);
+            }
+
             long start = 0;
 
             if (project.currentPackage().compilationOptions().dumpGraph()
@@ -336,7 +342,7 @@ public class CompileTask implements Task {
         }
     }
 
-    private void addDiagnosticForInvalidVerboseFlagUsage(Project project, List<Diagnostic> diagnostics) {
+    private void addDiagnosticForInvalidOptimizeReportFlagUsage(Project project, List<Diagnostic> diagnostics) {
         BuildOptions buildOptions = project.buildOptions();
         if (buildOptions.optimizeReport() && !buildOptions.optimizeCodegen()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(

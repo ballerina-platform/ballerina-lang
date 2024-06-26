@@ -293,8 +293,8 @@ public class RunCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false, false,isPackageModified,
+                        buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CreateExecutableTask(outStream, null, target, true))
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
