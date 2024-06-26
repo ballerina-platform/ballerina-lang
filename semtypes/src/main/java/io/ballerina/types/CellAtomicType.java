@@ -26,6 +26,10 @@ package io.ballerina.types;
  */
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 
+    public CellAtomicType {
+        assert ty != null;
+    }
+
     public static CellAtomicType from(SemType ty, CellMutability mut) {
         // TODO: return final fields where applicable
         return new CellAtomicType(ty, mut);

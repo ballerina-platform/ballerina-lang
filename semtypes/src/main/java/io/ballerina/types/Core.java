@@ -326,6 +326,7 @@ public final class Core {
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
+        assert t != null && cx != null;
         if (t instanceof BasicTypeBitSet b) {
             return b.bitset == 0;
         } else {

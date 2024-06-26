@@ -28,6 +28,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -44,12 +45,18 @@ public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
-    public SemType define(Env env, ObjectQualifiers qualifiers, List<Member> members) {
+    public SemType define(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
+        assert validataMembers(members); // This should never happen, so let's not run this in production
         Stream<CellField> memberStream = members.stream().map(member -> memberField(env, member));
         Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
                 restMemberType(env));
         return objectContaining(mappingType);
+    }
+
+    private static boolean validataMembers(Collection<Member> members) {
+        // Check if there are two members with same name
+        return members.stream().map(Member::name).distinct().count() == members.size();
     }
 
     private SemType objectContaining(SemType mappingType) {
@@ -63,7 +70,7 @@ public final class ObjectDefinition implements Definition {
         SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
                 env,
                 List.of(
-                        new Field("value", PredefinedType.ANY, false, false),
+                        new Field("value", PredefinedType.VAL, false, false),
                         Member.Kind.Field.field(),
                         Member.Visibility.ALL
                 ),

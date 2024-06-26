@@ -32,6 +32,19 @@ import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
 public record ObjectQualifiers(boolean isolated, NetworkQualifier networkQualifier) {
 
+    private final static ObjectQualifiers DEFAULT = new ObjectQualifiers(false, NetworkQualifier.None);
+
+    public static ObjectQualifiers defaultQualifiers() {
+        return DEFAULT;
+    }
+
+    public static ObjectQualifiers from(boolean isolated, NetworkQualifier networkQualifier) {
+        if (networkQualifier == NetworkQualifier.None && !isolated) {
+            return defaultQualifiers();
+        }
+        return new ObjectQualifiers(isolated, networkQualifier);
+    }
+
     public enum NetworkQualifier {
         Client,
         Service,
