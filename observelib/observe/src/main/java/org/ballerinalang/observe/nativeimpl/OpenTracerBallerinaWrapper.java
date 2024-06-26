@@ -27,9 +27,10 @@ import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
 import org.ballerinalang.jvm.scheduling.Strand;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -43,7 +44,7 @@ public class OpenTracerBallerinaWrapper {
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
     private final boolean enabled;
-    private Map<Long, ObserverContext> observerContextList = new HashMap<>();
+    private ConcurrentMap<Long, ObserverContext> observerContextList = new ConcurrentHashMap<>();
     private AtomicLong spanId = new AtomicLong();
     private static final int SYSTEM_TRACE_INDICATOR = -1;
 
@@ -139,7 +140,7 @@ public class OpenTracerBallerinaWrapper {
             return false;
         }
     }
-    
+
     /**
      * Method to add tags to an existing span.
      *
