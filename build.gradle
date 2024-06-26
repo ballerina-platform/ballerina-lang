@@ -66,6 +66,12 @@ dependencies {
 
 def classFilesArray = []
 def execFilesArray = []
+def skipModules = [
+                   "ballerina-gradle-plugins",
+                   "bir-spec",
+                   "jballerina-benchmark-test",
+                   "lib-creator",
+                   "semtypes"]
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
     subprojects.forEach { subproject ->
@@ -73,6 +79,10 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
             include "**/*.exec"
         }.each {
             execFilesArray.push(it)
+        }
+        // Sources of modules used specifically for tests, gradle plugins are skipped
+        if (skipModules.contains(subproject.name)) {
+            return
         }
         fileTree("${subproject.buildDir}/classes").matching {
             exclude '**/test/*'
