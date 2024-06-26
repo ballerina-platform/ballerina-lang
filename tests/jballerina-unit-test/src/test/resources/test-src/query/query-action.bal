@@ -884,7 +884,7 @@ function testQueryActionWithCollectClauseInsideLeClause2() {
 
 function testRecordDestructureWithRecordLiteralInsideDoClause() {
     int[] prices;
-    _ = from var {name, price} in [{name: "John", price: 10}]
+    _ = from var {name, price} in [{name: "John", price: 10}, {name: "Doe", price: 12}]
         do {
             {prices} = {prices: [price]};
         };

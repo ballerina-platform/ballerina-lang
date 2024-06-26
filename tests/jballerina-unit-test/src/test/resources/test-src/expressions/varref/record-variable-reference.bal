@@ -264,20 +264,19 @@ function testVarAssignmentOfRecordLiteral3() {
     };
     assertEquality("Peter", fName);
     assertEquality(true, married);
-    assertEquality(12, age.get("age"));
-    assertEquality("Y", age.get("format"));
+    assertEquality({age: 12, format: "Y"}, age);
+    assertEquality({}, theMap);
 }
 
-function testVarAssignmentOfRecordLiteral4() returns error? {
+function testVarAssignmentOfRecordLiteral4() {
     string fName;
     boolean married;
     json age;
-    map<anydata> theMap;
+    map<any|error> theMap;
 
     {
         name: fName,
         age,
-        married,
         ...theMap
     } = {
         name: "Peter",
@@ -285,9 +284,8 @@ function testVarAssignmentOfRecordLiteral4() returns error? {
         age: {age: 12, format: "Y"}
     };
     assertEquality("Peter", fName);
-    assertEquality(true, married);
-    assertEquality(12, check age.age);
-    assertEquality("Y", check age.format);
+    assertEquality({age: 12, format: "Y"}, age);
+    assertEquality({married: true}, theMap);
 }
 
 function testVarAssignmentOfRecordLiteral5() {
@@ -305,7 +303,12 @@ function testVarAssignmentOfRecordLiteral5() {
         state: "New"
     };
     assertEquality("Peter", fName);
-    assertEquality("New York", theMap.get("city"));
+    assertEquality({
+                       married: true,
+                       age: {age: 12, format: "Y"},
+                       city: "New York",
+                       state: "New"
+                   }, theMap);
 }
 
 function testVarAssignmentOfRecordLiteral6() {
@@ -348,8 +351,15 @@ function testVarAssignmentOfRecordLiteral7() {
         }
     };
     assertEquality(1, empId);
-    assertEquality(30, otherEmpDetails.get("age"));
-    assertEquality(2, (<map<anydata>>otherDepDetails.get("location")).get("floor"));
+    assertEquality({
+                       id: 123,
+                       name: "Marketing",
+                       location: {floor: 2, area: "B"}
+                   }, otherDepDetails);
+    assertEquality({
+                       name: "John Doe",
+                       age: 30
+                   }, otherEmpDetails);
 }
 
 function testVarAssignmentOfRecordLiteral8() {
@@ -371,7 +381,14 @@ function testVarAssignmentOfRecordLiteral8() {
     };
     assertEquality(1, id);
     assertEquality("John Doe", name);
-    assertEquality(2, (<map<anydata>>(<map<anydata>>otherDetails.get("department")).get("location")).get("floor"));
+    assertEquality({
+                       age: 30,
+                       department: {
+                           id: 123,
+                           name: "Marketing",
+                           location: {floor: 2, area: "B"}
+                       }
+                   }, otherDetails);
 }
 
 type EmployeeDetails record {|
@@ -521,6 +538,13 @@ function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     assertEquality(3, a);
     assertEquality(4, b);
 
+    record {|int b; string c;|} rec1 = {b: 2, c: "C"};
+    string c;
+    [{a, b, c}] = [{a: 1, ...rec1}];
+    assertEquality(1, a);
+    assertEquality(2, b);
+    assertEquality("C", c);
+
     [record {int a; int b; stream<int> c;}] r4 = [{a: 5, b: 6, c: new}];
     [{a, b}] = r4;
     assertEquality(5, a);
@@ -579,7 +603,7 @@ function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     // error(x = {d}) = err;
 }
 
-function assertEquality(anydata expected, anydata actual) {
+function assertEquality(anydata expected, any actual) {
     if expected == actual {
         return;
     }
