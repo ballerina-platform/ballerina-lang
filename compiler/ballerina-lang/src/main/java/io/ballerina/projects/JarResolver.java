@@ -116,8 +116,7 @@ public class JarResolver {
                 .stream()
                 .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
                 .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
-                .filter(pkgDep -> !optimizeFinalExecutable ||
-                        !jBalBackend.unusedProjectLevelPackageIds.contains(pkgDep.packageId()))
+                .filter(pkgDep -> !optimizeFinalExecutable || !isUnusedPkgDependency(pkgDep))
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext
@@ -172,6 +171,19 @@ public class JarResolver {
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
+
+    private boolean isUnusedPkgDependency(ResolvedPackageDependency pkgDependency) {
+        if (!jBalBackend.unusedProjectLevelPackageIds.contains(pkgDependency.packageId())) {
+            return false;
+        }
+        for (ModuleId moduleId : pkgDependency.packageInstance().packageContext().moduleIds()) {
+            if (!jBalBackend.unusedModuleIds.contains(moduleId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                               Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
