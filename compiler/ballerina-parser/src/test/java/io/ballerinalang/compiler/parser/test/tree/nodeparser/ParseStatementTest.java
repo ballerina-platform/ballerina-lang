@@ -44,11 +44,12 @@ public class ParseStatementTest {
 
     @Test
     public void testIfElseStmt() {
-        String ifElseStmt = "if (a < b) {\n" +
-                "    a:b(\"a < b\");\n" +
-                "} else {\n" +
-                "    a:b(\"a >= b\");\n" +
-                "}";
+        String ifElseStmt = """
+                if (a < b) {
+                    a:b("a < b");
+                } else {
+                    a:b("a >= b");
+                }""";
         StatementNode stmtNode = NodeParser.parseStatement(ifElseStmt);
         Assert.assertEquals(stmtNode.kind(), SyntaxKind.IF_ELSE_STATEMENT);
         Assert.assertFalse(stmtNode.hasDiagnostics());

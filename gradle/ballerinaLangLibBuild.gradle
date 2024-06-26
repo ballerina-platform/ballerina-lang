@@ -40,15 +40,6 @@ dependencies {
     balaCreat project(':lib-creator')
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
-}
-
 class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = ''
     @Internal def distCache = ''
@@ -85,7 +76,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
 
 }
 
-task createDistributionCache() {
+tasks.register('createDistributionCache') {
     dependsOn configurations.distributionBala
     doLast {
         configurations.distributionBala.each { artifact ->
@@ -104,12 +95,12 @@ def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
 def modVersion = "0.0.0"
 def jarFileName = modOrg + "-" + project.ext.modName + "-" + modVersion
 
-task copyBallerinaProject(type: Copy) {
+tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
     into project.buildDir.toString() + "/ballerina-src"
 }
 
-task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
+tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
     standardOutput = System.out
     errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName

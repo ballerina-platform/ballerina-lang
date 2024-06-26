@@ -56,11 +56,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -376,8 +377,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
-                            new Path[]{}, null});
+                    new Class[]{Map.class, String[].class, Path[].class, String.class},
+                    new Object[]{new HashMap<>(), new String[]{}, new Path[]{}, null});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module
@@ -391,8 +392,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
                     .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
-                    .collect(Collectors.toList())
-                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
+                    .toList()
+                    .stream().map(element -> "at " + element.getMethodName() + "()").toList();
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");

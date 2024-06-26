@@ -50,6 +50,7 @@ public class STMarkdownDocumentationNode extends STDocumentationNode {
                 documentationLines);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMarkdownDocumentationNode(
                 this.documentationLines,
@@ -68,6 +69,7 @@ public class STMarkdownDocumentationNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MarkdownDocumentationNode(this, position, parent);
     }

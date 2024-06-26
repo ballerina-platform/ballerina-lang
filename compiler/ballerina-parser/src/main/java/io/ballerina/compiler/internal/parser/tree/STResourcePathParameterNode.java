@@ -83,6 +83,7 @@ public class STResourcePathParameterNode extends STNode {
                 closeBracketToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourcePathParameterNode(
                 this.kind,
@@ -124,6 +125,7 @@ public class STResourcePathParameterNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ResourcePathParameterNode(this, position, parent);
     }

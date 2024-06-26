@@ -62,6 +62,7 @@ public class STReCharSetRangeNode extends STNode {
                 rhsReCharSetAtom);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCharSetRangeNode(
                 this.lhsReCharSetAtom,
@@ -88,6 +89,7 @@ public class STReCharSetRangeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReCharSetRangeNode(this, position, parent);
     }

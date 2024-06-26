@@ -71,17 +71,13 @@ public class ProjectUtilsTests {
     @Test()
     public void testReadBuildJsonForNonExistingBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("xyz").resolve(ProjectConstants.BUILD_FILE);
-        Assert.assertThrows(IOException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(IOException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
     @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-build");
-        Assert.assertThrows(JsonSyntaxException.class, () -> {
-            ProjectUtils.readBuildJson(buildFilePath);
-        });
+        Assert.assertThrows(JsonSyntaxException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
     @Test()

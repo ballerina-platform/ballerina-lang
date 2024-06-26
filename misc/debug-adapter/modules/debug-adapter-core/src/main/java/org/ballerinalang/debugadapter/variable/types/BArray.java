@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -70,7 +69,7 @@ public class BArray extends IndexedCompoundVariable {
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+                    .map(Map.Entry::getKey).toList().get(0);
 
             // If count > 0, returns a sublist of the child variables
             // If count == 0, returns all child variables
@@ -126,7 +125,7 @@ public class BArray extends IndexedCompoundVariable {
                 .filter(fieldValueEntry -> fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         arraySize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

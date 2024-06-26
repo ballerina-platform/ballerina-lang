@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Executor positions evaluation utilities.
@@ -99,7 +98,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (FunctionSymbol) symbol)
-                .collect(Collectors.toList());
+                .toList();
 
         if (defaultModuleFunctionList.size() == 1) {
             JsonObject mainFunctionObject = new JsonObject();
@@ -124,7 +123,7 @@ public class ExecutorPositionsUtil {
                     }
                 })
                 .map(symbol -> (ServiceDeclarationSymbol) symbol)
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(serviceSymbol -> {
                     JsonObject serviceObject = new JsonObject();
                     serviceObject.addProperty(KIND, SOURCE);
@@ -172,9 +171,8 @@ public class ExecutorPositionsUtil {
                 module.moduleName().moduleNamePart();
         TestCaseVisitor testCaseVisitor = new TestCaseVisitor(execPositions, filePath);
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            module.documentIds().forEach(documentId -> {
-                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode());
-            });
+            module.documentIds().forEach(documentId ->
+                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode()));
 
         } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
             module.testDocumentIds().forEach(testDocumentId -> {

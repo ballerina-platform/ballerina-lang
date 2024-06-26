@@ -42,7 +42,7 @@ public class Strip {
 
     public static BXml strip(BXml xml) {
         try {
-            return (BXml) xml.strip();
+            return xml.strip();
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

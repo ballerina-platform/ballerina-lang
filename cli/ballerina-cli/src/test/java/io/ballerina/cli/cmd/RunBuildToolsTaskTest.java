@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -57,10 +58,15 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
 
     private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
     private static final long HALF_DAY = 12 * 60 * 60 * 1000;
+    
+    private static final Path LOG_FILE = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+            "log_creator_combined_plugin/compiler-plugin.txt");
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
+        Files.createDirectories(LOG_FILE.getParent());
+        Files.writeString(LOG_FILE, "");
         // copy all test resources
         try {
             Path testResources = super.tmpDir.resolve("build-tool-test-resources");
@@ -113,7 +119,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             }
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput(outputFileName));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput(outputFileName));
     }
 
     @Test(description = "Generate files using a project and find the generated file in project instance")
@@ -127,7 +133,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-tool-generate-file.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-generate-file.txt"));
         AtomicBoolean fileFound = new AtomicBoolean(false);
         project.currentPackage().modules().forEach(module -> {
             if (module.moduleName().toString().equals("winery.mod_generate")) {
@@ -254,5 +260,12 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         } catch (IOException e) {
             Assert.fail("Error writing build.json file");
         }
+    }
+    
+    @AfterClass
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(LOG_FILE);
+        Files.deleteIfExists(LOG_FILE.getParent());
+        Files.deleteIfExists(LOG_FILE.getParent().getParent());
     }
 }
