@@ -1,0 +1,13 @@
+<library xmlns:book="http://example.com/books" genre="Programming" location="City Library" established="1985">
+    <books>
+        <genre>Programming</genre>
+        <book:book id="1" shelf="A3" available="true">
+            <book:title lang="en" edition="1st" pages="500" format="hardcover">XML Developer's Guide</book:title>
+            <book:author>John Doe</book:author>
+            <book:publisher>Tech Press</book:publisher>
+            <book:publish_date>2000-10-01</book:publish_date>
+            <book:isbn>1234567890</book:isbn>
+            <book:price currency="USD">49.99</book:price>
+        </book:book>
+    </books>
+</library>
