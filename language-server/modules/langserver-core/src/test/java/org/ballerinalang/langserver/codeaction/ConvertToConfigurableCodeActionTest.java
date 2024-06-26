@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test cases for {@link org.ballerinalang.langserver.codeaction.providers.ConvertToConfigurableCodeAction}
+ * Test cases for {@link org.ballerinalang.langserver.codeaction.providers.ConvertToConfigurableCodeAction}.
  *
  * @since 2201.10.0
  */
