@@ -43,7 +43,7 @@ public class CompilationOptions {
     Boolean optimizeCodegen;
     Boolean optimizeReport;
 
-    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
+    private CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky, Boolean dumpGraph,
                        Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean withCodeModifiers,
                        Boolean configSchemaGen, Boolean exportOpenAPI, Boolean exportComponentModel,
