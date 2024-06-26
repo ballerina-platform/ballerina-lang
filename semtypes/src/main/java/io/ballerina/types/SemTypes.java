@@ -20,6 +20,7 @@ package io.ballerina.types;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.FutureSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
@@ -112,6 +113,10 @@ public final class SemTypes {
 
     public static SemType tableContaining(Env env, SemType mappingType) {
         return TableSubtype.tableContaining(env, mappingType);
+    }
+
+    public static SemType futureContaining(Env env, SemType constraint) {
+        return FutureSubtype.futureContaining(env, constraint);
     }
 
     public static SemType mappingMemberTypeInnerVal(Context context, SemType t, SemType m) {

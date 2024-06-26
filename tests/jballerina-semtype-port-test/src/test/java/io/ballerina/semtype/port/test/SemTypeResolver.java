@@ -325,6 +325,7 @@ public class SemTypeResolver {
         return switch (typeKind) {
             case MAP -> resolveMapTypeDesc(td, cx, mod, depth, defn);
             case XML -> resolveXmlTypeDesc(td, cx, mod, depth, defn);
+            case FUTURE -> resolveFutureTypeDesc(td, cx, mod, depth, defn);
             default -> throw new UnsupportedOperationException("Constrained type not implemented: " + typeKind);
         };
     }
@@ -344,10 +345,14 @@ public class SemTypeResolver {
 
     private SemType resolveXmlTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
                                        BLangTypeDefinition defn) {
-        if (td.defn != null) {
-            return td.defn.getSemType(cx.env);
-        }
-        return SemTypes.xmlSequence(resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint));
+        SemType constraint = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+        return SemTypes.xmlSequence(constraint);
+    }
+
+    private SemType resolveFutureTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
+                                          BLangTypeDefinition defn) {
+        SemType constraint = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+        return SemTypes.futureContaining(cx.env, constraint);
     }
 
     private SemType resolveTypeDesc(Context cx, BLangRecordTypeNode td, Map<String, BLangNode> mod, int depth,

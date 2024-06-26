@@ -24,6 +24,7 @@ import io.ballerina.types.typeops.DecimalOps;
 import io.ballerina.types.typeops.ErrorOps;
 import io.ballerina.types.typeops.FloatOps;
 import io.ballerina.types.typeops.FunctionOps;
+import io.ballerina.types.typeops.FutureOps;
 import io.ballerina.types.typeops.IntOps;
 import io.ballerina.types.typeops.ListOps;
 import io.ballerina.types.typeops.MappingOps;
@@ -54,7 +55,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // handle
         OPS[i++] = new FunctionOps();   // function
         OPS[i++] = PANIC_IMPL;          // regexp
-        OPS[i++] = PANIC_IMPL;          // future
+        OPS[i++] = new FutureOps();     // future
         OPS[i++] = PANIC_IMPL;          // stream
         OPS[i++] = new ListOps();       // list
         OPS[i++] = new MappingOps();    // mapping
