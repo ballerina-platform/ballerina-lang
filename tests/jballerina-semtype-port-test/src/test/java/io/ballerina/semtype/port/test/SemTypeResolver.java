@@ -165,7 +165,7 @@ public class SemTypeResolver {
             case FUNCTION_TYPE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
             case TABLE_TYPE:
-                return resolveTypeDesc(cx, mod, depth, (BLangTableTypeNode) td);
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangTableTypeNode) td);
             case ERROR_TYPE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangErrorType) td);
             default:
@@ -407,6 +407,8 @@ public class SemTypeResolver {
             return SemTypes.CHAR;
         } else if (td.pkgAlias.value.equals("xml")) {
             return resolveXmlSubtype(name);
+        } else if (td.pkgAlias.value.equals("regexp") && name.equals("RegExp")) {
+            return PredefinedType.REGEXP;
         }
 
         BLangNode moduleLevelDef = mod.get(name);
@@ -504,12 +506,13 @@ public class SemTypeResolver {
         };
     }
 
-    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, int depth, BLangTableTypeNode td) {
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangTableTypeNode td) {
         if (td.tableKeySpecifier != null || td.tableKeyTypeConstraint != null) {
             throw new UnsupportedOperationException("table key constraint not supported yet");
         }
 
-        SemType memberType = resolveTypeDesc(cx, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
+        SemType memberType = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
         return SemTypes.tableContaining(cx.env, memberType);
     }
 
