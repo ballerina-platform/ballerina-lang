@@ -157,7 +157,17 @@ public enum ErrorCodes implements DiagnosticCode {
     CONFIG_ENV_VAR_NAME_AMBIGUITY("config.env.variable.name.ambiguity", "RUNTIME_0127"),
     NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0128"),
     INVALID_METHOD_CALL("invalid.method.call", "RUNTIME_0129"),
-    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130");
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130"),
+
+    // transaction recovery errors
+    TRANSACTION_INVALID_CHECKPOINT_VALUE("transaction.invalid.checkpoint.value", "RUNTIME_0131"),
+    TRANSACTION_IN_HUERISTIC_STATE("transaction.in.heuristic.state", "RUNTIME_0132"),
+    TRANSACTION_IN_HAZARD_STATE("transaction.in.hazard.state", "RUNTIME_0133"),
+    TRANSACTION_IN_MIXED_STATE("transaction.in.mixed.state", "RUNTIME_0134"),
+    TRANSACTION_STARTUP_RECOVERY_FAILED("transaction.startup.recovery.failed", "RUNTIME_0135"),
+    TRANSACTION_CANNOT_CREATE_LOG_FILE("transaction.cannot.create.log.file", "RUNTIME_0136"),
+    TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE("transaction.cannot.collect.xids.in.resource", "RUNTIME_0137"),
+    TRANSACTION_CANNOT_PARSE_LOG_RECORD("transaction.cannot.parse.log.record", "RUNTIME_0138");
 
     private final String errorMsgKey;
     private final String errorCode;

@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -59,6 +61,9 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
+import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
@@ -74,7 +79,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
 public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
-    private  static UserTransactionManager userTransactionManager = null;
+    private static UserTransactionManager userTransactionManager = null;
 
     private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
             TRANSACTION_PACKAGE_NAME,
@@ -101,6 +106,11 @@ public class TransactionResourceManager {
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
+    private LogManager logManager;
+    private RecoveryManager recoveryManager;
+    private boolean startupRecoverySuccessful = false;
+
+    RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
     Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
@@ -115,6 +125,12 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
+            logManager = LogManager.getInstance(getRecoveryLogBaseName(), getCheckpointInterval(),
+                    getRecoveryLogDir(), getDeleteOldLogs());
+            recoveryManager = new RecoveryManager();
+            if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+            }
         }
     }
 
@@ -129,9 +145,20 @@ public class TransactionResourceManager {
         return transactionResourceManager;
     }
 
+    public LogManager getLogManager() {
+        return transactionResourceManager.logManager;
+    }
+
+    public RecoveryManager getRecoveryManager() {
+        return transactionResourceManager.recoveryManager;
+    }
+
+    public Map<String, List<BallerinaTransactionContext>> getResourceRegistry() {
+        return transactionResourceManager.resourceRegistry;
+    }
+
     /**
      * This method sets values for atomikos transaction log path and name properties using the available configs.
-     *
      */
     private void setLogProperties() {
         final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
@@ -149,7 +176,7 @@ public class TransactionResourceManager {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory in " + logDir);
+                    stderr.println(ERROR_MESSAGE_PREFIX + " failed to create transaction log directory in " + logDir);
                 }
             }
             System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
@@ -188,6 +215,86 @@ public class TransactionResourceManager {
     }
 
     /**
+     * This method gets the user specified config for ballerina recovery log name.
+     *
+     * @return string recovery log file name
+     */
+    private String getRecoveryLogBaseName() {
+        VariableKey recoveryLogNameKey =
+                new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogName", PredefinedTypes.TYPE_STRING, false);
+        if (!ConfigMap.containsKey(recoveryLogNameKey)) {
+            return "recoveryLog";
+        }
+        return ((BString) ConfigMap.get(recoveryLogNameKey)).getValue();
+    }
+
+    /**
+     * This method gets the user specified config for ballerina recovery log directory.
+     *
+     * @return string recovery log directory
+     */
+    private Path getRecoveryLogDir() {
+        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
+        VariableKey recoveryLogDirKey =
+                new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogDir", PredefinedTypes.TYPE_STRING, false);
+        if (!ConfigMap.containsKey(recoveryLogDirKey)) {
+            return projectRoot;
+        }
+        String logDir = ((BString) ConfigMap.get(recoveryLogDirKey)).getValue();
+        Path logDirPath = Paths.get(logDir);
+        if (!logDirPath.isAbsolute()) {
+            logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+            return Paths.get(logDir);
+        }
+        return logDirPath;
+    }
+
+    /**
+     * This method gets the user specified config for checkpoint interval.
+     *
+     * @return int checkpoint interval
+     */
+    private Integer getCheckpointInterval() {
+        VariableKey checkpointIntervalKey =
+                new VariableKey(TRANSACTION_PACKAGE_ID, "checkpointInterval", PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(checkpointIntervalKey)) {
+            return DEFAULT_CHECKPOINT_INTERVAL;
+        } else {
+            int checkpointInterval;
+            Object value = ConfigMap.get(checkpointIntervalKey);
+            if (value instanceof Long) {
+                checkpointInterval = ((Long) value).intValue();
+            } else if (value instanceof Integer) {
+                checkpointInterval = (Integer) value;
+            } else {
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
+                return DEFAULT_CHECKPOINT_INTERVAL;
+            }
+            if (checkpointInterval < 0 && checkpointInterval != NO_CHECKPOINT_INTERVAL) {
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
+                return DEFAULT_CHECKPOINT_INTERVAL;
+            } else {
+                return checkpointInterval;
+            }
+        }
+    }
+
+    /**
+     * This method gets the user specified config for whether to delete old logs or not.
+     *
+     * @return boolean whether to delete old logs or not
+     */
+    public boolean getDeleteOldLogs() {
+        VariableKey deleteOldLogsKey = new VariableKey(TRANSACTION_PACKAGE_ID, "deleteOldLogs",
+                PredefinedTypes.TYPE_BOOLEAN, false);
+        if (!ConfigMap.containsKey(deleteOldLogsKey)) {
+            return true;
+        } else {
+            return (boolean) ConfigMap.get(deleteOldLogsKey);
+        }
+    }
+
+    /**
      * This method will register connection resources with a particular transaction.
      *
      * @param transactionId      the global transaction id
@@ -203,7 +310,7 @@ public class TransactionResourceManager {
      * This method will register a committed function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param fpValue   the function pointer for the committed function
+     * @param fpValue            the function pointer for the committed function
      */
     public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
@@ -215,7 +322,7 @@ public class TransactionResourceManager {
      * This method will register an aborted function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param fpValue   the function pointer for the aborted function
+     * @param fpValue            the function pointer for the aborted function
      */
     public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
@@ -238,7 +345,7 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method acts as the callback which notify all the resources participated in the given transaction. 
+     * This method acts as the callback which notify all the resources participated in the given transaction.
      *
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
@@ -296,7 +403,7 @@ public class TransactionResourceManager {
                         trx.commit();
                     }
                 } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
-                        | RollbackException e) {
+                         | RollbackException e) {
                     log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
@@ -393,8 +500,8 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method starts a transaction for the given xa resource. If there is no transaction is started for the
-     * given XID a new transaction is created.
+     * This method starts a transaction for the given xa resource. If there is no transaction is started for the given
+     * XID a new transaction is created.
      *
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
@@ -417,7 +524,7 @@ public class TransactionResourceManager {
         } else {
             Xid xid = xidRegistry.get(combinedId);
             if (xid == null) {
-                xid = XIDGenerator.createXID();
+                xid = XIDGenerator.createXID(combinedId);
                 xidRegistry.put(combinedId, xid);
             }
             try {
@@ -429,18 +536,21 @@ public class TransactionResourceManager {
     }
 
     /**
-     * Cleanup the Info record keeping state related to current transaction context and remove the current
-     * context from the stack.
+     * Cleanup the Info record keeping state related to current transaction context and remove the current context from
+     * the stack.
      */
     public void cleanupTransactionContext() {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+        writeToLog(transactionLocalContext.getGlobalTransactionId(),
+                transactionLocalContext.getCurrentTransactionBlockId(), RecoveryState.TERMINATED);
         transactionLocalContext.removeTransactionInfo();
         strand.removeCurrentTrxContext();
     }
 
     /**
      * This method returns true if there is a failure of the current transaction, otherwise false.
+     *
      * @return true if there is a failure of the current transaction.
      */
     public boolean getAndClearFailure() {
@@ -448,8 +558,9 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method is used to get the error which is set by calling setRollbackOnly().
-     * If it is not set, then returns null.
+     * This method is used to get the error which is set by calling setRollbackOnly(). If it is not set, then returns
+     * null.
+     *
      * @return the error or null.
      */
     public Object getRollBackOnlyError() {
@@ -459,6 +570,7 @@ public class TransactionResourceManager {
 
     /**
      * This method checks if the current strand is in a transaction or not.
+     *
      * @return True if the current strand is in a transaction.
      */
     public boolean isInTransaction() {
@@ -467,6 +579,7 @@ public class TransactionResourceManager {
 
     /**
      * This method notify the given transaction to abort.
+     *
      * @param transactionBlockId The transaction blockId
      */
     public void notifyTransactionAbort(String transactionBlockId) {
@@ -475,6 +588,7 @@ public class TransactionResourceManager {
 
     /**
      * This method retrieves the list of rollback handlers.
+     *
      * @return Array of rollback handlers
      */
     public BArray getRegisteredRollbackHandlerList() {
@@ -491,6 +605,7 @@ public class TransactionResourceManager {
 
     /**
      * This method retrieves the list of commit handlers.
+     *
      * @return Array of commit handlers
      */
     public BArray getRegisteredCommitHandlerList() {
@@ -522,6 +637,7 @@ public class TransactionResourceManager {
 
     /**
      * This method set the given transaction context as the current transaction context in the stack.
+     *
      * @param trxCtx The input transaction context
      */
     public void setCurrentTransactionContext(TransactionLocalContext trxCtx) {
@@ -530,6 +646,7 @@ public class TransactionResourceManager {
 
     /**
      * This method returns the current transaction context.
+     *
      * @return The current Transaction Context
      */
     public TransactionLocalContext getCurrentTransactionContext() {
@@ -617,5 +734,34 @@ public class TransactionResourceManager {
             }
             return null;
         }
+    }
+
+    /**
+     * Handles initial recovery after a crash. This method is called after all the resources are added and before a new
+     * transaction begins.
+     */
+    public synchronized void startupCrashRecovery() {
+        if (!startupRecoverySuccessful) {
+            boolean allRecovered = recoveryManager.performRecoveryPass();
+            if (allRecovered) {
+                startupRecoverySuccessful = true;
+            }
+        }
+    }
+
+    /**
+     * This method writes a transaction log record to the recovery log file. Skips if the atomikos tm is used.
+     *
+     * @param globalTransactionId       the global transaction id
+     * @param currentTransactionBlockId the block id of the transaction
+     * @param recoveryState             the state of the transaction
+     */
+    public void writeToLog(String globalTransactionId, String currentTransactionBlockId, RecoveryState recoveryState) {
+        if (transactionManagerEnabled) {
+            return;
+        }
+        TransactionLogRecord logRecord = new TransactionLogRecord(globalTransactionId, currentTransactionBlockId,
+                recoveryState);
+        getInstance().getLogManager().put(logRecord);
     }
 }
