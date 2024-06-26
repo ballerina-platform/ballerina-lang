@@ -515,7 +515,7 @@ public final class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected final Set<BIRNode.BIRFunction> unusedFunctions = new LinkedHashSet<>();
         protected final Set<BIRNode.BIRTypeDefinition> usedTypeDefs = new LinkedHashSet<>();
         protected final Set<BIRNode.BIRTypeDefinition> unusedTypeDefs = new LinkedHashSet<>();
-        protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
+        protected final Set<BIRNode.BIRDocumentableNode> startPointNodes = new LinkedHashSet<>();
         private final Map<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
         private final Map<BIRNode.BIRVariableDcl, FunctionPointerData> functionPointerDataPool =
                 new IdentityHashMap<>();
