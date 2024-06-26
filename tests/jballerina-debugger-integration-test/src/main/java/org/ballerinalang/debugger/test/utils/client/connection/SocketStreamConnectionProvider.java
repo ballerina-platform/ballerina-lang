@@ -74,7 +74,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
 
         try {
             launchDebugServerAsync(callback);
-            boolean await = latch.await(6000, TimeUnit.MILLISECONDS);
+            boolean await = latch.await(12000, TimeUnit.MILLISECONDS);
             if (await) {
                 try {
                     socket = new Socket(address, port);
@@ -90,6 +90,8 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
                     inputStream = socket.getInputStream();
                     outputStream = socket.getOutputStream();
                 }
+            } else {
+                LOG.warn("Launch Debug Server timeout: {}", this);
             }
         } catch (InterruptedException interruptedException) {
             // Kills process stream connection as the only socket connection will be used for the communication.
