@@ -1265,6 +1265,7 @@ public class SymbolTable {
     }
 
     public Env typeEnv() {
+        assert types.typeEnv() != null;
         return types.typeEnv();
     }
 }

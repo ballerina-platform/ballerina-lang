@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.model.types.ObjectType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -42,6 +43,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
     private static final String READONLY = "readonly";
+    public final Env env;
     public boolean markedIsolatedness;
 
     public BObjectType mutableType = null;
@@ -49,12 +51,16 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public BTypeIdSet typeIdSet = new BTypeIdSet();
 
-    public BObjectType(BTypeSymbol tSymbol) {
+    public BObjectType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
+        assert env != null;
+        this.env = env;
     }
 
-    public BObjectType(BTypeSymbol tSymbol, long flags) {
+    public BObjectType(Env env, BTypeSymbol tSymbol, long flags) {
         super(TypeTags.OBJECT, tSymbol, flags);
+        assert env != null;
+        this.env = env;
     }
 
     @Override
