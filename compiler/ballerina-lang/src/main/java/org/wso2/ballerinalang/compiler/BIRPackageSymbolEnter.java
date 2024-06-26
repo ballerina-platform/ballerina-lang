@@ -1680,7 +1680,7 @@ public class BIRPackageSymbolEnter {
                     objectSymbol.scope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
-                    objectType = new BObjectType(objectSymbol);
+                    objectType = new BObjectType(symTable.typeEnv(), objectSymbol);
                     objectType.setFlags(flags);
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);

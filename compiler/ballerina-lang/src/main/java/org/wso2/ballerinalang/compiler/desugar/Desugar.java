@@ -325,7 +325,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -8330,7 +8329,7 @@ public class Desugar extends BLangNodeVisitor {
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
+        BObjectType objectClassType = new BObjectType(symTable.typeEnv(), classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
         objectClassType.typeIdSet.add(objectType.typeIdSet);

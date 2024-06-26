@@ -1061,7 +1061,7 @@ public class TypeParamAnalyzer {
         actObjectSymbol.isTypeParamResolved = true;
         actObjectSymbol.typeParamTSymbol = expType.tsymbol;
 
-        BObjectType objectType = new BObjectType(actObjectSymbol);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
 
