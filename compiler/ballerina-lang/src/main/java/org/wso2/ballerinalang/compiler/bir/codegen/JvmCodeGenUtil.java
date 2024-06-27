@@ -161,7 +161,7 @@ public final class JvmCodeGenUtil {
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    public static Boolean isOptimizedCodegen = false;
+    public static Boolean isOptimizedCodeGen = false;
     public static Boolean isRootPkgCodeGen = false;
     public static Map<String, PackageID> duplicatePkgsMap = new HashMap<>();
 
@@ -323,7 +323,7 @@ public final class JvmCodeGenUtil {
     }
 
     private static Boolean isOptimizedReferenceInsideOptimizedPkg(PackageID referencePkgID) {
-        return isOptimizedCodegen && duplicatePkgsMap
+        return isOptimizedCodeGen && duplicatePkgsMap
                 .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
     }
 
