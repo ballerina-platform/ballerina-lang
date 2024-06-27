@@ -85,7 +85,7 @@ public class ConfigUtils {
     }
 
     private static boolean isSimpleSequenceType(int tag) {
-        return (tag == TypeTags.NULL_TAG) || (tag <= TypeTags.BOOLEAN_TAG) || TypeTags.isXMLTypeTag(tag);
+        return tag == TypeTags.NULL_TAG || tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
     }
 
     public static Object getUnionValue(VariableKey key, BUnionType unionType, String value, String arg) {

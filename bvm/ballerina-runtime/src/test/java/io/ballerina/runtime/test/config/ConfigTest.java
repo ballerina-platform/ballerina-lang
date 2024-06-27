@@ -258,4 +258,25 @@ public class ConfigTest {
         }
 
     }
+
+    @Test
+    public void testCliWhenUnsupportedTypesWithinToml() {
+        ArrayType arrayType = TypeCreator.createArrayType(TYPE_STRING);
+        VariableKey v1 = new VariableKey(module, "v1", PredefinedTypes.TYPE_INT, true);
+        Type v2Type = new BIntersectionType(module, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY},
+                arrayType, 0, true);
+        VariableKey v2 = new VariableKey(module, "v2", v2Type, true);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(module, new VariableKey[]{v1, v2})), diagnosticLog
+                        , List.of(
+                                new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.v1=87"),
+                                new TomlFileProvider(ROOT_MODULE, getConfigPath("UnsupportedCLITypeConfig.toml"), Set.of(module))));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object v1Value = configValueMap.get(v1).getValue();
+        Object v2Value = configValueMap.get(v2).getValue();
+        Assert.assertEquals(v1Value, 87L);
+        Assert.assertEquals(v2Value.toString(), "[\"hello\",\"world\"]");
+        Assert.assertEquals(0, diagnosticLog.getErrorCount());
+    }
 }
