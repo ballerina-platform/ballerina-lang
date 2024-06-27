@@ -49,7 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A utility for building a SignatureInformation.
@@ -182,15 +181,14 @@ public class SignatureInfoModelBuilder {
             return;
         }
 
-        List<Parameter> parameters = parameterSymbols
+        List<Parameter> parameters = new ArrayList<>(parameterSymbols
                 .subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
                 .stream()
                 .map(param -> new Parameter(param, false, false, context))
-                .toList();
+                .toList());
 
         Optional<ParameterSymbol> restParam = functionTypeSymbol.flatMap(FunctionTypeSymbol::restParam);
-        parameters = Stream.concat(parameters.stream(),
-                restParam.stream().map(param -> new Parameter(param, true, false, context))).toList();
+        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
 
         // Create a list of param info models
         for (Parameter param : parameters) {
