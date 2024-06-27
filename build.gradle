@@ -89,6 +89,9 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
             exclude '**/test-artifacts/**/*'
             exclude '**/module-info.class'
         }.each { file ->
+            if (file.path.contains("test-artifacts")) {
+                println(file.path)
+            }
             classFilesArray.push(file)
         }
     }
