@@ -410,6 +410,7 @@ function testConstTypeAnnotAccess() {
     assertTrue(annot is AnnotationRecord);
     AnnotationRecord config = <AnnotationRecord> annot;
     assertEquality({"response":{}}, config.examples);
+    assertTrue(config.examples is readonly);
 
     Student student = {id: 2, name: "sachintha"};
     typedesc<any> s = typeof student;
@@ -417,6 +418,7 @@ function testConstTypeAnnotAccess() {
     assertTrue(annot1 is AnnotationRecord1);
     AnnotationRecord1 config1 = <AnnotationRecord1> annot1;
     assertEquality({"response":{}}, config1.examples);
+    assertTrue(config1.examples is readonly);
 }
 
 function testListExprInConstAnnot() {
