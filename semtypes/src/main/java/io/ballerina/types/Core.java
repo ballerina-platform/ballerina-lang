@@ -54,6 +54,7 @@ import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.MAPPING;
 import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.REGEXP;
 import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
@@ -701,7 +702,7 @@ public final class Core {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
-        SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
+        SemType ad = union(union(SIMPLE_OR_STRING, union(XML, union(REGEXP, tableTy))),
                 union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.defineListTypeWrapped(env, ad);
         mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);

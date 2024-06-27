@@ -42,7 +42,7 @@ public class OpsTable {
 
     static {
         int i = 0;
-        OPS = new BasicTypeOps[18];
+        OPS = new BasicTypeOps[19];
         OPS[i++] = PANIC_IMPL;          // nil
         OPS[i++] = new BooleanOps();    // boolean
         OPS[i++] = new IntOps();        // int
@@ -53,6 +53,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // typedesc
         OPS[i++] = PANIC_IMPL;          // handle
         OPS[i++] = new FunctionOps();   // function
+        OPS[i++] = PANIC_IMPL;          // regexp
         OPS[i++] = PANIC_IMPL;          // future
         OPS[i++] = PANIC_IMPL;          // stream
         OPS[i++] = new ListOps();       // list

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.regexp;
+
 type Foo record {
     int a = 0;
 };
@@ -272,7 +274,7 @@ function testAnydataArray() returns anydata[] {
 }
 
 type ValueType int|float|string|boolean|byte|decimal;
-type DataType ValueType|table<map<anydata>>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
+type DataType ValueType|table<map<anydata>>|json|xml|regexp:RegExp|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
     anydata[] rets = [];

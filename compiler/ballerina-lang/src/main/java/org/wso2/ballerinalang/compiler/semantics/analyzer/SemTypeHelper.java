@@ -174,7 +174,7 @@ public final class SemTypeHelper {
         return true;
     }
 
-    public static boolean isFullSemType(TypeKind kind) {
+    public static boolean isSimpleOrString(TypeKind kind) {
         switch (kind) {
             case NIL:
             case BOOLEAN:
@@ -212,6 +212,8 @@ public final class SemTypeHelper {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
+            case TypeTags.HANDLE:
+            case TypeTags.REGEXP:
                 return true;
             default:
                 return false;
