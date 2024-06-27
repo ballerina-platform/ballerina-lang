@@ -314,7 +314,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BStreamType type = new BStreamType(originalType.tag, newConstraint, newError, null);
+        BStreamType type = new BStreamType(originalType.env, originalType.tag, newConstraint, newError, null);
         setFlags(type, originalType.getFlags());
         return type;
     }

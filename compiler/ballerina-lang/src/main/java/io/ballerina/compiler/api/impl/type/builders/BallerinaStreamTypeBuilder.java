@@ -69,7 +69,7 @@ public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BStreamType streamType = new BStreamType(TypeTags.STREAM, getValueBType(this.valueType),
+        BStreamType streamType = new BStreamType(symTable.typeEnv(), TypeTags.STREAM, getValueBType(this.valueType),
                 getCompletionBType(this.completionType), streamSymbol);
 
         streamSymbol.type = streamType;

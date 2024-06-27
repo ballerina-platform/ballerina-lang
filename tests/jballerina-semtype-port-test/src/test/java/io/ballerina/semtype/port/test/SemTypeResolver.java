@@ -548,9 +548,9 @@ public class SemTypeResolver {
             return PredefinedType.STREAM;
         }
 
-        SemType valueType = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
+        SemType valueType = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
         SemType completionType = td.error == null ?
-                PredefinedType.NIL : resolveTypeDesc(cx, mod, defn, depth, td.error);
+                PredefinedType.NIL : resolveTypeDesc(cx, mod, defn, depth + 1, td.error);
         return SemTypes.streamContaining(cx.env, valueType, completionType);
     }
 }

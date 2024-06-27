@@ -126,6 +126,7 @@ public final class SemTypeHelper {
             case TypeTags.INVOKABLE:
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:
+            case TypeTags.STREAM:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {

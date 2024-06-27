@@ -834,7 +834,8 @@ public class TypeParamAnalyzer {
                     return expStreamType;
                 }
 
-                return new BStreamType(TypeTags.STREAM, constraintType, completionType, symTable.streamType.tsymbol);
+                return new BStreamType(symTable.typeEnv(), TypeTags.STREAM, constraintType, completionType,
+                        symTable.streamType.tsymbol);
             case TypeTags.TABLE:
                 BTableType expTableType = (BTableType) expType;
                 BType expTableConstraint = expTableType.constraint;

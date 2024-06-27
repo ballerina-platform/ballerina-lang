@@ -7295,7 +7295,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 typeInitExpr.pos, symbol, args, symResolver);
-        streamConstructInvocation.setBType(new BStreamType(TypeTags.STREAM, constraintType, completionType, null));
+        streamConstructInvocation.setBType(new BStreamType(symTable.typeEnv(), TypeTags.STREAM, constraintType,
+                completionType, null));
         return streamConstructInvocation;
     }
 

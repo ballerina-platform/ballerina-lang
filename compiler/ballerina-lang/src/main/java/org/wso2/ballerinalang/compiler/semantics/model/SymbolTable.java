@@ -1202,7 +1202,7 @@ public class SymbolTable {
         futureType.constraint = anyOrErrorType;
 
         pureType = BUnionType.create(typeEnv(), null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, nilType, null);
+        streamType = new BStreamType(typeEnv(), TypeTags.STREAM, pureType, nilType, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);

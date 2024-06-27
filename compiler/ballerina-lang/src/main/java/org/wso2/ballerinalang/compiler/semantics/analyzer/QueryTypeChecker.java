@@ -302,7 +302,7 @@ public class QueryTypeChecker extends TypeChecker {
             BType completionType = getCompletionType(collectionTypes, types.getQueryConstructType(queryExpr), data);
 
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
+                return new BStreamType(symTable.typeEnv(), TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType, resolvedTypes.get(0), env);
             } else if (queryExpr.isMap) {

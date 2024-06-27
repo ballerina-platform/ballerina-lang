@@ -18,8 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.StreamType;
 import org.ballerinalang.model.types.Type;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -33,11 +38,13 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
 
     public BType constraint;
     public BType completionType;
+    public final Env env;
 
-    public BStreamType(int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
+    public BStreamType(Env env, int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
         this.completionType = completionType != null ? completionType : BType.createNilType();
+        this.env = env;
     }
 
     @Override
@@ -68,5 +75,16 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        if (constraint == null || constraint instanceof BNoType) {
+            return PredefinedType.STREAM;
+        }
+
+        SemType valueTy = SemTypeHelper.semTypeComponent(constraint);
+        SemType completionTy = SemTypeHelper.semTypeComponent(completionType);
+        return SemTypes.streamContaining(env, valueTy, completionTy);
     }
 }
