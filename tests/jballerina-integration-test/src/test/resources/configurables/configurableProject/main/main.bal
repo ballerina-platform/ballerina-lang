@@ -83,6 +83,13 @@ type EmployeeInfo record {|
     float salary?;
 |};
 
+public type CustomConfiguration record {
+    string username;
+    string logLevel = "OFF";
+};
+
+configurable CustomConfiguration customConfig = ?;
+
 type UserTable table<AuthInfo> key(username);
 
 type EmployeeTable table<Employee> key(id) & readonly;
@@ -193,6 +200,9 @@ function testRecordValues() {
     test:assertEquals(34, empInfo.id);
     test:assertEquals("test", empInfo.name);
     test:assertEquals(75000.0, empInfo["salary"]);
+
+    test:assertEquals("chiranS", customConfig.username);
+    test:assertEquals("OFF", customConfig.logLevel);
 }
 
 function testTableValues() {

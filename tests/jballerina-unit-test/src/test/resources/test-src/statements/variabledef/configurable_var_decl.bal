@@ -25,9 +25,22 @@ configurable UserInfo admin = {
     password: "password"
 };
 
+public type CustomConfiguration record {
+    string username;
+    string logLevel = "OFF";
+};
+
+configurable CustomConfiguration customConfig1 = {username: "chiranS"};
+
+configurable CustomConfiguration customConfig2 = {username: "chiranS", logLevel: "DEBUG"};
+
 function testConfigValue() {
     assertEquality("default", admin.username);
     assertEquality("password", admin.password);
+    assertEquality("chiranS", customConfig1.username);
+    assertEquality("OFF", customConfig1.logLevel);
+    assertEquality("chiranS", customConfig2.username);
+    assertEquality("DEBUG", customConfig2.logLevel);
 }
 
 function assertEquality(any|error expected, any|error actual) {
