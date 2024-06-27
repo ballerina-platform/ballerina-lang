@@ -664,11 +664,11 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
-        bLangPackage.symbol.bir = optimizableBirPkg;
-
         if (originalJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
+
+        bLangPackage.symbol.bir = optimizableBirPkg;
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
