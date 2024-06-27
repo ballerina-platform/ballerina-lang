@@ -30,6 +30,7 @@ import io.ballerina.types.typeops.ListOps;
 import io.ballerina.types.typeops.MappingOps;
 import io.ballerina.types.typeops.StringOps;
 import io.ballerina.types.typeops.TableOps;
+import io.ballerina.types.typeops.TypedescOps;
 import io.ballerina.types.typeops.XmlOps;
 
 /**
@@ -51,7 +52,7 @@ public class OpsTable {
         OPS[i++] = new DecimalOps();    // decimal
         OPS[i++] = new StringOps();     // string
         OPS[i++] = new ErrorOps();      // error
-        OPS[i++] = PANIC_IMPL;          // typedesc
+        OPS[i++] = new TypedescOps();   // typedesc
         OPS[i++] = PANIC_IMPL;          // handle
         OPS[i++] = new FunctionOps();   // function
         OPS[i++] = PANIC_IMPL;          // regexp

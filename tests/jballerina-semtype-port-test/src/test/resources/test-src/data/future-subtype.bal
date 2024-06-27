@@ -1,10 +1,10 @@
-// FI<:FU1
-// FI<:FU2
-// FS<:FU1
-// FS<:FU2
-// FU1<:FU2
+// I<:U1
+// I<:U2
+// S<:U1
+// S<:U2
+// U1<:U2
 
-type FI future<int>;
-type FS future<string>;
-type FU1 future<int>|future<string> ;
-type FU2 future<int|string> ;
+type I future<int>;
+type S future<string>;
+type U1 I|S;
+type U2 future<int|string>;

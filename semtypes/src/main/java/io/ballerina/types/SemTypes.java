@@ -24,6 +24,7 @@ import io.ballerina.types.subtypedata.FutureSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
+import io.ballerina.types.subtypedata.TypedescSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import io.ballerina.types.typeops.ListProj;
 
@@ -117,6 +118,10 @@ public final class SemTypes {
 
     public static SemType futureContaining(Env env, SemType constraint) {
         return FutureSubtype.futureContaining(env, constraint);
+    }
+
+    public static SemType typedescContaining(Env env, SemType constraint) {
+        return TypedescSubtype.typedescContaining(env, constraint);
     }
 
     public static SemType mappingMemberTypeInnerVal(Context context, SemType t, SemType m) {
