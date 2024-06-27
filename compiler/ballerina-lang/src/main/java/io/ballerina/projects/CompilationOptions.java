@@ -43,12 +43,12 @@ public class CompilationOptions {
     Boolean optimizeCodegen;
     Boolean optimizeReport;
 
-    private CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
-                       String cloud, Boolean listConflictedClasses, Boolean sticky, Boolean dumpGraph,
-                       Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean withCodeModifiers,
-                       Boolean configSchemaGen, Boolean exportOpenAPI, Boolean exportComponentModel,
-                       Boolean enableCache, Boolean disableSyntaxTree, Boolean optimizeCodegen,
-                       Boolean remoteManagement, Boolean optimizeReport) {
+    private CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
+                               Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+                               Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
+                               Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
+                               Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
+                               Boolean optimizeCodegen, Boolean remoteManagement, Boolean optimizeReport) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
