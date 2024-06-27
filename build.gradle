@@ -66,11 +66,13 @@ dependencies {
 
 def classFilesArray = []
 def execFilesArray = []
-def skipModules = [
+def skipDirectories = [
         "ballerina-gradle-plugins", // Gradle plugins
         "jballerina-benchmark-test", // Benchmark test code
         "lib-creator", // Gradle code for generate Bala files
-        "semtypes" // Tests are inside nBallerina branch
+        "semtypes", // Tests are in nBallerina branch
+        "test-artifacts",// Tests directories for project api
+        "ballerina-lang/tests"// Ballerina Language Tests
 ]
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
@@ -81,17 +83,23 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
             execFilesArray.push(it)
         }
         // Sources of modules used specifically for tests, gradle plugins are skipped
-        if (skipModules.contains(subproject.name)) {
+        boolean skipProject = false
+        skipDirectories.forEach { dir ->
+            {
+                if (subproject.projectDir.path.contains(dir)) {
+                    skipProject = true
+                    return
+                }
+            }
+        }
+        if (skipProject) {
             return
         }
         fileTree("${subproject.buildDir}/classes").matching {
-            exclude '**/test/*'
-            exclude '**/test-artifacts/**/*'
+            exclude '**/java/test/**'
+            exclude '**/default/**'
             exclude '**/module-info.class'
         }.each { file ->
-            if (file.path.contains("test-artifacts")) {
-                println(file.path)
-            }
             classFilesArray.push(file)
         }
     }
