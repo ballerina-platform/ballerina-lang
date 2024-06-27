@@ -1528,7 +1528,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
-            constrainedType = new BTypedescType(constraintType, null);
+            constrainedType = new BTypedescType(symTable.typeEnv(), constraintType, null);
         } else if (type.tag == TypeTags.XML) {
             if (Types.getImpliedType(constraintType).tag == TypeTags.PARAMETERIZED_TYPE) {
                 BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;

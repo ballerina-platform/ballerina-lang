@@ -49,7 +49,7 @@ public class BJSONType extends BUnionType {
                 Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
-        this.nullable = type.isNullable();
+        this.nullable = true;
     }
 
     public BJSONType(Env env, BTypeSymbol typeSymbol, boolean nullable, long flags) {

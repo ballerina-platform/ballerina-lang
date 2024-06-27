@@ -137,7 +137,7 @@ public class SymbolTable {
     public final BType recordType;
     public final BType stringArrayType;
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null, PredefinedType.HANDLE);
-    public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
+    public final BTypedescType typeDesc;
     public final BType readonlyType = new BReadonlyType(null);
     public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
@@ -272,7 +272,6 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
 
         // Define subtypes
@@ -316,8 +315,11 @@ public class SymbolTable {
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
         futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
+
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
