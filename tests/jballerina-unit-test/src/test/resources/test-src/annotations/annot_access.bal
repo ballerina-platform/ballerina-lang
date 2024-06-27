@@ -384,14 +384,39 @@ type Employee record {|
     string name;
 |};
 
-Employee employee = {id: 1, name: "chirans"};
+public type AnnotationRecord1 record {|
+    string summary?;
+    ExamplesReference examples?;
+|};
+
+type ExamplesReference Examples;
+
+const annotation AnnotationRecord1 annot1 on type;
+
+@annot1 {
+    examples: {
+        response: {}
+    }
+}
+type Student record {|
+    int id;
+    string name;
+|};
 
 function testConstTypeAnnotAccess() {
+    Employee employee = {id: 1, name: "chirans"};
     typedesc<any> t = typeof employee;
     AnnotationRecord? annot = t.@annot;
     assertTrue(annot is AnnotationRecord);
     AnnotationRecord config = <AnnotationRecord> annot;
     assertEquality({"response":{}}, config.examples);
+
+    Student student = {id: 2, name: "sachintha"};
+    typedesc<any> s = typeof student;
+    AnnotationRecord1? annot1 = s.@annot1;
+    assertTrue(annot1 is AnnotationRecord1);
+    AnnotationRecord1 config1 = <AnnotationRecord1> annot1;
+    assertEquality({"response":{}}, config1.examples);
 }
 
 function testListExprInConstAnnot() {
