@@ -44,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test class for inlay hints.
@@ -83,9 +82,9 @@ public class InlayHintTest extends AbstractLSTest {
         if (responseItemList.size() != testConfig.getResult().size()) {
 //            updateConfig(configPath, testConfig, responseItemList);
             List<InlayHint> mismatchedList1 = responseItemList.stream()
-                    .filter(item -> !testConfig.getResult().contains(item)).collect(Collectors.toList());
+                    .filter(item -> !testConfig.getResult().contains(item)).toList();
             List<InlayHint> mismatchedList2 = testConfig.getResult().stream()
-                    .filter(item -> !responseItemList.contains(item)).collect(Collectors.toList());
+                    .filter(item -> !responseItemList.contains(item)).toList();
             LOG.info("Inlay-hint results which are in response but not in test config : " + mismatchedList1);
             LOG.info("Inlay-hint results which are in test config but not in response : " + mismatchedList2);
             Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));

@@ -260,6 +260,7 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
+    @Override
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                   ResolutionOptions options) {
         if (requests.isEmpty()) {

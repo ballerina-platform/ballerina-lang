@@ -220,7 +220,7 @@ public class ModuleVariableDeclarationNodeContext extends
                                                   ModuleVariableDeclarationNode node) {
         List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
                 .map(Token::text)
-                .collect(Collectors.toList());
+                .toList();
         boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
         CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
         int cursor = ctx.getCursorPositionInTree();
@@ -233,7 +233,7 @@ public class ModuleVariableDeclarationNodeContext extends
     private boolean onServiceTypeDescriptorContext(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
         List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
                 .map(Token::text)
-                .collect(Collectors.toList());
+                .toList();
         boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
         CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
         int cursor = ctx.getCursorPositionInTree();

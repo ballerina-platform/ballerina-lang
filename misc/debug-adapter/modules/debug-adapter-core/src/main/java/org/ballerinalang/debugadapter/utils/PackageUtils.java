@@ -262,7 +262,7 @@ public class PackageUtils {
         String[] moduleParts;
         // Makes the path os-independent, as some of the incoming windows source paths can contain both of the
         // separator types(possibly due to a potential JDI bug).
-        path = path.replaceAll("\\\\", "/");
+        path = path.replace("\\", "/");
         if (path.contains("/")) {
             moduleParts = path.split("/");
         } else {
@@ -349,9 +349,9 @@ public class PackageUtils {
 
     private static String replaceSeparators(String path) {
         if (path.contains("/")) {
-            return path.replaceAll("/", ".");
+            return path.replace("/", ".");
         } else if (path.contains("\\")) {
-            return path.replaceAll("\\\\", ".");
+            return path.replace("\\", ".");
         }
         return path;
     }

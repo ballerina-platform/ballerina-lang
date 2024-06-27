@@ -102,8 +102,8 @@ public interface BDecimal {
     BDecimal subtract(BDecimal subtrahend);
 
     /**
-     * Returns a decimal whose value is <tt>(this &times;
-     * multiplicand)</tt>.
+     * Returns a decimal whose value is {@code (this &times;
+     * multiplicand)}.
      *
      * @param multiplicand value to be multiplied
      * @return value after multiplication

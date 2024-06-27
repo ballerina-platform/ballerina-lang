@@ -112,7 +112,7 @@ public class ModuleStatus {
         FAILURE("failure"),
         SKIPPED("skipped");
 
-        private String value;
+        private final String value;
 
         Status(String value) {
             this.value = value;

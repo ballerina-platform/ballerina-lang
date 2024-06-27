@@ -56,6 +56,7 @@ public class STMarkdownCodeLineNode extends STDocumentationNode {
                 codeDescription);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMarkdownCodeLineNode(
                 this.hashToken,
@@ -78,6 +79,7 @@ public class STMarkdownCodeLineNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MarkdownCodeLineNode(this, position, parent);
     }

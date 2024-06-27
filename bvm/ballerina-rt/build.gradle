@@ -108,7 +108,6 @@ dependencies {
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
 
-    // Temporary adding . Need to Remove once fix #17878
     dist "com.google.code.gson:gson:${project.gsonVersion}"
 
     // Transaction related third party jars

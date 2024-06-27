@@ -50,6 +50,7 @@ public class STXMLTextNode extends STXMLItemNode {
                 content);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLTextNode(
                 this.content,
@@ -68,6 +69,7 @@ public class STXMLTextNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLTextNode(this, position, parent);
     }

@@ -56,6 +56,7 @@ public class STSpreadMemberNode extends STNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpreadMemberNode(
                 this.ellipsis,
@@ -78,6 +79,7 @@ public class STSpreadMemberNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadMemberNode(this, position, parent);
     }

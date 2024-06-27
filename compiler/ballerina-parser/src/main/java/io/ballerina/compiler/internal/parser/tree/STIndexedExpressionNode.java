@@ -68,6 +68,7 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STIndexedExpressionNode(
                 this.containerExpression,
@@ -98,6 +99,7 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IndexedExpressionNode(this, position, parent);
     }

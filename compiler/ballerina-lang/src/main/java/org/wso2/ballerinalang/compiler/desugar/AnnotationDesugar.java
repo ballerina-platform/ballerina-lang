@@ -16,9 +16,9 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -258,7 +258,7 @@ public class AnnotationDesugar {
         target.pos = pos;
 
         String lamdaName = "$anon" + classDef.name.value + "_lambda_" + lambdaFunction.function.name.value;
-        BVarSymbol symbolVar = new BVarSymbol(0, names.fromString(lamdaName), pkgID,
+        BVarSymbol symbolVar = new BVarSymbol(0, Names.fromString(lamdaName), pkgID,
                 lambdaFunction.getBType(), owner, pos, VIRTUAL);
 
         // function () returns (map) $anon$anonType$_1_lambda = LambdaRef:$annot_func$_0
@@ -279,7 +279,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                StringEscapeUtils.unescapeJava(classDef.name.value));
+                Utils.unescapeJava(classDef.name.value));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol);
         indexAccessNode.setBType(((BMapType) annotationMap.getBType()).constraint);
 
@@ -308,7 +308,7 @@ public class AnnotationDesugar {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
         BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
-                names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+                Names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
         annSymbol.origin = SymbolOrigin.BUILTIN;
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
@@ -329,7 +329,7 @@ public class AnnotationDesugar {
         annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = position;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(
-                pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_REC));
+                pkgEnv, Names.fromString(SERVICE_INTROSPECTION_INFO_REC));
         BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
         literalNode.setBType(bStructSymbol.type);
         literalNode.typeChecked = true;
@@ -354,7 +354,7 @@ public class AnnotationDesugar {
 
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv,
-                names.fromString(SERVICE_NAME), bStructSymbol);
+                Names.fromString(SERVICE_NAME), bStructSymbol);
 
         if (fieldSymbol instanceof BVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
@@ -730,7 +730,7 @@ public class AnnotationDesugar {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         mainFunc.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(mainFunc.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, names.fromString(DEFAULTABLE_ANN));
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, Names.fromString(DEFAULTABLE_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -747,7 +747,7 @@ public class AnnotationDesugar {
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
         literalNode.pos = pos;
-        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(DEFAULTABLE_REC));
         BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
         literalNode.setBType(annTypeSymbol.type);
         literalNode.typeChecked = true;
@@ -785,7 +785,7 @@ public class AnnotationDesugar {
         }
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(mainFunc.pos, pkgEnv,
-                names.fromString(ARG_NAMES), bStructSymbol);
+                Names.fromString(ARG_NAMES), bStructSymbol);
         if (fieldSymbol instanceof BVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         }
@@ -1020,7 +1020,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = targetPos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType,
-                StringEscapeUtils.unescapeJava(identifier));
+                Utils.unescapeJava(identifier));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
         indexAccessNode.setBType(((BMapType) mapVar.getBType()).constraint);
         assignmentStmt.varRef = indexAccessNode;

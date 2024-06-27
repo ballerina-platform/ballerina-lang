@@ -110,6 +110,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.client;
     }
 
+    @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
@@ -350,6 +351,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
     }
 
+    @Override
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
         for (ExtendedLanguageServerService service : extendedServices) {
@@ -358,6 +360,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return CompletableFuture.supplyAsync(Object::new);
     }
 
+    @Override
     public void exit() {
         for (ExtendedLanguageServerService service : extendedServices) {
             service.exit(shutdown);
@@ -365,6 +368,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         System.exit(shutdown);
     }
 
+    @Override
     public TextDocumentService getTextDocumentService() {
         return this.textService;
     }
@@ -374,6 +378,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.notebookService;
     }
 
+    @Override
     public WorkspaceService getWorkspaceService() {
         return this.workspaceService;
     }

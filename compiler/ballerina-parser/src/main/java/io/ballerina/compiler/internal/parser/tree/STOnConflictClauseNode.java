@@ -62,6 +62,7 @@ public class STOnConflictClauseNode extends STClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnConflictClauseNode(
                 this.onKeyword,
@@ -88,6 +89,7 @@ public class STOnConflictClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OnConflictClauseNode(this, position, parent);
     }

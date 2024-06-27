@@ -147,9 +147,11 @@ public class ConfigSchemaBuilder {
     private JsonObject setConfigVariables(List<ConfigVariable> configVariables,
                                                  JsonObject node) {
         for (ConfigVariable configVariable : configVariables) {
-            JsonObject typeNode = new TypeConverter().getType(configVariable.type());
-            typeNode.addProperty("description", configVariable.description());
-            node.add(configVariable.name(), typeNode);
+            if (configVariable.type() != null) {
+                JsonObject typeNode = new TypeConverter().getType(configVariable.type());
+                typeNode.addProperty("description", configVariable.description());
+                node.add(configVariable.name(), typeNode);
+            }
         }
         return node;
     }

@@ -75,7 +75,7 @@ public class ManifestUtils {
             TomlValueNode value = keyValueNode.value();
             if (value.kind() == TomlType.STRING) {
                 TomlStringValueNode stringValueNode = (TomlStringValueNode) value;
-                if (stringValueNode.getValue().equals("")) {
+                if (stringValueNode.getValue().isEmpty()) {
                     return ToolNodeValueType.EMPTY;
                 }
                return ToolNodeValueType.STRING;

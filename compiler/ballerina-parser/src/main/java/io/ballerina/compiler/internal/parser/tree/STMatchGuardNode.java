@@ -56,6 +56,7 @@ public class STMatchGuardNode extends STNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMatchGuardNode(
                 this.ifKeyword,
@@ -78,6 +79,7 @@ public class STMatchGuardNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MatchGuardNode(this, position, parent);
     }

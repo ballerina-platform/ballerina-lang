@@ -72,7 +72,7 @@ public class GraalVMCompatibilityUtils {
             if (platform == null || platform.graalvmCompatible() == null) {
                 String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
                         pkg.manifest().platforms());
-                if (graalvmCompatiblePlatform.equals("")) {
+                if (graalvmCompatiblePlatform.isEmpty()) {
                     return String.format(
                             "************************************************************%n" +
                                     "* WARNING: Package is not verified with GraalVM.           *%n" +
@@ -162,7 +162,7 @@ public class GraalVMCompatibilityUtils {
         // List all dependencies that are not GraalVM compatible
         String dependencyWarning = getWarningForDependencies(pkg, isTestExec);
         if (dependencyWarning != null) {
-            if (warnings.length() > 0) {
+            if (!warnings.isEmpty()) {
                 warnings.append(System.lineSeparator());
             }
             warnings.append(dependencyWarning);

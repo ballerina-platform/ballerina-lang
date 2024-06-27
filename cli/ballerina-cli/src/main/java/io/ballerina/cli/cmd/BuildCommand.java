@@ -198,6 +198,7 @@ public class BuildCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {

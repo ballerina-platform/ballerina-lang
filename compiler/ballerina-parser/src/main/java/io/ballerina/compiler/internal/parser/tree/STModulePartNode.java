@@ -62,6 +62,7 @@ public class STModulePartNode extends STNode {
                 eofToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModulePartNode(
                 this.imports,
@@ -88,6 +89,7 @@ public class STModulePartNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModulePartNode(this, position, parent);
     }
