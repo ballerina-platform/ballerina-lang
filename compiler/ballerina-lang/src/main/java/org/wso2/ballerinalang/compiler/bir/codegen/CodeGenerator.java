@@ -75,7 +75,7 @@ public class CodeGenerator {
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
 
-        JvmCodeGenUtil.isOptimizedCodegen = isDuplicateGeneration;
+        JvmCodeGenUtil.isOptimizedCodeGen = isDuplicateGeneration;
 
         // Re-arrange basic blocks and error entries
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
@@ -93,7 +93,7 @@ public class CodeGenerator {
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
 
-        JvmCodeGenUtil.isOptimizedCodegen = false;
+        JvmCodeGenUtil.isOptimizedCodeGen = false;
         JvmCodeGenUtil.isRootPkgCodeGen = false;
         return compiledJarFile;
     }

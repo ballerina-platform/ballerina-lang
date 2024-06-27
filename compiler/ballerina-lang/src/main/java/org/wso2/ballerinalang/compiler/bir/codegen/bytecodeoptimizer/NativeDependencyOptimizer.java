@@ -117,7 +117,7 @@ public final class NativeDependencyOptimizer {
         LinkedHashSet<String> serviceProviderDependencies = new LinkedHashSet<>();
 
         for (String serviceClass : serviceImplClassesArr) {
-            // Skipping the licencing comments
+            // Skipping the licensing comments
             if (serviceClass.startsWith("#") || serviceClass.isBlank()) {
                 continue;
             }

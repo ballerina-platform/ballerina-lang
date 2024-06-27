@@ -131,8 +131,8 @@ public final class ClassNodeVisitor extends ClassNode {
         } else {
             collector.addSignature(signature);
         }
-        if (value instanceof Type) {
-            collector.addType((Type) value);
+        if (value instanceof Type type) {
+            collector.addType(type);
         }
         return new FieldNodeVisitor(collector);
     }
