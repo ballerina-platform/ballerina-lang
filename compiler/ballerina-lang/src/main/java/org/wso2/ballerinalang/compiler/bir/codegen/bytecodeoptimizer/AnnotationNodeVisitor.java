@@ -39,8 +39,8 @@ public final class AnnotationNodeVisitor extends AnnotationVisitor {
 
     @Override
     public void visit(String name, Object value) {
-        if (value instanceof Type) {
-            collector.addType((Type) value);
+        if (value instanceof Type type) {
+            collector.addType(type);
         }
     }
 

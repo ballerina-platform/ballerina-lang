@@ -34,11 +34,11 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Emits time durations and optimized node details for codegen optimization.
@@ -57,7 +57,7 @@ public final class CodeGenOptimizationReportEmitter {
     private CodeGenOptimizationReportEmitter(CompilerContext compilerContext) {
         compilerContext.put(CODEGEN_OPTIMIZATION_REPORT_EMITTER_KEY, this);
         this.out = System.out;
-        this.birOptimizationDurations = new HashMap<>();
+        this.birOptimizationDurations = new ConcurrentHashMap<>();
         this.nativeOptimizationDuration = 0;
     }
 
@@ -71,11 +71,12 @@ public final class CodeGenOptimizationReportEmitter {
     }
 
     protected void flipBirOptimizationTimer(PackageID pkgId) {
+        long currentTime = System.currentTimeMillis();
         if (this.birOptimizationDurations.containsKey(pkgId)) {
-            long totalDuration = System.currentTimeMillis() - this.birOptimizationDurations.get(pkgId);
+            long totalDuration = currentTime - this.birOptimizationDurations.get(pkgId);
             this.birOptimizationDurations.put(pkgId, totalDuration);
         } else {
-            this.birOptimizationDurations.put(pkgId, System.currentTimeMillis());
+            this.birOptimizationDurations.put(pkgId, currentTime);
         }
     }
 
