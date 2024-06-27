@@ -209,7 +209,7 @@ public class LambdaGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value, ref.variableDcl.type));
         int objectArrayLength = paramTypes.size() - 1;
         mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);

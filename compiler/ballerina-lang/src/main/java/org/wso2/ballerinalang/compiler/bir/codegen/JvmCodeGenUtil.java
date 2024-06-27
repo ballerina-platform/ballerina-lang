@@ -201,8 +201,8 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value, objectType));
     }
 
     private static String cleanupBalExt(String name) {
@@ -518,7 +518,10 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static String cleanupObjectTypeName(String typeName) {
+    static String cleanupObjectTypeName(String typeName, BType objectType) {
+        if (!objectType.tsymbol.name.value.equals("") && typeName.startsWith(objectType.tsymbol.name.value)) {
+            typeName = typeName.replace(objectType.tsymbol.name.value + ".", "").trim();
+        }
         int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
         int typeNameLength = typeName.length();
         if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
