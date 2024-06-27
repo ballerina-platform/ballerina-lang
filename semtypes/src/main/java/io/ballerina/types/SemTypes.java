@@ -22,6 +22,7 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.FutureSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.StreamSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
 import io.ballerina.types.subtypedata.TypedescSubtype;
@@ -122,6 +123,14 @@ public final class SemTypes {
 
     public static SemType typedescContaining(Env env, SemType constraint) {
         return TypedescSubtype.typedescContaining(env, constraint);
+    }
+
+    public static SemType streamContaining(Env env, SemType valueType, SemType completionType) {
+        return StreamSubtype.streamContaining(env, valueType, completionType);
+    }
+
+    public static SemType streamContaining(Env env, SemType valueType) {
+        return StreamSubtype.streamContaining(env, valueType);
     }
 
     public static SemType mappingMemberTypeInnerVal(Context context, SemType t, SemType m) {
