@@ -109,8 +109,8 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         TokenCounter plusOrAsteriskCounter = new TokenCounter(plusOrAsteriskTokenPredicate);
         TokenCounter minusOrSlashCounter = new TokenCounter(minusOrSlashTokenPredicate);
 
-        Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), new Integer(0));
-        Assert.assertEquals(minusOrSlashCounter.transform(newRoot), new Integer(4));
+        Assert.assertEquals(plusOrAsteriskCounter.transform(newRoot), Integer.valueOf(0));
+        Assert.assertEquals(minusOrSlashCounter.transform(newRoot), Integer.valueOf(4));
     }
 
     @Test

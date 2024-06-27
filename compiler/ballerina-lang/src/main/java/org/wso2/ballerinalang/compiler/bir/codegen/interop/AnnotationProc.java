@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -34,8 +35,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.getFi
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.getMethodKindFromAnnotTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isInteropAnnotationTag;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.isMethodAnnotationTag;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJArrayTypeFromTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JType.getJTypeFromTypeName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JType.getJArrayTypeFromTypeName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.model.JType.getJTypeFromTypeName;
 
 /**
  * JInterop related annotation processing methods.
@@ -46,7 +47,6 @@ public class AnnotationProc {
 
     public static final String NAME_FIELD_NAME = "name";
     public static final String CLASS_FIELD_NAME = "class";
-    public static final String FIELD_METHOD_FIELD_NAME = "method";
     public static final String PARAM_TYPES_FIELD_NAME = "paramTypes";
     public static final String DIMENSIONS_FIELD_NAME = "dimensions";
 

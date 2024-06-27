@@ -101,7 +101,7 @@ dependencies {
     testRuntimeOnly project(path: ':ballerina-lang:regexp', configuration: 'distributionBirJar')
 }
 
-task loadDistributionCache() {
+tasks.register('loadDistributionCache') {
     dependsOn configurations.distributionBala
     doLast {
         configurations.distributionBala.each { artifact ->

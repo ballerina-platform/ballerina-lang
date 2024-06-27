@@ -93,7 +93,7 @@ public class AnnotationUtil {
                         return false;
                     }
                     String orgName = importOrgNameNode.get().orgName().text();
-                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
+                    String importPkgName = (orgName.isEmpty() ? currentProjectOrgName : orgName) + "/"
                             + getPackageNameComponentsCombined(bLangImportPackage);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();
@@ -147,7 +147,7 @@ public class AnnotationUtil {
                         return false;
                     }
                     String orgName = importNode.orgName().get().orgName().text();
-                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
+                    String importPkgName = (orgName.isEmpty() ? currentProjectOrgName : orgName) + "/"
                             + getPackageNameComponentsCombined(importNode);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();

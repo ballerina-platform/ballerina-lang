@@ -26,14 +26,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.logger.appender.file'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

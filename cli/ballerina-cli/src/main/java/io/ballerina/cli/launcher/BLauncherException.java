@@ -26,7 +26,7 @@ import java.util.List;
  * @since 0.8.0
  */
 public class BLauncherException extends RuntimeException {
-    private List<String> detailedMessages = new ArrayList<>();
+    private final List<String> detailedMessages = new ArrayList<>();
 
     public List<String> getDetailedMessages() {
         return detailedMessages;

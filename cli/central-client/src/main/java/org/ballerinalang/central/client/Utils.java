@@ -101,7 +101,7 @@ public class Utils {
      *
      * @param balaDownloadResponse http response for downloading the bala file
      * @param pkgPathInBalaCache   package path in bala cache,
-     *                             <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     *                             {@literal <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>}
      * @param pkgOrg               package org
      * @param pkgName              package name
      * @param isNightlyBuild       is nightly build
@@ -226,7 +226,7 @@ public class Utils {
      * @return bala file name
      */
     private static String getBalaFileName(String contentDisposition, String balaFile) {
-        if (contentDisposition != null && !contentDisposition.equals("")) {
+        if (contentDisposition != null && !contentDisposition.isEmpty()) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
             return balaFile;

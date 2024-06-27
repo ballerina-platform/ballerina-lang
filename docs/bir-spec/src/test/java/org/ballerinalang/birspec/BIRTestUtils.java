@@ -194,13 +194,12 @@ class BIRTestUtils {
                 }
 
                 visitedScopes.add(instructionScope);
-                hasParent = instructionScope.parent != null;
+                hasParent = instructionScope.parent() != null;
 
-                expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
-                        instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
-                scopes.put(instructionScope.id, expectedScopeEntry);
-                putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
-
+                expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id(),
+                        instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent().id() : null);
+                scopes.put(instructionScope.id(), expectedScopeEntry);
+                putParentScopesAsWell(scopes, instructionScope.parent(), instructionOffset);
             }
             
             BIRTerminator terminator = bb.terminator;
@@ -210,11 +209,11 @@ class BIRTestUtils {
                     continue;
                 }
                 visitedScopes.add(terminatorScope);
-                hasParent = terminatorScope.parent != null;
-                expectedScopeEntry = new ExpectedScopeEntry(terminatorScope.id, instructionOffset, hasParent ? 1 : 0,
-                        hasParent ? terminatorScope.parent.id : null);
-                scopes.put(terminatorScope.id, expectedScopeEntry);
-                putParentScopesAsWell(scopes, terminatorScope.parent, instructionOffset);
+                hasParent = terminatorScope.parent() != null;
+                expectedScopeEntry = new ExpectedScopeEntry(terminatorScope.id(), instructionOffset, hasParent ? 1 : 0,
+                        hasParent ? terminatorScope.parent().id() : null);
+                scopes.put(terminatorScope.id(), expectedScopeEntry);
+                putParentScopesAsWell(scopes, terminatorScope.parent(), instructionOffset);
             }
         }
         return instructionOffset;
@@ -227,17 +226,17 @@ class BIRTestUtils {
             return;
         }
 
-        if (scopes.containsKey(parent.id)) {
+        if (scopes.containsKey(parent.id())) {
             return;
         }
 
-        boolean hasParent = parent.parent != null;
-        ExpectedScopeEntry expectedParentScopeEntry = new ExpectedScopeEntry(parent.id,
-                instructionOffset,  hasParent ? 1 : 0, hasParent ? parent.parent.id : null);
-        scopes.put(parent.id, expectedParentScopeEntry);
+        boolean hasParent = parent.parent() != null;
+        ExpectedScopeEntry expectedParentScopeEntry = new ExpectedScopeEntry(parent.id(),
+                instructionOffset,  hasParent ? 1 : 0, hasParent ? parent.parent().id() : null);
+        scopes.put(parent.id(), expectedParentScopeEntry);
 
         if (hasParent) {
-            putParentScopesAsWell(scopes, parent.parent, instructionOffset);
+            putParentScopesAsWell(scopes, parent.parent(), instructionOffset);
         }
     }
 

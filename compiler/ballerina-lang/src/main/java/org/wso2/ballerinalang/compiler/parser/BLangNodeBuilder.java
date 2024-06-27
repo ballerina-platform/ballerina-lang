@@ -3912,7 +3912,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLangConstant.setTypeNode(typeNode);
 
         if (deepLiteral instanceof BLangLiteral literal) {
-            if (!literal.originalValue.equals("")) {
+            if (!literal.originalValue.isEmpty()) {
                 BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                 literal.originalValue = null;
                 typeNodeAssociated.addValue(deepLiteral);

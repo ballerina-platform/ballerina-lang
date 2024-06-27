@@ -62,16 +62,13 @@ public class JvmAnnotationsGen {
     private final String annotationsClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
-    private final JvmConstantsGen jvmConstantsGen;
     private final BIRNode.BIRPackage module;
 
-    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
-                             JvmConstantsGen jvmConstantsGen) {
+    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen) {
         this.annotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.module = module;
-        this.jvmConstantsGen = jvmConstantsGen;
     }
 
     public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
@@ -126,7 +123,7 @@ public class JvmAnnotationsGen {
 
     private void loadAnnotations(MethodVisitor mv, String pkgName, BIRNode.BIRTypeDefinition typeDef,
                                  JvmTypeGen jvmTypeGen) {
-        String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+        String pkgClassName = pkgName.equals(".") || pkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         BType type = typeDef.type;

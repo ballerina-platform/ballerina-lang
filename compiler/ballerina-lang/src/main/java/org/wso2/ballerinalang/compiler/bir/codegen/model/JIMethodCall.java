@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -24,29 +24,28 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import java.util.List;
 
 /**
- * A BIR terminator instruction to model JMethod Call.
+ * Java method invocation call modeled as BIR terminator.
  *
  * @since 1.2.0
  */
-public class JavaMethodCall extends JTerminator {
+public class JIMethodCall extends JTerminator {
 
-    public
-    List<BIROperand> args;
+    public BIROperand receiver;
+    public List<BIROperand> args;
+    public List<BIROperand> resourcePathArgs;
+    public List<BIROperand> functionArgs;
+    public boolean varArgExist;
+    public JType varArgType;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
+    public int invocationType;
+    public boolean isInternal = false;
 
-    public JavaMethodCall(Location pos, List<BIROperand> args, BIROperand lhsOp, String jClassName,
-                          String jMethodVMSig, String name, BIRBasicBlock thenBB) {
+    public JIMethodCall(Location pos) {
 
         super(pos);
-        this.jTermKind = JTermKind.J_METHOD_CALL;
-        this.args = args;
-        this.lhsOp = lhsOp;
-        this.jClassName = jClassName;
-        this.jMethodVMSig = jMethodVMSig;
-        this.name = name;
-        this.thenBB = thenBB;
+        this.jTermKind = JTermKind.JI_METHOD_CALL;
     }
 
     @Override
@@ -64,8 +63,4 @@ public class JavaMethodCall extends JTerminator {
         this.args = List.of(operands);
     }
 
-    @Override
-    public BIRBasicBlock[] getNextBasicBlocks() {
-        return new BIRBasicBlock[]{thenBB};
-    }
 }

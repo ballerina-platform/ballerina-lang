@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen.interop;
+package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 /**
  * Java terminator kinds.
@@ -23,21 +23,14 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  * @since 1.2.0
  */
 public enum JTermKind {
-    J_METHOD_CALL((byte) 1),
-    JI_METHOD_CALL((byte) 2),
-    JI_CONSTRUCTOR_CALL((byte) 3),
-    J_INTERNAL_METHOD_CALL((byte) 4),
-    JI_METHOD_CLI_CALL((byte) 5);
+    J_METHOD_CALL(),
+    JI_METHOD_CALL(),
+    JI_CONSTRUCTOR_CALL(),
+    J_INTERNAL_METHOD_CALL(),
+    JI_METHOD_CLI_CALL();
 
-    private final byte termKind;
+    JTermKind() {
 
-    JTermKind(byte termKind) {
-
-        this.termKind = termKind;
     }
 
-    public byte getTermKind() {
-
-        return this.termKind;
-    }
 }
