@@ -67,11 +67,11 @@ dependencies {
 def classFilesArray = []
 def execFilesArray = []
 def skipModules = [
-                   "ballerina-gradle-plugins",
-                   "bir-spec",
-                   "jballerina-benchmark-test",
-                   "lib-creator",
-                   "semtypes"]
+        "ballerina-gradle-plugins", // Gradle plugins
+        "jballerina-benchmark-test", // Benchmark test code
+        "lib-creator", // Gradle code for generate Bala files
+        "semtypes" // Tests are inside nBallerina branch
+]
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
     subprojects.forEach { subproject ->
