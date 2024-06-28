@@ -1371,7 +1371,7 @@ public class BIRPackageSymbolEnter {
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return getType(recordType, pkgEnv, names.fromString(recordName));
                 case TypeTags.TYPEDESC:
-                    BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
+                    BTypedescType typedescType = new BTypedescType(symTable.typeEnv(), null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
                     typedescType.setFlags(flags);
                     return typedescType;
@@ -1643,7 +1643,8 @@ public class BIRPackageSymbolEnter {
 
                     return bTupleType;
                 case TypeTags.FUTURE:
-                    BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
+                    BFutureType bFutureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, null,
+                            symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     bFutureType.setFlags(flags);
                     return bFutureType;

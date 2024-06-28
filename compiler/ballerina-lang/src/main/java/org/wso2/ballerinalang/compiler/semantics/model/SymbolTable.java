@@ -127,7 +127,7 @@ public class SymbolTable {
     public final BMapType mapType;
     public final BMapType mapStringType;
 
-    public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
+    public final BFutureType futureType;
     public final BArrayType arrayType;
     public final BArrayType byteArrayType;
     public final BArrayType arrayStringType;
@@ -137,7 +137,7 @@ public class SymbolTable {
     public final BType recordType;
     public final BType stringArrayType;
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null, PredefinedType.HANDLE);
-    public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
+    public final BTypedescType typeDesc;
     public final BType readonlyType = new BReadonlyType(null);
     public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
@@ -268,12 +268,10 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
         initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
         initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
-        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
 
         // Define subtypes
@@ -310,12 +308,18 @@ public class SymbolTable {
 
         pathParamAllowedType = BUnionType.create(types.typeEnv(), null,
                 intType, stringType, floatType, booleanType, decimalType);
-        xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
-                xmlPIType, xmlTextType), null);
         tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
         recordType = new BRecordType(typeEnv(), null);
         invokableType = new BInvokableType(types.typeEnv(), List.of(), null, null, null);
+
+        xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
+                xmlPIType, xmlTextType), null);
+        futureType = new BFutureType(types.typeEnv(), TypeTags.FUTURE, nilType, null);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
+        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
+
         defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,

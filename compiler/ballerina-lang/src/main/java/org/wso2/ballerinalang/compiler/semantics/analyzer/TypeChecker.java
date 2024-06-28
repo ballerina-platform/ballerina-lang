@@ -1880,7 +1880,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 listConstructor.typedescType = tupleType;
-                return new BTypedescType(listConstructor.typedescType, null);
+                return new BTypedescType(symTable.typeEnv(), listConstructor.typedescType, null);
         }
 
         if (referredType == symTable.semanticError) {
@@ -3177,10 +3177,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     BTypeDefinitionSymbol typeDefSym = (BTypeDefinitionSymbol) symbol;
                     actualType = Types.getImpliedType(symbol.type).tag == TypeTags.TYPEDESC ?
                         typeDefSym.referenceType
-                            : new BTypedescType(typeDefSym.referenceType, null);
+                            : new BTypedescType(symTable.typeEnv(), typeDefSym.referenceType, null);
                 } else {
                     actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type
-                            : new BTypedescType(symbol.type, null);
+                            : new BTypedescType(symTable.typeEnv(), symbol.type, null);
                 }
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
@@ -5035,7 +5035,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             expr = keyVal.valueExpr;
         }
-        BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
+        BFutureType futureType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, type, null);
         checkExpr(expr, futureType, data);
         setEventualTypeForExpression(expr, type, data);
     }
@@ -5212,7 +5212,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public void visit(BLangWaitExpr waitExpr, AnalyzerData data) {
-        data.expType = new BFutureType(TypeTags.FUTURE, data.expType, null);
+        data.expType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, data.expType, null);
         checkExpr(waitExpr.getExpression(), data.expType, data);
         // Handle union types in lhs
         BType referredResultType = Types.getImpliedType(data.resultType);
@@ -5490,7 +5490,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int resolveTypeTag = Types.getImpliedType(accessExpr.resolvedType).tag;
         final BType actualType;
         if (resolveTypeTag != TypeTags.TYPEDESC && resolveTypeTag != TypeTags.NONE) {
-            actualType = new BTypedescType(accessExpr.resolvedType, null);
+            actualType = new BTypedescType(symTable.typeEnv(), accessExpr.resolvedType, null);
         } else {
             actualType = accessExpr.resolvedType;
         }
@@ -5719,7 +5719,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             exprType = checkExpr(unaryExpr.expr, data);
             if (exprType != symTable.semanticError) {
-                actualType = new BTypedescType(exprType, null);
+                actualType = new BTypedescType(symTable.typeEnv(), exprType, null);
             }
         } else {
             actualType = getActualTypeForOtherUnaryExpr(unaryExpr, data);
@@ -6503,7 +6503,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
         ArrayList<BLangExpression> argExprs = new ArrayList<>();
-        BType typedescType = new BTypedescType(data.expType, null);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), data.expType, null);
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
         typedescExpr.resolvedType = data.expType;
         typedescExpr.setBType(typedescType);
@@ -7658,7 +7658,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
-        return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
+        return new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
     protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {

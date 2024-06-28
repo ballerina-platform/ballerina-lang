@@ -607,11 +607,11 @@ public class QueryDesugar extends BLangNodeVisitor {
             constraintType = ((BStreamType) refType).constraint;
             completionType = ((BStreamType) refType).completionType;
         }
-        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BType constraintTdType = new BTypedescType(symTable.typeEnv(), constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
-        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BType completionTdType = new BTypedescType(symTable.typeEnv(), completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
         completionTdExpr.setBType(completionTdType);

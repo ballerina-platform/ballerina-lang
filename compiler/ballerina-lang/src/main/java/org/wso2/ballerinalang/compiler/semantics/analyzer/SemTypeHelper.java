@@ -124,6 +124,8 @@ public final class SemTypeHelper {
             case TypeTags.MAP:
             case TypeTags.RECORD:
             case TypeTags.INVOKABLE:
+            case TypeTags.FUTURE:
+            case TypeTags.TYPEDESC:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {

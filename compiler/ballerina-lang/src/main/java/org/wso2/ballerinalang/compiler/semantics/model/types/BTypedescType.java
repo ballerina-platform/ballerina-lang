@@ -17,7 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -29,11 +34,12 @@ import org.wso2.ballerinalang.util.Flags;
 public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
+    public final Env env;
 
-    public BTypedescType(BType constraint, BTypeSymbol tsymbol) {
-
+    public BTypedescType(Env env, BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.TYPEDESC, tsymbol, Flags.READONLY);
         this.constraint = constraint;
+        this.env = env;
     }
 
     @Override
@@ -62,5 +68,15 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
     public void accept(TypeVisitor visitor) {
 
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        if (constraint == null || constraint instanceof BNoType) {
+            return PredefinedType.TYPEDESC;
+        }
+
+        SemType constraintSemtype = SemTypeHelper.semTypeComponent(constraint);
+        return SemTypes.typedescContaining(env, constraintSemtype);
     }
 }

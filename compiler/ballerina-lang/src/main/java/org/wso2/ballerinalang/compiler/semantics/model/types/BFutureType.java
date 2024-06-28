@@ -16,7 +16,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -30,14 +35,16 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
     public boolean workerDerivative;
+    public final Env env;
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BFutureType(Env env, int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+        this.env = env;
     }
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
-        this(tag, constraint, tsymbol);
+    public BFutureType(Env env, int tag, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
+        this(env, tag, constraint, tsymbol);
         this.workerDerivative = workerDerivative;
     }
 
@@ -64,5 +71,15 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        if (constraint == null || constraint instanceof BNoType) {
+            return PredefinedType.FUTURE;
+        }
+
+        SemType constraintSemtype = SemTypeHelper.semTypeComponent(constraint);
+        return SemTypes.futureContaining(env, constraintSemtype);
     }
 }

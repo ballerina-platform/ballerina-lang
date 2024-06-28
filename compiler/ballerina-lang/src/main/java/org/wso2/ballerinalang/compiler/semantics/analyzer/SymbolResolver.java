@@ -1524,11 +1524,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BType constrainedType;
         if (type.tag == TypeTags.FUTURE) {
-            constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
+            constrainedType = new BFutureType(symTable.typeEnv(), TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
-            constrainedType = new BTypedescType(constraintType, null);
+            constrainedType = new BTypedescType(symTable.typeEnv(), constraintType, null);
         } else if (type.tag == TypeTags.XML) {
             if (Types.getImpliedType(constraintType).tag == TypeTags.PARAMETERIZED_TYPE) {
                 BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
