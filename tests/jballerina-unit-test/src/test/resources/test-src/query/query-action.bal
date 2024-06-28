@@ -884,13 +884,13 @@ function testQueryActionWithCollectClauseInsideLeClause2() {
 
 function testRecordDestructureWithRecordLiteralInsideDoClause() {
     int[] prices;
-    _ = from var {name, price} in [{name: "John", price: 10}, {name: "Doe", price: 12}]
+    _ = from var {name, price} in [{name: "Doe", price: 12}, {name: "John", price: 10}]
         do {
             {prices} = {prices: [price]};
         };
 
     assertEquality(1, prices.length());
-    assertEquality(10, prices[0]);
+    assertEquality(12, prices[0]);
 }
 
 function assertEquality(any|error expected, any|error actual) {
