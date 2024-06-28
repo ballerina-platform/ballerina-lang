@@ -27,6 +27,7 @@ import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
+import io.ballerina.types.definition.StreamDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -548,9 +549,16 @@ public class SemTypeResolver {
             return PredefinedType.STREAM;
         }
 
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+
+        StreamDefinition d = new StreamDefinition();
+        td.defn = d;
+
         SemType valueType = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
         SemType completionType = td.error == null ?
                 PredefinedType.NIL : resolveTypeDesc(cx, mod, defn, depth + 1, td.error);
-        return SemTypes.streamContaining(cx.env, valueType, completionType);
+        return d.define(cx.env, valueType, completionType);
     }
 }

@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.StreamDefinition;
 import org.ballerinalang.model.types.StreamType;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
@@ -38,7 +38,9 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
 
     public BType constraint;
     public BType completionType;
+
     public final Env env;
+    private StreamDefinition d = null;
 
     public BStreamType(Env env, int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -83,8 +85,13 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
             return PredefinedType.STREAM;
         }
 
+        if (d != null) {
+            return d.getSemType(env);
+        }
+
+        d = new StreamDefinition();
         SemType valueTy = SemTypeHelper.semTypeComponent(constraint);
         SemType completionTy = SemTypeHelper.semTypeComponent(completionType);
-        return SemTypes.streamContaining(env, valueTy, completionTy);
+        return d.define(env, valueTy, completionTy);
     }
 }
