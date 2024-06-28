@@ -63,7 +63,6 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BTypeIdSet typeIdSet = new BTypeIdSet();
 
     private ObjectDefinition od = null;
-    private boolean badField = false;
 
     public BObjectType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
@@ -106,6 +105,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         assert !hasTypeHoles() : "unimplemented";
         List<Member> members = new ArrayList<>();
         Set<String> memberNames = new HashSet<>();
+
         for (BField field : fields.values()) {
             String name = field.name.value;
             if (memberNames.contains(name)) {
@@ -117,12 +117,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             SemType type = field.type.semType();
             if (type == null) {
                 type = PredefinedType.NEVER;
-                badField = true;
             }
-//            if (Core.isNever(type)) {
-//                throw new IllegalArgumentException(
-//                        "field type is never: " + field.name.value + " in " + this.tsymbol.name.value);
-//            }
             members.add(new Member(name, type, Member.Kind.Field, visibility));
         }
 
@@ -142,6 +137,12 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             members.add(new Member(name, type, Member.Kind.Method, visibility));
         }
+        ObjectQualifiers qualifiers = getObjectQualifiers();
+        boolean readonly = Symbols.isFlagOn(this.tsymbol.flags, Flags.READONLY);
+        return readonly ? od.defineRo(env, qualifiers, members) : od.define(env, qualifiers, members);
+    }
+
+    private ObjectQualifiers getObjectQualifiers() {
         long flags = tsymbol.flags;
         boolean isolated = Symbols.isFlagOn(this.tsymbol.flags, Flags.ISOLATED);
         ObjectQualifiers.NetworkQualifier networkQualifier;
@@ -152,7 +153,8 @@ public class BObjectType extends BStructureType implements ObjectType {
         } else {
             networkQualifier = ObjectQualifiers.NetworkQualifier.None;
         }
-        return od.define(env, new ObjectQualifiers(isolated, networkQualifier), members);
+        // TODO: maybe ro must be part of qualifiers
+        return new ObjectQualifiers(isolated, networkQualifier);
     }
 
     @Override

@@ -20,6 +20,7 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
@@ -45,12 +46,23 @@ public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
-    public SemType define(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
+    public SemType defineRo(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
         assert validataMembers(members); // This should never happen, so let's not run this in production
-        Stream<CellField> memberStream = members.stream().map(member -> memberField(env, member));
+        Stream<CellField> memberStream =
+                members.stream().map(member -> memberField(env, member, CellAtomicType.CellMutability.CELL_MUT_NONE));
         Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
-                restMemberType(env));
+                restMemberType(env, CellAtomicType.CellMutability.CELL_MUT_NONE));
+        return objectContaining(mappingType);
+    }
+
+    public SemType define(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
+        assert validataMembers(members); // This should never happen, so let's not run this in production
+        Stream<CellField> memberStream = members.stream()
+                .map(member -> memberField(env, member, CellAtomicType.CellMutability.CELL_MUT_LIMITED));
+        Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
+        SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
+                restMemberType(env, CellAtomicType.CellMutability.CELL_MUT_LIMITED));
         return objectContaining(mappingType);
     }
 
@@ -65,7 +77,7 @@ public final class ObjectDefinition implements Definition {
         return createBasicSemType(BasicTypeCode.BT_OBJECT, bdd);
     }
 
-    private CellSemType restMemberType(Env env) {
+    private CellSemType restMemberType(Env env, CellAtomicType.CellMutability mut) {
         MappingDefinition fieldDefn = new MappingDefinition();
         SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
                 env,
@@ -85,10 +97,10 @@ public final class ObjectDefinition implements Definition {
                         Member.Visibility.ALL
                 ),
                 PredefinedType.NEVER);
-        return cellContaining(env, union(fieldMemberType, methodMemberType));
+        return cellContaining(env, union(fieldMemberType, methodMemberType), mut);
     }
 
-    private static CellField memberField(Env env, Member member) {
+    private static CellField memberField(Env env, Member member, CellAtomicType.CellMutability mut) {
         MappingDefinition md = new MappingDefinition();
         SemType semtype = md.defineMappingTypeWrapped(
                 env,
@@ -98,7 +110,7 @@ public final class ObjectDefinition implements Definition {
                         member.visibility().field()
                 ),
                 PredefinedType.NEVER);
-        return CellField.from(member.name(), cellContaining(env, semtype));
+        return CellField.from(member.name(), cellContaining(env, semtype, mut));
     }
 
     @Override
