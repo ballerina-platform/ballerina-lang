@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_UNDEF;
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_RO;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_INNER_MAPPING;
@@ -32,6 +33,7 @@ import static io.ballerina.types.PredefinedType.CELL_ATOMIC_NEVER;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING;
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING_RO;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_TWO_ELEMENT;
 import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_RO;
 
 /**
@@ -75,6 +77,10 @@ public class Env {
         this.cellAtom(CELL_ATOMIC_INNER_MAPPING_RO);
         this.listAtom(LIST_ATOMIC_MAPPING_RO);
         this.cellAtom(CELL_ATOMIC_INNER_RO);
+        // Reserving the next two indexes of atomTable to represent typeAtoms related to [any|error, any|error].
+        // This is to avoid passing down env argument when doing streamSubtypeComplement operation.
+        this.cellAtom(CELL_ATOMIC_UNDEF);
+        this.listAtom(LIST_ATOMIC_TWO_ELEMENT);
     }
 
     public int recListAtomCount() {

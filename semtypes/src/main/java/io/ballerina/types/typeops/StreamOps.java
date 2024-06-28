@@ -18,9 +18,14 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.BasicTypeOps;
+import io.ballerina.types.Bdd;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
 
+import static io.ballerina.types.Common.bddPosMaybeEmpty;
+import static io.ballerina.types.Common.bddSubtypeDiff;
+import static io.ballerina.types.PredefinedType.LIST_SUBTYPE_TWO_ELEMENT;
+import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
 import static io.ballerina.types.typeops.ListOps.listSubtypeIsEmpty;
 
 /**
@@ -30,8 +35,26 @@ import static io.ballerina.types.typeops.ListOps.listSubtypeIsEmpty;
  */
 public class StreamOps extends CommonOps implements BasicTypeOps {
 
+    private static SubtypeData streamSubtypeComplement(SubtypeData t) {
+        return bddSubtypeDiff(LIST_SUBTYPE_TWO_ELEMENT, t);
+    }
+
+    private static boolean streamSubtypeIsEmpty(Context cx, SubtypeData t) {
+        Bdd b = (Bdd) t;
+        // The goal of this is to ensure that listSubtypeIsEmpty call beneath does
+        // not get an empty posList, because it will interpret that
+        // as `[any|error...]` rather than `[any|error, any|error]`.
+        b = bddPosMaybeEmpty(b) ? bddIntersect(b, LIST_SUBTYPE_TWO_ELEMENT) : b;
+        return listSubtypeIsEmpty(cx, b);
+    }
+
+    @Override
+    public SubtypeData complement(SubtypeData t) {
+        return streamSubtypeComplement(t);
+    }
+
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
-        return listSubtypeIsEmpty(cx, t);
+        return streamSubtypeIsEmpty(cx, t);
     }
 }

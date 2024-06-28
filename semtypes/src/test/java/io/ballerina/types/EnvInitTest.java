@@ -43,7 +43,7 @@ public class EnvInitTest {
         Map<AtomicType, TypeAtom> atomTable = (Map) atomTableField.get(env);
 
         // Check that the atomTable contains the expected entries
-        Assert.assertEquals(atomTable.size(), 8);
+        Assert.assertEquals(atomTable.size(), 10);
 
         // -------------------------------------------------------------------------------
         // Index 0
@@ -129,6 +129,29 @@ public class EnvInitTest {
         TypeAtom typeAtom7 = atomTable.get(cellAtomicInnerRo);
         Assert.assertEquals(typeAtom7.index(), 7);
         Assert.assertEquals(typeAtom7.atomicType(), cellAtomicInnerRo);
+
+        // -------------------------------------------------------------------------------
+        // Index 8
+        // -------------------------------------------------------------------------------
+        CellAtomicType cellAtomicUndef = CellAtomicType.from(
+                PredefinedType.UNDEF, CellAtomicType.CellMutability.CELL_MUT_NONE
+        );
+
+        TypeAtom typeAtom8 = atomTable.get(cellAtomicUndef);
+        Assert.assertEquals(typeAtom8.index(), 8);
+        Assert.assertEquals(typeAtom8.atomicType(), cellAtomicUndef);
+
+        // -------------------------------------------------------------------------------
+        // Index 9
+        // -------------------------------------------------------------------------------
+        ListAtomicType listAtomicTwoElement = ListAtomicType.from(
+                FixedLengthArray.from(List.of(PredefinedType.CELL_SEMTYPE_VAL), 2),
+                PredefinedType.CELL_SEMTYPE_UNDEF
+        );
+
+        TypeAtom typeAtom9 = atomTable.get(listAtomicTwoElement);
+        Assert.assertEquals(typeAtom9.index(), 9);
+        Assert.assertEquals(typeAtom9.atomicType(), listAtomicTwoElement);
     }
 
     @Test
