@@ -96,6 +96,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -200,6 +202,10 @@ public final class JvmCodeGenUtil {
         return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
     }
 
+    public static boolean isModuleInitializerMethod(String methodName) {
+        return methodName.equals(MODULE_INIT_METHOD) || methodName.equals(MODULE_START_METHOD);
+    }
+
     private static String cleanupBalExt(String name) {
         if (name.endsWith(BAL_EXTENSION)) {
             return name.substring(0, name.length() - 4); // 4 = BAL_EXTENSION.length
@@ -276,7 +282,7 @@ public final class JvmCodeGenUtil {
             moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.equals("")) {
+            if (!packageID.version.value.isEmpty()) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;

@@ -372,7 +372,7 @@ public final class Generator {
                 EnumMemberNode enumMemberNode = (EnumMemberNode) node;
                 String memberName = enumMemberNode.identifier().text();
                 String doc = getDocFromMetadata(enumMemberNode.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
                 }
                 List<String> descSections = getDescSectionsDocFromMetaDataList(enumDeclaration.metadata());
@@ -785,7 +785,7 @@ public final class Generator {
                 RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
@@ -801,7 +801,7 @@ public final class Generator {
                 RecordFieldNode recordField = (RecordFieldNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
@@ -828,7 +828,7 @@ public final class Generator {
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
                     String doc = getDocFromMetadata(objectField.metadata());
-                    if (doc.equals("")) {
+                    if (doc.isEmpty()) {
                         doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                     }
                     String defaultValue;

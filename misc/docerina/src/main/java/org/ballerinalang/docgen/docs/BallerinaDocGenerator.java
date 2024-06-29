@@ -486,7 +486,7 @@ public final class BallerinaDocGenerator {
             module.orgName = orgName;
             String moduleVersion = version;
             // get version from system property if not found in bLangPackage
-            module.version = moduleVersion.equals("") ?
+            module.version = moduleVersion.isEmpty() ?
                     System.getProperty(BallerinaDocConstants.VERSION) :
                     moduleVersion;
             module.summary = moduleDoc.getValue().summary;

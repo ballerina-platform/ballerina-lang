@@ -122,7 +122,7 @@ public class URIConverter implements Converter<URI> {
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             String errorMessage = "";
 
-            if (!"".equals(errorMessage)) {
+            if (!errorMessage.isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

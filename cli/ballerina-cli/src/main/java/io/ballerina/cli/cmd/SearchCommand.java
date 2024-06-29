@@ -165,7 +165,7 @@ public class SearchCommand implements BLauncherCmd {
             }
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
-            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                 // removing the error stack
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));

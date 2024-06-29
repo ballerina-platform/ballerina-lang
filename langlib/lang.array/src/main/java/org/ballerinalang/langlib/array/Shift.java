@@ -18,10 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:shift((any|error)[]).
@@ -40,7 +38,6 @@ public final class Shift {
     }
 
     public static Object shift(BArray arr) {
-        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "shift()");
         return arr.shift(0);
     }
 }

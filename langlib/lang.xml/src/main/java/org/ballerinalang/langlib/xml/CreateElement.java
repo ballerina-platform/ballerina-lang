@@ -53,7 +53,7 @@ public final class CreateElement {
     public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
         String prefix = getPrefix(name.getValue(), attributes);
         BXmlQName xmlqName;
-        if (prefix.equals("")) {
+        if (prefix.isEmpty()) {
             xmlqName = ValueCreator.createXmlQName(name);
         } else {
             xmlqName = ValueCreator.createXmlQName(name, prefix);
