@@ -49,6 +49,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +60,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.STICKY_FLAG;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -98,6 +102,59 @@ public class PackageResolution {
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
+        if (compilationOptions.optimizeDependencyCompilation()) {
+            generateCaches();
+        }
+    }
+
+    /**
+     * This method performs the BIR generation before the compilation by
+     * spinning up a new process.
+     * This is typically useful for large packages to avoid OOM issues.
+     */
+    private void generateCaches() {
+        for (ResolvedPackageDependency resolvedPackageDependency : this.dependencyGraph.toTopologicallySortedList()) {
+            Package packageInstance = resolvedPackageDependency.packageInstance();
+
+            // If the package instance is the current package, we have reached the root of the dependency graph.
+            // We skip the generation of the cache for the current package.
+            if (packageInstance.descriptor() == this.rootPackageContext.descriptor()) {
+                break;
+            }
+
+            // If the dependency is not loaded from sources, then we assume that the BIR is already generated.
+            // We skip the cache generation for the particular dependency.
+            if (packageInstance.getDefaultModule().moduleContext()
+                    .currentCompilationState() != ModuleCompilationState.LOADED_FROM_SOURCES) {
+                continue;
+            }
+
+            // We use the pull command to generate the BIR of the dependency.
+            List<String> cmdArgs = new ArrayList<>();
+            cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
+            cmdArgs.add("pull");
+            cmdArgs.add(STICKY_FLAG + resolutionOptions.sticky());
+            cmdArgs.add(OFFLINE_FLAG + resolutionOptions.offline());
+            cmdArgs.add(packageInstance.descriptor().toString());
+
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            try {
+                Process process = processBuilder.start();
+                int i = process.waitFor();
+                if (i != 0) {
+                    throw new ProjectException(
+                            "failed to compile " + packageInstance.descriptor().toString());
+                }
+            } catch (IOException | InterruptedException e) {
+                throw new ProjectException(e);
+            }
+
+            // Finally, we set the compilation state of the dependency to LOADED_FROM_CACHE
+            for (ModuleId moduleId : packageInstance.moduleIds()) {
+                packageInstance.module(moduleId).moduleContext()
+                        .setCompilationState(ModuleCompilationState.LOADED_FROM_CACHE);
+            }
+        }
     }
 
     static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
@@ -184,7 +241,7 @@ public class PackageResolution {
      */
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
-        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
+        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT && this.resolutionOptions.sticky()) {
             return resolveBALADependencies();
         } else {
             return resolveSourceDependencies();
