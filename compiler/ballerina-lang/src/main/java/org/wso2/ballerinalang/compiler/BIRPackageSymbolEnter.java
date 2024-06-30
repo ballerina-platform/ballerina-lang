@@ -152,6 +152,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
+import static io.ballerina.types.PredefinedType.OBJECT_RO_REC_ATOM;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
@@ -1957,17 +1958,22 @@ public class BIRPackageSymbolEnter {
                 if (index != BDD_REC_ATOM_READONLY) {
                     int kindOrdinal = inputStream.readInt();
                     Atom.Kind kind = Atom.Kind.values()[kindOrdinal];
-                    int offset = switch (kind) {
-                        case LIST_ATOM -> offsets.listOffset();
-                        case FUNCTION_ATOM -> offsets.functionOffset();
-                        case MAPPING_ATOM -> offsets.mappingOffset();
-                        case XML_ATOM -> 0;
-                        case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
-                    };
-                    index += offset;
-                    RecAtom recAtom = RecAtom.createRecAtom(index);
-                    recAtom.setKind(kind);
-                    atom = recAtom;
+                    if (kind == Atom.Kind.MAPPING_ATOM && index == PredefinedType.BDD_REC_ATOM_OBJECT_READONLY) {
+                        // FIXME:
+                        atom = OBJECT_RO_REC_ATOM;
+                    } else {
+                        int offset = switch (kind) {
+                            case LIST_ATOM -> offsets.listOffset();
+                            case FUNCTION_ATOM -> offsets.functionOffset();
+                            case MAPPING_ATOM -> offsets.mappingOffset();
+                            case XML_ATOM -> 0;
+                            case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
+                        };
+                        index += offset;
+                        RecAtom recAtom = RecAtom.createRecAtom(index);
+                        recAtom.setKind(kind);
+                        atom = recAtom;
+                    }
                 } else { // BDD_REC_ATOM_READONLY is unique and every environment will have the same one
                     atom = RecAtom.createRecAtom(BDD_REC_ATOM_READONLY);
                 }

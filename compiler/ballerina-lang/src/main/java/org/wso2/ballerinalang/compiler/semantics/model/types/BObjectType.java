@@ -123,15 +123,15 @@ public class BObjectType extends BStructureType implements ObjectType {
             if (qualifiers.readonly()) {
                 type = Core.intersect(type, PredefinedType.VAL_READONLY);
             }
-            boolean isReadonly;
-            if (Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
-                isReadonly = true;
-            } else if (qualifiers.readonly() && Core.isSubtype(Context.from(env), type, PredefinedType.VAL_READONLY)) {
-                isReadonly = true;
-            } else {
-                isReadonly = false;
-            }
-            members.add(new Member(name, type, Member.Kind.Field, visibility, isReadonly));
+            // boolean isReadonly;
+            // if (Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+            //     isReadonly = true;
+            // } else if (qualifiers.readonly() && Core.isSubtype(Context.from(env), type, PredefinedType.VAL_READONLY)) {
+            //     isReadonly = true;
+            // } else {
+            //     isReadonly = false;
+            // }
+            members.add(new Member(name, type, Member.Kind.Field, visibility, true));
         }
 
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
