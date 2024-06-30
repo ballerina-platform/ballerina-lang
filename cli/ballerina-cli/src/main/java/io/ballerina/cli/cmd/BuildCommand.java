@@ -198,6 +198,10 @@ public class BuildCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
+    @CommandLine.Option(names = "--optimize-memory", hidden = true,
+            description = "experimental memory optimization for large projects")
+    private Boolean optimizeMemory;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -316,7 +320,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeMemory(optimizeMemory);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

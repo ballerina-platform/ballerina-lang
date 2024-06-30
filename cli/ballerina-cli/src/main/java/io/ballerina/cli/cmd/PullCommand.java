@@ -266,7 +266,7 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(orgName).resolve(packageName);
 
         if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
-            outStream.println("Package already exists");
+            outStream.println("Package already exists.\n");
         }
         // create directory path in bala cache
         try {

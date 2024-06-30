@@ -695,6 +695,8 @@ public class ManifestBuilder {
                 CompilerOptionName.REMOTE_MANAGEMENT.toString());
         Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
+        Boolean optimizeMemory = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.OPTIMIZE_MEMORY.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -710,7 +712,8 @@ public class ManifestBuilder {
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setRemoteManagement(remoteManagement)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeMemory(optimizeMemory);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
