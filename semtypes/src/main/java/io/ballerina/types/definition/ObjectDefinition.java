@@ -54,7 +54,7 @@ public final class ObjectDefinition implements Definition {
                 .map(member -> memberField(env, member, mut));
         Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
-                restMemberType(env, mut));
+                restMemberType(env, mut, qualifiers.readonly()));
         return objectContaining(mappingType);
     }
 
@@ -69,12 +69,12 @@ public final class ObjectDefinition implements Definition {
         return createBasicSemType(BasicTypeCode.BT_OBJECT, bdd);
     }
 
-    private CellSemType restMemberType(Env env, CellAtomicType.CellMutability mut) {
+    private CellSemType restMemberType(Env env, CellAtomicType.CellMutability mut, boolean immutable) {
         MappingDefinition fieldDefn = new MappingDefinition();
         SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
                 env,
                 List.of(
-                        new Field("value", PredefinedType.VAL, false, false),
+                        new Field("value", PredefinedType.VAL, immutable, false),
                         Member.Kind.Field.field(),
                         Member.Visibility.ALL
                 ),
@@ -84,7 +84,7 @@ public final class ObjectDefinition implements Definition {
         SemType methodMemberType = methodDefn.defineMappingTypeWrapped(
                 env,
                 List.of(
-                        new Field("value", PredefinedType.FUNCTION, false, false),
+                        new Field("value", PredefinedType.FUNCTION, true, false),
                         Member.Kind.Method.field(),
                         Member.Visibility.ALL
                 ),
@@ -92,14 +92,13 @@ public final class ObjectDefinition implements Definition {
         return cellContaining(env, union(fieldMemberType, methodMemberType), mut);
     }
 
-    // TODO: better name for mut
     private static CellField memberField(Env env, Member member, CellAtomicType.CellMutability mut) {
         MappingDefinition md = new MappingDefinition();
-        CellAtomicType.CellMutability fieldMut = member.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut;
+        CellAtomicType.CellMutability fieldMut = member.immutable() ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut;
         SemType semtype = md.defineMappingTypeWrapped(
                 env,
                 List.of(
-                        new Field("value", member.valueTy(), false, false),
+                        new Field("value", member.valueTy(), member.immutable(), false),
                         member.kind().field(),
                         member.visibility().field()
                 ),

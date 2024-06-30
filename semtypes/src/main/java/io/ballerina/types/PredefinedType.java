@@ -248,17 +248,34 @@ public final class PredefinedType {
     public static final TypeAtom ATOM_MAPPING_OBJECT = createTypeAtom(8, MAPPING_ATOMIC_OBJECT);
     public static final BddNode MAPPING_SUBTYPE_OBJECT = bddAtom(ATOM_MAPPING_OBJECT);
 
-    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_RO = CellAtomicType.from(
-            MAPPING_SEMTYPE_OBJECT_MEMBER, CellAtomicType.CellMutability.CELL_MUT_NONE
+    public static final CellAtomicType CELL_ATOMIC_VAL_RO = CellAtomicType.from(
+            VAL, CellAtomicType.CellMutability.CELL_MUT_NONE
     );
-    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_RO = createTypeAtom(12, CELL_ATOMIC_OBJECT_MEMBER_RO);
+    public static final TypeAtom ATOM_CELL_VAL_RO = createTypeAtom(9, CELL_ATOMIC_VAL_RO);
+
+    private static final CellSemType CELL_SEMTYPE_VAL_RO =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_VAL_RO));
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT_MEMBER_RO = MappingAtomicType.from(
+            new String[]{"kind", "value", "visibility"},
+            new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL_RO,
+                    CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY},
+            CELL_SEMTYPE_UNDEF);
+
+    public static final TypeAtom ATOM_MAPPING_OBJECT_MEMBER_RO = createTypeAtom(12, MAPPING_ATOMIC_OBJECT_MEMBER_RO);
+    private static final ComplexSemType MAPPING_SEMTYPE_OBJECT_MEMBER_RO =
+            basicSubtype(BT_MAPPING, bddAtom(ATOM_MAPPING_OBJECT_MEMBER_RO));
+
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_RO = CellAtomicType.from(
+            MAPPING_SEMTYPE_OBJECT_MEMBER_RO, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_RO = createTypeAtom(13, CELL_ATOMIC_OBJECT_MEMBER_RO);
     private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_RO =
             (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_RO));
     private static final MappingAtomicType MAPPING_ATOMIC_OBJECT_RO = MappingAtomicType.from(
             new String[]{"$qualifiers"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_QUALIFIER}, CELL_SEMTYPE_OBJECT_MEMBER_RO
     );
 
-    public static final TypeAtom ATOM_MAPPING_OBJECT_RO = createTypeAtom(13, MAPPING_ATOMIC_OBJECT_RO);
+    public static final TypeAtom ATOM_MAPPING_OBJECT_RO = createTypeAtom(14, MAPPING_ATOMIC_OBJECT_RO);
     public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(ATOM_MAPPING_OBJECT_RO);
 
     public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,

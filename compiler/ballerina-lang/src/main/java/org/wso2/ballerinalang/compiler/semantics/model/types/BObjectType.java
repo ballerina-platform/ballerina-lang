@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
@@ -106,6 +107,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         List<Member> members = new ArrayList<>();
         Set<String> memberNames = new HashSet<>();
 
+        ObjectQualifiers qualifiers = getObjectQualifiers();
         for (BField field : fields.values()) {
             String name = field.name.value;
             if (memberNames.contains(name)) {
@@ -118,8 +120,18 @@ public class BObjectType extends BStructureType implements ObjectType {
             if (type == null) {
                 type = PredefinedType.NEVER;
             }
-            members.add(new Member(name, type, Member.Kind.Field, visibility,
-                    Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)));
+            if (qualifiers.readonly()) {
+                type = Core.intersect(type, PredefinedType.VAL_READONLY);
+            }
+            boolean isReadonly;
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+                isReadonly = true;
+            } else if (qualifiers.readonly() && Core.isSubtype(Context.from(env), type, PredefinedType.VAL_READONLY)) {
+                isReadonly = true;
+            } else {
+                isReadonly = false;
+            }
+            members.add(new Member(name, type, Member.Kind.Field, visibility, isReadonly));
         }
 
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
@@ -138,7 +150,6 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             members.add(new Member(name, type, Member.Kind.Method, visibility, true));
         }
-        ObjectQualifiers qualifiers = getObjectQualifiers();
         return od.define(env, qualifiers, members);
     }
 

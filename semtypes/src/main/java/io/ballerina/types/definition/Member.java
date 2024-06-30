@@ -32,7 +32,7 @@ import static io.ballerina.types.SemTypes.union;
  * @param visibility is member private or public
  * @since 2201.10.0
  */
-public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean readonly) {
+public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
 
     public Member {
         assert name != null && valueTy != null && kind != null && visibility != null;
