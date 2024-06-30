@@ -224,7 +224,7 @@ public class SemTypeResolver {
         } else {
             networkQualifier = ObjectQualifiers.NetworkQualifier.None;
         }
-        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), networkQualifier);
+        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), flags.contains(Flag.READONLY), networkQualifier);
     }
 
     // TODO: should we make definition part of BLangFunction as well?

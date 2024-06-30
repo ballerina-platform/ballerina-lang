@@ -118,7 +118,8 @@ public class BObjectType extends BStructureType implements ObjectType {
             if (type == null) {
                 type = PredefinedType.NEVER;
             }
-            members.add(new Member(name, type, Member.Kind.Field, visibility));
+            members.add(new Member(name, type, Member.Kind.Field, visibility,
+                    Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)));
         }
 
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
@@ -135,11 +136,10 @@ public class BObjectType extends BStructureType implements ObjectType {
             if (Core.isNever(type)) {
                 throw new IllegalArgumentException("method is never");
             }
-            members.add(new Member(name, type, Member.Kind.Method, visibility));
+            members.add(new Member(name, type, Member.Kind.Method, visibility, true));
         }
         ObjectQualifiers qualifiers = getObjectQualifiers();
-        boolean readonly = Symbols.isFlagOn(this.tsymbol.flags, Flags.READONLY);
-        return readonly ? od.defineRo(env, qualifiers, members) : od.define(env, qualifiers, members);
+        return od.define(env, qualifiers, members);
     }
 
     private ObjectQualifiers getObjectQualifiers() {
@@ -153,8 +153,8 @@ public class BObjectType extends BStructureType implements ObjectType {
         } else {
             networkQualifier = ObjectQualifiers.NetworkQualifier.None;
         }
-        // TODO: maybe ro must be part of qualifiers
-        return new ObjectQualifiers(isolated, networkQualifier);
+        boolean readonly = Symbols.isFlagOn(this.tsymbol.flags, Flags.READONLY);
+        return new ObjectQualifiers(isolated, readonly, networkQualifier);
     }
 
     @Override

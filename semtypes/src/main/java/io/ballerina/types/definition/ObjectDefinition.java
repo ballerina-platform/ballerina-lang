@@ -46,23 +46,15 @@ public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
-    public SemType defineRo(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
-        assert validataMembers(members); // This should never happen, so let's not run this in production
-        Stream<CellField> memberStream =
-                members.stream().map(member -> memberField(env, member, CellAtomicType.CellMutability.CELL_MUT_NONE));
-        Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
-        SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
-                restMemberType(env, CellAtomicType.CellMutability.CELL_MUT_NONE));
-        return objectContaining(mappingType);
-    }
-
     public SemType define(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
         assert validataMembers(members); // This should never happen, so let's not run this in production
+        CellAtomicType.CellMutability mut = qualifiers.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         Stream<CellField> memberStream = members.stream()
-                .map(member -> memberField(env, member, CellAtomicType.CellMutability.CELL_MUT_LIMITED));
+                .map(member -> memberField(env, member, mut));
         Stream<CellField> qualifierStream = Stream.of(qualifiers.field(env));
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream).toList(),
-                restMemberType(env, CellAtomicType.CellMutability.CELL_MUT_LIMITED));
+                restMemberType(env, mut));
         return objectContaining(mappingType);
     }
 
@@ -100,8 +92,10 @@ public final class ObjectDefinition implements Definition {
         return cellContaining(env, union(fieldMemberType, methodMemberType), mut);
     }
 
+    // TODO: better name for mut
     private static CellField memberField(Env env, Member member, CellAtomicType.CellMutability mut) {
         MappingDefinition md = new MappingDefinition();
+        CellAtomicType.CellMutability fieldMut = member.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut;
         SemType semtype = md.defineMappingTypeWrapped(
                 env,
                 List.of(
@@ -110,7 +104,7 @@ public final class ObjectDefinition implements Definition {
                         member.visibility().field()
                 ),
                 PredefinedType.NEVER);
-        return CellField.from(member.name(), cellContaining(env, semtype, mut));
+        return CellField.from(member.name(), cellContaining(env, semtype, fieldMut));
     }
 
     @Override
