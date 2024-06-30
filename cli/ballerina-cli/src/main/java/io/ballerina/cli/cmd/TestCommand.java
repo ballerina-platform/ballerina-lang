@@ -209,6 +209,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
+    @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
+            description = "experimental memory optimization for large projects")
+    private Boolean optimizeDependencyCompilation;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -415,7 +418,8 @@ public class TestCommand implements BLauncherCmd {
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
