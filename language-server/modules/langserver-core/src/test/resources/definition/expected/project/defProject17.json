@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/defmodsource7.bal"
+  },
+  "position": {
+    "line": 19,
+    "character": 33
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 22
+        },
+        "end": {
+          "line": 11,
+          "character": 25
+        }
+      },
+      "uri": "projectls/defmodsource7.bal"
+    }
+  ]
+}
