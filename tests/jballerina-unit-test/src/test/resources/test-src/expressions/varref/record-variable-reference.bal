@@ -526,7 +526,7 @@ function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     assertEquality("A", xVar1);
     assertEquality("C", xVar11);
 
-    [record {int a; int b;}] r2 = [{a: 1, b: 2}];
+    [record {int a; int b;}] r2 = [{a: 1, b: 2, "c": "three", "d": 0.003}];
     int a;
     int b;
     [{a, b}] = r2;
