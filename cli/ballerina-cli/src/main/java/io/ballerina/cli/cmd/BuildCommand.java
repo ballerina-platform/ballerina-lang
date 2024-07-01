@@ -198,6 +198,13 @@ public class BuildCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
+
+    @CommandLine.Option(names = "--optimize-report", description = "generate code generation optimization reports",
+            defaultValue = "false")
+    private Boolean optimizeReport;
+
     @Override
     public void execute() {
         long start = 0;
@@ -283,8 +290,8 @@ public class BuildCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, true, false, isPackageModified,
+                        buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -317,7 +324,9 @@ public class BuildCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeCodegen(optimizeCodegen)
+                .setOptimizeReport(optimizeReport);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

@@ -17,7 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -130,5 +132,24 @@ public class PackageCache {
         } else {
             versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
         }
+    }
+
+    public UsedBIRNodeAnalyzer.InvocationData getInvocationData(PackageID packageID) {
+        if (packageID == null) {
+            return null;
+        }
+        BPackageSymbol pkgSymbol = getSymbol(packageID);
+        if (pkgSymbol == null) {
+            return null;
+        }
+        return pkgSymbol.invocationData;
+    }
+
+    public BIRNode.BIRPackage getBirPkg(PackageID packageID) {
+        BPackageSymbol pkgSymbol = getSymbol(packageID);
+        if (pkgSymbol == null) {
+            return null;
+        }
+        return pkgSymbol.bir;
     }
 }

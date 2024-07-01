@@ -118,12 +118,12 @@ public class CompilerPhaseRunner {
         }
 
         dataflowAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
 
         isolationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
             return;
         }
 

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -53,10 +54,13 @@ public class BPackageSymbol extends BTypeSymbol {
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
+    public Boolean shouldGenerateDuplicateBIR = false;
+    public BIRNode.BIRPackage duplicateBir;
     public BIRPackageFile birPackageFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
+    public UsedBIRNodeAnalyzer.InvocationData invocationData = new UsedBIRNodeAnalyzer.InvocationData();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);

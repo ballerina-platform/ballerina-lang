@@ -1,0 +1,50 @@
+{
+  "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "isolated object { resource function get albums() returns ((thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:UsedTypeDef|error)); }.$get$albums",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.start",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.gracefulStop",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.immediateStop",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.detach",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.attach",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.init"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        "$annot_func$_0",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0.<init>0",
+        "isolated object { resource function get albums() returns ((thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:UsedTypeDef|error)); }.$init$",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0.<init>1",
+        "thushara_piyasekara/type_definition_inside_resource_function_param:0.1.0:Listener.$init$",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": [
+        "$Listener_Listener_attach_name"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UsedTypeDef",
+        "Listener"
+      ],
+      "virtualTypeDefinitions": [
+        "$anonType$_1",
+        "$anonType$_0",
+        "$anonType$s$detach$_0",
+        "$anonType$s$attach$_0"
+      ]
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UnusedTypeDef"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
