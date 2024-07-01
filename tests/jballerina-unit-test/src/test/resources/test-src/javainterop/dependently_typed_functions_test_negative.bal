@@ -370,3 +370,15 @@ function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceTypeN
 
     var _ = functionWithInferredArgForParamOfTypeReferenceType(boolean);
 }
+
+function getArrayInferred(typedesc<anydata> td = <>) returns td[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getArray",
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+} external;
+
+type AnyArray any[];
+
+function testDependentlyTypedFunctionWithTypeReferenceTypeNegative() returns error? {
+    AnyArray _ = check getArrayInferred();
+}
