@@ -206,4 +206,7 @@ public class CommandConstants {
     public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
 
     public static final String RENAME_COMMAND_TITLE_FOR_FUNCTION = "Rename function";
+    public static final String EXTRACT_TO_CONFIGURABLE = "Extract to configurable";
+    public static final String RENAME_COMMAND_TITLE_FOR_CONFIGURABLE = "Rename configurable";
+
 }
