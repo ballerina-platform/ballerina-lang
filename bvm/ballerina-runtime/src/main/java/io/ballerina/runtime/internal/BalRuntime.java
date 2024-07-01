@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.SyncCallback;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
@@ -122,22 +123,6 @@ public class BalRuntime extends Runtime {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION_BEFORE_MODULE_INIT, "stop");
         }
-<<<<<<< HEAD
-        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Scheduler(false), null);
-    }
-
-    private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
-                                   Object... args) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
-                module.getName(), module.getMajorVersion(), module.isTestPkg()));
-        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
-        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
-        Object[] argsWithStrand = new Object[args.length + 1];
-        argsWithStrand[0] = future.strand;
-        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
-        scheduler.schedule(argsWithStrand, func, future);
-        scheduler.start();
-=======
         if (moduleStopped) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "stop");
         }
@@ -150,7 +135,6 @@ public class BalRuntime extends Runtime {
         }
         invokeModuleStop();
         moduleStopped = true;
->>>>>>> 6f23b0a1586 (Fix blocking issue with invokeAsync API)
     }
 
     /**
@@ -384,27 +368,26 @@ public class BalRuntime extends Runtime {
     }
 
     private void invokeModuleStop() {
-        Class<?> initClass = loadClass(MODULE_INIT_CLASS_NAME);
-        String funcName = Utils.encodeFunctionIdentifier("$moduleStop");
+        Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         try {
-            final Method method = initClass.getDeclaredMethod(funcName, RuntimeRegistry.class);
+            final Method method =
+                    configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
             method.invoke(null, scheduler.getRuntimeRegistry());
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to stop the module due to " +
+            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
                     RuntimeUtils.formatErrorMessage(e)), e);
         }
     }
 
-    private Class<?> loadClass(String moduleInitClassName) {
-        String initClassName = getFullQualifiedClassName(this.module, moduleInitClassName);
-        Class<?> initClazz;
+    private Class<?> loadClass(String className) {
+        String name = getFullQualifiedClassName(this.module, className);
+        Class<?> clazz;
         try {
-            initClazz = Class.forName(initClassName);
+            clazz = Class.forName(name);
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
-                    initClassName), e);
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" + name), e);
         }
-        return initClazz;
+        return clazz;
     }
 
     private static String getFullQualifiedClassName(Module module, String className) {
@@ -443,31 +426,5 @@ public class BalRuntime extends Runtime {
         argsWithStrand[0] = future.strand;
         System.arraycopy(args, 0, argsWithStrand, 1, args.length);
         scheduler.schedule(argsWithStrand, func, future);
-    }
-
-    /**
-     * This class used to handle ballerina function invocation synchronously.
-     *
-     * @since 2201.9.1
-     */
-    static class SyncCallback implements Callback {
-
-        CountDownLatch latch;
-        BError initError;
-
-        public SyncCallback(CountDownLatch latch) {
-            this.latch = latch;
-        }
-
-        @Override
-        public void notifySuccess(Object result) {
-            latch.countDown();
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            latch.countDown();
-            initError = error;
-        }
     }
 }
