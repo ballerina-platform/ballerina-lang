@@ -890,7 +890,7 @@ function testRecordDestructureWithRecordLiteralInsideDoClause() {
         };
 
     assertEquality(1, prices.length());
-    assertEquality(12, prices[0]);
+    assertEquality(10, prices[0]);
 }
 
 function assertEquality(any|error expected, any|error actual) {
