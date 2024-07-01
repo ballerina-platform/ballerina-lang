@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
@@ -123,14 +122,6 @@ public class BObjectType extends BStructureType implements ObjectType {
             if (qualifiers.readonly()) {
                 type = Core.intersect(type, PredefinedType.VAL_READONLY);
             }
-            // boolean isReadonly;
-            // if (Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
-            //     isReadonly = true;
-            // } else if (qualifiers.readonly() && Core.isSubtype(Context.from(env), type, PredefinedType.VAL_READONLY)) {
-            //     isReadonly = true;
-            // } else {
-            //     isReadonly = false;
-            // }
             members.add(new Member(name, type, Member.Kind.Field, visibility, true));
         }
 
