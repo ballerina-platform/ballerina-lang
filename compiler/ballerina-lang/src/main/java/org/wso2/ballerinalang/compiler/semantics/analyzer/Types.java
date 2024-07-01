@@ -5690,8 +5690,8 @@ public class Types {
         BErrorType lhsErrorType = (BErrorType) lhsType;
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
-        BErrorType errorType = createErrorType(detailType, lhsType.flags, env);
-        errorType.tsymbol.flags |= rhsType.flags;
+        long flags = lhsType.flags | rhsType.flags | Flags.PUBLIC;  // Anonymous (generated) types are marked as public.
+        BErrorType errorType = createErrorType(detailType, flags, env);
 
         errorType.typeIdSet = BTypeIdSet.getIntersection(lhsErrorType.typeIdSet, rhsErrorType.typeIdSet);
 
