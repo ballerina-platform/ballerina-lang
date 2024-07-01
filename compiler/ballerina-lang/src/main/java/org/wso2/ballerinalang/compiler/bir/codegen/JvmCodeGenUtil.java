@@ -201,8 +201,8 @@ public class JvmCodeGenUtil {
         return name.replace(WINDOWS_PATH_SEPERATOR, JAVA_PACKAGE_SEPERATOR);
     }
 
-    public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    public static String rewriteVirtualCallTypeName(String value, BType objectType) {
+        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value, getImpliedType(objectType)));
     }
 
     private static String cleanupBalExt(String name) {
@@ -518,20 +518,18 @@ public class JvmCodeGenUtil {
         }
     }
 
-    static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
-        int typeNameLength = typeName.length();
-        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
-            return typeName;
-        } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
-            return typeName.substring(index + 1);
-        } else if (index > 0) {
-            // We will reach here for resource methods eg: (MyClient8.$get$.)
-            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
-            return typeName.substring(index + 1);
+    static String cleanupObjectTypeName(String callName, BType objectType) {
+        // For attached functions from another module the call name will be in the format `objectTypeName.funcName`.
+        // We need to remove the type name.
+        if (!objectType.tsymbol.name.value.isEmpty() && callName.startsWith(objectType.tsymbol.name.value)) {
+            callName = callName.replace(objectType.tsymbol.name.value + ".", "").trim();
         }
-        
-        return typeName;
+        // For attached functions from another module where the type is an anonType, the call name will be in
+        // the format `(objectTypeName).funcName`. We need to remove the type name.
+        if (callName.startsWith("(") && callName.contains(").")) {
+            callName = callName.substring(callName.indexOf(").") + 2);
+        }
+        return callName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
