@@ -20,7 +20,7 @@ ballerina-http-1.1.0.jar                                                        
 metrics-core-3.1.0.jar                                                                              bundle         apache2
 ballerina-kubernetes-1.1.0.jar                                                                      jar            apache2
 ballerina-bir-1.1.0.jar                                                                             jar            apache2
-bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
+bcpkix-jdk15on-1.70.jar                                                                             bundle         bouncy
 decimal-1.1.0.jar                                                                                   jar            apache2
 ballerina-encoding-1.1.0.jar                                                                        jar            apache2
 reflect.jar                                                                                         jar            apache2
