@@ -254,6 +254,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -263,7 +264,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -646,12 +647,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
-        if (!data.transactionalFuncCheckStack.empty() && data.transactionalFuncCheckStack.peek()) {
+        if (!data.transactionalFuncCheckStack.isEmpty() && data.transactionalFuncCheckStack.peek()) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
         if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
-                (!data.loopWithinTransactionCheckStack.empty() && data.loopWithinTransactionCheckStack.peek())) {
+                (!data.loopWithinTransactionCheckStack.isEmpty() && data.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
@@ -2906,7 +2907,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // 1) flush w1 -> Wait till all the asynchronous sends to worker w1 is completed
         // 2) flush -> Wait till all asynchronous sends to all workers are completed
         BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
-        Stack<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
+        Deque<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
         WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
         List<BLangWorkerAsyncSendExpr> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
@@ -4171,7 +4172,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         public final List<BLangAlternateWorkerReceive> alternateWorkerReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
-        private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
+        private Deque<WorkerActionStateMachine> workerActionStateMachines = new ConcurrentLinkedDeque<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
         private Map<String, Integer> workerEventIndexMap = new HashMap<>();
         private boolean hasErrors = false;
@@ -4426,7 +4427,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
         int workerSystemMovementSequence;
-        Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
+        Deque<WorkerActionSystem> workerActionSystemStack = new ConcurrentLinkedDeque<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
         // Field related to transactions
         int transactionCount;
@@ -4436,9 +4437,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean commitRollbackAllowed;
         int commitCountWithinBlock;
         int rollbackCountWithinBlock;
-        Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
-        Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
-        Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+        Deque<Boolean> loopWithinTransactionCheckStack = new ConcurrentLinkedDeque<>();
+        Deque<Boolean> returnWithinTransactionCheckStack = new ConcurrentLinkedDeque<>();
+        Deque<Boolean> transactionalFuncCheckStack = new ConcurrentLinkedDeque<>();
         // Fields related to lock
         boolean withinLockBlock;
         // Common fields
@@ -4447,7 +4448,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean queryToTableWithKey;
         boolean withinQuery;
         Types.QueryConstructType queryConstructType;
-        Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
+        Deque<LinkedHashSet<BType>> returnTypes = new ConcurrentLinkedDeque<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
     }
 }
