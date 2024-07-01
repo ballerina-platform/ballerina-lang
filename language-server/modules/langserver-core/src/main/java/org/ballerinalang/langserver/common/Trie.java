@@ -55,9 +55,9 @@ public class Trie {
         return find(prefix, false);
     }
 
-    public void suggestHelper(TrieNode root, List<String> list, StringBuffer stringBuffer) {
+    public void suggestHelper(TrieNode root, List<String> list, StringBuilder stringBuilder) {
         if (root.isWord) {
-            list.add(stringBuffer.toString());
+            list.add(stringBuilder.toString());
         }
 
         if (root.children == null || root.children.isEmpty()) {
@@ -65,24 +65,24 @@ public class Trie {
         }
 
         for (TrieNode child : root.children.values()) {
-            stringBuffer.append(child.character);
-            suggestHelper(child, list, stringBuffer);
-            stringBuffer.setLength(stringBuffer.length() - 1);
+            stringBuilder.append(child.character);
+            suggestHelper(child, list, stringBuilder);
+            stringBuilder.setLength(stringBuilder.length() - 1);
         }
     }
 
     public List<String> suggest(String prefix) {
         List<String> list = new ArrayList<>();
         TrieNode lastNode = root;
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         for (char character : prefix.toCharArray()) {
             lastNode = lastNode.children.get(character);
             if (lastNode == null) {
                 return list;
             }
-            stringBuffer.append(character);
+            stringBuilder.append(character);
         }
-        suggestHelper(lastNode, list, stringBuffer);
+        suggestHelper(lastNode, list, stringBuilder);
         return list;
     }
     /**
