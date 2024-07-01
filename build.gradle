@@ -72,7 +72,8 @@ def skipDirectories = [
         "lib-creator", // Gradle code for generate Bala files
         "semtypes", // Tests are in nBallerina branch
         "test-artifacts",// Tests directories for project api
-        "ballerina-lang/tests"// Ballerina Language Tests
+        "ballerina-lang/tests",// Ballerina Language Tests
+        "compiler/ballerina-treegen" // Remove after fixing #43011
 ]
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
