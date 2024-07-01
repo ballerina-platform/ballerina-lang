@@ -282,7 +282,7 @@ public class JvmCodeGenUtil {
             moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.equals("")) {
+            if (!packageID.version.value.isEmpty()) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;

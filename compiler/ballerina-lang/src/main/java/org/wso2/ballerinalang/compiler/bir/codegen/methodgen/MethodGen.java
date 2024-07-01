@@ -1097,7 +1097,7 @@ public class MethodGen {
     }
 
     private boolean isCompilerAddedVars(String metaVarName) {
-        return metaVarName != null && !"".equals(metaVarName) &&
+        return metaVarName != null && !metaVarName.isEmpty() &&
                 // filter out compiler added vars
                 !((metaVarName.startsWith("$") && metaVarName.endsWith("$"))
                         || (metaVarName.startsWith("$$") && metaVarName.endsWith("$$"))

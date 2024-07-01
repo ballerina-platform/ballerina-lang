@@ -63,12 +63,12 @@ import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
-import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
-import static io.ballerina.cli.utils.TestUtils.getClassPath;
-import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
-import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.cli.utils.TestUtils.getClassPath;
+import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
+import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
+import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
@@ -324,7 +324,7 @@ public class RunTestsTask implements Task {
         }
 
         if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
-            if (!this.excludesInCoverage.equals("")) {
+            if (!this.excludesInCoverage.isEmpty()) {
                 List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
                         split(",")));
                 getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);

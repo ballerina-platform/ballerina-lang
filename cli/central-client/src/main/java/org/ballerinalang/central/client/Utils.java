@@ -226,7 +226,7 @@ public class Utils {
      * @return bala file name
      */
     private static String getBalaFileName(String contentDisposition, String balaFile) {
-        if (contentDisposition != null && !contentDisposition.equals("")) {
+        if (contentDisposition != null && !contentDisposition.isEmpty()) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
             return balaFile;
