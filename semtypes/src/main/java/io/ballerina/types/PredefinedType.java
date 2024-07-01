@@ -26,6 +26,7 @@ import java.util.StringJoiner;
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
+import static io.ballerina.types.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.BasicTypeCode.BT_XML;
 import static io.ballerina.types.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
@@ -103,8 +104,8 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES =
-            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
-                    union(REGEXP, union(FUTURE, union(TYPEDESC, union(LIST, MAPPING))))))));
+            union(OBJECT, union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
+                    union(REGEXP, union(FUTURE, union(TYPEDESC, union(LIST, MAPPING)))))))));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
@@ -127,12 +128,16 @@ public final class PredefinedType {
     public static final CellAtomicType CELL_ATOMIC_NEVER = CellAtomicType.from(
             NEVER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
-    public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(1, CELL_ATOMIC_NEVER);
+    public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(2, CELL_ATOMIC_NEVER);
+    public static final CellAtomicType CELL_ATOMIC_UNDEF = CellAtomicType.from(
+            UNDEF, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    public static final TypeAtom ATOM_CELL_UNDEF = createTypeAtom(16, CELL_ATOMIC_UNDEF);
 
     public static final CellAtomicType CELL_ATOMIC_INNER = CellAtomicType.from(
             INNER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
-    public static final TypeAtom ATOM_CELL_INNER = createTypeAtom(2, CELL_ATOMIC_INNER);
+    public static final TypeAtom ATOM_CELL_INNER = createTypeAtom(3, CELL_ATOMIC_INNER);
     static final CellSemType CELL_SEMTYPE_INNER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER));
     public static final MappingAtomicType MAPPING_ATOMIC_INNER = MappingAtomicType.from(
             new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_INNER
@@ -144,7 +149,7 @@ public final class PredefinedType {
     public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = CellAtomicType.from(
             union(MAPPING, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING);
+    public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(4, CELL_ATOMIC_INNER_MAPPING);
     public static final CellSemType CELL_SEMTYPE_INNER_MAPPING = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_MAPPING)
     );
@@ -152,7 +157,7 @@ public final class PredefinedType {
     public static final ListAtomicType LIST_ATOMIC_MAPPING = ListAtomicType.from(
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING
     );
-    static final TypeAtom ATOM_LIST_MAPPING = createTypeAtom(4, LIST_ATOMIC_MAPPING);
+    static final TypeAtom ATOM_LIST_MAPPING = createTypeAtom(5, LIST_ATOMIC_MAPPING);
     // represents (map<any|error>)[]
     public static final BddNode LIST_SUBTYPE_MAPPING = bddAtom(ATOM_LIST_MAPPING);
 
@@ -165,7 +170,7 @@ public final class PredefinedType {
     public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING_RO = CellAtomicType.from(
             union(MAPPING_RO, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING_RO = createTypeAtom(5, CELL_ATOMIC_INNER_MAPPING_RO);
+    public static final TypeAtom ATOM_CELL_INNER_MAPPING_RO = createTypeAtom(6, CELL_ATOMIC_INNER_MAPPING_RO);
     public static final CellSemType CELL_SEMTYPE_INNER_MAPPING_RO = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_MAPPING_RO)
     );
@@ -173,20 +178,77 @@ public final class PredefinedType {
     public static final ListAtomicType LIST_ATOMIC_MAPPING_RO = ListAtomicType.from(
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING_RO
     );
-    static final TypeAtom ATOM_LIST_MAPPING_RO = createTypeAtom(6, LIST_ATOMIC_MAPPING_RO);
+    static final TypeAtom ATOM_LIST_MAPPING_RO = createTypeAtom(7, LIST_ATOMIC_MAPPING_RO);
     // represents readonly & (map<readonly>)[]
     static final BddNode LIST_SUBTYPE_MAPPING_RO = bddAtom(ATOM_LIST_MAPPING_RO);
+
+
+    private static final CellSemType CELL_SEMTYPE_VAL = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_VAL));
+    private static final CellSemType CELL_SEMTYPE_NEVER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_NEVER));
+    private static final CellSemType CELL_SEMTYPE_UNDEF = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_UNDEF));
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_KIND = CellAtomicType.from(
+            STRING, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    // FIXME: index
+    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_KIND = createTypeAtom(15, CELL_ATOMIC_OBJECT_MEMBER_KIND);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_KIND = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_KIND)
+    );
+
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_VISIBILITY = CellAtomicType.from(
+            STRING, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_VISIBILITY =
+            createTypeAtom(12, CELL_ATOMIC_OBJECT_MEMBER_VISIBILITY);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_VISIBILITY)
+    );
+
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT_MEMBER = MappingAtomicType.from(
+            new String[]{"kind", "value", "visibility"},
+            new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL, CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY},
+            CELL_SEMTYPE_UNDEF);
+    public static final TypeAtom ATOM_MAPPING_OBJECT_MEMBER = createTypeAtom(10, MAPPING_ATOMIC_OBJECT_MEMBER);
+
+    private static final ComplexSemType MAPPING_SEMTYPE_OBJECT_MEMBER =
+            basicSubtype(BT_MAPPING, bddAtom(ATOM_MAPPING_OBJECT_MEMBER));
+
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER = CellAtomicType.from(
+            MAPPING_SEMTYPE_OBJECT_MEMBER, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED
+    );
+    public static final TypeAtom ATOM_CELL_OBJECT_MEMBER = createTypeAtom(11, CELL_ATOMIC_OBJECT_MEMBER);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER));
+
+    // FIXME:
+    private static final CellSemType CELL_SEMTYPE_OBJECT_QUALIFIER = CELL_SEMTYPE_VAL;
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT = MappingAtomicType.from(
+            new String[]{"$qualifiers"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_QUALIFIER}, CELL_SEMTYPE_OBJECT_MEMBER
+    );
+    public static final TypeAtom ATOM_MAPPING_OBJECT = createTypeAtom(9, MAPPING_ATOMIC_OBJECT);
+    public static final BddNode MAPPING_SUBTYPE_OBJECT = bddAtom(ATOM_MAPPING_OBJECT);
+
+    public static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
+
+    public static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
+    static {
+        OBJECT_RO_REC_ATOM.setKind(Atom.Kind.MAPPING_ATOM);
+    }
+    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO =
+            bddAtom(OBJECT_RO_REC_ATOM);
 
     public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_MAPPING_RO),
-            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO)
+            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
+            BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
     );
     public static final SemType IMPLEMENTED_VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
-            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO)
+            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
+            BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
     );
 
     public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
@@ -196,6 +258,33 @@ public final class PredefinedType {
     public static final TypeAtom ATOM_CELL_INNER_RO = createTypeAtom(7, CELL_ATOMIC_INNER_RO);
     public static final CellSemType CELL_SEMTYPE_INNER_RO = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_RO)
+    );
+
+    public static final CellAtomicType CELL_ATOMIC_VAL_RO = CellAtomicType.from(
+            IMPLEMENTED_VAL_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    public static final TypeAtom ATOM_CELL_VAL_RO = createTypeAtom(10, CELL_ATOMIC_VAL_RO);
+
+    private static final CellSemType CELL_SEMTYPE_VAL_RO =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_VAL_RO));
+    private static final MappingAtomicType MAPPING_ATOMIC_OBJECT_MEMBER_RO = MappingAtomicType.from(
+            new String[]{"kind", "value", "visibility"},
+            new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL_RO,
+                    CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY},
+            CELL_SEMTYPE_UNDEF);
+
+    public static final TypeAtom ATOM_MAPPING_OBJECT_MEMBER_RO = createTypeAtom(13, MAPPING_ATOMIC_OBJECT_MEMBER_RO);
+    private static final ComplexSemType MAPPING_SEMTYPE_OBJECT_MEMBER_RO =
+            basicSubtype(BT_MAPPING, bddAtom(ATOM_MAPPING_OBJECT_MEMBER_RO));
+
+    private static final CellAtomicType CELL_ATOMIC_OBJECT_MEMBER_RO = CellAtomicType.from(
+            MAPPING_SEMTYPE_OBJECT_MEMBER_RO, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_RO = createTypeAtom(14, CELL_ATOMIC_OBJECT_MEMBER_RO);
+    private static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_RO =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_RO));
+    public static final MappingAtomicType MAPPING_ATOMIC_OBJECT_RO = MappingAtomicType.from(
+            new String[]{"$qualifiers"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_QUALIFIER}, CELL_SEMTYPE_OBJECT_MEMBER_RO
     );
 
     // This is mapping index 0 to be used by VAL_READONLY

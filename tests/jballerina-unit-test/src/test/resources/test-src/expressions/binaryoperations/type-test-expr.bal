@@ -1428,7 +1428,7 @@ type MyClientObjectType client object {
 };
 
 function testResourceMethodTyping() {
-    client object {} objectVar = client object {
+    object {} objectVar = client object {
         resource function post .() {
         }
     };

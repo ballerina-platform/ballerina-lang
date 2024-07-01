@@ -32,6 +32,7 @@ import static io.ballerina.types.PredefinedType.CELL_ATOMIC_NEVER;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING;
 import static io.ballerina.types.PredefinedType.LIST_ATOMIC_MAPPING_RO;
+import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_OBJECT_RO;
 import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_RO;
 
 /**
@@ -53,6 +54,7 @@ public class Env {
         recListAtoms.add(LIST_ATOMIC_RO);
         this.recMappingAtoms = new ArrayList<>();
         recMappingAtoms.add(MAPPING_ATOMIC_RO);
+        recMappingAtoms.add(MAPPING_ATOMIC_OBJECT_RO);
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
 

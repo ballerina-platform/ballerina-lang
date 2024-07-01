@@ -1310,7 +1310,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, objectTypeNode.pos, SOURCE);
 
-        BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), objectSymbol, typeFlags);
 
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;

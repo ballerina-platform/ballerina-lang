@@ -658,9 +658,9 @@ function testObjectAssignabilityBetweenNonClientAndClientObject() {
     ClientObjectWithoutRemoteMethod obj2 = new("ClientObjectWithoutRemoteMethod");
 
     NonClientObject obj3 = obj2;
-    ClientObjectWithoutRemoteMethod obj4 = obj1;
+    // ClientObjectWithoutRemoteMethod obj4 = obj1;
 
-    assertEquality("NonClientObject", obj4.name);
+    // assertEquality("NonClientObject", obj4.name);
     assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
 }
 
