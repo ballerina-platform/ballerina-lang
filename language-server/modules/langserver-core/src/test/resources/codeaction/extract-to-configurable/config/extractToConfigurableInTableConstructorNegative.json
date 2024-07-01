@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 0,
+    "character": 15
+  },
+  "source": "extractToConfigurableInConstExprNegative.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable"
+    }
+  ]
+}
