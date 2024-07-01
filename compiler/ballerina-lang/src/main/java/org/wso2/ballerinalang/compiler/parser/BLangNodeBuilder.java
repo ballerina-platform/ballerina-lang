@@ -502,13 +502,14 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Matcher;
 
 import static org.ballerinalang.model.elements.Flag.INCLUDED;
@@ -539,8 +540,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangMissingNodesHelper missingNodesHelper;
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
-    private Stack<BLangStatement> additionalStatements = new Stack<>();
-    private final Stack<String> anonTypeNameSuffixes = new Stack<>();
+    private Deque<BLangStatement> additionalStatements = new ConcurrentLinkedDeque<>();
+    private final Deque<String> anonTypeNameSuffixes = new ConcurrentLinkedDeque<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
     /* To keep track if we are inside a finite context */
@@ -566,7 +567,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangNode bLangNode = node.apply(this);
         List<org.ballerinalang.model.tree.Node> nodes = new ArrayList<>();
         // if not already consumed, add left-over statements
-        while (!additionalStatements.empty()) {
+        while (!additionalStatements.isEmpty()) {
             nodes.add(additionalStatements.pop());
         }
         nodes.add(bLangNode);
@@ -1681,7 +1682,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
                 stmtList.add((BLangStatement) workerDeclarationNode.apply(this));
                 // Consume resultant additional statements
-                while (!this.additionalStatements.empty()) {
+                while (!this.additionalStatements.isEmpty()) {
                     stmtList.add(additionalStatements.pop());
                 }
             }
@@ -5439,7 +5440,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             function.anonForkName = nextAnonymousForkKey;
 
             statements.add(workerDef);
-            while (!this.additionalStatements.empty()) {
+            while (!this.additionalStatements.isEmpty()) {
                 statements.add(additionalStatements.pop());
             }
             forkJoin.addWorkers(workerDef);

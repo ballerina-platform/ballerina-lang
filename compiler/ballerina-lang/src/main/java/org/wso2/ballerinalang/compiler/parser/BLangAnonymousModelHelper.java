@@ -21,10 +21,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -101,17 +101,17 @@ public class BLangAnonymousModelHelper {
         return ANON_TYPE + UNDERSCORE + nextValue;
     }
 
-    public String getNextAnonymousTypeKey(PackageID packageID, Stack<String> suffixes) {
+    public String getNextAnonymousTypeKey(PackageID packageID, Collection<String> suffixes) {
         if (suffixes.isEmpty()) {
             return getNextAnonymousTypeKey(packageID);
         }
         return createAnonTypeName(suffixes, packageID);
     }
 
-    private String createAnonTypeName(Stack<String> suffixes, PackageID pkgId) {
+    private String createAnonTypeName(Collection<String> suffixes, PackageID pkgId) {
         StringBuilder name = new StringBuilder(ANON_TYPE);
-        for (int i = suffixes.size() - 1; i >= 0; i--) {
-            name.append(suffixes.elementAt(i)).append(DOLLAR);
+        for (String suffix : suffixes) {
+            name.append(suffix).append(DOLLAR);
         }
         Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.computeIfAbsent(pkgId, key -> new HashMap<>());
         String nameStr = name.toString();

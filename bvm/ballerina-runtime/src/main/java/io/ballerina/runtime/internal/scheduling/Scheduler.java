@@ -335,7 +335,7 @@ public class Scheduler {
                 }
                 postProcess(item, result, panic);
                 group.lock();
-                if ((isItemsEmpty = group.items.empty())) {
+                if ((isItemsEmpty = group.items.isEmpty())) {
                     group.scheduled.set(false);
                 }
                 group.unlock();

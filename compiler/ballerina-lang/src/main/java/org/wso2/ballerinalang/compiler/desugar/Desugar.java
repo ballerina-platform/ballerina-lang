@@ -311,6 +311,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -321,8 +322,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -397,7 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private ClassClosureDesugar classClosureDesugar;
     private LargeMethodSplitter largeMethodSplitter;
 
-    public Stack<BLangLockStmt> enclLocks = new Stack<>();
+    public Deque<BLangLockStmt> enclLocks = new ConcurrentLinkedDeque<>();
     private BLangOnFailClause onFailClause;
     private boolean shouldReturnErrors;
     private int transactionBlockCount;
@@ -423,8 +424,8 @@ public class Desugar extends BLangNodeVisitor {
     private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
-    private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
-    Stack<BLangExpression> accessExprStack = new Stack<>();
+    private Deque<BLangMatchStatement> matchStmtStack = new ConcurrentLinkedDeque<>();
+    Deque<BLangExpression> accessExprStack = new ConcurrentLinkedDeque<>();
     private BLangMatchClause successClause;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
@@ -10055,13 +10056,13 @@ public class Desugar extends BLangNodeVisitor {
         handleSafeNavigation(blockStmt, accessExpr, accessExpr.getBType(), tempResultVar);
 
         // Create a statement-expression including the match statement
-        BLangMatchStatement matchStmt = this.matchStmtStack.firstElement();
+        BLangMatchStatement matchStmt = this.matchStmtStack.getLast();
         blockStmt.stmts.add(matchStmt);
         BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.setBType(originalExprType);
         // Reset the variables
-        this.matchStmtStack = new Stack<>();
-        this.accessExprStack = new Stack<>();
+        this.matchStmtStack = new ConcurrentLinkedDeque<>();
+        this.accessExprStack = new ConcurrentLinkedDeque<>();
         this.successClause = null;
         this.safeNavigationAssignment = null;
         return stmtExpression;

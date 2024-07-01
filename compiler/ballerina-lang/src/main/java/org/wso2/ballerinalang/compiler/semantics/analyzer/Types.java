@@ -117,6 +117,7 @@ import java.math.MathContext;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +130,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -7158,14 +7159,14 @@ public class Types {
      * Holds common analyzer data between {@link TypeChecker} and {@link SemanticAnalyzer}.
      */
     public static class CommonAnalyzerData {
-        Stack<SymbolEnv> queryEnvs = new Stack<>();
-        Stack<BLangNode> queryFinalClauses = new Stack<>();
+        Deque<SymbolEnv> queryEnvs = new ConcurrentLinkedDeque<>();
+        Deque<BLangNode> queryFinalClauses = new ConcurrentLinkedDeque<>();
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
 
-        Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
+        Deque<LinkedHashSet<BType>> errorTypes = new ConcurrentLinkedDeque<>();
     }
 
     /**
