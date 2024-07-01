@@ -1,0 +1,4 @@
+ERROR [semicolon-missing.bal:(5:1,5:1)] missing semicolon token (BCE0002)
+  |
+5 | ; 	return;
+  | +

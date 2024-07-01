@@ -1,7 +1,15 @@
 Compiling source
 	intg_tests/object_mocking:0.0.0
-WARNING [modules/TestHttpClient/main.bal:(64:45,64:82)] this function should explicitly return a value
-WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr'
+WARNING [modules/TestHttpClient/main.bal:(64:45,64:82)] this function should explicitly return a value (BCE20350)
+   |
+64 |     public isolated function next() returns record {|AttributeDAO value;|}|Error? {
+   |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr' (BCE20403)
+   |
+53 |     error? closeErr = attributeStream.close();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Running Tests with Coverage
 
