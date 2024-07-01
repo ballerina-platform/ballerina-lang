@@ -94,3 +94,17 @@ enum Color {
     GREEN,
     BLUE
 }
+
+type Number int|float;
+
+type IntMap map<int>;
+
+type StringStream stream<string>;
+
+type Nil ();
+
+type IntArray int[];
+
+type Pi 3.14285714286d;
+
+type ReadonlyInt readonly & int;
