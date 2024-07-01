@@ -205,7 +205,7 @@ class PersonObj {
     function getObjectValueWithParamTypes(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        paramTypes: ["io.ballerina.runtime.internal.values.ObjectValue", "io.ballerina.runtime.api.values.BTypedesc"]
+        paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 }
 

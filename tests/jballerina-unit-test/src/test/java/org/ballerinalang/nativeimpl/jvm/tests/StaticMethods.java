@@ -681,6 +681,14 @@ public class StaticMethods {
         return StringUtils.fromString("Ballerina");
     }
 
+    public static Object acceptingBObjectAndReturnField(BObject service, BArray path) {
+        return service.get(StringUtils.fromString("name"));
+    }
+
+    public static void acceptingBalEnvAndBObject(Environment env, BObject service) {
+        Future balFuture = env.markAsync();
+        balFuture.complete(service.get(StringUtils.fromString("id")));
+    }
 
     public static BMap<BString, Object> createStudentUsingType() {
         Module module = new Module("$anon", ".", "0.0.0");

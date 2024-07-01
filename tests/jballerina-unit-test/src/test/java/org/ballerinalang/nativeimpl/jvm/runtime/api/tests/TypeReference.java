@@ -224,7 +224,7 @@ public class TypeReference {
         return true;
     }
 
-    public static Object getInt(ObjectValue objectValue, BTypedesc td) {
+    public static Object getInt(BObject objectValue, BTypedesc td) {
         return true;
     }
 

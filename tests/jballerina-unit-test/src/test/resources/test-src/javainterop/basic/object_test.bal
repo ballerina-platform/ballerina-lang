@@ -91,12 +91,35 @@ public class Person {
     function getDefaultValueWithBEnvForObject(int a = 2021) returns int  = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
+
+    function acceptingBObjectAndReturnField(service object {} serviceObject, string[] arr) returns any = @java:Method {
+       'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+       paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    function acceptingBalEnvAndBObject(Student student) returns anydata = @java:Method {
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name:"acceptingBalEnvAndBObject",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject"]
+    } external;
 }
 
 function getBIntFromJInt(handle receiver) returns int = @java:Method {
     name:"longValue",
     'class:"java.lang.Integer"
 } external;
+
+public service class Service {
+    public string name = "service";
+}
+
+public class Student {
+    public int id;
+
+    public function init(int id) {
+         self.id = id;
+    }
+}
 
 public function testInteropsInsideObject() {
     Person p = new("Waruna", 5, 123.45);
@@ -137,6 +160,13 @@ public function testInteropsInsideObject() {
 
     int defaultValue = p.getDefaultValueWithBEnvForObject();
     assertEquality(defaultValue, 2021);
+
+    service object {} serviceObject = new Service();
+    any serviceObjectField = p.acceptingBObjectAndReturnField(serviceObject, ["a", "b", "c"]);
+    assertEquality(serviceObjectField, "service");
+    Student student = new Student(1001);
+    anydata result = p.acceptingBalEnvAndBObject(student);
+    assertEquality(result, 1001);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -590,4 +590,15 @@ public class NegativeValidationTest {
                         " ''org.ballerinalang.nativeimpl.jvm.tests.Interface' is abstract, and cannot be instantiated'",
                 23, 1);
     }
+
+    @Test
+    public void testConstraintsNotMatch() {
+        String path = "test-src/javainterop/negative/constraints_not_match.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}METHOD_NOT_FOUND " +
+                "'No such public method 'acceptingBObjectAndReturnField' that matches with parameter types " +
+                "'(io.ballerina.runtime.api.values.BArray)' found in class " +
+                "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''", 34, 5);
+    }
 }
