@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.'error as errorLib;
 import ballerina/lang.'value as value;
 import ballerina/test;
 
@@ -386,6 +387,32 @@ function foo() {
 
     worker w2 {
         int y = <- w1;
+    }
+}
+
+function testEarlyReturnWithMessagePassing() {
+    foreach int i in 0 ... 100 {
+        func1();
+        func2();
+    }
+}
+
+function func2() {
+    func1();
+}
+
+function func1() {
+    foo();
+    worker w1 {
+        if (1 > 0) {
+            return;
+        } else {
+            10 -> w2;
+        }
+    }
+
+    worker w2 {
+        int|errorLib:NoMessage y = <- w1;
     }
 }
 
