@@ -16,42 +16,41 @@
 
 import error_intersection_access.error_intersection_mod as err_lib;
 
-public function testErrorIntersectionAccessTest() {
-    err_lib:RemoteServerError remoteServerErr = error err_lib:RemoteServerError("remote server error");
-    assertEquality("remote server error", remoteServerErr.message());
+const MESSAGE = "Message";
 
-    err_lib:ApplicationResponseError applResponeErr = error err_lib:ApplicationResponseError("application response server error");
-    assertEquality("application response server error", applResponeErr.message());
+public function testErrorIntersectionFromImportedModule() {
+    err_lib:RemoteServerError remoteServerErr = error err_lib:RemoteServerError(MESSAGE);
+    assertError(remoteServerErr);
 
-    err_lib:ClientRequestErrorWithStatusCode clientReqErrWithStatusCode =
-        error err_lib:ClientRequestErrorWithStatusCode("client request error", code = 404);
-    assertEquality("client request error", clientReqErrWithStatusCode.message());
-    assertEquality(404, clientReqErrWithStatusCode.detail().code);
+    err_lib:ApplicationResponseError applResponeErr = error err_lib:ApplicationResponseError(MESSAGE);
+    assertError(applResponeErr);
 
-    err_lib:ApplicationResponseErrorWithStatusCode applResponseErrWithStatusCode =
-        error err_lib:ApplicationResponseErrorWithStatusCode("application response error", code = 401);
-    assertEquality("application response error", applResponseErrWithStatusCode.message());
-    assertEquality(401, applResponseErrWithStatusCode.detail().code);
+    err_lib:ClientRequestErrorWithStatusCode clientReqErrWithStatusCode = error (MESSAGE, code = 404);
+    assertError(clientReqErrWithStatusCode, 404);
 
-    err_lib:BadRequestError badReqErr = error err_lib:BadRequestError("bad request error", code = 400);
-    assertEquality("bad request error", badReqErr);
-    assertEquality(400, badReqErr.detail().code);
+    err_lib:ApplicationResponseErrorWithStatusCode appRespErrWithStatusCode = error (MESSAGE, code = 401);
+    assertError(appRespErrWithStatusCode, 401);
 
-    err_lib:Error err = error err_lib:Error("response error");
-    assertEquality("error", err.message());
+    err_lib:BadRequestError badReqErr = error err_lib:BadRequestError(MESSAGE, code = 400);
+    assertError(badReqErr, 400);
+
+    err_lib:Error err = error err_lib:Error(MESSAGE);
+    assertError(err);
 }
 
-function assertEquality(any|error actual, any|error expected) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
+function assertError(any|error actual, int? code = ()) {
+    if actual !is error {
+        panic error(string `expected an error, found '${actual.toString()}'`);
     }
 
-    if expected === actual {
-        return;
+    if MESSAGE != actual.message() {
+        panic error(string `expected message: '${MESSAGE}', found: '${actual.message()}'`);
     }
 
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error("AssertionError",
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+    if code != () {
+        var detail = <record {|int code;|} & readonly> actual.detail();
+        if code != detail.code {
+            panic error(string `expected code: '${code}', found: '${detail.code}'`);
+        }
+    }
 }
