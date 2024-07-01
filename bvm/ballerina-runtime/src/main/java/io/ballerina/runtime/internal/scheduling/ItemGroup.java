@@ -18,7 +18,8 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
-import java.util.Stack;
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -38,7 +39,7 @@ public class ItemGroup {
      * Keep the list of items that should run on same thread.
      * Using a stack to get advantage of the locality.
      */
-    Stack<SchedulerItem> items = new Stack<>();
+    Deque<SchedulerItem> items = new ConcurrentLinkedDeque<>();
 
     /**
      * Indicates this item is already in runnable list/executing or not.

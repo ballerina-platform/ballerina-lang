@@ -39,12 +39,13 @@ import org.eclipse.lsp4j.Range;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +64,7 @@ public class DiagnosticsHelper {
      */
     private final Map<Path, Map<String, List<Diagnostic>>> lastDiagnosticMap;
     private CompletableFuture<Boolean> latestScheduled = null;
-    private final Stack<String> cyclicDependencyErrors;
+    private final Deque<String> cyclicDependencyErrors;
 
     public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
         DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
@@ -77,7 +78,7 @@ public class DiagnosticsHelper {
     private DiagnosticsHelper(LanguageServerContext serverContext) {
         serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
-        this.cyclicDependencyErrors = new Stack<>();
+        this.cyclicDependencyErrors = new ConcurrentLinkedDeque<>();
     }
 
     /**
