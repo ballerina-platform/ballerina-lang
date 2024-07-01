@@ -285,6 +285,10 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return diagArgs;
     }
 
+    public boolean isMute() {
+        return isMute;
+    }
+
     private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
         pkgNode.addDiagnostic(diagnostic);
