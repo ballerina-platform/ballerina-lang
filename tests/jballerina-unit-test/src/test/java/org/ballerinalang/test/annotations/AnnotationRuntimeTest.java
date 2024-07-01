@@ -216,6 +216,11 @@ public class AnnotationRuntimeTest {
         BRunUtil.invoke(result, "testServiceRemoteMethodAnnotations");
     }
 
+    @Test
+    public void testConstTypeAnnotAccess() {
+        BRunUtil.invoke(resultOne, "testConstTypeAnnotAccess");
+    }
+
     @AfterClass
     public void tearDown() {
         resultOne = null;
