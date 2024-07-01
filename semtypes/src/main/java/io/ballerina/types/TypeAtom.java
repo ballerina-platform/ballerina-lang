@@ -27,6 +27,7 @@ package io.ballerina.types;
  */
 public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
+    // Note: Whenever creating a 'TypeAtom', its 'atomicType' needs to be added to the 'Env.atomTable'
     public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
     }

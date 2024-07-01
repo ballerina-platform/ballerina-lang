@@ -1357,7 +1357,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.noType;
         }
 
-        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
+        BType streamType = new BStreamType(symTable.typeEnv(), TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, typeSymbol.pkgID, streamType,

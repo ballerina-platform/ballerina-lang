@@ -27,6 +27,7 @@ import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
+import io.ballerina.types.definition.StreamDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -145,7 +147,7 @@ public class SemTypeResolver {
             case VALUE_TYPE:
                 return resolveTypeDesc(cx, (BLangValueType) td);
             case BUILT_IN_REF_TYPE:
-                return resolveTypeDesc((BLangBuiltInRefTypeNode) td);
+                return resolveTypeDesc(cx, (BLangBuiltInRefTypeNode) td);
             case RECORD_TYPE:
                 return resolveTypeDesc(cx, (BLangRecordTypeNode) td, mod, depth, defn);
             case CONSTRAINED_TYPE: // map<?> and typedesc<?>
@@ -168,6 +170,8 @@ public class SemTypeResolver {
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangTableTypeNode) td);
             case ERROR_TYPE:
                 return resolveTypeDesc(cx, mod, defn, depth, (BLangErrorType) td);
+            case STREAM_TYPE:
+                return resolveTypeDesc(cx, mod, defn, depth, (BLangStreamType) td);
             default:
                 throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
@@ -311,10 +315,11 @@ public class SemTypeResolver {
         }
     }
 
-    private SemType resolveTypeDesc(BLangBuiltInRefTypeNode td) {
+    private SemType resolveTypeDesc(Context cx, BLangBuiltInRefTypeNode td) {
         return switch (td.typeKind) {
             case NEVER -> PredefinedType.NEVER;
             case XML -> PredefinedType.XML;
+            case JSON -> Core.createJson(cx);
             default -> throw new UnsupportedOperationException("Built-in ref type not implemented: " + td.typeKind);
         };
     }
@@ -536,5 +541,24 @@ public class SemTypeResolver {
 
         SemType detail = resolveTypeDesc(cx, mod, defn, depth, td.detailType);
         return SemTypes.errorDetail(detail);
+    }
+
+    private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangStreamType td) {
+        if (td.constraint == null) {
+            return PredefinedType.STREAM;
+        }
+
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+
+        StreamDefinition d = new StreamDefinition();
+        td.defn = d;
+
+        SemType valueType = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+        SemType completionType = td.error == null ?
+                PredefinedType.NIL : resolveTypeDesc(cx, mod, defn, depth + 1, td.error);
+        return d.define(cx.env, valueType, completionType);
     }
 }

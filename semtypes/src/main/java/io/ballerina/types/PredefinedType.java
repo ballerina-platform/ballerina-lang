@@ -21,6 +21,7 @@ import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 
+import java.util.List;
 import java.util.StringJoiner;
 
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
@@ -103,8 +104,8 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES =
-            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
-                    union(REGEXP, union(FUTURE, union(TYPEDESC, union(LIST, MAPPING))))))));
+            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE, union(REGEXP, union(FUTURE,
+                    union(STREAM, union(TYPEDESC, union(LIST, MAPPING)))))))));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
@@ -198,6 +199,25 @@ public final class PredefinedType {
             BT_CELL, bddAtom(ATOM_CELL_INNER_RO)
     );
 
+    public static final CellAtomicType CELL_ATOMIC_UNDEF = CellAtomicType.from(
+            UNDEF, CellAtomicType.CellMutability.CELL_MUT_NONE
+    );
+    public static final TypeAtom ATOM_CELL_UNDEF = createTypeAtom(8, CELL_ATOMIC_UNDEF);
+    public static final CellSemType CELL_SEMTYPE_UNDEF = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_UNDEF)
+    );
+
+    public static final CellSemType CELL_SEMTYPE_VAL = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_VAL)
+    );
+
+    public static final ListAtomicType LIST_ATOMIC_TWO_ELEMENT = ListAtomicType.from(
+            FixedLengthArray.from(List.of(CELL_SEMTYPE_VAL), 2), CELL_SEMTYPE_UNDEF
+    );
+    static final TypeAtom ATOM_LIST_TWO_ELEMENT = createTypeAtom(9, LIST_ATOMIC_TWO_ELEMENT);
+    // represents [any|error, any|error]
+    public static final BddNode LIST_SUBTYPE_TWO_ELEMENT = bddAtom(ATOM_LIST_TWO_ELEMENT);
+
     // This is mapping index 0 to be used by VAL_READONLY
     public static final MappingAtomicType MAPPING_ATOMIC_RO = MappingAtomicType.from(
             new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_INNER_RO
@@ -246,6 +266,7 @@ public final class PredefinedType {
         addIfBitSet(sj, bitset, TYPEDESC.bitset, "typedesc");
         addIfBitSet(sj, bitset, HANDLE.bitset, "handle");
         addIfBitSet(sj, bitset, FUNCTION.bitset, "function");
+        addIfBitSet(sj, bitset, REGEXP.bitset, "regexp");
         addIfBitSet(sj, bitset, FUTURE.bitset, "future");
         addIfBitSet(sj, bitset, STREAM.bitset, "stream");
         addIfBitSet(sj, bitset, LIST.bitset, "list");

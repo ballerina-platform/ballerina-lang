@@ -258,7 +258,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BStreamType(typeInSymbol.tag, boundConstraintType, typeInSymbol.completionType,
+        return new BStreamType(types.typeEnv(), typeInSymbol.tag, boundConstraintType, typeInSymbol.completionType,
                                typeInSymbol.tsymbol);
     }
 

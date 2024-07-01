@@ -1773,7 +1773,7 @@ public class TypeResolver {
         BType error = td.error != null ?
                 resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.error, data) : symTable.nilType;
 
-        BStreamType streamType = new BStreamType(TypeTags.STREAM, symTable.empty, error, null);
+        BStreamType streamType = new BStreamType(symTable.typeEnv(), TypeTags.STREAM, symTable.empty, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, streamType,
