@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 
 import java.util.Map;
 
@@ -52,8 +51,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class ShutDownListenerGen {
 
-    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries,
-                                        AsyncDataCollector asyncDataCollector) {
+    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
@@ -65,7 +63,7 @@ public class ShutDownListenerGen {
         genConstructor(innerClassName, cw);
 
         // implement run() method
-        genRunMethod(initClass, innerClassName, cw, asyncDataCollector);
+        genRunMethod(initClass, innerClassName, cw);
 
         cw.visitEnd();
         jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -84,8 +82,7 @@ public class ShutDownListenerGen {
         mv.visitEnd();
     }
 
-    private void genRunMethod(String initClass, String innerClassName, ClassWriter cw,
-                              AsyncDataCollector asyncDataCollector) {
+    private void genRunMethod(String initClass, String innerClassName, ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", VOID_METHOD_DESC, null, null);
         mv.visitCode();
         // Create a scheduler. A new scheduler is used here, to make the stop function to not

@@ -744,8 +744,8 @@ public class JvmPackageGen {
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
-        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries,
-                asyncDataCollector);
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries
+        );
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
