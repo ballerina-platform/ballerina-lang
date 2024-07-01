@@ -71,6 +71,8 @@ function fn() {
     _ = rec;
     _ = row;
     _ = tbl;
+    _ = union1;
+    _ = union2;
 }
 
 // utils
@@ -95,3 +97,5 @@ record {|string id; int val;|} rec = {val: 0, id: ""};
 type Row record {|int id; boolean flag;|};
 Row row = {id: 0, flag: false};
 table<Row> tbl = table [];
+map<string>|int[] union1 = {};
+Row|boolean|map<string>[] union2 = false;

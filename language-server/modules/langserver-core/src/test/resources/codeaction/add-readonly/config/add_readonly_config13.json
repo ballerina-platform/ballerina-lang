@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 44,
+    "character": 17
+  },
+  "source": "add_readonly2.bal",
+  "description": "Add readonly to tuple type",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<string>[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 36
+            },
+            "end": {
+              "line": 4,
+              "character": 36
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
