@@ -273,10 +273,8 @@ public class ConfigTest {
                                 new TomlFileProvider(ROOT_MODULE,
                                         getConfigPath("UnsupportedCLITypeConfig.toml"), Set.of(module))));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
-        Object v1Value = configValueMap.get(v1).getValue();
-        Object v2Value = configValueMap.get(v2).getValue();
-        Assert.assertEquals(v1Value, 87L);
-        Assert.assertEquals(v2Value.toString(), "[\"hello\",\"world\"]");
+        Assert.assertEquals(configValueMap.get(v1).getValue(), 87L);
+        Assert.assertEquals(configValueMap.get(v2).getValue().toString(), "[\"hello\",\"world\"]");
         Assert.assertEquals(0, diagnosticLog.getErrorCount());
     }
 }
