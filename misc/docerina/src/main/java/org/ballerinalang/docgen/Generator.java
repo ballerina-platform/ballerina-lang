@@ -116,12 +116,10 @@ public class Generator {
      * @param module  module constructs model to fill.
      * @param syntaxTree syntax tree of the document.
      * @param semanticModel semantic model
-     * @return whether the module has any public constructs.
      */
-    public static boolean setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
+    public static void setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
                                                   SemanticModel semanticModel) {
 
-        boolean hasPublicConstructs = false;
         if (syntaxTree.containsModulePart()) {
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             for (Node node : modulePartNode.members()) {
@@ -130,13 +128,12 @@ public class Generator {
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD) ||
                             isTypePramOrBuiltinSubtype(typeDefinition.metadata())) {
-                        hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
+                        addTypeDefinition(typeDefinition, module, semanticModel);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                     ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                        hasPublicConstructs = true;
                         BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
                         if (cls instanceof Client) {
                             module.clients.add((Client) cls);
@@ -148,17 +145,14 @@ public class Generator {
                     }
                 } else if (node.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                         containsToken(((FunctionDefinitionNode) node).qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.CONST_DECLARATION && ((ConstantDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((ConstantDeclarationNode) node).visibilityQualifier()
                         .get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ANNOTATION_DECLARATION && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
@@ -179,10 +173,9 @@ public class Generator {
                 }
             }
         }
-        return hasPublicConstructs;
     }
 
-    public static boolean addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
+    public static void addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
             semanticModel) {
 
         String typeName = typeDefinition.typeName().text();
@@ -333,10 +326,7 @@ public class Generator {
         } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
             module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else {
-            return false;
         }
-        return true;
         // TODO: handle value type nodes
         // TODO: handle built in ref type
         // TODO: handle constrained types
