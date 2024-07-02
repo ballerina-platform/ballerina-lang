@@ -123,6 +123,7 @@ public final class SemTypeHelper {
             case TypeTags.TUPLE:
             case TypeTags.MAP:
             case TypeTags.RECORD:
+            case TypeTags.OBJECT:
             case TypeTags.INVOKABLE:
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:

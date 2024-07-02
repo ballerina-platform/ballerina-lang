@@ -17,7 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.Member;
+import io.ballerina.types.definition.ObjectDefinition;
+import io.ballerina.types.definition.ObjectQualifiers;
 import org.ballerinalang.model.types.ObjectType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -28,6 +34,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@code BObjectType} represents object type in Ballerina.
@@ -50,6 +61,8 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BLangClassDefinition classDef = null;
 
     public BTypeIdSet typeIdSet = new BTypeIdSet();
+
+    private ObjectDefinition od = null;
 
     public BObjectType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
@@ -76,6 +89,74 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    private boolean hasTypeHoles() {
+        return fields.values().stream().anyMatch(field -> field.type instanceof BNoType);
+    }
+
+    @Override
+    public SemType semType() {
+        if (od != null) {
+            return od.getSemType(env);
+        }
+        od = new ObjectDefinition();
+        // FIXME:
+        assert !hasTypeHoles() : "unimplemented";
+        List<Member> members = new ArrayList<>();
+        Set<String> memberNames = new HashSet<>();
+
+        ObjectQualifiers qualifiers = getObjectQualifiers();
+        for (BField field : fields.values()) {
+            String name = field.name.value;
+            if (memberNames.contains(name)) {
+                continue;
+            }
+            memberNames.add(name);
+            Member.Visibility visibility = Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC) ?
+                    Member.Visibility.Public : Member.Visibility.Private;
+            SemType type = field.type.semType();
+            if (type == null) {
+                type = PredefinedType.NEVER;
+            }
+            if (qualifiers.readonly()) {
+                type = Core.intersect(type, PredefinedType.VAL_READONLY);
+            }
+            members.add(new Member(name, type, Member.Kind.Field, visibility, true));
+        }
+
+        BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
+        for (BAttachedFunction fun : objectSymbol.attachedFuncs) {
+            String name = fun.funcName.value;
+            if (memberNames.contains(name)) {
+                continue;
+            }
+            memberNames.add(name);
+            Member.Visibility visibility = Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC) ?
+                    Member.Visibility.Public : Member.Visibility.Private;
+            SemType type = fun.type.semType();
+            assert type != null : "function type is fully implemented";
+            if (Core.isNever(type)) {
+                throw new IllegalArgumentException("method is never");
+            }
+            members.add(new Member(name, type, Member.Kind.Method, visibility, true));
+        }
+        return od.define(env, qualifiers, members);
+    }
+
+    private ObjectQualifiers getObjectQualifiers() {
+        long flags = tsymbol.flags;
+        boolean isolated = Symbols.isFlagOn(this.tsymbol.flags, Flags.ISOLATED);
+        ObjectQualifiers.NetworkQualifier networkQualifier;
+        if (Symbols.isFlagOn(flags, Flags.SERVICE)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Service;
+        } else if (Symbols.isFlagOn(flags, Flags.CLIENT)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
+        } else {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.None;
+        }
+        boolean readonly = Symbols.isFlagOn(this.tsymbol.flags, Flags.READONLY);
+        return new ObjectQualifiers(isolated, readonly, networkQualifier);
     }
 
     @Override
@@ -124,5 +205,12 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
+    }
+
+    // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
+    // this will have an invalid object type since parent union type call this while it is filling its members
+    @Override
+    public boolean isNullable() {
+        return false;
     }
 }
