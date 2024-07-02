@@ -359,6 +359,68 @@ type MedicalNeed record {
 
 };
 
+public type AnnotationRecord record {|
+    string summary?;
+    Examples examples?;
+|};
+
+public type Examples record {|
+    map<ExampleItem> response;
+|};
+
+public type ExampleItem record {
+    map<string> headers?;
+};
+
+const annotation AnnotationRecord annot on type;
+
+@annot {
+    examples: {
+        response: {}
+    }
+}
+type Employee record {|
+    int id;
+    string name;
+|};
+
+public type AnnotationRecord1 record {|
+    string summary?;
+    ExamplesReference examples?;
+|};
+
+type ExamplesReference Examples;
+
+const annotation AnnotationRecord1 annot1 on type;
+
+@annot1 {
+    examples: {
+        response: {}
+    }
+}
+type Student record {|
+    int id;
+    string name;
+|};
+
+function testConstTypeAnnotAccess() {
+    Employee employee = {id: 1, name: "chirans"};
+    typedesc<any> t = typeof employee;
+    AnnotationRecord? annot = t.@annot;
+    assertTrue(annot is AnnotationRecord);
+    AnnotationRecord config = <AnnotationRecord> annot;
+    assertEquality({"response":{}}, config.examples);
+    assertTrue(config.examples is readonly);
+
+    Student student = {id: 2, name: "sachintha"};
+    typedesc<any> s = typeof student;
+    AnnotationRecord1? annot1 = s.@annot1;
+    assertTrue(annot1 is AnnotationRecord1);
+    AnnotationRecord1 config1 = <AnnotationRecord1> annot1;
+    assertEquality({"response":{}}, config1.examples);
+    assertTrue(config1.examples is readonly);
+}
+
 function testListExprInConstAnnot() {
     EntityConfig? annot = MedicalNeed.@Entity;
     assertTrue(annot is EntityConfig);
