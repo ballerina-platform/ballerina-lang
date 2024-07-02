@@ -249,6 +249,9 @@ public class XMLToRecordConverter {
                 Element xmlElementNode = (Element) xmlNode;
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
                 NamedNodeMap xmlAttributesMap = xmlElementNode.getAttributes();
+                if (isLeafXMLElementNode && xmlElementNode.getChildNodes().getLength() == 0) {
+                    return recordFields;
+                }
                 if (!isLeafXMLElementNode || xmlAttributesMap.getLength() > 1
                         || (xmlAttributesMap.getLength() == 1
                                 && !XMLNS_PREFIX.equals(xmlAttributesMap.item(0).getPrefix()))) {
@@ -327,7 +330,8 @@ public class XMLToRecordConverter {
         org.w3c.dom.Node attributeItem = xmlElement.getAttributes().item(0);
         if (isLeafXMLElementNode(xmlElement) && attributeLength > 0) {
             if (attributeLength == 1 && attributeItem.getPrefix() != null
-                    && XMLNS_PREFIX.equals(attributeItem.getPrefix())) {
+                    && XMLNS_PREFIX.equals(attributeItem.getPrefix())
+                    && xmlElement.getFirstChild().getNodeValue().isEmpty()) {
                 return recordFields;
             }
             Token fieldType = getPrimitiveTypeName(xmlElement.getFirstChild().getNodeValue());
