@@ -841,7 +841,7 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value));
+        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value, selfArg.type));
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
         this.mv.visitLdcInsn((long) (argsCount));
