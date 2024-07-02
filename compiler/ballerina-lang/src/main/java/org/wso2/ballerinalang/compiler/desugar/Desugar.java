@@ -376,36 +376,36 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
 
-    private SymbolTable symTable;
-    private SymbolResolver symResolver;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
-    private ClosureDesugar closureDesugar;
-    private ClosureGenerator closureGenerator;
-    private QueryDesugar queryDesugar;
-    private TransactionDesugar transactionDesugar;
-    private ObservabilityDesugar observabilityDesugar;
-    private Code2CloudDesugar code2CloudDesugar;
-    private AnnotationDesugar annotationDesugar;
-    private Types types;
+    private final ClosureDesugar closureDesugar;
+    private final ClosureGenerator closureGenerator;
+    private final QueryDesugar queryDesugar;
+    private final TransactionDesugar transactionDesugar;
+    private final ObservabilityDesugar observabilityDesugar;
+    private final Code2CloudDesugar code2CloudDesugar;
+    private final AnnotationDesugar annotationDesugar;
+    private final Types types;
     private Names names;
-    private ServiceDesugar serviceDesugar;
+    private final ServiceDesugar serviceDesugar;
     private BLangNode result;
-    private NodeCloner nodeCloner;
-    private SemanticAnalyzer semanticAnalyzer;
-    private BLangAnonymousModelHelper anonModelHelper;
-    private Unifier unifier;
-    private MockDesugar mockDesugar;
-    private ClassClosureDesugar classClosureDesugar;
-    private LargeMethodSplitter largeMethodSplitter;
+    private final NodeCloner nodeCloner;
+    private final SemanticAnalyzer semanticAnalyzer;
+    private final BLangAnonymousModelHelper anonModelHelper;
+    private final Unifier unifier;
+    private final MockDesugar mockDesugar;
+    private final ClassClosureDesugar classClosureDesugar;
+    private final LargeMethodSplitter largeMethodSplitter;
 
     public Deque<BLangLockStmt> enclLocks = new ArrayDeque<>();
     private BLangOnFailClause onFailClause;
     private boolean shouldReturnErrors;
     private int transactionBlockCount;
     private BLangLiteral trxBlockId;
-    private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
-    private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
-    private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
+    private final List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
+    private final Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
+    private final List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
     private BLangSimpleVarRef shouldRetryRef;
 
     private SymbolEnv env;
@@ -431,8 +431,8 @@ public class Desugar extends BLangNodeVisitor {
     static boolean isJvmTarget = false;
 
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
-    private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
-    private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
+    private final List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
+    private final Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
     // Reuse the strand annotation in isolated workers and start action

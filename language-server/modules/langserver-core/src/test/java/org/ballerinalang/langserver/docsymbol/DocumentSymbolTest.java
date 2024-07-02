@@ -45,7 +45,7 @@ public class DocumentSymbolTest {
     
     private Endpoint serviceEndpoint;
 
-    private Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
+    private final Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
 
     private static final Logger log = LoggerFactory.getLogger(DocumentSymbolTest.class);
 

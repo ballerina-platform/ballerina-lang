@@ -40,21 +40,21 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType
  */
 public class JParameter {
 
-    private BindgenEnv env;
-    private String type;
-    private String externalType;
+    private final BindgenEnv env;
+    private final String type;
+    private final String externalType;
     private String shortTypeName;
     private String componentType;
     private String fieldName;
 
-    private Class<?> parentClass;
-    private Class<?> parameterClass;
+    private final Class<?> parentClass;
+    private final Class<?> parameterClass;
 
     private Boolean isObj = false;
     private Boolean isString = false;
     private Boolean isObjArray = false;
     private Boolean isOptional = false;
-    private boolean modulesFlag;
+    private final boolean modulesFlag;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 

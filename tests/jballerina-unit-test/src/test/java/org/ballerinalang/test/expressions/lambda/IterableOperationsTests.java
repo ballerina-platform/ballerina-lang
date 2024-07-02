@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
-    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static final BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass

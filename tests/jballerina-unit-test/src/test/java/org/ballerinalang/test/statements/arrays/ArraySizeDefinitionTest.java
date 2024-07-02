@@ -31,11 +31,11 @@ import org.testng.annotations.Test;
  */
 public class ArraySizeDefinitionTest {
 
-    private String sizeMismatchError = "size mismatch in closed array. expected '2', but found '3'";
-    private String invalidReferenceExpressionError = "invalid reference expression " +
+    private final String sizeMismatchError = "size mismatch in closed array. expected '2', but found '3'";
+    private final String invalidReferenceExpressionError = "invalid reference expression " +
             "'intLength' as array size: expected a constant reference expression";
-    private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
-    private String undefinedSymbolError = "undefined symbol 'length'";
+    private final String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
+    private final String undefinedSymbolError = "undefined symbol 'length'";
     private static final String INVALID_ARRAY_LENGTH_ERROR =
             "invalid array length: array length should be a non-negative integer";
     private static final String SIZE_LIMIT_ERROR = "array length greater that '2147483637' not yet supported";

@@ -42,7 +42,7 @@ public final class RuntimeApi {
 
     private static final Module objectModule = new Module("testorg", "runtime_api", "1");
     private static final Module recordModule = new Module("testorg", "runtime_api", "1");
-    private static Module errorModule = new Module("testorg", "runtime_api", "1");
+    private static final Module errorModule = new Module("testorg", "runtime_api", "1");
 
     private RuntimeApi() {
     }

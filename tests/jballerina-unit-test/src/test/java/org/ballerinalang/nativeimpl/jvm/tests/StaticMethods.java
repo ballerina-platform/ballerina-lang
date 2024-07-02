@@ -86,7 +86,7 @@ public final class StaticMethods {
     private static final BTupleType tupleType = new BTupleType(
             Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
                           PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
-    private static Module errorModule = new Module("testorg", "distinct_error.errors", "1");
+    private static final Module errorModule = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
     }

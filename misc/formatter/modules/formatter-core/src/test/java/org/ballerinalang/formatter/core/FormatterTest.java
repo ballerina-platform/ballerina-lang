@@ -49,7 +49,7 @@ public abstract class FormatterTest {
     // TODO: Add test cases for syntax error scenarios as well
 
     private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
-    private Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
+    private final Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 

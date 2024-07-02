@@ -49,8 +49,8 @@ public class BalToolDescriptor {
     private static final String DEPENDENCY = "dependency";
     public static final String PATH = "path";
 
-    private BalToolDescriptor.Tool tool;
-    private List<BalToolDescriptor.Dependency> dependencies;
+    private final BalToolDescriptor.Tool tool;
+    private final List<BalToolDescriptor.Dependency> dependencies;
 
     private BalToolDescriptor(BalToolDescriptor.Tool tool, List<BalToolDescriptor.Dependency> dependencies) {
         this.tool = tool;

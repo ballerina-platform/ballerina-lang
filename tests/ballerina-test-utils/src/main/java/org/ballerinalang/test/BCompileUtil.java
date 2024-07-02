@@ -304,8 +304,8 @@ public final class BCompileUtil {
      */
     public static class BIRCompileResult {
 
-        private BIRNode.BIRPackage expectedBIR;
-        private byte[] actualBIRBinary;
+        private final BIRNode.BIRPackage expectedBIR;
+        private final byte[] actualBIRBinary;
 
         BIRCompileResult(BIRNode.BIRPackage expectedBIR, byte[] actualBIRBinary) {
             this.expectedBIR = expectedBIR;

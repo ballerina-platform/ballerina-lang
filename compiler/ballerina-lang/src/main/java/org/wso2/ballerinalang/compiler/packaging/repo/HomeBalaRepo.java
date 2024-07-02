@@ -46,11 +46,11 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  * Repo for bala_cache.
  */
 public class HomeBalaRepo implements Repo<Path> {
-    private Path repoLocation;
-    private ZipConverter zipConverter;
-    private List<String> supportedPlatforms = Stream.concat(
+    private final Path repoLocation;
+    private final ZipConverter zipConverter;
+    private final List<String> supportedPlatforms = Stream.concat(
             Arrays.stream(SUPPORTED_PLATFORMS), Stream.of("any")).toList();
-    private Map<PackageID, Manifest> dependencyManifests;
+    private final Map<PackageID, Manifest> dependencyManifests;
     
     public HomeBalaRepo(Map<PackageID, Manifest> dependencyManifests) {
         this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);

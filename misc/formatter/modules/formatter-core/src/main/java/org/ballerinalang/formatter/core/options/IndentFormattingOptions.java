@@ -63,7 +63,7 @@ public class IndentFormattingOptions {
         private static final String CONTINUATION_INDENT_SIZE = "continuationIndentSize";
         private int indentSize = getDefaultInt(FormatSection.INDENT, INDENT_SIZE);
         private int continuationIndentSize = getDefaultInt(FormatSection.INDENT, CONTINUATION_INDENT_SIZE);
-        private String wsCharacter = " ";
+        private static final String wsCharacter = " ";
 
         public IndentFormattingOptionsBuilder setIndentSize(int indentSize) {
             this.indentSize = indentSize;

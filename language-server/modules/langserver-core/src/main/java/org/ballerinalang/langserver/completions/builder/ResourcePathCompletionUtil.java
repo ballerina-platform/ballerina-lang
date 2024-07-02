@@ -290,7 +290,7 @@ public final class ResourcePathCompletionUtil {
     private static class ResourceAccessPathPart {
 
         private String computedPathInsertText;
-        private String computedPathSignature;
+        private final String computedPathSignature;
 
         private String namedPathSignature;
         private String namedPathInsertText;

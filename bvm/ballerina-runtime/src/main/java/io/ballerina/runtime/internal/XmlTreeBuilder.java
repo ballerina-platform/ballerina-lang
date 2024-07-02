@@ -71,9 +71,9 @@ public class XmlTreeBuilder {
     }
 
     private XMLStreamReader xmlStreamReader;
-    private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
-    private Deque<BXmlSequence> seqDeque;
-    private Deque<List<BXml>> siblingDeque;
+    private final Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
+    private final Deque<BXmlSequence> seqDeque;
+    private final Deque<List<BXml>> siblingDeque;
 
     public XmlTreeBuilder(String str) {
         this(new StringReader(str));

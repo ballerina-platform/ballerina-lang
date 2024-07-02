@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public final class TreeUtils {
 
-    private static Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
+    private static final Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
     
     static {
         stringTypeKindMap.put("int", TypeKind.INT);

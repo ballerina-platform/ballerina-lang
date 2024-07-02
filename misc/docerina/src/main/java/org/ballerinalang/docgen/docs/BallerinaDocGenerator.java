@@ -106,7 +106,7 @@ public final class BallerinaDocGenerator {
     private static final String CENTRAL_REGISTRY_PATH = "/registry";
     private static final String CENTRAL_DOC_UI_PATH = "/docs/doc-ui";
 
-    private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
+    private static final Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
 
     private BallerinaDocGenerator() {

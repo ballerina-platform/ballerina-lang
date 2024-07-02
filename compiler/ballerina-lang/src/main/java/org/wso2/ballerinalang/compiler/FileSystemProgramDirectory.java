@@ -55,7 +55,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class FileSystemProgramDirectory implements SourceDirectory {
     private final Path programDirPath;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream outStream = System.out;
 
     public FileSystemProgramDirectory(Path programDirPath) {
         this.programDirPath = programDirPath;

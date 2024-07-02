@@ -75,9 +75,9 @@ import java.util.stream.Collectors;
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
-    private List<JsonObject> visibleEpsForEachBlock;
-    private List<JsonObject> visibleEpsForModule;
-    private List<JsonObject> visibleEpsForClass;
+    private final List<JsonObject> visibleEpsForEachBlock;
+    private final List<JsonObject> visibleEpsForModule;
+    private final List<JsonObject> visibleEpsForClass;
 
 
     public SyntaxTreeMapGenerator(SemanticModel semanticModel) {

@@ -16,7 +16,7 @@ import java.util.List;
 class FilterSearch<T> extends SimpleFileVisitor<T> {
 
     private final List<Path> excludeDir;
-    private List<Path> pathList = new ArrayList<>();
+    private final List<Path> pathList = new ArrayList<>();
 
     FilterSearch(List<Path> exclude) {
         this.excludeDir = exclude;

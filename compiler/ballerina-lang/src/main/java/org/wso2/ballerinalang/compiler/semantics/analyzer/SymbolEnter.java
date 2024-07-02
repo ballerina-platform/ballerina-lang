@@ -233,14 +233,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Set<BLangNode> unresolvedRecordDueToFields;
     private boolean resolveRecordsUnresolvedDueToFields;
     private List<BLangClassDefinition> unresolvedClasses;
-    private HashSet<LocationData> unknownTypeRefs;
-    private List<PackageID> importedPackages;
+    private final HashSet<LocationData> unknownTypeRefs;
+    private final List<PackageID> importedPackages;
     private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
-    private BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangMissingNodesHelper missingNodesHelper;
-    private PackageCache packageCache;
-    private List<BLangNode> intersectionTypes;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangMissingNodesHelper missingNodesHelper;
+    private final PackageCache packageCache;
+    private final List<BLangNode> intersectionTypes;
     private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
@@ -5445,9 +5445,9 @@ public class SymbolEnter extends BLangNodeVisitor {
      */
     private static class LocationData {
 
-        private String name;
-        private int row;
-        private int column;
+        private final String name;
+        private final int row;
+        private final int column;
 
         LocationData(String name, int row, int column) {
             this.name = name;

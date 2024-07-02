@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
  */
 public final class DiagnosticMessageHelper {
 
-    private static ResourceBundle messages = ResourceBundle.getBundle(
+    private static final ResourceBundle messages = ResourceBundle.getBundle(
             "syntax_diagnostic_message", Locale.getDefault());
 
     private DiagnosticMessageHelper() {

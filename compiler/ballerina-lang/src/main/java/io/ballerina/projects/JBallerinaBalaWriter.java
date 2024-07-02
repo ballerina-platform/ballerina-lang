@@ -58,7 +58,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public static final String LIBS = "libs";
     public static final String COMPILER_PLUGIN = "compiler-plugin";
     public static final String ANNON = "annon";
-    private JBallerinaBackend backend;
+    private final JBallerinaBackend backend;
 
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;

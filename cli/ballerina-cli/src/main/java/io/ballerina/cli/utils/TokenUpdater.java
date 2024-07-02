@@ -43,8 +43,8 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
  */
 public final class TokenUpdater {
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
 
     private TokenUpdater() {
     }

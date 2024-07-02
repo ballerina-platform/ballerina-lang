@@ -29,8 +29,8 @@ import java.util.function.Function;
  * @since 0.995.0
  */
 class SchedulerItem {
-    private Function<Object[], ?> function;
-    private Object[] params;
+    private final Function<Object[], ?> function;
+    private final Object[] params;
     final FutureValue future;
     boolean parked;
 

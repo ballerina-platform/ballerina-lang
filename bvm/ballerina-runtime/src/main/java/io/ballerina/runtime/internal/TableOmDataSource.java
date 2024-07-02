@@ -51,9 +51,9 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private static final String DEFAULT_ROOT_WRAPPER = "results";
     private static final String DEFAULT_ROW_WRAPPER = "result";
 
-    private TableValueImpl<?, ?> table;
-    private String rootWrapper;
-    private String rowWrapper;
+    private final TableValueImpl<?, ?> table;
+    private final String rootWrapper;
+    private final String rowWrapper;
 
     public TableOmDataSource(TableValueImpl<?, ?> table, String rootWrapper, String rowWrapper) {
         this.table = table;

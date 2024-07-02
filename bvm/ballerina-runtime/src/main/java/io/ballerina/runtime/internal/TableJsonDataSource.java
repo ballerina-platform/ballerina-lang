@@ -47,8 +47,8 @@ import java.util.Map;
  */
 public class TableJsonDataSource implements JsonDataSource {
 
-    private BTable<?, ?> tableValue;
-    private JSONObjectGenerator objGen;
+    private final BTable<?, ?> tableValue;
+    private final JSONObjectGenerator objGen;
 
     public TableJsonDataSource(BTable<?, ?> tableValue) {
         this(tableValue, new DefaultJSONObjectGenerator());

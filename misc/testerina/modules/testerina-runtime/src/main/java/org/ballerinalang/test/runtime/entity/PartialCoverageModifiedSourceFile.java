@@ -33,7 +33,7 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     private final ISourceFileCoverage oldSourceFile;
     private final List<ILine> modifiedLines;
-    private String normalizedPackageName;
+    private final String normalizedPackageName;
 
     public PartialCoverageModifiedSourceFile(ISourceFileCoverage oldSourcefile, List<ILine> modifiedLines,
                                              String normalizedPackageName) {

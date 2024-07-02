@@ -45,7 +45,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.transaction.HeuristicMixedException;
@@ -91,18 +93,18 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
+    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<String, List<BFunctionPointer<?, ?>>> committedFuncRegistry;
-    private Map<String, List<BFunctionPointer<?, ?>>> abortedFuncRegistry;
+    private final Map<String, List<BFunctionPointer<?, ?>>> committedFuncRegistry;
+    private final Map<String, List<BFunctionPointer<?, ?>>> abortedFuncRegistry;
 
-    private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
+    private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
+    private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
+    private final ConcurrentMap<String, Set<String>> localParticipants = new ConcurrentHashMap<>();
 
-    private boolean transactionManagerEnabled;
+    private final boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
     Map<ByteBuffer, Object> transactionInfoMap;
@@ -658,7 +660,7 @@ public class TransactionResourceManager {
     }
 
     public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {
-        ConcurrentSkipListSet<String> participantBlockIds = localParticipants.get(gTransactionId);
+        Set<String> participantBlockIds = localParticipants.get(gTransactionId);
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }

@@ -51,12 +51,11 @@ import java.util.regex.PatternSyntaxException;
 public final class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
-    private static List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r",
-            "\t",
-            "\"", "\\", "!", "`"));
-    private static List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
-    private static List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")",
-            "+", "^", "|"));
+    private static final List<String> specialCharacters = new ArrayList<>(
+            Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t", "\"", "\\", "!", "`"));
+    private static final List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private static final List<String> regexSpecialCharacters = new ArrayList<>(
+            Arrays.asList("{", "}", "[", "]", "(", ")", "+", "^", "|"));
 
     private StringUtils() {
     }

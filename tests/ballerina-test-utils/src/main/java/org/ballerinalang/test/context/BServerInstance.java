@@ -49,18 +49,18 @@ public class BServerInstance implements BServer {
     private static final Logger log = LoggerFactory.getLogger(BServerInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String agentHost = "localhost";
-    private BalServer balServer;
+    private final BalServer balServer;
     private int agentPort;
     private String agentArgs;
     private boolean agentsAdded = false;
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
-    private Set<LogLeecher> tmpInfoLeechers = ConcurrentHashMap.newKeySet();
-    private Set<LogLeecher> tmpErrorLeechers = ConcurrentHashMap.newKeySet();
+    private final Set<LogLeecher> tmpInfoLeechers = ConcurrentHashMap.newKeySet();
+    private final Set<LogLeecher> tmpErrorLeechers = ConcurrentHashMap.newKeySet();
     private int[] requiredPorts;
 
-    private static InetAddress address;
+    private static final InetAddress address;
 
     static {
         try {

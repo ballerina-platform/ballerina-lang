@@ -72,9 +72,9 @@ public class Document {
      */
     public static class Modifier {
         private String content;
-        private String name;
-        private DocumentId documentId;
-        private Module oldModule;
+        private final String name;
+        private final DocumentId documentId;
+        private final Module oldModule;
 
         private Modifier(Document oldDocument) {
             this.documentId = oldDocument.documentId();

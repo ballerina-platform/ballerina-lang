@@ -30,13 +30,13 @@ import java.util.Map;
 public class MockRegistry {
 
     public static final String ANY = "__ANY__";
-    private static MockRegistry instance = new MockRegistry();
+    private static final MockRegistry instance = new MockRegistry();
 
     public static MockRegistry getInstance() {
         return instance;
     }
-    private Map<String, Object> casesMap = new HashMap<>();
-    private Map<String, Integer> memberFuncHitsMap = new HashMap<>();
+    private final Map<String, Object> casesMap = new HashMap<>();
+    private final Map<String, Integer> memberFuncHitsMap = new HashMap<>();
 
     /**
      * Register a case for object mocking when a sequence of return value is provided.

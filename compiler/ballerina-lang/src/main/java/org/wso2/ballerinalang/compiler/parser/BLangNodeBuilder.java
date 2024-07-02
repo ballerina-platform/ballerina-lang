@@ -528,19 +528,19 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private static final String DOLLAR = "$";
-    private BLangDiagnosticLog dlog;
-    private SymbolTable symTable;
+    private final BLangDiagnosticLog dlog;
+    private final SymbolTable symTable;
 
     private PackageCache packageCache;
-    private PackageID packageID;
-    private String currentCompUnitName;
+    private final PackageID packageID;
+    private final String currentCompUnitName;
 
     private BLangCompilationUnit currentCompilationUnit;
-    private BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangMissingNodesHelper missingNodesHelper;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangMissingNodesHelper missingNodesHelper;
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
-    private Deque<BLangStatement> additionalStatements = new ArrayDeque<>();
+    private final Deque<BLangStatement> additionalStatements = new ArrayDeque<>();
     private final Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
@@ -550,7 +550,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean isInCharacterClass = false;
     boolean inCollectContext = false;
 
-    private  HashSet<String> constantSet = new HashSet<String>();
+    private final HashSet<String> constantSet = new HashSet<String>();
 
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
@@ -6872,7 +6872,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         private BLangIdentifier name;
         private BLangType type;
         private boolean isDeclaredWithVar;
-        private Set<Flag> flags = new HashSet<>();
+        private final Set<Flag> flags = new HashSet<>();
         private boolean isFinal;
         private ExpressionNode expr;
         private Location pos;

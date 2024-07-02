@@ -35,7 +35,7 @@ public final class Utils {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 
-    private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
+    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
     private Utils() {
     }

@@ -29,7 +29,7 @@ import java.util.ServiceLoader;
  */
 public class BackendCodeGeneratorProvider {
 
-    private static BackendCodeGeneratorProvider provider = new BackendCodeGeneratorProvider();
+    private static final BackendCodeGeneratorProvider provider = new BackendCodeGeneratorProvider();
 
     private final ServiceLoader<CompilerBackendCodeGenerator> loader;
 

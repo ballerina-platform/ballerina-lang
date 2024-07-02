@@ -47,7 +47,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     // Parser Flags and Data
     public Set<Flag> flagSet;
-    private Set<AttachPoint> attachPoints;
+    private final Set<AttachPoint> attachPoints;
 
     // Semantic Data
     public BSymbol symbol;

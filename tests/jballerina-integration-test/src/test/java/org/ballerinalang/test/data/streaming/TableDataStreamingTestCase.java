@@ -174,18 +174,19 @@ public class TableDataStreamingTestCase extends BaseTest {
     /**
      * This reads a buffered stream and returns the number of characters.
      */
-    private static HttpClientRequest.CheckedFunction<BufferedReader, String> responseBuilder = ((bufferedReader) -> {
-        int count = 0;
-        while (bufferedReader.read() != -1) {
-            count++;
-        }
-        return String.valueOf(count);
-    });
+    private static final HttpClientRequest.CheckedFunction<BufferedReader, String> responseBuilder =
+            (bufferedReader -> {
+                int count = 0;
+                while (bufferedReader.read() != -1) {
+                    count++;
+                }
+                return String.valueOf(count);
+            });
 
     /**
      * This reads a buffered stream and returns the number of characters.
      */
-    private static HttpClientRequest.CheckedFunction<BufferedReader, String> slowResponseBuilder =
+    private static final HttpClientRequest.CheckedFunction<BufferedReader, String> slowResponseBuilder =
             ((bufferedReader) -> {
                 int count = 0;
                 while (bufferedReader.read() != -1) {

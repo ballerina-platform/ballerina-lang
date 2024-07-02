@@ -57,7 +57,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path sourceDirPath;
     private List<String> packageNames;
     protected boolean scanned = false;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream outStream = System.out;
 
     public FileSystemProjectDirectory(Path projectDirPath) {
         super(projectDirPath);

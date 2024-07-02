@@ -41,7 +41,7 @@ import java.nio.file.Path;
  */
 public class GotoImplementationTest {
     private Endpoint serviceEndpoint;
-    private String configRoot = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
+    private final String configRoot = "implementation" + CommonUtil.FILE_SEPARATOR + "expected";
     private static final Logger log = LoggerFactory.getLogger(GotoImplementationTest.class);
 
     @BeforeClass

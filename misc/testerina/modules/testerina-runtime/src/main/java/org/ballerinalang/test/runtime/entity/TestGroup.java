@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TestGroup {
     private int testCount;
     private int executedCount;
-    private List<String> beforeGroupsFunctions;
-    private Map<String, AtomicBoolean> afterGroupsFunctions;
+    private final List<String> beforeGroupsFunctions;
+    private final Map<String, AtomicBoolean> afterGroupsFunctions;
 
     public TestGroup() {
         this.testCount = 0;

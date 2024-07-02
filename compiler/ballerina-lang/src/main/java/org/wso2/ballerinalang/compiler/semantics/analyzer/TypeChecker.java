@@ -221,8 +221,8 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterLi
 public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerData> {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
-    private static Set<String> listLengthModifierFunctions = new HashSet<>();
-    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
+    private static final Set<String> listLengthModifierFunctions = new HashSet<>();
+    private static final Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
     private static final String LIST_LANG_LIB = "lang.array";
     private static final String MAP_LANG_LIB = "lang.map";
@@ -9811,8 +9811,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private static class TypeSymbolPair {
-        private BVarSymbol fieldSymbol;
-        private BType determinedType;
+        private final BVarSymbol fieldSymbol;
+        private final BType determinedType;
 
         public TypeSymbolPair(BVarSymbol fieldSymbol, BType determinedType) {
             this.fieldSymbol = fieldSymbol;

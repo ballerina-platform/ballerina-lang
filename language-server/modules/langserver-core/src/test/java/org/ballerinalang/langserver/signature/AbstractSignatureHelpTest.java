@@ -49,7 +49,7 @@ public abstract class AbstractSignatureHelpTest {
 
     private Endpoint serviceEndpoint;
 
-    private Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
+    private final Path testRoot = new File(getClass().getClassLoader().getResource("signature").getFile()).toPath();
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSignatureHelpTest.class);
 
