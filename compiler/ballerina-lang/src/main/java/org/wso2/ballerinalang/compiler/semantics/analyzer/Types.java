@@ -1456,7 +1456,7 @@ public class Types {
                 boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
 
                 if (isTypeParam) {
-                    if (!isAssignable(sourceParam, targetParam)) {
+                    if (!isTypeParamAssignable(sourceParam, targetParam)) {
                         return false;
                     }
                 } else {
@@ -1479,6 +1479,11 @@ public class Types {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isTypeParamAssignable(BType sourceParam, BType targetParam) {
+        return isAssignable(sourceParam, targetParam) ||
+                (isAssignable(sourceParam, symTable.xmlType) && isAssignable(targetParam, sourceParam));
     }
 
     public boolean isInherentlyImmutableType(BType type) {
@@ -2060,8 +2065,7 @@ public class Types {
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                 Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
-                        collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
+                return BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
         }
@@ -3678,11 +3682,6 @@ public class Types {
                 continue;
             }
             if (sMember.tag == TypeTags.FINITE && isAssignable(sMember, target, unresolvedTypes)) {
-                sourceIterator.remove();
-                continue;
-            }
-            if (sMember.tag == TypeTags.XML &&
-                    isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
