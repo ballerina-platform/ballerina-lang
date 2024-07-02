@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link XMLSimpleNameNode} context.
@@ -44,7 +43,7 @@ public class XMLSimpleNameNodeContext extends AbstractCompletionProvider<XMLSimp
 
         List<Symbol> xmlNamespaces = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.XMLNS)
-                .collect(Collectors.toList());
+                .toList();
 
         List<LSCompletionItem> completionItems = this.getCompletionItemList(xmlNamespaces, context);
         this.sort(context, node, completionItems);

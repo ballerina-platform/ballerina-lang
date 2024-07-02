@@ -198,7 +198,7 @@ public class RecordUtil {
     public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().values().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -236,7 +236,7 @@ public class RecordUtil {
                     .map(tSymbol -> {
                         RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
                         return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
-                    }).collect(Collectors.toList());
+                    }).toList();
         }
 
         return Collections.emptyList();

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * A container for various package representation that provides efficient access to packages.
@@ -82,6 +81,6 @@ public class PackageVersionContainer<T> {
                 .flatMap(Collection::stream)
                 .map(Map::values)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

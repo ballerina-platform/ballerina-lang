@@ -21,7 +21,6 @@ package io.ballerina.shell.utils;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * An import that has quoted orgname and module names.
@@ -36,7 +35,7 @@ public class QuotedImport {
         this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
                 .map(Identifier::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public QuotedImport(List<String> moduleNames) {

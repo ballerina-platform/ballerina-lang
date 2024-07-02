@@ -35,9 +35,7 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
@@ -110,7 +108,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         CompatibleRange compatibilityRange = ProjectUtils.getCompatibleRange(minSemVer, packageLockingMode);
         List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
                 minSemVer, semVers, compatibilityRange);
-        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
+        return compatibleVersions.stream().map(PackageVersion::from).toList();
     }
 
     private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
@@ -149,15 +147,16 @@ public abstract class AbstractPackageRepository implements PackageRepository {
     private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
                                                          PackageName packageName,
                                                          List<PackageVersion> packageVersions) {
-        Comparator<PackageVersion> comparator = (v1, v2) -> {
-
+        packageVersions = packageVersions.stream().sorted((v1, v2) -> {
+            if (v1.equals(v2)) {
+                return 0;
+            }
             PackageVersion latest = getLatest(v1, v2);
             if (v1 == latest) {
                 return -1;
             }
             return 1;
-        };
-        packageVersions.sort(comparator);
+        }).toList();
 
         for (PackageVersion packageVersion : packageVersions) {
             Collection<ModuleDescriptor> moduleDescriptors = getModules(

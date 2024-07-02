@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents a table type descriptor.
@@ -80,7 +79,7 @@ public class BallerinaTableTypeSymbol extends AbstractStructuredTypeSymbol imple
         Types types = Types.getInstance(this.context);
 
         // Skip key-ed langlib functions if the table's type-constraint is never-typed
-        return super.filterLangLibMethods(functions, internalType).stream()
+        return new ArrayList<>(super.filterLangLibMethods(functions, internalType).stream()
                 .filter(functionSymbol -> {
                     if (!ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
                             !MODULE_NAME_LANG_TABLE.equals(functionSymbol.getModule().get().id().moduleName())) {
@@ -89,7 +88,7 @@ public class BallerinaTableTypeSymbol extends AbstractStructuredTypeSymbol imple
 
                     return !isKeyedLangLibFunction(functionSymbol, types) || !isNeverTypeKeyConstraint(types);
                 })
-                .collect(Collectors.toList());
+                .toList());
     }
 
     @Override

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Handles the completions for the {@link RemoteMethodCallActionNode}.
@@ -77,7 +77,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = this.getClientActions(expressionType.get());
+            List<MethodSymbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             /*
@@ -91,7 +91,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
-                if (isNotInNamedArgOnlyContext(context, node.arguments().stream().collect(Collectors.toList()))) {
+                if (isNotInNamedArgOnlyContext(context, node.arguments().stream().toList())) {
                     completionItems.addAll(this.actionKWCompletions(context));
                     completionItems.addAll(this.expressionCompletions(context));
                 }

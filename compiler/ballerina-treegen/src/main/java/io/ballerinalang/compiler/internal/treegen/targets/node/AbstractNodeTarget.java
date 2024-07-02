@@ -27,7 +27,6 @@ import io.ballerinalang.compiler.internal.treegen.targets.Target;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The class {@code AbstractNodeTarget} represent a generic entity that converts a
@@ -57,7 +56,7 @@ public abstract class AbstractNodeTarget extends Target {
                 .stream()
                 .map(syntaxNode -> generateNodeClass(syntaxNode, nodeMetadataMap))
                 .map(treeNodeClass -> getSourceText(treeNodeClass, getOutputDir(), getClassName(treeNodeClass)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private TreeNodeClass generateNodeClass(SyntaxNode syntaxNode, HashMap<String,

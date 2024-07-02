@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Helper methods for writing code action tests.
@@ -82,7 +81,7 @@ public class CodeActionUtils {
                     // Get codeactions for the diagnostic
                     return codeActionManager.codeActions(context).getCodeActions().stream();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -105,7 +104,7 @@ public class CodeActionUtils {
         Gson gson = new Gson();
         List<CodeActionArgument> codeActionArguments = codeAction.getArguments().stream()
                 .map(arg -> CodeActionArgument.from(gson.toJsonTree(arg)))
-                .collect(Collectors.toList());
+                .toList();
 
         CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(
                 filePath.toUri().toString(),

@@ -46,7 +46,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Code Action for error type handle.
@@ -137,7 +136,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
 
         List<TypeSymbol> errorTypeSymbols = ((UnionTypeSymbol) foundType.get()).memberTypeDescriptors().stream()
                 .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         ImportsAcceptor acceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(

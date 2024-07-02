@@ -67,7 +67,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
@@ -480,10 +479,10 @@ public class TestUtils {
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
-        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver);
-
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
-        dependencies.removeAll(jarList);
+
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver)
+                .stream().filter(dependency -> !jarList.contains(dependency)).toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();
@@ -519,7 +518,7 @@ public class TestUtils {
                 }
             }
         }
-        return dependencies.stream().distinct().collect(Collectors.toList());
+        return dependencies.stream().distinct().toList();
     }
 
     /**
@@ -546,7 +545,7 @@ public class TestUtils {
             }
         }
 
-        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
+        return moduleJarPaths.stream().distinct().toList();
     }
 
     private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend,

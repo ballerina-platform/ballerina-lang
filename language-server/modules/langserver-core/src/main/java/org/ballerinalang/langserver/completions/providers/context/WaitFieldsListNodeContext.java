@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 
@@ -79,7 +78,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream() 
                 .filter(CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == WORKER))
-                .collect(Collectors.toList());
+                .toList();
         return this.getCompletionItemList(filteredList, context);
     }
     

@@ -90,7 +90,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
          */
         List<IdentifierToken> moduleName = node.moduleName().stream()
                 .filter(token -> !token.isMissing())
-                .collect(Collectors.toList());
+                .toList();
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         ContextScope contextScope;
@@ -230,7 +230,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             List<String> pkgNameComps = Arrays.stream(pkgName.split("\\."))
                     .map(ModuleUtil::escapeModuleName)
                     .map(CommonUtil::escapeReservedKeyword)
-                    .collect(Collectors.toList());
+                    .toList();
             String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
                     : CommonUtil.getPackageLabel(pkg);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();

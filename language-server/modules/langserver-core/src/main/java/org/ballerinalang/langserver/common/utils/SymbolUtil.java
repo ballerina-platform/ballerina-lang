@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -464,7 +463,7 @@ public class SymbolUtil {
         if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
             completionSearchProvider.indexModuleAndModuleSymbolNames(moduleId, symbolList.stream()
                     .map(symbol -> symbol.getName().get())
-                    .collect(Collectors.toList()), new ArrayList<>(symbolMapWithPrefix.keySet()));
+                    .toList(), new ArrayList<>(symbolMapWithPrefix.keySet()));
         }
 
         List<String> stringList = completionSearchProvider.getSuggestions(prefix);
@@ -480,6 +479,6 @@ public class SymbolUtil {
     private static List<Symbol> getFilteredList(Map<String, Symbol> symbolMap, List<String> stringList) {
         return symbolMap.entrySet().stream().filter(stringSymbolEntry ->
                         stringList.contains(stringSymbolEntry.getKey().toLowerCase())).map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

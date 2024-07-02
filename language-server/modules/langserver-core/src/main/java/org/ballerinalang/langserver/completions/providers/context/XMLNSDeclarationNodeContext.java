@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link XMLNamespaceDeclarationNode} context.
@@ -67,7 +66,7 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
             } else {
                 List<Symbol> constants = context.visibleSymbols(context.getCursorPosition()).stream()
                         .filter(predicate)
-                        .collect(Collectors.toList());
+                        .toList();
                 completionItems.addAll(this.getCompletionItemList(constants, context));
                 completionItems.addAll(this.getModuleCompletionItems(context));
             }

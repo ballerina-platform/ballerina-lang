@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link DistinctTypeDescriptorNode} context.
@@ -78,7 +77,7 @@ public class DistinctTypeDescriptorNodeContext extends AbstractCompletionProvide
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
             List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(predicate)
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));
         }
         this.sort(context, node, completionItems);

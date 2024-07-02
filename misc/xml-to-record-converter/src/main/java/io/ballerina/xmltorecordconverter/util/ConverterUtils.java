@@ -31,7 +31,6 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.escapeSpecialCharacters;
@@ -118,24 +117,24 @@ public class ConverterUtils {
      * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list.
      */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
-        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        List<TypeDescriptorNode> nonArrayNodes = new ArrayList<>(typeDescriptorNodes.stream()
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).toList());
         List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
-                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).toList();
         List<TypeDescriptorNode> membersOfArrayNodes = arrayNodes.stream()
                 .map(node -> extractArrayTypeDescNode((ArrayTypeDescriptorNode) node)).toList();
         nonArrayNodes.removeIf(node ->
                 membersOfArrayNodes.stream().map(Node::toSourceCode).toList().contains(node.toSourceCode()));
-        nonArrayNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
-        arrayNodes.sort((node1, node2) -> {
-            ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
-            ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
-            return getNumberOfDimensions(arrayNode1).equals(getNumberOfDimensions(arrayNode2)) ?
-                    (arrayNode1).memberTypeDesc().toSourceCode()
-                            .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
-                    getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
-        });
-        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return Stream.concat(
+                nonArrayNodes.stream().sorted(Comparator.comparing(TypeDescriptorNode::toSourceCode)),
+                arrayNodes.stream().sorted((node1, node2) -> {
+                            ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
+                            ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
+                            return getNumberOfDimensions(arrayNode1).equals(getNumberOfDimensions(arrayNode2)) ?
+                                    (arrayNode1).memberTypeDesc().toSourceCode()
+                                            .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
+                                    getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
+                })).toList();
     }
 
     /**

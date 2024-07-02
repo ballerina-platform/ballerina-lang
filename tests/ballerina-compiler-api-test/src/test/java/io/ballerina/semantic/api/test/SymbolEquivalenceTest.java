@@ -34,7 +34,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -72,7 +71,7 @@ public class SymbolEquivalenceTest {
     public void testSymbols(List<LinePosition> positions) {
         List<Symbol> symbols = positions.stream()
                 .map(pos -> model.symbol(srcFile, pos).get())
-                .collect(Collectors.toList());
+                .toList();
         assertSymbols(symbols);
     }
 
@@ -113,7 +112,7 @@ public class SymbolEquivalenceTest {
         SemanticModel typeRefModel = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
         List<Symbol> symbols = positions.stream()
                 .map(pos -> typeRefModel.symbol(typesSrcFile, pos).get())
-                .collect(Collectors.toList());
+                .toList();
 
         assertSymbols(symbols);
     }
@@ -133,7 +132,7 @@ public class SymbolEquivalenceTest {
                     }
                     throw new AssertionError("Unexpected symbol kind: " + s.kind());
                 })
-                .collect(Collectors.toList());
+                .toList();
         assertTypeSymbols(types);
     }
 
