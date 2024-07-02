@@ -333,7 +333,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ANY_VAR_DEF("BCE2574", "invalid.any.var.def"),
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
-    INVALID_RECORD_LITERAL_BINDING_PATTERN("BCE2577", "invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR("BCE2578", "duplicate.key.in.mapping.constructor"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("BCE2579", "duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("BCE2580", "duplicate.key.in.record.literal.spread.op"),
