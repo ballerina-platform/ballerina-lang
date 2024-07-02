@@ -55,7 +55,6 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
-import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -222,7 +221,8 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
         return Collections.singletonList(codeAction);
     }
 
-    private static Optional<FunctionTypeSymbol> getFunctionTypeSymbolFromNewExpr(SemanticModel semanticModel, Node node) {
+    private static Optional<FunctionTypeSymbol> getFunctionTypeSymbolFromNewExpr(SemanticModel semanticModel,
+                                                                                 Node node) {
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(node);
         if (typeSymbol.isEmpty()) {
             return Optional.empty();
