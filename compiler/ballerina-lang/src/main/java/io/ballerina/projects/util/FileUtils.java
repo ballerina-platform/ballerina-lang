@@ -169,8 +169,10 @@ public class FileUtils {
         }
 
         if (Files.isDirectory(path)) {
-            for (Path dir : Files.list(path).toList()) {
-                deletePath(dir);
+            try (Stream<Path> paths = Files.list(path)) {
+                for (Path dir : paths.toList()) {
+                    deletePath(dir);
+                }
             }
         }
 

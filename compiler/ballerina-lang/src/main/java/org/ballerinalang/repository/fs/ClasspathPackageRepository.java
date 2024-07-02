@@ -70,7 +70,8 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
             throw new RuntimeException(e);
         }
     }
-    
+
+    @SuppressWarnings("resource")
     private static void initFS(URI uri) throws IOException {
         if (JAR_URI_SCHEME.equals(uri.getScheme())) {
             Map<String, String> env = new HashMap<>(); 

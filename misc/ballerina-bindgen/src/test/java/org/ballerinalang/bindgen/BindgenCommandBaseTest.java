@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Command test supper class.
@@ -75,14 +76,15 @@ public abstract class BindgenCommandBaseTest {
 
     @AfterClass (alwaysRun = true)
     public void cleanup() throws IOException {
-        Files.walk(tmpDir)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        Assert.fail(e.getMessage(), e);
-                    }
-                });
+        try (Stream<Path> paths = Files.walk(tmpDir)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            Assert.fail(e.getMessage(), e);
+                        }
+                    });
+        }
     }
 }

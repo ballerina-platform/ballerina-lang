@@ -894,10 +894,11 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     public void afterClass() throws IOException {
         Path advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("adv_res");
-        Files.walk(advResBalaDir)
-                .map(Path::toFile)
-                .sorted((o1, o2) -> -o1.compareTo(o2))
-                .forEach(File::delete);
+        try (Stream<Path> paths = Files.walk(advResBalaDir)) {
+            paths.map(Path::toFile)
+                    .sorted((o1, o2) -> -o1.compareTo(o2))
+                    .forEach(File::delete);
+        }
     }
 
     private static void deleteDependenciesTomlAndBuildFile(Path packagePath) throws IOException {
