@@ -72,7 +72,7 @@ public class HttpClient {
                            .remoteAddress(new InetSocketAddress(host, port))
                            .handler(new ChannelInitializer<SocketChannel>() {
                                @Override
-                               public void initChannel(SocketChannel ch) throws Exception {
+                               public void initChannel(SocketChannel ch) {
                                    ch.pipeline().addLast(new HttpClientCodec());
                                    ch.pipeline().addLast(new HttpObjectAggregator(1024 * 512));
                                    ch.pipeline().addLast(responseHandler);

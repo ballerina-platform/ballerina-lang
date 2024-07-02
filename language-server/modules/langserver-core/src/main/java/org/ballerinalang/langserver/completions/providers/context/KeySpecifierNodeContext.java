@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
 import org.ballerinalang.langserver.common.utils.RecordUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -57,8 +56,7 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, KeySpecifierNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, KeySpecifierNode node) {
         List<LSCompletionItem> completionItems = getKeyCompletionItems(context, node);
         this.sort(context, node, completionItems);
         return completionItems;

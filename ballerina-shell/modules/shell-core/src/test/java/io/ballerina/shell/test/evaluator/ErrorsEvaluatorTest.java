@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -37,42 +36,42 @@ public class ErrorsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String SINGLE_PLACE_EVALUATOR_TESTCASE = "testcases/evaluator/errors.single.place.json";
 
     @Test
-    public void testEvaluateErrorHandling() throws BallerinaShellException {
+    public void testEvaluateErrorHandling() {
         testEvaluate(HANDLING_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateFail() throws BallerinaShellException {
+    public void testEvaluateFail() {
         testEvaluate(FAIL_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateCheck() throws BallerinaShellException {
+    public void testEvaluateCheck() {
         testEvaluate(CHECK_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluatePanic() throws BallerinaShellException {
+    public void testEvaluatePanic() {
         testEvaluate(PANIC_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateCheckPanic() throws BallerinaShellException {
+    public void testEvaluateCheckPanic() {
         testEvaluate(CHECKPANIC_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateTrap() throws BallerinaShellException {
+    public void testEvaluateTrap() {
         testEvaluate(TRAP_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateUserDef() throws BallerinaShellException {
+    public void testEvaluateUserDef() {
         testEvaluate(USER_DEF_EVALUATOR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateSinglePlace() throws BallerinaShellException {
+    public void testEvaluateSinglePlace() {
         // TODO: Test transaction on fail clause
         testEvaluate(SINGLE_PLACE_EVALUATOR_TESTCASE);
     }

@@ -38,7 +38,6 @@ import io.ballerina.semver.checker.exception.SemverToolException;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -175,13 +174,9 @@ class BallerinaPackageResolver {
 
     private void initializeCentralClient() {
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-            // Ignore Settings.toml diagnostics in the search command
-        } catch (SettingsTomlException e) {
-            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the search command
+
         this.centralClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),

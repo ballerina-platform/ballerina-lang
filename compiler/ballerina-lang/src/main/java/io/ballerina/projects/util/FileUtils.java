@@ -309,7 +309,8 @@ public class FileUtils {
                     Files.write(path, content.getBytes(StandardCharsets.UTF_8));
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while replacing template name in module import statements: " + path, e);
+                throw new RuntimeException(
+                        "Error while replacing template name in module import statements: " + path, e);
             }
         }
     }
@@ -412,8 +413,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 
             int depth = dir.getNameCount() - startingPath.getNameCount();
             if (depth >= 10) {
@@ -423,8 +423,7 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 
             if (FILE_MATCHER.matches(file)) {
                 setBallerinaTomlFound(true);

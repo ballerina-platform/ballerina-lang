@@ -40,7 +40,7 @@ public class SymbolDocumentationTest {
             .resolve("symbolDocumentation.bal");
 
     @BeforeClass
-    public void startLangServer() throws IOException {
+    public void startLangServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

@@ -36,7 +36,7 @@ public class DependencyEvaluationTest extends BaseTestCase {
     protected DebugTestRunner debugTestRunner;
 
     @BeforeClass(alwaysRun = true)
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         String testProjectName = "evaluation-tests-2";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);

@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -39,52 +38,52 @@ public class OperationsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String CONV_OPERATION_TESTCASE = "testcases/evaluator/operations.conv.json";
 
     @Test
-    public void testEvaluateShift() throws BallerinaShellException {
+    public void testEvaluateShift() {
         testEvaluate(SHIFT_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBitwise() throws BallerinaShellException {
+    public void testEvaluateBitwise() {
         testEvaluate(BITWISE_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateCompound() throws BallerinaShellException {
+    public void testEvaluateCompound() {
         testEvaluate(COMPOUND_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateEquality() throws BallerinaShellException {
+    public void testEvaluateEquality() {
         testEvaluate(EQUALITY_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateLength() throws BallerinaShellException {
+    public void testEvaluateLength() {
         testEvaluate(LENGTH_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateCast() throws BallerinaShellException {
+    public void testEvaluateCast() {
         testEvaluate(CAST_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateOptional() throws BallerinaShellException {
+    public void testEvaluateOptional() {
         testEvaluate(OPTIONAL_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateClone() throws BallerinaShellException {
+    public void testEvaluateClone() {
         testEvaluate(CLONE_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateImmutable() throws BallerinaShellException {
+    public void testEvaluateImmutable() {
         testEvaluate(IMMUTABLE_OPERATION_TESTCASE);
     }
 
     @Test
-    public void testEvaluateConvertTypes() throws BallerinaShellException {
+    public void testEvaluateConvertTypes() {
         testEvaluate(CONV_OPERATION_TESTCASE);
     }
 }

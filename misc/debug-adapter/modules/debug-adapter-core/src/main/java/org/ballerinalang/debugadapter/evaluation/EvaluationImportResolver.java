@@ -61,7 +61,7 @@ public class EvaluationImportResolver extends NodeVisitor {
      *
      * @return a map of all the imports declared in the current debug source.
      */
-    public Map<String, BImport> getAllImports() throws EvaluationException {
+    public Map<String, BImport> getAllImports() {
         resolveVisibleImports();
         return Map.copyOf(visibleImports);
     }

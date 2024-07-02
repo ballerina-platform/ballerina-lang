@@ -124,7 +124,7 @@ public class SyntaxTreeModifyTest {
     }
 
     @BeforeClass
-    public void startLangServer() throws IOException {
+    public void startLangServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

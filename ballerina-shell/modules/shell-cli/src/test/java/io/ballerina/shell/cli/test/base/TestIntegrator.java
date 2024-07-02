@@ -96,7 +96,7 @@ public class TestIntegrator extends Thread {
                         testCase.getDescription());
                 stdoutStream.reset();
             }
-        } catch (IOException | InterruptedException ignored) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -116,7 +116,7 @@ public class TestIntegrator extends Thread {
     /**
      * Send the data given to the specific stream.
      */
-    private void sendRequest(PrintStream stream, String string) throws InterruptedException {
+    private void sendRequest(PrintStream stream, String string) {
         stream.append(string);
         stream.println(System.lineSeparator());
         stream.flush();

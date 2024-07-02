@@ -65,8 +65,7 @@ public abstract class AbstractSegmentTest {
      * @param templateFile Template to use for dynamic class loading.
      */
     protected void testForGeneratedCode(String sourceCode, SyntaxApiCallsGenConfig.Formatter formatter,
-                                        File templateFile)
-            throws URISyntaxException {
+                                        File templateFile) {
         sourceCode = sourceCode.trim();
         SyntaxApiCallsGenConfig config = new SyntaxApiCallsGenConfig.Builder()
                 .templateFile(templateFile)

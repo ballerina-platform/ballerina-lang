@@ -129,8 +129,7 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
         return Optional.empty();
     }
 
-    private Optional<BExpressionValue> searchForModuleVariable(ModuleSymbol moduleSymbol, String modulePrefix)
-            throws EvaluationException {
+    private Optional<BExpressionValue> searchForModuleVariable(ModuleSymbol moduleSymbol, String modulePrefix) {
         Optional<VariableSymbol> variableSymbol = moduleSymbol.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE
                         && symbol.getName().isPresent()

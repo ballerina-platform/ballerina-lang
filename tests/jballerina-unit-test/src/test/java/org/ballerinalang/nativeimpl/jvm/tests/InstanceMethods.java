@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
+@SuppressWarnings({"all"})
 public class InstanceMethods {
 
     private Integer counter = 0;
@@ -62,7 +63,7 @@ public class InstanceMethods {
     }
 
     public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue)
-    throws JavaInteropTestCheckedException {
+            throws JavaInteropTestCheckedException {
         this.counter = newValue;
         return this.counter;
     }

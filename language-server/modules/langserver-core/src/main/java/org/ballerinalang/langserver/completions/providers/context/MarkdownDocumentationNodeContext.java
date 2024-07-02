@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -39,7 +38,7 @@ public class MarkdownDocumentationNodeContext extends AbstractCompletionProvider
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
-                                                 MarkdownDocumentationNode node) throws LSCompletionException {
+                                                 MarkdownDocumentationNode node) {
         // As of now, we are not showing any completions within documentation node
         return Collections.emptyList();
     }

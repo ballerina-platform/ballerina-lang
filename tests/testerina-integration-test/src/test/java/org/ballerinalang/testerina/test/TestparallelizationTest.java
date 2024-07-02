@@ -22,7 +22,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -36,13 +35,13 @@ public class TestparallelizationTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("parallelisation-test").toString();
     }
 
     @Test
-    public void testParallelization() throws BallerinaTestException, IOException {
+    public void testParallelization() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "parallelisation-simple-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -57,7 +56,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonParallelizable() throws BallerinaTestException, IOException {
+    public void testNonParallelizable() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "parallelisation-serialExecution"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -74,7 +73,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
 
     @Test
-    public void testParalallelizableTupleDataProvider() throws BallerinaTestException, IOException {
+    public void testParalallelizableTupleDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "parallelisation-tuple-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -89,7 +88,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testParalallelizableMapDataProvider() throws BallerinaTestException, IOException {
+    public void testParalallelizableMapDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "parallelisation-map-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -105,7 +104,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonParalallelizableTupleDataProvider() throws BallerinaTestException, IOException {
+    public void testNonParalallelizableTupleDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-parallelisation-tuple-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -121,7 +120,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedTestFunction() throws BallerinaTestException, IOException {
+    public void testNonIsolatedTestFunction() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'testAssertEquals*' cannot be parallelized, reason: " +
                 "non-isolated test function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-tests"});
@@ -141,7 +140,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedTestParameter() throws BallerinaTestException, IOException {
+    public void testNonIsolatedTestParameter() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "unsafe test parameters";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-test-params"});
@@ -160,7 +159,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedDataProvider() throws BallerinaTestException, IOException {
+    public void testNonIsolatedDataProvider() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated data-provider function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-data-provider"});
@@ -179,7 +178,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedAfterEach() throws BallerinaTestException, IOException {
+    public void testNonIsolatedAfterEach() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated after-each function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-after-each"});
@@ -198,7 +197,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedBeforeEach() throws BallerinaTestException, IOException {
+    public void testNonIsolatedBeforeEach() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated before-each function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-before-each"});
@@ -217,7 +216,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedAfterFunc() throws BallerinaTestException, IOException {
+    public void testNonIsolatedAfterFunc() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated after function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-after-func"});
@@ -236,7 +235,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedBeforeFunc() throws BallerinaTestException, IOException {
+    public void testNonIsolatedBeforeFunc() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated before function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-before-func"});
@@ -255,7 +254,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedAfterGroup() throws BallerinaTestException, IOException {
+    public void testNonIsolatedAfterGroup() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated after-groups function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-after-grp"});
@@ -274,7 +273,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonIsolatedBeforeGroup() throws BallerinaTestException, IOException {
+    public void testNonIsolatedBeforeGroup() throws BallerinaTestException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated before-groups function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-before-grp"});
@@ -293,7 +292,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testIsolatedSetUpTearDown() throws BallerinaTestException, IOException {
+    public void testIsolatedSetUpTearDown() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "isolated-set-up-tear-down"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -309,7 +308,7 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
-    public void testNonParalallelizableMapDataProvider() throws BallerinaTestException, IOException {
+    public void testNonParalallelizableMapDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-parallelisation-map-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);

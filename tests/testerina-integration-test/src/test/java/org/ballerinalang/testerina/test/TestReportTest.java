@@ -54,7 +54,7 @@ public class TestReportTest extends BaseTestCase {
     private static final int FAILED = 3;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
         resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve("report")

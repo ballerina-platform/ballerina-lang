@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -30,7 +29,7 @@ public class JavaInteropEvaluatorTest extends AbstractEvaluatorTest {
     private static final String JAVA_INTEROP_EVALUATOR_TESTCASE = "testcases/evaluator/java.interop.json";
 
     @Test
-    public void testEvaluateJavaInterop() throws BallerinaShellException {
+    public void testEvaluateJavaInterop() {
         testEvaluate(JAVA_INTEROP_EVALUATOR_TESTCASE);
     }
 }

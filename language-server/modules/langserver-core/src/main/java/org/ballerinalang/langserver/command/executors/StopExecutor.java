@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonPrimitive;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 
 import java.nio.file.Path;
@@ -33,7 +32,7 @@ import java.nio.file.Path;
 public class StopExecutor implements LSCommandExecutor {
 
     @Override
-    public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
+    public Boolean execute(ExecuteCommandContext context) {
         return context.workspace().stop(extractPath(context));
     }
 

@@ -52,7 +52,7 @@ public class DocumentSymbolTest {
     private static final Logger log = LoggerFactory.getLogger(DocumentSymbolTest.class);
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
     

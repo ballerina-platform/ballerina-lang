@@ -30,7 +30,6 @@ public interface HelpProvider {
      *
      * @param args   All the arguments given by requester.
      * @param output Builder to append output.
-     * @throws HelpProviderException If fetching help failed.
      */
-    void getTopic(String[] args, StringBuilder output) throws HelpProviderException;
+    void getTopic(String[] args, StringBuilder output);
 }
