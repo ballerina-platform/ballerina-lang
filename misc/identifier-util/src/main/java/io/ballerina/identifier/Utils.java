@@ -193,7 +193,7 @@ public class Utils {
      */
     public static String unescapeUnicodeCodepoints(String identifier) {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
-        StringBuffer buffer = new StringBuffer(identifier.length());
+        StringBuilder buffer = new StringBuilder(identifier.length());
         while (matcher.find()) {
             String leadingSlashes = matcher.group(1);
             if (isEscapedNumericEscape(leadingSlashes)) {

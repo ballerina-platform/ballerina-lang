@@ -103,8 +103,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -286,7 +287,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     public void visit(BLangIf ifStmt, AnalyzerData data) {
         checkStatementExecutionValidity(ifStmt, data);
 
-        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+        data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                 data.env.enclInvokable));
         data.unreachableBlock = data.unreachableBlock || data.booleanConstCondition == symTable.falseType;
         analyzeReachability(ifStmt.body, data);
@@ -310,7 +311,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         }
 
         if (elseStmt != null) {
-            data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+            data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                     data.env.enclInvokable));
 
             data.unreachableBlock = data.unreachableBlock || (data.booleanConstCondition == symTable.trueType &&
@@ -387,9 +388,9 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangForeach foreach, AnalyzerData data) {
         SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, data.env);
-        data.loopAndDoClauseEnvs.add(foreachEnv);
+        data.loopAndDoClauseEnvs.push(foreachEnv);
 
-        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+        data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                 data.env.enclInvokable));
 
         boolean prevStatementReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
@@ -445,7 +446,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (BLangMatchClause matchClause : matchClauses) {
             resetErrorThrown(data);
-            data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+            data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                     data.env.enclInvokable));
             analyzeReachability(matchClause, data);
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
@@ -644,9 +645,9 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangWhile whileNode, AnalyzerData data) {
         SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, data.env);
-        data.loopAndDoClauseEnvs.add(whileEnv);
+        data.loopAndDoClauseEnvs.push(whileEnv);
 
-        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+        data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                 data.env.enclInvokable));
 
         boolean prevStatementReturnsPanicsOrFails = data.statementReturnsPanicsOrFails;
@@ -731,10 +732,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangDoClause doClause, AnalyzerData data) {
         SymbolEnv doEnv = doClause.env;
-        data.loopAndDoClauseEnvs.add(doEnv);
+        data.loopAndDoClauseEnvs.push(doEnv);
 
         data.loopAndDoClauseCount++;
-        data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+        data.potentiallyInvalidAssignmentInLoopsInfo.push(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                 data.env.enclInvokable));
 
         BLangBlockStmt body = doClause.body;
@@ -922,7 +923,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
             boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt,
-            Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
+            Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 branchTerminates, isLoopBodyOrBranchWithContinueAsLastStmt,
                 DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP,
@@ -931,7 +932,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
             boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt, DiagnosticErrorCode errorCode,
-            Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
+            Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
 
         PotentiallyInvalidAssignmentInfo
                 currentBranchInfo = potentiallyInvalidAssignmentInLoopsInfo.pop();
@@ -947,7 +948,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             return;
         }
 
-        if (currentBranchLocations.isEmpty() || potentiallyInvalidAssignmentInLoopsInfo.empty()) {
+        if (currentBranchLocations.isEmpty() || potentiallyInvalidAssignmentInLoopsInfo.isEmpty()) {
             return;
         }
 
@@ -1028,7 +1029,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         int loopAndDoClauseCount;
         BType booleanConstCondition;
 
-        Stack<SymbolEnv> loopAndDoClauseEnvs = new Stack<>();
-        Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
+        Deque<SymbolEnv> loopAndDoClauseEnvs = new ConcurrentLinkedDeque<>();
+        Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new ConcurrentLinkedDeque<>();
     }
 }

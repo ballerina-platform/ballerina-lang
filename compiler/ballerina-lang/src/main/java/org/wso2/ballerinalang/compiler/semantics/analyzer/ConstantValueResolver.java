@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +84,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -111,7 +112,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
-    private Stack<String> anonTypeNameSuffixes = new Stack<>();
+    private Deque<String> anonTypeNameSuffixes = new ConcurrentLinkedDeque<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -576,12 +577,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
-        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>(), false);
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new ConcurrentLinkedDeque<>(),
+                false);
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env,
-                                                                Stack<String> anonTypeNameSuffixes,
+                                                                Deque<String> anonTypeNameSuffixes,
                                                                 boolean isSourceOnlyAnon) {
         this.currentConstSymbol = constantSymbol;
         BLangConstantValue value = constructBLangConstantValue(expression);

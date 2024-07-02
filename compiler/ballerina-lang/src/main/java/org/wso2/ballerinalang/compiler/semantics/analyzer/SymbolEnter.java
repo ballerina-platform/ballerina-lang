@@ -156,11 +156,13 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -172,7 +174,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.StringJoiner;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -1266,7 +1267,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // dependencies or undefined types in type node.
 
             for (BLangNode unresolvedType : unresolvedTypes) {
-                Stack<String> references = new Stack<>();
+                Deque<String> references = new ArrayDeque<>();
                 NodeKind unresolvedKind = unresolvedType.getKind();
                 if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
@@ -1344,7 +1345,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void checkErrors(SymbolEnv env, BLangNode unresolvedType, BLangNode currentTypeOrClassNode,
-                             Stack<String> visitedNodes,
+                             Deque<String> visitedNodes,
                              boolean fromStructuredType) {
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
@@ -1456,7 +1457,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
                                               BLangUserDefinedType currentTypeOrClassNode,
-                                              Stack<String> visitedNodes, boolean fromStructuredType) {
+                                              Deque<String> visitedNodes, boolean fromStructuredType) {
         String currentTypeNodeName = currentTypeOrClassNode.typeName.value;
         // Skip all types defined as anonymous types.
         if (currentTypeNodeName.startsWith("$")) {
@@ -1490,10 +1491,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Eg - A -> B -> C -> B // Last B is what we are currently checking
                 //
                 // In such case, we create a new list with relevant type names.
-                int i = visitedNodes.indexOf(currentTypeNodeName);
-                List<String> dependencyList = new ArrayList<>(visitedNodes.size() - i);
-                for (; i < visitedNodes.size(); i++) {
-                    dependencyList.add(visitedNodes.get(i));
+
+                List<String> dependencyList = new ArrayList<>();
+                for (String node : visitedNodes) {
+                    dependencyList.add(0, node);
+                    if (node.equals(currentTypeNodeName)) {
+                        break;
+                    }
                 }
                 if (!sameTypeNode && dependencyList.size() == 1
                         && dependencyList.get(0).equals(currentTypeNodeName)) {

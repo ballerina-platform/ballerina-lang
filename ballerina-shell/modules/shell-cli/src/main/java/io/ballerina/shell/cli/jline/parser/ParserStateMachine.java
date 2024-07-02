@@ -18,9 +18,10 @@
 
 package io.ballerina.shell.cli.jline.parser;
 
+import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * State machine implementation for ballerina parser.
@@ -65,12 +66,12 @@ public class ParserStateMachine {
                     CLOSE_PAREN, OPEN_PAREN,
                     CLOSE_SQ_BR, OPEN_SQ_BR);
 
-    private final Stack<Character> stack;
+    private final Deque<Character> stack;
     private ParserState state;
 
     public ParserStateMachine() {
         this.state = ParserState.NORMAL;
-        this.stack = new Stack<>();
+        this.stack = new ConcurrentLinkedDeque<>();
     }
 
     public void feed(char character) {
@@ -138,9 +139,9 @@ public class ParserStateMachine {
             case CLOSE_CURLY:
             case CLOSE_PAREN:
             case CLOSE_SQ_BR:
-                if (!stack.empty() && OPEN_BRACKETS.get(character).equals(stack.peek())) {
+                if (!stack.isEmpty() && OPEN_BRACKETS.get(character).equals(stack.peek())) {
                     stack.pop();
-                    if (!stack.empty() && stack.peek() == BACKTICK) {
+                    if (!stack.isEmpty() && stack.peek() == BACKTICK) {
                         state = ParserState.IN_TEMPLATE;
                     }
                     break;
@@ -238,7 +239,7 @@ public class ParserStateMachine {
                 state = ParserState.IN_TEMPLATE_AFTER_DOLLAR;
                 break;
             case BACKTICK:
-                if (!stack.empty() && stack.peek() == BACKTICK) {
+                if (!stack.isEmpty() && stack.peek() == BACKTICK) {
                     state = ParserState.NORMAL;
                     stack.pop();
                     break;
@@ -310,6 +311,6 @@ public class ParserStateMachine {
             return true;
         }
         // Otherwise, all brackets/backticks are closed is completion
-        return !stack.empty();
+        return !stack.isEmpty();
     }
 }
