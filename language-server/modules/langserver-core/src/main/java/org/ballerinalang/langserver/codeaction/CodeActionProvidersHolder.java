@@ -74,14 +74,12 @@ public class CodeActionProvidersHolder {
             if (provider == null) {
                 continue;
             }
-            if (provider instanceof RangeBasedCodeActionProvider) {
-                RangeBasedCodeActionProvider codeActionProvider = (RangeBasedCodeActionProvider) provider;
+            if (provider instanceof RangeBasedCodeActionProvider codeActionProvider) {
                 for (SyntaxKind nodeType : codeActionProvider.getSyntaxKinds()) {
                     CodeActionProvidersHolder.rangeBasedProviders.get(nodeType).add(codeActionProvider);
                 }
             }
-            if (provider instanceof DiagnosticBasedCodeActionProvider) {
-                DiagnosticBasedCodeActionProvider codeActionProvider = (DiagnosticBasedCodeActionProvider) provider;
+            if (provider instanceof DiagnosticBasedCodeActionProvider codeActionProvider) {
                 CodeActionProvidersHolder.diagnosticsBasedProviders.add(codeActionProvider);
             }
         }

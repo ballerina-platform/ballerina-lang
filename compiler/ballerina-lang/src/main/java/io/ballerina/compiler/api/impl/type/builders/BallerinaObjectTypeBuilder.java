@@ -176,10 +176,10 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
     }
 
     private BInvokableType getBInvokableType(FunctionTypeSymbol type) {
-        if (type instanceof AbstractTypeSymbol) {
-            BType bType = ((AbstractTypeSymbol) type).getBType();
-            if (bType instanceof BInvokableType) {
-                return (BInvokableType) bType;
+        if (type instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            BType bType = abstractTypeSymbol.getBType();
+            if (bType instanceof BInvokableType bInvokableType) {
+                return bInvokableType;
             }
         }
 
@@ -212,8 +212,8 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+                return abstractTypeSymbol.getBType();
             }
         }
 
@@ -222,8 +222,8 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     private BType getTypeInclusionBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            if (typeSymbol instanceof AbstractTypeSymbol abstractTypeSymbol) {
+                return abstractTypeSymbol.getBType();
             }
 
             throw new IllegalArgumentException("Invalid type provided");

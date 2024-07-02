@@ -163,11 +163,9 @@ public abstract class BIRNode {
                 return true;
             }
 
-            if (!(other instanceof BIRVariableDcl)) {
+            if (!(other instanceof BIRVariableDcl otherVarDecl)) {
                 return false;
             }
-
-            BIRVariableDcl otherVarDecl = (BIRVariableDcl) other;
 
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);

@@ -189,7 +189,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
                 FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
                 if (functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$")) {
-                    completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                    completionItems.addAll(populateBallerinaFunctionCompletionItems(functionSymbol, ctx));
                 }
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);

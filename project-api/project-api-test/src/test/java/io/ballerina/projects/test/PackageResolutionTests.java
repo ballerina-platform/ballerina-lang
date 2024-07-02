@@ -566,8 +566,7 @@ public class PackageResolutionTests extends BaseTest {
 
         OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
         long initialOpenCount = 0;
-        if (os instanceof UnixOperatingSystemMXBean) {
-            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+        if (os instanceof UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
             initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
         }
         Project project = BCompileUtil.loadProject(
@@ -580,8 +579,7 @@ public class PackageResolutionTests extends BaseTest {
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
-        if (os instanceof UnixOperatingSystemMXBean) {
-            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+        if (os instanceof UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
             Assert.assertEquals(initialOpenCount, unixOperatingSystemMXBean.getOpenFileDescriptorCount());
         }
 

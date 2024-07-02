@@ -88,10 +88,10 @@ public class QNameReferenceUtil {
      * @return {@link Boolean}
      */
     public static boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
-        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE || !(node instanceof QualifiedNameReferenceNode)) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                !(node instanceof QualifiedNameReferenceNode qNameRef)) {
             return false;
         }
-        QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node;
         int colonPos = qNameRef.colon().textRange().startOffset();
         int cursor = context.getCursorPositionInTree();
 

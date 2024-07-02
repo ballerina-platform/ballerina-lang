@@ -91,8 +91,7 @@ public abstract class NonTerminalNode extends Node {
         // If that is the case, return the eof token.
         // Fixes 24905
         if (textRangeWithMinutiae.endOffset() == position &&
-                this instanceof DocumentNode) {
-            DocumentNode modulePartNode = (DocumentNode) this;
+                this instanceof DocumentNode modulePartNode) {
             return modulePartNode.eofToken();
         }
 

@@ -101,8 +101,8 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
             throw new IllegalArgumentException("Array member type descriptor can not be null");
         }
 
-        if (type instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) type).getBType();
+        if (type instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         throw new IllegalArgumentException("Invalid array member type descriptor provided");

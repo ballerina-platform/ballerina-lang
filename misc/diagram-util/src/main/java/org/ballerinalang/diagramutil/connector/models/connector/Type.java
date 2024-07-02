@@ -226,9 +226,7 @@ public class Type {
                 }
                 break;
             default:
-                if (node instanceof BuiltinSimpleNameReferenceNode) {
-                    BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode =
-                            (BuiltinSimpleNameReferenceNode) node;
+                if (node instanceof BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
                     type = Optional.of(new PrimitiveType(builtinSimpleNameReferenceNode.name().text()));
                 } else {
                     type = Optional.of(new PrimitiveType(node.toSourceCode()));
@@ -276,11 +274,9 @@ public class Type {
 
     public static Type fromSemanticSymbol(Symbol symbol) {
         Type type = null;
-        if (symbol instanceof TypeReferenceTypeSymbol) {
-            TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) symbol;
+        if (symbol instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
             type = getEnumType(typeReferenceTypeSymbol, symbol);
-        } else if (symbol instanceof RecordTypeSymbol) {
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
+        } else if (symbol instanceof RecordTypeSymbol recordTypeSymbol) {
             String typeName = String.valueOf(recordTypeSymbol.hashCode());
             VisitedType visitedType = getVisitedType(typeName);
             if (visitedType != null) {
@@ -294,22 +290,18 @@ public class Type {
                     completeVisitedTypeEntry(typeName, type);
                 }
             }
-        } else if (symbol instanceof ArrayTypeSymbol) {
-            ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
+        } else if (symbol instanceof ArrayTypeSymbol arrayTypeSymbol) {
             type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
-        } else if (symbol instanceof MapTypeSymbol) {
-            MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) symbol;
+        } else if (symbol instanceof MapTypeSymbol mapTypeSymbol) {
             type = new MapType(fromSemanticSymbol(mapTypeSymbol.typeParam()));
-        } else if (symbol instanceof TableTypeSymbol) {
-            TableTypeSymbol tableTypeSymbol = (TableTypeSymbol) symbol;
+        } else if (symbol instanceof TableTypeSymbol tableTypeSymbol) {
             TypeSymbol keyConstraint = null;
             if (tableTypeSymbol.keyConstraintTypeParameter().isPresent()) {
                 keyConstraint = tableTypeSymbol.keyConstraintTypeParameter().get();
             }
             type = new TableType(fromSemanticSymbol(tableTypeSymbol.rowTypeParameter()),
                     tableTypeSymbol.keySpecifiers(), fromSemanticSymbol(keyConstraint));
-        } else if (symbol instanceof UnionTypeSymbol) {
-            UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
+        } else if (symbol instanceof UnionTypeSymbol unionSymbol) {
             String typeName = String.valueOf(unionSymbol.hashCode());
             VisitedType visitedType = getVisitedType(typeName);
             if (visitedType != null) {
@@ -319,15 +311,13 @@ public class Type {
                 type = getUnionType(unionSymbol);
                 completeVisitedTypeEntry(typeName, type);
             }
-        } else if (symbol instanceof ErrorTypeSymbol) {
-            ErrorTypeSymbol errSymbol = (ErrorTypeSymbol) symbol;
+        } else if (symbol instanceof ErrorTypeSymbol errSymbol) {
             ErrorType errType = new ErrorType();
             if (errSymbol.detailTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
                 errType.detailType = fromSemanticSymbol(errSymbol.detailTypeDescriptor());
             }
             type = errType;
-        } else if (symbol instanceof IntersectionTypeSymbol) {
-            IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) symbol;
+        } else if (symbol instanceof IntersectionTypeSymbol intersectionTypeSymbol) {
             String typeName = String.valueOf(intersectionTypeSymbol.hashCode());
             VisitedType visitedType = getVisitedType(typeName);
             if (visitedType != null) {
@@ -337,11 +327,9 @@ public class Type {
                 type = getIntersectionType(intersectionTypeSymbol);
                 completeVisitedTypeEntry(typeName, type);
             }
-        } else if (symbol instanceof StreamTypeSymbol) {
-            StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) symbol;
+        } else if (symbol instanceof StreamTypeSymbol streamTypeSymbol) {
             type = getStreamType(streamTypeSymbol);
-        } else if (symbol instanceof ObjectTypeSymbol) {
-            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) symbol;
+        } else if (symbol instanceof ObjectTypeSymbol objectTypeSymbol) {
             ObjectType objectType = new ObjectType();
             objectTypeSymbol.fieldDescriptors().forEach((typeName, typeSymbol) -> {
                 Type semanticSymbol = fromSemanticSymbol(typeSymbol);
@@ -356,20 +344,17 @@ public class Type {
                 }
             });
             type = objectType;
-        } else if (symbol instanceof RecordFieldSymbol) {
-            RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
+        } else if (symbol instanceof RecordFieldSymbol recordFieldSymbol) {
             type = fromSemanticSymbol(recordFieldSymbol.typeDescriptor());
-        } else if (symbol instanceof ParameterSymbol) {
-            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol;
+        } else if (symbol instanceof ParameterSymbol parameterSymbol) {
             type = fromSemanticSymbol(parameterSymbol.typeDescriptor());
             if (type != null) {
                 type.defaultable = parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE;
             }
-        } else if (symbol instanceof VariableSymbol) {
-            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+        } else if (symbol instanceof VariableSymbol variableSymbol) {
             type = fromSemanticSymbol(variableSymbol.typeDescriptor());
-        } else if (symbol instanceof TypeSymbol) {
-            String typeName = ((TypeSymbol) symbol).signature();
+        } else if (symbol instanceof TypeSymbol typeSymbol) {
+            String typeName = typeSymbol.signature();
             if (typeName.startsWith("\"") && typeName.endsWith("\"")) {
                 typeName = typeName.substring(1, typeName.length() - 1);
             }
@@ -383,15 +368,15 @@ public class Type {
         if (visitedType.isCompleted()) {
             Type existingType = visitedType.getTypeNode();
             if (getClone) {
-                if (existingType instanceof UnionType) {
-                    return new UnionType((UnionType) existingType);
+                if (existingType instanceof UnionType unionType) {
+                    return new UnionType(unionType);
                 }
                 return new Type(existingType.getName(), existingType.getTypeName(), existingType.isOptional(),
                         existingType.getTypeInfo(), existingType.isDefaultable(), existingType.getDefaultValue(),
                         existingType.getDisplayAnnotation(), existingType.getDocumentation());
             }
-            if (existingType instanceof RecordType) {
-                return new RecordType((RecordType) existingType);
+            if (existingType instanceof RecordType recordType) {
+                return new RecordType(recordType);
             }
             return existingType;
         } else {

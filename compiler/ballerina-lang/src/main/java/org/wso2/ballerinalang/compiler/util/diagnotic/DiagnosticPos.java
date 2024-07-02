@@ -81,10 +81,9 @@ public class DiagnosticPos implements Location {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof DiagnosticPos)) {
+        if (!(obj instanceof DiagnosticPos diagnosticPos)) {
             return false;
         }
-        DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
         return packageID.equals(diagnosticPos.getPackageID()) &&
                 lineRange().fileName().equals(diagnosticPos.lineRange().fileName()) &&
                 (getStartLine() == diagnosticPos.getStartLine() && getEndLine() == diagnosticPos.getEndLine() &&

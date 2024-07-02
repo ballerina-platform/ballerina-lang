@@ -145,11 +145,10 @@ public class BIntersectionType extends BType implements IntersectionType {
             return true;
         }
 
-        if (!(o instanceof BIntersectionType)) {
+        if (!(o instanceof BIntersectionType that)) {
             return false;
         }
 
-        BIntersectionType that = (BIntersectionType) o;
         if (this.constituentTypes.size() != that.constituentTypes.size()) {
             return false;
         }

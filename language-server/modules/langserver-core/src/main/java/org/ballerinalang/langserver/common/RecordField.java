@@ -75,10 +75,9 @@ public class RecordField {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof RecordFieldIdentifier)) {
+            if (!(obj instanceof RecordFieldIdentifier other)) {
                 return false;
             }
-            RecordFieldIdentifier other = (RecordFieldIdentifier) obj;
             return other.name.equals(this.name)
                     && other.typeSymbol.signature().equals(this.typeSymbol.signature());
         }

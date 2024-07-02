@@ -55,8 +55,8 @@ public class RegExpDisjunction extends RegExpCommonValue {
             if (t == null) {
                 break;
             }
-            if (t instanceof String) {
-                terms.add(((String) t));
+            if (t instanceof String s) {
+                terms.add(s);
                 continue;
             }
             terms.add(getStringVal(t, parent));

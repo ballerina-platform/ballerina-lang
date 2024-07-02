@@ -54,11 +54,10 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof BRefValue)) {
+        if (!(value instanceof BRefValue refValue)) {
             return value;
         }
 
-        BRefValue refValue = (BRefValue) value;
         return refValue.copy(new HashMap<>());
     }
 
@@ -74,11 +73,10 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof BRefValue)) {
+        if (!(value instanceof BRefValue refValue)) {
             return value;
         }
 
-        BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
     }
 

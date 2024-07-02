@@ -1186,11 +1186,9 @@ public class TypedescriptorTest {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof SymbolInfo)) {
+            if (!(obj instanceof SymbolInfo that)) {
                 return false;
             }
-
-            SymbolInfo that = (SymbolInfo) obj;
 
             return line == that.line &&
                    column == that.column &&

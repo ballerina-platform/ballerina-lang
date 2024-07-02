@@ -190,9 +190,9 @@ public class BRunUtil {
                     if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
-                    if (t instanceof io.ballerina.runtime.api.values.BError) {
+                    if (t instanceof io.ballerina.runtime.api.values.BError bError) {
                         throw ErrorCreator.createError(StringUtils.fromString(
-                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace()));
+                                "error: " + bError.getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
                         throw ErrorCreator.createError(StringUtils.fromString("error: " +
@@ -391,9 +391,8 @@ public class BRunUtil {
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             response = method.invoke(null, args);
-            if (response instanceof Throwable) {
-                throw new BLangTestException(String.format(errorMsg, funcName, response),
-                        (Throwable) response);
+            if (response instanceof Throwable throwable) {
+                throw new BLangTestException(String.format(errorMsg, funcName, response), throwable);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
@@ -430,8 +429,8 @@ public class BRunUtil {
                     return method.invoke(null, objects[0]);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
-                    if (targetException instanceof RuntimeException) {
-                        throw (RuntimeException) targetException;
+                    if (targetException instanceof RuntimeException runtimeException) {
+                        throw runtimeException;
                     } else {
                         throw new RuntimeException(targetException);
                     }
@@ -445,8 +444,8 @@ public class BRunUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof ErrorValue) {
-                    throw new BLangTestException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                if (t instanceof ErrorValue errorValue) {
+                    throw new BLangTestException("error: " + errorValue.getPrintableStackTrace());
                 }
                 throw (RuntimeException) t;
             }

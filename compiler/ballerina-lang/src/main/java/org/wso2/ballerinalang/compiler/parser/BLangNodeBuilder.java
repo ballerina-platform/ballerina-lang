@@ -1314,7 +1314,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             } else if (nodeKind == NodeKind.VARIABLE) {
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) bLangNode;
                 simpleVariable.flagSet.add(Flag.OBJECT_CTOR);
-                classDefinition.addField((BLangSimpleVariable) bLangNode);
+                classDefinition.addField(simpleVariable);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
             }
@@ -2698,8 +2698,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private BLangRecordVarRefKeyValue createRecordVarKeyValue(BindingPatternNode expr) {
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
-        if (expr instanceof FieldBindingPatternFullNode) {
-            FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) expr;
+        if (expr instanceof FieldBindingPatternFullNode fullNode) {
             keyValue.variableName = createIdentifier(fullNode.variableName().name());
             keyValue.variableReference = createExpression(fullNode.bindingPattern());
         } else {
@@ -3912,8 +3911,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeNode.typeKind = TypeKind.STRING;
         bLangConstant.setTypeNode(typeNode);
 
-        if (deepLiteral instanceof BLangLiteral) {
-            BLangLiteral literal = (BLangLiteral) deepLiteral;
+        if (deepLiteral instanceof BLangLiteral literal) {
             if (!literal.originalValue.isEmpty()) {
                 BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                 literal.originalValue = null;
@@ -4929,9 +4927,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangFieldBindingPattern bLangFieldBindingPattern =
                 (BLangFieldBindingPattern) TreeBuilder.createFieldBindingPattern();
         bLangFieldBindingPattern.pos = pos;
-        if (bindingPattern instanceof FieldBindingPatternVarnameNode) {
-            FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode =
-                    (FieldBindingPatternVarnameNode) bindingPattern;
+        if (bindingPattern instanceof FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
             BLangIdentifier fieldName = createIdentifier(fieldBindingPatternVarnameNode.variableName().name());
             bLangFieldBindingPattern.fieldName = fieldName;
             BLangCaptureBindingPattern bLangCaptureBindingPatternInFieldBindingPattern =
@@ -5219,13 +5215,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         for (BindingPatternNode node : mappingBindingPatternNode.fieldBindingPatterns()) {
             BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
-            if (node instanceof FieldBindingPatternFullNode) {
-                FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) node;
+            if (node instanceof FieldBindingPatternFullNode fullNode) {
                 recordKeyValue.key = createIdentifier(fullNode.variableName().name());
                 recordKeyValue.valueBindingPattern = getBLangVariableNode(fullNode.bindingPattern(),
                                                                           getPosition(fullNode.bindingPattern()));
-            } else if (node instanceof FieldBindingPatternVarnameNode) {
-                FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) node;
+            } else if (node instanceof FieldBindingPatternVarnameNode varnameNode) {
                 recordKeyValue.key = createIdentifier(varnameNode.variableName().name());
                 BLangSimpleVariable value = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 value.pos = getPosition(varnameNode);
@@ -6124,10 +6118,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String originalValue = null;
 
         String textValue;
-        if (literal instanceof BasicLiteralNode) {
-            textValue = ((BasicLiteralNode) literal).literalToken().text();
-        } else if (literal instanceof Token) {
-            textValue = ((Token) literal).text();
+        if (literal instanceof BasicLiteralNode basicLiteralNode) {
+            textValue = basicLiteralNode.literalToken().text();
+        } else if (literal instanceof Token token) {
+            textValue = token.text();
         } else {
             textValue = "";
         }
@@ -6310,8 +6304,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String typeText;
         if (type.kind() == SyntaxKind.NIL_TYPE_DESC) {
             typeText = "()";
-        } else if (type instanceof BuiltinSimpleNameReferenceNode) {
-            BuiltinSimpleNameReferenceNode simpleNameRef = (BuiltinSimpleNameReferenceNode) type;
+        } else if (type instanceof BuiltinSimpleNameReferenceNode simpleNameRef) {
             if (simpleNameRef.kind() == SyntaxKind.VAR_TYPE_DESC) {
                 return null;
             } else if (simpleNameRef.name().isMissing()) {
@@ -6908,8 +6901,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private boolean withinByteRange(Object num) {
-        if (num instanceof Long) {
-            return (Long) num <= 255 && (Long) num >= 0;
+        if (num instanceof Long l) {
+            return l <= 255 && l >= 0;
         }
         return false;
     }

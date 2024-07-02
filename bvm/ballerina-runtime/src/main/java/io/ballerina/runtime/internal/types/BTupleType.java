@@ -229,10 +229,9 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BTupleType)) {
+        if (!(o instanceof BTupleType that)) {
             return false;
         }
-        BTupleType that = (BTupleType) o;
 
         if (this.isCyclic || that.isCyclic) {
             if (this.isCyclic != that.isCyclic) {

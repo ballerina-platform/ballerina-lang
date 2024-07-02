@@ -47,11 +47,11 @@ public class RuntimeStaticMethod extends RuntimeMethod {
     @Override
     protected Value invoke() throws EvaluationException {
         try {
-            if (!(classRef instanceof ClassType)) {
+            if (!(classRef instanceof ClassType classType)) {
                 throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             List<Value> argValueList = getMethodArgs(this);
-            return ((ClassType) classRef).invokeMethod(context.getFrame().threadProxy().getThreadReference(),
+            return classType.invokeMethod(context.getFrame().threadProxy().getThreadReference(),
                     methodRef, argValueList, 0);
         } catch (ClassNotLoadedException e) {
             throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());

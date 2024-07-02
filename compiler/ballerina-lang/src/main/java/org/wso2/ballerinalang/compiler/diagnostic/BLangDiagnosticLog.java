@@ -262,20 +262,19 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         List<DiagnosticProperty<?>> diagArgs = new ArrayList<>();
         for (Object arg : args) {
             DiagnosticProperty<?> dArg;
-            if (arg instanceof BType) {
-                TypeSymbol tsybol = typesFactory.getTypeDescriptor((BType) arg);
+            if (arg instanceof BType bType) {
+                TypeSymbol tsybol = typesFactory.getTypeDescriptor(bType);
                 dArg = new BSymbolicProperty(tsybol);
-            } else if (arg instanceof BSymbol) {
-                BSymbol symbolArg = (BSymbol) arg;
+            } else if (arg instanceof BSymbol symbolArg) {
                 Symbol symbol = symbolFactory.getBCompiledSymbol(symbolArg, symbolArg.getOriginalName().getValue());
                 dArg = new BSymbolicProperty(symbol);
-            } else if (arg instanceof String) {
-                dArg = new BStringProperty((String) arg);
-            } else if (arg instanceof Number) {
-                dArg = new BNumericProperty((Number) arg);
-            } else if (arg instanceof Collection) {
+            } else if (arg instanceof String s) {
+                dArg = new BStringProperty(s);
+            } else if (arg instanceof Number n) {
+                dArg = new BNumericProperty(n);
+            } else if (arg instanceof Collection<?> collection) {
                 Collection<DiagnosticProperty<?>> diagProperties
-                        = convertDiagArgsToProps(((Collection<?>) arg).toArray());
+                        = convertDiagArgsToProps(collection.toArray());
                 dArg = new BCollectionProperty(diagProperties);
             } else {
                 dArg = new NonCatProperty(arg);

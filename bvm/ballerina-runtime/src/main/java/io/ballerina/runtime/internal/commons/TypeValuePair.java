@@ -40,10 +40,9 @@ public class TypeValuePair {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof TypeValuePair)) {
+        if (!(o instanceof TypeValuePair other)) {
             return false;
         }
-        TypeValuePair other = (TypeValuePair) o;
         boolean sourceValueEquals = (this.sourceValue == null && other.sourceValue == null)
                 || (this.sourceValue != null && this.sourceValue.equals(other.sourceValue));
         boolean targetTypeEquals = (this.targetType == null && other.targetType == null)

@@ -90,7 +90,7 @@ public class TypeConverter {
             String typeVal = getSimpleType(type);
             typeNode.addProperty(TYPE, typeVal);
         } else {
-            if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
+            if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType intersectionType) {
                 BType effectiveType = Types.getImpliedType(type);
                 if (TypeTags.isSimpleBasicType(effectiveType.tag)) {
                     String typeVal = getSimpleType(effectiveType);
@@ -111,31 +111,31 @@ public class TypeConverter {
                     visitedTypeMap.put(effectiveType.toString(), new VisitedType());
                 }
 
-                if (TypeTags.ARRAY == effectiveType.tag && effectiveType instanceof BArrayType) {
-                    generateArrayType(typeNode, (BArrayType) effectiveType);
+                if (TypeTags.ARRAY == effectiveType.tag && effectiveType instanceof BArrayType arrayType) {
+                    generateArrayType(typeNode, arrayType);
                 }
-                if (TypeTags.RECORD == effectiveType.tag && effectiveType instanceof BRecordType) {
-                    typeNode = generateRecordType((BRecordType) effectiveType, (BIntersectionType) type);
+                if (TypeTags.RECORD == effectiveType.tag && effectiveType instanceof BRecordType recordType) {
+                    typeNode = generateRecordType(recordType, intersectionType);
                 }
-                if (TypeTags.MAP == effectiveType.tag && effectiveType instanceof BMapType) {
-                    generateMapType(typeNode, (BMapType) effectiveType);
+                if (TypeTags.MAP == effectiveType.tag && effectiveType instanceof BMapType mapType) {
+                    generateMapType(typeNode, mapType);
                 }
-                if (TypeTags.UNION == effectiveType.tag && effectiveType instanceof BUnionType) {
-                    generateUnionType(typeNode, (BUnionType) effectiveType);
+                if (TypeTags.UNION == effectiveType.tag && effectiveType instanceof BUnionType unionType) {
+                    generateUnionType(typeNode, unionType);
                 }
-                if (TypeTags.TABLE == effectiveType.tag && effectiveType instanceof BTableType) {
-                    generateTableType(typeNode, (BTableType) effectiveType);
+                if (TypeTags.TABLE == effectiveType.tag && effectiveType instanceof BTableType tableType) {
+                    generateTableType(typeNode, tableType);
                 }
                 completeVisitedTypeEntry(effectiveType.toString(), typeNode);
-            } else if (TypeTags.UNION == type.tag && type instanceof BUnionType) {
+            } else if (TypeTags.UNION == type.tag && type instanceof BUnionType unionType) {
                 // Handles enums
-                generateUnionType(typeNode, (BUnionType) type);
+                generateUnionType(typeNode, unionType);
             }
             // When the type is a union of singletons
-            if (TypeTags.FINITE == type.tag && type instanceof BFiniteType) {
+            if (TypeTags.FINITE == type.tag && type instanceof BFiniteType finiteType) {
                 JsonArray enumArray = new JsonArray();
                 // Singletons can be mapped to enum in JSON
-                getEnumArray(enumArray, (BFiniteType) type);
+                getEnumArray(enumArray, finiteType);
                 typeNode.add("enum", enumArray);
             }
         }
@@ -248,13 +248,13 @@ public class TypeConverter {
                     (TypeTags.INTERSECTION == member.tag && member instanceof BIntersectionType)) {
                 JsonObject memberObj = getType(member);
                 memberArray.add(memberObj);
-            } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType) {
-                getEnumArray(enumArray, (BFiniteType) member);
-            } else if (TypeTags.TYPEREFDESC == member.tag && member instanceof BTypeReferenceType) {
+            } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType finiteType) {
+                getEnumArray(enumArray, finiteType);
+            } else if (TypeTags.TYPEREFDESC == member.tag && member instanceof BTypeReferenceType typeReferenceType) {
                 // When union member refers to another union type, update those union members as well
-                BType referredType = ((BTypeReferenceType) member).referredType;
-                if (TypeTags.UNION == referredType.tag && referredType instanceof BUnionType) {
-                    LinkedHashSet<BType> subMembers = ((BUnionType) referredType).getMemberTypes();
+                BType referredType = typeReferenceType.referredType;
+                if (TypeTags.UNION == referredType.tag && referredType instanceof BUnionType unionType) {
+                    LinkedHashSet<BType> subMembers = unionType.getMemberTypes();
                     updateUnionMembers(subMembers, memberArray, enumArray);
                 }
             }
@@ -270,21 +270,21 @@ public class TypeConverter {
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
         Object[] values = finiteType.getValueSpace().toArray();
         for (Object finiteValue : values) {
-            if (finiteValue instanceof BLangNumericLiteral) {
-                BType bType = ((BLangNumericLiteral) finiteValue).getBType();
+            if (finiteValue instanceof BLangNumericLiteral numericLiteral) {
+                BType bType = numericLiteral.getBType();
                 // In the BLangNumericLiteral the integer typed values are represented as numeric values
                 // while the decimal values are represented as String
-                Object value = ((BLangNumericLiteral) finiteValue).getValue();
+                Object value = numericLiteral.getValue();
                 if (TypeTags.isIntegerTypeTag(bType.tag)) {
                     // Any integer can be considered as a long and added as a numeric value to the enum array
-                    if (value instanceof Long) {
-                        enumArray.add((Long) value);
+                    if (value instanceof Long l) {
+                        enumArray.add(l);
                     }
                 } else {
                     enumArray.add(Double.parseDouble(value.toString()));
                 }
-            } else if (finiteValue instanceof BLangLiteral) {
-                enumArray.add(((BLangLiteral) finiteValue).getValue().toString());
+            } else if (finiteValue instanceof BLangLiteral bLangLiteral) {
+                enumArray.add(bLangLiteral.getValue().toString());
             }
         }
     }

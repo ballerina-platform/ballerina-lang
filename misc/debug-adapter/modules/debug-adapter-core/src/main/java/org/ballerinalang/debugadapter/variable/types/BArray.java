@@ -47,10 +47,9 @@ public class BArray extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             String arrayType = getArrayType(jvmValueRef);
             int arraySize = getArraySize(jvmValueRef);
             return String.format("%s[%d]", arrayType, arraySize);
@@ -62,10 +61,9 @@ public class BArray extends IndexedCompoundVariable {
     @Override
     protected Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
+            if (!(jvmValue instanceof ObjectReference jvmValueRef)) {
                 return Either.forRight(new ArrayList<>());
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))

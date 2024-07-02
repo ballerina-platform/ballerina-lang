@@ -138,8 +138,7 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ProcessStreamConnectionProvider) {
-            ProcessStreamConnectionProvider other = (ProcessStreamConnectionProvider) obj;
+        if (obj instanceof ProcessStreamConnectionProvider other) {
             return commands.size() == other.commands.size()
                     && new HashSet<>(commands).equals(new HashSet<>(other.commands))
                     && workingDir.equals(other.workingDir);

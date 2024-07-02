@@ -288,8 +288,8 @@ public class JsonGenerator implements Closeable {
 
         switch (TypeUtils.getImpliedType(TypeChecker.getType(json)).getTag()) {
             case TypeTags.ARRAY_TAG:
-                if (json instanceof StreamingJsonValue) {
-                    ((StreamingJsonValue) json).serialize(this);
+                if (json instanceof StreamingJsonValue streamingJsonValue) {
+                    streamingJsonValue.serialize(this);
                     break;
                 }
                 this.writeStartArray();

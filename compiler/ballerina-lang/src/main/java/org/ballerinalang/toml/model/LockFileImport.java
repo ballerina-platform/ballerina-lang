@@ -70,10 +70,9 @@ public class LockFileImport {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof LockFileImport)) {
+        if (!(o instanceof LockFileImport that)) {
             return false;
         }
-        LockFileImport that = (LockFileImport) o;
         return Objects.equals(org_name, that.org_name) &&
                Objects.equals(getName(), that.getName()) &&
                Objects.equals(getVersion(), that.getVersion());

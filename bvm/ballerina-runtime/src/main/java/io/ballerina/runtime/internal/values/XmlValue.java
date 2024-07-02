@@ -244,8 +244,8 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            if (outputStream instanceof BallerinaXmlSerializer) {
-                ((BallerinaXmlSerializer) outputStream).write(this);
+            if (outputStream instanceof BallerinaXmlSerializer xmlSerializer) {
+                xmlSerializer.write(this);
             } else {
                 BallerinaXmlSerializer xmlSerializer = new BallerinaXmlSerializer(outputStream);
                 xmlSerializer.write(this);

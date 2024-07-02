@@ -3693,8 +3693,7 @@ public class Types {
                 }
                 BUnionType targetUnion = (BUnionType) target;
                 // prevent cyclic unions being compared as individual items
-                if (sMember instanceof BUnionType) {
-                    BUnionType sUnion = (BUnionType) sMember;
+                if (sMember instanceof BUnionType sUnion) {
                     if (sUnion.isCyclic && targetUnion.isCyclic) {
                         unresolvedTypes.add(new TypePair(sUnion, targetUnion));
                          if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
@@ -6098,11 +6097,10 @@ public class Types {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof TypePair)) {
+            if (!(obj instanceof TypePair other)) {
                 return false;
             }
 
-            TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
         }
 

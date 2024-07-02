@@ -128,8 +128,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BArrayType) {
-            BArrayType other = (BArrayType) obj;
+        if (obj instanceof BArrayType other) {
             if (other.state == ArrayState.CLOSED && this.size != other.size) {
                 return false;
             }

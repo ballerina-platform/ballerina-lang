@@ -53,8 +53,7 @@ public class BStringProperty implements DiagnosticProperty<String> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BStringProperty) {
-            BStringProperty prop = (BStringProperty) obj;
+        if (obj instanceof BStringProperty prop) {
             return this.value.equals(prop.value) && this.kind.equals(prop.kind);
         }
         return false;
