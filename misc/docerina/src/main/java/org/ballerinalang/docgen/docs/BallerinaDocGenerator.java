@@ -623,37 +623,31 @@ public class BallerinaDocGenerator {
             // collect module's doc resources
             module.resources.addAll(moduleDoc.getValue().resources);
 
-            boolean hasPublicConstructs = false;
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
-                boolean hasPublicConstructsTemp = Generator.setModuleFromSyntaxTree(module,
+                Generator.setModuleFromSyntaxTree(module,
                         syntaxTreeMapEntry.getValue(), model);
-                if (hasPublicConstructsTemp) {
-                    hasPublicConstructs = true;
-                }
-            }
-            if (hasPublicConstructs) {
-                module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.objectTypes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                moduleDocs.add(module);
-                ModuleMetaData moduleMeta = new ModuleMetaData();
-                moduleMeta.id = module.id;
-                moduleMeta.orgName = module.orgName;
-                moduleMeta.summary = module.summary;
-                moduleMeta.version = module.version;
-                moduleMeta.isDefaultModule = module.isDefaultModule;
-                relatedModules.add(moduleMeta);
             }
 
+            module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.objectTypes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+            moduleDocs.add(module);
+            ModuleMetaData moduleMeta = new ModuleMetaData();
+            moduleMeta.id = module.id;
+            moduleMeta.orgName = module.orgName;
+            moduleMeta.summary = module.summary;
+            moduleMeta.version = module.version;
+            moduleMeta.isDefaultModule = module.isDefaultModule;
+            relatedModules.add(moduleMeta);
         }
         moduleDocs.sort((module1, module2) -> module1.id.compareToIgnoreCase(module2.id));
         if (relatedModules.size() > 1) {
