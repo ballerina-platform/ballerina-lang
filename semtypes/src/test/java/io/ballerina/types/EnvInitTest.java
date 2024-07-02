@@ -22,6 +22,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public class EnvInitTest {
         try {
             Class.forName("io.ballerina.types.PredefinedType");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -56,113 +58,95 @@ public class EnvInitTest {
         // Check that the atomTable contains the expected entries
         Assert.assertEquals(atomTable.size(), 10);
 
-        // -------------------------------------------------------------------------------
-        // Index 0
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicVal = CellAtomicType.from(
                 PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
         TypeAtom typeAtom0 = atomTable.get(cellAtomicVal);
-        Assert.assertEquals(typeAtom0.index(), 0);
+        Assert.assertNotNull(typeAtom0);
         Assert.assertEquals(typeAtom0.atomicType(), cellAtomicVal);
 
-        // -------------------------------------------------------------------------------
-        // Index 1
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicNever = CellAtomicType.from(
                 PredefinedType.NEVER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
         TypeAtom typeAtom1 = atomTable.get(cellAtomicNever);
-        Assert.assertEquals(typeAtom1.index(), 1);
+        Assert.assertNotNull(typeAtom1);
         Assert.assertEquals(typeAtom1.atomicType(), cellAtomicNever);
 
-        // -------------------------------------------------------------------------------
-        // Index 2
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicInner = CellAtomicType.from(
                 PredefinedType.INNER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
         TypeAtom typeAtom2 = atomTable.get(cellAtomicInner);
-        Assert.assertEquals(typeAtom2.index(), 2);
+        Assert.assertNotNull(typeAtom2);
         Assert.assertEquals(typeAtom2.atomicType(), cellAtomicInner);
 
-        // -------------------------------------------------------------------------------
-        // Index 3
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicInnerMapping = CellAtomicType.from(
                 union(PredefinedType.MAPPING, PredefinedType.UNDEF),
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
         TypeAtom typeAtom3 = atomTable.get(cellAtomicInnerMapping);
-        Assert.assertEquals(typeAtom3.index(), 3);
+        Assert.assertNotNull(typeAtom3);
         Assert.assertEquals(typeAtom3.atomicType(), cellAtomicInnerMapping);
 
-        // -------------------------------------------------------------------------------
-        // Index 4
-        // -------------------------------------------------------------------------------
         ListAtomicType listAtomicMapping = ListAtomicType.from(
                 FixedLengthArray.empty(), PredefinedType.CELL_SEMTYPE_INNER_MAPPING
         );
 
         TypeAtom typeAtom4 = atomTable.get(listAtomicMapping);
-        Assert.assertEquals(typeAtom4.index(), 4);
+        Assert.assertNotNull(typeAtom4);
         Assert.assertEquals(typeAtom4.atomicType(), listAtomicMapping);
 
-        // -------------------------------------------------------------------------------
-        // Index 5
-        // ------------------------------------------------------------------------------
         TypeAtom typeAtom5 = atomTable.get(PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO);
-        Assert.assertEquals(typeAtom5.index(), 5);
+        Assert.assertNotNull(typeAtom5);
         Assert.assertEquals(typeAtom5.atomicType(), PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO);
 
-        // -------------------------------------------------------------------------------
-        // Index 6
-        // -------------------------------------------------------------------------------
         ListAtomicType listAtomicMappingRo = ListAtomicType.from(
                 FixedLengthArray.empty(), PredefinedType.CELL_SEMTYPE_INNER_MAPPING_RO
         );
 
         TypeAtom typeAtom6 = atomTable.get(listAtomicMappingRo);
-        Assert.assertEquals(typeAtom6.index(), 6);
+        Assert.assertNotNull(typeAtom6);
         Assert.assertEquals(typeAtom6.atomicType(), listAtomicMappingRo);
 
-        // -------------------------------------------------------------------------------
-        // Index 7
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicInnerRo = CellAtomicType.from(
                 PredefinedType.INNER_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
         );
 
         TypeAtom typeAtom7 = atomTable.get(cellAtomicInnerRo);
-        Assert.assertEquals(typeAtom7.index(), 7);
+        Assert.assertNotNull(typeAtom7);
         Assert.assertEquals(typeAtom7.atomicType(), cellAtomicInnerRo);
 
-        // -------------------------------------------------------------------------------
-        // Index 8
-        // -------------------------------------------------------------------------------
         CellAtomicType cellAtomicUndef = CellAtomicType.from(
                 PredefinedType.UNDEF, CellAtomicType.CellMutability.CELL_MUT_NONE
         );
 
         TypeAtom typeAtom8 = atomTable.get(cellAtomicUndef);
-        Assert.assertEquals(typeAtom8.index(), 8);
+        Assert.assertNotNull(typeAtom8);
         Assert.assertEquals(typeAtom8.atomicType(), cellAtomicUndef);
 
-        // -------------------------------------------------------------------------------
-        // Index 9
-        // -------------------------------------------------------------------------------
         ListAtomicType listAtomicTwoElement = ListAtomicType.from(
                 FixedLengthArray.from(List.of(PredefinedType.CELL_SEMTYPE_VAL), 2),
                 PredefinedType.CELL_SEMTYPE_UNDEF
         );
 
         TypeAtom typeAtom9 = atomTable.get(listAtomicTwoElement);
-        Assert.assertEquals(typeAtom9.index(), 9);
+        Assert.assertNotNull(typeAtom8);
         Assert.assertEquals(typeAtom9.atomicType(), listAtomicTwoElement);
+    }
+
+    @Test
+    public void testTypeAtomIndices() throws NoSuchFieldException, IllegalAccessException {
+        Env env = new Env();
+        Field atomTableField = Env.class.getDeclaredField("atomTable");
+        atomTableField.setAccessible(true);
+        Map<AtomicType, TypeAtom> recListAtoms = (Map<AtomicType, TypeAtom>) atomTableField.get(env);
+        Collection<Integer> indices = new HashSet<>();
+        for (var each : recListAtoms.values()) {
+            Assert.assertTrue(indices.add(each.index()), "Duplicate index found: " + each.index());
+        }
     }
 
     @Test
