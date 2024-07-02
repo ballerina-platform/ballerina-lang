@@ -23,10 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.types.PredefinedType.CELL_ATOMIC_UNDEF;
-import static io.ballerina.types.PredefinedType.LIST_ATOMIC_RO;
-import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_RO;
-
 /**
  * Env node.
  *
@@ -34,24 +30,19 @@ import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_RO;
  */
 public class Env {
     private final Map<AtomicType, TypeAtom> atomTable;
-    private final List<ListAtomicType> recListAtoms;
-    private final List<MappingAtomicType> recMappingAtoms;
-    private final List<FunctionAtomicType> recFunctionAtoms;
+    final List<ListAtomicType> recListAtoms;
+    final List<MappingAtomicType> recMappingAtoms;
+    final List<FunctionAtomicType> recFunctionAtoms;
 
     private final LinkedHashMap<String, SemType> types;
 
     public Env() {
         this.atomTable = new HashMap<>();
         this.recListAtoms = new ArrayList<>();
-        recListAtoms.add(LIST_ATOMIC_RO);
         this.recMappingAtoms = new ArrayList<>();
-        recMappingAtoms.add(MAPPING_ATOMIC_RO);
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
 
-        // Reserving the first two indexes of atomTable to represent cell VAL and cell NEVER typeAtoms.
-        // This is to avoid passing down env argument when doing cell type operations.
-        // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
         PredefinedTypeEnv.initializeEnv(this);
     }
 

@@ -20,6 +20,7 @@ package io.ballerina.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.types.Core.union;
@@ -37,10 +38,20 @@ import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.TypeAtom.createTypeAtom;
 
-final class PredefinedTypeEnv {
+/**
+ * This is a utility class used to create various type atoms that needs to be initialized without an environment and
+ * common to all environments. When we construct an {@code Env}, we can use {@code initializeEnv} to populate it with
+ * those atoms.
+ * NOTE: While this class lazy initialize all the atoms technically {@code PredefinedType} will cause it initialize
+ * all the atoms currently.
+ * @since 2201.10.0
+ */
+public final class PredefinedTypeEnv {
 
     private static final List<InitializedTypeAtom<CellAtomicType>> initializedCellAtoms = new ArrayList<>();
     private static final List<InitializedTypeAtom<ListAtomicType>> initializedListAtoms = new ArrayList<>();
+    private static final List<ListAtomicType> initializedRecListAtoms = new ArrayList<>();
+    private static final List<MappingAtomicType> initializedRecMappingAtoms = new ArrayList<>();
     // 0 is reserved for BDD_REC_ATOM_READONLY
     private static AtomicInteger nextAtomIndex = new AtomicInteger(1);
 
@@ -304,8 +315,27 @@ final class PredefinedTypeEnv {
     }
 
     static void initializeEnv(Env env) {
+        fillRecAtoms(env.recListAtoms, initializedRecListAtoms);
+        fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms);
         initializedCellAtoms.forEach(each -> env.cellAtom(each.atomicType()));
         initializedListAtoms.forEach(each -> env.listAtom(each.atomicType()));
+    }
+
+    private static <E extends AtomicType> void fillRecAtoms(List<E> envRecAtomList, List<E> initializedRecAtoms) {
+        int count = reservedAtomCount();
+        for (int i = 0; i < count; i++) {
+            if (i < initializedRecAtoms.size()) {
+                envRecAtomList.add(initializedRecAtoms.get(i));
+            } else {
+                // This is mainly to help with bir serialization/deserialization logic. Given the number of such atoms
+                // will be small this shouldn't be a problem.
+                envRecAtomList.add(null);
+            }
+        }
+    }
+
+    private static int reservedAtomCount() {
+        return Integer.max(initializedRecListAtoms.size(), initializedRecMappingAtoms.size());
     }
 
     private PredefinedTypeEnv() {
@@ -313,5 +343,17 @@ final class PredefinedTypeEnv {
 
     private record InitializedTypeAtom<E extends AtomicType>(E atomicType, int index) {
 
+    }
+
+    public static Optional<RecAtom> getPredefinedRecAtom(int index) {
+        // NOTE: when adding new reserved rec atoms update the bir.ksy file as well
+        if (isPredefinedRecAtom(index)) {
+            return Optional.of(RecAtom.createRecAtom(index));
+        }
+        return Optional.empty();
+    }
+
+    public static boolean isPredefinedRecAtom(int index) {
+        return index < reservedAtomCount();
     }
 }

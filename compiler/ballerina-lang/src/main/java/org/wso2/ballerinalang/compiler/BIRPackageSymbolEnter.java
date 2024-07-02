@@ -35,6 +35,7 @@ import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
+import io.ballerina.types.PredefinedTypeEnv;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
@@ -151,7 +152,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
@@ -1953,59 +1953,77 @@ public class BIRPackageSymbolEnter {
         private BddNode readBddNode() throws IOException {
             Atom atom;
             boolean isRecAtom = inputStream.readBoolean();
+            int index = inputStream.readInt();
             if (isRecAtom) {
-                int index = inputStream.readInt();
-                if (index != BDD_REC_ATOM_READONLY) {
-                    int kindOrdinal = inputStream.readInt();
-                    Atom.Kind kind = Atom.Kind.values()[kindOrdinal];
-                    int offset = switch (kind) {
-                        case LIST_ATOM -> offsets.listOffset();
-                        case FUNCTION_ATOM -> offsets.functionOffset();
-                        case MAPPING_ATOM -> offsets.mappingOffset();
-                        case XML_ATOM -> 0;
-                        case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
-                    };
-                    index += offset;
-                    RecAtom recAtom = RecAtom.createRecAtom(index);
-                    recAtom.setKind(kind);
-                    atom = recAtom;
-                } else { // BDD_REC_ATOM_READONLY is unique and every environment will have the same one
-                    atom = RecAtom.createRecAtom(BDD_REC_ATOM_READONLY);
-                }
+                atom = getRecAtom(index);
             } else {
-                int index = inputStream.readInt();
-                AtomicType atomicType;
-                switch (inputStream.readByte()) {
-                    case 1: {
-                        atomicType = readMappingAtomicType();
-                        index += offsets.mappingOffset();
-                        break;
-                    }
-                    case 2: {
-                        atomicType = readListAtomicType();
-                        index += offsets.listOffset();
-                        break;
-                    }
-                    case 3:
-                        atomicType = readFunctionAtomicType();
-                        index += offsets.functionOffset();
-                        break;
-                    case 4:
-                        atomicType = readCellAtomicType();
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected atomicType kind");
-                }
-                if (!(atomicType instanceof CellAtomicType)) {
-                    typeEnv.insertAtomAtIndex(index, atomicType);
-                }
-                atom = TypeAtom.createTypeAtom(index, atomicType);
+                atom = readAtomicType(index);
             }
 
             Bdd left = readBdd();
             Bdd middle = readBdd();
             Bdd right = readBdd();
             return BddNode.create(atom, left, middle, right);
+        }
+
+        private Atom readAtomicType(int index) throws IOException {
+            AtomicType atomicType;
+            int indexWithOffset;
+            switch (inputStream.readByte()) {
+                case 1: {
+                    atomicType = readMappingAtomicType();
+                    indexWithOffset = index + offsets.mappingOffset();
+                    break;
+                }
+                case 2: {
+                    atomicType = readListAtomicType();
+                    indexWithOffset = index + offsets.listOffset();
+                    break;
+                }
+                case 3:
+                    atomicType = readFunctionAtomicType();
+                    indexWithOffset = index + offsets.functionOffset();
+                    break;
+                case 4:
+                    atomicType = readCellAtomicType();
+                    indexWithOffset = index;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected atomicType kind");
+            }
+            if (!(atomicType instanceof CellAtomicType)) {
+                typeEnv.insertAtomAtIndex(indexWithOffset, atomicType);
+            }
+            return TypeAtom.createTypeAtom(indexWithOffset, atomicType);
+        }
+
+        private Atom getRecAtom(int index) throws IOException {
+            Atom atom;
+            Optional<RecAtom> predefinedRecAtom = PredefinedTypeEnv.getPredefinedRecAtom(index);
+            if (predefinedRecAtom.isPresent()) {
+                atom = predefinedRecAtom.get();
+            } else {
+                atom = readRecAtom(index);
+            }
+            return atom;
+        }
+
+        private Atom readRecAtom(int index) throws IOException {
+            Atom atom;
+            int kindOrdinal = inputStream.readInt();
+            Atom.Kind kind = Atom.Kind.values()[kindOrdinal];
+            int offset = switch (kind) {
+                case LIST_ATOM -> offsets.listOffset();
+                case FUNCTION_ATOM -> offsets.functionOffset();
+                case MAPPING_ATOM -> offsets.mappingOffset();
+                case XML_ATOM -> 0;
+                case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
+            };
+            index += offset;
+            RecAtom recAtom = RecAtom.createRecAtom(index);
+            recAtom.setKind(kind);
+            atom = recAtom;
+            return atom;
         }
 
         private CellAtomicType readCellAtomicType() throws IOException {

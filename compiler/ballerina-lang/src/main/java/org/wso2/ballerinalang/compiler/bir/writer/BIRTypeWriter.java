@@ -33,6 +33,7 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.PredefinedTypeEnv;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
@@ -107,7 +108,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 
 /**
@@ -672,9 +672,9 @@ public class BIRTypeWriter extends TypeVisitor {
             // which is unique and every environment has the same node.
             // TODO: need to think of a better way to serialize information about the actual node without "inlining"
             //  the node
-            if (index == BDD_REC_ATOM_READONLY) {
+            if (PredefinedTypeEnv.isPredefinedRecAtom(index)) {
                 buff.writeBoolean(true);
-                buff.writeInt(BDD_REC_ATOM_READONLY);
+                buff.writeInt(index);
             } else if (recAtom.kind() == Atom.Kind.XML_ATOM || visitedAtoms.contains(recAtom.getIdentifier())) {
                 buff.writeBoolean(true);
                 buff.writeInt(index);
