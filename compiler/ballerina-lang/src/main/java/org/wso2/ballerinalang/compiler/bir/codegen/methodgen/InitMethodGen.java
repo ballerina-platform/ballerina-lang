@@ -21,15 +21,19 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -55,10 +59,12 @@ import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -67,24 +73,38 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
@@ -92,10 +112,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GRACEFUL_EXIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
@@ -195,14 +221,13 @@ public class InitMethodGen {
     }
 
     public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String typeOwnerClass,
-                                          String moduleTypeClass) {
+                                          String moduleInitClass) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
                                           RETURN_OBJECT, null, null);
         mv.visitCode();
-
-        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
+        mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
@@ -221,6 +246,101 @@ public class InitMethodGen {
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT, typeOwnerClass);
+    }
+
+    public void generateModuleStop(ClassWriter cw, String moduleInitClass, AsyncDataCollector asyncDataCollector,
+                                   JvmConstantsGen jvmConstantsGen) {
+        // Using object return type since this is similar to a ballerina function without a return.
+        // A ballerina function with no returns is equivalent to a function with nil-return.
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_STOP,
+                JvmSignatures.CURRENT_MODULE_STOP, null, null);
+        mv.visitCode();
+
+        // Create a scheduler. A new scheduler is used here, to make the stop function to not
+        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
+        mv.visitTypeInsn(NEW, SCHEDULER);
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
+        mv.visitVarInsn(ASTORE, 1); // Scheduler var1
+        String lambdaName = generateStopDynamicLambdaBody(cw, moduleInitClass);
+        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector, jvmConstantsGen);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP, false);
+        mv.visitInsn(RETURN);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CURRENT_MODULE_STOP, moduleInitClass);
+        mv.visitEnd();
+    }
+
+    private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
+        String lambdaName = LAMBDA_PREFIX + "stopdynamic";
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
+        mv.visitCode();
+        MethodGenUtils.callSetDaemonStrand(mv);
+        generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
+        return lambdaName;
+    }
+
+    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv, String lambdaName, String initClass) {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, RUNTIME_REGISTRY_CLASS);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop", SET_STRAND, false);
+        mv.visitInsn(ACONST_NULL);
+        MethodGenUtils.visitReturn(mv, lambdaName, initClass);
+    }
+
+    private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
+                                               AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
+        addRuntimeRegistryAsParameter(mv);
+        generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector, jvmConstantsGen);
+        // handle any runtime errors
+        Label labelIf = new Label();
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+        mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC, false);
+        mv.visitLabel(labelIf);
+    }
+
+    private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
+        mv.visitIntInsn(BIPUSH, 2);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(AASTORE);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+    }
+
+    private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
+                                    AsyncDataCollector asyncDataCollector, JvmConstantsGen jvmConstantsGen) {
+        JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
+        MethodGenUtils.submitToScheduler(mv, jvmConstantsGen.getStrandMetadataConstantsClass(), "stop",
+                asyncDataCollector);
+        mv.visitVarInsn(ASTORE, 3);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
+        mv.visitTypeInsn(NEW, STACK);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
