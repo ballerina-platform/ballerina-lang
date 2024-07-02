@@ -52,9 +52,9 @@ public class ReadOnlyIntersectionViaMultipleModulesTest3 extends BaseTest {
     }
 
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.");
+        String targetFile = Paths.get("target", "bala", balaFileName + ".bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetFile);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetFile + " to 'local' repository.");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               packagePath);
         buildLeecher.waitForText(5000);
@@ -71,7 +71,8 @@ public class ReadOnlyIntersectionViaMultipleModulesTest3 extends BaseTest {
     }
 
     private void buildQux() throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux3-any-1.0.0.bala");
+        String targetPath = Paths.get("target", "bala", "testorg-selectively_immutable_qux3-any-1.0.0.bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetPath);
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               Paths.get(testFileLocation, "test_project_immutable_qux").toString());
         buildLeecher.waitForText(5000);
