@@ -322,6 +322,16 @@ public abstract class BalaWriter {
                         .resolve(RESOURCE_DIR_NAME).resolve(resource.name());
                 putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(resource.content()));
             }
+            // copy cached resources to default module resources
+            if (module.isDefaultModule()) {
+                Map<String, byte[]> cachedResources = ProjectUtils.getAllCachedResources(
+                        this.packageContext.project().targetDir());
+                for (Map.Entry<String, byte[]> entry : cachedResources.entrySet()) {
+                    Path path = Paths.get(ProjectConstants.MODULES_ROOT).resolve(
+                            module.moduleName().toString()).resolve(entry.getKey());
+                    putZipEntry(balaOutputStream, path, new ByteArrayInputStream(entry.getValue()));
+                }
+            }
 
             // Generate empty bal file for default module in tools
             if (module.isDefaultModule() && packageContext.balToolTomlContext().isPresent() &&

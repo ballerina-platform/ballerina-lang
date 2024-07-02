@@ -23,6 +23,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -33,6 +34,7 @@ import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.test.TestUtils;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
@@ -54,6 +56,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +108,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/log_creator_pkg_provided_code_analyzer_im");
         BCompileUtil.compileAndCacheBala(
                     "compiler_plugin_tests/pkg_provided_compiler_plugin_with_shared_data");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/pkg_provided_compiler_plugin_with_resource_addition");
     }
 
     @Test
@@ -622,6 +627,22 @@ public class CompilerPluginTests {
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
                 "Unexpected compilation diagnostic from analyzer");
+    }
+
+    @Test(description = "Test resource addition")
+    public void testResourceAdditionFromCompilerPlugins() {
+        Package currentPackage = loadPackage("resource_addition_plugin");
+        // Run code analyzers
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 0,
+                "Unexpected compilation diagnostics from the resource addition");
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
+        boolean hasResourcesJar = jarPathRequiredForExecution.stream()
+                .anyMatch(jarLibrary -> jarLibrary.path().endsWith(ProjectConstants.RESOURCE_DIR_NAME +
+                        ProjectConstants.BLANG_COMPILED_JAR_EXT));
+        Assert.assertTrue(hasResourcesJar);
     }
 
     private Package loadPackage(String path) {

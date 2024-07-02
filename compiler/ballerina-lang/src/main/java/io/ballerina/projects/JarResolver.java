@@ -25,23 +25,35 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
@@ -120,13 +132,73 @@ public class JarResolver {
 
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                               Set<JarLibrary> libraryPaths) {
+        JarLibrary libraryPath;
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
                     packageContext.packageId(), moduleContext.moduleName());
-            libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
+            libraryPath = new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext));
+            libraryPaths.add(libraryPath);
+            // Extract the resources in the module thin jars to a separate jar and add to the path
+            libraryPaths.add(getModuleResourcesJar(packageContext, scope, generatedJarLibrary.path().getParent(),
+                    moduleContext.moduleName(), libraryPath));
+        }
+        // Add resources
+        Optional.ofNullable(jBalBackend.codeGeneratedResourcesLibrary(packageContext.packageId()))
+                .ifPresent(library -> libraryPaths.add(
+                        new JarLibrary(library.path(), scope, getPackageName(packageContext))));
+    }
+
+    private JarLibrary getModuleResourcesJar(PackageContext packageContext, PlatformLibraryScope scope,
+                                             Path moduleCachePath, ModuleName moduleName, JarLibrary libraryPath) {
+        if (moduleCachePath != null) {
+            Path moduleResourcesJarPath = moduleCachePath.resolve(
+                    moduleName + "-" + RESOURCE_DIR_NAME +
+                            BLANG_COMPILED_JAR_EXT);
+            try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(moduleResourcesJarPath.toString())))) {
+                copyResources(outStream, libraryPath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to copy resources to " + moduleResourcesJarPath, e);
+            }
+            return new JarLibrary(moduleResourcesJarPath, scope, getPackageName(packageContext));
+        }
+        return null;
+    }
+
+    private void copyResources(ZipArchiveOutputStream outStream, JarLibrary jarLibrary) throws IOException {
+        try (ZipFile zipFile = new ZipFile(jarLibrary.path().toFile())) {
+            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+            while (entries.hasMoreElements()) {
+                ZipArchiveEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                if (entryName.startsWith(RESOURCE_DIR_NAME)) {
+                    copyEntry(outStream, zipFile, entry, RESOURCE_DIR_NAME +
+                            ProjectConstants.DIR_PATH_SEPARATOR +
+                            entryName.substring(entryName.lastIndexOf('/') + 1));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to copy resources from " + jarLibrary.path(), e);
         }
     }
+
+    private void copyEntry(ZipArchiveOutputStream outStream, ZipFile zipFile, ZipArchiveEntry entry,
+                           String newEntryName) throws IOException {
+        ZipArchiveEntry newEntry = new ZipArchiveEntry(newEntryName);
+        newEntry.setSize(entry.getSize());
+        newEntry.setTime(entry.getTime());
+        outStream.putArchiveEntry(newEntry);
+        try (InputStream is = zipFile.getInputStream(entry)) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) > 0) {
+                outStream.write(buffer, 0, len);
+            }
+        }
+        outStream.closeArchiveEntry();
+    }
+
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
@@ -206,9 +278,12 @@ public class JarResolver {
 
             // Add the test-thin jar of the specified module
             PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(rootPackageId, moduleName);
-            allJarFileForTestExec.add(new JarLibrary(generatedTestJar.path(),
+            JarLibrary testJarLibrary = new JarLibrary(generatedTestJar.path(),
                     PlatformLibraryScope.DEFAULT,
-                    getPackageName(rootPackageContext)));
+                    getPackageName(rootPackageContext));
+            allJarFileForTestExec.add(testJarLibrary);
+            allJarFileForTestExec.add(getModuleResourcesJar(rootPackageContext, PlatformLibraryScope.DEFAULT,
+                    generatedTestJar.path().getParent(), moduleName, testJarLibrary));
         }
 
         // 3) Add platform-specific libraries with test scope defined in the root package's Ballerina.toml

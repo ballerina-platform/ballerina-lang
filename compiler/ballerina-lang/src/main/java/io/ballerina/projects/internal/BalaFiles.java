@@ -160,7 +160,8 @@ public class BalaFiles {
         }
 
         String moduleName = fullModuleName;
-        if (!pkgName.equals(moduleName)) {
+        boolean isDefaultModule = pkgName.equals(moduleName);
+        if (!isDefaultModule) {
             // not default module
             moduleName = fullModuleName.substring(pkgName.length() + 1);
         }
@@ -179,7 +180,6 @@ public class BalaFiles {
         List<DocumentData> testSrcDocs = Collections.emptyList();
         DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
         List<Path> resources = loadResources(modulePath);
-
         return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
                 Collections.emptyList());
     }
