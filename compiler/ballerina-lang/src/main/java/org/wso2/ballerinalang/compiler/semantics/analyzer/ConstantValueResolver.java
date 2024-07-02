@@ -575,7 +575,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
-        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new ConcurrentLinkedDeque<>(), false);
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new ConcurrentLinkedDeque<>(),
+                false);
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
