@@ -283,7 +283,7 @@ public class RunNativeImageTestTask implements Task {
                     }
                 } catch (IOException e) {
                     TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("error occurred while running tests", e);
+                    throw createLauncherException("error occurred while running tests: ", e);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -355,9 +355,8 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
         if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            String[] splittedArray = currentPackage.project().sourceRoot().toString().
-                    replace(ProjectConstants.BLANG_SOURCE_EXT, "").split("/");
-            packageName = splittedArray[splittedArray.length - 1];
+            packageName = currentPackage.project().sourceRoot().getFileName().toString()
+                            .replace(ProjectConstants.BLANG_SOURCE_EXT, "");
             validateResourcesWithinJar(testSuiteMap, packageName);
         } else if (testSuiteMap.size() == 1) {
             packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();

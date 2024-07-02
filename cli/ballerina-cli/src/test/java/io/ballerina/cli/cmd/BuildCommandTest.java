@@ -917,15 +917,13 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand);
         buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertEquals(
-                buildLog.replaceAll("\r", ""),
-                getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
+        String buildLog = readOutput(true).replace("\r", "").replace("\\", "/");
+        Assert.assertEquals(buildLog, getOutput("corrupted-dependencies-toml.txt"));
         String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
-                .replace("/r" , "");
+                .replace("\r" , "");
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
-                        Charset.defaultCharset()).replace("/r" , "")
+                        Charset.defaultCharset()).replace("\r" , "")
                         .replace("DIST_VERSION", ballerinaShortVersion);
         Assert.assertEquals(depContent, corrcetDepContent);
         Files.delete(destinationPath);
