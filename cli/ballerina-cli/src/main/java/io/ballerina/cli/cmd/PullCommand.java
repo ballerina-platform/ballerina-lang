@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
@@ -72,8 +73,9 @@ public class PullCommand implements BLauncherCmd {
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -87,12 +89,20 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
+    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "true")
+    private boolean sticky;
+
+    @CommandLine.Option(names = "--offline", hidden = true)
+    private boolean offline;
+
     public PullCommand() {
+        this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
     }
 
     public PullCommand(PrintStream errStream, boolean exitWhenFinish) {
+        this.outStream = errStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
     }
@@ -254,6 +264,10 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName);
+
+        if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
+            outStream.println("Package already exists.\n");
+        }
         // create directory path in bala cache
         try {
             createDirectories(packagePathInBalaCache);
@@ -267,8 +281,9 @@ public class PullCommand implements BLauncherCmd {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
+        CentralAPIClient client;
         try {
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+            client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
@@ -281,19 +296,23 @@ public class PullCommand implements BLauncherCmd {
                         RepoUtils.getBallerinaVersion());
                 version = CommandUtil.getLatestVersion(versions);
             }
-            boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
-            if (hasCompilationErrors) {
-                CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
         } catch (PackageAlreadyExistsException e) {
-            errStream.println(e.getMessage());
-            CommandUtil.exitError(this.exitWhenFinish);
+            outStream.println("Package already exists.\n");
+            version = e.version();
         } catch (CentralClientException e) {
             errStream.println("package not found: " + orgName + "/" + packageName);
             CommandUtil.exitError(this.exitWhenFinish);
         }
+
+        outStream.println("Resolving dependencies");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+        boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version, buildOptions);
+        if (hasCompilationErrors) {
+            CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }

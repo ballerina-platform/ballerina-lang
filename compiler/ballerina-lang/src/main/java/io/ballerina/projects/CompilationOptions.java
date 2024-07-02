@@ -40,13 +40,14 @@ public class CompilationOptions {
     Boolean enableCache;
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
+    Boolean optimizeMemory;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement) {
+                       Boolean remoteManagement, Boolean optimizeMemory) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -64,6 +65,7 @@ public class CompilationOptions {
         this.enableCache = enableCache;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
+        this.optimizeMemory = optimizeMemory;
     }
 
     public boolean offlineBuild() {
@@ -128,6 +130,10 @@ public class CompilationOptions {
 
     boolean remoteManagement() {
         return toBooleanDefaultIfNull(this.remoteManagement);
+    }
+
+    boolean optimizeMemory() {
+        return toBooleanDefaultIfNull(this.optimizeMemory);
     }
 
     /**
@@ -218,6 +224,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setRemoteManagement(this.remoteManagement);
         }
+        if (theirOptions.optimizeMemory != null) {
+            compilationOptionsBuilder.setOptimizeMemory(theirOptions.optimizeMemory);
+        } else {
+            compilationOptionsBuilder.setOptimizeMemory(this.optimizeMemory);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -273,6 +284,7 @@ public class CompilationOptions {
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
         private Boolean remoteManagement;
+        private Boolean optimizeMemory;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -359,11 +371,16 @@ public class CompilationOptions {
             return this;
         }
 
+        public CompilationOptionsBuilder setOptimizeMemory(Boolean value) {
+            optimizeMemory = value;
+            return this;
+        }
+
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement);
+                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement, optimizeMemory);
         }
     }
 }
