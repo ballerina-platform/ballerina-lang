@@ -164,11 +164,10 @@ public class Strand {
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
-        for (int i = 0; i < channels.length; i++) {
-            ChannelDetails channelDetails = channels[i];
+        for (ChannelDetails channelDetails : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelDetails);
 
-            if (channels[i].send) {
+            if (channelDetails.send) {
                 channel.setSendError(error);
             } else {
                 channel.setReceiveError(error);

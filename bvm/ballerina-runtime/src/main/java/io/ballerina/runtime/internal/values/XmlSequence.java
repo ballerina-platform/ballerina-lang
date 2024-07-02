@@ -643,8 +643,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             childrenType = children.get(0).getType();
         } else {
             Set<Type> types = new HashSet<>();
-            for (int i = 0; i < children.size(); i++) {
-                types.add(children.get(i).getType());
+            for (BXml child : children) {
+                types.add(child.getType());
             }
             childrenType = new BUnionType(new ArrayList<>(types));
         }

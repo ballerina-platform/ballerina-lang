@@ -39,9 +39,8 @@ public class Join {
 
     public static BString join(BString separator, Object... strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
-        int size = strs.length;
-        for (int i = 0; i < size; i++) {
-            String str = ((BString) strs[i]).getValue();
+        for (Object o : strs) {
+            String str = ((BString) o).getValue();
             stringJoiner.add(str);
         }
         return StringUtils.fromString(stringJoiner.toString());

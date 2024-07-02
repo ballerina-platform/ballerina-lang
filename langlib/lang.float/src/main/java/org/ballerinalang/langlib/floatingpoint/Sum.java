@@ -31,9 +31,8 @@ public class Sum {
 
     public static double sum(double[] ns) {
         double sum = 0;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            sum += ns[i];
+        for (double n : ns) {
+            sum += n;
         }
         return sum;
     }

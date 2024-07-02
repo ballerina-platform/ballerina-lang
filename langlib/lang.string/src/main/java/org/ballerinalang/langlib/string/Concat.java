@@ -32,8 +32,8 @@ public class Concat {
         StringBuilder stringBuilder = new StringBuilder();
         int size = str.length;
 
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(str[i]);
+        for (BString bString : str) {
+            stringBuilder.append(bString);
         }
 
         return StringUtils.fromString(stringBuilder.toString());

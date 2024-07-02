@@ -49,8 +49,8 @@ public class RuntimeUtilTests {
         // versions in the format" {compiledVersion, runtimeVersion, supportedVersionRange}
         String[][] versions = { { "1.8.0_144", "1.7.0_1", "1.8.*" }, { "1.8.0_144", "9", "1.8.*" },
                 { "9.0.1", "10.0.2.1", "9.0.*" }, { "9", "10.0.2.1", "9.0.*" }, { "10", "9", "10.0.*" } };
-        for (int i = 0; i < versions.length; i++) {
-            testVersionsNegative(versions[i][0], versions[i][1], versions[i][2]);
+        for (String[] version : versions) {
+            testVersionsNegative(version[0], version[1], version[2]);
         }
     }
 
@@ -59,8 +59,8 @@ public class RuntimeUtilTests {
         // versions in the format" {compiledVersion, runtimeVersion}
         String[][] versions = { { "1.8.0_144", "1.8.0_144" }, { "1.8.0_144", "1.8.0_221" }, { "9.0_221", "9" },
                 { "9", "9.0_221" }, { "10.0.1", "10.0.2.1" }, { "10", "10" } };
-        for (int i = 0; i < versions.length; i++) {
-            testVersionsPositive(versions[i][0], versions[i][1]);
+        for (String[] version : versions) {
+            testVersionsPositive(version[0], version[1]);
         }
     }
 

@@ -47,12 +47,12 @@ public class AssertionDiffEvaluator {
         List<String> valueList = new ArrayList<>();
         if (value.contains("\n")) {
             String[] valueArray = value.split("\n");
-            for (int i = 0; i < valueArray.length; i++) {
-                if (valueArray[i].length() > MAX_ARG_LENGTH) {
-                    String[] partitions = valueArray[i].split(PARTITION_REGEX);
+            for (String item : valueArray) {
+                if (item.length() > MAX_ARG_LENGTH) {
+                    String[] partitions = item.split(PARTITION_REGEX);
                     valueList.addAll(Arrays.asList(partitions));
                 } else {
-                    valueList.add(valueArray[i]);
+                    valueList.add(item);
                 }
             }
         } else {
