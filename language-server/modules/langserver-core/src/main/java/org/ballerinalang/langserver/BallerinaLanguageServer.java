@@ -17,6 +17,7 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -115,15 +116,18 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
-        Map experimentalClientCapabilities = null;
+        Map<String, Object> experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    HashMap.class);
+                    new TypeToken<>() {
+            });
         }
 
-        Map initializationOptions = null;
+        Map<String, Object> initializationOptions = null;
         if (params.getInitializationOptions() != null) {
-            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(),
+                    new TypeToken<>() {
+            });
         }
 
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();

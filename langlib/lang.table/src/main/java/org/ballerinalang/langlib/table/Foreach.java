@@ -45,7 +45,7 @@ public class Foreach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BTable<?, ?> tbl, BFunctionPointer<Object[], Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] values = tbl.values().toArray();

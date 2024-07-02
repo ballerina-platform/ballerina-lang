@@ -71,7 +71,7 @@ public class FormattingTest {
         String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
-        String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        String actual = (String) ((LinkedTreeMap<?, ?>) ((List<?>) responseMessage.getResult()).get(0)).get("newText");
         actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected);
@@ -101,7 +101,7 @@ public class FormattingTest {
         String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
-        String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        String actual = (String) ((LinkedTreeMap<?, ?>) ((List<?>) responseMessage.getResult()).get(0)).get("newText");
         actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected);

@@ -184,7 +184,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 rootNode.accept(testFunctionVisitor);
                 for (FunctionDefinitionNode func : testFunctionVisitor.getTestStaticFunctions()) {
                     FunctionBodyNode functionBodyNode = func.functionBody();
-                    NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
+                    NodeList<StatementNode> statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
                     for (int i = 0; i < statements.size(); i++) {
                         StatementNode statementNode = (StatementNode) statements.get(i);
 

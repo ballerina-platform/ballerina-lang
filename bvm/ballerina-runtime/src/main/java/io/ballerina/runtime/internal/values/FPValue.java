@@ -72,8 +72,8 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     @Override
     public BFuture asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
-                             StrandMetadata metaData) {
-        return AsyncUtils.invokeFunctionPointerAsync(this, this.strandName, metaData,
+                                 StrandMetadata metaData) {
+        return AsyncUtils.invokeFunctionPointerAsync((BFunctionPointer<Object[], ?>) this, this.strandName, metaData,
                                                      args, resultHandleFunction, Scheduler.getStrand().scheduler);
     }
 

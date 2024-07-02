@@ -92,9 +92,9 @@ public class XmlText extends XmlNonElementItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlText> getIterator() {
         XmlText that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -102,7 +102,7 @@ public class XmlText extends XmlNonElementItem {
             }
 
             @Override
-            public Object next() {
+            public XmlText next() {
                 if (!read) {
                     this.read = true;
                     return that;

@@ -53,8 +53,8 @@ public class IterableArrowExprTest {
     @Test(description = "Test arrow expression inside map() with return string collection")
     public void testMapIterable() {
         Object returns = BRunUtil.invoke(basic, "testMapIterable");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("a")).toString(), "ANT");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside filter() and then inside map() followed by average()")
@@ -66,14 +66,14 @@ public class IterableArrowExprTest {
     @Test(description = "Test arrow expression inside map() followed by map()")
     public void testTwoLevelMapIterable() {
         Object returns = BRunUtil.invoke(basic, "testTwoLevelMapIterable");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("a")).toString(), "ANT");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside map() then filter() then map()")
     public void testTwoLevelMapIterableWithFilter() {
         Object returns = BRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression with filter() first and then map")
@@ -88,15 +88,15 @@ public class IterableArrowExprTest {
     @Test(description = "Test arrow expression inside map() with return a single string")
     public void testFilterWithArityOne() {
         Object returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("c")).toString(), "TIGER");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("a")).toString(), "ANT");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("c")).toString(), "TIGER");
     }
 
     @Test(description = "Test arrow expression inside map() which returns a lambda collection")
     public void testIterableReturnLambda() {
         Object returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
         Assert.assertNotNull(returns);
-        BMap res = (BMap) returns;
+        BMap<?, ?> res = (BMap<?, ?>) returns;
         Assert.assertTrue(res.get(StringUtils.fromString("a")) instanceof BFunctionPointer);
         Assert.assertTrue(res.get(StringUtils.fromString("b")) instanceof BFunctionPointer);
         Assert.assertTrue(res.get(StringUtils.fromString("c")) instanceof BFunctionPointer);

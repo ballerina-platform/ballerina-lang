@@ -243,7 +243,7 @@ public class StringUtils {
             case TypeTags.STRING_TAG:
                 return stringToJson((BString) jsonValue);
             case TypeTags.MAP_TAG:
-                MapValueImpl mapValue = (MapValueImpl) jsonValue;
+                MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) jsonValue;
                 return mapValue.getJSONString();
             case TypeTags.ARRAY_TAG:
                 ArrayValue arrayValue = (ArrayValue) jsonValue;
