@@ -301,7 +301,6 @@ public class MainMethodGen {
         int schedulerIndex = indexMap.get("newSchedulerVar");
         mv.visitVarInsn(ALOAD, schedulerIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
-
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {

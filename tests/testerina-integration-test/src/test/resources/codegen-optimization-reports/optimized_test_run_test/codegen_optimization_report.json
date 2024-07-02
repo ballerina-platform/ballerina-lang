@@ -1,0 +1,91 @@
+{
+  "test_org/optimized_test_run_test:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "foo",
+        "main",
+        "bar"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "corge"
+      ],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "RecA",
+        "TupleB"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "RecC"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  },
+  "test_org/optimized_test_run_test.subModuleB:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "test_org/optimized_test_run_test.subModuleB:0.1.0:publicClass.foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "test_org/optimized_test_run_test.subModuleB:0.1.0:publicClass.$init$"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "publicClass"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  },
+  "test_org/optimized_test_run_test.subModuleA:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "publicFunction"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "PublicTypeDef"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

@@ -33,25 +33,40 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizationReportEmitter;
+import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -64,17 +79,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.CodegenOptimizationUtils.isWhiteListedModule;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -95,7 +115,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
     private final PackageContext packageContext;
@@ -108,6 +127,14 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+    private final SymbolTable symbolTable;
+    private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
+    private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
+    private final Map<String, ByteArrayOutputStream> optimizedJarStreams;
+    protected final Set<PackageID> unusedCompilerLevelPackageIds;
+    protected final Set<PackageId> unusedProjectLevelPackageIds;
+    protected final Set<ModuleId> unusedModuleIds;
+    protected final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -139,6 +166,22 @@ public class JBallerinaBackend extends CompilerBackend {
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.conflictedJars = new ArrayList<>();
+        this.symbolTable = SymbolTable.getInstance(compilerContext);
+        this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+        this.codeGenOptimizationReportEmitter = CodeGenOptimizationReportEmitter.getInstance(compilerContext);
+        if (packageCompilation.compilationOptions().optimizeCodegen()) {
+            this.optimizedJarStreams = new HashMap<>();
+            this.unusedCompilerLevelPackageIds = new HashSet<>();
+            this.unusedProjectLevelPackageIds = new HashSet<>();
+            this.unusedModuleIds = new HashSet<>();
+            this.pkgWiseUsedNativeClassPaths = new LinkedHashMap<>();
+        } else {
+            this.optimizedJarStreams = Collections.emptyMap();
+            this.unusedCompilerLevelPackageIds = Collections.emptySet();
+            this.unusedProjectLevelPackageIds = Collections.emptySet();
+            this.unusedModuleIds = Collections.emptySet();
+            this.pkgWiseUsedNativeClassPaths = Collections.emptyMap();
+        }
         performCodeGen(shrink);
     }
 
@@ -151,6 +194,10 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
+        if (this.packageContext.project().buildOptions().optimizeCodegen() &&
+                !this.packageContext.project().buildOptions().skipTests()) {
+            markTestDependenciesForDuplicateBIRGen();
+        }
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add package resolution diagnostics
         diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
@@ -159,14 +206,14 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
-                if (packageCompilation.diagnosticResult().hasErrors()) {
-                    for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                        moduleDiagnostics.add(
-                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
-                    }
-                    continue;
+            Project project = moduleContext.project();
+            if (moduleContext.moduleId().packageId().equals(packageContext.packageId()) &&
+                    packageCompilation.diagnosticResult().hasErrors()) {
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    moduleDiagnostics.add(
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                 }
+                continue;
             }
             // We can't generate backend code when one of its dependencies have errors.
             if (!this.packageContext.getResolution().diagnosticResult().hasErrors() && !hasErrors(moduleDiagnostics)) {
@@ -174,19 +221,25 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
-                        !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
+                        !ProjectKind.BALA_PROJECT.equals(project.kind()) ||
                         (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
                     moduleDiagnostics.add(
-                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                 }
             }
-
             if (shrink) {
                 ModuleContext.shrinkDocuments(moduleContext);
             }
-            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+            // Codegen happens later when --optimize flag is active. We cannot clean the BlangPkgs until then.
+            if (!project.buildOptions().optimizeCodegen() &&
+                    project.kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
+        }
+
+        if (this.packageContext.project().buildOptions().optimizeCodegen()) {
+            registerUnusedBIRNodes();
+            optimizeAndCodegen();
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -195,6 +248,131 @@ public class JBallerinaBackend extends CompilerBackend {
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
+    }
+
+    private void registerUnusedBIRNodes() {
+        List<ModuleContext> topologicallySortedModuleList = pkgResolution.topologicallySortedModuleList();
+        // Reversed the for loop because used BIRNode analysis should start from the root module.
+        // Root module is usually found last in the topologicallySortedModuleList.
+        for (int i = topologicallySortedModuleList.size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = topologicallySortedModuleList.get(i);
+
+            // Default module is analyzed first to find its immediate dependencies.
+            // Its immediate dependent modules are marked as "used" and they are optimized after that.
+            // This process happens till all "used" modules are exhausted.
+            if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
+                this.usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                updateNativeDependencyMap(moduleContext);
+            }
+        }
+
+        this.codeGenOptimizationReportEmitter.emitBirOptimizationDuration();
+
+        if (this.packageContext.project().buildOptions().optimizeReport()) {
+            this.codeGenOptimizationReportEmitter.emitCodegenOptimizationReport(
+                    this.usedBIRNodeAnalyzer.pkgWiseInvocationData, getOptimizationReportParentPath());
+        }
+    }
+
+    private Path getOptimizationReportParentPath() {
+        if (packageContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return this.packageContext.project().sourceRoot.toAbsolutePath().getParent();
+        }
+        return this.packageContext.project().targetDir();
+    }
+
+    protected Set<PackageID> getOptimizedPackageIDs() {
+        return this.usedBIRNodeAnalyzer.pkgWiseInvocationData.keySet();
+    }
+
+    private void markTestDependenciesForDuplicateBIRGen() {
+        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+            BLangPackage bLangPackage = moduleContext.bLangPackage();
+
+            if (isRootModule(moduleContext) && bLangPackage.hasTestablePackage()) {
+                markCommonDependencies(bLangPackage);
+                return;
+            }
+        }
+    }
+
+    private void markCommonDependencies(BLangPackage bLangPackage) {
+        Set<BPackageSymbol> buildPkgDependencies = new HashSet<>();
+        Set<BPackageSymbol> testablePkgDependencies = new HashSet<>();
+        collectDependencies(bLangPackage.symbol, buildPkgDependencies);
+        collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
+
+        buildPkgDependencies.stream()
+                .filter(testablePkgDependencies::contains).filter(pkgSymbol -> !isWhiteListedModule(pkgSymbol.pkgID))
+                .forEach(pkgSymbol -> {
+                    pkgSymbol.shouldGenerateDuplicateBIR = true;
+                    // Have to use a hashmap because the pkgIds get mutated later
+                    JvmCodeGenUtil.duplicatePkgsMap.put(
+                            pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
+                            pkgSymbol.pkgID);
+                });
+    }
+
+    private void collectDependencies(BPackageSymbol pkgSymbol, Set<BPackageSymbol> currentDependencies) {
+        pkgSymbol.imports.forEach(dependency -> {
+            if (currentDependencies.add(dependency)) {
+                collectDependencies(dependency, currentDependencies);
+            }
+        });
+    }
+
+    private void optimizeAndCodegen() {
+        // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
+        // Therefore, we had to move it into another for loop.
+        for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shouldOptimize(moduleContext)) {
+                if (moduleContext.isUsed()) {
+                    // Generate optimized thin JAR byte streams.
+                    performOptimizedCodeGen(moduleContext);
+                } else if (!this.packageContext.project().buildOptions().skipTests()) {
+                    moduleContext.bLangPackage().symbol.shouldGenerateDuplicateBIR = false;
+                    String dupId = moduleContext.bLangPackage().packageID.orgName +
+                            moduleContext.bLangPackage().packageID.getNameComps().toString();
+                    JvmCodeGenUtil.duplicatePkgsMap.remove(dupId);
+                    performCodeGen(moduleContext, moduleContext.getCompilationCache());
+                } else {
+                    updateUnusedPkgMaps(moduleContext);
+                }
+            }
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
+        }
+    }
+
+    private boolean isRootModule(ModuleContext moduleContext) {
+        return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId();
+    }
+
+    private boolean shouldOptimize(ModuleContext moduleContext) {
+        return platformLibraryGenerated(moduleContext) && !moduleContext.isWhiteListedModule();
+    }
+
+    /**
+     * Omitting the LangLibs and other modules that does not have BIRPkgNodes.
+     */
+    private boolean platformLibraryGenerated(ModuleContext moduleContext) {
+        return moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED;
+    }
+
+    private void updateUnusedPkgMaps(ModuleContext ususedModuleContext) {
+        unusedModuleIds.add(ususedModuleContext.moduleId());
+        unusedCompilerLevelPackageIds.add(ususedModuleContext.bLangPackage().symbol.pkgID);
+        if (ususedModuleContext.isDefaultModule()) {
+            unusedProjectLevelPackageIds.add(ususedModuleContext.moduleId().packageId());
+        }
+    }
+
+    private void updateNativeDependencyMap(ModuleContext moduleContext) {
+        pkgWiseUsedNativeClassPaths.putIfAbsent(moduleContext.moduleId().packageId(), new HashSet<>());
+        pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
+                .addAll(moduleContext.bLangPackage().symbol.invocationData.usedNativeClassPaths);
     }
 
     private boolean hasErrors(List<Diagnostic> diagnostics) {
@@ -222,6 +400,7 @@ public class JBallerinaBackend extends CompilerBackend {
             case GRAAL_EXEC -> emitGraalExecutable(filePath, emitResultDiagnostics);
             case EXEC -> emitExecutable(filePath, emitResultDiagnostics);
             case BALA -> emitBala(filePath);
+            case OPTIMIZE_CODEGEN -> emitOptimizedExecutable(filePath);
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
@@ -336,13 +515,18 @@ public class JBallerinaBackend extends CompilerBackend {
 
     @Override
     public PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX);
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX, false);
+    }
+
+    @Override
+    public PlatformLibrary codeGeneratedOptimizedLibrary(PackageId packageId, ModuleName moduleName) {
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX, true);
     }
 
     @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
         return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
-                TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
+                TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX, false);
     }
 
     @Override
@@ -364,35 +548,166 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
-            compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+            compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
         // skip generation of the test jar if --with-tests option is not provided
-        if (moduleContext.project().buildOptions().skipTests()) {
+        if (moduleContext.project().buildOptions().skipTests() || !bLangPackage.hasTestablePackage()) {
             return;
         }
 
-        if (!bLangPackage.hasTestablePackage()) {
+        String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
+        CompiledJarFile compiledTestJarFile =
+                jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0), isRemoteMgtEnabled);
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream, false);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
+        }
+    }
+
+    public void performOptimizedCodeGen(ModuleContext moduleContext) {
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
+        boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
+
+        if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
+            duplicateCodegen(moduleContext, isRemoteMgtEnabled);
+        }
+
+        if (isRootModule(moduleContext)) {
+            JvmCodeGenUtil.markIsRootPackage();
+        }
+        optimizeBirPackage(bLangPackage.symbol);
+
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
             return;
         }
+        CompiledJarFile compiledJarFile =
+                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR,
+                        isRemoteMgtEnabled);
+        if (compiledJarFile == null) {
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+        }
+        String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+        if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
+            jarFileName = getJarFileName(moduleContext) + "_OPTIMIZED" + JAR_FILE_NAME_SUFFIX;
+        }
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            if (!this.packageContext.project().buildOptions().skipTests()) {
+                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, true);
+            } else {
+                optimizedJarStreams.putIfAbsent(jarFileName, byteStream);
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+
+        // TODO merge this with performCodeGen
+        // skip generation of the test jar if --with-tests option is not provided
+        if (moduleContext.project().buildOptions().skipTests() || !bLangPackage.hasTestablePackage()) {
+            return;
+        }
+
+        // Both invocation data are the same
+        // TODO do the merging inside usedBIRNodeAnalyzer
+        bLangPackage.testablePkgs.get(0).symbol.invocationData = bLangPackage.symbol.invocationData;
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
                 isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
-            compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
+            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream, true);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
+    }
+
+    private void duplicateCodegen(ModuleContext moduleContext, boolean isRemoteMgtEnabled) {
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
+        BIRNode.BIRPackage optimizableBirPkg = bLangPackage.symbol.bir;
+        bLangPackage.symbol.bir = bLangPackage.symbol.duplicateBir;
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
+            return;
+        }
+        CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
+        if (originalJarFile == null) {
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+        }
+
+        bLangPackage.symbol.bir = optimizableBirPkg;
+        String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
+            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+    }
+
+    private void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
+        UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
+        BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
+
+        if (!invocationData.moduleIsUsed) {
+            // Thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with --optimize flag
+            throw new IllegalStateException(
+                    String.format(
+                            "BIR Package %s should not be packed to final executable because it is not used!",
+                            bPackageSymbol.getName()));
+        }
+
+        bPackageSymbol.imports.removeIf(pkgSymbol ->
+                pkgSymbol != null && unusedCompilerLevelPackageIds.contains(pkgSymbol.pkgID));
+        birPackage.importModules.removeIf(module -> isUnusedPkgID(module.packageID));
+        birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
+        birPackage.typeDefs.removeIf(typeDef -> typeDef.getUsedState() == UsedState.UNUSED);
+        optimizeImmutableTypeDefs(invocationData, bPackageSymbol.pkgID);
+
+        // FP optimization for functions with default params
+        birPackage.globalVars.removeIf(gVar -> gVar.getUsedState() == UsedState.UNUSED);
+        invocationData.getFpDataPool().forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
+
+        // TODO Attached function optimization with polymorphism handling
+    }
+
+    private boolean isUnusedPkgID(PackageID packageID) {
+        return unusedCompilerLevelPackageIds.stream().anyMatch(unusedPkgID ->
+                unusedPkgID.nameComps.equals(packageID.nameComps));
+    }
+
+    private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData, PackageID pkgID) {
+        Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
+                symbolTable.immutableTypeMaps.get(getPackageIdString(pkgID));
+
+        if (immutableTypeMap == null) {
+            return;
+        }
+
+        invocationData.unusedTypeDefs.forEach(deadTypeDef -> {
+            if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
+                deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
+            }
+        });
+
+        // Some types don't have an associated BIRTypeDefinition. These types have to be removed manually.
+        immutableTypeMap.entrySet().removeIf(entry -> !entry.getValue().isUsed);
+    }
+
+    public static String getPackageIdString(PackageID packageID) {
+        return packageID.isTestPkg ? packageID + "_testable" : packageID.toString();
     }
 
     @Override
@@ -511,6 +826,85 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    private void assembleOptimizedExecutableJar(Path executableFilePath,
+                                       Manifest manifest,
+                                       Collection<JarLibrary> jarLibraries) throws IOException {
+        String birOptimizedJarPath = executableFilePath.toString()
+                .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT, ProjectConstants.BIR_OPTIMIZED_JAR_SUFFIX);
+        String bytecodeOptimizedJarPath = executableFilePath.toString()
+                .replace(ProjectConstants.BLANG_COMPILED_JAR_EXT, ProjectConstants.BYTECODE_OPTIMIZED_JAR_SUFFIX);
+
+        ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                new BufferedOutputStream(new FileOutputStream(birOptimizedJarPath)));
+        try {
+            writeManifest(manifest, outStream);
+
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                    .collect(Collectors.toList());
+
+            // Used to prevent adding duplicated entries during the final jar creation.
+            HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
+            // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+            // service loader related information should be merged together in the final executable jar creation.
+            HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
+
+            // Copy all the jars
+            for (JarLibrary library : sortedJarLibraries) {
+                copyJar(outStream, library, copiedEntries, serviceEntries);
+            }
+
+            // Clean optimized JAR byte streams
+            optimizedJarStreams.clear();
+
+            // Copy merged spi services.
+            for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
+                String s = entry.getKey();
+                StringBuilder service = entry.getValue();
+                JarArchiveEntry e = new JarArchiveEntry(s);
+                outStream.putArchiveEntry(e);
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeArchiveEntry();
+            }
+            outStream.close();
+
+            this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            ZipFile birOptimizedFatJar = new ZipFile(birOptimizedJarPath);
+
+            Set<String> startPoints = new LinkedHashSet<>();
+            startPoints.add(getMainClassFileName(this.packageContext()));
+            ZipArchiveOutputStream optimizedJarStream =
+                    new ZipArchiveOutputStream(new FileOutputStream(bytecodeOptimizedJarPath));
+            NativeDependencyOptimizer nativeDependencyOptimizer =
+                    new NativeDependencyOptimizer(startPoints, birOptimizedFatJar, optimizedJarStream);
+
+            nativeDependencyOptimizer.analyzeWhiteListedClasses();
+            nativeDependencyOptimizer.analyzeUsedClasses();
+            nativeDependencyOptimizer.copyUsedEntries();
+            optimizedJarStream.close();
+
+            this.codeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            this.codeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
+            this.codeGenOptimizationReportEmitter.emitOptimizedExecutableSize(Path.of(bytecodeOptimizedJarPath));
+            if (this.packageContext.project().buildOptions().optimizeReport()) {
+                NativeDependencyOptimizationReportEmitter.emitCodegenOptimizationReport(
+                        nativeDependencyOptimizer.getNativeDependencyOptimizationReport(),
+                        getOptimizationReportParentPath());
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private static String getMainClassFileName(PackageContext rootPkgContext) {
+        if (rootPkgContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return "$_init";
+        }
+
+        return String.format("%s/%s/0/$_init", rootPkgContext.descriptor().org(), rootPkgContext.descriptor().name());
+    }
+
     private void writeManifest(Manifest manifest, ZipArchiveOutputStream outStream) throws IOException {
         JarArchiveEntry e = new JarArchiveEntry(JarFile.MANIFEST_NAME);
         outStream.putArchiveEntry(e);
@@ -518,14 +912,21 @@ public class JBallerinaBackend extends CompilerBackend {
         outStream.closeArchiveEntry();
     }
 
-    private Manifest createManifest() {
+    private Manifest createManifest(boolean optimizeCodegen) {
         // Getting the jarFileName of the root module of this executable
         PlatformLibrary rootModuleJarFile = codeGeneratedLibrary(packageContext.packageId(),
                 packageContext.defaultModuleContext().moduleName());
 
         String mainClassName;
-        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
+        try {
+            JarInputStream jarStream;
+            if (optimizeCodegen) {
+                jarStream = getOptimizedJarInputStream(rootModuleJarFile.path().toString());
+            } else {
+                jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()));
+            }
             Manifest mf = jarStream.getManifest();
+            jarStream.close();
             mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
         } catch (IOException e) {
             throw new RuntimeException("Generated jar file cannot be found for the module: " +
@@ -548,6 +949,24 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
+
+    // TODO Optimize the condition to lookup the byteArrayOutputStream
+    private JarInputStream getOptimizedJarInputStream(String jarPath) {
+        AtomicReference<JarInputStream> jarInputStream = new AtomicReference<>();
+        optimizedJarStreams.forEach((key, value) -> {
+            if (jarPath.contains(key)) {
+                ByteArrayInputStream tempInStream = new ByteArrayInputStream(value.toByteArray());
+                try {
+                    jarInputStream.set(new JarInputStream(tempInStream));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return jarInputStream.get();
+    }
+
     /**
      * Copies a given jar file into the executable fat jar.
      *
@@ -558,10 +977,9 @@ public class JBallerinaBackend extends CompilerBackend {
      * @throws IOException If jar file copying is failed.
      */
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
-                         HashMap<String, JarLibrary> copiedEntries, HashMap<String,
-            StringBuilder> services) throws IOException {
-
-        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
+                         HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services)
+            throws IOException {
+        ZipFile zipFile = getZipFile(jarLibrary);
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -615,6 +1033,28 @@ public class JBallerinaBackend extends CompilerBackend {
         zipFile.close();
     }
 
+    private ZipFile getZipFile(JarLibrary jarLibrary) throws IOException {
+        ByteArrayOutputStream optimizedStream = getOptimizedStream(jarLibrary.path().toString());
+        if (optimizedStream.size() == 0) {
+            return new ZipFile(jarLibrary.path().toFile());
+        }
+        SeekableByteChannel seekableByteChannel = new SeekableInMemoryByteChannel(optimizedStream.toByteArray());
+        return new ZipFile(seekableByteChannel);
+    }
+
+    private ByteArrayOutputStream getOptimizedStream(String pathName) {
+        if (this.optimizedJarStreams == null) {
+            return new ByteArrayOutputStream(0);
+        }
+
+        for (Map.Entry<String, ByteArrayOutputStream> entry : this.optimizedJarStreams.entrySet()) {
+            if (pathName.contains(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return new ByteArrayOutputStream(0);
+    }
+
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
         return copiedEntries.containsKey(entryName);
     }
@@ -626,20 +1066,20 @@ public class JBallerinaBackend extends CompilerBackend {
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
                                                  ModuleName moduleName,
                                                  PlatformLibraryScope scope,
-                                                 String fileNameSuffix) {
+                                                 String fileNameSuffix, boolean isOptimizedLibrary) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
         CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
         String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName)) + fileNameSuffix;
         Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
-                this, jarFileName);
+                this, jarFileName, isOptimizedLibrary);
         return new JarLibrary(platformSpecificLibrary.orElseThrow(
                 () -> new IllegalStateException("Cannot find the generated jar library for module: " + moduleName)),
                 scope);
     }
 
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
-        Manifest manifest = createManifest();
+        Manifest manifest = createManifest(false);
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
@@ -661,6 +1101,19 @@ public class JBallerinaBackend extends CompilerBackend {
                     excludedClasses, classPathTextCopyPath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the test executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+        return executableFilePath;
+    }
+
+    private Path emitOptimizedExecutable(Path executableFilePath) {
+        Manifest manifest = createManifest(true);
+        Collection<JarLibrary> jarLibraries =
+                jarResolver.getJarFilePathsRequiredForExecution(true);
+        try {
+            assembleOptimizedExecutableJar(executableFilePath, manifest, jarLibraries);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
@@ -849,7 +1302,8 @@ public class JBallerinaBackend extends CompilerBackend {
         EXEC("exec"),
         BALA("bala"),
         GRAAL_EXEC("graal_exec"),
-        TEST("test")
+        TEST("test"),
+        OPTIMIZE_CODEGEN("optimize_codegen")
         ;
 
         private final String value;

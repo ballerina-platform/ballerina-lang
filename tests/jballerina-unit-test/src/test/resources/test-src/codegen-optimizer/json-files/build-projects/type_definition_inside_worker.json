@@ -1,0 +1,32 @@
+{
+  "thushara_piyasekara/type_definition_inside_worker:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$lambda$_0"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UsedTypeDef"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UnusedTypeDef"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

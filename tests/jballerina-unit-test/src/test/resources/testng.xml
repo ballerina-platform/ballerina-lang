@@ -31,6 +31,7 @@
             <package name="org.ballerinalang.test.bir.*"/>
             <package name="org.ballerinalang.test.cli.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
+            <package name="org.ballerinalang.test.codegen.optimizer.*"/>
             <package name="org.ballerinalang.test.dataflow.analysis.*"/>
             <package name="org.ballerinalang.test.documentation.*" />
             <package name="org.ballerinalang.test.declarations.*" />

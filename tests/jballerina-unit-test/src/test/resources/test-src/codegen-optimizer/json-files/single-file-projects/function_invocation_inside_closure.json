@@ -1,0 +1,29 @@
+{
+  ".": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$lambda$_0"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
