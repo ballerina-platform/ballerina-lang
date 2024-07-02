@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
@@ -32,6 +33,16 @@ import static io.ballerina.types.Core.union;
  * @since 2201.10.0
  */
 public class EnvInitTest {
+
+    @BeforeClass
+    public void setup() {
+        // All the types in PredefinedTypeEnv are populated by the loading of PredefinedType class.
+        try {
+            Class.forName("io.ballerina.types.PredefinedType");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testEnvInitAtomTable() throws NoSuchFieldException, IllegalAccessException {
