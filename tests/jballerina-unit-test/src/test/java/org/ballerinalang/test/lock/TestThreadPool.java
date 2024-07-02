@@ -29,9 +29,9 @@ import java.util.concurrent.Executors;
  */
 public class TestThreadPool {
 
-    private static TestThreadPool instance = new TestThreadPool();
+    private static final TestThreadPool instance = new TestThreadPool();
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(500);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(500);
 
     private TestThreadPool() {
     }

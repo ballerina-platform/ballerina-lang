@@ -33,9 +33,9 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
 
     private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
 
-    private PackageRepository systemRepo;
+    private final PackageRepository systemRepo;
 
-    private PackageRepository parentRepo;
+    private final PackageRepository parentRepo;
     
     private Set<PackageID> cachedPackageIds;
 

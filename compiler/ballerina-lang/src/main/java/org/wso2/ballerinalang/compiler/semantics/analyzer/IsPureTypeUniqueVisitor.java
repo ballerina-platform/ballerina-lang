@@ -44,8 +44,8 @@ import java.util.HashSet;
  */
 public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
-    private HashSet<BType> visited;
-    private boolean isPureType;
+    private final HashSet<BType> visited;
+    private final boolean isPureType;
 
     public IsPureTypeUniqueVisitor() {
         visited = new HashSet<>();

@@ -64,8 +64,8 @@ import java.util.stream.Collectors;
  */
 public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSymbol>> {
 
-    private List<DocumentSymbol> documentSymbolStore;
-    private DocumentSymbolContext context;
+    private final List<DocumentSymbol> documentSymbolStore;
+    private final DocumentSymbolContext context;
 
     DocumentSymbolResolver(DocumentSymbolContext context) {
         this.context = context;

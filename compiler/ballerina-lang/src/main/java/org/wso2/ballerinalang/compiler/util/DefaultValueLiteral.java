@@ -24,8 +24,8 @@ package org.wso2.ballerinalang.compiler.util;
  * @since 0.985.0
  */
 public class DefaultValueLiteral {
-    private Object defaultValue;
-    private int literalTypeTag;
+    private final Object defaultValue;
+    private final int literalTypeTag;
 
     public DefaultValueLiteral(Object defaultValue, int literalTypeTag) {
         this.defaultValue = defaultValue;

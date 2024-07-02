@@ -52,7 +52,7 @@ public class TreeGenConfig {
     public static final String SYNTAX_NODE_METADATA_KEY = "syntax.node.metadata";
 
     private final Properties props;
-    private static TreeGenConfig instance = new TreeGenConfig(loadConfig());
+    private static final TreeGenConfig instance = new TreeGenConfig(loadConfig());
 
     static TreeGenConfig getInstance() {
         return instance;

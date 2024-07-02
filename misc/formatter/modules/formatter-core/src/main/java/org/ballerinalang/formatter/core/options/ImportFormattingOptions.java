@@ -28,9 +28,9 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
  */
 public class ImportFormattingOptions {
 
-    private boolean groupImports;
-    private boolean sortImports;
-    private boolean removeUnusedImports;
+    private final boolean groupImports;
+    private final boolean sortImports;
+    private final boolean removeUnusedImports;
 
     private ImportFormattingOptions(boolean groupImports, boolean sortImports, boolean removeUnusedImports) {
         this.groupImports = groupImports;

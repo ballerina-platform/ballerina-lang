@@ -22,6 +22,7 @@ package org.ballerinalang.bindgen;
  *
  * @since 2.0.0
  */
+@SuppressWarnings("all")
 abstract class AbstractTestResource {
 
     AbstractTestResource() {

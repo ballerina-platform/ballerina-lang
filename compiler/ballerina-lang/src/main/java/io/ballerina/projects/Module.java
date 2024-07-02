@@ -168,14 +168,14 @@ public class Module {
      * Inner class that handles module modifications.
      */
     public static class Modifier {
-        private ModuleId moduleId;
-        private ModuleDescriptor moduleDescriptor;
+        private final ModuleId moduleId;
+        private final ModuleDescriptor moduleDescriptor;
         private Map<DocumentId, DocumentContext> srcDocContextMap;
         private Map<DocumentId, DocumentContext> testDocContextMap;
-        private boolean isDefaultModule;
+        private final boolean isDefaultModule;
         private final List<ModuleDescriptor> dependencies;
-        private Package packageInstance;
-        private Project project;
+        private final Package packageInstance;
+        private final Project project;
         private MdDocumentContext moduleMdContext;
 
         private Modifier(Module oldModule) {

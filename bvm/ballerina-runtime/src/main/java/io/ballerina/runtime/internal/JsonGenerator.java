@@ -46,7 +46,7 @@ public class JsonGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
-    private Writer writer;
+    private final Writer writer;
 
     private boolean[] levelInit = new boolean[DEFAULT_DEPTH];
 
@@ -54,7 +54,7 @@ public class JsonGenerator implements Closeable {
 
     private boolean fieldActive;
 
-    private static boolean[] escChars = new boolean[93];
+    private static final boolean[] escChars = new boolean[93];
 
     static {
         escChars['"'] = true;

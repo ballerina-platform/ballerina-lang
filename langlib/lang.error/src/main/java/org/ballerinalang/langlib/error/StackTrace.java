@@ -112,8 +112,8 @@ public class StackTrace {
 
         BArray callStack;
 
-        private ObjectType type;
-        private BTypedesc typedesc;
+        private final ObjectType type;
+        private final BTypedesc typedesc;
 
         public CallStack(ObjectType type) {
             this.type = type;

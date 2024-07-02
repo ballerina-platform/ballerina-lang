@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public class CompilerContext {
 
-    private Map<Key<?>, Object> props = new HashMap<>();
-    private Map<Class<?>, Object> objects = new HashMap<>();
+    private final Map<Key<?>, Object> props = new HashMap<>();
+    private final Map<Class<?>, Object> objects = new HashMap<>();
 
     public CompilerContext() {
     }

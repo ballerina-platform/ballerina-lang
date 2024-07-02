@@ -32,9 +32,9 @@ import org.testng.annotations.Test;
  */
 public class MatchStmtErrorMatchPatternTest {
     private CompileResult result, restPatternResult, resultNegative, moduleResult;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
-    private String unnecessaryCondition = "unnecessary condition: expression will always evaluate to 'true'";
+    private final String patternNotMatched = "pattern will not be matched";
+    private final String unreachablePattern = "unreachable pattern";
+    private final String unnecessaryCondition = "unnecessary condition: expression will always evaluate to 'true'";
 
     @BeforeClass
     public void setup() {

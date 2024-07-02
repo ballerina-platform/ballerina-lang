@@ -46,8 +46,8 @@ public class PathBalaRepo implements Repo<Path> {
     private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     
     private final Manifest manifest;
-    private Map<PackageID, Manifest> dependencyManifests;
-    private ZipConverter zipConverter;
+    private final Map<PackageID, Manifest> dependencyManifests;
+    private final ZipConverter zipConverter;
     
     public PathBalaRepo(Manifest manifest, Map<PackageID, Manifest> dependencyManifests) {
         this.manifest = manifest;

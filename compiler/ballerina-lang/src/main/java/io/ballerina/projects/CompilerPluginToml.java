@@ -9,8 +9,8 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
  * @since 2.0.0
  */
 public class CompilerPluginToml {
-    private TomlDocumentContext compilerPluginTomlContext;
-    private Package packageInstance;
+    private final TomlDocumentContext compilerPluginTomlContext;
+    private final Package packageInstance;
 
     private CompilerPluginToml(TomlDocumentContext compilerPluginTomlContext, Package packageInstance) {
         this.compilerPluginTomlContext = compilerPluginTomlContext;
@@ -55,7 +55,7 @@ public class CompilerPluginToml {
      */
     public static class Modifier {
         private TomlDocument tomlDocument;
-        private Package oldPackage;
+        private final Package oldPackage;
 
         private Modifier(CompilerPluginToml oldDocument) {
             this.tomlDocument = oldDocument.tomlDocument();

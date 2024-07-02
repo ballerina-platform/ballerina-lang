@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 public class BallerinaDocumentation implements Documentation {
 
-    private MarkdownDocAttachment markdownDocAttachment;
+    private final MarkdownDocAttachment markdownDocAttachment;
 
     public BallerinaDocumentation(MarkdownDocAttachment markdownDocAttachment) {
         this.markdownDocAttachment = markdownDocAttachment;

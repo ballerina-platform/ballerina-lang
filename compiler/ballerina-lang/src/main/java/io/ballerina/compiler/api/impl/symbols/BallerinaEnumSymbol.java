@@ -41,8 +41,8 @@ import java.util.List;
  */
 public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implements EnumSymbol {
 
-    private List<ConstantSymbol> members;
-    private List<AnnotationSymbol> annots;
+    private final List<ConstantSymbol> members;
+    private final List<AnnotationSymbol> annots;
     private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     protected BallerinaEnumSymbol(String name, List<ConstantSymbol> members, List<Qualifier> qualifiers,

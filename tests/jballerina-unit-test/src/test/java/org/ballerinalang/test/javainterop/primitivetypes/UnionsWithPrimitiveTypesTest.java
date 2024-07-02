@@ -39,14 +39,14 @@ import java.io.IOException;
  */
 public class UnionsWithPrimitiveTypesTest {
     private CompileResult result;
-    private boolean aBoolean = true;
-    private byte aByte = 8;
-    private short aShort = 567;
-    private char aChar = 'A';
-    private int anInt = 345866;
-    private long aLong = 42343242;
-    private float aFloat = 234242423.0f;
-    private double aDouble = 8781233342322.324234;
+    private final boolean aBoolean = true;
+    private final byte aByte = 8;
+    private final short aShort = 567;
+    private final char aChar = 'A';
+    private final int anInt = 345866;
+    private final long aLong = 42343242;
+    private final float aFloat = 234242423.0f;
+    private final double aDouble = 8781233342322.324234;
 
     @BeforeClass
     public void setup() {

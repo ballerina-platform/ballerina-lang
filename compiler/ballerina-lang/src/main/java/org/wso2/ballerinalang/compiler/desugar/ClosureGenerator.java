@@ -209,10 +209,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * ClosureGenerator for creating closures for default values.
@@ -223,12 +223,12 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
     private Queue<BLangSimpleVariableDef> annotationClosureReferences;
-    private SymbolTable symTable;
+    private final SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
-    private SymbolResolver symResolver;
-    private AnnotationDesugar annotationDesugar;
-    private Types types;
+    private final SymbolResolver symResolver;
+    private final AnnotationDesugar annotationDesugar;
+    private final Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
         ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);

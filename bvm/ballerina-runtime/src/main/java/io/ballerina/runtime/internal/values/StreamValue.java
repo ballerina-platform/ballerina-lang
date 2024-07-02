@@ -42,11 +42,11 @@ import java.util.UUID;
 public class StreamValue implements RefValue, BStream {
 
     private BTypedesc typedesc;
-    private Type type;
-    private Type constraintType;
-    private Type completionType;
+    private final Type type;
+    private final Type constraintType;
+    private final Type completionType;
     private Type iteratorNextReturnType;
-    private BObject iteratorObj;
+    private final BObject iteratorObj;
 
 
     /**

@@ -37,7 +37,7 @@ import java.util.Map;
  * @since 0.982.0
  */
 public class BallerinaServerAgent {
-    private static PrintStream outStream = System.err;
+    private static final PrintStream outStream = System.err;
 
     /**
      * Argument name for exist status.

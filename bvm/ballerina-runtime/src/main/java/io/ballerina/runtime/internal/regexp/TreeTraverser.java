@@ -30,9 +30,9 @@ import java.util.ArrayDeque;
  */
 public class TreeTraverser {
 
-    private CharReader reader;
+    private final CharReader reader;
     private ParserMode mode;
-    private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+    private final ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
 
     public TreeTraverser(CharReader charReader) {
         this.reader = charReader;

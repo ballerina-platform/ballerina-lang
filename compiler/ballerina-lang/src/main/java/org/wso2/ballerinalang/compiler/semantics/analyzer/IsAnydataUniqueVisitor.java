@@ -46,8 +46,8 @@ import java.util.HashSet;
  */
 public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
-    private HashSet<BType> visited;
-    private boolean isAnydata;
+    private final HashSet<BType> visited;
+    private final boolean isAnydata;
 
     public IsAnydataUniqueVisitor() {
         visited = new HashSet<>();

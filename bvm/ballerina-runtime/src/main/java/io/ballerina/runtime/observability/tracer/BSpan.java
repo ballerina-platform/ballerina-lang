@@ -53,8 +53,8 @@ public class BSpan {
     private static final MapType IMMUTABLE_STRING_MAP_TYPE = TypeCreator.createMapType(
             PredefinedTypes.TYPE_STRING, true);
 
-    private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
-    private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
+    private static final PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
+    private static final PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
 
     static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
         @Override

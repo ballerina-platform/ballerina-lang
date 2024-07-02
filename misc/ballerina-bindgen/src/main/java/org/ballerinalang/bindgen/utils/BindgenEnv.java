@@ -60,14 +60,14 @@ public class BindgenEnv {
 
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
-    private Set<String> classPaths = new HashSet<>();
-    private Map<String, String> aliases = new HashMap<>();
-    private Set<String> classListForLooping = new HashSet<>();
-    private Set<String> allJavaClasses = new HashSet<>();
-    private Set<JError> exceptionList = new HashSet<>();
-    private Map<String, String> failedClassGens = new HashMap<>();
-    private List<String> failedMethodGens = new ArrayList<>();
-    private Set<String> superClasses = new HashSet<>();
+    private final Set<String> classPaths = new HashSet<>();
+    private final Map<String, String> aliases = new HashMap<>();
+    private final Set<String> classListForLooping = new HashSet<>();
+    private final Set<String> allJavaClasses = new HashSet<>();
+    private final Set<JError> exceptionList = new HashSet<>();
+    private final Map<String, String> failedClassGens = new HashMap<>();
+    private final List<String> failedMethodGens = new ArrayList<>();
+    private final Set<String> superClasses = new HashSet<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;

@@ -31,10 +31,10 @@ import java.util.List;
  */
 public class FindNodes extends NodeVisitor {
 
-    private List<FunctionDefinitionNode> functionDefinitionNodeList;
-    private List<ClassDefinitionNode> classDefinitionNodeList;
-    private List<ServiceDeclarationNode> serviceDeclarationNodeList;
-    private List<ImportDeclarationNode> importDeclarationNodesList;
+    private final List<FunctionDefinitionNode> functionDefinitionNodeList;
+    private final List<ClassDefinitionNode> classDefinitionNodeList;
+    private final List<ServiceDeclarationNode> serviceDeclarationNodeList;
+    private final List<ImportDeclarationNode> importDeclarationNodesList;
 
     public FindNodes() {
         this.functionDefinitionNodeList = new ArrayList<>();

@@ -75,8 +75,6 @@ public class ServiceTemplateGenerator {
     private static final LanguageServerContext.Key<ServiceTemplateGenerator> SERVICE_TEMPLATE_GENERATOR_KEY =
             new LanguageServerContext.Key<>();
 
-    private boolean isInitialized = false;
-
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
     }
@@ -178,10 +176,6 @@ public class ServiceTemplateGenerator {
         String currentModuleName = currentModule.get().descriptor().name().toString();
         String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
         return CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
-    }
-
-    public boolean initialized() {
-        return this.isInitialized;
     }
 
     public static Predicate<Symbol> listenerPredicate() {

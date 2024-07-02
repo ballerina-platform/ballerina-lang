@@ -46,8 +46,8 @@ import java.util.stream.Stream;
 public class PathConverter implements Converter<Path> {
 
     private final Path root;
-    private PathMatcher isResourceFile;
-    private PathMatcher isTestResourceFile;
+    private final PathMatcher isResourceFile;
+    private final PathMatcher isTestResourceFile;
 
     public PathConverter(Path root) {
         this.root = root;

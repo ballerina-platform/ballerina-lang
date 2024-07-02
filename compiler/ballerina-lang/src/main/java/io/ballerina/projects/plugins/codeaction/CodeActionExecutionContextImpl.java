@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class CodeActionExecutionContextImpl extends PositionedActionContextImpl implements CodeActionExecutionContext {
 
-    private List<CodeActionArgument> arguments;
+    private final List<CodeActionArgument> arguments;
 
     private CodeActionExecutionContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
                                            Document document, SemanticModel semanticModel,

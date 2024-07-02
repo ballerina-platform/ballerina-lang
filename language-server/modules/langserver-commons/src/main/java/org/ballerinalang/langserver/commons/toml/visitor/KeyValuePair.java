@@ -26,10 +26,10 @@ import org.ballerinalang.langserver.commons.toml.common.TomlSyntaxTreeUtil;
  */
 public class KeyValuePair implements TomlNode {
 
-    private String key;
-    private String defaultValue;
-    private int id;
-    private ValueType type;
+    private final String key;
+    private final String defaultValue;
+    private final int id;
+    private final ValueType type;
 
     public KeyValuePair(String key, String defaultValue, int id, ValueType type) {
         this.key = key;

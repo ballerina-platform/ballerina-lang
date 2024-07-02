@@ -28,13 +28,13 @@ import java.util.Queue;
  */
 public class AnnotationAttachmentMetaInfo {
 
-    private String attachmentName;
+    private final String attachmentName;
     
-    private Queue<String> fieldQueue;
+    private final Queue<String> fieldQueue;
     
-    private String packageAlias;
+    private final String packageAlias;
     
-    private AnnotationNodeKind attachmentPoint;
+    private final AnnotationNodeKind attachmentPoint;
 
     public AnnotationAttachmentMetaInfo(String attachmentName, Queue<String> fieldQueue, String packageAlias,
                                         AnnotationNodeKind attachmentPoint) {

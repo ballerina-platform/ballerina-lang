@@ -28,8 +28,8 @@ public class CodeActionArgument {
 
     private static final Gson GSON = new Gson();
 
-    private String key;
-    private Object value;
+    private final String key;
+    private final Object value;
 
     private CodeActionArgument(String argumentK, Object value) {
         this.key = argumentK;

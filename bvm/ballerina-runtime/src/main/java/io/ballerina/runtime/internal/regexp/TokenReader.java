@@ -28,7 +28,7 @@ public class TokenReader {
     private static final int BUFFER_SIZE = 20;
 
     private final TreeTraverser treeTraverser;
-    private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
+    private final TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
 
     public TokenReader(TreeTraverser treeTraverser) {
         this.treeTraverser = treeTraverser;

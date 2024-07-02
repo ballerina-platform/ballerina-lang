@@ -25,7 +25,7 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class TomlDocumentContext {
-    private TomlDocument tomlDocument;
+    private final TomlDocument tomlDocument;
 
     private TomlDocumentContext(TomlDocument tomlDocument) {
         this.tomlDocument = tomlDocument;

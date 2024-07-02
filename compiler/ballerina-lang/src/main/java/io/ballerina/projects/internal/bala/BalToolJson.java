@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2201.6.0
  */
 public class BalToolJson {
-    private String tool_id;
+    private final String tool_id;
     private List<String> dependency_paths;
 
     public BalToolJson(String tool_id, List<String> dependency_paths) {

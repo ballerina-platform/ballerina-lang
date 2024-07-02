@@ -52,7 +52,7 @@ public class DataMapperNodeVisitor extends NodeVisitor {
     public final HashMap<String, String> restFields;
     public final HashMap<String, Map<String, RecordFieldSymbol>> spreadFields;
     public final ArrayList<String> specificFieldList;
-    private String rhsSymbolName;
+    private final String rhsSymbolName;
     private SemanticModel model;
 
     public DataMapperNodeVisitor(String rhsSymbolName) {

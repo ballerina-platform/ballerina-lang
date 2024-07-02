@@ -56,7 +56,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private ModuleSymbol module;
     private Symbol definition;
     private boolean moduleEvaluated;
-    private boolean fromIntersectionType;
+    private final boolean fromIntersectionType;
     public BSymbol tSymbol;
     public BType referredType;
 

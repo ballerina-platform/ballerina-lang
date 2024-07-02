@@ -33,22 +33,22 @@ import java.util.Stack;
  */
 public class TransactionLocalContext {
 
-    private String globalTransactionId;
-    private String url;
-    private String protocol;
+    private final String globalTransactionId;
+    private final String url;
+    private final String protocol;
 
     private int transactionLevel;
-    private Map<String, Integer> allowedTransactionRetryCounts;
-    private Map<String, Integer> currentTransactionRetryCounts;
+    private final Map<String, Integer> allowedTransactionRetryCounts;
+    private final Map<String, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
-    private Stack<String> transactionBlockIdStack;
-    private Stack<TransactionFailure> transactionFailure;
+    private final Stack<String> transactionBlockIdStack;
+    private final Stack<TransactionFailure> transactionFailure;
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
     private Object rollbackOnlyError;
     private Object transactionData;
-    private BArray transactionId;
+    private final BArray transactionId;
     private boolean isTransactional;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {

@@ -25,8 +25,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class CompilerPluginJson {
-    private String plugin_id;
-    private String plugin_class;
+    private final String plugin_id;
+    private final String plugin_class;
     private List<String> dependency_paths;
 
     public CompilerPluginJson(String pluginId, String pluginClass, List<String> dependencyPaths) {

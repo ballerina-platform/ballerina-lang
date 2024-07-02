@@ -40,13 +40,13 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  */
 public class ProjectDirs {
 
-    private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher testFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/**" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/resources/**" + BLANG_SOURCE_EXT);
 
     public static boolean isSourceFile(Path path) {

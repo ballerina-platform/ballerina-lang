@@ -44,9 +44,9 @@ import java.util.stream.Collectors;
  */
 public class DataMapperTestUtils {
 
-    private static JsonParser parser = new JsonParser();
-    private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
-            .getFile()).toPath();
+    private static final JsonParser parser = new JsonParser();
+    private static final Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader()
+            .getResource("codeaction").getFile()).toPath();
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
     private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
 

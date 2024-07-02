@@ -40,13 +40,13 @@ public class SyntaxTreeModifyTest {
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private Endpoint serviceEndpoint;
 
-    private Path mainFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path mainFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("main.bal");
 
-    private Path mainEmptyFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path mainEmptyFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
@@ -58,55 +58,55 @@ public class SyntaxTreeModifyTest {
 //            .resolve("modify")
 //            .resolve("mainNats.bal");
 
-    private Path emptyFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path emptyFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("empty.bal");
 
-    private Path mainHttpCallFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path mainHttpCallFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("mainHttpCall.bal");
 
-    private Path mainHttpCallWithPrintFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path mainHttpCallWithPrintFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("mainHttpCallWithPrint.bal");
 
-    private Path removeImport = FileUtils.RES_DIR.resolve("extensions")
+    private final Path removeImport = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("removeImport.bal");
 
-    private Path removeImportExpected = FileUtils.RES_DIR.resolve("extensions")
+    private final Path removeImportExpected = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("removeImportExpected.bal");
 
-    private Path notRemoveIgnoredImports = FileUtils.RES_DIR.resolve("extensions")
+    private final Path notRemoveIgnoredImports = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("notRemoveIgnoredImports.bal");
 
-    private Path notRemoveIgnoredImportsExpected = FileUtils.RES_DIR.resolve("extensions")
+    private final Path notRemoveIgnoredImportsExpected = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("notRemoveIgnoredImportsExpected.bal");
 
-    private Path notRemoveUsedImports = FileUtils.RES_DIR.resolve("extensions")
+    private final Path notRemoveUsedImports = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")
             .resolve("notRemoveUsedImports.bal");
 
-    private Path notRemoveUsedImportsExpected = FileUtils.RES_DIR.resolve("extensions")
+    private final Path notRemoveUsedImportsExpected = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
             .resolve("modify")

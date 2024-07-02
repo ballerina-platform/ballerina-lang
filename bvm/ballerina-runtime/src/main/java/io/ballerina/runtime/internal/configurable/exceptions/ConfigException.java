@@ -27,9 +27,9 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
  */
 public class ConfigException extends RuntimeException {
 
-    private ErrorCodes errorCode;
+    private final ErrorCodes errorCode;
 
-    private Object[] args;
+    private final Object[] args;
 
     public ConfigException(ErrorCodes errorCode, Object... args) {
         this.errorCode = errorCode;

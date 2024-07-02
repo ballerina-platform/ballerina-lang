@@ -196,7 +196,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private BLangNode result;
-    private Types types;
+    private final Types types;
 
     public static ConstantPropagation getInstance(CompilerContext context) {
         ConstantPropagation constantPropagation = context.get(CONSTANT_PROPAGATION_KEY);

@@ -25,8 +25,8 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
  * @since 2.0.0
  */
 public class STNodeDiagnostic {
-    private DiagnosticCode diagnosticCode;
-    private Object[] args;
+    private final DiagnosticCode diagnosticCode;
+    private final Object[] args;
 
     STNodeDiagnostic(DiagnosticCode diagnosticCode, Object... args) {
         this.diagnosticCode = diagnosticCode;

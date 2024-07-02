@@ -36,7 +36,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class ObjectConstructorTest {
 
     private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
-    private static String path = "test-src/expressions/object/";
+    private static final String path = "test-src/expressions/object/";
 
     @BeforeClass
     public void setup() {

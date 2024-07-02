@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public class FailStatementResolver extends NodeTransformer<Optional<Node>> {
     
-    private Diagnostic diagnostic;
+    private final Diagnostic diagnostic;
     
     public FailStatementResolver(Diagnostic diagnostic) {
         this.diagnostic = diagnostic;

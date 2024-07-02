@@ -29,7 +29,7 @@ import java.nio.file.Path;
  */
 public class CodeActionContextImpl extends PositionedActionContextImpl implements CodeActionContext {
 
-    private Diagnostic diagnostic;
+    private final Diagnostic diagnostic;
 
     private CodeActionContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
                                   Document document, SemanticModel semanticModel, Diagnostic diagnostic) {

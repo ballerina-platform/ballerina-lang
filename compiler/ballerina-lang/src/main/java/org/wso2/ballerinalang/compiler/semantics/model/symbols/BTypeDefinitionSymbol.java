@@ -37,7 +37,7 @@ import java.util.List;
 public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
 
     public BTypeReferenceType referenceType = null;
-    private List<BAnnotationAttachmentSymbol> annAttachments;
+    private final List<BAnnotationAttachmentSymbol> annAttachments;
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {

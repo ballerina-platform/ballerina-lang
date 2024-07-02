@@ -30,7 +30,7 @@ import io.ballerina.runtime.internal.values.FutureValue;
 public abstract class AsyncFunctionCallback implements Callback {
 
     private FutureValue future;
-    private Strand strand;
+    private final Strand strand;
 
     public AsyncFunctionCallback(Strand strand) {
         this.strand = strand;

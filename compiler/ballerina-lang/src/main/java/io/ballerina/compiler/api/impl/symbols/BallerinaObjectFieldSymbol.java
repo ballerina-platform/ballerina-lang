@@ -55,7 +55,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private String signature;
-    private boolean deprecated;
+    private final boolean deprecated;
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {

@@ -33,7 +33,7 @@ import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
  */
 public class JBallerinaTestInitializer implements ITestListener {
 
-    private static Logger log = LoggerFactory.getLogger(JBallerinaTestInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(JBallerinaTestInitializer.class);
 
     @Override
     public void onStart(ITestContext context) {

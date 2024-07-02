@@ -57,7 +57,7 @@ import java.util.List;
  */
 public class MavenResolver {
     org.ballerinalang.maven.Dependency rootNode = null;
-    private List<RemoteRepository> repositories;
+    private final List<RemoteRepository> repositories;
     RepositorySystem system;
     DefaultRepositorySystemSession session;
 

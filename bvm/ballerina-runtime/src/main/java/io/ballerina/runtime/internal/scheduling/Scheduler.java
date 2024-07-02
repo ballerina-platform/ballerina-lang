@@ -72,7 +72,7 @@ public class Scheduler {
 
     private final AtomicInteger totalStrands = new AtomicInteger();
 
-    private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+    private static final String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
@@ -84,7 +84,7 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private final RuntimeRegistry runtimeRegistry;
-    private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private final AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
     private static Strand daemonStrand = null;
 
     public static void setDaemonStrand(Strand strand) {

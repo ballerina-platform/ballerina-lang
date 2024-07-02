@@ -24,7 +24,7 @@ package org.ballerinalang.langserver.commons.toml.visitor;
  */
 public class Table implements TomlNode {
 
-    private String name;
+    private final String name;
 
     public Table(String name) {
         this.name = name;

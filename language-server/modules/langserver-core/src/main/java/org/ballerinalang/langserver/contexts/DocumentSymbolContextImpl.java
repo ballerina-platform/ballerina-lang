@@ -38,9 +38,9 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
     private Boolean labelSupport;
     private SymbolTagSupportCapabilities supportedTags;
     private Boolean hierarchicalDocumentSymbolSupport;
-    private LSClientCapabilities clientCapabilities;
-    private DocumentSymbolParams params;
-    private DocumentSymbolCapabilities documentSymbolClientCapabilities;
+    private final LSClientCapabilities clientCapabilities;
+    private final DocumentSymbolParams params;
+    private final DocumentSymbolCapabilities documentSymbolClientCapabilities;
     boolean deprecatedTagSupport;
 
     DocumentSymbolContextImpl(LSOperation operation, String fileUri, WorkspaceManager wsManager,
@@ -106,8 +106,8 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
      */
     protected static class DocumentSymbolContextBuilder extends AbstractContextBuilder<DocumentSymbolContextBuilder> {
 
-        private DocumentSymbolParams params;
-        private LSClientCapabilities clientCapabilities;
+        private final DocumentSymbolParams params;
+        private final LSClientCapabilities clientCapabilities;
 
         public DocumentSymbolContextBuilder(DocumentSymbolParams params,
                                             LanguageServerContext serverContext,

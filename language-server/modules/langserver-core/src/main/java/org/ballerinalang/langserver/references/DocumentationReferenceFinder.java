@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public class DocumentationReferenceFinder extends NodeTransformer<List<Location>> {
 
-    private Symbol symbol;
+    private final Symbol symbol;
 
     public DocumentationReferenceFinder(Symbol symbol) {
         this.symbol = symbol;

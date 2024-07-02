@@ -60,7 +60,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
-    private List<Qualifier> qualifiers = new ArrayList<>();
+    private final List<Qualifier> qualifiers = new ArrayList<>();
     private final List<OBJECT_FIELD> objectFieldList = new ArrayList<>();
     private final List<BAttachedFunction> objectMethodList = new ArrayList<>();
     private final List<TypeReferenceTypeSymbol> typeInclusions = new ArrayList<>();

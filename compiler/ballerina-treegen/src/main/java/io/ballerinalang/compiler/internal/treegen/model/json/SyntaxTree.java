@@ -25,10 +25,10 @@ import java.util.List;
  * @since 1.3.0
  */
 public class SyntaxTree {
-    private String root;
-    private List<SyntaxNode> nodes;
-    private String type;
-    private List<SyntaxNodeAttribute> fields;
+    private final String root;
+    private final List<SyntaxNode> nodes;
+    private final String type;
+    private final List<SyntaxNodeAttribute> fields;
 
     public SyntaxTree(String root,
                       List<SyntaxNode> nodes,

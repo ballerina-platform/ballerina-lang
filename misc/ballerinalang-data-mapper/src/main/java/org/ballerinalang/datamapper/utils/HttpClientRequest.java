@@ -125,7 +125,7 @@ public class HttpClientRequest {
         return httpResponse;
     }
 
-    private static CheckedFunction<BufferedReader, String> defaultResponseBuilder = ((bufferedReader) -> {
+    private static final CheckedFunction<BufferedReader, String> defaultResponseBuilder = ((bufferedReader) -> {
         String line;
         StringBuilder sb = new StringBuilder();
         while ((line = bufferedReader.readLine()) != null) {

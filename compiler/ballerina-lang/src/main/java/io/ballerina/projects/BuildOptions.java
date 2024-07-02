@@ -25,16 +25,16 @@ import java.util.Objects;
 public class BuildOptions {
 
     private final Boolean showDependencyDiagnostics;
-    private Boolean testReport;
-    private Boolean codeCoverage;
-    private Boolean dumpBuildTime;
-    private Boolean skipTests;
-    private CompilationOptions compilationOptions;
-    private String targetDir;
-    private Boolean enableCache;
-    private Boolean nativeImage;
-    private Boolean exportComponentModel;
-    private String graalVMBuildOptions;
+    private final Boolean testReport;
+    private final Boolean codeCoverage;
+    private final Boolean dumpBuildTime;
+    private final Boolean skipTests;
+    private final CompilationOptions compilationOptions;
+    private final String targetDir;
+    private final Boolean enableCache;
+    private final Boolean nativeImage;
+    private final Boolean exportComponentModel;
+    private final String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,

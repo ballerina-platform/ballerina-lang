@@ -223,8 +223,8 @@ public class SymbolTable {
 
     public BPackageSymbol langRegexpModuleSymbol;
 
-    private Names names;
-    private Types types;
+    private final Names names;
+    private final Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();

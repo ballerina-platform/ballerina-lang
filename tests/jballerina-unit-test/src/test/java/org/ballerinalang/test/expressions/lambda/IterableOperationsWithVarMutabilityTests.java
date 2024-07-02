@@ -40,7 +40,7 @@ import java.util.Locale;
 public class IterableOperationsWithVarMutabilityTests {
 
     private CompileResult compileResult;
-    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static final BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass
