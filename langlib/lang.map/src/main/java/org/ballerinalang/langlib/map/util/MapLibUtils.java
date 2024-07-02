@@ -51,14 +51,11 @@ public class MapLibUtils {
 
     public static Type getFieldType(Type mapType, String funcName) {
         mapType = TypeUtils.getImpliedType(mapType);
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                return ((MapType) mapType).getConstrainedType();
-            case TypeTags.RECORD_TYPE_TAG:
-                return getCommonTypeForRecordField((RecordType) mapType);
-            default:
-                throw createOpNotSupportedError(mapType, funcName);
-        }
+        return switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> ((MapType) mapType).getConstrainedType();
+            case TypeTags.RECORD_TYPE_TAG -> getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, funcName);
+        };
     }
 
     public static Type getCommonTypeForRecordField(RecordType  recordType) {

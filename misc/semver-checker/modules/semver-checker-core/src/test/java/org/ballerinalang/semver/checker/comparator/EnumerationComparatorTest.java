@@ -80,33 +80,16 @@ public class EnumerationComparatorTest {
 
     @DataProvider(name = "enumerationTestDataProvider")
     public Object[] enumerationTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testEnumerationAnnotation":
-                filePath = ENUMERATION_ANNOTATION_TESTCASE;
-                break;
-            case "testEnumerationDocumentation":
-                filePath = ENUMERATION_DOCUMENTATION_TESTCASE;
-                break;
-            case "testEnumerationIdentifier":
-                filePath = ENUMERATION_IDENTIFIER_TESTCASE;
-                break;
-            case "testEnumerationQualifier":
-                filePath = ENUMERATION_QUALIFIER_TESTCASE;
-                break;
-            case "testEnumerationMember":
-                filePath = ENUMERATION_MEMBER_TESTCASE;
-                break;
-            case "testAdvanceEnumeration":
-                filePath = ADVANCE_ENUMERATION_TESTCASE;
-                break;
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testEnumerationAnnotation" -> ENUMERATION_ANNOTATION_TESTCASE;
+            case "testEnumerationDocumentation" -> ENUMERATION_DOCUMENTATION_TESTCASE;
+            case "testEnumerationIdentifier" -> ENUMERATION_IDENTIFIER_TESTCASE;
+            case "testEnumerationQualifier" -> ENUMERATION_QUALIFIER_TESTCASE;
+            case "testEnumerationMember" -> ENUMERATION_MEMBER_TESTCASE;
+            case "testAdvanceEnumeration" -> ADVANCE_ENUMERATION_TESTCASE;
+            default -> throw new SemverTestException("Failed to load dataset for method: " + method.getName());
+        };
 
-        if (filePath == null) {
-            throw new SemverTestException("Failed to load dataset for method: " + method.getName());
-        }
         try (FileReader reader = new FileReader(filePath)) {
             Object testCaseObject = JsonParser.parseReader(reader);
             JsonArray fileData = (JsonArray) testCaseObject;

@@ -25,7 +25,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -154,18 +153,14 @@ public class PackageResolutionRequest {
 
         @Override
         @Nonnull
-        @SuppressWarnings("EnumSwitchStatementWhichMissesCases")
         public String read(final JsonReader jsonReader)
                 throws IOException {
             final JsonToken token = jsonReader.peek();
-            switch (token) {
-                case NULL:
-                    return "";
-                case STRING:
-                    return jsonReader.nextString();
-                default:
-                    throw new IllegalStateException("Unexpected token: " + token);
-            }
+            return switch (token) {
+                case NULL -> "";
+                case STRING -> jsonReader.nextString();
+                default -> throw new IllegalStateException("Unexpected token: " + token);
+            };
         }
 
     }

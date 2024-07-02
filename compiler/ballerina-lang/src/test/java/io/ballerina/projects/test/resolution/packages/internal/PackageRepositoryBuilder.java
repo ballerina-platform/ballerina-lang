@@ -76,16 +76,11 @@ public class PackageRepositoryBuilder {
     }
 
     private Optional<Path> getRepPath(TestCaseFilePaths filePaths, RepositoryKind repoKind) {
-        switch (repoKind) {
-            case DIST:
-                return filePaths.distRepoPath();
-            case CENTRAL:
-                return filePaths.centralRepoPath();
-            case LOCAL:
-                return filePaths.localRepoDirPath();
-            default:
-                throw new IllegalStateException("Unsupported package repository kind " + repoKind);
-        }
+        return switch (repoKind) {
+            case DIST -> filePaths.distRepoPath();
+            case CENTRAL -> filePaths.centralRepoPath();
+            case LOCAL -> filePaths.localRepoDirPath();
+        };
     }
 
     private PackageRepository buildLocalRepo(Path localRepoDirPath) {
@@ -190,15 +185,10 @@ public class PackageRepositoryBuilder {
     private PackageRepository buildInternal(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                             Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap,
                                             RepositoryKind repoKind) {
-        switch (repoKind) {
-            case LOCAL:
-                return new LocalPackageRepository(pkgContainer, graphMap);
-            case CENTRAL:
-            case DIST:
-                return new DefaultPackageRepository(pkgContainer, graphMap);
-            default:
-                throw new IllegalStateException("Unsupported package repository kind " + repoKind);
-        }
+        return switch (repoKind) {
+            case LOCAL -> new LocalPackageRepository(pkgContainer, graphMap);
+            case CENTRAL, DIST -> new DefaultPackageRepository(pkgContainer, graphMap);
+        };
     }
 
     private static class GraphNodeMarker {

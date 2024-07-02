@@ -84,32 +84,16 @@ public class VariableComparatorTest {
 
     @DataProvider(name = "variableTestDataProvider")
     public Object[] functionTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testVariableAnnotation":
-                filePath = VARIABLE_ANNOTATION_TESTCASE;
-                break;
-            case "testVariableDocumentation":
-                filePath = VARIABLE_DOCUMENTATION_TESTCASE;
-                break;
-            case "testVariableValue":
-                filePath = VARIABLE_VALUE_TESTCASE;
-                break;
-            case "testVariableIdentifier":
-                filePath = VARIABLE_IDENTIFIER_TESTCASE;
-                break;
-            case "testVariableQualifier":
-                filePath = VARIABLE_QUALIFIER_TESTCASE;
-                break;
-            case "testVariableTypeDescriptor":
-                filePath = VARIABLE_TYPE_DESCRIPTOR_TESTCASE;
-                break;
-            case "testAdvanceVariable":
-                filePath = ADVANCE_VARIABLE_TESTCASE;
-                break;
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testVariableAnnotation" -> VARIABLE_ANNOTATION_TESTCASE;
+            case "testVariableDocumentation" -> VARIABLE_DOCUMENTATION_TESTCASE;
+            case "testVariableValue" -> VARIABLE_VALUE_TESTCASE;
+            case "testVariableIdentifier" -> VARIABLE_IDENTIFIER_TESTCASE;
+            case "testVariableQualifier" -> VARIABLE_QUALIFIER_TESTCASE;
+            case "testVariableTypeDescriptor" -> VARIABLE_TYPE_DESCRIPTOR_TESTCASE;
+            case "testAdvanceVariable" -> ADVANCE_VARIABLE_TESTCASE;
+            default -> null;
+        };
 
         if (filePath == null) {
             throw new SemverTestException("Failed to load dataset for method: " + method.getName());

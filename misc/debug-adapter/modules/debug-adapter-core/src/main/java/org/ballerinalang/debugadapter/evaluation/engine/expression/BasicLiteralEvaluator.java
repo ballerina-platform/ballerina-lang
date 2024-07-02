@@ -76,19 +76,14 @@ public class BasicLiteralEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         try {
             SyntaxKind basicLiteralKind = syntaxNode.kind();
-            switch (basicLiteralKind) {
-                case NIL_LITERAL:
-                    return new BExpressionValue(context, null);
-                case NUMERIC_LITERAL:
-                    return parseAndGetNumericValue(literalString.trim());
-                case BOOLEAN_LITERAL:
-                    return VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
-                case STRING_LITERAL:
-                case TEMPLATE_STRING:
-                    return VMUtils.make(context, literalString);
-                default:
-                    throw createUnsupportedLiteralError(literalString);
-            }
+            return switch (basicLiteralKind) {
+                case NIL_LITERAL -> new BExpressionValue(context, null);
+                case NUMERIC_LITERAL -> parseAndGetNumericValue(literalString.trim());
+                case BOOLEAN_LITERAL -> VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
+                case STRING_LITERAL,
+                     TEMPLATE_STRING -> VMUtils.make(context, literalString);
+                default -> throw createUnsupportedLiteralError(literalString);
+            };
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

@@ -365,17 +365,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (TypeTags.isXMLTypeTag(refType.tag)) {
             return true;
         }
-        switch (refType.tag) {
-            case TypeTags.UNION:
+        return switch (refType.tag) {
+            case TypeTags.UNION -> {
                 for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
                     if (!isXml(memberType)) {
-                        return false;
+                        yield false;
                     }
                 }
-                return true;
-            default:
-                return false;
-        }
+                yield true;
+            }
+            default -> false;
+        };
     }
 
     /**

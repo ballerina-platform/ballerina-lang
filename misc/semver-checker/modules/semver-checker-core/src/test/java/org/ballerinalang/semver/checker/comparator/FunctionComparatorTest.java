@@ -92,39 +92,18 @@ public class FunctionComparatorTest {
 
     @DataProvider(name = "functionTestDataProvider")
     public Object[] functionTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testFunctionAnnotation":
-                filePath = FUNCTION_ANNOTATION_TESTCASE;
-                break;
-            case "testFunctionDocumentation":
-                filePath = FUNCTION_DOCUMENTATION_TESTCASE;
-                break;
-            case "testFunctionBody":
-                filePath = FUNCTION_BODY_TESTCASE;
-                break;
-            case "testFunctionIdentifier":
-                filePath = FUNCTION_IDENTIFIER_TESTCASE;
-                break;
-            case "testFunctionParameter":
-                filePath = FUNCTION_PARAMETER_TESTCASE;
-                break;
-            case "testFunctionQualifier":
-                filePath = FUNCTION_QUALIFIER_TESTCASE;
-                break;
-            case "testFunctionReturn":
-                filePath = FUNCTION_RETURN_TESTCASE;
-                break;
-            case "testAdvanceFunction":
-                filePath = ADVANCE_FUNCTION_TESTCASE;
-                break;
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testFunctionAnnotation" -> FUNCTION_ANNOTATION_TESTCASE;
+            case "testFunctionDocumentation" -> FUNCTION_DOCUMENTATION_TESTCASE;
+            case "testFunctionBody" -> FUNCTION_BODY_TESTCASE;
+            case "testFunctionIdentifier" -> FUNCTION_IDENTIFIER_TESTCASE;
+            case "testFunctionParameter" -> FUNCTION_PARAMETER_TESTCASE;
+            case "testFunctionQualifier" -> FUNCTION_QUALIFIER_TESTCASE;
+            case "testFunctionReturn" -> FUNCTION_RETURN_TESTCASE;
+            case "testAdvanceFunction" -> ADVANCE_FUNCTION_TESTCASE;
+            default -> throw new SemverTestException("Failed to load dataset for method: " + method.getName());
+        };
 
-        if (filePath == null) {
-            throw new SemverTestException("Failed to load dataset for method: " + method.getName());
-        }
         try (FileReader reader = new FileReader(filePath)) {
             Object testCaseObject = JsonParser.parseReader(reader);
             JsonArray fileData = (JsonArray) testCaseObject;

@@ -316,17 +316,12 @@ public class TypesTest {
     }
 
     private Optional<TypeSymbol> getTypeSymbolOfTypeDef(Symbol symbol) {
-        switch (symbol.kind()) {
-            case TYPE_DEFINITION:
-                return Optional.of(((TypeDefinitionSymbol) symbol).typeDescriptor());
-            case CONSTANT:
-            case ENUM_MEMBER:
-                return Optional.of(((ConstantSymbol) symbol).typeDescriptor());
-            case ENUM:
-                return Optional.of(((EnumSymbol) symbol).typeDescriptor());
-            case CLASS:
-                return Optional.of((ClassSymbol) symbol);
-        }
-        return Optional.empty();
+        return switch (symbol.kind()) {
+            case TYPE_DEFINITION -> Optional.of(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            case CONSTANT, ENUM_MEMBER -> Optional.of(((ConstantSymbol) symbol).typeDescriptor());
+            case ENUM -> Optional.of(((EnumSymbol) symbol).typeDescriptor());
+            case CLASS -> Optional.of((ClassSymbol) symbol);
+            default -> Optional.empty();
+        };
     }
 }

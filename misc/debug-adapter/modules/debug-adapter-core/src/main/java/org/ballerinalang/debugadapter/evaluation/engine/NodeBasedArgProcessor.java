@@ -191,35 +191,22 @@ public class NodeBasedArgProcessor extends InvocationArgProcessor {
     }
 
     private static String getParameterTypeName(ParameterNode parameterNode) {
-        switch (parameterNode.kind()) {
-            case REQUIRED_PARAM:
-                return ((RequiredParameterNode) parameterNode).typeName().toSourceCode().trim();
-            case DEFAULTABLE_PARAM:
-                return ((DefaultableParameterNode) parameterNode).typeName().toSourceCode().trim();
-            case REST_PARAM:
-                return ((RestParameterNode) parameterNode).typeName().toSourceCode().trim();
-            default:
-                return UNKNOWN_VALUE;
-        }
+        return switch (parameterNode.kind()) {
+            case REQUIRED_PARAM -> ((RequiredParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case DEFAULTABLE_PARAM -> ((DefaultableParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case REST_PARAM -> ((RestParameterNode) parameterNode).typeName().toSourceCode().trim();
+            default -> UNKNOWN_VALUE;
+        };
     }
 
     static String getParameterName(ParameterNode parameterNode) {
-        Optional<Token> paramNameToken;
-        switch (parameterNode.kind()) {
-            case REQUIRED_PARAM:
-                paramNameToken = ((RequiredParameterNode) parameterNode).paramName();
-                break;
-            case DEFAULTABLE_PARAM:
-                paramNameToken = ((DefaultableParameterNode) parameterNode).paramName();
-                break;
-            case REST_PARAM:
-                paramNameToken = ((RestParameterNode) parameterNode).paramName();
-                break;
-            default:
-                paramNameToken = Optional.empty();
-                break;
-        }
+        Optional<Token> paramNameToken = switch (parameterNode.kind()) {
+            case REQUIRED_PARAM -> ((RequiredParameterNode) parameterNode).paramName();
+            case DEFAULTABLE_PARAM -> ((DefaultableParameterNode) parameterNode).paramName();
+            case REST_PARAM -> ((RestParameterNode) parameterNode).paramName();
+            default -> Optional.empty();
+        };
 
-        return paramNameToken.isPresent() ? paramNameToken.get().text() : "unknown";
+        return paramNameToken.map(Token::text).orElse("unknown");
     }
 }

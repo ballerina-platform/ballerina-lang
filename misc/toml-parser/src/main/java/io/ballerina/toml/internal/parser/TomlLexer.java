@@ -522,17 +522,16 @@ public class TomlLexer extends AbstractLexer {
      */
     private STNode processEndOfLine() {
         char c = reader.peek();
-        switch (c) {
-            case LexerTerminals.NEWLINE:
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\n");
-            case LexerTerminals.CARRIAGE_RETURN:
+        return switch (c) {
+            case LexerTerminals.NEWLINE -> STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\n");
+            case LexerTerminals.CARRIAGE_RETURN -> {
                 if (reader.peek(1) == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\r\n");
-            default:
-                throw new IllegalStateException();
-        }
+                yield STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, "\r\n");
+            }
+            default -> throw new IllegalStateException();
+        };
     }
 
     /**
@@ -654,13 +653,11 @@ public class TomlLexer extends AbstractLexer {
             nextChar = peek();
         }
 
-        switch (nextChar) {
-            case 'e':
-            case 'E':
-                return processExponent();
-        }
+        return switch (nextChar) {
+            case 'e', 'E' -> processExponent();
+            default -> getLiteral(SyntaxKind.DECIMAL_FLOAT_TOKEN);
+        };
 
-        return getLiteral(SyntaxKind.DECIMAL_FLOAT_TOKEN);
     }
 
     /**
@@ -754,18 +751,13 @@ public class TomlLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        switch (tokenText) {
-            case LexerTerminals.TRUE:
-                return getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
-            case LexerTerminals.FALSE:
-                return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
-            case LexerTerminals.INF:
-                return getSyntaxToken(SyntaxKind.INF_TOKEN);
-            case LexerTerminals.NAN:
-                return getSyntaxToken(SyntaxKind.NAN_TOKEN);
-            default:
-                return getUnquotedKey();
-        }
+        return switch (tokenText) {
+            case LexerTerminals.TRUE -> getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
+            case LexerTerminals.FALSE -> getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
+            case LexerTerminals.INF -> getSyntaxToken(SyntaxKind.INF_TOKEN);
+            case LexerTerminals.NAN -> getSyntaxToken(SyntaxKind.NAN_TOKEN);
+            default -> getUnquotedKey();
+        };
     }
 
     /**
@@ -801,22 +793,20 @@ public class TomlLexer extends AbstractLexer {
         }
 
         int currentChar = peek();
-        switch (currentChar) {
-            case LexerTerminals.NEWLINE:
-            case LexerTerminals.CARRIAGE_RETURN:
-            case LexerTerminals.SPACE:
-            case LexerTerminals.TAB:
-            case LexerTerminals.SEMICOLON:
-            case LexerTerminals.OPEN_BRACE:
-            case LexerTerminals.CLOSE_BRACE:
-            case LexerTerminals.OPEN_BRACKET:
-            case LexerTerminals.CLOSE_BRACKET:
-            case LexerTerminals.OPEN_PARANTHESIS:
-            case LexerTerminals.CLOSE_PARANTHESIS:
-                return true;
-            default:
-                return false;
-        }
+        return switch (currentChar) {
+            case LexerTerminals.NEWLINE,
+                 LexerTerminals.CARRIAGE_RETURN,
+                 LexerTerminals.SPACE,
+                 LexerTerminals.TAB,
+                 LexerTerminals.SEMICOLON,
+                 LexerTerminals.OPEN_BRACE,
+                 LexerTerminals.CLOSE_BRACE,
+                 LexerTerminals.OPEN_BRACKET,
+                 LexerTerminals.CLOSE_BRACKET,
+                 LexerTerminals.OPEN_PARANTHESIS,
+                 LexerTerminals.CLOSE_PARANTHESIS -> true;
+            default -> false;
+        };
     }
 
     /**

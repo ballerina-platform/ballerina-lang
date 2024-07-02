@@ -59,23 +59,14 @@ public class UnaryExpressionEvaluator extends Evaluator {
             BExpressionValue result = exprEvaluator.evaluate();
             Value valueAsObject = getValueAsObject(context, result.getJdiValue());
 
-            GeneratedStaticMethod genMethod;
-            switch (syntaxNode.unaryOperator().kind()) {
-                case PLUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_PLUS_METHOD);
-                    break;
-                case MINUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_MINUS_METHOD);
-                    break;
-                case NEGATION_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_INVERT_METHOD);
-                    break;
-                case EXCLAMATION_MARK_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_NOT_METHOD);
-                    break;
-                default:
-                    throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
-            }
+            GeneratedStaticMethod genMethod = switch (syntaxNode.unaryOperator().kind()) {
+                case PLUS_TOKEN -> getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_PLUS_METHOD);
+                case MINUS_TOKEN -> getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_MINUS_METHOD);
+                case NEGATION_TOKEN -> getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_INVERT_METHOD);
+                case EXCLAMATION_MARK_TOKEN ->
+                        getGeneratedMethod(context, B_UNARY_EXPR_HELPER_CLASS, B_UNARY_NOT_METHOD);
+                default -> throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
+            };
             genMethod.setArgValues(Collections.singletonList(valueAsObject));
             return new BExpressionValue(context, genMethod.invokeSafely());
         } catch (EvaluationException e) {

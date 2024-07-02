@@ -245,115 +245,42 @@ public class ClassComparatorTest {
 
     @DataProvider(name = "classTestDataProvider")
     public Object[] classTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testClassAnnotation":
-                filePath = CLASS_ANNOTATION_TESTCASE;
-                break;
-            case "testClassDocumentation":
-                filePath = CLASS_DOCUMENTATION_TESTCASE;
-                break;
-            case "testClassIdentifier":
-                filePath = CLASS_IDENTIFIER_TESTCASE;
-                break;
-            case "testClassQualifier":
-                filePath = CLASS_QUALIFIER_TESTCASE;
-                break;
-            case "testAdvanceClass":
-                filePath = ADVANCE_CLASS_TESTCASE;
-                break;
+        String filePath = switch (method.getName()) {
+            case "testClassAnnotation" -> CLASS_ANNOTATION_TESTCASE;
+            case "testClassDocumentation" -> CLASS_DOCUMENTATION_TESTCASE;
+            case "testClassIdentifier" -> CLASS_IDENTIFIER_TESTCASE;
+            case "testClassQualifier" -> CLASS_QUALIFIER_TESTCASE;
+            case "testAdvanceClass" -> ADVANCE_CLASS_TESTCASE;
+            case "testClassMemberObjectFieldAnnotation" -> OBJECT_FIELD_ANNOTATION_TESTCASE;
+            case "testClassMemberObjectFieldDocumentation" -> OBJECT_FIELD_DOCUMENTATION_TESTCASE;
+            case "testClassMemberObjectFieldIdentifier" -> OBJECT_FIELD_IDENTIFIER_TESTCASE;
+            case "testClassMemberObjectFieldQualifier" -> OBJECT_FIELD_QUALIFIER_TESTCASE;
+            case "testClassMemberObjectFieldType" -> OBJECT_FIELD_TYPE_TESTCASE;
+            case "testClassMemberObjectFieldValue" -> OBJECT_FIELD_VALUE_TESTCASE;
+            case "testClassMethodDocumentation" -> METHOD_DOCUMENTATION_TESTCASE;
+            case "testClassMethodBody" -> METHOD_BODY_TESTCASE;
+            case "testClassMethodIdentifier" -> METHOD_IDENTIFIER_TESTCASE;
+            case "testClassMethodParameter" -> METHOD_PARAMETER_TESTCASE;
+            case "testClassMethodQualifier" -> METHOD_QUALIFIER_TESTCASE;
+            case "testClassMethodReturn" -> METHOD_RETURN_TESTCASE;
+            case "testClassMethodAnnotation" -> METHOD_ANNOTATION_TESTCASE;
+            case "testClassRemoteMethodDocumentation" -> REMOTE_METHOD_DOCUMENTATION_TESTCASE;
+            case "testClassRemoteMethodBody" -> REMOTE_METHOD_BODY_TESTCASE;
+            case "testClassRemoteMethodIdentifier" -> REMOTE_METHOD_IDENTIFIER_TESTCASE;
+            case "testClassRemoteMethodParameter" -> REMOTE_METHOD_PARAMETER_TESTCASE;
+            case "testClassRemoteMethodQualifier" -> REMOTE_METHOD_QUALIFIER_TESTCASE;
+            case "testClassRemoteMethodReturn" -> REMOTE_METHOD_RETURN_TESTCASE;
+            case "testClassRemoteMethodAnnotation" -> REMOTE_METHOD_ANNOTATION_TESTCASE;
+            case "testClassResourceMethodDocumentation" -> RESOURCE_METHOD_DOC_TESTCASE;
+            case "testClassResourceMethodBody" -> RESOURCE_METHOD_BODY_TESTCASE;
+            case "testClassResourceMethodIdentifier" -> RESOURCE_METHOD_IDENTIFIER_TESTCASE;
+            case "testClassResourceMethodParameter" -> RESOURCE_METHOD_PARAMETER_TESTCASE;
+            case "testClassResourceMethodQualifier" -> RESOURCE_METHOD_QUALIFIER_TESTCASE;
+            case "testClassResourceMethodReturn" -> RESOURCE_METHOD_RETURN_TESTCASE;
+            case "testClassResourceMethodAnnotation" -> RESOURCE_METHOD_ANNOTATION_TESTCASE;
+            default -> throw new SemverTestException("Failed to load dataset for method: " + method.getName());
+        };
 
-            case "testClassMemberObjectFieldAnnotation":
-                filePath = OBJECT_FIELD_ANNOTATION_TESTCASE;
-                break;
-            case "testClassMemberObjectFieldDocumentation":
-                filePath = OBJECT_FIELD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testClassMemberObjectFieldIdentifier":
-                filePath = OBJECT_FIELD_IDENTIFIER_TESTCASE;
-                break;
-            case "testClassMemberObjectFieldQualifier":
-                filePath = OBJECT_FIELD_QUALIFIER_TESTCASE;
-                break;
-            case "testClassMemberObjectFieldType":
-                filePath = OBJECT_FIELD_TYPE_TESTCASE;
-                break;
-            case "testClassMemberObjectFieldValue":
-                filePath = OBJECT_FIELD_VALUE_TESTCASE;
-                break;
-
-            case "testClassMethodDocumentation":
-                filePath = METHOD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testClassMethodBody":
-                filePath = METHOD_BODY_TESTCASE;
-                break;
-            case "testClassMethodIdentifier":
-                filePath = METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testClassMethodParameter":
-                filePath = METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testClassMethodQualifier":
-                filePath = METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testClassMethodReturn":
-                filePath = METHOD_RETURN_TESTCASE;
-                break;
-            case "testClassMethodAnnotation":
-                filePath = METHOD_ANNOTATION_TESTCASE;
-                break;
-
-            case "testClassRemoteMethodDocumentation":
-                filePath = REMOTE_METHOD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testClassRemoteMethodBody":
-                filePath = REMOTE_METHOD_BODY_TESTCASE;
-                break;
-            case "testClassRemoteMethodIdentifier":
-                filePath = REMOTE_METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testClassRemoteMethodParameter":
-                filePath = REMOTE_METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testClassRemoteMethodQualifier":
-                filePath = REMOTE_METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testClassRemoteMethodReturn":
-                filePath = REMOTE_METHOD_RETURN_TESTCASE;
-                break;
-            case "testClassRemoteMethodAnnotation":
-                filePath = REMOTE_METHOD_ANNOTATION_TESTCASE;
-                break;
-
-            case "testClassResourceMethodDocumentation":
-                filePath = RESOURCE_METHOD_DOC_TESTCASE;
-                break;
-            case "testClassResourceMethodBody":
-                filePath = RESOURCE_METHOD_BODY_TESTCASE;
-                break;
-            case "testClassResourceMethodIdentifier":
-                filePath = RESOURCE_METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testClassResourceMethodParameter":
-                filePath = RESOURCE_METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testClassResourceMethodQualifier":
-                filePath = RESOURCE_METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testClassResourceMethodReturn":
-                filePath = RESOURCE_METHOD_RETURN_TESTCASE;
-                break;
-            case "testClassResourceMethodAnnotation":
-                filePath = RESOURCE_METHOD_ANNOTATION_TESTCASE;
-                break;
-            default:
-                filePath = null;
-        }
-
-        if (filePath == null) {
-            throw new SemverTestException("Failed to load dataset for method: " + method.getName());
-        }
         try (FileReader reader = new FileReader(filePath)) {
             Object testCaseObject = JsonParser.parseReader(reader);
             JsonArray fileData = (JsonArray) testCaseObject;

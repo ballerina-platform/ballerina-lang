@@ -36,21 +36,14 @@ public class Lists {
             return array.getRefValue(index);
         }
 
-        switch (TypeUtils.getImpliedType(((BArrayType) array.getType()).getElementType()).getTag()) {
-            case TypeTags.BOOLEAN_TAG:
-                return Boolean.valueOf(array.getBoolean(index));
-            case TypeTags.BYTE_TAG:
-                return new Long(array.getByte(index));
-            case TypeTags.FLOAT_TAG:
-                return new Double(array.getFloat(index));
-            case TypeTags.DECIMAL_TAG:
-                return array.getRefValue(index);
-            case TypeTags.INT_TAG:
-                return new Long((int) array.getInt(index));
-            case TypeTags.STRING_TAG:
-                return new String(array.getString(index));
-            default:
-                return array.getRefValue(index);
-        }
+        return switch (TypeUtils.getImpliedType(((BArrayType) array.getType()).getElementType()).getTag()) {
+            case TypeTags.BOOLEAN_TAG -> array.getBoolean(index);
+            case TypeTags.BYTE_TAG -> (long) array.getByte(index);
+            case TypeTags.FLOAT_TAG -> array.getFloat(index);
+            case TypeTags.DECIMAL_TAG -> array.getRefValue(index);
+            case TypeTags.INT_TAG -> array.getInt(index);
+            case TypeTags.STRING_TAG -> array.getString(index);
+            default -> array.getRefValue(index);
+        };
     }
 }

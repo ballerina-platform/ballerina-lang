@@ -142,63 +142,45 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             }
         }
 
-        switch (attachedNode.kind()) {
-            case SERVICE_DECLARATION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
-            case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-            case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-            case FUNCTION_DEFINITION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);
-            case RESOURCE_ACCESSOR_DEFINITION:
-            case METHOD_DECLARATION:
-            case OBJECT_METHOD_DEFINITION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION)
-                        || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.OBJECT_METHOD);
-            case LISTENER_DECLARATION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.LISTENER);
-            case NAMED_WORKER_DECLARATION:
-            case START_ACTION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.WORKER);
-            case CONST_DECLARATION:
-            case ENUM_MEMBER:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.CONST);
-            case ENUM_DECLARATION:
-            case TYPE_CAST_PARAM:
-            case TYPE_DEFINITION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.TYPE);
-            case CLASS_DEFINITION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.CLASS);
-            case RETURN_TYPE_DESCRIPTOR:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RETURN);
-            case OBJECT_FIELD:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD)
-                        || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.OBJECT_FIELD);
-            case RECORD_FIELD:
-            case RECORD_FIELD_WITH_DEFAULT_VALUE:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD)
-                        || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RECORD_FIELD);
-            case MODULE_VAR_DECL:
-            case LOCAL_VAR_DECL:
-            case LET_VAR_DECL:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.VAR);
-            case EXTERNAL_FUNCTION_BODY:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.EXTERNAL);
-            case ANNOTATION_DECLARATION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.ANNOTATION);
-            case REQUIRED_PARAM:
-            case DEFAULTABLE_PARAM:
-            case REST_PARAM:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.PARAMETER);
-            case OBJECT_CONSTRUCTOR:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE)
-                        && ((ObjectConstructorExpressionNode) attachedNode).objectTypeQualifiers()
-                        .stream()
-                        .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
-            case MEMBER_TYPE_DESC:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD);
-            default:
-                return false;
-        }
+        return switch (attachedNode.kind()) {
+            case SERVICE_DECLARATION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
+            case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
+                 IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION,
+                 FUNCTION_DEFINITION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);
+            case RESOURCE_ACCESSOR_DEFINITION,
+                 METHOD_DECLARATION,
+                 OBJECT_METHOD_DEFINITION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION)
+                    || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.OBJECT_METHOD);
+            case LISTENER_DECLARATION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.LISTENER);
+            case NAMED_WORKER_DECLARATION,
+                 START_ACTION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.WORKER);
+            case CONST_DECLARATION,
+                 ENUM_MEMBER -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.CONST);
+            case ENUM_DECLARATION,
+                 TYPE_CAST_PARAM,
+                 TYPE_DEFINITION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.TYPE);
+            case CLASS_DEFINITION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.CLASS);
+            case RETURN_TYPE_DESCRIPTOR -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RETURN);
+            case OBJECT_FIELD -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD)
+                    || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.OBJECT_FIELD);
+            case RECORD_FIELD,
+                 RECORD_FIELD_WITH_DEFAULT_VALUE -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD)
+                    || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RECORD_FIELD);
+            case MODULE_VAR_DECL,
+                 LOCAL_VAR_DECL,
+                 LET_VAR_DECL -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.VAR);
+            case EXTERNAL_FUNCTION_BODY -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.EXTERNAL);
+            case ANNOTATION_DECLARATION -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.ANNOTATION);
+            case REQUIRED_PARAM,
+                 DEFAULTABLE_PARAM,
+                 REST_PARAM -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.PARAMETER);
+            case OBJECT_CONSTRUCTOR -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE)
+                    && ((ObjectConstructorExpressionNode) attachedNode).objectTypeQualifiers()
+                    .stream()
+                    .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
+            case MEMBER_TYPE_DESC -> AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD);
+            default -> false;
+        };
     }
 
     @Override

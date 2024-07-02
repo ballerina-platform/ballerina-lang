@@ -110,17 +110,12 @@ public enum SymbolOrigin {
      * @return The corresponding enum value if there's a corresponding value. If not, an exception is thrown.
      */
     public static SymbolOrigin toOrigin(byte value) {
-        switch (value) {
-            case 1:
-                return BUILTIN;
-            case 2:
-                return SOURCE;
-            case 3:
-                return COMPILED_SOURCE;
-            case 4:
-                return VIRTUAL;
-            default:
-                throw new IllegalStateException("Invalid symbol origin value: " + value);
-        }
+        return switch (value) {
+            case 1 -> BUILTIN;
+            case 2 -> SOURCE;
+            case 3 -> COMPILED_SOURCE;
+            case 4 -> VIRTUAL;
+            default -> throw new IllegalStateException("Invalid symbol origin value: " + value);
+        };
     }
 }
