@@ -54,6 +54,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -346,6 +347,12 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return codeGeneratedResourcesLibrary(packageId, PlatformLibraryScope.DEFAULT);
+    }
+
+
+    @Override
     public PlatformLibrary runtimeLibrary() {
         return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
     }
@@ -375,6 +382,25 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
+
+        //Add resources
+        if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT && moduleContext.isDefaultModule()) {
+            // Add all resources at the resource directory to a resources.jar
+            Map<String, byte[]> cachedResources = getAllCachedResources(moduleContext.project().targetDir());
+            if (!cachedResources.isEmpty()) {
+                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                try {
+                    String resourceJarName = ProjectConstants.RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
+                    ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, cachedResources);
+                    compilationCache.cachePlatformSpecificLibrary(this,
+                            resourceJarName, byteStream);
+                } catch (IOException e) {
+                    throw new ProjectException("Failed to cache generated test resources jar, module: " +
+                            packageContext.defaultModuleContext().moduleName());
+                }
+            }
+        }
+
         // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
             return;
@@ -393,6 +419,30 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
+    }
+
+    private Map<String, byte[]> getAllCachedResources(Path targetPath) {
+        Map<String, byte[]> resourcesMap = new HashMap<>();
+        Path resourcesCachePath = targetPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (Files.exists(resourcesCachePath) && Files.isDirectory(resourcesCachePath)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourcesCachePath)) {
+                for (Path entry : stream) {
+                    // Check if the entry is a regular file (not a directory)
+                    Path fileName = entry.getFileName();
+                    if (fileName != null) {
+                        // Read the file content
+                        byte[] content = Files.readAllBytes(entry);
+                        resourcesMap.put(ProjectConstants.RESOURCE_DIR_NAME + ProjectConstants.DIR_PATH_SEPARATOR
+                                + fileName.toString(), content);
+                    } else {
+                        throw new ProjectException("File name is null for entry: " + entry);
+                    }
+                }
+            } catch (IOException e) {
+                throw new ProjectException("An error occurred while reading the cached resources : " + e.getMessage());
+            }
+        }
+        return resourcesMap;
     }
 
     @Override
@@ -638,6 +688,20 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
+    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId,
+                                                 PlatformLibraryScope scope) {
+        Package pkg = packageCache.getPackageOrThrow(packageId);
+        ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
+        CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
+        Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
+                this, "resources");
+        if (platformSpecificLibrary.isPresent()) {
+            return new JarLibrary(platformSpecificLibrary.get(),
+                    scope);
+        }
+        return null;
+    }
+
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
@@ -767,9 +831,6 @@ public class JBallerinaBackend extends CompilerBackend {
         Map<String, byte[]> resourceMap = getResources(moduleContext);
         for (DocumentId documentId : moduleContext.testResourceIds()) {
             String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
                     + moduleContext.resourceContext(documentId).name();
             resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
         }

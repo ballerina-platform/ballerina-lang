@@ -126,6 +126,13 @@ public class JarResolver {
                     packageContext.packageId(), moduleContext.moduleName());
             libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
         }
+        // Add resources
+        PlatformLibrary generatedResourcesJarLibrary = jBalBackend.codeGeneratedResourcesLibrary(
+                packageContext.packageId());
+        if (generatedResourcesJarLibrary != null) {
+            libraryPaths.add(new JarLibrary(generatedResourcesJarLibrary.path(), scope,
+                    getPackageName(packageContext)));
+        }
     }
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
