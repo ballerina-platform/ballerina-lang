@@ -174,7 +174,8 @@ public class GroupByClauseTest {
                 "testGroupbyVarDefsAndSelectWithGroupingKeysFromClause1",
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause1",
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2",
-                "testGroupByVarAndSelectWithNonGroupingKeysWithJoinClause1"
+                "testGroupByVarAndSelectWithNonGroupingKeysWithJoinClause1",
+                "testModuleLevelGroupBy"
         };
     }
 

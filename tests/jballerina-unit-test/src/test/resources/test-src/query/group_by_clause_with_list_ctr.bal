@@ -2246,6 +2246,25 @@ function assertEquality(anydata expected, anydata actual) {
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
 
+type Person record {|
+    string fname;
+    string lname;
+    int id;
+|};
+
+Person[] person = [];
+
+var v1 = from var st in person
+    group by var name = st.fname + st.lname
+    select name;
+
+function testModuleLevelGroupBy() {
+    var v2 = from var st in person
+        group by var name = st.fname + st.lname
+        select name;
+    var v3 = v1;
+}
+
 // TODO: Add test cases readonly types
 // TODO: use a client
 // TODO: xml langlib function

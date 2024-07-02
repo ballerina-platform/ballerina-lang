@@ -374,3 +374,21 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                       message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+
+type Student record {|
+    string fname;
+    string lname;
+    int id;
+|};
+
+Student[] students = [];
+
+var v1 = from var st in students
+    let var name = st.fname + st.lname
+    select name;
+
+function testModuleLevelLetClause() {
+    var v2 = from var st in students
+        let var name = st.fname + st.lname
+        select name;
+}
