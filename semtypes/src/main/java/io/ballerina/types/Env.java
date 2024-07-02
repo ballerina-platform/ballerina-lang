@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_OBJECT_RO;
+
 /**
  * Env node.
  *
@@ -44,6 +46,7 @@ public class Env {
         types = new LinkedHashMap<>();
 
         PredefinedTypeEnv.getInstance().initializeEnv(this);
+        recMappingAtoms.add(MAPPING_ATOMIC_OBJECT_RO);
     }
 
     public int recListAtomCount() {

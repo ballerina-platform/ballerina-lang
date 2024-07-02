@@ -32,10 +32,10 @@ import static io.ballerina.types.SemTypes.union;
  * @param visibility is member private or public
  * @since 2201.10.0
  */
-public record Member(String name, SemType valueTy, Kind kind, Visibility visibility) {
+public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
 
     public Member {
-        assert !(name == null || valueTy == null || kind == null || visibility == null);
+        assert name != null && valueTy != null && kind != null && visibility != null;
     }
 
     // Various "tag" values associated with a member. Each of these tag values must be convertible to a Field in Map

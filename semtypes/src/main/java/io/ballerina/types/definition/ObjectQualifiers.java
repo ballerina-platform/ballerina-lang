@@ -30,7 +30,20 @@ import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.SemTypes.union;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
-public record ObjectQualifiers(boolean isolated, NetworkQualifier networkQualifier) {
+public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
+
+    private final static ObjectQualifiers DEFAULT = new ObjectQualifiers(false, false, NetworkQualifier.None);
+
+    public static ObjectQualifiers defaultQualifiers() {
+        return DEFAULT;
+    }
+
+    public static ObjectQualifiers from(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
+        if (networkQualifier == NetworkQualifier.None && !isolated) {
+            return defaultQualifiers();
+        }
+        return new ObjectQualifiers(isolated, readonly, networkQualifier);
+    }
 
     public enum NetworkQualifier {
         Client,
