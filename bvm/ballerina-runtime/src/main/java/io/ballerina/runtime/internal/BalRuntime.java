@@ -42,7 +42,6 @@ import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.scheduling.SyncCallback;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
@@ -90,11 +89,17 @@ public class BalRuntime extends Runtime {
         if (moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "init");
         }
-        invokeConfigInit();
-        schedulerThread = new Thread(scheduler::start);
-        schedulerThread.start();
-        invokeMethodSync("$moduleInit");
-        moduleInitialized = true;
+        try {
+            invokeConfigInit();
+            schedulerThread = new Thread(scheduler::start);
+            schedulerThread.start();
+            invokeMethodSync("$moduleInit");
+            moduleInitialized = true;
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred while initializing the ballerina " +
+                    "module "), e);
+        }
     }
 
     @Override
@@ -126,15 +131,16 @@ public class BalRuntime extends Runtime {
         if (moduleStopped) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.FUNCTION_ALREADY_CALLED, "stop");
         }
-        scheduler.poison();
         try {
+            scheduler.poison();
             schedulerThread.join();
-        } catch (InterruptedException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("error occurred while waiting for the scheduler " +
-                    "thread to finish"), e);
+            invokeModuleStop();
+            moduleStopped = true;
+        } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                 IllegalAccessException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred during module stop "), e);
         }
-        invokeModuleStop();
-        moduleStopped = true;
+
     }
 
     /**
@@ -171,6 +177,7 @@ public class BalRuntime extends Runtime {
                     Function<?, ?> func = getFunction((Object[]) result, objectVal, methodName);
                     scheduler.scheduleToObjectGroup(new Object[1], func, future);
                 }
+
                 @Override
                 public void notifyFailure(BError error) {
                     callback.notifyFailure(error);
@@ -219,6 +226,7 @@ public class BalRuntime extends Runtime {
                     Function<?, ?> func = getFunction((Object[]) result, objectVal, methodName);
                     scheduler.schedule(new Object[1], func, future);
                 }
+
                 @Override
                 public void notifyFailure(BError error) {
                     callback.notifyFailure(error);
@@ -279,6 +287,7 @@ public class BalRuntime extends Runtime {
                         scheduler.scheduleToObjectGroup(new Object[1], func, future);
                     }
                 }
+
                 @Override
                 public void notifyFailure(BError error) {
                     callback.notifyFailure(error);
@@ -353,41 +362,25 @@ public class BalRuntime extends Runtime {
         return func;
     }
 
-    private void invokeConfigInit() {
+    private void invokeConfigInit() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException {
         Class<?> configClass = loadClass(CONFIGURATION_CLASS_NAME);
         ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
-        try {
-            final Method method =
-                    configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
-            method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
-                    RuntimeUtils.formatErrorMessage(e)), e);
-        }
+        Method method = configClass.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
+        method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
     }
 
-    private void invokeModuleStop() {
+    private void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
-        try {
-            final Method method =
-                    configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
-            method.invoke(null, scheduler.getRuntimeRegistry());
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
-                    RuntimeUtils.formatErrorMessage(e)), e);
-        }
+        Method method = configClass.getDeclaredMethod("$currentModuleStop", RuntimeRegistry.class);
+        method.invoke(null, scheduler.getRuntimeRegistry());
     }
 
-    private Class<?> loadClass(String className) {
+    private Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(this.module, className);
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(name);
-        } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" + name), e);
-        }
-        return clazz;
+        return Class.forName(name);
     }
 
     private static String getFullQualifiedClassName(Module module, String className) {
@@ -397,7 +390,7 @@ public class BalRuntime extends Runtime {
             className = encodeNonFunctionIdentifier(packageName) + "." + module.getMajorVersion() + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
-            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
+            className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
     }
@@ -416,8 +409,8 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    private void invokeMethod(String functionName, Callback callback, Type returnType,
-                                   String strandName, Object... args) {
+    private void invokeMethod(String functionName, Callback callback, Type returnType, String strandName,
+                              Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
