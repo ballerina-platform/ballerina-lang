@@ -61,21 +61,34 @@ public final class PredefinedTypeEnv {
     private final List<InitializedTypeAtom<ListAtomicType>> initializedListAtoms = new ArrayList<>();
     private final List<ListAtomicType> initializedRecListAtoms = new ArrayList<>();
     private final List<MappingAtomicType> initializedRecMappingAtoms = new ArrayList<>();
-    // 0 is reserved for BDD_REC_ATOM_READONLY
-    private AtomicInteger nextAtomIndex = new AtomicInteger(1);
+    private final AtomicInteger nextAtomIndex = new AtomicInteger(0);
 
-    // Holder fields for lazy initialization
-    private CellAtomicType callAtomicInner;
-    private CellAtomicType cellAtomicInnerMapping;
-    private CellAtomicType cellAtomicInnerMappingRO;
-    private CellAtomicType cellAtomicInnerRO;
-    private CellAtomicType cellAtomicNever;
-    private CellAtomicType cellAtomicUndef;
+    // This is to avoid passing down env argument when doing cell type operations.
+    // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
     private CellAtomicType cellAtomicVal;
+    private CellAtomicType cellAtomicNever;
+
+    // Represent the typeAtom required to construct equivalent subtypes of map<any|error> and (any|error)[].
+    private CellAtomicType callAtomicInner;
+
+    // TypeAtoms related to (map<any|error>)[]. This is to avoid passing down env argument when doing
+    // tableSubtypeComplement operation.
+    private CellAtomicType cellAtomicInnerMapping;
     private ListAtomicType listAtomicMapping;
+
+    // TypeAtoms related to readonly type. This is to avoid requiring context when referring to readonly type.
+    // CELL_ATOMIC_INNER_MAPPING_RO & LIST_ATOMIC_MAPPING_RO are typeAtoms required to construct
+    // readonly & (map<readonly>)[] which is then used for readonly table type when constructing VAL_READONLY
+    private CellAtomicType cellAtomicInnerMappingRO;
     private ListAtomicType listAtomicMappingRO;
-    private ListAtomicType listAtomicRO;
+    private CellAtomicType cellAtomicInnerRO;
+
+    // TypeAtoms related to [any|error, any|error]. This is to avoid passing down env argument when doing
+    // streamSubtypeComplement operation.
+    private CellAtomicType cellAtomicUndef;
     private ListAtomicType listAtomicTwoElement;
+
+    private ListAtomicType listAtomicRO;
     private MappingAtomicType mappingAtomicRO;
     private TypeAtom atomCellInner;
     private TypeAtom atomCellInnerMapping;
@@ -118,7 +131,6 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicVal() {
         if (cellAtomicVal == null) {
-            assert VAL != null;
             cellAtomicVal = CellAtomicType.from(VAL, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
             addInitializedCellAtom(cellAtomicVal);
         }
@@ -135,7 +147,6 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicNever() {
         if (cellAtomicNever == null) {
-            assert NEVER != null;
             cellAtomicNever = CellAtomicType.from(NEVER, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
             addInitializedCellAtom(cellAtomicNever);
         }
@@ -152,7 +163,6 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicInner() {
         if (callAtomicInner == null) {
-            assert INNER != null;
             callAtomicInner = CellAtomicType.from(INNER, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
             addInitializedCellAtom(callAtomicInner);
         }
@@ -169,7 +179,6 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicInnerMapping() {
         if (cellAtomicInnerMapping == null) {
-            assert MAPPING != null && UNDEF != null;
             cellAtomicInnerMapping =
                     CellAtomicType.from(union(MAPPING, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
             addInitializedCellAtom(cellAtomicInnerMapping);
@@ -187,7 +196,6 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicInnerMappingRO() {
         if (cellAtomicInnerMappingRO == null) {
-            assert MAPPING_RO != null && UNDEF != null;
             cellAtomicInnerMappingRO =
                     CellAtomicType.from(union(MAPPING_RO, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
             addInitializedCellAtom(cellAtomicInnerMappingRO);
