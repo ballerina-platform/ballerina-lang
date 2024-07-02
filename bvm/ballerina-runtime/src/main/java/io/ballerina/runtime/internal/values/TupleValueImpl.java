@@ -424,7 +424,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public Object shift(long index) {
         handleImmutableArrayValue();
-        validateTupleSizeAndInherentType();
+        validateTupleSizeAndInherentType(index);
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -825,20 +825,20 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void validateTupleSizeAndInherentType() {
+    private void validateTupleSizeAndInherentType(long index) {
         List<Type> tupleTypesList = this.tupleType.getTupleTypes();
         int numOfMandatoryTypes = tupleTypesList.size();
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
-                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, "shift");
+                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE);
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
-        for (int i = 1; i <= numOfMandatoryTypes; i++) {
-            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get(i - 1))) {
+        for (long i = index + 1; i <= numOfMandatoryTypes; i++) {
+            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get((int) (i - 1)))) {
                 throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.INCOMPATIBLE_TYPE,
-                        tupleTypesList.get(i - 1), (i == numOfMandatoryTypes) ?
-                                this.tupleType.getRestType() : tupleTypesList.get(i));
+                        tupleTypesList.get((int) (i - 1)), (i == numOfMandatoryTypes) ?
+                                this.tupleType.getRestType() : tupleTypesList.get((int) i));
             }
         }
     }

@@ -707,7 +707,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
     assertValueEquality("the number of members in a tuple value should be greater " +
-    "than the member types of the tuple to perform a 'shift' operation", detailMessage);
+    "than the member types of the tuple to perform this operation", detailMessage);
 }
 
 type TestRecord1 record {string name; int age;};
@@ -801,6 +801,23 @@ function testShiftOnTupleWithProperConditions() {
     assertValueEquality([3, false], properTuple3);
     assertValueEquality([3, "world"], properTuple4);
     assertValueEquality([person2], properTuple5);
+}
+
+function testTupleRemove() {
+    [int, string, Person2...] tuple = [5, "hello", {id:56, name:"Sam", age:27}, {id:66, name:"John", age:77}, {id:88, name:"Ally", age:67}];
+    anydata val = tuple.remove(3);
+    assertTrue(val is Person2);
+    assertValueEquality({id:66, name:"John", age:77}, val);
+    var fn1 = function() {
+        var x = tuple.remove(1);
+    };
+    error? res1 = trap fn1();
+    assertTrue(res1 is error);
+    error err1 = <error>res1;
+    var message1 = err1.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("incompatible types: expected 'string', found 'Person2'", detailMessage1);
 }
 
 type Student record {|
@@ -1907,6 +1924,23 @@ function testArrayPop() {
         assertValueEquality("pop() not supported on type 'int[2]'",
         <string> checkpanic result.detail()["message"]);
     }
+
+    [int, string, int...] tuple1 = [1, "hello", 4];
+    int|string result2 = tuple1.pop();
+    assertTrue(result2 is int);
+    assertValueEquality(4, result2);
+    int|string|error result3 = trap tuple1.pop();
+    assertTrue(result3 is error);
+    if (result3 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform this operation",
+        <string> checkpanic result3.detail()["message"]);
+    }
+
+    [int, string, Person2...] tuple2 = [1, "hello", {id:5, name:"John", age:56}];
+    int|string|Person2 result4 = tuple2.pop();
+    assertTrue(result4 is Person2);
+    assertValueEquality({id:5, name:"John", age:56}, result4);
 }
 
 function testSetLengthNegative() {
