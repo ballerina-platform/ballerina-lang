@@ -202,13 +202,13 @@ public class SemTypeResolver {
             Member.Visibility visibility = field.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
                     Member.Visibility.Private;
             SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
-            return new Member(field.name.value, ty, Member.Kind.Field, visibility);
+            return new Member(field.name.value, ty, Member.Kind.Field, visibility, true);
         });
         Stream<Member> methodStream = td.getFunctions().stream().map(method -> {
             Member.Visibility visibility = method.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
                     Member.Visibility.Private;
             SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, method);
-            return new Member(method.name.value, ty, Member.Kind.Method, visibility);
+            return new Member(method.name.value, ty, Member.Kind.Method, visibility, true);
         });
         td.defn = od;
         List<Member> members = Stream.concat(fieldStream, methodStream).toList();
@@ -228,7 +228,7 @@ public class SemTypeResolver {
         } else {
             networkQualifier = ObjectQualifiers.NetworkQualifier.None;
         }
-        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), networkQualifier);
+        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), flags.contains(Flag.READONLY), networkQualifier);
     }
 
     // TODO: should we make definition part of BLangFunction as well?

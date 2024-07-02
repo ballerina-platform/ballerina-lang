@@ -206,7 +206,7 @@ types:
         if: is_rec_atom == 1
       - id: target_kind
         type: s4
-        if: is_rec_atom == 1 and rec_atom_index != 0
+        if: is_rec_atom == 1 and rec_atom_index > 1
       - id: type_atom
         type: semtype_type_atom
         if: is_rec_atom == 0
