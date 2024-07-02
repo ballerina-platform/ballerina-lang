@@ -50,8 +50,11 @@ import java.util.Optional;
  *
  * @since 2201.1.1
  */
-public class PathUtil {
-    
+public final class PathUtil {
+
+    private PathUtil() {
+    }
+
     /**
      * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
      * we convert it to file scheme and provide a valid Path.

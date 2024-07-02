@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.values.BString;
 /**
  * Interop functions for readonly array creation.
  */
-public class ReadonlyArrayCreator {
+public final class ReadonlyArrayCreator {
+
+    private ReadonlyArrayCreator() {
+    }
 
     public static BArray createIntArray() {
         long[] numbers = {1000, 2000, 3000};

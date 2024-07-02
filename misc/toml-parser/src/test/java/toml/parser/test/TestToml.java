@@ -31,9 +31,12 @@ import java.util.List;
 /**
  * Test the parser.
  */
-public class TestToml {
+public final class TestToml {
 
     private static final PrintStream OUT = System.out;
+
+    private TestToml() {
+    }
 
     public static void main(String[] args) throws IOException {
         String path = "src/test/resources/basic-toml.toml";

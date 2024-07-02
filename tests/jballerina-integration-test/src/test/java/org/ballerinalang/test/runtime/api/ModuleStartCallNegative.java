@@ -24,7 +24,10 @@ import io.ballerina.runtime.api.Runtime;
  *
  * @since 2201.9.0
  */
-public class ModuleStartCallNegative {
+public final class ModuleStartCallNegative {
+
+    private ModuleStartCallNegative() {
+    }
 
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation_negative", "1");

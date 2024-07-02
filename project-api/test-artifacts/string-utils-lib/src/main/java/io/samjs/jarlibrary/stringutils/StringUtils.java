@@ -20,7 +20,10 @@ package io.samjs.jarlibrary.stringutils;
 /**
  * A dummy string utils implementation.
  */
-public class StringUtils {
+public final class StringUtils {
+
+    private StringUtils() {
+    }
 
     public static boolean isEmpty(String value) {
         return value.isEmpty();

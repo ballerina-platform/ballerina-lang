@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class Text {
+public final class Text {
+    private Text() {
+    }
+
     public static BXml text(BXml xml) {
         if (xml.getNodeType() == XmlNodeType.TEXT) {
             return xml;

@@ -29,7 +29,10 @@ import java.util.stream.Collectors;
 /**
  * A utility to provide completions related to query expressions.
  */
-public class QueryExpressionUtil {
+public final class QueryExpressionUtil {
+
+    private QueryExpressionUtil() {
+    }
 
     public static List<LSCompletionItem> getCommonKeywordCompletions(BallerinaCompletionContext context) {
         return Arrays.asList(

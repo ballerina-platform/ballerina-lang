@@ -28,7 +28,10 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class IsProcessingInstruction {
+public final class IsProcessingInstruction {
+
+    private IsProcessingInstruction() {
+    }
 
     public static boolean isProcessingInstruction(BXml xmlValue) {
         if (xmlValue.getNodeType() == XmlNodeType.PI) {

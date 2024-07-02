@@ -29,7 +29,10 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class Diagnostics {
+public final class Diagnostics {
+
+    private Diagnostics() {
+    }
 
     public static Collection<Diagnostic> filterErrors(Collection<Diagnostic> diagnostics) {
         return filterDiagnostics(diagnostics, DiagnosticSeverity.ERROR);

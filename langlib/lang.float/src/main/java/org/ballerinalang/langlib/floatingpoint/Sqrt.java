@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Sqrt {
+public final class Sqrt {
+
+    private Sqrt() {
+    }
 
     public static double sqrt(double x) {
         return Math.sqrt(x);

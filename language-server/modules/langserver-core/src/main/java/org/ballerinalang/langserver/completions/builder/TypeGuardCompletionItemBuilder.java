@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2.0
  */
-public class TypeGuardCompletionItemBuilder {
+public final class TypeGuardCompletionItemBuilder {
 
     private TypeGuardCompletionItemBuilder() {
     }

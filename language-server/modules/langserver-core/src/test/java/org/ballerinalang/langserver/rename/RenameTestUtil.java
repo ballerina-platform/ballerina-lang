@@ -28,7 +28,10 @@ import java.util.Map;
 /**
  * An abstract implementation of any rename test.
  */
-public class RenameTestUtil {
+public final class RenameTestUtil {
+
+    private RenameTestUtil() {
+    }
 
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
         if (expected == null) {

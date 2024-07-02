@@ -30,10 +30,13 @@ import java.util.concurrent.CountDownLatch;
 /**
  * A mock listener for testing services. It can be used to invoke a resource in the service.
  */
-public class MockListener {
+public final class MockListener {
 
     private static BObject service;
     private static BError err;
+
+    private MockListener() {
+    }
 
     public static Object attach(BObject servObj) {
         service = servObj;

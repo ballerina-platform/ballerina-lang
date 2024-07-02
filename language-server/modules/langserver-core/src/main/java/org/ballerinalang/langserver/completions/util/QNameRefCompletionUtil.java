@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class QNameRefCompletionUtil {
+public final class QNameRefCompletionUtil {
     private QNameRefCompletionUtil() {
     }
 

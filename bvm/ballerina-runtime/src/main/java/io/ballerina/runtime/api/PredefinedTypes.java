@@ -87,7 +87,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
  *
  * @since 2.0.0
  */
-public class PredefinedTypes {
+public final class PredefinedTypes {
 
     private static final Module EMPTY_MODULE = new Module(null, null, null);
 

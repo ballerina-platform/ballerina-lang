@@ -33,7 +33,10 @@ import java.util.PrimitiveIterator;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class CodePointCompare {
+public final class CodePointCompare {
+
+    private CodePointCompare() {
+    }
 
     public static long codePointCompare(BString str1, BString str2) {
         // Compare each code point of str1 with str2's codepoint at corresponding position.

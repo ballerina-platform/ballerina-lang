@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class FromBase16 {
+public final class FromBase16 {
+
+    private FromBase16() {
+    }
 
     public static Object fromBase16(BString str) {
         if (str.length() % 2 != 0) {

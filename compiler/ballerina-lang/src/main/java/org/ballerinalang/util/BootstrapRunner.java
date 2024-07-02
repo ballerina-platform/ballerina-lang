@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
  */
-public class BootstrapRunner {
+public final class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
@@ -49,6 +49,9 @@ public class BootstrapRunner {
     private static final String COMPILER_BACKEND_JVM = "ballerina.compiler_backend_jvm.$_init";
     private static final String COMPILER_BACKEND_LLVM = "ballerina.compiler_backend_llvm.$_init";
     private static String javaCommand = System.getProperty("java.command");
+
+    private BootstrapRunner() {
+    }
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {

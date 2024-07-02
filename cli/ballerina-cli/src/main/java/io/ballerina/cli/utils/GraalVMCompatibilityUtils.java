@@ -35,7 +35,10 @@ import java.util.Optional;
  *
  * @since 2201.7.0
  */
-public class GraalVMCompatibilityUtils {
+public final class GraalVMCompatibilityUtils {
+
+    private GraalVMCompatibilityUtils() {
+    }
 
     private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg) {
         // Check if external platform dependencies are defined

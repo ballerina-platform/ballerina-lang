@@ -36,7 +36,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Utility class for test integration common functions.
  */
-public class Utils {
+public final class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 

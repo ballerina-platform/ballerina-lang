@@ -47,7 +47,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  *
  * @since 1.2.0
  */
-public class ExternalMethodGen {
+public final class ExternalMethodGen {
 
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,

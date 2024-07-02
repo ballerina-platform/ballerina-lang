@@ -43,7 +43,10 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.0
  */
-public class ResourcePathCompletionUtil {
+public final class ResourcePathCompletionUtil {
+
+    private ResourcePathCompletionUtil() {
+    }
 
     /**
      * Check if the cursor is positioned within the method call context of client resource access action node.

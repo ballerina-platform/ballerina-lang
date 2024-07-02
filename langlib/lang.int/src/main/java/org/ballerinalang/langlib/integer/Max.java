@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.integer;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Max {
+public final class Max {
+
+    private Max() {
+    }
 
     public static long max(long n, long[] ns) {
         long max = n;

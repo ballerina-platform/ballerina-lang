@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @since 1.2.0
  */
-class EmitterUtils {
+final class EmitterUtils {
 
     private EmitterUtils() {}
 

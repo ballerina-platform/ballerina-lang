@@ -22,7 +22,7 @@ package io.ballerina.compiler.internal.parser;
  * 
  * @since 2.0.0
  */
-public class XMLValidator {
+public final class XMLValidator {
 
     /*
      * Constants
@@ -243,6 +243,9 @@ public class XMLValidator {
                 CHARS[j] |= MASK_PUBID;
             }
         }
+    }
+
+    private XMLValidator() {
     }
 
     /*

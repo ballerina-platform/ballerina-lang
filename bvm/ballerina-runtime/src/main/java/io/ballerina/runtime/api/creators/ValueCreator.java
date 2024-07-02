@@ -82,7 +82,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.1.0
  */
-public class ValueCreator {
+public final class ValueCreator {
 
     /**
      * Creates a new array with given array type.

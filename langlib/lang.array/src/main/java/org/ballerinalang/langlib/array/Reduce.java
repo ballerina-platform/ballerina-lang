@@ -39,10 +39,13 @@ import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "reduce");
+
+    private Reduce() {
+    }
 
     public static Object reduce(BArray arr, BFunctionPointer<Object, Boolean> func, Object initial) {
         Type arrType = arr.getType();

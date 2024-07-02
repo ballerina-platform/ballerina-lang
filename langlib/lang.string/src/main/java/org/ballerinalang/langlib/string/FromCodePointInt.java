@@ -27,7 +27,10 @@ import org.ballerinalang.langlib.string.utils.Constants;
  *
  * @since 1.0
  */
-public class FromCodePointInt {
+public final class FromCodePointInt {
+
+    private FromCodePointInt() {
+    }
 
     public static Object fromCodePointInt(long codePoint) {
 

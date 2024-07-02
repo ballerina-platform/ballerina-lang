@@ -124,7 +124,10 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 0.965.0
  */
-public class ASTBuilderUtil {
+public final class ASTBuilderUtil {
+
+    private ASTBuilderUtil() {
+    }
 
     /**
      * Prepend generated code to given body.

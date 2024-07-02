@@ -21,7 +21,10 @@ package org.ballerinalang.langlib.test;
 /**
  * @since 2.0.0
  */
-public class DetachEndpoint {
+public final class DetachEndpoint {
+    private DetachEndpoint() {
+    }
+
     public static void detach() {
 
     }

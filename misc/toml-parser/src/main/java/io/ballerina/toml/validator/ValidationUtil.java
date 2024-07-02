@@ -34,7 +34,10 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ValidationUtil {
+public final class ValidationUtil {
+
+    private ValidationUtil() {
+    }
 
     public static String getTypeErrorMessage(AbstractSchema schema, TomlType found, String key) {
         Map<String, String> message = schema.message();

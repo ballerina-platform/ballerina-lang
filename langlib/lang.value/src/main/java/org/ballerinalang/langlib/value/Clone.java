@@ -25,7 +25,10 @@ import io.ballerina.runtime.internal.CloneUtils;
  *
  * @since 1.0
  */
-public class Clone {
+public final class Clone {
+
+    private Clone() {
+    }
 
     public static Object clone(Object value) {
         return CloneUtils.cloneValue(value);

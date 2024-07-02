@@ -34,7 +34,10 @@ import java.nio.charset.StandardCharsets;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
 //        isPublic = true
 //)
-public class ToBytes {
+public final class ToBytes {
+
+    private ToBytes() {
+    }
 
     public static BArray toBytes(BString value) {
 

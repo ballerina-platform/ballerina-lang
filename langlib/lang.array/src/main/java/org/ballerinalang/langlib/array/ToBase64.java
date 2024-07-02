@@ -38,10 +38,13 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class ToBase64 {
+public final class ToBase64 {
 
     private static final BString NOT_SUPPORT_DETAIL_ERROR = StringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
+
+    private ToBase64() {
+    }
 
     public static BString toBase64(BArray arr) {
         Type arrType = TypeUtils.getImpliedType(arr.getType());

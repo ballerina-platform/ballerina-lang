@@ -46,7 +46,10 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class ToArray {
+public final class ToArray {
+
+    private ToArray() {
+    }
 
     public static BArray toArray(BMap<?, ?> m) {
         Type mapType = TypeUtils.getImpliedType(m.getType());

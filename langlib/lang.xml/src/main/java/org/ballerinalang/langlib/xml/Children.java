@@ -37,7 +37,10 @@ import java.util.ArrayList;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Children {
+public final class Children {
+
+    private Children() {
+    }
 
     public static BXml children(BXml xmlVal) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {

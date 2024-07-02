@@ -30,10 +30,13 @@ import java.nio.charset.StandardCharsets;
 /**
  * Generate BIR spec doc.
  */
-public class BIRSpecGenerator {
+public final class BIRSpecGenerator {
 
     private static final String BIR_SPEC_FILE = "/kaitai/bir.ksy";
     private static final Yaml yaml = new Yaml();
+
+    private BIRSpecGenerator() {
+    }
 
     public static void main(String[] args) throws IOException {
         try (PrintWriter out = new PrintWriter("../compiler/bir-spec.md")) {

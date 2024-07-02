@@ -24,7 +24,10 @@ import io.ballerina.runtime.api.values.BString;
 /**
  * A util class that is useful with bstring array related test operations.
  */
-public class BStringUtils {
+public final class BStringUtils {
+
+    private BStringUtils() {
+    }
 
     public static BString[] getBStringArray(String[] s) {
         BString[] bStringArray = new BString[s.length];

@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Sin {
+public final class Sin {
+
+    private Sin() {
+    }
 
     public static double sin(double x) {
         return Math.sin(x);

@@ -57,7 +57,7 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
  *
  * @since 1.2.0
  */
-public class SyntaxTreeJSONGenerator {
+public final class SyntaxTreeJSONGenerator {
 
     /*
      * Change the below two constants as required, depending on the type of test.
@@ -66,6 +66,9 @@ public class SyntaxTreeJSONGenerator {
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+
+    private SyntaxTreeJSONGenerator() {
+    }
 
     public static void main(String[] args) throws IOException {
         // Using a string source as input

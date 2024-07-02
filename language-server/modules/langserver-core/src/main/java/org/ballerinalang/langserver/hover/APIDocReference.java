@@ -20,9 +20,12 @@ package org.ballerinalang.langserver.hover;
  *
  * @since 2201.2.0
  */
-public class APIDocReference {
+public final class APIDocReference {
 
     private static final String BASE_URL = "https://lib.ballerina.io/";
+
+    private APIDocReference() {
+    }
 
     public static String from(String orgName,
                               String moduleName,

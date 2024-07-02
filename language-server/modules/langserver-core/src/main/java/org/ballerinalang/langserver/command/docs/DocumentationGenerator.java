@@ -60,7 +60,7 @@ import java.util.Optional;
  *
  * @since 0.985.0
  */
-public class DocumentationGenerator {
+public final class DocumentationGenerator {
 
     private DocumentationGenerator() {
     }

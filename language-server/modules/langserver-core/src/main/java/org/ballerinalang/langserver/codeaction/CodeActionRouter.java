@@ -52,7 +52,10 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
  *
  * @since 1.1.1
  */
-public class CodeActionRouter {
+public final class CodeActionRouter {
+
+    private CodeActionRouter() {
+    }
 
     /**
      * Returns a list of supported code actions.

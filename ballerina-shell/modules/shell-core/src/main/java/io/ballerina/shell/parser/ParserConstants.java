@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class ParserConstants {
+public final class ParserConstants {
 
     public static final String WRAPPER_PREFIX = "__shell_wrapper__";
 

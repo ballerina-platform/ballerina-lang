@@ -26,7 +26,10 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class ToHexString {
+public final class ToHexString {
+
+    private ToHexString() {
+    }
 
     public static BString toHexString(long n) {
         if (n < 0) {

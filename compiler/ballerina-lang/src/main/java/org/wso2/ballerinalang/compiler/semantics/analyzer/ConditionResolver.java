@@ -37,7 +37,10 @@ import java.util.HashSet;
  *
  * @since 2.0.0
  */
-public class ConditionResolver {
+public final class ConditionResolver {
+
+    private ConditionResolver() {
+    }
 
     static BType checkConstCondition(Types types, SymbolTable symTable, BLangExpression condition) {
         switch (condition.getKind()) {

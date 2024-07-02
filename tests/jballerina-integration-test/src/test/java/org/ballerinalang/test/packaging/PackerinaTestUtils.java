@@ -33,7 +33,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *
  * @since 0.982.0
  */
-public class PackerinaTestUtils {
+public final class PackerinaTestUtils {
+
+    private PackerinaTestUtils() {
+    }
 
     /**
      * Delete files inside directories.

@@ -115,7 +115,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
 

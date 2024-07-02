@@ -162,7 +162,7 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    protected static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
+    static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setKind(CompletionItemKind.Function);
         if (functionSymbol != null) {

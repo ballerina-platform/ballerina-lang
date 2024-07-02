@@ -39,7 +39,10 @@ import java.util.Optional;
  *
  * @since 2201.1.1
  */
-public class DefaultValueGenerationUtil {
+public final class DefaultValueGenerationUtil {
+
+    private DefaultValueGenerationUtil() {
+    }
 
     /**
      * Get the default value for the given BType.

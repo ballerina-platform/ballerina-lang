@@ -55,7 +55,10 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class SemanticAPITestUtils {
+public final class SemanticAPITestUtils {
+
+    private SemanticAPITestUtils() {
+    }
 
     public static Document getDocumentForSingleSource(Project project) {
         Package currentPackage = project.currentPackage();

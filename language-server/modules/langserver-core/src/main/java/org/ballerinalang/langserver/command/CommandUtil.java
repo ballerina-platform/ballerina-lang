@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Utilities for the command related operations.
  */
-public class CommandUtil {
+public final class CommandUtil {
 
     private CommandUtil() {
     }

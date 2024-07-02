@@ -24,7 +24,10 @@ import io.ballerina.runtime.api.values.BHandle;
  *
  * @since 1.0.0
  */
-public class IsNull {
+public final class IsNull {
+
+    private IsNull() {
+    }
 
     public static boolean isNull(BHandle value) {
         return value.getValue() == null;

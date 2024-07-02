@@ -73,7 +73,7 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  *
  * @since 2.0.0
  */
-public class JsonToRecordConverter {
+public final class JsonToRecordConverter {
 
     private JsonToRecordConverter() {
         // not called

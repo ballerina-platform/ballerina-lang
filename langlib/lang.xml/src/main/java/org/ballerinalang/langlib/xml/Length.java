@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BXml;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Length {
+public final class Length {
+
+    private Length() {
+    }
 
     public static long length(BXml xml) {
         return xml.size();

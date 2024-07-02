@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.model;
  *
  * @since 1.2.0
  */
-public class JTypeTags {
+public final class JTypeTags {
 
     public static final int JBYTE = 1;
     public static final int JCHAR = 2;

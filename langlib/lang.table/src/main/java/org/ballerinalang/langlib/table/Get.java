@@ -32,7 +32,10 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Get {
+public final class Get {
+
+    private Get() {
+    }
 
     public static BMap get(BTable tbl, Object key) {
         return (BMap) tbl.getOrThrow(key);

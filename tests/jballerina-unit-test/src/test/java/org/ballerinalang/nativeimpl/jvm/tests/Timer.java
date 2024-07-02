@@ -30,7 +30,10 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class Timer {
+public final class Timer {
+
+    private Timer() {
+    }
 
     public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
         Runtime runtime = env.getRuntime();

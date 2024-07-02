@@ -32,7 +32,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * @since 2201.1.0
  */
 
-public class PadEnd {
+public final class PadEnd {
+
+    private PadEnd() {
+    }
 
     public static BString padEnd(BString str, long len, BString padChar) {
         int strLength = str.length();

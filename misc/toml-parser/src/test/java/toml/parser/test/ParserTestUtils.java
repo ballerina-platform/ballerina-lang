@@ -56,7 +56,7 @@ import static io.ballerina.toml.internal.syntax.SyntaxUtils.isSTNodePresent;
  *
  * @since 1.2.0
  */
-public class ParserTestUtils {
+public final class ParserTestUtils {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
@@ -65,6 +65,9 @@ public class ParserTestUtils {
      * Should be used only if there is a bulk update that needs to be made to the test assertions.
      */
     private static final boolean UPDATE_ASSERTS = false;
+
+    private ParserTestUtils() {
+    }
 
     /**
      * Test parsing a valid source.

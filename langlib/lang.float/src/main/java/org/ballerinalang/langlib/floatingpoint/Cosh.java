@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Cosh {
+public final class Cosh {
+
+    private Cosh() {
+    }
 
     public static double cosh(double x) {
         return Math.cosh(x);

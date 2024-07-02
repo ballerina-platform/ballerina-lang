@@ -42,7 +42,10 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.0
  */
-public class ResourcePathCompletionItemBuilder {
+public final class ResourcePathCompletionItemBuilder {
+
+    private ResourcePathCompletionItemBuilder() {
+    }
 
     /**
      * Creates and returns completion items given a resource method symbol.

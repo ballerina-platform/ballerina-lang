@@ -124,13 +124,16 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  *
  * @since 2.0.0
  */
-public class ProjectUtils {
+public final class ProjectUtils {
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
+
+    private ProjectUtils() {
+    }
 
     /**
      * Validates the org-name.
