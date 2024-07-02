@@ -50,6 +50,8 @@ import static io.ballerina.types.typeops.XmlOps.XML_SUBTYPE_RO;
  * @since 2201.8.0
  */
 public final class PredefinedType {
+
+    private static final PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
     public static final BasicTypeBitSet NEVER = basicTypeUnion(0);
     public static final BasicTypeBitSet NIL = basicType(BasicTypeCode.BT_NIL);
     public static final BasicTypeBitSet BOOLEAN = basicType(BasicTypeCode.BT_BOOLEAN);
@@ -124,14 +126,14 @@ public final class PredefinedType {
     // represents (map<any|error>)[]
     public static final ComplexSemType MAPPING_RO = basicSubtype(BT_MAPPING, BDD_SUBTYPE_RO);
 
-    public static final CellAtomicType CELL_ATOMIC_VAL = PredefinedTypeEnv.cellAtomicVal();
-    public static final TypeAtom ATOM_CELL_VAL = PredefinedTypeEnv.atomCellVal();
+    public static final CellAtomicType CELL_ATOMIC_VAL = predefinedTypeEnv.cellAtomicVal();
+    public static final TypeAtom ATOM_CELL_VAL = predefinedTypeEnv.atomCellVal();
 
-    public static final CellAtomicType CELL_ATOMIC_NEVER = PredefinedTypeEnv.cellAtomicNever();
-    public static final TypeAtom ATOM_CELL_NEVER = PredefinedTypeEnv.atomCellNever();
+    public static final CellAtomicType CELL_ATOMIC_NEVER = predefinedTypeEnv.cellAtomicNever();
+    public static final TypeAtom ATOM_CELL_NEVER = predefinedTypeEnv.atomCellNever();
 
-    public static final CellAtomicType CELL_ATOMIC_INNER = PredefinedTypeEnv.cellAtomicInner();
-    public static final TypeAtom ATOM_CELL_INNER = PredefinedTypeEnv.atomCellInner();
+    public static final CellAtomicType CELL_ATOMIC_INNER = predefinedTypeEnv.cellAtomicInner();
+    public static final TypeAtom ATOM_CELL_INNER = predefinedTypeEnv.atomCellInner();
 
     static final CellSemType CELL_SEMTYPE_INNER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER));
     public static final MappingAtomicType MAPPING_ATOMIC_INNER = MappingAtomicType.from(
@@ -141,25 +143,25 @@ public final class PredefinedType {
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER
     );
 
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = PredefinedTypeEnv.cellAtomicInnerMapping();
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING = PredefinedTypeEnv.atomCellInnerMapping();
+    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = predefinedTypeEnv.cellAtomicInnerMapping();
+    public static final TypeAtom ATOM_CELL_INNER_MAPPING = predefinedTypeEnv.atomCellInnerMapping();
     public static final CellSemType CELL_SEMTYPE_INNER_MAPPING = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_MAPPING)
     );
 
-    public static final ListAtomicType LIST_ATOMIC_MAPPING = PredefinedTypeEnv.listAtomicMapping();
-    static final TypeAtom ATOM_LIST_MAPPING = PredefinedTypeEnv.atomListMapping();
+    public static final ListAtomicType LIST_ATOMIC_MAPPING = predefinedTypeEnv.listAtomicMapping();
+    static final TypeAtom ATOM_LIST_MAPPING = predefinedTypeEnv.atomListMapping();
     // represents (map<any|error>)[]
     public static final BddNode LIST_SUBTYPE_MAPPING = bddAtom(ATOM_LIST_MAPPING);
 
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING_RO = PredefinedTypeEnv.cellAtomicInnerMappingRO();
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING_RO = PredefinedTypeEnv.atomCellInnerMappingRO();
+    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING_RO = predefinedTypeEnv.cellAtomicInnerMappingRO();
+    public static final TypeAtom ATOM_CELL_INNER_MAPPING_RO = predefinedTypeEnv.atomCellInnerMappingRO();
     public static final CellSemType CELL_SEMTYPE_INNER_MAPPING_RO = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_MAPPING_RO)
     );
 
-    public static final ListAtomicType LIST_ATOMIC_MAPPING_RO = PredefinedTypeEnv.listAtomicMappingRO();
-    static final TypeAtom ATOM_LIST_MAPPING_RO = PredefinedTypeEnv.atomListMappingRO();
+    public static final ListAtomicType LIST_ATOMIC_MAPPING_RO = predefinedTypeEnv.listAtomicMappingRO();
+    static final TypeAtom ATOM_LIST_MAPPING_RO = predefinedTypeEnv.atomListMappingRO();
     // represents readonly & (map<readonly>)[]
     static final BddNode LIST_SUBTYPE_MAPPING_RO = bddAtom(ATOM_LIST_MAPPING_RO);
 
@@ -176,14 +178,14 @@ public final class PredefinedType {
     );
 
     public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
-    public static final CellAtomicType CELL_ATOMIC_INNER_RO = PredefinedTypeEnv.cellAtomicInnerRO();
-    public static final TypeAtom ATOM_CELL_INNER_RO = PredefinedTypeEnv.atomCellInnerRO();
+    public static final CellAtomicType CELL_ATOMIC_INNER_RO = predefinedTypeEnv.cellAtomicInnerRO();
+    public static final TypeAtom ATOM_CELL_INNER_RO = predefinedTypeEnv.atomCellInnerRO();
     public static final CellSemType CELL_SEMTYPE_INNER_RO = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_INNER_RO)
     );
 
-    public static final CellAtomicType CELL_ATOMIC_UNDEF = PredefinedTypeEnv.cellAtomicUndef();
-    public static final TypeAtom ATOM_CELL_UNDEF = PredefinedTypeEnv.atomCellUndef();
+    public static final CellAtomicType CELL_ATOMIC_UNDEF = predefinedTypeEnv.cellAtomicUndef();
+    public static final TypeAtom ATOM_CELL_UNDEF = predefinedTypeEnv.atomCellUndef();
     public static final CellSemType CELL_SEMTYPE_UNDEF = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_UNDEF)
     );
@@ -192,14 +194,14 @@ public final class PredefinedType {
             BT_CELL, bddAtom(ATOM_CELL_VAL)
     );
 
-    public static final ListAtomicType LIST_ATOMIC_TWO_ELEMENT = PredefinedTypeEnv.listAtomicTwoElement();
-    static final TypeAtom ATOM_LIST_TWO_ELEMENT = PredefinedTypeEnv.atomListTwoElement();
+    public static final ListAtomicType LIST_ATOMIC_TWO_ELEMENT = predefinedTypeEnv.listAtomicTwoElement();
+    static final TypeAtom ATOM_LIST_TWO_ELEMENT = predefinedTypeEnv.atomListTwoElement();
     // represents [any|error, any|error]
     public static final BddNode LIST_SUBTYPE_TWO_ELEMENT = bddAtom(ATOM_LIST_TWO_ELEMENT);
 
-    public static final MappingAtomicType MAPPING_ATOMIC_RO = PredefinedTypeEnv.mappingAtomicRO();
+    public static final MappingAtomicType MAPPING_ATOMIC_RO = predefinedTypeEnv.mappingAtomicRO();
 
-    public static final ListAtomicType LIST_ATOMIC_RO = PredefinedTypeEnv.listAtomicRO();
+    public static final ListAtomicType LIST_ATOMIC_RO = predefinedTypeEnv.listAtomicRO();
 
     private PredefinedType() {
     }

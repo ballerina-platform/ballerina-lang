@@ -122,6 +122,7 @@ public class BIRTypeWriter extends TypeVisitor {
     private final ConstantPool cp;
     private final Set<Atom.AtomIdentifier> visitedAtoms = new HashSet<>();
     private final Env typeEnv;
+    private final PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp, Env typeEnv) {
         this.buff = buff;
@@ -672,7 +673,7 @@ public class BIRTypeWriter extends TypeVisitor {
             // which is unique and every environment has the same node.
             // TODO: need to think of a better way to serialize information about the actual node without "inlining"
             //  the node
-            if (PredefinedTypeEnv.isPredefinedRecAtom(index)) {
+            if (predefinedTypeEnv.isPredefinedRecAtom(index)) {
                 buff.writeBoolean(true);
                 buff.writeInt(index);
             } else if (recAtom.kind() == Atom.Kind.XML_ATOM || visitedAtoms.contains(recAtom.getIdentifier())) {

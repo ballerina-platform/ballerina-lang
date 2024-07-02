@@ -1175,6 +1175,7 @@ public class BIRPackageSymbolEnter {
 
     private class BIRTypeReader {
         private DataInputStream inputStream;
+        private final PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
 
         public BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;
@@ -1999,7 +2000,7 @@ public class BIRPackageSymbolEnter {
 
         private Atom getRecAtom(int index) throws IOException {
             Atom atom;
-            Optional<RecAtom> predefinedRecAtom = PredefinedTypeEnv.getPredefinedRecAtom(index);
+            Optional<RecAtom> predefinedRecAtom = predefinedTypeEnv.getPredefinedRecAtom(index);
             if (predefinedRecAtom.isPresent()) {
                 atom = predefinedRecAtom.get();
             } else {

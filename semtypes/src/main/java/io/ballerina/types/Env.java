@@ -43,7 +43,7 @@ public class Env {
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
 
-        PredefinedTypeEnv.initializeEnv(this);
+        PredefinedTypeEnv.getInstance().initializeEnv(this);
     }
 
     public int recListAtomCount() {
