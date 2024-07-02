@@ -69,6 +69,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Change Variable Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2652", "BCE3931");
+    private static final String UNDERSCORE = "_";
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -304,7 +305,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     private Optional<String> getVarNameFromBindingPattern(BindingPatternNode bindingPatternNode) {
         if (bindingPatternNode.kind() == SyntaxKind.WILDCARD_BINDING_PATTERN) {
-            return Optional.of("_");
+            return Optional.of(UNDERSCORE);
         }
         if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
             return Optional.empty();
