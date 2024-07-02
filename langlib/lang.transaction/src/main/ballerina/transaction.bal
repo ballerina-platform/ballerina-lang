@@ -20,6 +20,10 @@ import ballerina/jballerina.java;
 configurable boolean managerEnabled = false;
 # Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
+# Config to specify the timeout for auto commit.
+configurable int transactionAutoCommitTimeout = 120;
+# Config to specify the timeout for cleaning up dead transactions.
+configurable int transactionCleanupTimeout = 600;
 
 //TODO: remove this in Beta2 and use an anonymous record instead
 # Internally used record to hold information about a transaction.
