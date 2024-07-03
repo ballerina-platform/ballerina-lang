@@ -32,6 +32,12 @@ import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -99,6 +105,7 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 public class BalToolsUtil {
     private static final String TOOL = "tool";
     private static final String LIBS = "libs";
+    private static CustomToolClassLoader customToolClassLoader;
 
     private static final List<String> options = Arrays.asList(VERSION_OPTION, VERSION_SHORT_OPTION, HELP_OPTION,
             HELP_SHORT_OPTION, DEBUG_OPTION);
@@ -132,6 +139,9 @@ public class BalToolsUtil {
     }
 
     public static CustomToolClassLoader getCustomToolClassLoader(String commandName) {
+        if (customToolClassLoader != null) {
+            return customToolClassLoader;
+        }
         List<File> toolJars = getToolCommandJarAndDependencyJars(commandName);
         URL[] urls = toolJars.stream()
                 .map(file -> {
@@ -145,7 +155,8 @@ public class BalToolsUtil {
                 .toArray(URL[]::new);
         // Combine custom class loader with system class loader
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        return new CustomToolClassLoader(urls, systemClassLoader);
+        customToolClassLoader = new CustomToolClassLoader(urls, systemClassLoader);
+        return customToolClassLoader;
     }
 
     public static void addToolIfCommandIsABuiltInTool(String commandName) {
@@ -292,6 +303,40 @@ public class BalToolsUtil {
             }
         });
         balToolsToml.modify(balToolsManifest);
+    }
+
+    public static Module getRuntimeModuleFromTool(String commandName, String errorMsg) {
+        Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
+        Path balToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(commandName);
+
+        // We have validated the tool to be not empty when creating the custom tool class loader
+        if (tool.isEmpty()) {
+            throw LauncherUtils.createUsageExceptionWithHelp(errorMsg);
+        }
+        String org = tool.get().org();
+        String name = tool.get().name();
+        String version = String.valueOf(SemanticVersion.from(tool.get().version()).major());
+        return new Module(org, name, version);
+    }
+
+    public static void invokeBallerinaMethod(
+            String functionName, Module module, Callback callback, String toolId, String... functionArgs) {
+        BString[] argsArray = new BString[functionArgs.length];
+        for (int i = 0; i < argsArray.length - 1; i++) {
+            argsArray[i] = StringUtils.fromString(functionArgs[i + 1]);
+        }
+        Runtime balRuntime = io.ballerina.runtime.api.Runtime.from(module);
+        try {
+            balRuntime.init();
+            balRuntime.start();
+            balRuntime.invokeMethodAsync(functionName, callback, ValueCreator.createArrayValue(argsArray));
+        } catch (Exception e) {
+            throw LauncherUtils.createLauncherException("error occurred while invoking the Ballerina method: '" +
+                    functionName + "' in tool: " + toolId);
+        }
     }
 
     private static Optional<String> getLatestVersion(List<String> versions) {

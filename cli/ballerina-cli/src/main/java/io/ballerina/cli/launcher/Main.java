@@ -20,6 +20,9 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
@@ -51,11 +54,12 @@ public class Main {
 
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
+    private static final String EXECUTE_METHOD = "execute";
 
     public static void main(String... args) {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
-            optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
+            optionalInvokedCmd.ifPresentOrElse(BLauncherCmd::execute, () -> executeBallerinaTool(args));
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
                 // print the error message only if the exception was not thrown due to compilation errors
@@ -124,8 +128,7 @@ public class Main {
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
             if (!defaultCmd.argList.isEmpty() && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command '"
-                        + defaultCmd.argList.get(0) + "'");
+                return Optional.empty();
             }
 
             if (parsedCommands.isEmpty() || defaultCmd.helpFlag) {
@@ -217,6 +220,32 @@ public class Main {
         return (optionsString.split(","))[0].trim();
     }
 
+    private static void executeBallerinaTool(String ...args) {
+        if (args.length == 0) {
+            return;
+        }
+        String commandName = args[0];
+        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+        Module module = BalToolsUtil.getRuntimeModuleFromTool(commandName, "unknown command '" + commandName + "'");
+        Callback callback =
+                new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                throw LauncherUtils.createLauncherException("Tool execution failed: " + error.getMessage());
+            }
+        };
+        BalToolsUtil.invokeBallerinaMethod(
+                EXECUTE_METHOD,
+                module,
+                callback,
+                commandName,
+                commandArgs);
+    }
+
     /**
      * This class represents the "help" command and it holds arguments and flags specified by the user.
      *
@@ -242,10 +271,6 @@ public class Main {
             }
 
             String userCommand = helpCommands.get(0);
-            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
-            }
-
             String commandHelp = LauncherUtils.generateCommandHelp(userCommand, subCommands);
             outStream.println(commandHelp);
         }

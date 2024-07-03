@@ -21,8 +21,12 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -35,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
@@ -46,6 +51,9 @@ import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
  * @since 0.8.0
  */
 public class LauncherUtils {
+
+    private static final String PRINT_SHORT_DESC_METHOD = "printShortDesc";
+    private static final String PRINT_LONG_DESC_METHOD = "printLongDesc";
 
     public static Path getSourceRootPath(String sourceRoot) {
         // Get source root path.
@@ -116,9 +124,8 @@ public class LauncherUtils {
         Map<String, String> activeToolsVsRepos = new HashMap<>();
 
         // if there are any tools, add Tool Commands section
-        List<String> toolNames = subCommands.keySet().stream()
-                .filter(BalToolsUtil::isNonBuiltInToolCommand)
-                .sorted().toList();
+        List<String> toolNames = balToolsManifest.tools().keySet().stream().filter(
+                id -> balToolsManifest.getActiveTool(id).isPresent()).toList();
 
         if (!toolNames.isEmpty()) {
             toolNames.forEach(toolName ->
@@ -126,8 +133,42 @@ public class LauncherUtils {
                     activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
                             .toUpperCase() + "] ")));
             helpBuilder.append("\n\n   Tool Commands:");
-            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
-                    activeToolsVsRepos.get(key)));
+            toolNames.forEach(id -> {
+                if (subCommands.get(id) != null) {
+                    generateCommandDescription(subCommands.get(id), helpBuilder, activeToolsVsRepos.get(id));
+                    return;
+                }
+                Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(id);
+                if (tool.isEmpty()) {
+                    return;
+                }
+                String org = tool.get().org();
+                String name = tool.get().name();
+                String version = String.valueOf(SemanticVersion.from(tool.get().version()).major());
+                Module module = new Module(org, name, version);
+                final String[] helpText = {""};
+                Callback callback = new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        helpText[0] = ((BString) result).getValue();
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                    }
+                };
+                try {
+                    BalToolsUtil.invokeBallerinaMethod(PRINT_SHORT_DESC_METHOD, module, callback, tool.get().id());
+                } catch (BLauncherException ignore) {
+                    return;
+                }
+                if (!helpText[0].isEmpty()) {
+                    helpBuilder.append("\n")
+                            .append("        ")
+                            .append(String.format(
+                                    "%-15s %s", id, activeToolsVsRepos.get(id) + wrapString(helpText[0], 64, 24)));
+                }
+            });
         }
         return helpBuilder.toString();
     }
@@ -137,9 +178,32 @@ public class LauncherUtils {
             return BLauncherCmd.getCommandUsageInfo(commandName);
         }
         StringBuilder commandUsageInfo = new StringBuilder();
-        BLauncherCmd cmd = subCommands.get(commandName).getCommand();
-        cmd.printLongDesc(commandUsageInfo);
-        return commandUsageInfo.toString();
+        CommandLine cmdLine = subCommands.get(commandName);
+        if (cmdLine != null) {
+            BLauncherCmd cmd = cmdLine.getCommand();
+            cmd.printLongDesc(commandUsageInfo);
+            return commandUsageInfo.toString();
+        }
+        Module module = BalToolsUtil.getRuntimeModuleFromTool(commandName, "unknown help topic `" + commandName + "`");
+        final String[] helpText = {""};
+        final String[] failureMsg = {""};
+        Callback callback = new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                helpText[0] = ((BString) result).getValue();
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                failureMsg[0] = error.toString();
+            }
+        };
+        BalToolsUtil.invokeBallerinaMethod(PRINT_LONG_DESC_METHOD, module, callback, commandName);
+        if (!helpText[0].isEmpty()) {
+            return helpText[0];
+        }
+        throw LauncherUtils.createLauncherException("error while printing the help topic"
+                + (failureMsg[0].isEmpty() ? "" : ":" + failureMsg[0]));
     }
 
     private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder,
