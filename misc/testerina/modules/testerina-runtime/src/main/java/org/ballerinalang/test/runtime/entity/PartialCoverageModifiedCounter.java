@@ -55,7 +55,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
 
     /**
      * As implemented in Jacoco API.
-     * org.jacoco.core.internal.analysis.CounterImpl#getValue(org.jacoco.core.analysis.ICounter.CounterValue)
+     * {@link org.jacoco.core.internal.analysis.CounterImpl#getValue(org.jacoco.core.analysis.ICounter.CounterValue)}
      */
     @Override
     public double getValue(CounterValue value) {
@@ -101,7 +101,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
     }
 
     /**
-     * As implemented in org.jacoco.core.internal.analysis.CounterImpl#getStatus().
+     * As implemented in {@link org.jacoco.core.internal.analysis.CounterImpl#getStatus()}.
      */
     @Override
     public int getStatus() {

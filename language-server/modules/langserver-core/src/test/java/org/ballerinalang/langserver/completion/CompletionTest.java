@@ -40,7 +40,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,10 +66,8 @@ public abstract class CompletionTest extends AbstractLSTest {
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
         String response = getResponse(testConfig);
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
-        Type collectionType = new TypeToken<List<CompletionItem>>() {
-        }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
-        List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
+        List<CompletionItem> responseItemList = gson.fromJson(resultList, new TypeToken<>() { });
 
         boolean result = CompletionTestUtil.isSubList(testConfig.getItems(), responseItemList);
         if (!result) {

@@ -77,85 +77,82 @@ public class BTestMain {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 4) { //running using the suite json
-            boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
-            Path testSuiteJsonPath = Paths.get(args[1]);
-            Path targetPath = Paths.get(args[2]);
-            Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            String jacocoAgentJarPath = args[3];
-            boolean report = Boolean.parseBoolean(args[4]);
-            boolean coverage = Boolean.parseBoolean(args[5]);
+        if (args.length < 4) {
+            Runtime.getRuntime().exit(1);
+        }
+        //running using the suite json
+        boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
+        Path testSuiteJsonPath = Paths.get(args[1]);
+        Path targetPath = Paths.get(args[2]);
+        Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+        String jacocoAgentJarPath = args[3];
+        boolean report = Boolean.parseBoolean(args[4]);
+        boolean coverage = Boolean.parseBoolean(args[5]);
 
-            if (report || coverage) {
-                testReport = new TestReport();
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
+
+        out.println();
+        out.print("Running Tests");
+        if (coverage) {
+            out.print(" with Coverage");
+        }
+        out.println();
+
+        try (InputStream is = isFatJarExecution ?
+                BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR + testSuiteJsonPath) : null) {
+            BufferedReader br;
+            if (is != null) {
+                br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            } else {
+                br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
             }
+            Gson gson = new Gson();
+            Map<String, TestSuite> testSuiteMap = gson.fromJson(br, new TypeToken<>() { });
+            if (!testSuiteMap.isEmpty()) {
+                for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+                    String moduleName = entry.getKey();
+                    TestSuite testSuite = entry.getValue();
+                    String packageName = testSuite.getPackageName();
+                    out.println("\n\t" + (moduleName.equals(packageName) ?
+                            (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
+                            : packageName + TesterinaConstants.DOT + moduleName));
 
-            out.println();
-            out.print("Running Tests");
-            if (coverage) {
-                out.print(" with Coverage");
-            }
-            out.println();
+                    testSuite.setModuleName(moduleName);
+                    List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
 
-            try (InputStream is = isFatJarExecution ?
-                    BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath)
-                    : null) {
-                BufferedReader br;
-                if (is != null) {
-                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                } else {
-                    br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
-                }
-                Gson gson = new Gson();
-                Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
-                        new TypeToken<Map<String, TestSuite>>() { }.getType());
-                if (!testSuiteMap.isEmpty()) {
-                    for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-                        String moduleName = entry.getKey();
-                        TestSuite testSuite = entry.getValue();
-                        String packageName = testSuite.getPackageName();
-                        out.println("\n\t" + (moduleName.equals(packageName) ?
-                                (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
-                                : packageName + TesterinaConstants.DOT + moduleName));
-
-                        testSuite.setModuleName(moduleName);
-                        List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-
-                        if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
-                            classLoader = createInitialCustomClassLoader();
-                        } else {
-                            // Even if it is fat jar execution but there are no mock functions,
-                            // We can use the URLClassLoader
-                            classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
-                        }
-
-                        if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
-                            if (coverage) {
-                                testExecutionDependencies.add(jacocoAgentJarPath);
-                            }
-                            String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
-                                    .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
-                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
-                                    coverage, isFatJarExecution);
-                        }
-                        String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
-                        for (int i = 4; i < args.length; i++) {
-                            testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
-                            testArgs[testArgs.length - 1] = args[i];
-                        }
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
-                                testArgs);
-                        exitStatus = (result == 1) ? result : exitStatus;
+                    if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
+                        classLoader = createInitialCustomClassLoader();
+                    } else {
+                        // Even if it is fat jar execution but there are no mock functions,
+                        // We can use the URLClassLoader
+                        classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
                     }
-                } else {
-                    exitStatus = 1;
+
+                    if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
+                        if (coverage) {
+                            testExecutionDependencies.add(jacocoAgentJarPath);
+                        }
+                        String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
+                                .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
+                        replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
+                                coverage, isFatJarExecution);
+                    }
+                    String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
+                    for (int i = 4; i < args.length; i++) {
+                        testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
+                        testArgs[testArgs.length - 1] = args[i];
+                    }
+                    result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
+                            testArgs);
+                    exitStatus = (result == 1) ? result : exitStatus;
                 }
-                br.close();
+            } else {
+                exitStatus = 1;
             }
-        } else {
-            exitStatus = 1;
+            br.close();
         }
         Runtime.getRuntime().exit(exitStatus);
     }
