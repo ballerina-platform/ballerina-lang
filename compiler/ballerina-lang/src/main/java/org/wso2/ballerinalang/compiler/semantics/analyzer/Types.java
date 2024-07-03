@@ -3608,7 +3608,7 @@ public class Types {
             return matchingFunction;
         }
 
-        if ((lhsFuncIsResource && !matchingFuncIsResource) || (matchingFuncIsResource && !lhsFuncIsResource)) {
+        if (!lhsFuncIsResource || !matchingFuncIsResource) {
             return Optional.empty();
         }
 
@@ -5307,14 +5307,14 @@ public class Types {
             BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) referredLhsType).eType, env,
                                                         type, visitedTypes);
             if (elementIntersection == null) {
-                return elementIntersection;
+                return null;
             }
             return new BArrayType(elementIntersection);
         } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredLhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env,
                     ((BArrayType) referredType).eType, visitedTypes);
             if (elementIntersection == null) {
-                return elementIntersection;
+                return null;
             }
             return new BArrayType(elementIntersection);
         } else if (referredType.tag == TypeTags.NULL_SET) {

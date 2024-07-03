@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  *
  * @since 1.0.0
  */
+@SuppressWarnings("all")
 public class InstanceMethods {
 
     private Integer counter = 0;

@@ -197,8 +197,6 @@ public class MavenResolverClient {
         Writer fw = WriterFactory.newXmlWriter(tempFile);
         new MavenXpp3Writer().write(fw, model);
         fw.close();
-        fw = null;
-        IOUtil.close(fw);
         return tempFile;
     }
 }

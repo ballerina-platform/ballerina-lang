@@ -359,11 +359,9 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+		descriptorKeyValue.valueExpr = valueLiteral;
 
-        symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
+		symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
 
         // add generated annotation to the service definition
         serviceClass.addAnnotationAttachment(annoAttachment);
@@ -789,11 +787,9 @@ public class AnnotationDesugar {
         if (fieldSymbol instanceof BVarSymbol) {
             descriptorKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         }
-        if (valueLiteral != null) {
-            descriptorKeyValue.valueExpr = valueLiteral;
-        }
+		descriptorKeyValue.valueExpr = valueLiteral;
 
-        symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
+		symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
         ((List<BAnnotationAttachmentSymbol>) mainFunc.symbol.getAnnotations()).add(
                 annoAttachment.annotationAttachmentSymbol);
     }

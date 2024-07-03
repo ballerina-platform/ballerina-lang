@@ -62,7 +62,7 @@ public class StatisticConfig {
      * @see Builder#percentiles(double...)
      */
     public double[] getPercentiles() {
-        return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : percentiles;
+        return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : null;
     }
 
     /**

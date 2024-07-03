@@ -2330,7 +2330,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE);
-        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
+        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, false);
     }
 
     /**
@@ -2619,7 +2619,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 
                 STNode arrayTypeDesc = parseArrayTypeDescriptor(typeDesc);
-                return parseComplexTypeDescriptorInternal(arrayTypeDesc, context, isTypedBindingPattern, precedence);
+                return parseComplexTypeDescriptorInternal(arrayTypeDesc, context, false, precedence);
             case PIPE_TOKEN:
                 if (precedence.isHigherThanOrEqual(TypePrecedence.UNION)) {
                     return  typeDesc;
@@ -4780,7 +4780,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
         
         if (isModuleVar) {
-            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers, isModuleVar);
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers, true);
             typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
 
             if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
@@ -16136,8 +16136,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case BINARY_EXPRESSION:
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) node;
-                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN ||
-                        binaryExpr.operator.kind == SyntaxKind.BITWISE_AND_TOKEN) {
+                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN) {
                     return false;
                 }
                 return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
@@ -16176,8 +16175,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case BINARY_EXPRESSION:
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) node;
-                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN ||
-                        binaryExpr.operator.kind == SyntaxKind.BITWISE_AND_TOKEN) {
+                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN) {
                     return false;
                 }
                 return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
@@ -17903,7 +17901,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode annots = STNodeFactory.createEmptyNodeList();
-        return parseStmtStartsWithTupleTypeOrExprRhs(annots, tupleTypeOrListConst, isRoot);
+        return parseStmtStartsWithTupleTypeOrExprRhs(annots, tupleTypeOrListConst, true);
 
     }
 
@@ -17942,7 +17940,7 @@ public class BallerinaParser extends AbstractParser {
             return typeDesc;
         }
 
-        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, isRoot);
+        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, true);
 
         switchContext(ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(annots, new ArrayList<>(), typedBindingPattern, false);
@@ -19258,7 +19256,7 @@ public class BallerinaParser extends AbstractParser {
         DiagnosticCode errorCode = DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN;
 
         if (isEmpty(ambiguousNode)) {
-            return ambiguousNode;
+            return null;
         }
 
         switch (ambiguousNode.kind) {

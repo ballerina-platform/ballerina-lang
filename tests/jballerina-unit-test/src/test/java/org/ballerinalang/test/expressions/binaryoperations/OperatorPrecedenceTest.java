@@ -216,7 +216,8 @@ public class OperatorPrecedenceTest {
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication operation differ");
     }
 
-    @Test(description = "Test if division takes precedence over addition and subtraction")
+    @SuppressWarnings("ConstantValue")
+	@Test(description = "Test if division takes precedence over addition and subtraction")
     public void testDivisionPrecedence() {
 
         int a = 10;
@@ -240,7 +241,8 @@ public class OperatorPrecedenceTest {
     }
 
 
-    @Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
+    @SuppressWarnings("ConstantValue")
+	@Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
     public void testDivisionAndMultiplicationPrecedence() {
 
         int a = 10;

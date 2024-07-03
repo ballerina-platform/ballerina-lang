@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of binary expressions.
  */
+@SuppressWarnings("ConstantValue")
 public class BinaryExprTest {
 
     CompileResult result;

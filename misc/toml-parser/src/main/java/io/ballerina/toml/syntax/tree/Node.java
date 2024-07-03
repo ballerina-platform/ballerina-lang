@@ -75,7 +75,7 @@ public abstract class Node {
             parent = parent.parent();
         }
 
-        return Optional.ofNullable(parent);
+        return Optional.empty();
     }
 
     public List<NonTerminalNode> ancestors() {
