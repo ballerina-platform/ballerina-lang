@@ -48,7 +48,6 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
-    implementation project(':ballerina-cli')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation project(':ballerina-shell:shell-core')
