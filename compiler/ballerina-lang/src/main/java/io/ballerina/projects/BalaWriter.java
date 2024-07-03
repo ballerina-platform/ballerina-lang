@@ -207,15 +207,29 @@ public abstract class BalaWriter {
                 Boolean otherGraalvmCompatible = packageManifest.platform(otherPlatformGraalvmCompatibleVerified(target,
                         packageManifest.platforms())).graalvmCompatible();
                 packageJson.setGraalvmCompatible(otherGraalvmCompatible);
-            } else if (!hasExternalPlatformDependencies(packageManifest.platforms())) {
-                // If the package uses only distribution provided platform libraries, then package is graalvm compatible
-                packageJson.setGraalvmCompatible(true);
+                return;
             }
+            // If the package uses only distribution provided platform libraries, then package is graalvm compatible
+            // If platform libraries are specified with 'graalvmCompatible', infer the overall compatibility.
+            Boolean allPlatformDepsGraalvmCompatible = isAllPlatformDepsGraalvmCompatible(packageManifest.platforms());
+            packageJson.setGraalvmCompatible(allPlatformDepsGraalvmCompatible);
         } else {
             // If the package uses only distribution provided platform libraries
             // or has only ballerina dependencies, then the package is graalvm compatible
             packageJson.setGraalvmCompatible(true);
         }
+    }
+
+    private static Boolean isAllPlatformDepsGraalvmCompatible(Map<String, PackageManifest.Platform> platforms) {
+        Boolean isAllDepsGraalvmCompatible = true;
+        for (PackageManifest.Platform platform: platforms.values()) {
+            if (platform.isPlatfromDepsGraalvmCompatible() == null) {
+                isAllDepsGraalvmCompatible = null;
+            } else if (!platform.isPlatfromDepsGraalvmCompatible()) {
+                return false;
+            }
+        }
+        return isAllDepsGraalvmCompatible;
     }
 
     private String otherPlatformGraalvmCompatibleVerified(String target,
@@ -226,16 +240,6 @@ public abstract class BalaWriter {
             }
         }
         return "";
-    }
-
-    private boolean hasExternalPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
-        // Check if external platform dependencies are defined
-        for (PackageManifest.Platform platformVal: platforms.values()) {
-            if (!platformVal.dependencies().isEmpty()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     // TODO when iterating and adding source files should create source files from Package sources

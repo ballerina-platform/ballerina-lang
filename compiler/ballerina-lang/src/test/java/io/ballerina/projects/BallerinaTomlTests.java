@@ -72,6 +72,8 @@ public class BallerinaTomlTests {
             Assert.assertEquals(library.get("version"), "0.7.2");
             Assert.assertTrue(library.get("groupId").equals("com.moandjiezana.toml")
                                       || library.get("groupId").equals("swagger.io"));
+            Assert.assertTrue(library.get("graalvmCompatible") == null
+                    || library.get("graalvmCompatible").equals(true));
         }
 
         Assert.assertEquals(packageManifest.license(), Collections.singletonList("Apache 2.0"));
