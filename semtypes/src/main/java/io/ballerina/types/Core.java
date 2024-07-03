@@ -169,6 +169,7 @@ public final class Core {
     }
 
     public static SemType union(SemType t1, SemType t2) {
+        assert t1 != null && t2 != null;
         BasicTypeBitSet all1;
         BasicTypeBitSet all2;
         BasicTypeBitSet some1;
