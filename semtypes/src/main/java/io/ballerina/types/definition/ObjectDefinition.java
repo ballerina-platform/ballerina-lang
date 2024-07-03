@@ -46,6 +46,27 @@ public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
 
+    // Each object type is represented as mapping type (with its basic type set to object) as fallows
+    // {
+    //   "$qualifiers": {
+    //     boolean isolated,
+    //     "client"|"service" network
+    //   },
+    //    [field_name]: {
+    //      "field"|"method" kind,
+    //      "public"|"private" visibility,
+    //       VAL value;
+    //    }
+    //    ...{
+    //      "field" kind,
+    //      "public"|"private" visibility,
+    //       VAL value;
+    //    } | {
+    //       "method" kind,
+    //       "public"|"private" visibility,
+    //       FUNCTION value;
+    //    }
+    // }
     public SemType define(Env env, ObjectQualifiers qualifiers, Collection<Member> members) {
         assert validataMembers(members); // This should never happen, so let's not run this in production
         CellAtomicType.CellMutability mut = qualifiers.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :

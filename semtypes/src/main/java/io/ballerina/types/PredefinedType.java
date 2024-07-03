@@ -172,9 +172,7 @@ public final class PredefinedType {
     static final BddNode LIST_SUBTYPE_MAPPING_RO = bddAtom(ATOM_LIST_MAPPING_RO);
 
     static final CellSemType CELL_SEMTYPE_VAL = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_VAL));
-    private static final CellSemType CELL_SEMTYPE_NEVER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_NEVER));
     static final CellSemType CELL_SEMTYPE_UNDEF = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_UNDEF));
-    // FIXME: index
     private static final TypeAtom ATOM_CELL_OBJECT_MEMBER_KIND = predefinedTypeEnv.atomCellObjectMemberKind();
     static final CellSemType CELL_SEMTYPE_OBJECT_MEMBER_KIND = (CellSemType) basicSubtype(
             BT_CELL, bddAtom(ATOM_CELL_OBJECT_MEMBER_KIND)
@@ -199,9 +197,9 @@ public final class PredefinedType {
     public static final TypeAtom ATOM_MAPPING_OBJECT = predefinedTypeEnv.atomMappingObject();
     public static final BddNode MAPPING_SUBTYPE_OBJECT = bddAtom(ATOM_MAPPING_OBJECT);
 
-    public static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
+    private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
 
-    public static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
+    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
     static {
         OBJECT_RO_REC_ATOM.setKind(Atom.Kind.MAPPING_ATOM);
     }

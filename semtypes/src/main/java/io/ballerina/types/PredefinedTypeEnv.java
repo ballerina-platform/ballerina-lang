@@ -523,7 +523,8 @@ public final class PredefinedTypeEnv {
         return mappingAtomicObjectRO;
     }
 
-    void initializeEnv(Env env) {
+    // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.
+    final void initializeEnv(Env env) {
         fillRecAtoms(env.recListAtoms, initializedRecListAtoms);
         fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms);
         initializedCellAtoms.forEach(each -> env.cellAtom(each.atomicType()));

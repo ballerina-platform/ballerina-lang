@@ -30,6 +30,16 @@ import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.SemTypes.union;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
+/**
+ * Represent {@code object-type-quals} in the spec
+ *
+ * @param isolated         is object isolated
+ * @param readonly         represent {@code class readonly}. Note this is used to determining "rest" part of the object
+ *                         only {@code Member} types must be correctly set as intersection with readonly where
+ *                         applicable even with this set to true
+ * @param networkQualifier is object client, service or none
+ * @since 2201.10.0
+ */
 public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
 
     private final static ObjectQualifiers DEFAULT = new ObjectQualifiers(false, false, NetworkQualifier.None);
@@ -53,17 +63,17 @@ public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualif
         private static final SemType CLIENT_TAG = stringConst("client");
         private static final Field CLIENT = new Field("network", CLIENT_TAG, true, false);
 
-        private static final SemType SERVER_TAG = stringConst("service");
-        private static final Field SERVER = new Field("network", SERVER_TAG, true, false);
+        private static final SemType SERVICE_TAG = stringConst("service");
+        private static final Field SERVICE = new Field("network", SERVICE_TAG, true, false);
 
         // Object can't be both client and service, which is enforced by the enum. We are using a union here so that
         // if this is none it matches both
-        private static final Field NONE = new Field("network", union(CLIENT_TAG, SERVER_TAG), true, false);
+        private static final Field NONE = new Field("network", union(CLIENT_TAG, SERVICE_TAG), true, false);
 
         private Field field() {
             return switch (this) {
                 case Client -> CLIENT;
-                case Service -> SERVER;
+                case Service -> SERVICE;
                 case None -> NONE;
             };
         }
