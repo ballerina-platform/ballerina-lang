@@ -1,0 +1,8 @@
+<p:person xmlns:p="[www.example.org/personData](http://www.example.org/personData)" age="30">
+    <n:name xmlns:n="[www.example.org/personName](http://www.example.org/personName)">John</n:name>
+    <a:address xmlns:a="[www.example.org/personAddress](http://www.example.org/personAddress)">
+        <c:city xmlns:c="[www.example.org/addressCity](http://www.example.org/addressCity)">Hollywood</c:city>
+        <s:state xmlns:s="[www.example.org/addressState](http://www.example.org/addressState)">FL</s:state>
+        <ct:country xmlns:ct="[www.example.org/addressCountry](http://www.example.org/addressCountry)">USA</ct:country>
+    </a:address>
+</p:person>

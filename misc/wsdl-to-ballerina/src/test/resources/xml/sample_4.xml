@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<definitions  name ='SQLDataSoap'   targetNamespace = 'http://www.SoapClient.com/xml/SQLDataSoap.wsdl'
+              xmlns:tns='http://www.SoapClient.com/xml/SQLDataSoap.wsdl'
+              xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+              xmlns:soap='http://schemas.xmlsoap.org/wsdl/soap/'
+              xmlns='http://schemas.xmlsoap.org/wsdl/'>
+    <types>
+        <schema targetNamespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'
+                xmlns='http://www.w3.org/2001/XMLSchema'>
+        </schema>
+    </types>
+    <message name='ProcessSRL'>
+        <part name='SRLFile' type='xsd:string'/>
+        <part name='RequestName' type='xsd:string'/>
+        <part name='key' type='xsd:string'/>
+    </message>
+    <message name='ProcessSRL2'>
+        <part name='SRLFile' type='xsd:string'/>
+        <part name='RequestName' type='xsd:string'/>
+        <part name='key1' type='xsd:string'/>
+        <part name='key2' type='xsd:string'/>
+    </message>
+    <message name='ProcessSRLResponse'>
+        <part name='return' type='xsd:string'/>
+    </message>
+    <message name='ProcessSQL'>
+        <part name='DataSource' type='xsd:string'/>
+        <part name='SQLStatement' type='xsd:string'/>
+        <part name='UserName' type='xsd:string'/>
+        <part name='Password' type='xsd:string'/>
+    </message>
+    <message name='ProcessSQLResponse'>
+        <part name='return' type='xsd:string'/>
+    </message>
+    <portType name='SQLDataSoapPortType'>
+        <operation name='ProcessSRL' parameterOrder='SRLFile RequestName key'>
+            <input message='tns:ProcessSRL' />
+            <output message='tns:ProcessSRLResponse' />
+        </operation>
+        <operation name='ProcessSRL2' parameterOrder='SRLFile RequestName key1 key2'>
+            <input message='tns:ProcessSRL2' />
+            <output message='tns:ProcessSRLResponse' />
+        </operation>
+        <operation name='ProcessSQL' parameterOrder='DataSource SQLStatement UserName Password'>
+            <input message='tns:ProcessSQL' />
+            <output message='tns:ProcessSQLResponse' />
+        </operation>
+    </portType>
+    <binding name='SQLDataSoapBinding' type='tns:SQLDataSoapPortType' >
+        <soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http' />
+        <operation name='ProcessSRL' >
+            <soap:operation soapAction='http://soapclient.com/SQLDataSRL' />
+            <input>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </input>
+            <output>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </output>
+        </operation>
+        <operation name='ProcessSRL2' >
+            <soap:operation soapAction='http://soapclient.com/SQLDataSRL' />
+            <input>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </input>
+            <output>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </output>
+        </operation>
+        <operation name='ProcessSQL' >
+            <soap:operation soapAction='http://www.SoapClient.com/SQLDataSQL' />
+            <input>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </input>
+            <output>
+                <soap:body use='encoded' namespace='http://www.SoapClient.com/xml/SQLDataSoap.xsd'  encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' />
+            </output>
+        </operation>
+    </binding>
+    <service name='SQLDataSoap' >
+        <port name='SQLDataSoapPortType' binding='tns:SQLDataSoapBinding' >
+            <soap:address location='http://www.soapclient.com/xml/SQLDataSoap.wsdl' />
+        </port>
+    </service>
+</definitions>

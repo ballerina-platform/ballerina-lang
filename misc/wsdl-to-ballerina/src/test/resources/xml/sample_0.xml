@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://example.com/wsdl/sample/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             name="SampleService"
+             targetNamespace="http://example.com/wsdl/sample/">
+
+    <!-- Types -->
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/wsdl/sample/">
+<!--            <element minOccurs="0" maxOccurs="unbounded" name="RequestMessage">-->
+<!--                <simpleType name="SpecificCode">-->
+<!--                    <restriction base="string">-->
+<!--                        <enumeration value="CodeA"/>-->
+<!--                        <enumeration value="CodeB"/>-->
+<!--                        <enumeration value="CodeC"/>-->
+<!--                        <minLength value="5"/>-->
+<!--                        <maxLength value="5"/>-->
+<!--                        <pattern value="Code[A-C]"/>-->
+<!--                    </restriction>-->
+<!--                </simpleType>-->
+<!--            </element>-->
+            <simpleType name="PreferLevelTypeEnum">
+                <restriction base="string">
+                    <enumeration value="Only"/>
+                    <enumeration value="Unacceptable"/>
+                    <enumeration value="Preferred"/>
+                </restriction>
+            </simpleType>
+            <complexType name="FlightTypePref">
+                <attribute name="GroundTransportIndicator" type="boolean"/>
+                <attribute name="DirectAndNonStopOnlyInd" type="boolean"/>
+                <attribute name="ExcludeTrainInd" type="boolean"/>
+                <attribute name="PreferLevel" type="tns:PreferLevelTypeEnum"/>
+            </complexType>
+            <complexType name="AuthorType">
+                <sequence>
+                    <element name="FlightType" type="tns:FlightTypePref"/>
+                    <element name="FirstName" type="string"/>
+                    <element name="LastName" type="string"/>
+                    <element name="Biography" type="string" minOccurs="0"/>
+                </sequence>
+            </complexType>
+
+            <!-- Definition of a complex type for Book -->
+            <complexType name="BookType">
+                <sequence>
+                    <element name="Title" type="string"/>
+                    <element name="Genre" type="string"/>
+                    <element name="PublicationYear" type="integer"/>
+                    <element name="Author" type="tns:AuthorType"/>
+                </sequence>
+                <attribute name="ISBN" type="string" use="required"/>
+            </complexType>
+
+            <!-- Definition of a complex type for Bookstore -->
+            <complexType name="BookstoreType">
+                <sequence>
+                    <element name="Book" type="tns:BookType" maxOccurs="unbounded"/>
+                </sequence>
+                <attribute name="Location" type="string" use="required"/>
+            </complexType>
+
+            <!-- Root element of the schema -->
+            <complexType name="TPA_ExtensionsType">
+                <attribute name="SomeExt" type="integer"/>
+            </complexType>
+            <complexType name="TPA_Extensions">
+                <complexContent mixed="false">
+                    <extension base="tns:TPA_ExtensionsType">
+                        <sequence>
+                            <element minOccurs="0" maxOccurs="unbounded" name="RoomTypes" type="tns:RoomTypes"/>
+                            <element minOccurs="0" maxOccurs="1" name="Pre_Stay" type="tns:PrePostStayType"/>
+                            <element minOccurs="0" maxOccurs="1" name="Post_Stay" type="tns:PrePostStayType"/>
+                        </sequence>
+                        <attribute name="RoomTypes" type="string"/>
+                    </extension>
+                </complexContent>
+            </complexType>
+            <complexType name="PrePostStayType">
+                <attribute name="Days" type="integer"/>
+                <attribute name="Offset" type="string"/>
+            </complexType>
+            <complexType name="RoomTypes">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="1" name="TPA_Extensions" type="tns:TPA_Extensions"/>
+                </sequence>
+                <attribute name="NumberOfUnits" type="integer"/>
+            </complexType>
+            <element name="RequestMessage" type="tns:TPA_Extensions"/>
+<!--            <element name="RequestMessage">-->
+<!--                <complexType>-->
+<!--                    <sequence>-->
+<!--                        <element name="inputData" type="xsd:string"/>-->
+<!--                    </sequence>-->
+<!--&lt;!&ndash;                    <simpleContent>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <extension base="string">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <attribute name="Type" type="string"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </extension>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </simpleContent>&ndash;&gt;-->
+<!--                </complexType>-->
+<!--            </element>-->
+            <complexType name="OutType">
+                <sequence>
+                    <element name="outputData" type="xsd:string"/>
+                </sequence>
+            </complexType>
+            <element name="ResponseMessage" type="tns:OutType"/>
+<!--                <complexType>-->
+<!--                    <sequence>-->
+<!--                        <element name="outputData" type="xsd:string"/>-->
+<!--                    </sequence>-->
+<!--                </complexType>-->
+<!--            </element>-->
+
+            <element name="Security" type="tns:Security"/>
+            <complexType name="Security">
+                <sequence>
+                    <element minOccurs="0" maxOccurs="1" name="UsernameToken" type="string"/>
+                </sequence>
+            </complexType>
+        </schema>
+    </types>
+
+    <!-- Messages -->
+    <message name="SampleRequest">
+        <part name="parameters" element="tns:RequestMessage"/>
+    </message>
+    <message name="SampleResponse">
+        <part name="parameters" element="tns:ResponseMessage"/>
+    </message>
+
+    <message name="Headers">
+        <part name="Security" element="tns:Security"/>
+    </message>
+
+    <!-- Port Type -->
+    <portType name="SamplePortType">
+        <operation name="sampleOperation">
+            <input message="tns:SampleRequest"/>
+            <output message="tns:SampleResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="SampleBinding" type="tns:SamplePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="sampleOperation">
+            <soap:operation soapAction="http://example.com/wsdl/sample/sampleOperation"/>
+            <input>
+                <soap:header message="tns:Headers" part="Security" use="literal"/>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="SampleService">
+        <port name="SamplePort" binding="tns:SampleBinding">
+            <soap:address location="http://example.com/wsdl/sample/service"/>
+        </port>
+    </service>
+
+</definitions>
