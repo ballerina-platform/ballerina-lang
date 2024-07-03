@@ -38,7 +38,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -108,8 +107,7 @@ public class TreeGen {
     private static HashMap<String, SyntaxNodeMetadata> getNodeMetadataMap(TreeGenConfig config) {
         try (InputStreamReader reader =
                      new InputStreamReader(getNodeMetadataMapStream(config), StandardCharsets.UTF_8)) {
-            Type mapType = new TypeToken<HashMap<String, SyntaxNodeMetadata>>() { }.getType();
-            return new Gson().fromJson(reader, mapType);
+            return new Gson().fromJson(reader, new TypeToken<>() { });
         } catch (Throwable e) {
             throw new TreeGenException("Failed to parse syntax node metadata. Reason: " + e.getMessage(), e);
         }

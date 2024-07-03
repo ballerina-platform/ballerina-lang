@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PathUtil;
@@ -52,7 +52,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -161,9 +160,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 .getAsJsonArray().get(0).getAsJsonObject().get("edits");
                     }
 
-                    Type type = new TypeToken<List<TextEdit>>() {
-                    }.getType();
-                    List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
+                    List<TextEdit> actualEdit = gson.fromJson(editsElement, new TypeToken<>() { });
                     List<TextEdit> expEdit = expected.edits;
                     actual.edits = actualEdit;
                     if (!expEdit.equals(actualEdit)) {

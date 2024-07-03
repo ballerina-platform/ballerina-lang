@@ -437,9 +437,7 @@ class AIDataMapperCodeActionUtil {
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
 
-            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema, new TypeToken<>() { });
             this.isOptionalMap.clear();
             generateOptionalMap(rightSchemaMap, foundTypeRight);
 
@@ -452,9 +450,7 @@ class AIDataMapperCodeActionUtil {
             leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
 
-            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema,
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema, new TypeToken<>() { });
             this.leftFieldMap.clear();
             getLeftFields(leftSchemaMap, "");
         }
@@ -876,8 +872,7 @@ class AIDataMapperCodeActionUtil {
         try {
             Map<String, Object> responseMap = new Gson().fromJson(
                     JsonParser.parseString(mappingFromServer).getAsJsonObject(),
-                    new TypeToken<HashMap<String, Object>>() {
-                    }.getType());
+                    new TypeToken<>() { });
             getResponseKeys(responseMap, "");
             HashSet<String> unionKeys = new HashSet<>(this.responseFieldMap.keySet());
             unionKeys.addAll(this.leftFieldMap.keySet());

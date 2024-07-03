@@ -49,7 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -168,7 +167,7 @@ public class CodeCoverageUtils {
     private static boolean isIncluded(String path, String includesInCoverage) {
         boolean isIncluded = false;
         if (includesInCoverage != null) {
-            List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
+            String[] includedPackages = includesInCoverage.split(":");
             for (String packageName : includedPackages) {
                 packageName = packageName.replace(".", "/");
                 Pattern pattern = Pattern.compile(normalizeRegexPattern(packageName));

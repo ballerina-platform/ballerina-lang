@@ -169,9 +169,7 @@ public class NativeUtils {
             if (mockedFunctionClassFile.isFile()) {
                 BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
                 Gson gsonRead = new Gson();
-                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                        new TypeToken<Map<String, String[]>>() {
-                        }.getType());
+                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br, new TypeToken<>() { });
                 if (!testFileMockedFunctionMapping.isEmpty()) {
                     ReflectConfigClass originalTestFileRefConfClz;
                     for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
