@@ -145,8 +145,6 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private final LinkedList<Object> compositeStack = new LinkedList<>();
 
-    private static final int SERVICE_TYPE_TAG = 54;
-
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
@@ -1696,7 +1694,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUNCTION_POINTER:
                     // TODO fix
                     break;
-                case SERVICE_TYPE_TAG:
+                case TypeTags.SERVICE:
                     throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
