@@ -342,11 +342,10 @@ public final class JsonToRecordConverter {
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                         if (isRecordTypeDescriptor) {
                             memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes,
-                                    isRecordTypeDescriptor);
+                                    true);
                         } else {
                             memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
-                            extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes,
-                                    isRecordTypeDescriptor);
+                            extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodes, false);
                         }
                     } else if (arraySchema.getItems() instanceof ArraySchema) {
                         memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name, typeDefinitionNodes,
