@@ -304,7 +304,7 @@ final class BindgenNodeFactory {
     private static String documentationReturnDescription(BFunction bFunction) {
         String paramDescription = null;
         if (bFunction.getReturnType() == null && bFunction.getErrorType() == null) {
-            return paramDescription;
+            return null;
         }
         if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
             if (bFunction.getErrorType() != null) {

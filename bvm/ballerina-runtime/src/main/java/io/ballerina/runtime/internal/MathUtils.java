@@ -56,12 +56,7 @@ public final class MathUtils {
         try {
             return numerator % denominator;
         } catch (ArithmeticException e) {
-            if (denominator == 0) {
-                throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
-            } else {
-                throw ErrorCreator.createError(ErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                               StringUtils.fromString(e.getMessage()));
-            }
+            throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
         }
     }
 

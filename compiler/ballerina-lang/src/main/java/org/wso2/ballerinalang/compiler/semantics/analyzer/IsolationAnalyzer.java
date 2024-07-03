@@ -2964,10 +2964,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             case TYPE_INIT_EXPR:
                 BLangTypeInit typeInitExpr = (BLangTypeInit) expression;
 
-                if (typeInitExpr == null) {
-                    return true;
-                }
-
                 expression = typeInitExpr.initInvocation;
                 break;
             case OBJECT_CTOR_EXPRESSION:

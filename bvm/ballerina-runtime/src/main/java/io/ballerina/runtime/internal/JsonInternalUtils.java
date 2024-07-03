@@ -263,8 +263,7 @@ public final class JsonInternalUtils {
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
         Type mapConstraint = TypeUtils.getImpliedType(mapType.getConstrainedType());
-        if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
-                mapConstraint.getTag() == TypeTags.JSON_TAG) {
+        if (mapConstraint.getTag() == TypeTags.ANY_TAG || mapConstraint.getTag() == TypeTags.JSON_TAG) {
             ((MapValueImpl<BString, Object>) json).forEach(map::put);
 
             return map;

@@ -163,20 +163,18 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()
                     .values().toArray(new BField[0]);
-            if (internalStructFields != null) {
-                for (int i = 0; i < internalStructFields.length; i++) {
-                    BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
-                    Object val = structData.get(internalKeyName);
-                    xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
+            for (int i = 0; i < internalStructFields.length; i++) {
+                BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
+                Object val = structData.get(internalKeyName);
+                xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
                     if (val instanceof MapValueImpl<?, ?> mapValue) {
                         processStruct(xmlStreamWriter, mapValue, internalStructFields, i);
-                    } else {
-                        xmlStreamWriter.writeCharacters(val.toString());
-                    }
-                    xmlStreamWriter.writeEndElement();
+                } else {
+                    xmlStreamWriter.writeCharacters(val.toString());
                 }
-                structError = false;
+                xmlStreamWriter.writeEndElement();
             }
+            structError = false;
         }
         if (structError) {
             throw ErrorCreator.createError(StringUtils.fromString(

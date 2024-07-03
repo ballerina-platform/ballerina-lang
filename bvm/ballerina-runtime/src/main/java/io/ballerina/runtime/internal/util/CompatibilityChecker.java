@@ -62,7 +62,7 @@ public final class CompatibilityChecker {
         }
 
         // if both have only major versions, then stop checking further.
-        if (compiledVersionParts.length == 1 && compiledVersionParts.length == 1) {
+        if (compiledVersionParts.length == 1 && runtimeVersionParts.length == 1) {
             return;
         }
 
