@@ -75,11 +75,11 @@ public class JvmErrorCreatorGen {
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                    String moduleInitClass, Map<String, byte[]> jarEntries,
-                                    List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
+                                    Map<String, byte[]> jarEntries, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
+                                    SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
-        generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, errorsClass, symbolTable);
+        generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
         jarEntries.put(errorsClass + CLASS_FILE_SUFFIX, bytes);
@@ -87,7 +87,7 @@ public class JvmErrorCreatorGen {
 
 
     private void generateCreateErrorMethods(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
-                                            String moduleInitClass, String typeOwnerClass, SymbolTable symbolTable) {
+                                            String typeOwnerClass, SymbolTable symbolTable) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE,
                 CREATE_ERROR, null, null);
         mv.visitCode();
@@ -101,15 +101,14 @@ public class JvmErrorCreatorGen {
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_ERROR_VALUE + 0,
                     CREATE_ERROR, false);
             mv.visitInsn(ARETURN);
-            generateCreateErrorMethodSplits(cw, errorTypeDefList, moduleInitClass, typeOwnerClass, symbolTable);
+            generateCreateErrorMethodSplits(cw, errorTypeDefList, typeOwnerClass, symbolTable);
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_ERROR_VALUE, errorsClass);
         mv.visitEnd();
     }
 
     private void generateCreateErrorMethodSplits(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
-                                                 String moduleInitClass, String typeOwnerClass,
-                                                 SymbolTable symbolTable) {
+                                                 String typeOwnerClass, SymbolTable symbolTable) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;

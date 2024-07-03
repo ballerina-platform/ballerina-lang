@@ -72,8 +72,8 @@ public class PullCommand implements BLauncherCmd {
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;

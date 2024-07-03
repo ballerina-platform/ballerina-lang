@@ -86,7 +86,7 @@ public class GraalVMCompatibilityUtils {
             if (platform == null || platform.graalvmCompatible() == null) {
                 String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
                         pkg.manifest().platforms());
-                if (graalvmCompatiblePlatform.equals("") && allDepsGraalvmCompatible == null) {
+                if (graalvmCompatiblePlatform.isEmpty() && allDepsGraalvmCompatible == null) {
                     return String.format(
                             "************************************************************%n" +
                                     "* WARNING: Package is not verified with GraalVM.           *%n" +
@@ -101,9 +101,9 @@ public class GraalVMCompatibilityUtils {
                                     "************************************************************%n",
                             packageName, targetPlatform);
                 } else {
-                    if ((!graalvmCompatiblePlatform.equals("") &&
+                    if ((!graalvmCompatiblePlatform.isEmpty() &&
                             !pkg.manifest().platform(graalvmCompatiblePlatform).graalvmCompatible()) ||
-                            (graalvmCompatiblePlatform.equals("") && !allDepsGraalvmCompatible)) {
+                            (graalvmCompatiblePlatform.isEmpty() && !allDepsGraalvmCompatible)) {
                         return String.format(
                                 "************************************************************%n" +
                                         "* WARNING: Package is not compatible with GraalVM.         *%n" +

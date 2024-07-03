@@ -35,7 +35,7 @@ dependencies {
     implementation project(path: ':ballerina-test-utils')
 }
 
-task extractDistribution(type: Copy) {
+tasks.register('extractDistribution', Copy) {
     dependsOn ':jballerina-tools:build'
     from zipTree(configurations.jballerinaTools.asPath)
     into "$buildDir/extractedDistribution"

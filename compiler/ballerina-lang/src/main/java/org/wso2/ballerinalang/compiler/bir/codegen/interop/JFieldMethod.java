@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  *
  * @since 1.2.0
  */
-enum JFieldMethod {
+public enum JFieldMethod {
     ACCESS("access"),
     MUTATE("mutate");
 
@@ -33,7 +33,7 @@ enum JFieldMethod {
         this.strValue = strValue;
     }
 
-    static JFieldMethod getKind(String value) {
+    public static JFieldMethod getKind(String value) {
 
         if ("access".equals(value)) {
             return ACCESS;
@@ -41,7 +41,7 @@ enum JFieldMethod {
         return MUTATE;
     }
 
-    String getStringValue() {
+    public String getStringValue() {
 
         return this.strValue;
     }

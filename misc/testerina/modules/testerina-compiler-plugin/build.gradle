@@ -28,12 +28,3 @@ dependencies {
 }
 
 ext.moduleName = 'io.ballerina.testerina.compiler'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

@@ -54,7 +54,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  * @since 2.0.0
  */
 public class MethodGenUtils {
-    static final String FRAMES = "frames";
+    public static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = ".<init>";
     static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     static final String START_FUNCTION_SUFFIX = ".<start>";
@@ -72,7 +72,7 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static void submitToScheduler(MethodVisitor mv, String strandMetadataClass, String workerName,
+    public static void submitToScheduler(MethodVisitor mv, String strandMetadataClass, String workerName,
                                   AsyncDataCollector asyncDataCollector) {
         String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
         mv.visitLdcInsn(workerName);
@@ -80,7 +80,7 @@ public class MethodGenUtils {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD, SCHEDULE_LOCAL, false);
     }
 
-    static void visitReturn(MethodVisitor mv, String funcName, String className) {
+    public static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
         mv.visitEnd();
@@ -104,7 +104,7 @@ public class MethodGenUtils {
         String funcName;
         if (moduleName.equals(ENCODED_DOT_CHARACTER)) {
             funcName = ".." + funcSuffix;
-        } else if (version.equals("")) {
+        } else if (version.isEmpty()) {
             funcName = moduleName + "." + funcSuffix;
         } else {
             funcName = moduleName + ":" + version + "." + funcSuffix;
@@ -117,7 +117,7 @@ public class MethodGenUtils {
         return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
     }
 
-    static void callSetDaemonStrand(MethodVisitor mv) {
+    public static void callSetDaemonStrand(MethodVisitor mv) {
         // set daemon strand
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
