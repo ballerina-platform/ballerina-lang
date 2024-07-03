@@ -112,6 +112,10 @@ public final class SemTypes {
         return Error.errorDetail(detail);
     }
 
+    public static SemType errorDistinct(int distinctId) {
+        return Error.errorDistinct(distinctId);
+    }
+
     public static SemType tableContaining(Env env, SemType mappingType) {
         return TableSubtype.tableContaining(env, mappingType);
     }

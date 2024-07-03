@@ -615,12 +615,18 @@ public class SemTypeResolver {
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangErrorType td) {
+        SemType err;
         if (td.detailType == null) {
-            return PredefinedType.ERROR;
+            err = PredefinedType.ERROR;
+        } else {
+            SemType detail = resolveTypeDesc(cx, mod, defn, depth, td.detailType);
+            err = SemTypes.errorDetail(detail);
         }
 
-        SemType detail = resolveTypeDesc(cx, mod, defn, depth, td.detailType);
-        return SemTypes.errorDetail(detail);
+        if (td.flagSet.contains(Flag.DISTINCT)) {
+            err = Core.intersect(SemTypes.errorDistinct(cx.env.distinctAtomCounter.getAndIncrement()), err);
+        }
+        return err;
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,

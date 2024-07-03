@@ -54,7 +54,7 @@ public class Error {
         return basicSubtype(BT_ERROR, (ProperSubtypeData) sd);
     }
 
-    public SemType errorDistinct(int distinctId) {
+    public static SemType errorDistinct(int distinctId) {
         assert distinctId >= 0;
         BddNode bdd = bddAtom(createRecAtom(-distinctId - 1));
         return basicSubtype(BT_ERROR, bdd);
