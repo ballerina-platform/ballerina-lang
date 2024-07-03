@@ -51,7 +51,8 @@ public final class PredefinedTypeEnv {
     private PredefinedTypeEnv() {
     }
 
-    private static final PredefinedTypeEnv INSTANCE = new PredefinedTypeEnv();
+    // Due to some reason spot bug thinks we are returning an array via getInstance(), if this is not public
+    public static final PredefinedTypeEnv INSTANCE = new PredefinedTypeEnv();
 
     public static PredefinedTypeEnv getInstance() {
         return INSTANCE;
@@ -311,7 +312,8 @@ public final class PredefinedTypeEnv {
         return mappingAtomicRO;
     }
 
-    void initializeEnv(Env env) {
+    // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.
+    final void initializeEnv(Env env) {
         fillRecAtoms(env.recListAtoms, initializedRecListAtoms);
         fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms);
         initializedCellAtoms.forEach(each -> env.cellAtom(each.atomicType()));
