@@ -199,10 +199,11 @@ public class SemTypeResolver {
         }
         ObjectDefinition od = new ObjectDefinition();
         Stream<Member> fieldStream = td.fields.stream().map(field -> {
-            Member.Visibility visibility = field.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
+            Set<Flag> flags = field.flagSet;
+            Member.Visibility visibility = flags.contains(Flag.PUBLIC) ? Member.Visibility.Public :
                     Member.Visibility.Private;
             SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
-            return new Member(field.name.value, ty, Member.Kind.Field, visibility, true);
+            return new Member(field.name.value, ty, Member.Kind.Field, visibility, flags.contains(Flag.READONLY));
         });
         Stream<Member> methodStream = td.getFunctions().stream().map(method -> {
             Member.Visibility visibility = method.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :

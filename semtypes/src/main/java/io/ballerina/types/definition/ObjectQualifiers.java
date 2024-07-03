@@ -31,7 +31,7 @@ import static io.ballerina.types.SemTypes.union;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
 /**
- * Represent {@code object-type-quals} in the spec
+ * Represent {@code object-type-quals} in the spec.
  *
  * @param isolated         is object isolated
  * @param readonly         represent {@code class readonly}. Note this is used to determining "rest" part of the object
@@ -42,7 +42,7 @@ import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
  */
 public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
 
-    private final static ObjectQualifiers DEFAULT = new ObjectQualifiers(false, false, NetworkQualifier.None);
+    private static final ObjectQualifiers DEFAULT = new ObjectQualifiers(false, false, NetworkQualifier.None);
 
     public static ObjectQualifiers defaultQualifiers() {
         return DEFAULT;

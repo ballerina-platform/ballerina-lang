@@ -200,11 +200,8 @@ public final class PredefinedType {
     private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
 
     private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
-    static {
-        OBJECT_RO_REC_ATOM.setKind(Atom.Kind.MAPPING_ATOM);
-    }
-    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO =
-            bddAtom(OBJECT_RO_REC_ATOM);
+
+    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
 
     public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
@@ -221,7 +218,6 @@ public final class PredefinedType {
     );
 
     public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
-
     public static final CellAtomicType CELL_ATOMIC_INNER_RO = predefinedTypeEnv.cellAtomicInnerRO();
     public static final TypeAtom ATOM_CELL_INNER_RO = predefinedTypeEnv.atomCellInnerRO();
     public static final CellSemType CELL_SEMTYPE_INNER_RO = (CellSemType) basicSubtype(

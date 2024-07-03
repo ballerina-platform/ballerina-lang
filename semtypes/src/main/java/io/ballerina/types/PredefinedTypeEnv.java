@@ -19,6 +19,7 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,9 +44,9 @@ import static io.ballerina.types.PredefinedType.MAPPING_RO;
 import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER;
 import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER_RO;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.PredefinedType.STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.TypeAtom.createTypeAtom;
 
 /**
@@ -130,43 +131,36 @@ public final class PredefinedTypeEnv {
     private TypeAtom atomMappingObjectMember;
     private TypeAtom atomMappingObjectMemberRO;
 
-    // TODO: refactor
     private void addInitializedCellAtom(CellAtomicType atom) {
-        int index = nextAtomIndex.getAndIncrement();
-        initializedCellAtoms.add(new InitializedTypeAtom<>(atom, index));
+        addInitializedAtom(initializedCellAtoms, atom);
     }
 
     private void addInitializedListAtom(ListAtomicType atom) {
-        int index = nextAtomIndex.getAndIncrement();
-        initializedListAtoms.add(new InitializedTypeAtom<>(atom, index));
+        addInitializedAtom(initializedListAtoms, atom);
     }
 
     private void addInitializedMapAtom(MappingAtomicType atom) {
-        int index = nextAtomIndex.getAndIncrement();
-        initializedMappingAtoms.add(new InitializedTypeAtom<>(atom, index));
+        addInitializedAtom(initializedMappingAtoms, atom);
     }
 
+    private <E extends AtomicType> void addInitializedAtom(Collection<? super InitializedTypeAtom<E>> atoms, E atom) {
+        atoms.add(new InitializedTypeAtom<>(atom, nextAtomIndex.getAndIncrement()));
+    }
 
     private int cellAtomIndex(CellAtomicType atom) {
-        for (InitializedTypeAtom<CellAtomicType> initializedCellAtom : initializedCellAtoms) {
-            if (initializedCellAtom.atomicType() == atom) {
-                return initializedCellAtom.index();
-            }
-        }
-        throw new IndexOutOfBoundsException();
+        return atomIndex(initializedCellAtoms, atom);
     }
 
     private int listAtomIndex(ListAtomicType atom) {
-        for (InitializedTypeAtom<ListAtomicType> initializedListAtom : initializedListAtoms) {
-            if (initializedListAtom.atomicType() == atom) {
-                return initializedListAtom.index();
-            }
-        }
-        throw new IndexOutOfBoundsException();
+        return atomIndex(initializedListAtoms, atom);
     }
 
     private int mappingAtomIndex(MappingAtomicType atom) {
-        for (InitializedTypeAtom<MappingAtomicType> initializedListAtom : initializedMappingAtoms) {
+        return atomIndex(initializedMappingAtoms, atom);
+    }
+
+    private <E extends AtomicType> int atomIndex(List<InitializedTypeAtom<E>> initializedAtoms, E atom) {
+        for (InitializedTypeAtom<E> initializedListAtom : initializedAtoms) {
             if (initializedListAtom.atomicType() == atom) {
                 return initializedListAtom.index();
             }
@@ -400,8 +394,8 @@ public final class PredefinedTypeEnv {
     synchronized CellAtomicType cellAtomicObjectMemberKind() {
         if (cellAtomicObjectMemberKind == null) {
             cellAtomicObjectMemberKind = CellAtomicType.from(
-                    // FIXME: use singleton
-                    STRING, CellAtomicType.CellMutability.CELL_MUT_NONE
+                    Core.union(stringConst("field"), stringConst("method")),
+                    CellAtomicType.CellMutability.CELL_MUT_NONE
             );
             addInitializedCellAtom(cellAtomicObjectMemberKind);
         }
@@ -419,9 +413,9 @@ public final class PredefinedTypeEnv {
 
     synchronized CellAtomicType cellAtomicObjectMemberVisibility() {
         if (cellAtomicObjectMemberVisibility == null) {
-            // FIXME: use singleton
             cellAtomicObjectMemberVisibility = CellAtomicType.from(
-                    STRING, CellAtomicType.CellMutability.CELL_MUT_NONE
+                    Core.union(stringConst("public"), stringConst("private")),
+                    CellAtomicType.CellMutability.CELL_MUT_NONE
             );
             addInitializedCellAtom(cellAtomicObjectMemberVisibility);
         }

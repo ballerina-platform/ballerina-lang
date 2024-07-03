@@ -30,6 +30,7 @@ import static io.ballerina.types.SemTypes.union;
  * @param valueTy    member type
  * @param kind       is member a field or a method
  * @param visibility is member private or public
+ * @param immutable  is member readonly. If this is set valueTy must be a subtype of readonly
  * @since 2201.10.0
  */
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
@@ -80,5 +81,4 @@ public record Member(String name, SemType valueTy, Kind kind, Visibility visibil
             };
         }
     }
-
 }
