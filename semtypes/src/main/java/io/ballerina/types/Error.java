@@ -26,7 +26,7 @@ import static io.ballerina.types.PredefinedType.BDD_SUBTYPE_RO;
 import static io.ballerina.types.PredefinedType.ERROR;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.basicSubtype;
-import static io.ballerina.types.RecAtom.createRecAtom;
+import static io.ballerina.types.RecAtom.createDistinctRecAtom;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
 
@@ -56,7 +56,7 @@ public class Error {
 
     public static SemType errorDistinct(int distinctId) {
         assert distinctId >= 0;
-        BddNode bdd = bddAtom(createRecAtom(-distinctId - 1));
+        BddNode bdd = bddAtom(createDistinctRecAtom(-distinctId - 1));
         return basicSubtype(BT_ERROR, bdd);
     }
 }

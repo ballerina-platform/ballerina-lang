@@ -1166,7 +1166,7 @@ public class TypeParamAnalyzer {
                                                            null, null, symTable.builtinPos, VIRTUAL);
         typeSymbol.isTypeParamResolved = true;
         typeSymbol.typeParamTSymbol = expType.tsymbol;
-        BErrorType errorType = new BErrorType(typeSymbol, detailType);
+        BErrorType errorType = new BErrorType(symTable.typeEnv(), typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;
     }

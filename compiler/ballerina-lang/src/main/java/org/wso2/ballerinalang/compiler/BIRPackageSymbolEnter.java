@@ -1583,7 +1583,7 @@ public class BIRPackageSymbolEnter {
                         errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                                 env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
                     }
-                    BErrorType errorType = new BErrorType(errorSymbol);
+                    BErrorType errorType = new BErrorType(symTable.typeEnv(), errorSymbol);
                     addShapeCP(errorType, cpI);
                     compositeStack.push(errorType);
                     String errorName = getStringCPEntryValue(inputStream);
@@ -2023,6 +2023,7 @@ public class BIRPackageSymbolEnter {
                 case LIST_ATOM -> offsets.listOffset();
                 case FUNCTION_ATOM -> offsets.functionOffset();
                 case MAPPING_ATOM -> offsets.mappingOffset();
+                case DISTINCT_ATOM -> (-offsets.distinctOffset());
                 case XML_ATOM -> 0;
                 case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
             };
@@ -2232,7 +2233,8 @@ public class BIRPackageSymbolEnter {
                 null, names);
     }
 
-    private record AtomOffsets(int atomOffset, int listOffset, int functionOffset, int mappingOffset) {
+    private record AtomOffsets(int atomOffset, int listOffset, int functionOffset, int mappingOffset,
+                               int distinctOffset) {
 
         static AtomOffsets from(Env env) {
             PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
@@ -2240,7 +2242,8 @@ public class BIRPackageSymbolEnter {
             return new AtomOffsets(env.atomCount(),
                     env.recListAtomCount() - recAtomOffset,
                     env.recFunctionAtomCount(),
-                    env.recMappingAtomCount() - recAtomOffset);
+                    env.recMappingAtomCount() - recAtomOffset,
+                    env.distinctAtomCount());
         }
     }
 }

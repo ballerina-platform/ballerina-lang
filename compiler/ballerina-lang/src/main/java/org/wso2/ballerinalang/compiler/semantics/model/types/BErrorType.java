@@ -17,12 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -39,15 +41,20 @@ public class BErrorType extends BType implements ErrorType {
     private static final String ERROR = "error<";
     private static final String CLOSE_ERROR = ">";
 
-    public BErrorType(BTypeSymbol tSymbol, BType detailType) {
+    public final Env env;
+    public int distinctId = -1;
+
+    public BErrorType(Env env, BTypeSymbol tSymbol, BType detailType) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.detailType = detailType;
         this.typeIdSet = BTypeIdSet.emptySet();
+        this.env = env;
     }
 
-    public BErrorType(BTypeSymbol tSymbol) {
+    public BErrorType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.typeIdSet = BTypeIdSet.emptySet();
+        this.env = env;
     }
 
     @Override
@@ -76,12 +83,22 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public SemType semType() {
-        if (detailType == null) {
-            return PredefinedType.ERROR;
+        SemType err;
+        if (detailType == null || detailType.semType() == null) {
+            // semtype will be null for semantic error
+            err = PredefinedType.ERROR;
+        } else {
+            SemType detail = detailType.semType();
+            err = SemTypes.errorDetail(detail);
         }
 
-        SemType detail = detailType.semType();
-        assert detail != null;
-        return SemTypes.errorDetail(detail);
+        if (Symbols.isFlagOn(this.getFlags(), Flags.DISTINCT)) {
+            // this is to avoid creating a new ID every time calling this method
+            if (distinctId == -1) {
+                distinctId = env.distinctAtomCountGetAndIncrement();
+            }
+            err = SemTypes.intersect(SemTypes.errorDistinct(distinctId), err);
+        }
+        return err;
     }
 }

@@ -3398,7 +3398,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType errorDetailType = errorRefRestFieldType == symTable.anydataOrReadonly
                 ? symTable.errorType.detailType
                 : new BMapType(symTable.typeEnv(), TypeTags.MAP, errorRefRestFieldType, null, Flags.PUBLIC);
-        data.resultType = new BErrorType(symTable.errorType.tsymbol, errorDetailType);
+        data.resultType = new BErrorType(symTable.typeEnv(), symTable.errorType.tsymbol, errorDetailType);
     }
 
     private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr, AnalyzerData data) {

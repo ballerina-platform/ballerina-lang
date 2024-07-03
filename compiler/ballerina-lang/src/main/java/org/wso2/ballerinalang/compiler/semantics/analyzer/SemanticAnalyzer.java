@@ -1734,7 +1734,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // reason must be a const of subtype of string.
         // then we match the error with this specific reason.
         if (!varNode.reasonVarPrefixAvailable && varNode.getBType() == null) {
-            BErrorType errorType = new BErrorType(varNode.getBType().tsymbol, null);
+            BErrorType errorType = new BErrorType(symTable.typeEnv(), varNode.getBType().tsymbol, null);
 
             if (Types.getImpliedType(varNode.getBType()).tag == TypeTags.UNION) {
                 Set<BType> members = types.expandAndGetMemberTypesRecursive(varNode.getBType());

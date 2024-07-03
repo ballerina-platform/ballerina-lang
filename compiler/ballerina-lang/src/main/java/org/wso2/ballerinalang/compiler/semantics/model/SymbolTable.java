@@ -1185,7 +1185,7 @@ public class SymbolTable {
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(typeEnv(), TypeTags.MAP, cloneableType, null);
-        errorType = new BErrorType(null, detailType);
+        errorType = new BErrorType(typeEnv(), null, detailType);
         errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, errorType, rootPkgSymbol, builtinPos, BUILTIN);
 

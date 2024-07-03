@@ -1265,7 +1265,7 @@ public class TypeResolver {
         }
 
         if (td.detailType == null) {
-            BType errorType = new BErrorType(null, symTable.detailType);
+            BType errorType = new BErrorType(symTable.typeEnv(), null, symTable.detailType);
             errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     symTable.rootPkgSymbol.pkgID, errorType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
             return errorType;
@@ -1274,7 +1274,7 @@ public class TypeResolver {
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(Flags.asMask(td.flagSet),
                 Names.EMPTY, data.env.enclPkg.packageID, null, data.env.scope.owner, td.pos, BUILTIN);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.empty);
+        BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, symTable.empty);
         td.setBType(errorType);
         resolvingTypes.push(errorType);
 

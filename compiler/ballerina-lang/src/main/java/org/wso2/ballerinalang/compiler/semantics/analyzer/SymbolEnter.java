@@ -1973,7 +1973,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (definedErrorType.tsymbol != typeDefSymbol) {
             BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name,
                     typeDefSymbol.pkgID, null, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
-            BErrorType bErrorType = new BErrorType(typeSymbol);
+            BErrorType bErrorType = new BErrorType(symTable.typeEnv(), typeSymbol);
             typeSymbol.type = bErrorType;
             bErrorType.detailType = definedErrorType.detailType;
             typeDefSymbol.type = bErrorType;
@@ -3282,7 +3282,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     BType errorDetailType = detailType.size() > 1
                             ? BUnionType.create(symTable.typeEnv(), null, detailType)
                             : detailType.iterator().next();
-                    errorType = new BErrorType(null, errorDetailType);
+                    errorType = new BErrorType(symTable.typeEnv(), null, errorDetailType);
                 } else {
                     errorType = possibleTypes.get(0);
                 }
@@ -3331,7 +3331,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     env.enclPkg.packageID, symTable.errorType,
                     env.scope.owner, errorVariable.pos, SOURCE);
             // TODO: detail type need to be a union representing all details of members of `errorType`
-            errorVariable.setBType(new BErrorType(errorTypeSymbol, symTable.detailType));
+            errorVariable.setBType(new BErrorType(symTable.typeEnv(), errorTypeSymbol, symTable.detailType));
             return validateErrorVariable(errorVariable, env);
         }
 

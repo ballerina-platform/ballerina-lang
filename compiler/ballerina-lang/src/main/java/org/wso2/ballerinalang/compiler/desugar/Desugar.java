@@ -9866,7 +9866,7 @@ public class Desugar extends BLangNodeVisitor {
                 TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol,
                         recordTypeNode, env);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+            BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, detailType);
             errorTypeSymbol.type = errorType;
 
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType, errorTypeSymbol,

@@ -49,6 +49,10 @@ public class RecAtom implements Atom {
         return new RecAtom(index, Kind.XML_ATOM);
     }
 
+    public static RecAtom createDistinctRecAtom(int index) {
+        return new RecAtom(index, Kind.DISTINCT_ATOM);
+    }
+
     public void setKind(Kind targetKind) {
         this.targetKind = targetKind;
     }
