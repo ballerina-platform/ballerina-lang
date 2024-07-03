@@ -1694,8 +1694,6 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.FUNCTION_POINTER:
                     // TODO fix
                     break;
-                case TypeTags.SERVICE:
-                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:
