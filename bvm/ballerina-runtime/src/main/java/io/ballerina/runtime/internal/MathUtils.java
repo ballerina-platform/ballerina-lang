@@ -53,8 +53,8 @@ public class MathUtils {
         try {
             return numerator % denominator;
         } catch (ArithmeticException e) {
-			throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
-		}
+            throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
+        }
     }
 
     public static long addExact(long num1, long num2) {

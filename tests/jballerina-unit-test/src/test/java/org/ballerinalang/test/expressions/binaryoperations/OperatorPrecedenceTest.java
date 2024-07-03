@@ -217,7 +217,7 @@ public class OperatorPrecedenceTest {
     }
 
     @SuppressWarnings("ConstantValue")
-	@Test(description = "Test if division takes precedence over addition and subtraction")
+    @Test(description = "Test if division takes precedence over addition and subtraction")
     public void testDivisionPrecedence() {
 
         int a = 10;
@@ -242,7 +242,7 @@ public class OperatorPrecedenceTest {
 
 
     @SuppressWarnings("ConstantValue")
-	@Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
+    @Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
     public void testDivisionAndMultiplicationPrecedence() {
 
         int a = 10;

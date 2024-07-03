@@ -121,12 +121,12 @@ public class URIConverter implements Converter<URI> {
         boolean nightlyBuild = RepoUtils.getBallerinaVersion().contains("SNAPSHOT");
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
 
-			// Need to update the version of moduleID that was resolved by remote. But since the version cannot
-			// be returned by the call done to module_pull.bal file we need to set the version from the
-			// downloaded bala file.
-			Patten patten = this.homeBalaRepo.calculate(moduleID);
-			return patten.convertToSources(this.homeBalaRepo.getConverterInstance(), moduleID);
-		}
+            // Need to update the version of moduleID that was resolved by remote. But since the version cannot
+            // be returned by the call done to module_pull.bal file we need to set the version from the
+            // downloaded bala file.
+            Patten patten = this.homeBalaRepo.calculate(moduleID);
+            return patten.convertToSources(this.homeBalaRepo.getConverterInstance(), moduleID);
+        }
         return Stream.of();
     }
 

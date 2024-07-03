@@ -88,7 +88,7 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         // Here, we create a closed record if the unknown type is in the return type descriptor.
         // This is to be aligned with the open-by-default principle where we become conservative 
         // on what we send (return)
-		String closedRecord = "type %s record {%s%n%s%n%s};%n%n"
+        String closedRecord = "type %s record {%s%n%s%n%s};%n%n"
                 .formatted(name.get(), isReturnType ? "|" : "", paddingStr, isReturnType ? "|" : "");
 
         String title = String.format("Create record '%s'", name.get());

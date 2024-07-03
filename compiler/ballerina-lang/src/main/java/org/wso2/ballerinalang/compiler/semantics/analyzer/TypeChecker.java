@@ -6732,15 +6732,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
         } else {
-			BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
-			if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-				funcSymbol = symbol;
-			}
-			if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
-					(symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-				funcSymbol = symbol;
-			}
-			if (funcSymbol == symTable.notFoundSymbol || ((funcSymbol.tag & SymTag.TYPE) == SymTag.TYPE)) {
+            BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
+            if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+                funcSymbol = symbol;
+            }
+            if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
+                    (symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                funcSymbol = symbol;
+            }
+            if (funcSymbol == symTable.notFoundSymbol || ((funcSymbol.tag & SymTag.TYPE) == SymTag.TYPE)) {
                 BSymbol ctor =
                         symResolver.lookupConstructorSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
                 funcSymbol = ctor != symTable.notFoundSymbol ? ctor : funcSymbol;

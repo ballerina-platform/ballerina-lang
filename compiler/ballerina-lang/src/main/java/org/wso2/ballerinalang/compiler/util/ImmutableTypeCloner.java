@@ -462,8 +462,8 @@ public class ImmutableTypeCloner {
             effectiveTypeFromType.tsymbol = immutableTupleTSymbol;
             effectiveTypeFromType.flags |= (type.flags | Flags.READONLY);
 
-			immutableTupleTSymbol.type = effectiveTypeFromType;
-		} else {
+            immutableTupleTSymbol.type = effectiveTypeFromType;
+        } else {
             effectiveTypeFromType.flags |= (type.flags | Flags.READONLY);
         }
 
@@ -830,8 +830,8 @@ public class ImmutableTypeCloner {
             immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
 
-			immutableUnionTSymbol.type = immutableType.effectiveType;
-		} else {
+            immutableUnionTSymbol.type = immutableType.effectiveType;
+        } else {
             immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
         }
 

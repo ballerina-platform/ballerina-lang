@@ -359,10 +359,10 @@ public class ProjectFiles {
             // Check if it is inside a module
             Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
             Path parent = absFilePath.getParent();
-			if (modulesRoot.equals(parent.getParent())) {
-				throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
-			}
-		}
+            if (modulesRoot.equals(parent.getParent())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+            }
+        }
         checkReadPermission(filePath);
     }
 

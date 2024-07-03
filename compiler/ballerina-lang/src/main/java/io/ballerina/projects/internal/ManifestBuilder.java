@@ -589,7 +589,7 @@ public class ManifestBuilder {
     }
 
     private PackageManifest.Platform getGraalvmCompatibilityPlatform(TopLevelNode graalvmCompatibleNode) {
-		if (graalvmCompatibleNode.kind() == TomlType.KEY_VALUE) {
+        if (graalvmCompatibleNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = ((TomlKeyValueNode) graalvmCompatibleNode);
             if (keyValueNode.value().kind() == TomlType.BOOLEAN) {
                 Boolean graalvmCompatible = ((TomlBooleanValueNode) keyValueNode.value()).getValue();

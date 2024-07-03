@@ -550,7 +550,7 @@ public class CommonUtil {
                 break;
             case MODULE_PART:
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
-				context.getNodeAtCursor().leadingInvalidTokens().stream()
+                context.getNodeAtCursor().leadingInvalidTokens().stream()
                         .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
                         .forEach(qualifiers::add);
                 // Avoid duplicating the token at cursor.

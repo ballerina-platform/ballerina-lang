@@ -103,7 +103,7 @@ public class BXmlType extends BType implements XmlType {
         if (this == o) return true;
         if (!(o instanceof BXmlType bXmlType)) return false;
         if (!super.equals(o)) return false;
-		return readonly == bXmlType.readonly && Objects.equals(constraint, bXmlType.constraint);
+        return readonly == bXmlType.readonly && Objects.equals(constraint, bXmlType.constraint);
     }
 
     @Override

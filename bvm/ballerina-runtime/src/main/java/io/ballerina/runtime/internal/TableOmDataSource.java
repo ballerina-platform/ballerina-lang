@@ -162,19 +162,19 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()
                     .values().toArray(new BField[0]);
-			for (int i = 0; i < internalStructFields.length; i++) {
-				BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
-				Object val = structData.get(internalKeyName);
-				xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
-				if (val instanceof MapValueImpl) {
-					processStruct(xmlStreamWriter, (MapValueImpl) val, internalStructFields, i);
-				} else {
-					xmlStreamWriter.writeCharacters(val.toString());
-				}
-				xmlStreamWriter.writeEndElement();
-			}
-			structError = false;
-		}
+            for (int i = 0; i < internalStructFields.length; i++) {
+                BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
+                Object val = structData.get(internalKeyName);
+                xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
+                if (val instanceof MapValueImpl) {
+                    processStruct(xmlStreamWriter, (MapValueImpl) val, internalStructFields, i);
+                } else {
+                    xmlStreamWriter.writeCharacters(val.toString());
+                }
+                xmlStreamWriter.writeEndElement();
+            }
+            structError = false;
+        }
         if (structError) {
             throw ErrorCreator.createError(StringUtils.fromString(
                     "error in constructing the xml element from struct type data"));
