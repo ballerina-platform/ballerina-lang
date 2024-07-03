@@ -76,7 +76,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
 public class TransactionResourceManager {
 
     private static TransactionResourceManager transactionResourceManager = null;
-    private  static UserTransactionManager userTransactionManager = null;
+    private static UserTransactionManager userTransactionManager = null;
 
     private static final StrandMetadata COMMIT_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
             TRANSACTION_PACKAGE_NAME,
@@ -89,12 +89,12 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
 
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry;
+    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new HashMap<>();
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private final Map<String, List<BFunctionPointer>> committedFuncRegistry;
-    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry;
+    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new HashMap<>();
+    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new HashMap<>();
 
     private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -103,13 +103,9 @@ public class TransactionResourceManager {
     private final boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
-    Map<ByteBuffer, Object> transactionInfoMap;
+    final Map<ByteBuffer, Object> transactionInfoMap = new ConcurrentHashMap<>();
 
     private TransactionResourceManager() {
-        resourceRegistry = new HashMap<>();
-        committedFuncRegistry = new HashMap<>();
-        abortedFuncRegistry = new HashMap<>();
-        transactionInfoMap = new ConcurrentHashMap<>();
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
             trxRegistry = new HashMap<>();
