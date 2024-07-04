@@ -225,6 +225,8 @@ public class XMLToRecordConverterTests {
             .resolve("sample_36.xml");
     private final Path sample37Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_37.bal");
+    private final Path sample38Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_38.bal");
 
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
@@ -587,6 +589,15 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 "__text", false, false, true).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample37Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "textXMLWithNamespacesAndWithoutAttributeAnnotation")
+    public void textXMLWithNamespacesAndWithoutAttributeAnnotation() throws IOException {
+        String xmlFileContent = Files.readString(sample36XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
+                "__text", true, false, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample38Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
