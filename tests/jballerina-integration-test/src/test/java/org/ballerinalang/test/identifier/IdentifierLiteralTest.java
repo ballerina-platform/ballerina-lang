@@ -44,7 +44,8 @@ public class IdentifierLiteralTest  extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "testProject").toString(), "a_b-foo-any-0.1.0");
+        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "testProject").toString(),
+                "a_b-foo-any-0.1.0");
     }
 
     @Test(description = "Test clashes in module names contain '.' and '_'")

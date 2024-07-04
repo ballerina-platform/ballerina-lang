@@ -50,8 +50,8 @@ public class ConfigurableTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
-                "-java17-0.1.0");
+        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(),
+                "testOrg-configLib-java17-0.1.0");
     }
 
     @Test
