@@ -109,7 +109,13 @@ public class Env {
         }
     }
 
-    public void insertAtomAtIndex(int index, AtomicType atomicType) {
+    public void deserializeTypeAtom(TypeAtom typeAtom) {
+        synchronized (this.atomTable) {
+            this.atomTable.put(typeAtom.atomicType(), typeAtom);
+        }
+    }
+
+    public void insertRecAtomAtIndex(int index, AtomicType atomicType) {
         if (atomicType instanceof MappingAtomicType mappingAtomicType) {
             insertAtomAtIndexInner(index, this.recMappingAtoms, mappingAtomicType);
         } else if (atomicType instanceof ListAtomicType listAtomicType) {
@@ -210,5 +216,11 @@ public class Env {
 
     public Map<String, SemType> getTypeNameSemTypeMap() {
         return new LinkedHashMap<>(this.types);
+    }
+
+    public int atomCount() {
+        synchronized (this.atomTable) {
+            return this.atomTable.size();
+        }
     }
 }

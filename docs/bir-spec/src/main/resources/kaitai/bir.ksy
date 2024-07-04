@@ -201,17 +201,17 @@ types:
         if: is_bdd_node == 0
   semtype_bdd_node:
     seq:
-      - id: is_rec_atom
-        type: u1
+      - id: atom_kind
+        type: s1
       - id: rec_atom_index
         type: s4
-        if: is_rec_atom == 1
+        if: atom_kind < 2
       - id: target_kind
         type: s4
-        if: is_rec_atom == 1 and rec_atom_index != 0
+        if: atom_kind == 0 and rec_atom_index != 0
       - id: type_atom
         type: semtype_type_atom
-        if: is_rec_atom == 0
+        if: atom_kind > 0
       - id: bdd_node_left
         type: semtype_bdd
       - id: bdd_node_middle
