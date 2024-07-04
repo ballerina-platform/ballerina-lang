@@ -274,6 +274,13 @@ class PackageContext {
         return buildToolResolution;
     }
 
+   PackageResolution getResolution(PackageResolution oldResolution) {
+        if (packageResolution == null) {
+            packageResolution = PackageResolution.from(oldResolution, this, this.compilationOptions);
+        }
+        return packageResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
