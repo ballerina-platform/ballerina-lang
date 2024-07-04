@@ -111,9 +111,9 @@ target = "java8"
     modules = ["http"]
 
     [[platform.libraries]]
-    artifactId = "bcpkix-jdk15on"
-    version = "1.70"
-    path = "./lib/bcpkix-jdk15on-1.70.jar"
+    artifactId = "bcpkix-jdk18on"
+    version = "1.78.1"
+    path = "./lib/bcpkix-jdk15on-1.78.1.jar"
     groupId = "org.bouncycastle"
     modules = ["http"]
     
