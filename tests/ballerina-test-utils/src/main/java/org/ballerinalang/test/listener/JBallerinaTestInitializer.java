@@ -33,13 +33,13 @@ import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
  */
 public class JBallerinaTestInitializer implements ITestListener {
 
-    private static final Logger log = LoggerFactory.getLogger(JBallerinaTestInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JBallerinaTestInitializer.class);
 
     @Override
     public void onStart(ITestContext context) {
         String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
         if (Boolean.parseBoolean(property)) {
-            log.info("JBallerina tests initialized...");
+            LOG.info("JBallerina tests initialized...");
             System.setProperty(ENABLE_JBALLERINA_TESTS, "true");
         }
     }
@@ -48,7 +48,7 @@ public class JBallerinaTestInitializer implements ITestListener {
     public void onFinish(ITestContext context) {
         String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
         if (Boolean.parseBoolean(property)) {
-            log.info("JBallerina tests disabled...");
+            LOG.info("JBallerina tests disabled...");
             System.clearProperty(ENABLE_JBALLERINA_TESTS);
         }
     }

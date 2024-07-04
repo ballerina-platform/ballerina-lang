@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  * @since 0.982.0
  */
 public class BMainInstance implements BMain {
-    private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
     private final BalServer balServer;

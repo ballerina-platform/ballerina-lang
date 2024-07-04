@@ -47,7 +47,7 @@ public class DocumentSymbolTest {
 
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
 
-    private static final Logger log = LoggerFactory.getLogger(DocumentSymbolTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DocumentSymbolTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -76,7 +76,7 @@ public class DocumentSymbolTest {
 
     @DataProvider(name = "document-data-provider")
     public Object[][] documentSymbolDataProvider() {
-        log.info("Test textDocument/symbol");
+        LOG.info("Test textDocument/symbol");
         return new Object[][] {
                 {"documentSymbol.json", "docSymbol.bal"},
         };

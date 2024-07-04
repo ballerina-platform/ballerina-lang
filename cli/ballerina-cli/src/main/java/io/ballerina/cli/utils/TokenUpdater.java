@@ -43,8 +43,8 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
  */
 public final class TokenUpdater {
 
-    private static final PrintStream errStream = System.err;
-    private static final PrintStream outStream = System.out;
+    private static final PrintStream ERR_STREAM = System.err;
+    private static final PrintStream OUT_STREAM = System.out;
 
     private TokenUpdater() {
     }
@@ -96,10 +96,10 @@ public final class TokenUpdater {
                         outputStream.close();
                     }
                 } catch (IOException e) {
-                    errStream.println("error occurred while closing the output stream: " + e.getMessage());
+                    ERR_STREAM.println("error occurred while closing the output stream: " + e.getMessage());
                 }
             }
-            outStream.println("token updated");
+            OUT_STREAM.println("token updated");
 
             OutputStream os = null;
             try {
@@ -117,7 +117,7 @@ public final class TokenUpdater {
                         os.close();
                     }
                 } catch (IOException e) {
-                    errStream.println("error occurred while closing the output stream: " + e.getMessage());
+                    ERR_STREAM.println("error occurred while closing the output stream: " + e.getMessage());
                 }
             }
         }

@@ -63,11 +63,11 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 public class XmlTreeBuilder {
 
     // XMLInputFactory2
-    private static final XMLInputFactory xmlInputFactory;
+    private static final XMLInputFactory XML_INPUT_FACTORY;
 
     static {
-        xmlInputFactory = XMLInputFactory.newInstance();
-        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        XML_INPUT_FACTORY = XMLInputFactory.newInstance();
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
     }
 
     private XMLStreamReader xmlStreamReader;
@@ -89,7 +89,7 @@ public class XmlTreeBuilder {
         seqDeque.push(new XmlSequence(siblings));
 
         try {
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+            xmlStreamReader = XML_INPUT_FACTORY.createXMLStreamReader(stringReader);
         } catch (XMLStreamException e) {
             handleXMLStreamException(e);
         }

@@ -91,7 +91,7 @@ public final class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder);
+        return buildResponse(conn, DEFAULT_RESPONSE_BUILDER);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
@@ -129,7 +129,7 @@ public final class HttpClientRequest {
         return httpResponse;
     }
 
-    private static final CheckedFunction<BufferedReader, String> defaultResponseBuilder = ((bufferedReader) -> {
+    private static final CheckedFunction<BufferedReader, String> DEFAULT_RESPONSE_BUILDER = ((bufferedReader) -> {
         String line;
         StringBuilder sb = new StringBuilder();
         while ((line = bufferedReader.readLine()) != null) {

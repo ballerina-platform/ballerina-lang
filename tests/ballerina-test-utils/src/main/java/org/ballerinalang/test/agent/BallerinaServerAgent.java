@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public final class BallerinaServerAgent {
 
-    private static final PrintStream outStream = System.err;
+    private static final PrintStream OUT_STREAM = System.err;
 
     /**
      * Argument name for exist status.
@@ -88,9 +88,9 @@ public final class BallerinaServerAgent {
      * @param instrumentation   instance for any instrumentation purposes
      */
     public static void premain(String args, Instrumentation instrumentation) {
-        outStream.println("*******************************************************");
-        outStream.println("Initializing Ballerina server agent with arguments - " + args);
-        outStream.println("*******************************************************");
+        OUT_STREAM.println("*******************************************************");
+        OUT_STREAM.println("Initializing Ballerina server agent with arguments - " + args);
+        OUT_STREAM.println("*******************************************************");
 
         Map<String, String> inputArgs = decodeAgentArgs(args);
 
@@ -100,7 +100,7 @@ public final class BallerinaServerAgent {
         agentHost = getValue(AGENT_HOST, DEFAULT_AGENT_HOST, inputArgs);
         agentPort = (int) getValue(AGENT_PORT, DEFAULT_AGENT_PORT, inputArgs);
 
-        outStream.println("timeout - " + timeout + " exitStatus - " + exitStatus
+        OUT_STREAM.println("timeout - " + timeout + " exitStatus - " + exitStatus
                 + " killStatus - " + killStatus + " host - " + agentHost + " port - " + agentPort);
 
         if (agentPort == -1) {
@@ -126,7 +126,7 @@ public final class BallerinaServerAgent {
                         cc.detach();
                         return byteCode;
                     } catch (Throwable ex) {
-                        outStream.println("Error injecting the start agent code to the server, error - "
+                        OUT_STREAM.println("Error injecting the start agent code to the server, error - "
                                 + ex.getMessage());
                     }
                 }
@@ -142,13 +142,13 @@ public final class BallerinaServerAgent {
      * Start the agent server for managing the server.
      */
     public static void startAgentServer() {
-        outStream.println("Starting Ballerina agent on host - " + agentHost + ", port - " + agentPort);
+        OUT_STREAM.println("Starting Ballerina agent on host - " + agentHost + ", port - " + agentPort);
         new Thread(() -> {
             try {
                 WebServer ws = new WebServer(agentHost, agentPort);
 
                 // Post endpoint to check the status TODO we may be able to remove this
-                ws.post("/status", () -> outStream.println("status check"));
+                ws.post("/status", () -> OUT_STREAM.println("status check"));
 
                 // Post endpoint to shutdown the server
                 ws.post("/shutdown", BallerinaServerAgent::shutdownServer);
@@ -159,14 +159,14 @@ public final class BallerinaServerAgent {
                 // Start the server
                 ws.start();
             } catch (Throwable e) {
-                outStream.println("Error initializing agent server, error - " + e.getMessage());
+                OUT_STREAM.println("Error initializing agent server, error - " + e.getMessage());
             }
         }).start();
-        outStream.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
+        OUT_STREAM.println("Ballerina agent started on host - " + agentHost + ", port - " + agentPort);
     }
 
     private static void shutdownServer() {
-        outStream.println("Shutting down Ballerina server with agent port - " + agentPort);
+        OUT_STREAM.println("Shutting down Ballerina server with agent port - " + agentPort);
         new Thread(() -> Runtime.getRuntime().exit(exitStatus)).start();
 
         if (timeout <= 0) {
@@ -192,7 +192,7 @@ public final class BallerinaServerAgent {
     }
 
     private static void killServer() {
-        outStream.println("Killing Ballerina server with agent port - " + agentPort);
+        OUT_STREAM.println("Killing Ballerina server with agent port - " + agentPort);
         Thread killThread = new Thread(() -> Runtime.getRuntime().halt(killStatus));
         killThread.setDaemon(true);
         killThread.start();

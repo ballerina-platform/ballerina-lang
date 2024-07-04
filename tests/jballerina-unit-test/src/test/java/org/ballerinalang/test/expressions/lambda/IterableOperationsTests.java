@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
-    private static final BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static final BString[] VALUES = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass
@@ -179,25 +179,25 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray1() {
-        BArray sarray = ValueCreator.createArrayValue(values);
+        BArray sarray = ValueCreator.createArrayValue(VALUES);
         Object returns = BRunUtil.invoke(basic, "testBasicArray1", new Object[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
-        Arrays.stream(values).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
+        Arrays.stream(VALUES).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
                 append(s.getValue().toLowerCase(Locale.getDefault())).append(" "));
         Assert.assertEquals(returns.toString(), sb.toString().trim());
     }
 
     @Test
     public void testBasicArray2() {
-        BArray sarray = ValueCreator.createArrayValue(values);
+        BArray sarray = ValueCreator.createArrayValue(VALUES);
         Object returns = BRunUtil.invoke(basic, "testBasicArray2", new Object[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < values.length; i++) {
-            sb.append(i).append(values[i]).append(" ");
+        for (int i = 0; i < VALUES.length; i++) {
+            sb.append(i).append(VALUES[i]).append(" ");
         }
         Assert.assertEquals(returns.toString(), sb.toString().trim());
     }

@@ -43,10 +43,10 @@ import java.util.List;
  */
 public final class DataMapperTestUtils {
 
-    private static final Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader()
+    private static final Path SOURCES_PATH = new File(DataMapperTestUtils.class.getClassLoader()
             .getResource("codeaction").getFile()).toPath();
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
+    private static final LanguageServerContext SERVER_CONTEXT = new LanguageServerContextImpl();
+    private static final WorkspaceManager WORKSPACE_MANAGER = new BallerinaWorkspaceManager(SERVER_CONTEXT);
 
     private DataMapperTestUtils() {
     }
@@ -77,12 +77,12 @@ public final class DataMapperTestUtils {
             throws IOException, WorkspaceDocumentException {
 
         // Read expected results
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        Path sourcePath = SOURCES_PATH.resolve("source").resolve(source);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
-                = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
+                = TestUtil.compileAndGetDiagnostics(sourcePath, WORKSPACE_MANAGER, SERVER_CONTEXT);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());

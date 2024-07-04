@@ -92,7 +92,7 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_AUTO_COMMIT_TIMEOUT_KEY = "transactionAutoCommitTimeout";
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
-    private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionResourceManager.class);
     private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new HashMap<>();
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
@@ -105,7 +105,7 @@ public class TransactionResourceManager {
     private final ConcurrentMap<String, Set<String>> localParticipants = new ConcurrentHashMap<>();
 
     private final boolean transactionManagerEnabled;
-    private static final PrintStream stderr = System.err;
+    private static final PrintStream STDERR = System.err;
 
     final Map<ByteBuffer, Object> transactionInfoMap = new ConcurrentHashMap<>();
 
@@ -151,7 +151,7 @@ public class TransactionResourceManager {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory in " + logDir);
+                    STDERR.println("error: failed to create transaction log directory in " + logDir);
                 }
             }
             System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
@@ -313,7 +313,7 @@ public class TransactionResourceManager {
                         xaResource.prepare(xid);
                     }
                 } catch (XAException e) {
-                    log.error("error at transaction prepare phase in transaction " + transactionId
+                    LOG.error("error at transaction prepare phase in transaction " + transactionId
                             + ":" + e.getMessage(), e);
                     return false;
                 }
@@ -325,7 +325,7 @@ public class TransactionResourceManager {
             // resource participant reported failure.
             status = false;
         }
-        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        LOG.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
         return status;
     }
 
@@ -349,7 +349,7 @@ public class TransactionResourceManager {
                     }
                 } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
                         | RollbackException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
             }
@@ -368,7 +368,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -406,7 +406,7 @@ public class TransactionResourceManager {
                         trx.rollback();
                     }
                 } catch (SystemException e) {
-                    log.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 }
             }
@@ -425,7 +425,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
+                    LOG.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
@@ -464,7 +464,7 @@ public class TransactionResourceManager {
                     trxRegistry.put(combinedId, trx);
                 }
             } catch (SystemException | NotSupportedException e) {
-                log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
+                LOG.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
@@ -475,7 +475,7 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                log.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
+                LOG.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
             }
         }
     }
@@ -608,7 +608,7 @@ public class TransactionResourceManager {
                                 trx.delistResource(xaResource, TMSUCCESS);
                             }
                         } catch (IllegalStateException | SystemException e) {
-                            log.error("error in ending the XA transaction " + transactionId
+                            LOG.error("error in ending the XA transaction " + transactionId
                                     + ":" + e.getMessage(), e);
                         }
                     }
@@ -625,7 +625,7 @@ public class TransactionResourceManager {
                             xaResource.end(xid, abortOnly ? TMFAIL : TMSUCCESS);
                         }
                     } catch (XAException e) {
-                        log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
+                        LOG.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
                     }
                 }
             }
@@ -652,7 +652,7 @@ public class TransactionResourceManager {
     public void notifyResourceFailure(String gTransactionId) {
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
-        log.info("Trx infected callable unit excepted id : " + gTransactionId);
+        LOG.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
     public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {

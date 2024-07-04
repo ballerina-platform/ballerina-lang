@@ -36,14 +36,14 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class ObjectConstructorTest {
 
     private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
-    private static final String path = "test-src/expressions/object/";
+    private static final String PATH = "test-src/expressions/object/";
 
     @BeforeClass
     public void setup() {
-        compiledConstructedObjects = BCompileUtil.compile(path + "object_constructor_expression.bal");
-        closures = BCompileUtil.compile(path + "object_closures.bal");
-        multiLevelClosures = BCompileUtil.compile(path + "object_multilevel_closures.bal");
-        annotations = BCompileUtil.compile(path + "object_closures_annotations.bal");
+        compiledConstructedObjects = BCompileUtil.compile(PATH + "object_constructor_expression.bal");
+        closures = BCompileUtil.compile(PATH + "object_closures.bal");
+        multiLevelClosures = BCompileUtil.compile(PATH + "object_multilevel_closures.bal");
+        annotations = BCompileUtil.compile(PATH + "object_closures_annotations.bal");
     }
 
     @DataProvider(name = "ObjectCtorTestFunctionList")

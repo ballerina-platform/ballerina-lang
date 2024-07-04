@@ -54,15 +54,15 @@ public class JsonGenerator implements Closeable {
 
     private boolean fieldActive;
 
-    private static final boolean[] escChars = new boolean[93];
+    private static final boolean[] ESC_CHARS = new boolean[93];
 
     static {
-        escChars['"'] = true;
-        escChars['\\'] = true;
-        escChars['\b'] = true;
-        escChars['\n'] = true;
-        escChars['\r'] = true;
-        escChars['\t'] = true;
+        ESC_CHARS['"'] = true;
+        ESC_CHARS['\\'] = true;
+        ESC_CHARS['\b'] = true;
+        ESC_CHARS['\n'] = true;
+        ESC_CHARS['\r'] = true;
+        ESC_CHARS['\t'] = true;
     }
 
     public JsonGenerator(OutputStream out) {
@@ -159,7 +159,7 @@ public class JsonGenerator implements Closeable {
         char[] chs = value.toCharArray();
         for (int i = 0; i < count; i++) {
             ch = chs[i];
-            if (ch < escChars.length && escChars[ch]) {
+            if (ch < ESC_CHARS.length && ESC_CHARS[ch]) {
                 escaped = true;
                 break;
             }

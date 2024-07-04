@@ -54,7 +54,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static final PrintStream err = System.err;
+    private static final PrintStream ERR = System.err;
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -66,13 +66,13 @@ public class Scheduler {
      */
     private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
-    private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
-    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
+    private static final ThreadLocal<StrandHolder> STRAND_HOLDER = ThreadLocal.withInitial(StrandHolder::new);
+    private static final ConcurrentHashMap<Integer, Strand> CURRENT_STRANDS = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
     private final AtomicInteger totalStrands = new AtomicInteger();
 
-    private static final String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+    private static final String POOL_SIZE_CONF = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
@@ -103,13 +103,13 @@ public class Scheduler {
         this.numThreads = numThreads;
         this.immortal = immortal;
         this.runtimeRegistry = new RuntimeRegistry(this);
-        this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
+        this.previousStrand = numThreads == 1 ? STRAND_HOLDER.get().strand : null;
         ItemGroup group = new ItemGroup();
         objectGroup.set(group);
     }
 
     public static Strand getStrand() {
-        Strand strand = strandHolder.get().strand;
+        Strand strand = STRAND_HOLDER.get().strand;
         if (strand == null) {
             throw new IllegalStateException("strand is not accessible from non-strand-worker threads");
         }
@@ -118,11 +118,11 @@ public class Scheduler {
 
     public static Strand getStrandNoException() {
         // issue #22871 is opened to fix this
-        return strandHolder.get().strand;
+        return STRAND_HOLDER.get().strand;
     }
 
     public static Map<Integer, Strand> getCurrentStrands() {
-        return new HashMap<>(currentStrands);
+        return new HashMap<>(CURRENT_STRANDS);
     }
 
     /**
@@ -320,7 +320,7 @@ public class Scheduler {
                 item = group.get();
 
                 try {
-                    strandHolder.get().strand = item.future.strand;
+                    STRAND_HOLDER.get().strand = item.future.strand;
                     result = item.execute();
                 } catch (Throwable e) {
                     panic = createError(e);
@@ -335,7 +335,7 @@ public class Scheduler {
                         RuntimeUtils.printCrashLog(panic);
                     }
                 } finally {
-                    strandHolder.get().strand = previousStrand;
+                    STRAND_HOLDER.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
                 group.lock();
@@ -462,7 +462,7 @@ public class Scheduler {
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
 
-        currentStrands.remove(justCompleted.getId());
+        CURRENT_STRANDS.remove(justCompleted.getId());
         //TODO: more cleanup , eg channels
     }
 
@@ -511,7 +511,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
-        currentStrands.put(newStrand.getId(), newStrand);
+        CURRENT_STRANDS.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -544,12 +544,12 @@ public class Scheduler {
 
     private static int getPoolSize() {
         try {
-            if (poolSizeConf != null) {
-                poolSize = Integer.parseInt(poolSizeConf);
+            if (POOL_SIZE_CONF != null) {
+                poolSize = Integer.parseInt(POOL_SIZE_CONF);
             }
         } catch (Throwable t) {
             // Log and continue with default
-            err.println("ballerina: error occurred in scheduler while reading system variable:" +
+            ERR.println("ballerina: error occurred in scheduler while reading system variable:" +
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;

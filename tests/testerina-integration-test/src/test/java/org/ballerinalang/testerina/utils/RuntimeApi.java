@@ -40,9 +40,9 @@ import java.util.HashMap;
  */
 public final class RuntimeApi {
 
-    private static final Module objectModule = new Module("testorg", "runtime_api", "1");
-    private static final Module recordModule = new Module("testorg", "runtime_api", "1");
-    private static final Module errorModule = new Module("testorg", "runtime_api", "1");
+    private static final Module OBJECT_MODULE = new Module("testorg", "runtime_api", "1");
+    private static final Module RECORD_MODULE = new Module("testorg", "runtime_api", "1");
+    private static final Module ERROR_MODULE = new Module("testorg", "runtime_api", "1");
 
     private RuntimeApi() {
     }
@@ -53,7 +53,7 @@ public final class RuntimeApi {
         address.put("city", StringUtils.fromString("Colombo"));
         address.put("country", StringUtils.fromString("Sri Lanka"));
         address.put("postalCode", 10250);
-        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), address);
+        return ValueCreator.createRecordValue(RECORD_MODULE, recordName.getValue(), address);
     }
 
     public static BMap<BString, Object> getTestRecord(BString recordName) {
@@ -61,25 +61,25 @@ public final class RuntimeApi {
         address.put("city", StringUtils.fromString("Kandy"));
         address.put("country", StringUtils.fromString("Sri Lanka"));
         address.put("postalCode", 10250);
-        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), address);
+        return ValueCreator.createRecordValue(RECORD_MODULE, recordName.getValue(), address);
     }
 
     public static BObject getObject(BString objectName) {
         BMap<BString, Object> address = getRecord(StringUtils.fromString("Address"));
-        return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
+        return ValueCreator.createObjectValue(OBJECT_MODULE, objectName.getValue(), StringUtils.fromString("Waruna"),
                 14, address);
     }
 
     public static BObject getTestObject(BString objectName) {
         BMap<BString, Object> address = getTestRecord(StringUtils.fromString("TestAddress"));
-        return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
+        return ValueCreator.createObjectValue(OBJECT_MODULE, objectName.getValue(), StringUtils.fromString("Waruna"),
                 14,  address);
     }
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("cause"), StringUtils.fromString("Person age cannot be negative"));
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
+        return ErrorCreator.createError(ERROR_MODULE, errorName.getValue(), StringUtils.fromString("Invalid age"),
                 ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
                 errorDetails);
     }

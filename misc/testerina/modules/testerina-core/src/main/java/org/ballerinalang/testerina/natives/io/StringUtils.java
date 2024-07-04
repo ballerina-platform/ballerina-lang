@@ -51,18 +51,18 @@ import java.util.regex.PatternSyntaxException;
 public final class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
-    private static final List<String> specialCharacters = new ArrayList<>(
+    private static final List<String> SPECIAL_CHARACTERS = new ArrayList<>(
             Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t", "\"", "\\", "!", "`"));
-    private static final List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
-    private static final List<String> regexSpecialCharacters = new ArrayList<>(
+    private static final List<String> BRACKET_CHARACTERS = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private static final List<String> REGEX_SPECIAL_CHARACTERS = new ArrayList<>(
             Arrays.asList("{", "}", "[", "]", "(", ")", "+", "^", "|"));
 
     private StringUtils() {
     }
 
     public static Object matchWildcard(BString functionName, BString functionPattern) {
-        Object encodedFunctionPattern = encode(functionPattern.getValue(), regexSpecialCharacters);
-        Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
+        Object encodedFunctionPattern = encode(functionPattern.getValue(), REGEX_SPECIAL_CHARACTERS);
+        Object encodedFunctionName = encode(functionName.getValue(), REGEX_SPECIAL_CHARACTERS);
 
         if (encodedFunctionPattern instanceof BError) {
             return encodedFunctionPattern;
@@ -84,13 +84,13 @@ public final class StringUtils {
     public static Object escapeSpecialCharacters(BString key) {
         Object updatedKeyOrError = key.getValue();
         if (!isBalanced((String) updatedKeyOrError)) {
-            updatedKeyOrError = encode((String) updatedKeyOrError, bracketCharacters);
+            updatedKeyOrError = encode((String) updatedKeyOrError, BRACKET_CHARACTERS);
         }
 
         if (updatedKeyOrError instanceof BError) {
             return updatedKeyOrError;
         }
-        updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
+        updatedKeyOrError = encode((String) updatedKeyOrError, SPECIAL_CHARACTERS);
 
         if (updatedKeyOrError instanceof BError) {
             return updatedKeyOrError;
