@@ -1973,7 +1973,11 @@ public class BIRPackageSymbolEnter {
             Atom atom = switch (atomKind) {
                 case REC -> readRecAtom();
                 case INLINED -> readInlinedAtom();
-                case TYPE -> readTypeAtom();
+                case TYPE -> {
+                    TypeAtom typeAtom = readTypeAtom();
+                    typeEnv.deserializeTypeAtom(typeAtom);
+                    yield typeAtom;
+                }
             };
 
             Bdd left = readBdd();
@@ -2015,7 +2019,6 @@ public class BIRPackageSymbolEnter {
                 default -> throw new IllegalStateException("Unexpected atomicType kind");
             };
             TypeAtom typeAtom = TypeAtom.createTypeAtom(index, atomicType);
-            typeEnv.deserializeTypeAtom(typeAtom);
             return typeAtom;
         }
 

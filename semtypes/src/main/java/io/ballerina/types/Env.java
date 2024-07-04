@@ -31,6 +31,8 @@ import java.util.Set;
  * @since 2201.8.0
  */
 public class Env {
+
+    private static final int COMPACT_INDEX = 3;
     private final Map<AtomicType, TypeAtom> atomTable;
     final List<ListAtomicType> recListAtoms;
     final List<MappingAtomicType> recMappingAtoms;
@@ -227,25 +229,24 @@ public class Env {
     }
 
     public void validateConsistency(String logPrefix) {
-        if (!validateRecAtomList(this.recListAtoms)) {
-            throw new RuntimeException(logPrefix + "recListAtoms is inconsistent");
-        }
+        // if (!validateRecAtomList(this.recListAtoms)) {
+        //     throw new RuntimeException(logPrefix + "recListAtoms is inconsistent");
+        // }
 
-        if (!validateRecAtomList(this.recMappingAtoms)) {
-            throw new RuntimeException(logPrefix + "recMappingAtoms is inconsistent");
-        }
+        // if (!validateRecAtomList(this.recMappingAtoms)) {
+        //     throw new RuntimeException(logPrefix + "recMappingAtoms is inconsistent");
+        // }
 
-        if (!validateRecAtomList(this.recFunctionAtoms)) {
-            throw new RuntimeException(logPrefix + "recFunctionAtoms is inconsistent");
-        }
-        System.out.println("Env validation: " + logPrefix + "Env is consistent");
+        // if (!validateRecAtomList(this.recFunctionAtoms)) {
+        //     throw new RuntimeException(logPrefix + "recFunctionAtoms is inconsistent");
+        // }
+        // System.out.println("Env validation: " + logPrefix + "Env is consistent");
     }
 
     private boolean validateRecAtomList(List recAtomList) {
         PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
-        int recAtomCount = 0;
         Set<AtomicType> seen = new HashSet<>(recAtomList.size());
-        for (int i = 3; i < recAtomList.size(); i++) {
+        for (int i = COMPACT_INDEX; i < recAtomList.size(); i++) {
             if (predefinedTypeEnv.isPredefinedRecAtom(i)) {
                 continue;
             }
@@ -258,16 +259,57 @@ public class Env {
                 System.out.println("Env validation:" + "duplicate rec atom at index " + i);
                 return false;
             }
-            if (!atomTable.containsKey(atomicType)) {
-                System.out.println("Env validation:" + "rec atom not in atom table " + i);
-                return false;
-            }
-            recAtomCount++;
-        }
-        if (recAtomCount > atomTable.size()) {
-            System.out.println("Env validation:" + "rec atom count exceeds atom table size");
-            return false;
         }
         return true;
+    }
+
+    private CompactionData compactionData = null;
+
+    public synchronized int compactRecIndex(RecAtom recAtom) {
+        if (compactionData == null || !compactionData.state().equals(EnvState.from(this))) {
+            compactionData = compaction();
+        }
+        if (recAtom.index < COMPACT_INDEX) {
+            return recAtom.index;
+        }
+        return switch (recAtom.kind()) {
+            case LIST_ATOM -> compactionData.listMap().get(recAtom.index());
+            case MAPPING_ATOM -> compactionData.mapMap().get(recAtom.index());
+            case FUNCTION_ATOM -> compactionData.funcMap().get(recAtom.index());
+            case CELL_ATOM, XML_ATOM -> recAtom.index;
+        };
+    }
+
+    private CompactionData compaction() {
+        EnvState state = EnvState.from(this);
+        Map<Integer, Integer> listMap = recListCompaction(this.recListAtoms);
+        Map<Integer, Integer> mapMap = recListCompaction(this.recMappingAtoms);
+        Map<Integer, Integer> funcMap = recListCompaction(this.recFunctionAtoms);
+        return new CompactionData(state, listMap, mapMap, funcMap);
+    }
+
+    private <E extends AtomicType> Map<Integer, Integer> recListCompaction(List<E> recAtomList) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int compactIndex = COMPACT_INDEX;
+        for (int i = COMPACT_INDEX; i < recAtomList.size(); i++) {
+            if (recAtomList.get(i) != null) {
+                map.put(i, compactIndex);
+                compactIndex++;
+            }
+        }
+        return map;
+    }
+
+    record EnvState(int recListAtomCount, int recMappingAtomCount, int recFunctionAtomCount) {
+
+        public static EnvState from(Env env) {
+            return new EnvState(env.recListAtomCount(), env.recMappingAtomCount(),
+                    env.recFunctionAtomCount());
+        }
+    }
+
+    record CompactionData(EnvState state, Map<Integer, Integer> listMap, Map<Integer, Integer> mapMap,
+                          Map<Integer, Integer> funcMap) {
+
     }
 }

@@ -60,6 +60,7 @@ public class BIRBinaryWriter {
     }
 
     public byte[] serialize() {
+        typeEnv.validateConsistency("serializing BIR");
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp, typeEnv);
 

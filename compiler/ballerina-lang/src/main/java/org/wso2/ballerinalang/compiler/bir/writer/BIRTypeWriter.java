@@ -685,7 +685,7 @@ public class BIRTypeWriter extends TypeVisitor {
             writeInlinedRecAtom(recAtom);
         } else {
             buff.writeByte(REC_ATOM_KIND);
-            int index = recAtom.index();
+            int index = typeEnv.compactRecIndex(recAtom);
             buff.writeInt(index);
             if (!predefinedTypeEnv.isPredefinedRecAtom(index)) {
                 buff.writeInt(recAtom.kind().ordinal());
@@ -696,7 +696,7 @@ public class BIRTypeWriter extends TypeVisitor {
     private void writeInlinedRecAtom(RecAtom recAtom) {
         visitedAtoms.add(recAtom.getIdentifier());
         buff.writeByte(INLINED_ATOM_KIND);
-        buff.writeInt(recAtom.index);
+        buff.writeInt(typeEnv.compactRecIndex(recAtom));
         TypeAtom typeAtom = switch (recAtom.kind()) {
             case LIST_ATOM -> typeEnv.listAtom(typeEnv.listAtomType(recAtom));
             case FUNCTION_ATOM -> typeEnv.functionAtom(typeEnv.functionAtomType(recAtom));
