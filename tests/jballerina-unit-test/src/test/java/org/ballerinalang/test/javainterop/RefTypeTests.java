@@ -360,7 +360,7 @@ public class RefTypeTests {
         return new XmlItem(new QName("hello"));
     }
 
-    public static io.ballerina.runtime.api.values.BString getStringFromXML(XmlValue x) {
+    public static BString getStringFromXML(XmlValue x) {
         return StringUtils.fromString(x.toString());
     }
 
@@ -400,7 +400,7 @@ public class RefTypeTests {
         return (FPValue) fp;
     }
 
-    public static io.ballerina.runtime.api.values.BString useTypeDesc(TypedescValue type) {
+    public static BString useTypeDesc(TypedescValue type) {
         return StringUtils.fromString(type.stringValue(null));
     }
 
@@ -422,7 +422,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static io.ballerina.runtime.api.values.BString useHandle(HandleValue h) {
+    public static BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
     }

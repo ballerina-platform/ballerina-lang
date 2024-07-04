@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class Call {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
-        List<Object> argsList = new java.util.ArrayList<>();
+        List<Object> argsList = new ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {

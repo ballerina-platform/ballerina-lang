@@ -262,7 +262,7 @@ public class DebugTestRunner {
             throws BallerinaTestException {
         testBreakpoints.add(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
-        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+        for (BallerinaTestDebugPoint bp : testBreakpoints) {
             if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
                 breakpointsToBeSent.add(bp);
             }
@@ -310,7 +310,7 @@ public class DebugTestRunner {
     public void removeBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
         testBreakpoints.remove(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
-        for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
+        for (BallerinaTestDebugPoint bp : testBreakpoints) {
             if (bp.getSource().getPath().equals(breakpoint.getSource().getPath())) {
                 breakpointsToBeSent.add(bp);
             }

@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 /**
- * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
+ * Implementation of {@link InvocationNode}.
  *
  * @since 0.94
  */

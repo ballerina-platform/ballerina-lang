@@ -142,8 +142,7 @@ public class ArrayTest {
         Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
         BXml[] xmlArray = {XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>")};
-        ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
-                new io.ballerina.runtime.internal.types.BArrayType(PredefinedTypes.TYPE_XML));
+        ArrayValue bXmlArray = new ArrayValueImpl(xmlArray, new BArrayType(PredefinedTypes.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 

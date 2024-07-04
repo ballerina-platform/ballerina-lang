@@ -43,6 +43,7 @@ import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -277,7 +278,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
 
-            for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
+            for (Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     containErrors = true;
@@ -329,7 +330,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Whether the compilation contains MODULE_NOT_FOUND error.
      */
     private boolean containsModuleNotFoundError(PackageCompilation compilation) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
+        for (Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
                 return true;
             }
@@ -512,7 +513,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param diagnostic Diagnostic to show.
      * @return The string with position highlighted.
      */
-    private String highlightedDiagnostic(Module module, io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    private String highlightedDiagnostic(Module module, Diagnostic diagnostic) {
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
         Document document = module.document(documentId.orElseThrow());
         return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);

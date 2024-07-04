@@ -24,8 +24,12 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -281,8 +285,7 @@ public class RefTypeWithBValueAPITests {
     // static methods
 
     // This scenario is for map value to be passed to interop and return array value.
-    public static io.ballerina.runtime.api.values.BArray
-    getArrayValueFromMap(io.ballerina.runtime.api.values.BString key, io.ballerina.runtime.api.values.BMap mapValue) {
+    public static BArray getArrayValueFromMap(BString key, BMap mapValue) {
         BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
@@ -290,12 +293,8 @@ public class RefTypeWithBValueAPITests {
         return arrayValue;
     }
 
-    public static io.ballerina.runtime.api.values.BMap
-    acceptRefTypesAndReturnMap(io.ballerina.runtime.api.values.BObject a,
-                               io.ballerina.runtime.api.values.BArray b, Object c,
-                               BError d, Object e, Object f,
-                               io.ballerina.runtime.api.values.BMap g) {
-        io.ballerina.runtime.api.values.BMap<String, Object> mapValue = new MapValueImpl();
+    public static BMap acceptRefTypesAndReturnMap(BObject a, BArray b, Object c, BError d, Object e, Object f, BMap g) {
+        BMap<String, Object> mapValue = new MapValueImpl();
         mapValue.put("a", a);
         mapValue.put("b", b);
         mapValue.put("c", c);
@@ -318,15 +317,12 @@ public class RefTypeWithBValueAPITests {
         }
     }
 
-    public static io.ballerina.runtime.api.values.BObject
-    acceptObjectAndObjectReturn(io.ballerina.runtime.api.values.BObject p, int newVal) {
+    public static BObject acceptObjectAndObjectReturn(BObject p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
-    public static io.ballerina.runtime.api.values.BMap
-    acceptRecordAndRecordReturn(io.ballerina.runtime.api.values.BMap e,
-                                io.ballerina.runtime.api.values.BString newVal) {
+    public static BMap acceptRecordAndRecordReturn(BMap e, BString newVal) {
         e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
@@ -335,9 +331,7 @@ public class RefTypeWithBValueAPITests {
         return (int) (a + 5);
     }
 
-    public static io.ballerina.runtime.api.values.BMap
-    acceptRecordAndRecordReturnWhichThrowsCheckedException(io.ballerina.runtime.api.values.BMap e,
-                                                           io.ballerina.runtime.api.values.BString newVal)
+    public static BMap acceptRecordAndRecordReturnWhichThrowsCheckedException(BMap e, BString newVal)
             throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
@@ -357,13 +351,10 @@ public class RefTypeWithBValueAPITests {
         }
     }
 
-    public static io.ballerina.runtime.api.values.BMap
-    acceptRefTypesAndReturnMapWhichThrowsCheckedException(io.ballerina.runtime.api.values.BObject a,
-                                                          io.ballerina.runtime.api.values.BArray b, Object c,
-                                                          BError d, Object e,
-                                                          Object f, io.ballerina.runtime.api.values.BMap g)
+    public static BMap acceptRefTypesAndReturnMapWhichThrowsCheckedException(BObject a, BArray b, Object c, BError d,
+                                                                             Object e, Object f, BMap g)
             throws JavaInteropTestCheckedException {
-        io.ballerina.runtime.api.values.BMap<String, Object> mapValue = new MapValueImpl<>();
+        BMap<String, Object> mapValue = new MapValueImpl<>();
         mapValue.put("a", a);
         mapValue.put("b", b);
         mapValue.put("c", c);
@@ -373,14 +364,12 @@ public class RefTypeWithBValueAPITests {
         return mapValue;
     }
 
-    public static BError acceptStringErrorReturnWhichThrowsCheckedException(
-            io.ballerina.runtime.api.values.BString msg)
+    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static BArray getArrayValueFromMapWhichThrowsCheckedException(io.ballerina.runtime.api.values.BString key,
-                                                                         io.ballerina.runtime.api.values.BMap mapValue)
+    public static BArray getArrayValueFromMapWhichThrowsCheckedException(BString key, BMap mapValue)
             throws JavaInteropTestCheckedException {
         BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
@@ -389,32 +378,28 @@ public class RefTypeWithBValueAPITests {
         return arrayValue;
     }
 
-    public static boolean acceptServiceObjectAndReturnBoolean(io.ballerina.runtime.api.values.BObject serviceObject) {
+    public static boolean acceptServiceObjectAndReturnBoolean(BObject serviceObject) {
         return TypeTags.SERVICE_TAG == getType(serviceObject).getTag();
     }
 
-    public static BError acceptStringErrorReturn(io.ballerina.runtime.api.values.BString msg) {
+    public static BError acceptStringErrorReturn(BString msg) {
         return ErrorCreator.createError(msg);
     }
 
     public static Object getJson() {
-        MapValueImpl<io.ballerina.runtime.api.values.BString, io.ballerina.runtime.api.values.BString> map =
-                new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
+        MapValueImpl<BString, BString> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
-    public static io.ballerina.runtime.api.values.BMap<io.ballerina.runtime.api.values.BString,
-            io.ballerina.runtime.api.values.BString> getJsonObject() {
-        io.ballerina.runtime.api.values.BMap<io.ballerina.runtime.api.values.BString,
-                io.ballerina.runtime.api.values.BString>
-                map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
+    public static BMap<BString, BString> getJsonObject() {
+        BMap<BString, BString> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 
-    public static io.ballerina.runtime.api.values.BArray getJsonArray() {
-        io.ballerina.runtime.api.values.BArray array = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
+    public static BArray getJsonArray() {
+        BArray array = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
         array.add(0, (Object) StringUtils.fromString("John"));
         return array;
     }
@@ -439,7 +424,7 @@ public class RefTypeWithBValueAPITests {
         return new XmlItem(new QName("hello"));
     }
 
-    public static io.ballerina.runtime.api.values.BString getStringFromXML(BXml x) {
+    public static BString getStringFromXML(BXml x) {
         return StringUtils.fromString(x.toString());
     }
 
@@ -471,28 +456,27 @@ public class RefTypeWithBValueAPITests {
         return x;
     }
 
-    public static int useFunctionPointer(io.ballerina.runtime.api.values.BFunctionPointer fp) {
+    public static int useFunctionPointer(BFunctionPointer fp) {
         return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
     }
 
-    public static io.ballerina.runtime.api.values.BFunctionPointer getFunctionPointer(Object fp) {
+    public static BFunctionPointer getFunctionPointer(Object fp) {
         return (FPValue) fp;
     }
 
-    public static io.ballerina.runtime.api.values.BString useTypeDesc(
-            io.ballerina.runtime.api.values.BTypedesc type) {
+    public static BString useTypeDesc(BTypedesc type) {
         return StringUtils.fromString(type.stringValue(null));
     }
 
-    public static io.ballerina.runtime.api.values.BTypedesc getTypeDesc() {
+    public static BTypedesc getTypeDesc() {
         return new TypedescValueImpl(PredefinedTypes.TYPE_XML);
     }
 
-    public static Object useFuture(io.ballerina.runtime.api.values.BFuture future) {
+    public static Object useFuture(BFuture future) {
         return future.getResult();
     }
 
-    public static io.ballerina.runtime.api.values.BFuture getFuture(Object a) {
+    public static BFuture getFuture(Object a) {
         return (FutureValue) a;
     }
 

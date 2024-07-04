@@ -25,7 +25,7 @@ import java.nio.file.Path;
 
 /**
  * Command executor for stopping a Ballerina project.
- * See {@link org.ballerinalang.langserver.command.executors.RunExecutor} for running a Ballerina project.
+ * See {@link RunExecutor} for running a Ballerina project.
  *
  * @since 2201.6.0
  */

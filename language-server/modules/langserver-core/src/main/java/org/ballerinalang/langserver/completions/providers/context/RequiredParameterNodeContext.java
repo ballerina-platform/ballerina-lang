@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Handles the completions for the {@link io.ballerina.compiler.syntax.tree.RequiredParameterNode}.
+ * Handles the completions for the {@link RequiredParameterNode}.
  *
  * @since 2.0.0
  */

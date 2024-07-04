@@ -279,7 +279,7 @@ public class EvaluationUtils {
 
     /**
      * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
-     * accepts only the sub classes of @{@link java.lang.Object}.
+     * accepts only the sub classes of @{@link Object}.
      */
     public static List<Value> getAsObjects(SuspendedContext context, List<Value> argValueList)
             throws EvaluationException {
@@ -291,7 +291,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -345,7 +345,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.
@@ -518,11 +518,11 @@ public class EvaluationUtils {
     }
 
     /**
-     * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
+     * Converts the user given string literal into a {@link StringReference} instance.
      *
      * @param context suspended debug context
      * @param val     string value
-     * @return {@link com.sun.jdi.StringReference} instance
+     * @return {@link StringReference} instance
      */
     public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
         return context.getAttachedVm().mirrorOf(val);

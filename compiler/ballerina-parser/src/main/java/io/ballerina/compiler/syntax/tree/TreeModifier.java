@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -3758,7 +3759,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
@@ -3784,7 +3785,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             return nodeList;
         }
 
-        STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
+        STNode stNodeList = STNodeFactory.createNodeList(Arrays.asList(newSTNodes));
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 

@@ -37,7 +37,7 @@ import static io.ballerina.runtime.api.utils.JsonUtils.convertJSON;
 import static io.ballerina.runtime.api.utils.JsonUtils.convertJSONToRecord;
 
 /**
- * This class contains a set of utility methods required for @{@link io.ballerina.runtime.api.utils.JsonUtils} testing.
+ * This class contains a set of utility methods required for @{@link JsonUtils} testing.
  *
  * @since 2201.0.0
  */

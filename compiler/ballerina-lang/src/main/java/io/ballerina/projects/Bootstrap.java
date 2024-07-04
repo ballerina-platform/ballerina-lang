@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -238,8 +239,7 @@ public class Bootstrap {
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {
-        org.wso2.ballerinalang.compiler.PackageCache pkgCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(context);
+        PackageCache pkgCache = PackageCache.getInstance(context);
         BLangPackage bLangPackage = pkgCache.get(packageID);
         if (bLangPackage != null) {
             return bLangPackage.symbol;

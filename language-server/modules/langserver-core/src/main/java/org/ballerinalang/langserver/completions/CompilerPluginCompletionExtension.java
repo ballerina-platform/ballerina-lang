@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.Collections;
@@ -112,7 +113,7 @@ public class CompilerPluginCompletionExtension implements CompletionExtension {
                             TextRange textRange = textEdit.range();
                             Range range = PositionUtil.toRange(textRange.startOffset(), textRange.endOffset(),
                                     context.currentDocument().get().textDocument());
-                            org.eclipse.lsp4j.TextEdit lsp4jTextEdit = new org.eclipse.lsp4j.TextEdit();
+                            TextEdit lsp4jTextEdit = new TextEdit();
                             lsp4jTextEdit.setNewText(textEdit.text());
                             lsp4jTextEdit.setRange(range);
                             return lsp4jTextEdit;
