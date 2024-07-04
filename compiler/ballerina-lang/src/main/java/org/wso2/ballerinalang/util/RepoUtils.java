@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -301,7 +302,7 @@ public class RepoUtils {
      */
     public static Manifest getManifestFromBala(Path balaPath) {
         try (JarFile jar = new JarFile(balaPath.toString())) {
-            java.util.Enumeration enumEntries = jar.entries();
+            Enumeration enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
                 if (file.getName().contains(ProjectDirConstants.MANIFEST_FILE_NAME)) {

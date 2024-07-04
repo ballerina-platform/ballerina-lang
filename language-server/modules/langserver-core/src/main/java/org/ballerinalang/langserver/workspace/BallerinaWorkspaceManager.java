@@ -277,7 +277,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns syntax tree from the path provided.
      *
      * @param filePath file path of the document
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     @Override
     public Optional<SyntaxTree> syntaxTree(Path filePath) {
