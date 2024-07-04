@@ -46,10 +46,10 @@ public class TesterinaRegistry {
      * annotation processing once the test suites are compiled.
      */
     private boolean testSuitesCompiled;
-    private static final TesterinaRegistry instance = new TesterinaRegistry();
+    private static final TesterinaRegistry INSTANCE = new TesterinaRegistry();
 
     public static TesterinaRegistry getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public Map<String, TestSuite> getTestSuites() {

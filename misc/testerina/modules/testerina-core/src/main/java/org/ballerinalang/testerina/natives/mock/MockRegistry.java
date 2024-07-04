@@ -30,10 +30,10 @@ import java.util.Map;
 public class MockRegistry {
 
     public static final String ANY = "__ANY__";
-    private static final MockRegistry instance = new MockRegistry();
+    private static final MockRegistry INSTANCE = new MockRegistry();
 
     public static MockRegistry getInstance() {
-        return instance;
+        return INSTANCE;
     }
     private final Map<String, Object> casesMap = new HashMap<>();
     private final Map<String, Integer> memberFuncHitsMap = new HashMap<>();

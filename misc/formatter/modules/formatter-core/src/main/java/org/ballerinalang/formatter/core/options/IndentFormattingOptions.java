@@ -63,7 +63,7 @@ public class IndentFormattingOptions {
         private static final String CONTINUATION_INDENT_SIZE = "continuationIndentSize";
         private int indentSize = getDefaultInt(FormatSection.INDENT, INDENT_SIZE);
         private int continuationIndentSize = getDefaultInt(FormatSection.INDENT, CONTINUATION_INDENT_SIZE);
-        private static final String wsCharacter = " ";
+        private static final String WS_CHARACTER = " ";
 
         public IndentFormattingOptionsBuilder setIndentSize(int indentSize) {
             this.indentSize = indentSize;
@@ -76,7 +76,7 @@ public class IndentFormattingOptions {
         }
 
         public IndentFormattingOptions build() {
-            return new IndentFormattingOptions(indentSize, continuationIndentSize, wsCharacter);
+            return new IndentFormattingOptions(indentSize, continuationIndentSize, WS_CHARACTER);
         }
 
         public IndentFormattingOptions build(Map<String, Object> configs) throws FormatterException {

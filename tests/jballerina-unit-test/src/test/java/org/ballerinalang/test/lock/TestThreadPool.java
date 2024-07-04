@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
  */
 public class TestThreadPool {
 
-    private static final TestThreadPool instance = new TestThreadPool();
+    private static final TestThreadPool INSTANCE = new TestThreadPool();
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(500);
 
@@ -37,7 +37,7 @@ public class TestThreadPool {
     }
 
     public static TestThreadPool getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public ExecutorService getExecutor() {
