@@ -321,7 +321,7 @@ public final class PredefinedTypeEnv {
     }
 
     private <E extends AtomicType> void fillRecAtoms(List<E> envRecAtomList, List<E> initializedRecAtoms) {
-        int count = reservedAtomCount();
+        int count = reservedRecAtomCount();
         for (int i = 0; i < count; i++) {
             if (i < initializedRecAtoms.size()) {
                 envRecAtomList.add(initializedRecAtoms.get(i));
@@ -333,7 +333,7 @@ public final class PredefinedTypeEnv {
         }
     }
 
-    private int reservedAtomCount() {
+    public int reservedRecAtomCount() {
         return Integer.max(initializedRecListAtoms.size(), initializedRecMappingAtoms.size());
     }
 
@@ -350,6 +350,6 @@ public final class PredefinedTypeEnv {
     }
 
     public boolean isPredefinedRecAtom(int index) {
-        return index < reservedAtomCount();
+        return index < reservedRecAtomCount();
     }
 }

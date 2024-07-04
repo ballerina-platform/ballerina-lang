@@ -214,6 +214,7 @@ public class BIRPackageSymbolEnter {
 
     public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
         BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
+        typeEnv.validateConsistency("Current package: " + packageId);
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
@@ -2242,8 +2243,12 @@ public class BIRPackageSymbolEnter {
     private record AtomOffsets(int atomOffset, int listOffset, int functionOffset, int mappingOffset) {
 
         static AtomOffsets from(Env env) {
-            return new AtomOffsets(env.atomCount(), env.recListAtomCount(), env.recFunctionAtomCount(),
-                    env.recMappingAtomCount());
+            PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
+            int recAtomOffset = predefinedTypeEnv.reservedRecAtomCount();
+            return new AtomOffsets(env.atomCount(),
+                    env.recListAtomCount() - recAtomOffset,
+                    env.recFunctionAtomCount(),
+                    env.recMappingAtomCount() - recAtomOffset);
         }
     }
 }

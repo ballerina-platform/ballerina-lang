@@ -19,9 +19,11 @@ package io.ballerina.types;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Env node.
@@ -222,5 +224,50 @@ public class Env {
         synchronized (this.atomTable) {
             return this.atomTable.size();
         }
+    }
+
+    public void validateConsistency(String logPrefix) {
+        if (!validateRecAtomList(this.recListAtoms)) {
+            throw new RuntimeException(logPrefix + "recListAtoms is inconsistent");
+        }
+
+        if (!validateRecAtomList(this.recMappingAtoms)) {
+            throw new RuntimeException(logPrefix + "recMappingAtoms is inconsistent");
+        }
+
+        if (!validateRecAtomList(this.recFunctionAtoms)) {
+            throw new RuntimeException(logPrefix + "recFunctionAtoms is inconsistent");
+        }
+        System.out.println("Env validation: " + logPrefix + "Env is consistent");
+    }
+
+    private boolean validateRecAtomList(List recAtomList) {
+        PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
+        int recAtomCount = 0;
+        Set<AtomicType> seen = new HashSet<>(recAtomList.size());
+        for (int i = 3; i < recAtomList.size(); i++) {
+            if (predefinedTypeEnv.isPredefinedRecAtom(i)) {
+                continue;
+            }
+            AtomicType atomicType = (AtomicType) recAtomList.get(i);
+            if (atomicType == null) {
+                System.out.println("Env validation:" + "null rec atom at index " + i);
+                return false;
+            }
+            if (!seen.add(atomicType)) {
+                System.out.println("Env validation:" + "duplicate rec atom at index " + i);
+                return false;
+            }
+            if (!atomTable.containsKey(atomicType)) {
+                System.out.println("Env validation:" + "rec atom not in atom table " + i);
+                return false;
+            }
+            recAtomCount++;
+        }
+        if (recAtomCount > atomTable.size()) {
+            System.out.println("Env validation:" + "rec atom count exceeds atom table size");
+            return false;
+        }
+        return true;
     }
 }
