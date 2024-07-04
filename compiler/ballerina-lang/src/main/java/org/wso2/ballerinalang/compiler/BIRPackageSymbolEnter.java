@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import com.sun.management.HotSpotDiagnosticMXBean;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
@@ -135,6 +136,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -151,6 +153,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.management.MBeanServer;
 
 import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -237,8 +240,28 @@ public class BIRPackageSymbolEnter {
             this.env = prevEnv;
             return pkgSymbol;
         } catch (Throwable e) {
+            if (e instanceof OutOfMemoryError oom) {
+                writeHeapDump();
+                throw oom;
+            }
             throw new BLangCompilerException("failed to load the module '" + packageId.toString() + "' from its BIR" +
                     (e.getMessage() != null ? (" due to: " + e.getMessage()) : ""), e);
+        }
+    }
+
+    private void writeHeapDump() {
+        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+        // Get the HotSpotDiagnosticMXBean
+        try {
+            HotSpotDiagnosticMXBean mxBean = ManagementFactory.newPlatformMXBeanProxy(
+                    server, "com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
+            // Create heap dump
+            mxBean.dumpHeap("heapDump.hprof", false);
+            System.out.println("Heap dump created at ");
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception exp) {
+            throw new RuntimeException(exp);
         }
     }
 
