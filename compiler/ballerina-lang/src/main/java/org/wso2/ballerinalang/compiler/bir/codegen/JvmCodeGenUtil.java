@@ -199,7 +199,18 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value, BType objectType) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value, getImpliedType(objectType)));
+        objectType = getImpliedType(objectType);
+        // For attached functions from another module the call name will be in the format `objectTypeName.funcName`.
+        // We need to remove the type name.
+        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
+            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        }
+        // For attached functions from another module where the type is an anonType, the call name will be in
+        // the format `(objectTypeName).funcName`. We need to remove the type name.
+        if (value.startsWith("(") && value.contains(").")) {
+            value = value.substring(value.indexOf(").") + 2);
+        }
+        return Utils.encodeFunctionIdentifier(value);
     }
 
     public static boolean isModuleInitializerMethod(String methodName) {
@@ -421,20 +432,6 @@ public class JvmCodeGenUtil {
             case TypeTags.REGEXP -> RETURN_REGEX_VALUE;
             default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         };
-    }
-
-    static String cleanupObjectTypeName(String callName, BType objectType) {
-        // For attached functions from another module the call name will be in the format `objectTypeName.funcName`.
-        // We need to remove the type name.
-        if (!objectType.tsymbol.name.value.isEmpty() && callName.startsWith(objectType.tsymbol.name.value)) {
-            callName = callName.replace(objectType.tsymbol.name.value + ".", "").trim();
-        }
-        // For attached functions from another module where the type is an anonType, the call name will be in
-        // the format `(objectTypeName).funcName`. We need to remove the type name.
-        if (callName.startsWith("(") && callName.contains(").")) {
-            callName = callName.substring(callName.indexOf(").") + 2);
-        }
-        return callName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
