@@ -2155,7 +2155,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
         Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
-        NodeList<Node> xmlStepExtend = formatNodeList(xMLStepExpressionNode.xmlStepExtend(), 0, 0, 0, 0);
+        NodeList<Node> xmlStepExtend =
+                formatNodeList(xMLStepExpressionNode.xmlStepExtend(), 0, 0, env.trailingWS, env.trailingNL);
 
         return xMLStepExpressionNode.modify()
                 .withExpression(expression)
@@ -2167,8 +2168,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLStepIndexedExtendNode transform(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
         Token openBracket = formatToken(xMLStepIndexedExtendNode.openBracket(), 0, 0);
-        Node expression = formatNode(xMLStepIndexedExtendNode.expression(), 0, 0);
-        Token closeBracket = formatToken(xMLStepIndexedExtendNode.closeBracket(), 0, 0);
+        ExpressionNode expression = formatNode(xMLStepIndexedExtendNode.expression(), 0, 0);
+        Token closeBracket = formatToken(xMLStepIndexedExtendNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         return xMLStepIndexedExtendNode.modify()
                 .withOpenBracket(openBracket)
@@ -2177,16 +2178,17 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
     public XMLStepMethodCallExtendNode transform(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
         Token dotToken = formatToken(xMLStepMethodCallExtendNode.dotToken(), 0, 0);
-        SimpleNameReferenceNode methodName =
-                (SimpleNameReferenceNode) xMLStepMethodCallExtendNode.methodName().apply(this);
-        ParenthesizedArgList arguments = (ParenthesizedArgList) xMLStepMethodCallExtendNode.arguments().apply(this);
+        SimpleNameReferenceNode methodName = formatNode(xMLStepMethodCallExtendNode.methodName(), 0, 0);
+        ParenthesizedArgList parenthesizedArgList =
+                formatNode(xMLStepMethodCallExtendNode.parenthesizedArgList(), env.trailingWS, env.trailingNL);
 
         return xMLStepMethodCallExtendNode.modify()
                 .withDotToken(dotToken)
                 .withMethodName(methodName)
-                .withArguments(arguments)
+                .withParenthesizedArgList(parenthesizedArgList)
                 .apply();
     }
 

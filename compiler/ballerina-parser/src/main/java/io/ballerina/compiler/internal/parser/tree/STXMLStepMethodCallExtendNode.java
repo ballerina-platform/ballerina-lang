@@ -33,58 +33,58 @@ import java.util.Collections;
 public class STXMLStepMethodCallExtendNode extends STNode {
     public final STNode dotToken;
     public final STNode methodName;
-    public final STNode arguments;
+    public final STNode parenthesizedArgList;
 
     STXMLStepMethodCallExtendNode(
             STNode dotToken,
             STNode methodName,
-            STNode arguments) {
+            STNode parenthesizedArgList) {
         this(
                 dotToken,
                 methodName,
-                arguments,
+                parenthesizedArgList,
                 Collections.emptyList());
     }
 
     STXMLStepMethodCallExtendNode(
             STNode dotToken,
             STNode methodName,
-            STNode arguments,
+            STNode parenthesizedArgList,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.XML_STEP_METHOD_CALL_EXTEND, diagnostics);
         this.dotToken = dotToken;
         this.methodName = methodName;
-        this.arguments = arguments;
+        this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
                 dotToken,
                 methodName,
-                arguments);
+                parenthesizedArgList);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLStepMethodCallExtendNode(
                 this.dotToken,
                 this.methodName,
-                this.arguments,
+                this.parenthesizedArgList,
                 diagnostics);
     }
 
     public STXMLStepMethodCallExtendNode modify(
             STNode dotToken,
             STNode methodName,
-            STNode arguments) {
+            STNode parenthesizedArgList) {
         if (checkForReferenceEquality(
                 dotToken,
                 methodName,
-                arguments)) {
+                parenthesizedArgList)) {
             return this;
         }
 
         return new STXMLStepMethodCallExtendNode(
                 dotToken,
                 methodName,
-                arguments,
+                parenthesizedArgList,
                 diagnostics);
     }
 

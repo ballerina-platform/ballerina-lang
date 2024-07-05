@@ -3813,7 +3813,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "closeBracket",
@@ -3835,7 +3835,7 @@
                     "type": "SimpleNameReferenceNode"
                 },
                 {
-                    "name": "arguments",
+                    "name": "parenthesizedArgList",
                     "type": "ParenthesizedArgList"
                 }
             ]

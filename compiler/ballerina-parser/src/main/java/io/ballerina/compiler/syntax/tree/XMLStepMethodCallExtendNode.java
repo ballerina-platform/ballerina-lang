@@ -40,7 +40,7 @@ public class XMLStepMethodCallExtendNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public ParenthesizedArgList arguments() {
+    public ParenthesizedArgList parenthesizedArgList() {
         return childInBucket(2);
     }
 
@@ -59,24 +59,24 @@ public class XMLStepMethodCallExtendNode extends NonTerminalNode {
         return new String[]{
                 "dotToken",
                 "methodName",
-                "arguments"};
+                "parenthesizedArgList"};
     }
 
     public XMLStepMethodCallExtendNode modify(
             Token dotToken,
             SimpleNameReferenceNode methodName,
-            ParenthesizedArgList arguments) {
+            ParenthesizedArgList parenthesizedArgList) {
         if (checkForReferenceEquality(
                 dotToken,
                 methodName,
-                arguments)) {
+                parenthesizedArgList)) {
             return this;
         }
 
         return NodeFactory.createXMLStepMethodCallExtendNode(
                 dotToken,
                 methodName,
-                arguments);
+                parenthesizedArgList);
     }
 
     public XMLStepMethodCallExtendNodeModifier modify() {
@@ -92,13 +92,13 @@ public class XMLStepMethodCallExtendNode extends NonTerminalNode {
         private final XMLStepMethodCallExtendNode oldNode;
         private Token dotToken;
         private SimpleNameReferenceNode methodName;
-        private ParenthesizedArgList arguments;
+        private ParenthesizedArgList parenthesizedArgList;
 
         public XMLStepMethodCallExtendNodeModifier(XMLStepMethodCallExtendNode oldNode) {
             this.oldNode = oldNode;
             this.dotToken = oldNode.dotToken();
             this.methodName = oldNode.methodName();
-            this.arguments = oldNode.arguments();
+            this.parenthesizedArgList = oldNode.parenthesizedArgList();
         }
 
         public XMLStepMethodCallExtendNodeModifier withDotToken(
@@ -115,10 +115,10 @@ public class XMLStepMethodCallExtendNode extends NonTerminalNode {
             return this;
         }
 
-        public XMLStepMethodCallExtendNodeModifier withArguments(
-                ParenthesizedArgList arguments) {
-            Objects.requireNonNull(arguments, "arguments must not be null");
-            this.arguments = arguments;
+        public XMLStepMethodCallExtendNodeModifier withParenthesizedArgList(
+                ParenthesizedArgList parenthesizedArgList) {
+            Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
+            this.parenthesizedArgList = parenthesizedArgList;
             return this;
         }
 
@@ -126,7 +126,7 @@ public class XMLStepMethodCallExtendNode extends NonTerminalNode {
             return oldNode.modify(
                     dotToken,
                     methodName,
-                    arguments);
+                    parenthesizedArgList);
         }
     }
 }
