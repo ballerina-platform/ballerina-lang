@@ -67,15 +67,21 @@ public class BalRuntime extends Runtime {
     private final Scheduler scheduler;
     private final Module module;
     private boolean moduleInitialized = false;
+    private ClassLoader classLoader;
 
     public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
         this.module = module;
+        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     public BalRuntime(Module module) {
-        this.scheduler = new Scheduler(false);
-        this.module = module;
+        this(new Scheduler(false), module);
+    }
+
+    public BalRuntime(Module module, ClassLoader classLoader) {
+        this(module);
+        this.classLoader = classLoader;
     }
 
     @Override
@@ -342,7 +348,7 @@ public class BalRuntime extends Runtime {
         String configClassName = getConfigClassName(this.module);
         Class<?> configClazz;
         try {
-            configClazz = Class.forName(configClassName);
+            configClazz = Class.forName(configClassName, true, this.classLoader);
         } catch (Throwable e) {
             throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
                     configClassName));

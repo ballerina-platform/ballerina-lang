@@ -59,6 +59,10 @@ public abstract class Runtime {
         return new BalRuntime(module);
     }
 
+    public static Runtime from(Module module, ClassLoader classLoader) {
+        return new BalRuntime(module, classLoader);
+    }
+
     /**
      * Performs the module initialization.
      */
