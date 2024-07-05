@@ -36,7 +36,7 @@ public class XMLStepIndexedExtendNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -64,7 +64,7 @@ public class XMLStepIndexedExtendNode extends NonTerminalNode {
 
     public XMLStepIndexedExtendNode modify(
             Token openBracket,
-            Node expression,
+            ExpressionNode expression,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
@@ -91,7 +91,7 @@ public class XMLStepIndexedExtendNode extends NonTerminalNode {
     public static class XMLStepIndexedExtendNodeModifier {
         private final XMLStepIndexedExtendNode oldNode;
         private Token openBracket;
-        private Node expression;
+        private ExpressionNode expression;
         private Token closeBracket;
 
         public XMLStepIndexedExtendNodeModifier(XMLStepIndexedExtendNode oldNode) {
@@ -109,7 +109,7 @@ public class XMLStepIndexedExtendNode extends NonTerminalNode {
         }
 
         public XMLStepIndexedExtendNodeModifier withExpression(
-                Node expression) {
+                ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;

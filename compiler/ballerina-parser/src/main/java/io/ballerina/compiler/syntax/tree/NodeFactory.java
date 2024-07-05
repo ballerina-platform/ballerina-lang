@@ -2764,7 +2764,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLStepIndexedExtendNode createXMLStepIndexedExtendNode(
             Token openBracket,
-            Node expression,
+            ExpressionNode expression,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
@@ -2780,15 +2780,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static XMLStepMethodCallExtendNode createXMLStepMethodCallExtendNode(
             Token dotToken,
             SimpleNameReferenceNode methodName,
-            ParenthesizedArgList arguments) {
+            ParenthesizedArgList parenthesizedArgList) {
         Objects.requireNonNull(dotToken, "dotToken must not be null");
         Objects.requireNonNull(methodName, "methodName must not be null");
-        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
 
         STNode stXMLStepMethodCallExtendNode = STNodeFactory.createXMLStepMethodCallExtendNode(
                 dotToken.internalNode(),
                 methodName.internalNode(),
-                arguments.internalNode());
+                parenthesizedArgList.internalNode());
         return stXMLStepMethodCallExtendNode.createUnlinkedFacade();
     }
 

@@ -3807,38 +3807,38 @@
       "base": "Node",
       "kind": "XML_STEP_INDEXED_EXTEND",
       "attributes": [
-          {
-              "name": "openBracket",
-              "type": "Token"
-          },
-          {
-              "name": "expression",
-              "type": "Node"
-          },
-          {
-              "name": "closeBracket",
-              "type": "Token"
-          }
+        {
+          "name": "openBracket",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token"
+        }
       ]
     },
     {
-        "name": "XMLStepMethodCallExtendNode",
-        "base": "Node",
-        "kind": "XML_STEP_METHOD_CALL_EXTEND",
-        "attributes": [
-          {
-            "name": "dotToken",
-            "type": "Token"
-          },
-          {
-            "name": "methodName",
-            "type": "SimpleNameReferenceNode"
-          },
-          {
-            "name": "arguments",
-            "type": "ParenthesizedArgList"
-          }
-        ]
+      "name": "XMLStepMethodCallExtendNode",
+      "base": "Node",
+      "kind": "XML_STEP_METHOD_CALL_EXTEND",
+      "attributes": [
+        {
+          "name": "dotToken",
+          "type": "Token"
+        },
+        {
+          "name": "methodName",
+          "type": "SimpleNameReferenceNode"
+        },
+        {
+          "name": "parenthesizedArgList",
+          "type": "ParenthesizedArgList"
+        }
+      ]
     },
     {
       "name": "XMLAtomicNamePatternNode",
