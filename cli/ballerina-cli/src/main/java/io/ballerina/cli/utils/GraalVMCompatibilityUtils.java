@@ -103,7 +103,7 @@ public class GraalVMCompatibilityUtils {
                 } else {
                     if ((!graalvmCompatiblePlatform.isEmpty() &&
                             !pkg.manifest().platform(graalvmCompatiblePlatform).graalvmCompatible()) ||
-                            (graalvmCompatiblePlatform.isEmpty() && !allDepsGraalvmCompatible)) {
+                            (allDepsGraalvmCompatible != null && !allDepsGraalvmCompatible)) {
                         return String.format(
                                 "************************************************************%n" +
                                         "* WARNING: Package is not compatible with GraalVM.         *%n" +
@@ -118,7 +118,8 @@ public class GraalVMCompatibilityUtils {
                                 packageName);
                     }
                 }
-            } else if (!platform.graalvmCompatible()) {
+            } else if (!platform.graalvmCompatible() ||
+                    (allDepsGraalvmCompatible != null && !allDepsGraalvmCompatible)) {
                 return String.format(
                         "************************************************************%n" +
                                 "* WARNING: Package is not compatible with GraalVM.         *%n" +

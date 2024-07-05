@@ -624,7 +624,7 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
     }
 
-    @Test(description = "Pack with a a graalvm compatible dependency, dependency with unspecified attribute")
+    @Test(description = "Pack with a graalvm compatible dependency, dependency with unspecified attribute")
     public void testPackProjectWithPlatformLibsGraal4() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal4");
         System.setProperty(USER_DIR, projectPath.toString());
@@ -658,7 +658,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaFilePath, balaDestPath);
         String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
-        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": true"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
     }
 
     @Test(description = "Pack with a graalvm compatible dependency, 'graalvmCompatible=false' attribute set at " +

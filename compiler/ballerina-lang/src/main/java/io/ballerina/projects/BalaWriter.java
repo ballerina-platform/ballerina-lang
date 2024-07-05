@@ -193,25 +193,30 @@ public abstract class BalaWriter {
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
         Map<String, PackageManifest.Platform> platforms = packageManifest.platforms();
+        Boolean allPlatformDepsGraalvmCompatible = isAllPlatformDepsGraalvmCompatible(packageManifest.platforms());
         PackageManifest.Platform targetPlatform = packageManifest.platform(target);
         if (platforms != null) {
             if (targetPlatform != null) {
                 Boolean graalvmCompatible = targetPlatform.graalvmCompatible();
                 if (graalvmCompatible != null) {
-                    // If the package explicitly specifies the graalvmCompatibility property, then use it
-                    packageJson.setGraalvmCompatible(graalvmCompatible);
+                    // If the package explicitly specifies the graalvmCompatibility property, then use it unless
+                    // no individual dependency is incompatible
+                    boolean finalCompatibility = (allPlatformDepsGraalvmCompatible != null) ?
+                            (allPlatformDepsGraalvmCompatible && graalvmCompatible) : graalvmCompatible;
+                    packageJson.setGraalvmCompatible(finalCompatibility);
                     return;
                 }
             }
             if (!otherPlatformGraalvmCompatibleVerified(target, packageManifest.platforms()).isEmpty()) {
                 Boolean otherGraalvmCompatible = packageManifest.platform(otherPlatformGraalvmCompatibleVerified(target,
                         packageManifest.platforms())).graalvmCompatible();
-                packageJson.setGraalvmCompatible(otherGraalvmCompatible);
+                boolean finalCompatibility = (allPlatformDepsGraalvmCompatible != null) ?
+                        (allPlatformDepsGraalvmCompatible && otherGraalvmCompatible) : otherGraalvmCompatible;
+                packageJson.setGraalvmCompatible(finalCompatibility);
                 return;
             }
             // If the package uses only distribution provided platform libraries, then package is graalvm compatible
             // If platform libraries are specified with 'graalvmCompatible', infer the overall compatibility.
-            Boolean allPlatformDepsGraalvmCompatible = isAllPlatformDepsGraalvmCompatible(packageManifest.platforms());
             packageJson.setGraalvmCompatible(allPlatformDepsGraalvmCompatible);
         } else {
             // If the package uses only distribution provided platform libraries
