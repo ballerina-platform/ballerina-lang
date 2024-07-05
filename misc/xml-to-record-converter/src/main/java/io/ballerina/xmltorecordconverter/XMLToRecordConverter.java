@@ -314,11 +314,12 @@ public class XMLToRecordConverter {
                     }
                     AnnotationNode xmlNSNode = getXMLNamespaceNode(prefix, xmlNode.getNodeValue());
                     recordToAnnotationNodes.put(xmlNodeName, xmlNSNode);
-                } else if (!isLeafXMLElementNode(xmlElement) && !XMLNS_PREFIX.equals(xmlNode.getPrefix())) {
+                } else if (!isLeafXMLElementNode(xmlElement) && !XMLNS_PREFIX.equals(xmlNode.getPrefix())
+                        && !XMLNS_PREFIX.equals(xmlNode.getLocalName())) {
                     if (elementNames.contains(xmlNode.getNodeName())) {
                         continue;
                     }
-                    Node recordField = getRecordField(xmlNode);
+                    Node recordField = getRecordField(xmlNode, withNameSpace, xmlElement);
                     recordFields.add(recordField);
                 }
             }
@@ -340,8 +341,9 @@ public class XMLToRecordConverter {
             for (int j = 0; j < attributeLength; j++) {
                 org.w3c.dom.Node xmlAttributeNode = xmlElement.getAttributes().item(j);
                 if (xmlAttributeNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE
-                        && !XMLNS_PREFIX.equals(xmlAttributeNode.getPrefix())) {
-                    Node recordField = getRecordField(xmlAttributeNode);
+                        && !XMLNS_PREFIX.equals(xmlAttributeNode.getPrefix())
+                        && !XMLNS_PREFIX.equals(xmlAttributeNode.getLocalName())) {
+                    Node recordField = getRecordField(xmlAttributeNode, withNameSpace, xmlElement);
                     recordFields.add(recordField);
                 }
             }
@@ -503,15 +505,23 @@ public class XMLToRecordConverter {
                         metadataNode, null, fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
     }
 
-    private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode) {
+    private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode, boolean withNamespace, Element xmlElement) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         IdentifierToken fieldName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(xmlAttributeNode.getLocalName()));
         Token equalToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-        NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList(getXMLAttributeNode());
-        MetadataNode metadataNode = NodeFactory.createMetadataNode(null, annotations);
+        List<AnnotationNode> annotations = new ArrayList<>();
+        String prefix = xmlAttributeNode.getPrefix() == null ? null : xmlAttributeNode.getPrefix();
+        String uri = xmlAttributeNode.getNamespaceURI() == null ? getNamespaceURI(xmlElement, xmlAttributeNode)
+                : xmlAttributeNode.getNamespaceURI();
+        if (withNamespace && uri != null) {
+            annotations.add(getXMLNamespaceNode(prefix, uri));
+        }
+        annotations.add(getXMLAttributeNode());
+        NodeList<AnnotationNode> annotationNodes = NodeFactory.createNodeList(annotations);
+        MetadataNode metadataNode = NodeFactory.createMetadataNode(null, annotationNodes);
 
         if (xmlAttributeNode.getPrefix() != null &&
                 xmlAttributeNode.getPrefix().equals(XMLNS_PREFIX)) {
@@ -523,6 +533,32 @@ public class XMLToRecordConverter {
                     fieldName, equalToken, valueExpr, semicolonToken);
         }
         return NodeFactory.createRecordFieldNode(metadataNode, null, fieldTypeName, fieldName, null, semicolonToken);
+    }
+
+    private static String getNamespaceURI(Element xmlElement, org.w3c.dom.Node xmlAttributeNode) {
+        if (xmlAttributeNode.getPrefix() != null) {
+            return xmlAttributeNode.getNamespaceURI();
+        }
+
+        while (xmlElement != null) {
+            if (xmlElement.getPrefix() == null) {
+                return xmlElement.getNamespaceURI();
+            } else {
+                NamedNodeMap attributes = xmlElement.getAttributes();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    org.w3c.dom.Node attr = attributes.item(i);
+                    if (XMLNS_PREFIX.equals(attr.getLocalName()) && attr.getPrefix() == null) {
+                        return attr.getNodeValue();
+                    }
+                }
+                if (xmlElement.getParentNode().getNodeType() != org.w3c.dom.Node.DOCUMENT_NODE) {
+                    xmlElement = (Element) xmlElement.getParentNode();
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     private static RecordFieldNode mergeRecordFields(RecordFieldNode existingRecordFieldNode,
