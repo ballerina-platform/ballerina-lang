@@ -1,0 +1,6 @@
+<AQ xmlns="example.com">
+    <Data xmlns:ns1="example1.com" xmlns:ns2="example2.com">
+        <ns2:Person xmlns="example2.com" ns2:name="John" age="25">1</ns2:Person>
+        <Message>Test</Message>
+    </Data>
+</AQ>
