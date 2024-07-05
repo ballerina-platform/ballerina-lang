@@ -7,8 +7,6 @@ type Customer record {
     string loyalty;
     @xmldata:Attribute
     string optedInNewsLetter;
-    @xmldata:Attribute
-    string 'xmlns;
 };
 
 type Item record {
@@ -30,12 +28,8 @@ type Order record {
     Customer customer;
     Items items;
     decimal total;
-    @xmldata:Attribute
-    string 'xmlns;
 };
 
 type Orders record {
     Order[] 'order;
-    @xmldata:Attribute
-    string 'xmlns;
 };
