@@ -37,12 +37,18 @@ import java.util.List;
  */
 public record FixedLengthArray(List<CellSemType> initial, int fixedLength) {
 
+    private static final FixedLengthArray EMPTY = new FixedLengthArray(List.of(), 0);
+
     public FixedLengthArray {
         initial = List.copyOf(initial);
         assert fixedLength >= 0;
     }
 
     public static FixedLengthArray from(List<CellSemType> initial, int fixedLength) {
+        if (initial.isEmpty()) {
+            assert fixedLength == 0;
+            return EMPTY;
+        }
         return new FixedLengthArray(initial, fixedLength);
     }
 

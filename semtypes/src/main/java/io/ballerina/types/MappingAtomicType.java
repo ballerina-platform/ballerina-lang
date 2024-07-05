@@ -33,9 +33,13 @@ import java.util.Objects;
  */
 public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) implements AtomicType {
 
+    private static final String[] EMPTY_NAMES = new String[0];
+    private static final CellSemType[] EMPTY_TYPES = new CellSemType[0];
+
     public MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) {
-        this.names = Arrays.copyOf(names, names.length);
-        this.types = Arrays.copyOf(types, names.length);
+        assert names.length == types.length;
+        this.names = names.length == 0 ? EMPTY_NAMES : Arrays.copyOf(names, names.length);
+        this.types = types.length == 0 ? EMPTY_TYPES : Arrays.copyOf(types, names.length);
         this.rest = rest;
     }
 
