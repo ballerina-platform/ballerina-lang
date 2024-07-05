@@ -738,7 +738,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
-        validateInherentTypeOfExistingMembers(index, vals.length);
+        validateInherentTypeOfExistingMembers((int) index, vals.length);
         unshiftArray(index, vals.length, getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }
@@ -831,11 +831,11 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void validateInherentTypeOfExistingMembers(long index, int offset) {
+    private void validateInherentTypeOfExistingMembers(int index, int offset) {
         Type targetType;
-        for (long i = index; i < this.size; i++) {
+        for (int i = index; i < this.size; i++) {
             targetType = (i + offset >= this.tupleType.getTupleTypes().size()) ?
-                    this.tupleType.getRestType() : this.tupleType.getTupleTypes().get((int) (i + offset));
+                    this.tupleType.getRestType() : this.tupleType.getTupleTypes().get(i + offset);
             if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
                 throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
