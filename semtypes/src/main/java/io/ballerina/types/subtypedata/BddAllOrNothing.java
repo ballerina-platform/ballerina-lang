@@ -24,7 +24,8 @@ import io.ballerina.types.Bdd;
  *
  * @since 2201.8.0
  */
-public class BddAllOrNothing implements Bdd {
+public final class BddAllOrNothing implements Bdd {
+
     private final boolean isAll;
 
     private static final BddAllOrNothing all = new BddAllOrNothing(true);
