@@ -103,11 +103,15 @@ jobs:
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
           done
 
+      - name: Set java args
+        run: |
+          # Heap dump on out of memeroy
+          export JAVA_OPTS="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$GITHUB_WORKSPACE/heap-dump.hprof"
       - name: Build Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
           echo "Building Standard Library: $module_name" && \
-          cd $module_name && python3 ../patch_gradle.py && ./gradlew clean build --stacktrace --scan && cd ..; \
+          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
           done
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}

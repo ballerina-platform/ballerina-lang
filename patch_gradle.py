@@ -23,7 +23,7 @@ if match:
     # Check if jvmArgs is already present in the build task
     if 'jvmArgs' not in build_task_content:
         # Append JVM args to the build task content
-        modified_build_task_content = re.sub(r'\}', f'    jvmArgs "{heap_dump_args}"\n}}', build_task_content, count=1)
+        modified_build_task_content = re.sub(r'\}', f'    options.jvmArgs "{heap_dump_args}"\n}}', build_task_content, count=1)
         
         # Replace the old build task content with the modified one
         updated_content = build_gradle_content[:match.start()] + modified_build_task_content + build_gradle_content[match.end():]
