@@ -16,6 +16,14 @@
 
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -26,7 +34,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -244,6 +256,80 @@ public class RuntimeAPITest extends BaseTest {
     private static void addToServerInfoLogReader(ServerLogReader serverInfoLogReader, List<LogLeecher> leechers) {
         for (LogLeecher leecher : leechers) {
             serverInfoLogReader.addLeecher(leecher);
+        }
+    }
+
+    @Test
+    public void testRuntimeFromClassLoader() throws BallerinaTestException {
+        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
+                "function_invocation.jar").toAbsolutePath();
+        try {
+            ByteArrayOutputStream in = new ByteArrayOutputStream();
+            PrintStream out = new PrintStream(in);
+            URL jarURL = jarPath.toUri().toURL();
+            try (URLClassLoader classLoader = new URLClassLoader(new URL[]{jarURL})) {
+                Module module = new Module("testorg", "function_invocation", "1");
+                Runtime runtime = Runtime.from(module, classLoader);
+                runtime.init();
+                runtime.start();
+                runtime.invokeMethodAsync("add", new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        out.println(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        out.println("Error: " + error + "\n");
+                    }
+                }, 5L, 7L);
+
+                BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
+                        StringUtils.fromString("John Doe"));
+                runtime.invokeMethodAsyncSequentially(person, "getNameWithTitle", null, null, new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        out.println(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        out.println("Error: " + error);
+
+                    }
+                }, null, PredefinedTypes.TYPE_STRING, StringUtils.fromString("Dr. "), false);
+
+                runtime.stop();
+
+                runtime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"), classLoader);
+                runtime.init();
+                runtime.start();
+                runtime.invokeMethodAsync("getPerson", new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        out.println(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        out.println("Error: " + error);
+                    }
+                }, 1001L, StringUtils.fromString("John"), StringUtils.fromString("100m")); runtime.stop();
+            }
+            out.close();
+            String output = in.toString();
+            List<String> expectedOutputs = new ArrayList<>();
+            expectedOutputs.add("12");
+            expectedOutputs.add("Dr. John Doe");
+            expectedOutputs.add("{\"id\":1001,\"name\":\"John\",\"sportsActivity\":{\"event\":\"100m\"," +
+                                "\"year\":2020}}");
+            for (String expected : expectedOutputs) {
+                if (!output.contains(expected)) {
+                    throw new AssertionError("Expected output not found: " + expected);
+                }
+            }
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error occurred while creating the class loader");
         }
     }
 }
