@@ -26,16 +26,17 @@ import java.util.Objects;
  * @since 2201.8.0
  */
 public class ComplexSemTypeImpl implements ComplexSemType {
+
     // For a basic type with code c,
     // all & (1 << c) is non-zero iff this type contains all of the basic type
     // some & (1 << c) is non-zero iff this type contains some but not all of the basic type
-    private final BasicTypeBitSet all;
-    private final BasicTypeBitSet some;
+    private final int all;
+    private final int some;
     // There is one member of subtypes for each bit set in some.
     // Ordered in increasing order of BasicTypeCode
     private final ProperSubtypeData[] subtypeDataList;
 
-    ComplexSemTypeImpl(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
+    ComplexSemTypeImpl(int all, int some, ProperSubtypeData[] subtypeDataList) {
         this.all = all;
         this.some = some;
         this.subtypeDataList = subtypeDataList;
@@ -66,12 +67,12 @@ public class ComplexSemTypeImpl implements ComplexSemType {
     }
 
     @Override
-    public BasicTypeBitSet all() {
+    public int all() {
         return all;
     }
 
     @Override
-    public BasicTypeBitSet some() {
+    public int some() {
         return some;
     }
 

@@ -35,7 +35,7 @@ public class UnpackComplexSemType {
     }
 
     public static List<BasicSubtype> unpack(ComplexSemType t) {
-        int some = t.some().bitset;
+        int some = t.some();
         List<BasicSubtype> subtypeList = new ArrayList<>();
         for (ProperSubtypeData data : t.subtypeDataList()) {
             int code = Integer.numberOfTrailingZeros(some);

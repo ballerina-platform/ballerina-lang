@@ -6782,7 +6782,7 @@ public class Types {
             bitset = b.bitset;
         } else {
             ComplexSemType cst = (ComplexSemType) t;
-            bitset = cst.all().bitset | cst.some().bitset;
+            bitset = cst.all() | cst.some();
         }
 
         if ((bitset & PredefinedType.NIL.bitset) != 0) {

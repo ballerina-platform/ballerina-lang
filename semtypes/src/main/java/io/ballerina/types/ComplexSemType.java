@@ -35,8 +35,8 @@ public interface ComplexSemType extends SemType {
             return CellSemType.from(subtypeData);
         }
         return new ComplexSemTypeImpl(
-                BasicTypeBitSet.from(allBitset),
-                BasicTypeBitSet.from(someBitset),
+                allBitset,
+                someBitset,
                 subtypeData);
     }
 
@@ -50,9 +50,9 @@ public interface ComplexSemType extends SemType {
         return createComplexSemType(allBitset, some, dataList.toArray(ProperSubtypeData[]::new));
     }
 
-    BasicTypeBitSet all();
+    int all();
 
-    BasicTypeBitSet some();
+    int some();
 
     ProperSubtypeData[] subtypeDataList();
 }

@@ -27,8 +27,7 @@ import java.util.Objects;
  */
 public final class CellSemType implements ComplexSemType {
 
-    private static final BasicTypeBitSet ALL = BasicTypeBitSet.from(0);
-    private static final BasicTypeBitSet SOME = PredefinedType.CELL;
+    private static final int SOME = PredefinedType.CELL.bitset;
     private final ProperSubtypeData[] subtypeDataList;
 
     private CellSemType(ProperSubtypeData[] subtypeDataList) {
@@ -46,12 +45,12 @@ public final class CellSemType implements ComplexSemType {
     }
 
     @Override
-    public BasicTypeBitSet all() {
-        return ALL;
+    public int all() {
+        return 0;
     }
 
     @Override
-    public BasicTypeBitSet some() {
+    public int some() {
         return SOME;
     }
 

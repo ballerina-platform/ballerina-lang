@@ -25,9 +25,11 @@ package io.ballerina.types;
 public final class BasicTypeBitSet implements SemType {
 
     public final int bitset;
+    public final boolean isSingleType;
 
-    private BasicTypeBitSet(int bitset) {
+    private BasicTypeBitSet(int bitset, boolean isSingleType) {
         this.bitset = bitset;
+        this.isSingleType = isSingleType;
     }
 
     public static BasicTypeBitSet from(int bitset) {
@@ -37,11 +39,11 @@ public final class BasicTypeBitSet implements SemType {
         if (Integer.bitCount(bitset) == 1) {
             return BitSetCache.CACHE[Integer.numberOfTrailingZeros(bitset)];
         }
-        return new BasicTypeBitSet(bitset);
+        return new BasicTypeBitSet(bitset, false);
     }
 
     public static BasicTypeBitSet union(BasicTypeBitSet t1, BasicTypeBitSet t2) {
-        return new BasicTypeBitSet(t1.bitset | t2.bitset);
+        return BasicTypeBitSet.from(t1.bitset | t2.bitset);
     }
 
     @Override
@@ -67,12 +69,13 @@ public final class BasicTypeBitSet implements SemType {
 
     private static final class BitSetCache {
 
-        private static final BasicTypeBitSet[] CACHE = new BasicTypeBitSet[33];
-        private static final BasicTypeBitSet ZERO = new BasicTypeBitSet(0);
+        private static final int SIZE = 0x14;
+        private static final BasicTypeBitSet[] CACHE = new BasicTypeBitSet[SIZE];
+        private static final BasicTypeBitSet ZERO = new BasicTypeBitSet(0, true);
 
         static {
-            for (int i = 0; i < 33; i++) {
-                CACHE[i] = new BasicTypeBitSet(1 << i);
+            for (int i = 0; i < SIZE; i++) {
+                CACHE[i] = new BasicTypeBitSet(1 << i, true);
             }
         }
     }
