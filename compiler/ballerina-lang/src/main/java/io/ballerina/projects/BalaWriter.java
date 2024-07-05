@@ -203,7 +203,7 @@ public abstract class BalaWriter {
                     return;
                 }
             }
-            if (!otherPlatformGraalvmCompatibleVerified(target, packageManifest.platforms()).equals("")) {
+            if (!otherPlatformGraalvmCompatibleVerified(target, packageManifest.platforms()).isEmpty()) {
                 Boolean otherGraalvmCompatible = packageManifest.platform(otherPlatformGraalvmCompatibleVerified(target,
                         packageManifest.platforms())).graalvmCompatible();
                 packageJson.setGraalvmCompatible(otherGraalvmCompatible);

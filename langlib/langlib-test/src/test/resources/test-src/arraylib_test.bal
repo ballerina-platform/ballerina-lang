@@ -688,6 +688,8 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
 function testShiftOperation() {
     testShiftOnTupleWithoutValuesForRestParameter();
+    testShiftOnTupleWithVariableInherentTypes();
+    testShiftOnTupleWithProperConditions();
 }
 
 function testShiftOnTupleWithoutValuesForRestParameter() {
@@ -704,7 +706,101 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     var message = err.detail()["message"];
     string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
+    assertValueEquality("the number of members in a tuple value should be greater " +
+    "than the member types of the tuple to perform a 'shift' operation", detailMessage);
+}
+
+type TestRecord1 record {string name; int age;};
+type TestRecord2 record {string classname;};
+function testShiftOnTupleWithVariableInherentTypes() {
+    [int, int, string...] tupleWithVariableInherentTypes1 = [0, 1, "hello"];
+    [anydata, anydata, anydata...] tempTuple1 = tupleWithVariableInherentTypes1;
+
+    [int, string, string...] tupleWithVariableInherentTypes2 = [0, "hello", "world"];
+    [anydata, anydata, anydata...] tempTuple2 = tupleWithVariableInherentTypes2;
+
+    TestRecord1 person1 = {
+        name:"James",
+        age:15
+        };
+
+    TestRecord2 student = {
+        classname: "Science"
+        };
+
+    [TestRecord1, TestRecord2...] tupleTemp = [person1, student];
+    [anydata, anydata...] tuplePeople = tupleTemp;
+
+    var fn1 = function() {
+        var x = tempTuple1.shift();
+    };
+
+    var fn2 = function() {
+        var y = tempTuple2.shift();
+    };
+
+    var fn3 = function() {
+        var z = tuplePeople.shift();
+    };
+
+    error? res1 = trap fn1();
+    error? res2 = trap fn2();
+    error? res3 = trap fn3();
+    assertTrue(res1 is error);
+    assertTrue(res2 is error);
+    assertTrue(res3 is error);
+
+    error err1 = <error>res1;
+    error err2 = <error>res2;
+    error err3 = <error>res3;
+    var message1 = err1.detail()["message"];
+    var message2 = err2.detail()["message"];
+    var message3 = err3.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
+    string detailMessage3 = message3 is error ? message3.toString() : message3.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err3.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage1);
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
+    assertValueEquality("incompatible types: expected 'TestRecord1', found 'TestRecord2'", detailMessage3);
+}
+
+function testShiftOnTupleWithProperConditions() {
+    [int, int, int...] properTuple = [0, 1, 3];
+    [int|string, int|boolean, boolean|string...] properTuple2 = ["hello", 3, false];
+    [anydata, anydata, anydata...] properTuple3 = properTuple2;
+    [int|string, int|string, int|string...] properTuple4 = [1, 3, "world"];
+
+    TestRecord1 person1 = {
+        name:"James",
+        age:15
+        };
+
+    TestRecord1 person2 = {
+        name:"Sally",
+        age:18
+        };
+
+    [TestRecord1, TestRecord1...] properTuple5 = [person1, person2];
+
+    int x = properTuple.shift();
+    anydata val = properTuple3.shift();
+    int|string val2 = properTuple4.shift();
+    TestRecord1 val3 = properTuple5.shift();
+
+    assertTrue(x is int);
+    assertTrue(val2 is int|string);
+    assertTrue(val3 is TestRecord1);
+    assertValueEquality(0, x);
+    assertValueEquality("hello", val);
+    assertValueEquality(val2, 1);
+    assertValueEquality(val3, person1);
+    assertValueEquality([1, 3], properTuple);
+    assertValueEquality([3, false], properTuple3);
+    assertValueEquality([3, "world"], properTuple4);
+    assertValueEquality([person2], properTuple5);
 }
 
 type UnshiftType1 record {string val1; int val2;};

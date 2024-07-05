@@ -51,8 +51,8 @@ import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 @CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina package")
 public class NewCommand implements BLauncherCmd {
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
     Path homeCache = RepoUtils.createAndGetHomeReposPath();
 
     @CommandLine.Parameters
@@ -156,7 +156,7 @@ public class NewCommand implements BLauncherCmd {
 
             // Check if package contains files/directories other than .bal files exist.
             String packageFiles = checkPackageFilesExists(packagePath);
-            if (!packageFiles.equals("") && !template.equals(DEFAULT_TEMPLATE)) {
+            if (!packageFiles.isEmpty() && !template.equals(DEFAULT_TEMPLATE)) {
                 CommandUtil.printError(errStream,
                         "existing " + packageFiles.substring(0, packageFiles.length() - 2) +
                                 " file/directory(s) were found. " +
@@ -257,7 +257,7 @@ public class NewCommand implements BLauncherCmd {
                 // create package with inbuilt template
                 if (Files.exists((packagePath))) {
                     String existingFiles = CommandUtil.checkTemplateFilesExists(template, packagePath);
-                    if (!existingFiles.equals("")) {
+                    if (!existingFiles.isEmpty()) {
                         CommandUtil.printError(errStream,
                                 "existing " + existingFiles.substring(0, existingFiles.length() - 2) +
                                         " file/directory(s) were found. " +

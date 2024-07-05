@@ -15,7 +15,7 @@ allprojects {
     group = project.group
     version = project.version
 
-    task printPath {
+    tasks.register('printPath') {
         doLast{
             println projectDir
         }
@@ -66,39 +66,54 @@ dependencies {
 
 def classFilesArray = []
 def execFilesArray = []
+def skipDirectories = [
+        "ballerina-gradle-plugins", // Gradle plugins
+        "jballerina-benchmark-test", // Benchmark test code
+        "lib-creator", // Gradle code for generate Bala files
+        "semtypes", // Tests are in nBallerina branch
+        "test-artifacts",// Tests directories for project api
+        "ballerina-lang/tests"// Ballerina Language Tests
+]
 
-task copyExecFilesAndJavaClassFiles {
-    subprojects.forEach { subproject -> 
-        def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
-        if (execFile.exists()) {
-            execFilesArray.push(execFile)
-            fileTree("${subproject.buildDir}/classes").matching {
-                exclude '**/test/*'
-                exclude '**/module-info.class'
-                include '**/*.class'
-            }.each { file -> classFilesArray.push(file) }
+tasks.register('copyExecFilesAndJavaClassFiles') {
+    subprojects.forEach { subproject ->
+        fileTree("${subproject.buildDir}/jacoco").matching {
+            include "**/*.exec"
+        }.each {
+            execFilesArray.push(it)
+        }
+        // Sources of modules used specifically for tests, gradle plugins are skipped
+        boolean skipProject = false
+        skipDirectories.forEach { dir ->
+            {
+                if (subproject.projectDir.path.contains(dir)) {
+                    skipProject = true
+                    return
+                }
+            }
+        }
+        if (skipProject) {
+            return
+        }
+        fileTree("${subproject.buildDir}/classes").matching {
+            exclude '**/java/test/**'
+            exclude '**/default/**'
+            exclude '**/module-info.class'
+        }.each { file ->
+            classFilesArray.push(file)
         }
     }
 }
 
-task copyBallerinaClassFiles {
-    subprojects.forEach { subproject -> 
-    def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
+tasks.register('copyBallerinaClassFiles') {
+    subprojects.forEach { subproject ->
+        def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
         if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
             fileTree("${subproject.buildDir}/ballerina-src/target").include("**/*.zip").forEach { zip ->
-                def jarFiles = zipTree(zip).matching { include '**/*.jar' } 
+                def jarFiles = zipTree(zip).matching { include '**/*.jar' }
                 jarFiles.forEach { jar ->
                     zipTree(jar).matching {
                         exclude '**/tests/*'
-                        exclude '**/$_init.class'
-                        exclude '**/$value$Caller.class'
-                        exclude '**/$value$Detail.class'
-                        exclude '**/$value$DetailType.class'
-                        exclude '**/$value$EmptyIterator.class'
-                        exclude '**/$value$$anonType$_6.class'
-                        exclude '**/$value$$anonType$_*.class'
-                        exclude '**/$value$_Frame.class'
-                        include '**/*.class'
                     }.each { file -> classFilesArray.push(file) }
                 }
             }
@@ -106,7 +121,7 @@ task copyBallerinaClassFiles {
     }
 }
 
-task createCodeCoverageReport(type: JacocoReport) {
+tasks.register('createCodeCoverageReport', JacocoReport) {
     executionData files(execFilesArray)
     additionalClassDirs files(classFilesArray)
     reports {
