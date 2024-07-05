@@ -332,10 +332,12 @@ public class XMLToRecordConverter {
                 return recordFields;
             }
             Token fieldType = getPrimitiveTypeName(xmlElement.getFirstChild().getNodeValue());
+            TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(
+                    fieldType.kind(), fieldType);
             IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(textFieldName == null ?
                     escapeIdentifier("#content") : textFieldName);
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldType,
+            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldTypeName,
                     fieldName, null, semicolon);
             recordFields.add(recordFieldNode);
             for (int j = 0; j < attributeLength; j++) {
