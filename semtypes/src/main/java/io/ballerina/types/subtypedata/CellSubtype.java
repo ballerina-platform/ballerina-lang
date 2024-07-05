@@ -53,6 +53,6 @@ public class CellSubtype {
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);
         ComplexSemType complexSemType = PredefinedType.basicSubtype(BasicTypeCode.BT_CELL, bdd);
-        return CellSemType.from(complexSemType.subtypeDataList);
+        return CellSemType.from(complexSemType.subtypeDataList());
     }
 }

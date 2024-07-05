@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -21,43 +21,30 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * This is to represent a SemType belonging to cell basic type.
+ * ComplexSemType node.
  *
- * @since 2201.10.0
+ * @since 2201.8.0
  */
-public final class CellSemType implements ComplexSemType {
-
-    private static final BasicTypeBitSet ALL = BasicTypeBitSet.from(0);
-    private static final BasicTypeBitSet SOME = PredefinedType.CELL;
+public class ComplexSemTypeImpl implements ComplexSemType {
+    // For a basic type with code c,
+    // all & (1 << c) is non-zero iff this type contains all of the basic type
+    // some & (1 << c) is non-zero iff this type contains some but not all of the basic type
+    private final BasicTypeBitSet all;
+    private final BasicTypeBitSet some;
+    // There is one member of subtypes for each bit set in some.
+    // Ordered in increasing order of BasicTypeCode
     private final ProperSubtypeData[] subtypeDataList;
 
-    private CellSemType(ProperSubtypeData[] subtypeDataList) {
-        assert subtypeDataList.length == 1;
+    ComplexSemTypeImpl(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
+        this.all = all;
+        this.some = some;
         this.subtypeDataList = subtypeDataList;
-    }
-
-    public static CellSemType from(ProperSubtypeData[] subtypeDataList) {
-        return new CellSemType(subtypeDataList);
     }
 
     @Override
     public String toString() {
-        return "CellSemType{" + subtypeDataList()[0] + '}';
-    }
-
-    @Override
-    public BasicTypeBitSet all() {
-        return ALL;
-    }
-
-    @Override
-    public BasicTypeBitSet some() {
-        return SOME;
-    }
-
-    @Override
-    public ProperSubtypeData[] subtypeDataList() {
-        return subtypeDataList;
+        return "ComplexSemType{all=" + all() + ", some=" + some() + ", subtypeDataList=" +
+                Arrays.toString(subtypeDataList()) + '}';
     }
 
     @Override
@@ -78,4 +65,18 @@ public final class CellSemType implements ComplexSemType {
         return Objects.hash(all(), some(), Arrays.hashCode(subtypeDataList()));
     }
 
+    @Override
+    public BasicTypeBitSet all() {
+        return all;
+    }
+
+    @Override
+    public BasicTypeBitSet some() {
+        return some;
+    }
+
+    @Override
+    public ProperSubtypeData[] subtypeDataList() {
+        return subtypeDataList;
+    }
 }

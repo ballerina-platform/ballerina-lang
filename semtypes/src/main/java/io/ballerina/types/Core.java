@@ -85,15 +85,15 @@ public final class Core {
                     return t1;
                 }
                 ComplexSemType c2 = (ComplexSemType) t2;
-                all2 = c2.all;
-                some2 = c2.some;
+                all2 = c2.all();
+                some2 = c2.some();
             }
             all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType c1 = (ComplexSemType) t1;
-            all1 = c1.all;
-            some1 = c1.some;
+            all1 = c1.all();
+            some1 = c1.some();
             if (t2 instanceof BasicTypeBitSet b2) {
                 if (b2.bitset == BasicTypeCode.VT_MASK) {
                     return BasicTypeBitSet.from(0);
@@ -102,8 +102,8 @@ public final class Core {
                 some2 = BasicTypeBitSet.from(0);
             } else {
                 ComplexSemType c2 = (ComplexSemType) t2;
-                all2 = c2.all;
-                some2 = c2.some;
+                all2 = c2.all();
+                some2 = c2.some();
             }
         }
         BasicTypeBitSet all = BasicTypeBitSet.from(all1.bitset & ~(all2.bitset | some2.bitset));
@@ -144,9 +144,9 @@ public final class Core {
     }
 
     public static List<BasicSubtype> unpackComplexSemType(ComplexSemType t) {
-        int some = t.some.bitset;
+        int some = t.some().bitset;
         List<BasicSubtype> subtypeList = new ArrayList<>();
-        for (ProperSubtypeData data : t.subtypeDataList) {
+        for (ProperSubtypeData data : t.subtypeDataList()) {
             BasicTypeCode code = BasicTypeCode.from(Integer.numberOfTrailingZeros(some));
             subtypeList.add(BasicSubtype.from(code, data));
             int c = code.code;
@@ -158,14 +158,14 @@ public final class Core {
     public static SubtypeData getComplexSubtypeData(ComplexSemType t, BasicTypeCode code) {
         int c = code.code;
         c = 1 << c;
-        if ((t.all.bitset & c) != 0) {
+        if ((t.all().bitset & c) != 0) {
             return AllOrNothingSubtype.createAll();
         }
-        if ((t.some.bitset & c) == 0) {
+        if ((t.some().bitset & c) == 0) {
             return AllOrNothingSubtype.createNothing();
         }
-        int loBits = t.some.bitset & (c - 1);
-        return t.subtypeDataList[loBits == 0 ? 0 : Integer.bitCount(loBits)];
+        int loBits = t.some().bitset & (c - 1);
+        return t.subtypeDataList()[loBits == 0 ? 0 : Integer.bitCount(loBits)];
     }
 
     public static SemType union(SemType t1, SemType t2) {
@@ -180,22 +180,22 @@ public final class Core {
                 return BasicTypeBitSet.from(b1.bitset | b2.bitset);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
+                all2 = complexT2.all();
+                some2 = complexT2.some();
             }
             all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
-            all1 = complexT1.all;
-            some1 = complexT1.some;
+            all1 = complexT1.all();
+            some1 = complexT1.some();
             if (t2 instanceof BasicTypeBitSet b2) {
                 all2 = b2;
                 some2 = BasicTypeBitSet.from(0);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
+                all2 = complexT2.all();
+                some2 = complexT2.some();
             }
         }
 
@@ -253,15 +253,15 @@ public final class Core {
                     return t2;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
+                all2 = complexT2.all();
+                some2 = complexT2.some();
             }
             all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
-            all1 = complexT1.all;
-            some1 = complexT1.some;
+            all1 = complexT1.all();
+            some1 = complexT1.some();
             if (t2 instanceof BasicTypeBitSet b2) {
                 if (b2.bitset == 0) {
                     return t2;
@@ -273,8 +273,8 @@ public final class Core {
                 some2 = BasicTypeBitSet.from(0);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
-                all2 = complexT2.all;
-                some2 = complexT2.some;
+                all2 = complexT2.all();
+                some2 = complexT2.some();
             }
         }
 
@@ -331,7 +331,7 @@ public final class Core {
             return b.bitset == 0;
         } else {
             ComplexSemType ct = (ComplexSemType) t;
-            if (ct.all.bitset != 0) {
+            if (ct.all().bitset != 0) {
                 // includes all of, one or more basic types
                 return false;
             }
@@ -354,7 +354,7 @@ public final class Core {
             bits = b1.bitset;
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
-            bits = complexT1.all.bitset | complexT1.some.bitset;
+            bits = complexT1.all().bitset | complexT1.some().bitset;
         }
         return (bits & ~t2.bitset) == 0;
     }
@@ -368,7 +368,7 @@ public final class Core {
             return b;
         } else {
             ComplexSemType complexSemType = (ComplexSemType) t;
-            return BasicTypeBitSet.from(complexSemType.all.bitset | complexSemType.some.bitset);
+            return BasicTypeBitSet.from(complexSemType.all().bitset | complexSemType.some().bitset);
         }
     }
 
