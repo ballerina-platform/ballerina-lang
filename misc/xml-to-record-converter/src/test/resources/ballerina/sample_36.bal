@@ -1,4 +1,5 @@
 @xmldata:Namespace {
+    prefix: "ns2",
     uri: "example3.com"
 }
 type Ns2_Person record {

@@ -308,7 +308,7 @@ public class XMLToRecordConverter {
                 if (((xmlNode.getPrefix() == null && XMLNS_PREFIX.equals(xmlNode.getLocalName())) ||
                         (XMLNS_PREFIX.equals(xmlNode.getPrefix()) &&
                         xmlNode.getLocalName().equals(xmlElement.getPrefix()))) && withNameSpace) {
-                    String prefix = null;
+                    String prefix = xmlElement.getPrefix();
                     if (xmlElement.getPrefix() != null && xmlElement.getPrefix().equals(xmlNode.getLocalName())) {
                         prefix = xmlNode.getLocalName();
                     }

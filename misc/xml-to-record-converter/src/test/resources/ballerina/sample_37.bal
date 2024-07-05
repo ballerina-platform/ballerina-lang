@@ -1,16 +1,11 @@
 @xmldata:Namespace {
+    prefix: "ns1",
     uri: "example3.com"
 }
 type Ns1_Person record {
     int __text;
-    @xmldata:Namespace {
-        uri: "example3.com"
-    }
     @xmldata:Attribute
     string age;
-    @xmldata:Namespace {
-        uri: "example3.com"
-    }
     @xmldata:Attribute
     string city;
     @xmldata:Namespace {
@@ -32,9 +27,6 @@ type Ns2_Details record {
         uri: "example.com"
     }
     string Status;
-    @xmldata:Namespace {
-        uri: "example2.com"
-    }
     @xmldata:Attribute
     string number;
 };
