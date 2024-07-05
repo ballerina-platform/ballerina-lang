@@ -25,7 +25,7 @@ package io.ballerina.types;
 public final class BasicTypeBitSet implements SemType {
 
     public final int bitset;
-    public final boolean isSingleType;
+    private final boolean isSingleType;
 
     private BasicTypeBitSet(int bitset, boolean isSingleType) {
         this.bitset = bitset;
@@ -64,6 +64,16 @@ public final class BasicTypeBitSet implements SemType {
 
     @Override
     public int hashCode() {
+        return bitset;
+    }
+
+    @Override
+    public boolean isSingleType() {
+        return isSingleType;
+    }
+
+    @Override
+    public int all() {
         return bitset;
     }
 

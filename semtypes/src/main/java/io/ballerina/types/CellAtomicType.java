@@ -28,7 +28,16 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
         assert ty != null;
-        // TODO: return final fields where applicable
+        if (Core.isNever(ty)) {
+            return CellAtomicTypeCache.NEVER;
+        } else if (ty.isSingleType()) {
+            CellAtomicTypeCacheInner cache = switch (mut) {
+                case CELL_MUT_NONE -> CellAtomicTypeCache.NONE_CACHE;
+                case CELL_MUT_LIMITED -> CellAtomicTypeCache.LIMITED_CACHE;
+                case CELL_MUT_UNLIMITED -> CellAtomicTypeCache.UNLIMITED_CACHE;
+            };
+            return cache.cached(ty);
+        }
         return new CellAtomicType(ty, mut);
     }
 
@@ -41,5 +50,34 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
         CELL_MUT_UNLIMITED
+    }
+
+    private static final class CellAtomicTypeCache {
+
+        private static final CellAtomicType NEVER =
+                new CellAtomicType(PredefinedType.NEVER, CellMutability.CELL_MUT_NONE);
+        private static final CellAtomicTypeCacheInner NONE_CACHE =
+                new CellAtomicTypeCacheInner(CellMutability.CELL_MUT_NONE);
+        private static final CellAtomicTypeCacheInner LIMITED_CACHE =
+                new CellAtomicTypeCacheInner(CellMutability.CELL_MUT_LIMITED);
+        private static final CellAtomicTypeCacheInner UNLIMITED_CACHE =
+                new CellAtomicTypeCacheInner(CellMutability.CELL_MUT_UNLIMITED);
+    }
+
+    private static final class CellAtomicTypeCacheInner {
+
+        private static final int SIZE = 0x14;
+        private final CellAtomicType[] cache = new CellAtomicType[SIZE];
+
+        private CellAtomicTypeCacheInner(CellMutability mut) {
+            for (int i = 0; i < SIZE; i++) {
+                cache[i] = new CellAtomicType(BasicTypeBitSet.from(1 << i), mut);
+            }
+        }
+
+        private CellAtomicType cached(SemType ty) {
+            int idx = Integer.numberOfTrailingZeros(ty.all());
+            return cache[idx];
+        }
     }
 }

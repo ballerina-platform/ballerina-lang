@@ -80,4 +80,9 @@ public class ComplexSemTypeImpl implements ComplexSemType {
     public ProperSubtypeData[] subtypeDataList() {
         return subtypeDataList;
     }
+
+    @Override
+    public boolean isSingleType() {
+        return false;
+    }
 }

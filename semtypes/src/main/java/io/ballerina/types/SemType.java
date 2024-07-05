@@ -23,4 +23,8 @@ package io.ballerina.types;
  * @since 2201.8.0
  */
 public interface SemType {
+
+    boolean isSingleType();
+
+    int all();
 }

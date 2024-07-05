@@ -77,4 +77,8 @@ public final class CellSemType implements ComplexSemType {
         return Objects.hash(all(), some(), Arrays.hashCode(subtypeDataList()));
     }
 
+    @Override
+    public boolean isSingleType() {
+        return false;
+    }
 }
