@@ -95,7 +95,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'org.bouncycastle:bcprov-jdk18on'
-    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation 'org.bouncycastle:bcpkix-jdk18on'
+    implementation 'org.bouncycastle:bcutil-jdk18on'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

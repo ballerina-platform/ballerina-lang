@@ -123,6 +123,13 @@ target = "java8"
     path = "./lib/bcpkix-jdk18on-1.78.1.jar"
     groupId = "org.bouncycastle"
     modules = ["grpc"]
+
+    [[platform.libraries]]
+    artifactId = "bcutil-jdk18on"
+    version = "1.78.1"
+    path = "./lib/bcutil-jdk18on-1.78.1.jar"
+    groupId = "org.bouncycastle"
+    modules = ["grpc"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-classes"

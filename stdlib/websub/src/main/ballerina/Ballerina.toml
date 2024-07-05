@@ -113,7 +113,14 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "bcpkix-jdk18on"
     version = "1.78.1"
-    path = "./lib/bcpkix-jdk15on-1.78.1.jar"
+    path = "./lib/bcpkix-jdk18on-1.78.1.jar"
+    groupId = "org.bouncycastle"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artifactId = "bcutil-jdk18on"
+    version = "1.78.1"
+    path = "./lib/bcutil-jdk18on-1.78.1.jar"
     groupId = "org.bouncycastle"
     modules = ["web-sub"]
     
