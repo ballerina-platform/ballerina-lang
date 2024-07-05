@@ -424,7 +424,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public Object shift(long index) {
         handleImmutableArrayValue();
-        validateTupleSizeAndInherentType(index);
+        validateTupleSizeAndInherentType((int) index);
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -825,7 +825,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void validateTupleSizeAndInherentType(long index) {
+    private void validateTupleSizeAndInherentType(int index) {
         List<Type> tupleTypesList = this.tupleType.getTupleTypes();
         int numOfMandatoryTypes = tupleTypesList.size();
         if (numOfMandatoryTypes >= this.getLength()) {
@@ -833,12 +833,12 @@ public class TupleValueImpl extends AbstractArrayValue {
                             OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE);
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
-        for (long i = index + 1; i <= numOfMandatoryTypes; i++) {
-            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get((int) (i - 1)))) {
+        for (int i = index + 1; i <= numOfMandatoryTypes; i++) {
+            if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get(i - 1))) {
                 throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.INCOMPATIBLE_TYPE,
-                        tupleTypesList.get((int) (i - 1)), (i == numOfMandatoryTypes) ?
-                                this.tupleType.getRestType() : tupleTypesList.get((int) i));
+                        tupleTypesList.get(i - 1), (i == numOfMandatoryTypes) ?
+                                this.tupleType.getRestType() : tupleTypesList.get(i));
             }
         }
     }

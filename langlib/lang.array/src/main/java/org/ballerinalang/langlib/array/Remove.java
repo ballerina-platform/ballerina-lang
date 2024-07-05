@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.values.BArray;
 
-
 /**
  * Native implementation of lang.array:remove((any|error)[], int).
  *
