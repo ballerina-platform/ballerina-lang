@@ -1,0 +1,11 @@
+<Test xmlns="example.com">
+    <Data xmlns:ns1="example1.com" xmlns:ns2="example2.com">
+        <ns2:Person xmlns="example3.com" ns2:name="Alice" ns2:age="30">2</ns2:Person>
+        <C>Example</C>
+        <ns1:Details>
+            <ns1:Info>Additional Info</ns1:Info>
+            <ns1:Status>Active</ns1:Status>
+        </ns1:Details>
+        <B>Sample</B>
+    </Data>
+</Test>

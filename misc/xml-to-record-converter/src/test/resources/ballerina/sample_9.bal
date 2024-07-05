@@ -1,11 +1,23 @@
 type Ns1_Element1 record {
+    @xmldata:Namespace {
+        prefix: "ns1",
+        uri: "http://namespace1.com"
+    }
     @xmldata:Attribute
     string attribute1;
+    @xmldata:Namespace {
+        prefix: "ns2",
+        uri: "http://namespace2.com"
+    }
     @xmldata:Attribute
     string attribute2;
 };
 
 type Ns2_Null record {
+    @xmldata:Namespace {
+        prefix: "xsi",
+        uri: "http://www.w3.org/2001/XMLSchema-instance"
+    }
     @xmldata:Attribute
     string nil;
 };
