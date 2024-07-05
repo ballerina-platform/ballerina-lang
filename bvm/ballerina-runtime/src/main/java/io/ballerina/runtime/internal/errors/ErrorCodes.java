@@ -157,7 +157,8 @@ public enum ErrorCodes implements DiagnosticCode {
     CONFIG_ENV_VAR_NAME_AMBIGUITY("config.env.variable.name.ambiguity", "RUNTIME_0127"),
     NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0128"),
     INVALID_METHOD_CALL("invalid.method.call", "RUNTIME_0129"),
-    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130");
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0130"),
+    INVALID_TUPLE_MEMBER_SIZE("invalid.tuple.member.size", "RUNTIME_0131");
 
     private final String errorMsgKey;
     private final String errorCode;

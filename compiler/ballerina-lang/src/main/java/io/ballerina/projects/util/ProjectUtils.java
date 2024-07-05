@@ -49,6 +49,8 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.ToolDependency;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -197,10 +199,18 @@ public class ProjectUtils {
     private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
         for (DocumentId docId : documentIds) {
             Document document = module.document(docId);
-
             ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-
             for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                boolean isErrorInImport = false;
+                for (Diagnostic diagnostic : importDcl.diagnostics()) {
+                    if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        isErrorInImport = true;
+                        break;
+                    }
+                }
+                if (isErrorInImport) {
+                    continue;
+                }
                 String orgName = "";
                 if (importDcl.orgName().isPresent()) {
                     orgName = importDcl.orgName().get().orgName().text();
@@ -434,7 +444,7 @@ public class ProjectUtils {
 
     public static String getBalaName(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -451,7 +461,7 @@ public class ProjectUtils {
      */
     public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return Paths.get(org, pkgName, version, platform);
