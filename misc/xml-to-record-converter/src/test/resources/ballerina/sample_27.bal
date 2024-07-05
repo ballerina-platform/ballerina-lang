@@ -19,8 +19,6 @@ type Item record {
 
 type Items record {
     Item[] item;
-    @xmldata:Attribute
-    string 'xmlns;
 };
 
 type Order record {
