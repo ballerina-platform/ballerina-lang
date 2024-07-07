@@ -39,6 +39,7 @@ public class Constants {
     public static final String GRAPHQL_COMMAND = "graphql";
     public static final String OPENAPI_COMMAND = "openapi";
     public static final String ASYNCAPI_COMMAND = "asyncapi";
+    public static final String WSDL_COMMAND = "wsdl";
     public static final String PERSIST_COMMAND = "persist";
     public static final String VERSION_COMMAND = "version";
     public static final String BINDGEN_COMMAND = "bindgen";

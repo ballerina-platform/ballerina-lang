@@ -85,6 +85,7 @@ import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
+import static io.ballerina.cli.cmd.Constants.WSDL_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -109,7 +110,7 @@ public class BalToolsUtil {
     // if a command is a built-in tool command, remove it from this list
     private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, BINDGEN_COMMAND,
             SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
-            PERSIST_COMMAND, PROFILE_COMMAND);
+            PERSIST_COMMAND, PROFILE_COMMAND, WSDL_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);

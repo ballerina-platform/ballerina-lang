@@ -12,8 +12,12 @@ module io.ballerina.wsdltoballerina {
     requires org.eclipse.lsp4j.jsonrpc;
     requires XmlSchema;
     requires camel.util;
+    requires info.picocli;
+    requires io.ballerina.cli;
 
     exports io.ballerina.wsdltoballerina;
     exports io.ballerina.wsdltoballerina.recordgenerator;
     exports io.ballerina.wsdltoballerina.recordgenerator.ballerinair;
+    exports io.ballerina.wsdltoballerina.diagnostic;
+    exports io.ballerina.wsdltoballerina.wsdlmodel;
 }

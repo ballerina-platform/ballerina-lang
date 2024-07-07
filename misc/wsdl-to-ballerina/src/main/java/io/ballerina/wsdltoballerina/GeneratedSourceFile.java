@@ -18,23 +18,28 @@
 
 package io.ballerina.wsdltoballerina;
 
-public class SOAPClientResponse {
-    private String clientCodeBlock = "";
-    private String typesCodeBlock = "";
+public class GeneratedSourceFile {
+    private String fileName;
+    private String content;
 
-    public String getClientCodeBlock() {
-        return clientCodeBlock;
+    public GeneratedSourceFile(String fileName, String content) {
+        this.fileName = fileName;
+        this.content = content;
     }
 
-    public void setClientCodeBlock(String clientCodeBlock) {
-        this.clientCodeBlock = clientCodeBlock;
+    public String getFileName() {
+        return fileName;
     }
 
-    public String getTypesCodeBlock() {
-        return typesCodeBlock;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public void setTypesCodeBlock(String typesCodeBlock) {
-        this.typesCodeBlock = typesCodeBlock;
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

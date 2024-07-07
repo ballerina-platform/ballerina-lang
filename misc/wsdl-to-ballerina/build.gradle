@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
@@ -33,11 +33,13 @@ dependencies {
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
+    implementation project(':ballerina-cli')
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     implementation "org.javatuples:javatuples:${project.javaTuples}"
-    implementation "wsdl4j:wsdl4j:1.6.3"
-    implementation "org.apache.ws.commons.schema:XmlSchema:1.4.7"
+    implementation "wsdl4j:wsdl4j:${project.wsdl4jVersion}"
+    implementation "org.apache.ws.commons.schema:XmlSchema:${project.apacheXmlSchemaVersion}"
     implementation "org.apache.camel:camel-core:4.6.0"
+    implementation "info.picocli:picocli"
 
     testImplementation 'org.testng:testng'
     testImplementation project(':ballerina-lang')

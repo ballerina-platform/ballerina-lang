@@ -18,8 +18,8 @@
 
 package io.ballerina.wsdltoballerina;
 
-import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.ComplexField;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.BasicField;
+import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.ComplexField;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.EnumConstraint;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.Field;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -270,7 +270,8 @@ public class XMLSchemaParser {
         return attributeBasicField;
     }
 
-    private BasicField processDependentBasicFieldForAttribute(XmlSchemaAttribute attribute, XmlSchemaSimpleType elementType) {
+    private BasicField processDependentBasicFieldForAttribute(XmlSchemaAttribute attribute,
+                                                              XmlSchemaSimpleType elementType) {
         String name = elementType.getName();
         XmlSchemaSimpleTypeContent typeContent = elementType.getContent();
         if (typeContent == null) {

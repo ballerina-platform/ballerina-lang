@@ -103,6 +103,8 @@ dependencies {
     dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
     dist "org.awaitility:awaitility:${project.awaitilityVersion}"
     dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
+    dist "wsdl4j:wsdl4j:${project.wsdl4jVersion}"
+    dist "org.apache.ws.commons.schema:XmlSchema:${project.apacheXmlSchemaVersion}"
 
     // observability extensions
     //// metrics

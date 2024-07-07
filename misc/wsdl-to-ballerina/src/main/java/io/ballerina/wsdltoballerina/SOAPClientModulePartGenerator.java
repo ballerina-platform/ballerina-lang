@@ -26,8 +26,8 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.wsdltoballerina.wsdlmodel.WSDLService;
 import io.ballerina.wsdltoballerina.wsdlmodel.SOAPVersion;
+import io.ballerina.wsdltoballerina.wsdlmodel.WSDLService;
 
 import java.util.ArrayList;
 import java.util.List;

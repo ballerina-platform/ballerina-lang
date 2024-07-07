@@ -41,7 +41,6 @@ import java.util.List;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyNodeList;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createIdentifierToken;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createNodeList;
-import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSeparatedNodeList;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createFunctionBodyBlockNode;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -79,7 +78,8 @@ public class SOAPFunctionGenerator {
     private FunctionSignatureNode getfunctionSignatureNode() {
         SeparatedNodeList<ParameterNode> parameterList =
                 NodeFactory.createSeparatedNodeList(getInputNode(wsdlOperation.getOperationInput().toString()));
-        ReturnTypeDescriptorNode returnTypeDescriptorNode = getReturnType(wsdlOperation.getOperationOutput().toString());
+        ReturnTypeDescriptorNode returnTypeDescriptorNode =
+                getReturnType(wsdlOperation.getOperationOutput().toString());
         return NodeFactory.createFunctionSignatureNode(createToken(OPEN_PAREN_TOKEN), parameterList,
                 createToken(CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
     }

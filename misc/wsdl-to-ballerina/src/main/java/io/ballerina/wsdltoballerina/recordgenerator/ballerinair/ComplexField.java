@@ -25,10 +25,10 @@ import java.util.List;
  * This class represents a Ballerina Complex Filed (ie: Record type),
  * <p>
  * This class supports below specs.
- * <XSD>
+ * XSD
  *     - annotations?
  *     - (simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?)))
- * </XSD>
+ * XSD
  */
 public class ComplexField extends Field {
     private String name;

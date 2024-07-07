@@ -16,19 +16,9 @@
  *  under the License.
  */
 
-package io.ballerina.wsdltoballerina;
+package io.ballerina.wsdltoballerina.cmd;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-public class WSDLToBallerinaTests {
-
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-    private static final String XML_DIR = "xml";
-    private static final String BAL_DIR = "ballerina";
-
-    private final Path sample0XML = RES_DIR.resolve(XML_DIR)
-            .resolve("sample_0.xml");
-    private final Path sample0Bal = RES_DIR.resolve(BAL_DIR)
-            .resolve("sample_0.bal");
+public class ErrorMessages {
+    public static final String MISSING_WSDL_PATH = "A WSDL definition path is required to generate the " +
+            "client. \ne.g: bal openapi --input <WSDL>";
 }

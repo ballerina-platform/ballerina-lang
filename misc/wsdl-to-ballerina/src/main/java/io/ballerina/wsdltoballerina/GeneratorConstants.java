@@ -25,6 +25,7 @@ public class GeneratorConstants {
     public static final String SOAP_SOAP12 = "soap.soap12";
     public static final String SOAP11 = "soap11";
     public static final String SOAP12 = "soap12";
+    public static final String DATA = "data";
     public static final String XML_DATA = "xmldata";
 
     public static final String SERVICE_URL = "serviceUrl";

@@ -18,22 +18,29 @@
 
 package io.ballerina.wsdltoballerina;
 
-import com.ibm.wsdl.extensions.schema.SchemaImpl;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.wsdltoballerina.wsdlmodel.WSDLHeader;
+import io.ballerina.wsdltoballerina.diagnostic.DiagnosticMessage;
+import io.ballerina.wsdltoballerina.diagnostic.DiagnosticUtils;
+import io.ballerina.wsdltoballerina.wsdlmodel.SOAPVersion;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLMessage;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLOperation;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLPart;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLPayload;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLService;
-import io.ballerina.wsdltoballerina.wsdlmodel.SOAPVersion;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
-import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
@@ -46,6 +53,7 @@ import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLElement;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
@@ -55,27 +63,20 @@ import javax.wsdl.extensions.soap12.SOAP12Operation;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class WSDLToBallerina {
     private Port soapPort;
     private SOAPVersion soapVersion;
 
-    public SOAPClientResponse generateFromWSDL(String wsdlText) {
-        SOAPClientResponse response = new SOAPClientResponse();
+    public WSDLToBallerinaResponse generateFromWSDL(String wsdlText, List<String> filteredWSDLOperations) {
+        List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
+        WSDLToBallerinaResponse response = new WSDLToBallerinaResponse();
         try {
             WSDLReader reader = WSDLFactory.newInstance().newWSDLReader();
             reader.setFeature("javax.wsdl.verbose", false);
             reader.setFeature("javax.wsdl.importDocuments", true);
 
-            InputStream wsdlStream = new ByteArrayInputStream(wsdlText.getBytes());
+            InputStream wsdlStream = new ByteArrayInputStream(wsdlText.getBytes(Charset.defaultCharset()));
             Definition wsdlDefinition = reader.readWSDL(null, new InputSource(wsdlStream));
 
             WSDLService wsdlService = getSOAPService(wsdlDefinition);
@@ -86,25 +87,24 @@ public class WSDLToBallerina {
             soapVersion = wsdlService.getSoapVersion();
             initializeSchemas(wsdlDefinition);
 
-            List<WSDLOperation> wsdlOperations = getSOAPOperations();
+            List<WSDLOperation> wsdlOperations = getWSDLOperations();
             wsdlService.setWSDLOperations(wsdlOperations);
 
             TypeGenerator typeGenerator = new TypeGenerator(wsdlService);
-            String typeModulePart = typeGenerator.generate();
-            response.setTypesCodeBlock(typeModulePart);
 
-            ModulePartNode modulePartNode =
-                    (new SOAPClientModulePartGenerator(wsdlService)).getSOAPClientModulePartNode();
             try {
-                FormattingOptions options = FormattingOptions.builder().build();
-                response.setClientCodeBlock(Formatter.format(modulePartNode.syntaxTree(), options).toSourceCode());
+                String typeModulePart = typeGenerator.generate(filteredWSDLOperations);
+                GeneratedSourceFile typesSrc = new GeneratedSourceFile("types.bal", typeModulePart);
+                response.setTypesSource(typesSrc);
             } catch (FormatterException e) {
-                e.printStackTrace();
+                DiagnosticMessage message = DiagnosticMessage.wsdlToBallerinaErr101(null);
+                diagnosticMessages.add(message);
             }
         } catch (WSDLException e) {
-            e.printStackTrace();
+            DiagnosticMessage message = DiagnosticMessage.wsdlToBallerinaErr100(null);
+            diagnosticMessages.add(message);
         }
-        return response;
+        return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
     }
 
     private void initializeSchemas(Definition wsdlDefinition) {
@@ -115,8 +115,8 @@ public class WSDLToBallerina {
             extensions = wsdlDefinition.getTypes().getExtensibilityElements();
         }
         for (Object extension : extensions) {
-            if (extension instanceof SchemaImpl) {
-                Element schElement = ((SchemaImpl) extension).getElement();
+            if (extension instanceof Schema) {
+                Element schElement = ((Schema) extension).getElement();
                 String targetNamespace = schElement.getAttribute("targetNamespace");
                 if (!targetNamespace.isEmpty()) {
                     targetNSToSchema.put(targetNamespace, new XmlSchemaCollection().read(schElement));
@@ -153,7 +153,7 @@ public class WSDLToBallerina {
         return null;
     }
 
-    private List<WSDLOperation> getSOAPOperations() {
+    private List<WSDLOperation> getWSDLOperations() {
         List<WSDLOperation> wsdlOperations = new ArrayList<>();
         for (Object op : soapPort.getBinding().getBindingOperations()) {
             BindingOperation bindingOperation = (BindingOperation) op;
@@ -194,11 +194,9 @@ public class WSDLToBallerina {
         }
         for (Object element : extensions) {
             if (soapVersion == SOAPVersion.SOAP11 && element instanceof SOAPHeader) {
-                SOAPHeader soapHeader = (SOAPHeader) element;
-                wsdlPayload.addHeader(new WSDLHeader());
+                // TODO: Implement later.
             } else if (soapVersion == SOAPVersion.SOAP12 && element instanceof SOAP12Header) {
-                SOAP12Header soapHeader = (SOAP12Header) element;
-                wsdlPayload.addHeader(new WSDLHeader());
+                // TODO: Implement later.
             }
         }
         if (message != null) {
@@ -218,32 +216,4 @@ public class WSDLToBallerina {
         }
         return wsdlPayload;
     }
-
-    /**
-     * Fetches details (names and types) for a given operation parameter or return value
-     *
-     * @param name        A String representing the name of the part within the WSDL
-     * @param elementName The qualified name of the actual part to identify it uniquely if possible
-     * @param typeName    The qualified name of the parts type to use it directly if elementName is not set
-     * @return A String encoding the parts details
-     */
-//    private List<Field> getParameterDetails(String name, QName elementName, QName typeName) {
-//        XmlSchema schema = targetNSToSchema.get(elementName.getNamespaceURI());
-//        XmlSchemaElement param = (elementName != null)
-//                ? schema.getElementByName(elementName)
-//                : null;
-//
-//        XMLSchemaParser schemaParser = new XMLSchemaParser(param);
-//        List<Field> field = schemaParser.parseRootElement();
-//        return field;
-//
-////        if (param instanceof XmlSchemaComplexType) {
-////            return processComplexType((XmlSchemaComplexType) param, name);
-////        } else if (param instanceof XmlSchemaSimpleType) {
-////            return processSimpleType((XmlSchemaSimpleType) param, name, isOptional(schema.getElementByName(elementName)));
-////        } else {
-//////            return CodeWriter.keyVal(name, typeName.getLocalPart(), "");
-////            return "Someting";
-////        }
-//    }
 }

@@ -43,9 +43,9 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.wsdltoballerina.wsdlmodel.SOAPVersion;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLOperation;
 import io.ballerina.wsdltoballerina.wsdlmodel.WSDLService;
-import io.ballerina.wsdltoballerina.wsdlmodel.SOAPVersion;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -46,13 +46,11 @@ import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.ComplexField;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.EnumConstraint;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.Field;
 import io.ballerina.wsdltoballerina.recordgenerator.ballerinair.FieldConstraint;
-import org.ballerinalang.model.types.ArrayType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.ballerina.wsdltoballerina.GeneratorConstants.ATTR_NAME;
 import static io.ballerina.wsdltoballerina.GeneratorConstants.ATTR_VALUE;

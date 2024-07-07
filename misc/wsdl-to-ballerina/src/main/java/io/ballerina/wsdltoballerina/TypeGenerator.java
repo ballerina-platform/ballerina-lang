@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.wsdltoballerina.GeneratorConstants.BALLERINA;
+import static io.ballerina.wsdltoballerina.GeneratorConstants.DATA;
 import static io.ballerina.wsdltoballerina.GeneratorConstants.XML_DATA;
 
 public class TypeGenerator {
@@ -52,15 +53,17 @@ public class TypeGenerator {
         this.wsdlService = wsdlService;
     }
 
-    String generate() {
+    String generate(List<String> operations) throws FormatterException {
         RecordGenerator recordGenerator = new RecordGenerator();
         Map<String, NonTerminalNode> allTypeToTypeDescNodes = new LinkedHashMap<>();
         List<WSDLOperation> wsdlOperations = wsdlService.getWSDLOperations();
         for (WSDLOperation wsdlOperation : wsdlOperations) {
-            OperationProcessor operationProcessor = new OperationProcessor(wsdlOperation);
-            List<Field> fields = operationProcessor.generateFields();
-            Map<String, NonTerminalNode> typeToTypeDescNodes = recordGenerator.generateBallerinaTypes(fields);
-            allTypeToTypeDescNodes.putAll(typeToTypeDescNodes);
+            if (operations.isEmpty() || operations.contains(wsdlOperation.getOperationName())) {
+                OperationProcessor operationProcessor = new OperationProcessor(wsdlOperation);
+                List<Field> fields = operationProcessor.generateFields();
+                Map<String, NonTerminalNode> typeToTypeDescNodes = recordGenerator.generateBallerinaTypes(fields);
+                allTypeToTypeDescNodes.putAll(typeToTypeDescNodes);
+            }
         }
 
         boolean usesXmlData = recordGenerator.hasXmlDataUsage();
@@ -75,21 +78,7 @@ public class TypeGenerator {
                 new ArrayList<>(allTypeToTypeDescNodes.entrySet());
         List<TypeDefinitionNode> typeDefNodes = typeToTypeDescEntries.stream()
                 .map(entry -> {
-//                    List<AnnotationNode> annotations = new ArrayList<>();
                     String recordName = entry.getKey();
-//                    String recordTypeName = escapeIdentifier(StringUtils.capitalize(xmlElementNodeName));
-
-//                    if ((recordToTypeDescNodeEntries.indexOf(entry) == recordToTypeDescNodeEntries.size() - 1) &&
-//                            !recordName.equals(recordTypeName)) {
-//                        String annotNameValue = recordToElementNodes.get(recordName).getLocalName();
-//                        annotations.add(getXMLNameNode(annotNameValue));
-//                    }
-//                    if (recordToAnnotationNodes.containsKey(recordName)) {
-//                        annotations.add(recordToAnnotationNodes.get(recordName));
-//                    }
-//                    NodeList<AnnotationNode> annotationNodes = NodeFactory.createNodeList(annotations);
-
-//                    MetadataNode metadata = NodeFactory.createMetadataNode(null, annotationNodes);
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(recordName);
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
@@ -102,16 +91,14 @@ public class TypeGenerator {
 
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-        try {
-            FormattingOptions options = FormattingOptions.builder().build();
-            return Formatter.format(modulePartNode.syntaxTree(), options).toSourceCode();
-        } catch (FormatterException e) {
-            return e.getLocalizedMessage();
-        }
+
+        FormattingOptions options = FormattingOptions.builder().build();
+        return Formatter.format(modulePartNode.syntaxTree(), options).toSourceCode();
     }
 
     private List<ImportDeclarationNode> getImportDeclarations() {
-        ImportDeclarationNode importForXmlData = GeneratorUtils.getImportDeclarationNode(BALLERINA, XML_DATA);
+        ImportDeclarationNode importForXmlData =
+                GeneratorUtils.getImportDeclarationNode(BALLERINA, DATA + "." + XML_DATA);
         return new ArrayList<>(List.of(importForXmlData));
     }
 }

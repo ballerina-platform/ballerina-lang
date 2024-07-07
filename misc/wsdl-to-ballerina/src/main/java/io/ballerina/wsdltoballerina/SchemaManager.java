@@ -20,6 +20,7 @@ package io.ballerina.wsdltoballerina;
 
 import org.apache.ws.commons.schema.XmlSchema;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class SchemaManager {
@@ -28,7 +29,9 @@ public class SchemaManager {
 
     private Map<String, XmlSchema> targetNSToSchema;
 
-    private SchemaManager() {}
+    private SchemaManager() {
+        targetNSToSchema = new HashMap<>();
+    }
 
     public static SchemaManager getInstance() {
         return instance;
