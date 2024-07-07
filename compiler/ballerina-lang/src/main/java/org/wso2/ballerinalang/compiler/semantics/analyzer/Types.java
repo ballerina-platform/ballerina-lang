@@ -168,7 +168,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-    private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
@@ -200,9 +199,6 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
-        this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
-                                                            symTable.xmlElementType, symTable.xmlCommentType,
-                                                            symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
@@ -2062,10 +2058,14 @@ public class Types {
             case TypeTags.NEVER:
                 return constraint;
             case TypeTags.UNION:
+                BTypeSymbol collectionTSymbol = collectionType.tsymbol;
+                BTypeSymbol typeSymbol =
+                        Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                                collectionTSymbol.pkgID, null, collectionTSymbol.owner, symTable.builtinPos, VIRTUAL);
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
-                Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
-                        ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                return BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
+                BType type = BUnionType.create(typeSymbol, (LinkedHashSet<BType>) collectionTypes);
+                typeSymbol.type = type;
+                return type;
             default:
                 return null;
         }
