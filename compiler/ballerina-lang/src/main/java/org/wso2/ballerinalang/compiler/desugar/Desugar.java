@@ -6391,6 +6391,7 @@ public class Desugar extends BLangNodeVisitor {
                 fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else {
+                fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, symTable.xmlType);
                 BLangInvocation xmlAccessInvocation = rewriteXMLAttributeOrElemNameAccess(fieldAccessExpr);
                 xmlAccessInvocation.setBType(fieldAccessExpr.getBType());
                 result = xmlAccessInvocation;
