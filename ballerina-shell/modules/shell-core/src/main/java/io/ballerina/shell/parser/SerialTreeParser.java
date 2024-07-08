@@ -70,7 +70,7 @@ public class SerialTreeParser extends TrialTreeParser {
     @Override
     public Collection<Node> parse(String source) throws TreeParserException {
         String errorMessage = "";
-        if(!this.isSourceAllowed(source)) {
+        if (!this.isSourceAllowed(source)) {
             throw new TreeParserException();
         }
         for (TreeParserTrial trial : nodeParserTrials) {
@@ -136,17 +136,15 @@ public class SerialTreeParser extends TrialTreeParser {
     }
 
     /**
-     * Whether source is allowed to be parsed
+     * Whether source is allowed to be parsed.
      */
     private boolean isSourceAllowed(String source) {
         Optional<String> matchedSource = ParserConstants.getMatchedRestrictedSource(source);
-
         if (matchedSource.isPresent()) {
             addWarnDiagnostic("Found restricted keyword '" + matchedSource.get() + "' in the declaration.\n" +
                     "Discarded '" + source + "' without loading.");
             return false;
         }
-
         return true;
     }
 }
