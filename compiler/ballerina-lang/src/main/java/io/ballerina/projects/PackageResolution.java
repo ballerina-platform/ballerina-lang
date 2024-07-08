@@ -132,8 +132,8 @@ public class PackageResolution {
             List<String> cmdArgs = new ArrayList<>();
             cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
             cmdArgs.add("pull");
-            cmdArgs.add(STICKY_FLAG + resolutionOptions.sticky());
-            cmdArgs.add(OFFLINE_FLAG + resolutionOptions.offline());
+            cmdArgs.add(STICKY_FLAG + "=" + resolutionOptions.sticky());
+            cmdArgs.add(OFFLINE_FLAG + "=" + resolutionOptions.offline());
             cmdArgs.add(packageInstance.descriptor().toString());
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
