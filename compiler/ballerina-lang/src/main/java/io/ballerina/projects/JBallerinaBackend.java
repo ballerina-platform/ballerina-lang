@@ -30,6 +30,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -45,13 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -385,7 +380,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         //Add resources
         if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT && moduleContext.isDefaultModule()) {
-            // Add all resources at the resource directory to a resources.jar
+            // Add all resources at the resources directory to a resources.jar
             Map<String, byte[]> cachedResources = getAllCachedResources(moduleContext.project().targetDir());
             if (!cachedResources.isEmpty()) {
                 CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
@@ -645,6 +640,19 @@ public class JBallerinaBackend extends CompilerBackend {
                 // separately. Therefore the predicate should be set as false.
                 return false;
             }
+            if (entryName.startsWith("resources")) {
+                String newEntryName = "resources/" + entryName.substring(entryName.lastIndexOf('/') + 1);
+                if (!isCopiedEntry(newEntryName, copiedEntries) && !isExcludedEntry(newEntryName)) {
+                    copiedEntries.put(newEntryName, jarLibrary);
+                    try {
+                        copyEntry(outStream, zipFile, entry, newEntryName);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                // The resources entry is copied already
+                return false;
+            }
 
             // Skip already copied files or excluded extensions.
             if (isCopiedEntry(entryName, copiedEntries)) {
@@ -663,6 +671,20 @@ public class JBallerinaBackend extends CompilerBackend {
         // all the other original attributes.
         zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
+    }
+
+    private void copyEntry(ZipArchiveOutputStream outStream, ZipFile zipFile, ZipArchiveEntry entry,
+                           String newEntryName) throws IOException {
+        ZipArchiveEntry newEntry = new ZipArchiveEntry(newEntryName);
+        outStream.putArchiveEntry(newEntry);
+        try (InputStream input = zipFile.getInputStream(entry)) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = input.read(buffer)) > 0) {
+                outStream.write(buffer, 0, len);
+            }
+        }
+        outStream.closeArchiveEntry();
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -831,6 +853,9 @@ public class JBallerinaBackend extends CompilerBackend {
         Map<String, byte[]> resourceMap = getResources(moduleContext);
         for (DocumentId documentId : moduleContext.testResourceIds()) {
             String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org().toString() + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
                     + moduleContext.resourceContext(documentId).name();
             resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
         }
