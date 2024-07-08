@@ -14,14 +14,14 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "kafka-clients"
-    version = "2.8.2"
-    path = "./lib/kafka-clients-2.8.2.jar"
+    version = "3.3.2"
+    path = "./lib/kafka-clients-3.3.2.jar"
     groupId = "org.apache.kafka"
     modules = ["kafka"]
 
     [[platform.libraries]]
     artifactId = "kafka_2.13"
-    version = "2.8.2"
-    path = "./lib/kafka_2.13-2.8.2.jar"
+    version = "3.3.2"
+    path = "./lib/kafka_2.13-3.3.2.jar"
     groupId = "org.apache.kafka"
     modules = ["kafka"]
