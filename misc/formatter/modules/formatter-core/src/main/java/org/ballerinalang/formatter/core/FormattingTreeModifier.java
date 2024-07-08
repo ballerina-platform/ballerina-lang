@@ -2154,9 +2154,14 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
-        Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
-        NodeList<Node> xmlStepExtend =
-                formatNodeList(xMLStepExpressionNode.xmlStepExtend(), 0, 0, env.trailingWS, env.trailingNL);
+        NodeList<Node> xmlStepExtend = xMLStepExpressionNode.xmlStepExtend();
+        Node xmlStepStart;
+        if (xmlStepExtend.isEmpty()) {
+            xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
+        } else {
+            xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), 0, 0);
+        }
+        xmlStepExtend = formatNodeList(xmlStepExtend, 0, 0, env.trailingWS, env.trailingNL);
 
         return xMLStepExpressionNode.modify()
                 .withExpression(expression)
