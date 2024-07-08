@@ -162,12 +162,13 @@ public class Utils {
                 downloadBody.ifPresent(ResponseBody::close);
                 throw new PackageAlreadyExistsException(
                         logFormatter.formatLog("package already exists in the home repository: " +
-                                balaCacheWithPkgPath.toString()));
+                                balaCacheWithPkgPath.toString()), validPkgVersion);
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()),
+                    validPkgVersion);
         }
 
         // Create the following temp path
