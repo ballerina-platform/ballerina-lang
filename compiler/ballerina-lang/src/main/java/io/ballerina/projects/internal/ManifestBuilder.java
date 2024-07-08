@@ -696,7 +696,7 @@ public class ManifestBuilder {
         Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
         Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
-                BuildOptions.OptionName.OPTIMIZE_MEMORY.toString());
+                BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
