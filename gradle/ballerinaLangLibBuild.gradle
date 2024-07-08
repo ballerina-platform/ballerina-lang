@@ -46,6 +46,11 @@ class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def pkgName = project.name
     @Internal def skipBootstrap = 'false'
 
+    @Override @Internal
+    List<CommandLineArgumentProvider> getJvmArgumentProviders() {
+        return super.getJvmArgumentProviders()
+    }
+
     BallerinaLangLibBuildTask() {
 //        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
         getMainClass().set('org.ballerinalang.stdlib.utils.BuildLangLib')
