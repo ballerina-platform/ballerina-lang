@@ -252,7 +252,7 @@ public class BuildOptions {
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
-        OPTIMIZE_MEMORY("optimizeDependencyCompilation");
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
 
         private final String name;
 
