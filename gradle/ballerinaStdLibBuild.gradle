@@ -69,14 +69,20 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 }
 
+@CacheableTask
 class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = ''
     @Internal def distCache = ''
     @Internal def pkgName = project.name
     @Internal def skipBootstrap = 'false'
 
+    @Override @Internal
+    List<CommandLineArgumentProvider> getJvmArgumentProviders() {
+        return super.getJvmArgumentProviders()
+    }
+
     BallerinaLangLibBuildTask() {
-        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
+        setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
     }
 
     @Override
@@ -178,7 +184,7 @@ tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
     outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
     outputs.file("$buildDir/ballerina-src/target/${jarFileName}.jar")
     outputs.cacheIf { true }
-    classpath += files(jar.archivePath)
+    classpath += files(jar.archiveFile)
 }
 
 artifacts {

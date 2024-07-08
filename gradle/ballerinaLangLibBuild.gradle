@@ -53,8 +53,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
     }
 
     BallerinaLangLibBuildTask() {
-//        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
-        getMainClass().set('org.ballerinalang.stdlib.utils.BuildLangLib')
+        setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
     }
 
     @Override
