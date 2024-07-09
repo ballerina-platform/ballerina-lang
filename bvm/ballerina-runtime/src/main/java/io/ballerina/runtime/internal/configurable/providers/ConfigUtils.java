@@ -77,14 +77,14 @@ public class ConfigUtils {
 
     public static boolean containsUnsupportedMembers(BUnionType unionType) {
         for (Type memberType : unionType.getMemberTypes()) {
-            if (!isSimpleSequenceType(TypeUtils.getImpliedType(memberType).getTag())) {
+            if (!isPrimitiveOrSequenceType(TypeUtils.getImpliedType(memberType).getTag())) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean isSimpleSequenceType(int tag) {
+    private static boolean isPrimitiveOrSequenceType(int tag) {
         return tag == TypeTags.NULL_TAG || tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
     }
 
