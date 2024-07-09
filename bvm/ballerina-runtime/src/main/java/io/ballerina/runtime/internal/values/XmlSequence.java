@@ -675,6 +675,14 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             return this.getChildrenList().size() == 1 &&
                     isEqual(this.getChildrenList().get(0), o);
         }
+        if (o instanceof XmlText rhsXMLText) {
+            for (BXml child : children) {
+                if (child.getNodeType() != XmlNodeType.TEXT) {
+                    return false;
+                }
+            }
+            return this.getTextValue().equals(rhsXMLText.getTextValue());
+        }
         return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;
     }
 

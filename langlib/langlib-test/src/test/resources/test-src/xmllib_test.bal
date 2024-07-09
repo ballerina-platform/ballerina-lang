@@ -110,10 +110,13 @@ function testXmlIsComment() returns [boolean, boolean] {
         emptyConcatCall() is 'xml:Comment];
 }
 
-function testXmlIsText() returns [boolean, boolean] {
+function testXmlIsText() returns [boolean, boolean, boolean, boolean, boolean] {
     xml text = xml `hello text`;
+    xml text2 = xml `abc` + xml `def`;
+    xml text3 = xml `<a>abc</a><b>def</b>`;
+    xml text4 = xml:map(xml:elements(text3), y => y.getChildren());
     return [text is 'xml:Text,
-        emptyConcatCall() is 'xml:Text];
+        emptyConcatCall() is 'xml:Text, text4 == xml `abcdef`, text2 == text4, xml `abcdef` == xml `abcdef<c></c>`];
 }
 
 function getNameOfElement() returns string {
