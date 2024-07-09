@@ -67,7 +67,8 @@ public class WorkerConditionalSendTest {
                 "multipleReceiveConditional",
                 "multipleReceiveWithNonConditionalSend",
                 "testNonTopLevelSend",
-                "testSendWithEarlyReturnError"
+                "testSendWithEarlyReturnError",
+                "testWorkerEarlyReturnWithinIf"
         };
     }
 
