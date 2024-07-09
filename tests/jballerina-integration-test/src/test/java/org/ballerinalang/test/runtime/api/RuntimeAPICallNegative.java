@@ -73,5 +73,14 @@ public class RuntimeAPICallNegative {
         } catch (BError e) {
             out.println(e.getMessage());
         }
+
+        // Test non-existing ballerina module
+        module = new Module("testorg", "non-exist", "1");
+        balRuntime = Runtime.from(module);
+        try {
+            balRuntime.init();
+        } catch (BError e) {
+            out.println(e.getMessage());
+        }
     }
 }
