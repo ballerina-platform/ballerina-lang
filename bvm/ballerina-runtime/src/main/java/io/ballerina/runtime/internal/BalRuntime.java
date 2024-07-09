@@ -95,10 +95,11 @@ public class BalRuntime extends Runtime {
             schedulerThread.start();
             invokeMethodSync("$moduleInit");
             moduleInitialized = true;
-        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException e) {
+        } catch (ClassNotFoundException e) {
+            throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist", module)));
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("error occurred while initializing the ballerina " +
-                    "module "), e);
+                    "module due to " + e.getMessage()), e);
         }
     }
 
@@ -138,9 +139,9 @@ public class BalRuntime extends Runtime {
             moduleStopped = true;
         } catch (InterruptedException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("error occurred during module stop "), e);
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred during module stop due to " +
+                    e.getMessage()), e);
         }
-
     }
 
     /**
