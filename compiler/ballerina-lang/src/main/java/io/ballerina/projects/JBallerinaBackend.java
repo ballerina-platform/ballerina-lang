@@ -30,7 +30,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -46,7 +45,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -73,7 +78,10 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -378,23 +386,24 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
 
-        //Add resources
+        // Add generated resources
         if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT && moduleContext.isDefaultModule()) {
-            // Add all resources at the resources directory to a resources.jar
+            // Add all resources at the `target/resources` directory to a resources.jar
             Map<String, byte[]> cachedResources = getAllCachedResources(moduleContext.project().targetDir());
             if (!cachedResources.isEmpty()) {
-                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
                 try {
-                    String resourceJarName = ProjectConstants.RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
-                    ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, cachedResources);
-                    compilationCache.cachePlatformSpecificLibrary(this,
-                            resourceJarName, byteStream);
+                    String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
+                    CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                    try (ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, cachedResources)) {
+                        compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                    }
                 } catch (IOException e) {
                     throw new ProjectException("Failed to cache generated test resources jar, module: " +
-                            packageContext.defaultModuleContext().moduleName());
+                            packageContext.defaultModuleContext().moduleName(), e);
                 }
             }
         }
+
 
         // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
@@ -418,27 +427,30 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Map<String, byte[]> getAllCachedResources(Path targetPath) {
         Map<String, byte[]> resourcesMap = new HashMap<>();
-        Path resourcesCachePath = targetPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        if (Files.exists(resourcesCachePath) && Files.isDirectory(resourcesCachePath)) {
+        Path resourcesCachePath = targetPath.resolve(RESOURCE_DIR_NAME);
+
+        if (Files.isDirectory(resourcesCachePath)) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourcesCachePath)) {
                 for (Path entry : stream) {
-                    // Check if the entry is a regular file (not a directory)
-                    Path fileName = entry.getFileName();
-                    if (fileName != null) {
-                        // Read the file content
+                    if (Files.isRegularFile(entry)) {
+                        // Read the file content and put it in the map
                         byte[] content = Files.readAllBytes(entry);
-                        resourcesMap.put(ProjectConstants.RESOURCE_DIR_NAME + ProjectConstants.DIR_PATH_SEPARATOR
-                                + fileName.toString(), content);
-                    } else {
-                        throw new ProjectException("File name is null for entry: " + entry);
+                        Path fileName = entry.getFileName();
+                        if (fileName != null) {
+                            String resourcePath = RESOURCE_DIR_NAME +
+                                    DIR_PATH_SEPARATOR + fileName;
+                            resourcesMap.put(resourcePath, content);
+                        }
                     }
                 }
             } catch (IOException e) {
-                throw new ProjectException("An error occurred while reading the cached resources : " + e.getMessage());
+                throw new ProjectException("An error occurred while reading the cached resources from: " +
+                        resourcesCachePath, e);
             }
         }
         return resourcesMap;
     }
+
 
     @Override
     public String libraryFileExtension() {
@@ -640,19 +652,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 // separately. Therefore the predicate should be set as false.
                 return false;
             }
-            if (entryName.startsWith("resources")) {
-                String newEntryName = "resources/" + entryName.substring(entryName.lastIndexOf('/') + 1);
-                if (!isCopiedEntry(newEntryName, copiedEntries) && !isExcludedEntry(newEntryName)) {
-                    copiedEntries.put(newEntryName, jarLibrary);
-                    try {
-                        copyEntry(outStream, zipFile, entry, newEntryName);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                // The resources entry is copied already
-                return false;
-            }
 
             // Skip already copied files or excluded extensions.
             if (isCopiedEntry(entryName, copiedEntries)) {
@@ -671,20 +670,6 @@ public class JBallerinaBackend extends CompilerBackend {
         // all the other original attributes.
         zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
-    }
-
-    private void copyEntry(ZipArchiveOutputStream outStream, ZipFile zipFile, ZipArchiveEntry entry,
-                           String newEntryName) throws IOException {
-        ZipArchiveEntry newEntry = new ZipArchiveEntry(newEntryName);
-        outStream.putArchiveEntry(newEntry);
-        try (InputStream input = zipFile.getInputStream(entry)) {
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = input.read(buffer)) > 0) {
-                outStream.write(buffer, 0, len);
-            }
-        }
-        outStream.closeArchiveEntry();
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -710,19 +695,15 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
-    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId,
-                                                 PlatformLibraryScope scope) {
+    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
-        ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
-        CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
-        Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
-                this, "resources");
-        if (platformSpecificLibrary.isPresent()) {
-            return new JarLibrary(platformSpecificLibrary.get(),
-                    scope);
-        }
-        return null;
+        CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(
+                CompilationCache.class);
+        return compilationCache.getPlatformSpecificLibrary(this, "resources")
+                .map(path -> new JarLibrary(path, scope))
+                .orElse(null);
     }
+
 
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest();
@@ -792,6 +773,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
+                    "-H:IncludeResources='" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR + DOT  + WILD_CARD + "'",
                     "--no-fallback"));
         }
 
@@ -839,7 +821,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private Map<String, byte[]> getResources(ModuleContext moduleContext) {
         Map<String, byte[]> resourceMap = new HashMap<>();
         for (DocumentId documentId : moduleContext.resourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+            String resourceName = RESOURCE_DIR_NAME + "/"
                     + moduleContext.descriptor().org().toString() + "/"
                     + moduleContext.moduleName().toString() + "/"
                     + moduleContext.descriptor().version().value().major() + "/"
@@ -852,8 +834,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
         Map<String, byte[]> resourceMap = getResources(moduleContext);
         for (DocumentId documentId : moduleContext.testResourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org().toString() + "/"
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org() + "/"
                     + moduleContext.moduleName().toString() + "/"
                     + moduleContext.descriptor().version().value().major() + "/"
                     + moduleContext.resourceContext(documentId).name();

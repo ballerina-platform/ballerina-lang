@@ -144,4 +144,7 @@ public class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
+    public static final String WILD_CARD = "*";
+
+
 }

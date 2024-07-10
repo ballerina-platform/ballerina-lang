@@ -17,9 +17,20 @@
  */
 package io.ballerina.projects.test.plugins;
 
-import io.ballerina.projects.*;
+import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.CodeModifierResult;
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.test.TestUtils;
@@ -45,7 +56,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Contains cases to test compiler plugin loading and running.
@@ -624,13 +639,9 @@ public class CompilerPluginTests {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
-        boolean hasResourcesJar = false;
-        for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
-            if (jarLibrary.path().endsWith(ProjectConstants.RESOURCE_DIR_NAME
-                    + ProjectConstants.BLANG_COMPILED_JAR_EXT)) {
-                hasResourcesJar = true;
-            }
-        }
+        boolean hasResourcesJar = jarPathRequiredForExecution.stream()
+                .anyMatch(jarLibrary -> jarLibrary.path().endsWith(ProjectConstants.RESOURCE_DIR_NAME +
+                        ProjectConstants.BLANG_COMPILED_JAR_EXT));
         Assert.assertTrue(hasResourcesJar);
     }
 
