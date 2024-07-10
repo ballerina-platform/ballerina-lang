@@ -71,22 +71,25 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         this.type = PredefinedTypes.TYPE_XML_NEVER;
     }
 
-    public XmlSequence(List<BXml> children) {
-        if(children.isEmpty()) return;
+    public XmlSequence(List<BXml> values) {
+        if(values.isEmpty()) {
+            this.children = values;
+            return;
+        }
         this.children = new ArrayList<>();
         boolean prev = false;
         StringBuilder text = new StringBuilder();
-        for (BXml child : children) {
-            if (child.getNodeType() == XmlNodeType.TEXT) {
+        for (BXml value : values) {
+            if (value.getNodeType() == XmlNodeType.TEXT) {
                 prev = true;
-                text.append(child.getTextValue());
+                text.append(value.getTextValue());
             } else {
                 if (prev) {
                     this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
                     prev = false;
                     text.setLength(0);
                 }
-                this.children.add(child);
+                this.children.add(value);
             }
         }
         if (!text.isEmpty()) {
