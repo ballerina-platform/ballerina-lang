@@ -87,6 +87,11 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
         skipDirectories.forEach { dir ->
             {
                 if (subproject.projectDir.path.contains(dir)) {
+                    // Special case to not skip the nativeimpl directory under ballerina-lang/tests
+                    if (dir == "ballerina-lang/tests" && subproject.projectDir.path.contains("nativeimpl")) {
+                        skipProject = false
+                        return
+                    }
                     skipProject = true
                     return
                 }
