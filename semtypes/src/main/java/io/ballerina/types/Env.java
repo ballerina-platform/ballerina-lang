@@ -19,6 +19,7 @@ package io.ballerina.types;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class Env {
     private final LinkedHashMap<String, SemType> types;
 
     public Env() {
-        this.atomTable = new HashMap<>();
+        this.atomTable = new WeakHashMap<>();
         this.recListAtoms = new ArrayList<>();
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
