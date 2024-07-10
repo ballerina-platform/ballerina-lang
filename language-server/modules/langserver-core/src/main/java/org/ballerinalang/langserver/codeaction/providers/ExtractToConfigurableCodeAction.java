@@ -152,6 +152,9 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
                     functionTypeSymbol = initType.get();
                     separatedNodeList = ((ExplicitNewExpressionNode) node).parenthesizedArgList().arguments();
                 }
+                default -> {
+                    return Collections.emptyList();
+                }
             }
 
             if (functionTypeSymbol.params().isEmpty()) {
