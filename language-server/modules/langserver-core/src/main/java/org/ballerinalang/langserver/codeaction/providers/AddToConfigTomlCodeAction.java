@@ -90,9 +90,10 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
                 return Collections.emptyList();
             }
             orgName = project.currentPackage().packageOrg().value();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return Collections.emptyList();
         }
+
         SemanticModel semanticModel = context.currentSemanticModel().get();
         Types types = semanticModel.types();
         TypeBuilder builder = types.builder();
@@ -211,7 +212,8 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         moduleConfigDetails.configVariables().values().stream().sorted()
                 .forEach(variable -> {
                     if (variable.isRequired()) {
-                        ConfigTomlValueGenerationUtil.TomlEntryValue tableEntry = ConfigTomlValueGenerationUtil.getDefaultValueStr(variable.type(),
+                        ConfigTomlValueGenerationUtil.TomlEntryValue tableEntry =
+                                ConfigTomlValueGenerationUtil.getDefaultValueStr(variable.type(),
                                 basicType, anydataOrJson, variable.name());
                         if (tableEntry.keyValue()) {
                             basicKeyValueBuilder.append(
@@ -228,7 +230,8 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
 
     private static String getTableEntryEdit(ConfigurableFinder.ConfigVariable variable, TypeSymbol basicType,
                                             TypeSymbol anydataOrJson) {
-        ConfigTomlValueGenerationUtil.TomlEntryValue defaultValueStr = ConfigTomlValueGenerationUtil.getDefaultValueStr(variable.type(),
+        ConfigTomlValueGenerationUtil.TomlEntryValue defaultValueStr =
+                ConfigTomlValueGenerationUtil.getDefaultValueStr(variable.type(),
                 basicType, anydataOrJson, variable.name());
         return defaultValueStr.keyValue() ? String.format("%s = %s%n", variable.name(), defaultValueStr.value())
                 : String.format("%n%s%n", defaultValueStr.value());
@@ -245,7 +248,7 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
     }
 
     private static int nonRootModuleConfigDiff(Toml baseToml, String orgName, ModuleName moduleName,
-                                                        Map<String, ConfigurableFinder.ConfigVariable> configVariables) {
+                                               Map<String, ConfigurableFinder.ConfigVariable> configVariables) {
         String moduleNameStr = moduleName.toString();
         String orgModuleKey = orgName + "." + moduleNameStr;
         Optional<Toml> table;

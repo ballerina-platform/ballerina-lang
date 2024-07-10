@@ -90,7 +90,7 @@ public final class ConfigurableFinder {
     }
 
     /**
-     * Holder to store information about a configurable variable
+     * Holder to store information about a configurable variable.
      *
      * @param name name of the configurable
      * @param type type symbol of the configurable
@@ -114,6 +114,6 @@ public final class ConfigurableFinder {
      * @param configVariables configurable variables in the module
      */
     public record ModuleConfigDetails(String moduleName, boolean isDefaultModule,
-                                      Map<String, ConfigVariable> configVariables){
+                                      Map<String, ConfigVariable> configVariables) {
     }
 }

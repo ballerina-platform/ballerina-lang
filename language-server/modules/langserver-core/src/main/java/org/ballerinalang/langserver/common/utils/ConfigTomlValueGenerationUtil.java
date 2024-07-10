@@ -129,10 +129,10 @@ public final class ConfigTomlValueGenerationUtil {
     private static String getValueForObjectKey(TypeSymbol type) {
         switch (type.typeKind()) {
             case BOOLEAN -> {
-                return"false";
+                return "false";
             }
             case BYTE, INT, INT_SIGNED8, INT_SIGNED32, INT_UNSIGNED8, INT_UNSIGNED16, INT_UNSIGNED32, INT_SIGNED16 -> {
-                return"0";
+                return "0";
             }
             case FLOAT, DECIMAL -> {
                 return "0.0";
