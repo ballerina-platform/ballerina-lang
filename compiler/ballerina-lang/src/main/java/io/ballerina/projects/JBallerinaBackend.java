@@ -640,19 +640,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 // separately. Therefore the predicate should be set as false.
                 return false;
             }
-            if (entryName.startsWith("resources")) {
-                String newEntryName = "resources/" + entryName.substring(entryName.lastIndexOf('/') + 1);
-                if (!isCopiedEntry(newEntryName, copiedEntries) && !isExcludedEntry(newEntryName)) {
-                    copiedEntries.put(newEntryName, jarLibrary);
-                    try {
-                        copyEntry(outStream, zipFile, entry, newEntryName);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                // The resources entry is copied already
-                return false;
-            }
 
             // Skip already copied files or excluded extensions.
             if (isCopiedEntry(entryName, copiedEntries)) {
@@ -671,20 +658,6 @@ public class JBallerinaBackend extends CompilerBackend {
         // all the other original attributes.
         zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
-    }
-
-    private void copyEntry(ZipArchiveOutputStream outStream, ZipFile zipFile, ZipArchiveEntry entry,
-                           String newEntryName) throws IOException {
-        ZipArchiveEntry newEntry = new ZipArchiveEntry(newEntryName);
-        outStream.putArchiveEntry(newEntry);
-        try (InputStream input = zipFile.getInputStream(entry)) {
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = input.read(buffer)) > 0) {
-                outStream.write(buffer, 0, len);
-            }
-        }
-        outStream.closeArchiveEntry();
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {

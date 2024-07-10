@@ -25,19 +25,21 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
@@ -90,6 +92,7 @@ public class JarResolver {
     public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
         // 1) Add this root package related jar files
         Set<JarLibrary> jarFiles = new HashSet<>();
+        // Extract the resources in the module thin jars to a separate jar and add to the path
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.PROVIDED, jarFiles);
@@ -120,11 +123,22 @@ public class JarResolver {
 
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                               Set<JarLibrary> libraryPaths) {
+        JarLibrary libraryPath;
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
                     packageContext.packageId(), moduleContext.moduleName());
-            libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
+            libraryPath = new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext));
+            libraryPaths.add(libraryPath);
+            // Extract the resources in the module thin jars to a separate jar and add to the path
+            Path staticResourcesJarPath = generatedJarLibrary.path().getParent().resolve(moduleContext.moduleName() + "-resources.jar");
+            try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(staticResourcesJarPath.toString())))) {
+                copyResources(outStream, libraryPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            libraryPaths.add(new JarLibrary(staticResourcesJarPath, scope, getPackageName(packageContext)));
         }
         // Add resources
         PlatformLibrary generatedResourcesJarLibrary = jBalBackend.codeGeneratedResourcesLibrary(
@@ -133,6 +147,42 @@ public class JarResolver {
             libraryPaths.add(new JarLibrary(generatedResourcesJarLibrary.path(), scope,
                     getPackageName(packageContext)));
         }
+
+    }
+
+    private void copyResources(ZipArchiveOutputStream outStream, JarLibrary jarLibrary) throws IOException {
+        try (ZipFile zipFile = new ZipFile(jarLibrary.path().toFile())) {
+            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+
+            while (entries.hasMoreElements()) {
+                ZipArchiveEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if (entryName.startsWith("resources")) {
+                    String newEntryName = "resources/" + entryName.substring(entryName.lastIndexOf('/') + 1);
+                    copyEntry(outStream, zipFile, entry, newEntryName);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void copyEntry(ZipArchiveOutputStream outStream, ZipFile zipFile, ZipArchiveEntry entry, String newEntryName) throws IOException {
+        ZipArchiveEntry newEntry = new ZipArchiveEntry(newEntryName);
+        newEntry.setSize(entry.getSize());
+        newEntry.setTime(entry.getTime());
+        outStream.putArchiveEntry(newEntry);
+
+        try (InputStream is = zipFile.getInputStream(entry)) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) > 0) {
+                outStream.write(buffer, 0, len);
+            }
+        }
+
+        outStream.closeArchiveEntry();
     }
 
     private void addPlatformLibraryPaths(PackageContext packageContext,

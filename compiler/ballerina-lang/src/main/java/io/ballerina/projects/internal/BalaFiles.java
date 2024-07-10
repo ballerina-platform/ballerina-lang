@@ -179,10 +179,7 @@ public class BalaFiles {
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
         DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        List<Path> resources = new ArrayList<>();
-        if (isDefaultModule) {
-            resources = loadResources(packagePath);
-        }
+        List<Path> resources = loadResources(modulePath);
         return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
                 Collections.emptyList());
     }
