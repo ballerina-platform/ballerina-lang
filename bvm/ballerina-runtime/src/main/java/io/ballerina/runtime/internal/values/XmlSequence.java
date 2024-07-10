@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -71,7 +72,26 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     public XmlSequence(List<BXml> children) {
-        this.children = children;
+        if(children.isEmpty()) return;
+        this.children = new ArrayList<>();
+        boolean prev = false;
+        StringBuilder text = new StringBuilder();
+        for (BXml child : children) {
+            if (child.getNodeType() == XmlNodeType.TEXT) {
+                prev = true;
+                text.append(child.getTextValue());
+            } else {
+                if (prev) {
+                    this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                    prev = false;
+                    text.setLength(0);
+                }
+                this.children.add(child);
+            }
+        }
+        if (!text.isEmpty()) {
+            this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+        }
     }
 
     public XmlSequence(BXml child) {
@@ -671,17 +691,9 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (o instanceof XmlSequence rhsXMLSequence) {
             return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
-        if (o instanceof XmlItem) {
+        if (o instanceof XmlItem || o instanceof XmlText) {
             return this.getChildrenList().size() == 1 &&
                     isEqual(this.getChildrenList().get(0), o);
-        }
-        if (o instanceof XmlText rhsXMLText) {
-            for (BXml child : children) {
-                if (child.getNodeType() != XmlNodeType.TEXT) {
-                    return false;
-                }
-            }
-            return this.getTextValue().equals(rhsXMLText.getTextValue());
         }
         return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;
     }
