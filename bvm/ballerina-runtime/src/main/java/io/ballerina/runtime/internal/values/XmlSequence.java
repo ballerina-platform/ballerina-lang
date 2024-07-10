@@ -72,7 +72,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     public XmlSequence(List<BXml> values) {
-        if(values.isEmpty()) {
+        if (values.isEmpty()) {
             this.children = values;
             return;
         }
