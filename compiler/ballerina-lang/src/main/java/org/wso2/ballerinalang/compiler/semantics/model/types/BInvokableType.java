@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ public class BInvokableType extends BType implements InvokableType {
     public BType restType;
     public BType retType;
     public final Env env;
-    private FunctionDefinition defn;
+    private SoftReference<FunctionDefinition> defn = new SoftReference<>(null);
 
     public BInvokableType(Env env, List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
@@ -191,11 +192,12 @@ public class BInvokableType extends BType implements InvokableType {
         if (isFunctionTop()) {
             return PredefinedType.FUNCTION;
         }
-        if (defn != null) {
-            return defn.getSemType(env);
+        FunctionDefinition cachedDefn = defn.get();
+        if (cachedDefn != null) {
+            return cachedDefn.getSemType(env);
         }
         FunctionDefinition fd = new FunctionDefinition();
-        this.defn = fd;
+        this.defn = new SoftReference<>(fd);
         List<SemType> params = this.paramTypes.stream().map(BInvokableType::from).toList();
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
@@ -214,6 +216,11 @@ public class BInvokableType extends BType implements InvokableType {
             return fd.defineGeneric(env, paramTypes, returnType);
         }
         return fd.define(env, paramTypes, returnType);
+    }
+
+    @Override
+    public void semType(SemType semtype) {
+
     }
 
     private static SemType from(BType type) {

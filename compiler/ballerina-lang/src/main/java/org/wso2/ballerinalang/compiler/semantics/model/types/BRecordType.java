@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public BRecordType mutableType;
 
     public final Env env;
-    private MappingDefinition md = null;
+    private SoftReference<MappingDefinition> md = new SoftReference<>(null);
 
     public BRecordType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
@@ -78,7 +79,7 @@ public class BRecordType extends BStructureType implements RecordType {
      * This method is used for that. e.g. When changing Flags.READONLY
      */
     protected void restMd() {
-        md = null;
+        md.clear();
     }
 
     @Override
@@ -150,10 +151,12 @@ public class BRecordType extends BStructureType implements RecordType {
     // "ready" when we call this
     @Override
     public SemType semType() {
-        if (md != null) {
-            return md.getSemType(env);
+        MappingDefinition cachedMd = md.get();
+        if (cachedMd != null) {
+            return cachedMd.getSemType(env);
         }
-        md = new MappingDefinition();
+        MappingDefinition md = new MappingDefinition();
+        this.md = new SoftReference<>(md);
         if (hasTypeHoles()) {
             return md.defineMappingTypeWrapped(env, List.of(), ANY);
         }
@@ -189,6 +192,11 @@ public class BRecordType extends BStructureType implements RecordType {
         boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         return md.defineMappingTypeWrapped(env, semFields, restFieldSemType, mut);
+    }
+
+    @Override
+    public void semType(SemType semtype) {
+
     }
 
     // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise

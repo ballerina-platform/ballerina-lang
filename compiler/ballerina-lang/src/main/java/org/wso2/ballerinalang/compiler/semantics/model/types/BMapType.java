@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -44,7 +45,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     public BMapType mutableType;
 
     public final Env env;
-    private MappingDefinition md = null;
+    private SoftReference<MappingDefinition> md = new SoftReference<>(null);
 
     public BMapType(Env env, int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -63,7 +64,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
      * This method is used for that. e.g. When changing Flags.READONLY
      */
     protected void restMd() {
-        md = null;
+        md.clear();
     }
 
     @Override
@@ -103,10 +104,12 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     // "ready" when we call this
     @Override
     public SemType semType() {
-        if (md != null) {
-            return md.getSemType(env);
+        MappingDefinition cachedDef = md.get();
+        if (cachedDef != null) {
+            return cachedDef.getSemType(env);
         }
-        md = new MappingDefinition();
+        MappingDefinition md = new MappingDefinition();
+        this.md = new SoftReference<>(md);
         if (hasTypeHoles()) {
             return md.defineMappingTypeWrapped(env, List.of(), ANY);
         }
@@ -117,6 +120,10 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
         return md.defineMappingTypeWrapped(env, List.of(), elementTypeSemType, mut);
+    }
+
+    @Override
+    public void semType(SemType semtype) {
     }
 
     // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise

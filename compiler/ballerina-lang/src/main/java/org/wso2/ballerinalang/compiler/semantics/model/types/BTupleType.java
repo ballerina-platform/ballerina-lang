@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class BTupleType extends BType implements TupleType {
 
     public BTupleType mutableType;
     public final Env env;
-    private ListDefinition ld = null;
+    private SoftReference<ListDefinition> ld = new SoftReference<>(null);
 
     public BTupleType(Env env, List<BTupleMember> members) {
         super(TypeTags.TUPLE, null);
@@ -112,7 +113,7 @@ public class BTupleType extends BType implements TupleType {
      * This method is used for that. e.g. When changing Flags.READONLY
      */
     protected void restLd() {
-        ld = null;
+        ld.clear();
     }
 
     @Override
@@ -164,7 +165,7 @@ public class BTupleType extends BType implements TupleType {
     // In the case of a cyclic tuple, this aids in
     //adding resolved members to a previously defined empty tuple shell in main scope
     public boolean addMembers(BTupleMember member) {
-        ld = null;
+        restLd();
         // Prevent cyclic types of same type ex: type Foo [int, Foo];
         if (member.type instanceof BTupleType && ((BTupleType) member.type).isCyclic &&
                 member.type.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
@@ -186,7 +187,7 @@ public class BTupleType extends BType implements TupleType {
     // adding rest type of resolved node to a previously defined
     // empty tuple shell in main scope
     public boolean addRestType(BType restType) {
-        ld = null;
+        restLd();
         if (restType != null && restType instanceof BTupleType && ((BTupleType) restType).isCyclic &&
                 restType.getQualifiedTypeName().equals(this.getQualifiedTypeName()) && this.members.isEmpty()) {
             return false;
@@ -204,7 +205,7 @@ public class BTupleType extends BType implements TupleType {
         assert members.isEmpty();
         this.memberTypes = null;
         this.members = members;
-        ld = null;
+        restLd();
     }
 
     private void setCyclicFlag(BType type) {
@@ -267,10 +268,12 @@ public class BTupleType extends BType implements TupleType {
     // "ready" when we call this
     @Override
     public SemType semType() {
-        if (ld != null) {
-            return ld.getSemType(env);
+        ListDefinition cachedLd = ld.get();
+        if (cachedLd != null) {
+            return cachedLd.getSemType(env);
         }
-        ld = new ListDefinition();
+        ListDefinition ld = new ListDefinition();
+        this.ld = new SoftReference<>(ld);
         if (hasTypeHoles()) {
             return ld.defineListTypeWrapped(env, ANY);
         }
@@ -297,6 +300,11 @@ public class BTupleType extends BType implements TupleType {
             restSemType = NEVER;
         }
         return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
+    }
+
+    @Override
+    public void semType(SemType semtype) {
+
     }
 
     @Override

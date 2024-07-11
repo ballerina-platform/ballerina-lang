@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -51,7 +52,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public BArrayType mutableType;
     public final Env env;
-    private ListDefinition ld = null;
+    private SoftReference<ListDefinition> ld = new SoftReference<>(null);
 
     public BArrayType(Env env, BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -86,7 +87,7 @@ public class BArrayType extends BType implements ArrayType {
      * This method is used for that. e.g. When changing Flags.READONLY
      */
     protected void restLd() {
-        ld = null;
+        ld.clear();
     }
 
     @Override
@@ -95,13 +96,11 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public void setSize(int size) {
-        if (ld != null) {
-            // This is dangerous since someone have already captured the SemType may use it in the future. But we have
-            // cases where we actually do "proper" (i.e not accidental type checks like `isNullable`) type checks and
-            // then update the size. One option for this may be to poison the semtype, so that using it after this
-            // point trigger an exception.
-            ld = null;
-        }
+        // This is potentially dangerous since someone may already captured the SemType may use it in the future. But we
+        // have cases where we actually do "proper" (i.e not accidental type checks like `isNullable`) type checks and
+        // then update the size. One option for this may be to poison the semtype, so that using it after this
+        // point trigger an exception.
+        this.ld.clear();
         this.size = size;
     }
 
@@ -154,10 +153,12 @@ public class BArrayType extends BType implements ArrayType {
     // are "ready" when we call this
     @Override
     public SemType semType() {
-        if (ld != null) {
-            return ld.getSemType(env);
+        ListDefinition cachedLd = ld.get();
+        if (cachedLd != null) {
+            return cachedLd.getSemType(env);
         }
-        ld = new ListDefinition();
+        ListDefinition ld = new ListDefinition();
+        this.ld = new SoftReference<>(ld);
         if (hasTypeHoles()) {
             return ld.defineListTypeWrapped(env, ANY);
         }
@@ -176,6 +177,10 @@ public class BArrayType extends BType implements ArrayType {
         } else {
             return ld.defineListTypeWrapped(env, List.of(), 0, elementTypeSemType, mut);
         }
+    }
+
+    @Override
+    public void semType(SemType semtype) {
     }
 
     // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
