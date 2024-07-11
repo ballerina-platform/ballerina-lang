@@ -17,6 +17,9 @@
  */
 package io.ballerina.types;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.WeakHashMap;
@@ -34,10 +37,10 @@ import java.util.Set;
 public class Env {
 
     private static final int COMPACT_INDEX = 3;
-    private final Map<AtomicType, TypeAtom> atomTable;
     final List<ListAtomicType> recListAtoms;
     final List<MappingAtomicType> recMappingAtoms;
     final List<FunctionAtomicType> recFunctionAtoms;
+    private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 
     private final LinkedHashMap<String, SemType> types;
 
@@ -103,20 +106,22 @@ public class Env {
 
     private TypeAtom typeAtom(AtomicType atomicType) {
         synchronized (this.atomTable) {
-            TypeAtom ta = this.atomTable.get(atomicType);
-            if (ta != null) {
-                return ta;
-            } else {
-                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-                this.atomTable.put(result.atomicType(), result);
-                return result;
+            Reference<TypeAtom> ref = this.atomTable.get(atomicType);
+            if (ref != null) {
+                TypeAtom ta = ref.get();
+                if (ta != null) {
+                    return ta;
+                }
             }
+            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+            this.atomTable.put(result.atomicType(), new WeakReference<>(result));
+            return result;
         }
     }
 
     public void deserializeTypeAtom(TypeAtom typeAtom) {
         synchronized (this.atomTable) {
-            this.atomTable.put(typeAtom.atomicType(), typeAtom);
+            this.atomTable.put(typeAtom.atomicType(), new WeakReference<>(typeAtom));
         }
     }
 

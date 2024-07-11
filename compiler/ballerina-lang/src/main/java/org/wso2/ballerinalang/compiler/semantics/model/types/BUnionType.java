@@ -540,6 +540,10 @@ public class BUnionType extends BType implements UnionType {
         return this.semType;
     }
 
+    @Override
+    public void semType(SemType semtype) {
+    }
+
     private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
         SemType t = PredefinedType.NEVER;
         for (SemType s : memberSemTypes) {
