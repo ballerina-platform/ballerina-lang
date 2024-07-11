@@ -76,25 +76,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             this.children = values;
             return;
         }
-        this.children = new ArrayList<>();
-        boolean prev = false;
-        StringBuilder text = new StringBuilder();
-        for (BXml value : values) {
-            if (value.getNodeType() == XmlNodeType.TEXT) {
-                prev = true;
-                text.append(value.getTextValue());
-            } else {
-                if (prev) {
-                    this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
-                    prev = false;
-                    text.setLength(0);
-                }
-                this.children.add(value);
-            }
-        }
-        if (!text.isEmpty()) {
-            this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
-        }
+        createXmlSequenceByCheckingAdjacentTextItems(values);
     }
 
     public XmlSequence(BXml child) {
@@ -649,6 +631,28 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
                 return iterator.next();
             }
         };
+    }
+
+    private void createXmlSequenceByCheckingAdjacentTextItems(List<BXml> values) {
+        this.children = new ArrayList<>();
+        boolean prev = false;
+        StringBuilder text = new StringBuilder();
+        for (BXml value : values) {
+            if (value.getNodeType() == XmlNodeType.TEXT) {
+                prev = true;
+                text.append(value.getTextValue());
+            } else {
+                if (prev) {
+                    this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                    prev = false;
+                    text.setLength(0);
+                }
+                this.children.add(value);
+            }
+        }
+        if (!text.isEmpty()) {
+            this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+        }
     }
 
     private Type getSequenceType(Type tempExprType) {
