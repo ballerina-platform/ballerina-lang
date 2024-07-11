@@ -389,7 +389,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Add generated resources
         if (moduleContext.project().kind() == ProjectKind.BUILD_PROJECT && moduleContext.isDefaultModule()) {
             // Add all resources at the `target/resources` directory to a resources.jar
-            Map<String, byte[]> cachedResources = getAllCachedResources(moduleContext.project().targetDir());
+            Map<String, byte[]> cachedResources = ProjectUtils.getAllCachedResources(moduleContext.project().targetDir());
             if (!cachedResources.isEmpty()) {
                 try {
                     String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
@@ -423,32 +423,6 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
-    }
-
-    private Map<String, byte[]> getAllCachedResources(Path targetPath) {
-        Map<String, byte[]> resourcesMap = new HashMap<>();
-        Path resourcesCachePath = targetPath.resolve(RESOURCE_DIR_NAME);
-
-        if (Files.isDirectory(resourcesCachePath)) {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(resourcesCachePath)) {
-                for (Path entry : stream) {
-                    if (Files.isRegularFile(entry)) {
-                        // Read the file content and put it in the map
-                        byte[] content = Files.readAllBytes(entry);
-                        Path fileName = entry.getFileName();
-                        if (fileName != null) {
-                            String resourcePath = RESOURCE_DIR_NAME +
-                                    DIR_PATH_SEPARATOR + fileName;
-                            resourcesMap.put(resourcePath, content);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                throw new ProjectException("An error occurred while reading the cached resources from: " +
-                        resourcesCachePath, e);
-            }
-        }
-        return resourcesMap;
     }
 
 
