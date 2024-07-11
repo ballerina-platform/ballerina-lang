@@ -107,6 +107,9 @@ jobs:
         run: |
           # Heap dump on out of memeroy
           export JAVA_OPTS="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$GITHUB_WORKSPACE/heap-dump.hprof"
+      - name: Patch gradle files
+        run: |
+          python3 patch_gradle.py
       - name: Build Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \

@@ -1,39 +1,29 @@
-import re
+import os
 
-# Define the JVM arguments for heap dump on OutOfMemory exception
-heap_dump_args = '-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heapdump.hprof'
+# Function to find and replace text in a file
+def find_and_replace_in_file(file_path, search_text, replace_text):
+    with open(file_path, 'r') as file:
+        file_data = file.read()
 
-# File path to build.gradle (assuming it's in the current directory)
-file_path = 'build.gradle'
-
-# Read the build.gradle file
-with open(file_path, 'r') as file:
-    build_gradle_content = file.read()
-
-# Define the regex pattern to find the build task and its contents
-build_task_pattern = r'task\s+?\b(build)\b\s*?\{([^{}]*(\{[^{}]*\}[^{}]*)*)*\s*?\}'
-
-# Find the build task in the file content
-match = re.search(build_task_pattern, build_gradle_content, re.DOTALL)
-
-if match:
-    # Get the build task content
-    build_task_content = match.group(0)
-    
-    # Check if jvmArgs is already present in the build task
-    if 'jvmArgs' not in build_task_content:
-        # Append JVM args to the build task content
-        modified_build_task_content = re.sub(r'\}', f'    options.jvmArgs "{heap_dump_args}"\n}}', build_task_content, count=1)
-        
-        # Replace the old build task content with the modified one
-        updated_content = build_gradle_content[:match.start()] + modified_build_task_content + build_gradle_content[match.end():]
-        
-        # Write the updated content back to the build.gradle file
+    if search_text in file_data:
+        file_data = file_data.replace(search_text, replace_text)
         with open(file_path, 'w') as file:
-            file.write(updated_content)
-        
-        print(f"Successfully added JVM args for heap dump to the build task in {file_path}")
+            file.write(file_data)
+        print(f"Replaced text in {file_path}")
     else:
-        print("JVM args already present in the build task.")
-else:
-    print("Build task not found in build.gradle file")
+        print(f"No matching text found in {file_path}")
+
+# Function to search for build.gradle files and replace text
+def search_and_replace(start_dir, search_text, replace_text):
+    for root, dirs, files in os.walk(start_dir):
+        for file in files:
+            if file == 'build.gradle':
+                file_path = os.path.join(root, file)
+                find_and_replace_in_file(file_path, search_text, replace_text)
+
+# Define the search and replace text
+search_text = "    jvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED']"
+replace_text = "    jvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED', '-XX:+HeapDumpOnOutOfMemoryError']"
+
+# Start the search and replace in the current directory
+search_and_replace('.', search_text, replace_text)
