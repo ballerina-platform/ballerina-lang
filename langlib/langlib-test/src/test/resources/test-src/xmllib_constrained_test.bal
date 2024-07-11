@@ -67,8 +67,16 @@ public function xmlConstraintRuntimeCast() {
 public function xmlCastSingleElementAsConstrainedSequence() {
     string elemText = "<hello>xml element 1</hello>";
     xml<'xml:Element> elementSequence = <xml<'xml:Element>> checkpanic 'xml:fromString(elemText);
+    xml x1 = xml `<a>abc</a><b>def</b>`;
+    xml r = xml:map(xml:elements(x1), y => y.getChildren());
+    xml:Text t1 = checkpanic r.ensureType();
+    xml:Text t2 = <xml:Text>r;
     assert(elementSequence.length(), 1);
     assert((elementSequence[0]/*).toString(),"xml element 1");
+    assert(t1 is xml:Text, true);
+    assert(t2 is xml:Text, true);
+    assert(t1.toString(), "abcdef");
+    assert(t2.toString(), "abcdef");
 }
 
 public function xmlConstraintRuntimeCastInvalid() {
