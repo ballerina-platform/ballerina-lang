@@ -58,7 +58,6 @@ public class BUnionType extends BType implements UnionType {
     public Boolean isPureType = null;
     public boolean isCyclic = false;
 
-
     private LinkedHashSet<BType> originalMemberTypes;
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -539,7 +538,7 @@ public class BUnionType extends BType implements UnionType {
     public void semType(SemType semtype) {
     }
 
-    private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
+    private SemType computeResultantUnion(Iterable<SemType> memberSemTypes) {
         SemType t = PredefinedType.NEVER;
         for (SemType s : memberSemTypes) {
             t = SemTypes.union(t, s);
@@ -552,7 +551,7 @@ public class BUnionType extends BType implements UnionType {
         return !memberTypeBreakDown.memberNonSemTypes().isEmpty();
     }
 
-    public record MemberTypeBreakDown(LinkedHashSet<BType> memberNonSemTypes, LinkedHashSet<SemType> memberSemTypes) {
+    record MemberTypeBreakDown(Set<BType> memberNonSemTypes, Set<SemType> memberSemTypes) {
 
     }
 }
