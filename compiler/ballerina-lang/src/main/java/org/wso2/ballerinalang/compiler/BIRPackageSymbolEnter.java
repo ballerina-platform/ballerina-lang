@@ -1285,11 +1285,7 @@ public class BIRPackageSymbolEnter {
         }
 
         public BType readType(int cpI) throws IOException {
-            SemType semType = readSemType();
             BType bType = readTypeInternal(cpI);
-            if (bType != null) {
-                bType.semType(semType);
-            }
             return bType;
         }
 
