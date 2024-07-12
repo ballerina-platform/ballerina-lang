@@ -24,4 +24,8 @@
         <Class name="io.ballerina.runtime.profiler.ui.JsonParser$Data"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.runtime.profiler.runtime.Data"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
 </FindBugsFilter>

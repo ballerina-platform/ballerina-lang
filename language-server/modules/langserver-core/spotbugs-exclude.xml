@@ -188,6 +188,6 @@
         </OR>
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,CT_CONSTRUCTOR_THROW"/>
     </Match>
 </FindBugsFilter>

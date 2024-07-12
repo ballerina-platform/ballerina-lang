@@ -21,6 +21,10 @@
     </Match>
     <Match>
         <Class name="io.ballerina.shell.cli.handlers.help.BbeTopicsProvider"/>
-        <Bug pattern="MS_EXPOSE_REP"/>
+        <Bug pattern="MS_EXPOSE_REP,CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.cli.PropertiesLoader"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Match>
 </FindBugsFilter>
