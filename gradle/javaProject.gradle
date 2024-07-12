@@ -115,7 +115,7 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -135,16 +135,19 @@ tasks.withType(Checkstyle).configureEach {
 }
 
 spotbugsMain {
+    def classLoader = plugins["com.github.spotbugs"].class.classLoader
+    def SpotBugsConfidence = classLoader.findLoadedClass("com.github.spotbugs.snom.Confidence")
+    def SpotBugsEffort = classLoader.findLoadedClass("com.github.spotbugs.snom.Effort")
     jvmArgs = [ '-Xmx2048m' ]
-    it.effort = "max"
-    it.reportLevel = "low"
-    it.reports {
+    effort = SpotBugsEffort.MAX
+    reportLevel = SpotBugsConfidence.LOW
+    reports {
         xml.required = false
         html.required = true
     }
     def excludeFile = file('spotbugs-exclude.xml')
-    if(excludeFile.exists()) {
-        it.excludeFilter = excludeFile
+    if (excludeFile.exists()) {
+        excludeFilter = excludeFile
     }
 }
 
