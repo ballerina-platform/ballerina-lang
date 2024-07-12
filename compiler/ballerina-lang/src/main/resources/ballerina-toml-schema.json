@@ -157,7 +157,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "java11": {
+        "java21": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -213,10 +213,10 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java11'"
+            "required": "cannot find '${property}' under 'platform.java21'"
           }
         },
-        "java17": {
+        "java21": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -272,7 +272,7 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java17'"
+            "required": "cannot find '${property}' under 'platform.java21'"
           }
         }
       },

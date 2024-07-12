@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - java21
 
 jobs:
   build-lang:
@@ -95,7 +94,7 @@ jobs:
 #      - name: Checkout non-default branch
 #        run: |
 #          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-#          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
+#          cd $module_name && git fetch origin && git checkout -t origin/java_21_migration && cd ..; \
 #          done
 
       - name: Update Lang Version in Module

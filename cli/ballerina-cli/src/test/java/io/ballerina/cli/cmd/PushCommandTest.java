@@ -230,7 +230,7 @@ public class PushCommandTest extends BaseCommandTest {
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
 
         Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
-                .resolve("gayaldassanayake-tool_gayal-java17-1.1.0.bala");
+                .resolve("gayaldassanayake-tool_gayal-java21-1.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
@@ -253,7 +253,7 @@ public class PushCommandTest extends BaseCommandTest {
         try {
             ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local")
                     .resolve("bala").resolve("gayaldassanayake").resolve("tool_gayal")
-                    .resolve("1.1.0").resolve("java17"));
+                    .resolve("1.1.0").resolve("java21"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }

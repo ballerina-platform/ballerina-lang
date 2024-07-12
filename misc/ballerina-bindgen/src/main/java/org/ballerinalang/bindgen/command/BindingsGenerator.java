@@ -171,7 +171,7 @@ public class BindingsGenerator {
     }
 
     private JvmTarget getParentDependencyJvmTarget() {
-        JvmTarget jvmTarget = JvmTarget.JAVA_17;
+        JvmTarget jvmTarget = JvmTarget.JAVA_21;
         TomlDocument tomlDocument = env.getTomlDocument();
         if (tomlDocument == null) {
             return jvmTarget;

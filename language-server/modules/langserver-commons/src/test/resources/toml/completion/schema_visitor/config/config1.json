@@ -1,7 +1,7 @@
 {
   "source": "schema1.json",
   "expected": {
-    "platform.java17.dependency": {
+    "platform.java21.dependency": {
       "path": {
         "label": "path",
         "kind": "Snippet",

@@ -185,7 +185,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 anyTypeSymbol = runFunctionType.returnTypeDescriptor().orElseThrow();
             }
         }
-        JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
         this.initialized.set(true);
         addDebugDiagnostic("Added initial identifiers: " + initialIdentifiers);
     }
