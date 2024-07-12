@@ -54,10 +54,6 @@ public class BUnionType extends BType implements UnionType {
 
     protected LinkedHashSet<BType> memberTypes;
 
-    // Sem and Non-Sem Member Breakdown
-    public LinkedHashSet<SemType> memberSemTypes;
-    public LinkedHashSet<BType> memberNonSemTypes;
-
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;
@@ -493,7 +489,7 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public void populateMemberSemTypesAndNonSemTypes() {
+    public MemberTypeBreakDown populateMemberSemTypesAndNonSemTypes() {
         LinkedHashSet<BType> memberNonSemTypes = new LinkedHashSet<>();
         LinkedHashSet<SemType> memberSemTypes = new LinkedHashSet<>();
 
@@ -501,9 +497,8 @@ public class BUnionType extends BType implements UnionType {
             populateMemberSemTypesAndNonSemTypes(memberType, memberSemTypes, memberNonSemTypes);
         }
 
-        this.memberNonSemTypes = memberNonSemTypes;
-        this.memberSemTypes = memberSemTypes;
         this.semType = null; // reset cached sem-type if exists
+        return new MemberTypeBreakDown(memberNonSemTypes, memberSemTypes);
     }
 
     private void populateMemberSemTypesAndNonSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
@@ -515,9 +510,9 @@ public class BUnionType extends BType implements UnionType {
 
         if (memberType.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) memberType;
-            bUnionType.populateMemberSemTypesAndNonSemTypes();
-            memberSemTypes.addAll(bUnionType.memberSemTypes);
-            memberNonSemTypes.addAll(bUnionType.memberNonSemTypes);
+            var memberTypeBreakDown = bUnionType.populateMemberSemTypesAndNonSemTypes();
+            memberSemTypes.addAll(memberTypeBreakDown.memberSemTypes());
+            memberNonSemTypes.addAll(memberTypeBreakDown.memberNonSemTypes());
             return;
         }
 
@@ -534,8 +529,8 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public SemType semType() {
         if (this.semType == null) {
-            populateMemberSemTypesAndNonSemTypes();
-            this.semType = computeResultantUnion(memberSemTypes);
+            var memberTypeBreakDown = populateMemberSemTypesAndNonSemTypes();
+            this.semType = computeResultantUnion(memberTypeBreakDown.memberSemTypes());
         }
         return this.semType;
     }
@@ -550,5 +545,14 @@ public class BUnionType extends BType implements UnionType {
             t = SemTypes.union(t, s);
         }
         return t;
+    }
+
+    public boolean hasNonSemTypes() {
+        var memberTypeBreakDown = populateMemberSemTypesAndNonSemTypes();
+        return !memberTypeBreakDown.memberNonSemTypes().isEmpty();
+    }
+
+    public record MemberTypeBreakDown(LinkedHashSet<BType> memberNonSemTypes, LinkedHashSet<SemType> memberSemTypes) {
+
     }
 }

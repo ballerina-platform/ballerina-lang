@@ -170,8 +170,7 @@ public final class SemTypeHelper {
 
         if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
             BUnionType unionType = (BUnionType) t;
-            unionType.populateMemberSemTypesAndNonSemTypes();
-            return !unionType.memberNonSemTypes.isEmpty();
+            return unionType.hasNonSemTypes();
         }
 
         return true;
