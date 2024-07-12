@@ -17,11 +17,11 @@ jobs:
           fetch-depth: 0
       - name: Checkout Tag
         run: git checkout ${{ github.event.inputs.repoTag }}
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Build with Gradle
         env:
