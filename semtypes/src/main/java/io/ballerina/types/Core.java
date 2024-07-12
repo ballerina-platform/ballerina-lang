@@ -51,6 +51,7 @@ import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.LIST;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.MAPPING;
 import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
@@ -483,6 +484,37 @@ public final class Core {
             return bddMappingMemberTypeInner(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING), keyData,
                                             INNER);
         }
+    }
+
+    public static ListAtomicType listAtomicType(Context cx, SemType t) {
+        ListAtomicType listAtomicInner = LIST_ATOMIC_INNER;
+        if (t instanceof BasicTypeBitSet b) {
+            return b.bitset == LIST.bitset ? listAtomicInner : null;
+        } else {
+            Env env = cx.env;
+            if (!isSubtypeSimple(t, LIST)) {
+                return null;
+            }
+            return bddListAtomicType(env,
+                    (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST),
+                    listAtomicInner);
+        }
+    }
+
+    private static ListAtomicType bddListAtomicType(Env env, Bdd bdd, ListAtomicType top) {
+        if (bdd instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
+                return top;
+            }
+            return null;
+        }
+        BddNode bddNode = (BddNode) bdd;
+        if (bddNode.left().equals(BddAllOrNothing.bddAll())
+                && bddNode.middle().equals(BddAllOrNothing.bddNothing())
+                && bddNode.right().equals(BddAllOrNothing.bddNothing())) {
+            return env.listAtomType(bddNode.atom());
+        }
+        return null;
     }
 
     public static SemType cellInnerVal(CellSemType t) {

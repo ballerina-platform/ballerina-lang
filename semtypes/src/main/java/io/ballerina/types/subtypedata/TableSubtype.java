@@ -20,7 +20,9 @@ package io.ballerina.types.subtypedata;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.ListDefinition;
 
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
@@ -28,8 +30,6 @@ import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.Core.createBasicSemType;
 import static io.ballerina.types.Core.subtypeData;
-import static io.ballerina.types.PredefinedType.LIST_SUBTYPE_MAPPING;
-import static io.ballerina.types.PredefinedType.TABLE;
 
 /**
  * TableSubtype.
@@ -41,14 +41,29 @@ public final class TableSubtype {
     private TableSubtype() {
     }
 
-    public static SemType tableContaining(Env env, SemType mappingType, CellAtomicType.CellMutability mut) {
+    public static SemType tableContaining(Env env, SemType typeParameter,
+                                          SemType normalizedKc, SemType normalizedKs,
+                                          CellAtomicType.CellMutability mut) {
+
+        assert SemTypes.isSubtypeSimple(typeParameter, PredefinedType.MAPPING);
+        ListDefinition typeParamArrDef = new ListDefinition();
+        SemType typeParamArray = typeParamArrDef.defineListTypeWrapped(env, typeParameter, mut);
+
         ListDefinition listDef = new ListDefinition();
-        SemType listType = listDef.defineListTypeWrapped(env, mappingType, mut);
-        Bdd bdd = (Bdd) subtypeData(listType, BT_LIST);
-        if (bdd.equals(LIST_SUBTYPE_MAPPING)) {
-            return TABLE;
-        }
+        SemType tupleType = listDef.tupleTypeWrapped(env, typeParamArray, normalizedKc, normalizedKs);
+        Bdd bdd = (Bdd) subtypeData(tupleType, BT_LIST);
         return createBasicSemType(BT_TABLE, bdd);
+    }
+
+    public static SemType tableContaining(Env env, SemType typeParameter,
+                                          SemType normalizedKc, SemType normalizedKs) {
+        return tableContaining(env, typeParameter, normalizedKc, normalizedKs, CELL_MUT_LIMITED);
+    }
+
+    public static SemType tableContaining(Env env, SemType mappingType, CellAtomicType.CellMutability mut) {
+        SemType normalizedKc = PredefinedType.VAL; // TODO: Ideally this should be anydata
+        SemType normalizedKs = PredefinedType.VAL; // TODO: Ideally this should be string[]
+        return tableContaining(env, mappingType, normalizedKc, normalizedKs, mut);
     }
 
     public static SemType tableContaining(Env env, SemType mappingType) {
