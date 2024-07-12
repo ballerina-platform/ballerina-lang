@@ -1127,7 +1127,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     recordLiteral.setBType(inherentMemberType);
                 }
             }
-            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
+            BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, inherentMemberType, null);
             if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
                 data.resultType = symTable.semanticError;
                 return;
@@ -1172,8 +1172,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
 
-            BTableType tableType = new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes, applicableExpType),
-                                                  null);
+            BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, inferTableMemberType(memTypes,
+                    applicableExpType), null);
 
             if (Symbols.isFlagOn(applicableExpType.getFlags(), Flags.READONLY)) {
                 tableType.addFlags(Flags.READONLY);
@@ -1260,7 +1260,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        return new BTableType(TypeTags.TABLE, inferTableMemberType(memTypes, exprToLog, data), null);
+        return new BTableType(symTable.typeEnv(), TypeTags.TABLE, inferTableMemberType(memTypes, exprToLog, data),
+                null);
     }
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType,

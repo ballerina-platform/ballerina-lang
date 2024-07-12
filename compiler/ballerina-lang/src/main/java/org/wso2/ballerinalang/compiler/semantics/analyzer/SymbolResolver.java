@@ -1380,7 +1380,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.noType;
         }
 
-        BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
+        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,

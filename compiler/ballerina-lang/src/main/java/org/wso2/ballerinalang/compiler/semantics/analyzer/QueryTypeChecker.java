@@ -492,7 +492,7 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
-        final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
+        final BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
             validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             markReadOnlyForConstraintType(constraintType);

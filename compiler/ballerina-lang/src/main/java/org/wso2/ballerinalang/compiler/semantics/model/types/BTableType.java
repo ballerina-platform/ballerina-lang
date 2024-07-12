@@ -19,11 +19,22 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Context;
+import io.ballerina.types.Core;
+import io.ballerina.types.Env;
+import io.ballerina.types.FixedLengthArray;
+import io.ballerina.types.ListAtomicType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.ListDefinition;
+import io.ballerina.types.subtypedata.TableSubtype;
 import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -43,15 +54,18 @@ public class BTableType extends BType implements TableType {
     public Location constraintPos;
 
     public BTableType mutableType;
+    public final Env env;
 
-    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
+    public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
         this.constraint = constraint;
+        this.env = env;
     }
 
-    public BTableType(int tag, BType constraint, BTypeSymbol tSymbol, long flags) {
+    public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol, long flags) {
         super(tag, tSymbol, flags);
         this.constraint = constraint;
+        this.env = env;
     }
 
     public BType getConstraint() {
@@ -96,5 +110,59 @@ public class BTableType extends BType implements TableType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        SemType constraintTy = constraint instanceof BParameterizedType p ? p.paramValueType.semType() :
+                constraint.semType();
+        constraintTy = SemTypes.intersect(constraintTy, PredefinedType.MAPPING);
+
+        Context cx = Context.from(env); // apis calling with 'cx' here are only accessing the env field internally
+        if (!fieldNameList.isEmpty()) {
+            SemType[] fieldTypes = new SemType[fieldNameList.size()]; // Need to preserve the original order
+            for (int i = 0; i < fieldNameList.size(); i++) {
+                SemType key = SemTypes.stringConst(fieldNameList.get(i));
+                fieldTypes[i] = Core.mappingMemberTypeInnerVal(cx, constraintTy, key);
+            }
+
+            SemType normalizedKc;
+            if (fieldTypes.length > 1) {
+                ListDefinition ld = new ListDefinition();
+                normalizedKc = ld.tupleTypeWrapped(env, fieldTypes);
+            } else {
+                normalizedKc = fieldTypes[0];
+            }
+
+            List<String> sortedFieldNames = new ArrayList<>(fieldNameList);
+            sortedFieldNames.sort(String::compareTo);
+            SemType[] stringConstants = new SemType[sortedFieldNames.size()]; // Need to normalize the order
+            for (int i = 0; i < sortedFieldNames.size(); i++) {
+                stringConstants[i] = SemTypes.stringConst(sortedFieldNames.get(i));
+            }
+
+            SemType normalizedKs = new ListDefinition().tupleTypeWrapped(env, stringConstants);
+            return TableSubtype.tableContaining(env, constraintTy, normalizedKc, normalizedKs);
+        }
+
+        if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER) {
+            SemType keyConstraint = keyTypeConstraint.semType();
+            SemType normalizedKc;
+            ListAtomicType lat = Core.listAtomicType(cx, keyConstraint);
+            if (lat != null && PredefinedType.CELL_ATOMIC_UNDEF.equals(Core.cellAtomicType(lat.rest()))) {
+                FixedLengthArray members = lat.members();
+                normalizedKc = switch (members.fixedLength()) {
+                    case 0 -> PredefinedType.VAL;
+                    case 1 -> Core.cellAtomicType(members.initial().get(0)).ty();
+                    default -> keyConstraint;
+                };
+            } else {
+                normalizedKc = keyConstraint;
+            }
+
+            return TableSubtype.tableContaining(env, constraintTy, normalizedKc, PredefinedType.VAL);
+        }
+
+        return TableSubtype.tableContaining(env, constraintTy);
     }
 }

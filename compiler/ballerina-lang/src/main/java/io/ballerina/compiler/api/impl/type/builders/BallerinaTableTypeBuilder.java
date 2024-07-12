@@ -105,7 +105,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BTableType tableType = new BTableType(TypeTags.TABLE, rowBType, tableSymbol);
+        BTableType tableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, rowBType, tableSymbol);
         tableSymbol.type = tableType;
         if (!keyTypes.isEmpty()) {
             tableType.keyTypeConstraint = getKeyConstraintBType(keyTypes, rowType);

@@ -1199,7 +1199,7 @@ public class SymbolTable {
 
         pureType = BUnionType.create(typeEnv(), null, anydataType, errorType);
         streamType = new BStreamType(typeEnv(), TypeTags.STREAM, pureType, nilType, null);
-        tableType = new BTableType(TypeTags.TABLE, pureType, null);
+        tableType = new BTableType(typeEnv(), TypeTags.TABLE, pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
@@ -1208,7 +1208,7 @@ public class SymbolTable {
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
         BArrayType arrayCloneableType = new BArrayType(typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(typeEnv(), TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        BType tableMapCloneableType = new BTableType(typeEnv(), TypeTags.TABLE, mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);

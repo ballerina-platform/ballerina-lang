@@ -3765,7 +3765,7 @@ public class Types {
         if (s.tag == TypeTags.TABLE) {
             BTableType tableType = (BTableType) s;
             if (tableType.constraint == source) {
-                return new BTableType(tableType.tag, target, tableType.tsymbol,
+                return new BTableType(symTable.typeEnv(), tableType.tag, target, tableType.tsymbol,
                         tableType.getFlags());
             } else if (tableType.constraint instanceof BMapType) {
                 return updateSelfReferencedWithNewType(source, tableType.constraint, target);
