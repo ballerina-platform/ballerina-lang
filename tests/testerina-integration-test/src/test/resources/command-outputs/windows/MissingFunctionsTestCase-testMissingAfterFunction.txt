@@ -3,4 +3,4 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	after-func-negative.bal
 ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'
-error: compilation contains errors
+error: compilation contains errors

@@ -3,4 +3,4 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	depends-on-negative.bal
 ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'
-error: compilation contains errors
+error: compilation contains errors

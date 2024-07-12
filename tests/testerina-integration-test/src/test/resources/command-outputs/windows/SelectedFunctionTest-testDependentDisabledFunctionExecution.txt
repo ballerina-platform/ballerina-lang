@@ -7,4 +7,4 @@ Running Tests
 
 	single-test-execution.bal
 error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], but it is either disabled or not included.
-error: there are test failures
+error: there are test failures

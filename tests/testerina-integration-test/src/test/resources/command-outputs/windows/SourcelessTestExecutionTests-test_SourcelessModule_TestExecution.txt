@@ -25,4 +25,3 @@ Running Tests with Coverage
 
 Generating Test Report
 	sourceless-modules-test\target\report\test_results.json
-

@@ -7,4 +7,4 @@ Running Tests
 
 	bal-test-with-init-failure.bal
 error: {ballerina}DivisionByZero {"message":" / by zero"}
-error: there are test failures
+error: there are test failures

@@ -17,4 +17,3 @@ Running Tests with Coverage
 
 Generating Test Report
 	before-each-after-each\target\report\test_results.json
-

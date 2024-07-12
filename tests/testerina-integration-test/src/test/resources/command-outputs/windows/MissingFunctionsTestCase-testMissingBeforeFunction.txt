@@ -3,4 +3,4 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	before-func-negative.bal
 ERROR [before-func-negative.bal:(22:13,22:31)] undefined symbol 'beforeFuncNonExist'
-error: compilation contains errors
+error: compilation contains errors
