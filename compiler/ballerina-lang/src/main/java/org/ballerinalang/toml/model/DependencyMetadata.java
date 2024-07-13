@@ -20,7 +20,6 @@ package org.ballerinalang.toml.model;
 import org.ballerinalang.toml.util.PathUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Defines dependency object fields. The same object will be used to define patches.
@@ -58,7 +57,7 @@ public class DependencyMetadata {
         if (PathUtils.getPath(this.path) == null) {
             return null;
         }
-        return Paths.get(PathUtils.getPath(this.path));
+        return Path.of(PathUtils.getPath(this.path));
     }
 
     /**

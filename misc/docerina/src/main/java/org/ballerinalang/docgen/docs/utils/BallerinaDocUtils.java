@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
@@ -42,9 +41,9 @@ public class BallerinaDocUtils {
     private static final PrintStream out = System.out;
 
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {
-        Path p = Files.createFile(Paths.get(zipFilePath));
+        Path p = Files.createFile(Path.of(zipFilePath));
         try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
-            Path pp = Paths.get(sourceDirPath);
+            Path pp = Path.of(sourceDirPath);
             Files.walk(pp)
                     .filter(path -> !Files.isDirectory(path))
                     .forEach(path -> {

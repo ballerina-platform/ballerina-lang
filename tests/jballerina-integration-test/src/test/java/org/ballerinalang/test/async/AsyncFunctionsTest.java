@@ -23,15 +23,15 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Class to test functionality of futures.
  */
 public class AsyncFunctionsTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "async")
-            .toAbsolutePath().toString();
+    private static final String testFileLocation = Path.of("src/test/resources/async").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
     @BeforeClass

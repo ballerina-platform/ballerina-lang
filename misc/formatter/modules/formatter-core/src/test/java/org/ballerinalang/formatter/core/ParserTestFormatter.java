@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public class ParserTestFormatter extends FormatterTest {
 //    // Uncomment to run a subset of test cases.
 //    @Override
 //    public Object[][] testSubset() {
-//        Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
+//        Path buildDirectory = Path.of("build").toAbsolutePath().normalize();
 //
 //        return new Object[][] {
 //                {"annot_decl_source_01.bal", getFilePath("annot_decl_source_01.bal",
@@ -201,12 +201,12 @@ public class ParserTestFormatter extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("parser-tests").toString();
+        return Path.of("parser-tests").toString();
     }
 
     private Optional<String> getFilePath(String fileName, String directoryPath) {
         try {
-            return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
+            return Optional.ofNullable(Files.walk(Path.of(directoryPath))
                     .filter(f -> f.getFileName().toString().equals(fileName))
                     .toList().get(0).toString());
         } catch (IOException e) {

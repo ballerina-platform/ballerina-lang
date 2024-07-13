@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -44,7 +43,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = singleFileTestsPath.resolve("invalid-data-providers").toString();
-        errorlogFile = Paths.get(projectPath).resolve("ballerina-internal.log");
+        errorlogFile = Path.of(projectPath).resolve("ballerina-internal.log");
     }
 
     @BeforeMethod

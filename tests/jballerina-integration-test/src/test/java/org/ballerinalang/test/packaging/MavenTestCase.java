@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
@@ -51,7 +50,7 @@ public class MavenTestCase extends BaseTest {
         this.projectPath = Files.createTempDirectory("bal-test-integration-maven-");
 
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources", "packaging", "maven", "jyaml")
+        Path originalTestProj1 = Path.of("src", "test", "resources", "packaging", "maven", "jyaml")
                 .toAbsolutePath();
         PackerinaTestUtils.copyFolder(originalTestProj1, this.projectPath);
 

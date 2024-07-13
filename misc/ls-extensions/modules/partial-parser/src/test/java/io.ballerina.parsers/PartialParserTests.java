@@ -31,7 +31,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -45,7 +44,7 @@ public class PartialParserTests {
     private static final String MODULE_PART = "partialParser/getSTForModulePart";
     private static final String RESOURCE = "partialParser/getSTForResource";
 
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     private static final Path ST_WINDOWS = RES_DIR.resolve("syntax-tree").resolve("windows");
     private static final Path ST_LINUX = RES_DIR.resolve("syntax-tree").resolve("linux");
 

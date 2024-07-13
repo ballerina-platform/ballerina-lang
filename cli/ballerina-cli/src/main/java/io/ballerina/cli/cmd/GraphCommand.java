@@ -37,7 +37,6 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 
@@ -72,7 +71,7 @@ public class GraphCommand implements BLauncherCmd {
     private boolean sticky;
 
     public GraphCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;

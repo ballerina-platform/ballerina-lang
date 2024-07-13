@@ -25,7 +25,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * This class tests invoking an entry function in a bal file via the Ballerina Run Command.
@@ -54,7 +55,7 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
 
     private void executeTest(String message, String fileName, String... args) throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher(message, LeecherType.ERROR);
-        String balFile = Paths.get("src", "test", "resources", "run", "file", fileName).toAbsolutePath().toString();
+        String balFile = Path.of("src/test/resources/run/file", fileName).toAbsolutePath().toString();
         BMainInstance bMainInstance = new BMainInstance(balServer);
         bMainInstance.runMain(balFile, new String[0], args, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(10000);

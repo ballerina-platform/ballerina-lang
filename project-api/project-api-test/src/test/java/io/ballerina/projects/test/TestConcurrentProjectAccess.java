@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 
@@ -43,9 +42,9 @@ import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfD
  */
 public class TestConcurrentProjectAccess {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
-    private static final Path REPO_BALA_DIRECTORY = Paths.get(
+    private static final Path REPO_BALA_DIRECTORY = Path.of(
             "build/repo/bala/").toAbsolutePath();
     private static Path tempResourceDir;
 

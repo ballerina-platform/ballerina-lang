@@ -26,7 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Tests the optimizations done for nil related type checks, to not pass through the TypeChecker.
@@ -37,8 +38,7 @@ public class NilOptimizationTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(
-                Paths.get("test-src", "typechecker", "nil_optimizations.bal").toString());
+        compileResult = BCompileUtil.compile(Path.of("test-src/typechecker/nil_optimizations.bal").toString());
     }
 
     @Test(dataProvider = "FunctionList")

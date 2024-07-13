@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test {@code FileUtils} class.
@@ -34,7 +33,7 @@ import java.nio.file.Paths;
  */
 public class TestFileUtils {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
     private static final Path UTIL_RESOURCES = RESOURCE_DIRECTORY.resolve("utils");
 
     @DataProvider(name = "providePngFiles")

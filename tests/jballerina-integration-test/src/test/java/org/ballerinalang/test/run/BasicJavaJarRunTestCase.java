@@ -24,7 +24,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * This class tests build a bal file and execute the jar via the java jar Command and the test the basic data binding
@@ -47,7 +48,7 @@ public class BasicJavaJarRunTestCase extends BaseTest {
 
     private void executeTest(String serverResponse, String fileName, String... args) throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
-        String balFile = Paths.get("src", "test", "resources", "run", "file", fileName).toAbsolutePath().toString();
+        String balFile = Path.of("src/test/resources/run/file", fileName).toAbsolutePath().toString();
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
         ballerinaClient.runMain(balFile, null, args, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(10000);

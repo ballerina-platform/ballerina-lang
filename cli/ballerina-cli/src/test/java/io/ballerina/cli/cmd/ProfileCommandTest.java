@@ -37,7 +37,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +53,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    static Path logFile = Paths.get(".", "src", "test", "resources", "compiler_plugin_tests",
+    static Path logFile = Path.of(".", "src", "test", "resources", "compiler_plugin_tests",
             "log_creator_combined_plugin", "compiler-plugin.txt");
 
     @BeforeSuite
@@ -70,7 +69,7 @@ public class ProfileCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Path resourceURI = Paths.get(testResourcesURI);
+            Path resourceURI = Path.of(testResourcesURI);
             Files.walkFileTree(resourceURI, new BuildCommandTest.Copy(resourceURI,
                     this.testResources));
         } catch (URISyntaxException e) {
@@ -157,7 +156,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile an empty package with code generator build tools")
     public void testProfileEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Paths.get("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
+        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
         BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
                 .resolve("ballerina-generate-file").toString());
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");

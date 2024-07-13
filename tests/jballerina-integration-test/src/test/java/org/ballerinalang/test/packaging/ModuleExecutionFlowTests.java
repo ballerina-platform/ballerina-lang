@@ -25,7 +25,6 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -37,19 +36,19 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testModuleExecutionOrder() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj1");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "proj1");
         runAndAssert(projectPath);
     }
 
     @Test
     public void testModuleMainExecutionOrder() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj6");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "proj6");
         runAndAssert(projectPath);
     }
 
     @Test
     public void testImportModuleHasListener() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj2");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "proj2");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
                                    null, null);
@@ -79,7 +78,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() throws BallerinaTestException, InterruptedException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_invocation_project");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "module_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), "module_invocation_project", null, null,
                                    null);
@@ -103,19 +102,19 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testDynamicListenerExecution() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "dynamic_listener_execution");
         runAssertDynamicListener(projectPath);
     }
 
     @Test
     public void testDynamicListenerDeregister() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_deregister");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "dynamic_listener_deregister");
         runAssertDynamicListener(projectPath);
     }
 
     @Test
     public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+        Path projectPath = Path.of("src", "test", "resources", "packaging",
                 "dynamic_listener_async_call_test_project");
         runAssertDynamicListener(projectPath);
     }
@@ -133,7 +132,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testStopHandlerExecution() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "stop_handler_execution");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "stop_handler_execution");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
                 null, null);
@@ -154,7 +153,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testModuleShutdownRegisteredWithStopHandlers() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_shutdown_order_project");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "module_shutdown_order_project");
 
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
@@ -177,7 +176,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testStopHandlerExecutionOrder() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+        Path projectPath = Path.of("src", "test", "resources", "packaging",
                 "stop_handler_execution_order_test");
 
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -213,7 +212,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testListenerStopHandlerShutdownOrderWithErrorReturn() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+        Path projectPath = Path.of("src", "test", "resources", "packaging",
                 "listener_stophandler_shutdown_order_project");
 
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -249,7 +248,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testListenerStopHandlerAsyncCall() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+        Path projectPath = Path.of("src", "test", "resources", "packaging",
                 "listener_stophandler_async_call_test");
 
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -276,7 +275,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testStopHandlerAsyncCall() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+        Path projectPath = Path.of("src", "test", "resources", "packaging",
                 "stop_handler_async_call_test");
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
@@ -299,7 +298,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testModuleExecuteFunctionOrder() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_execute_invocation_project");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "module_execute_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         LogLeecher listenerInitLeecher = new LogLeecher("Calling init for 'current'", LogLeecher.LeecherType.INFO);
         LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
@@ -324,7 +323,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test
     public void testModuleInitWithBusyWorkerAndListener() throws BallerinaTestException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_init_worker_project");
+        Path projectPath = Path.of("src", "test", "resources", "packaging", "module_init_worker_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         LogLeecher listenerInitLeecher = new LogLeecher("Calling init for 'current'", LogLeecher.LeecherType.INFO);
         LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
@@ -354,7 +353,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
     @Test
     public void testModuleInitWithBusyWorkerAndDynamicListener() throws BallerinaTestException {
         Path projectPath =
-                Paths.get("src", "test", "resources", "packaging", "module_init_worker_dynamic_listener_project");
+                Path.of("src", "test", "resources", "packaging", "module_init_worker_dynamic_listener_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
         LogLeecher mainLeecher =
@@ -385,7 +384,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
     @Test
     public void testModuleInitWithBusyWorkerTerminating() throws BallerinaTestException {
         Path projectPath =
-                Paths.get("src", "test", "resources", "packaging", "module_init_worker_no_listener_project");
+                Path.of("src", "test", "resources", "packaging", "module_init_worker_no_listener_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
         LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
         LogLeecher mainLeecher =

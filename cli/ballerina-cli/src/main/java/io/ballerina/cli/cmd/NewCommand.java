@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -112,10 +111,10 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        Path packagePath = Paths.get(argList.get(0));
-        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        Path packagePath = Path.of(argList.get(0));
+        Path currentDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         if (!packagePath.isAbsolute()) {
-            packagePath = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+            packagePath = Path.of(currentDir.toString(), packagePath.toString()).normalize();
         }
         List<Path> filesInDir = new ArrayList<>();
 
@@ -301,8 +300,8 @@ public class NewCommand implements BLauncherCmd {
         }
         if (Files.exists(packagePath)) {
             // If the provided path argument is relative, print it as it is
-            if (!Paths.get(argList.get(0)).isAbsolute()) {
-                packagePath = Paths.get(argList.get(0));
+            if (!Path.of(argList.get(0)).isAbsolute()) {
+                packagePath = Path.of(argList.get(0));
             }
             errStream.println("Created new package '" + packageName + "' at " + packagePath + ".");
         }

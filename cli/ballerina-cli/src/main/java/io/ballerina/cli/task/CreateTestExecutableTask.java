@@ -44,7 +44,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -244,7 +243,7 @@ public class CreateTestExecutableTask implements Task {
 
             // Filter the testDependencies from the testSuite's test dependencies
             Collection<Path> requiredDependencies = testSuite.getTestExecutionDependencies().stream()
-                    .map(Paths::get).toList();
+                    .map(Path::of).toList();
             HashSet<JarLibrary> filteredTestDependencies = new HashSet<>();
             requiredDependencies.forEach(neededDependency -> {
                 String comparingStr = MODIFIED_JAR_SUFFIX;

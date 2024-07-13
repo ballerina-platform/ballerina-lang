@@ -20,7 +20,6 @@ package org.ballerinalang.debugadapter.runner;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ public class BSingleFileRunner extends BProgramRunner {
         String balFilePath = configHolder.getSourcePath();
         processBuilder.command(getBallerinaCommand(balFilePath));
 
-        Path singleFileRoot = Paths.get(projectRoot).getParent();
+        Path singleFileRoot = Path.of(projectRoot).getParent();
         if (singleFileRoot != null) {
             processBuilder.directory(singleFileRoot.toFile());
         }

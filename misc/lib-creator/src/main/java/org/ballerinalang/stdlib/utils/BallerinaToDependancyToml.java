@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +19,10 @@ public class BallerinaToDependancyToml {
             System.out.println("Please specify a path");
         }
         String path = args[0];
-        Path dir = Paths.get(System.getProperty("user.dir")).resolve(path);
+        Path dir = Path.of(System.getProperty("user.dir")).resolve(path);
         PathMatcher pathMatcher = FileSystems.getDefault()
                 .getPathMatcher("glob:**/Ballerina.toml");
-        Files.walk(Paths.get("..")).filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
+        Files.walk(Path.of("..")).filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
     }
 
     public static void migrate(Path ballerinaTomlPath) {

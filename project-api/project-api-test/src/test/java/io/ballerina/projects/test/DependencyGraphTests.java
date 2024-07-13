@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,7 +76,7 @@ import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfD
  * @since 2.0.0
  */
 public class DependencyGraphTests extends BaseTest {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources").toAbsolutePath();
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources").toAbsolutePath();
     private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
     private static Path tempResourceDir;
@@ -399,7 +398,7 @@ public class DependencyGraphTests extends BaseTest {
 
         // The bir of the direct dependency should be removed since the compiler throws
         // an exception when compiling with the BIR
-        ProjectUtils.deleteDirectory(Paths.get("build/repo/cache/samjs/package_b/0.1.0"));
+        ProjectUtils.deleteDirectory(Path.of("build/repo/cache/samjs/package_b/0.1.0"));
 
         project.currentPackage().getCompilation();
         // verify that the compiler package cache contains package_b but not package_c

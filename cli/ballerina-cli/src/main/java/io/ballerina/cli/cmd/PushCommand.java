@@ -54,7 +54,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Optional;
@@ -106,7 +105,7 @@ public class PushCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
 
     public PushCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.outStream = System.out;
         this.exitWhenFinish = true;

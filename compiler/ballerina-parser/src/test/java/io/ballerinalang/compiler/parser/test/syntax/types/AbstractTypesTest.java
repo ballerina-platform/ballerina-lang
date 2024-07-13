@@ -20,7 +20,8 @@ package io.ballerinalang.compiler.parser.test.syntax.types;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Test parsing expressions.
@@ -28,16 +29,16 @@ import java.nio.file.Paths;
 public class AbstractTypesTest {
 
     void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.TOP_LEVEL_NODE, Paths.get("types/", filePath));
+        ParserTestUtils.test(source, ParserRuleContext.TOP_LEVEL_NODE, Path.of("types", filePath));
     }
 
     void testTopLevelNode(String sourceFilePath, String filePath) {
-        ParserTestUtils.test(Paths.get("types/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("types/", filePath));
+        ParserTestUtils.test(Path.of("types", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
+                Path.of("types", filePath));
     }
 
     void testFile(String sourceFilePath, String filePath) {
-        ParserTestUtils.test(Paths.get("types/", sourceFilePath), ParserRuleContext.COMP_UNIT,
-                Paths.get("types/", filePath));
+        ParserTestUtils.test(Path.of("types", sourceFilePath), ParserRuleContext.COMP_UNIT,
+                Path.of("types", filePath));
     }
 }

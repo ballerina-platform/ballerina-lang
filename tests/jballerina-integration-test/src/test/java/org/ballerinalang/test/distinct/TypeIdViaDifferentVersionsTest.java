@@ -25,7 +25,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Tests type ID compatibility of the same construct via different versions of the same module.
@@ -34,8 +35,7 @@ import java.nio.file.Paths;
  */
 public class TypeIdViaDifferentVersionsTest extends BaseTest {
 
-    private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "packaging", "distinct")
+    private static final String testFileLocation = Path.of("src/test/resources/packaging/distinct")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -43,9 +43,9 @@ public class TypeIdViaDifferentVersionsTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_distinct_foo").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_distinct_foo").toString(),
                                      "testorg-distinct_foo-any-1.0.0");
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_distinct_bar").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_distinct_bar").toString(),
                                      "testorg-distinct_bar-any-1.0.0");
         // Triggers caching the BIR for foo 1.0.0.
         buildPackage("baz");
@@ -65,7 +65,7 @@ public class TypeIdViaDifferentVersionsTest extends BaseTest {
 
     @Test
     public void testTypeIDsViaDifferentVersions() throws BallerinaTestException {
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_distinct_foo_patch").toString(),
+        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_distinct_foo_patch").toString(),
                                      "testorg-distinct_foo-any-1.0.1");
 
         buildPackage("qux");
@@ -74,7 +74,7 @@ public class TypeIdViaDifferentVersionsTest extends BaseTest {
     private void buildPackage(String name) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-distinct_" + name + "-any-1.0.0.bala");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              Paths.get(testFileLocation, "test_project_distinct_" + name).toString());
+                              Path.of(testFileLocation, "test_project_distinct_" + name).toString());
         buildLeecher.waitForText(5000);
     }
 }

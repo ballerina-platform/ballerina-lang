@@ -29,7 +29,6 @@ import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -44,12 +43,12 @@ import java.util.Set;
 public class AbstractIncrementalParserTest {
 
     public static SyntaxTree parseFile(String sourceFilePath) {
-        Path sourcePath = Paths.get("incremental", sourceFilePath);
+        Path sourcePath = Path.of("incremental", sourceFilePath);
         return ParserTestUtils.parseFile(sourcePath);
     }
 
     public static SyntaxTree parse(SyntaxTree oldTree, String sourceFilePath) {
-        Path sourcePath = Paths.get("incremental", sourceFilePath);
+        Path sourcePath = Path.of("incremental", sourceFilePath);
         return SyntaxTree.from(oldTree, getTextChange(oldTree, sourcePath));
     }
 

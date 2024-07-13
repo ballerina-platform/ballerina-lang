@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Contains test cases to to validate the custom error feature.
@@ -35,7 +34,7 @@ import java.nio.file.Paths;
  */
 public class CustomErrorTest {
 
-    private final Path basePath = Paths.get("src", "test", "resources", "validator", "custom-error");
+    private final Path basePath = Path.of("src", "test", "resources", "validator", "custom-error");
 
     @Test
     public void testClean() throws IOException {

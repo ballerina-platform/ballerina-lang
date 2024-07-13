@@ -33,7 +33,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
@@ -51,7 +50,7 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 public class SubsequentBuildTests {
 
     private static final Path RESOURCE_DIRECTORY =
-            Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+            Path.of("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static Path tempResourceDir;
     private static final PrintStream OUT = System.out;
     private Path packagePath;

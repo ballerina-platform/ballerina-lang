@@ -41,7 +41,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -55,7 +54,7 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  * @since 2.0.0
  */
 public class TestBirAndJarCache {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     @Test(description = "tests writing of the BIR and Jar files")
     public void testBirAndJarCaching() throws IOException {

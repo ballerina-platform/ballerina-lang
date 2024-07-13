@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
@@ -57,13 +56,13 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
  */
 public class PackageResolutionIntegrationTests extends BaseTest {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/projects_for_resolution_integration_tests").toAbsolutePath();
     private static Path tempResourceDir;
     private static Path distVersionResourcesDirectory;
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-    Path customUserHome = Paths.get("build", "user-home");
+    Path customUserHome = Path.of("build", "user-home");
     Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
@@ -71,7 +70,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     public void setup() throws IOException {
         tempResourceDir = Files.createTempDirectory("project-api-test");
         FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
-        distVersionResourcesDirectory = Paths.get(String.valueOf(tempResourceDir))
+        distVersionResourcesDirectory = Path.of(String.valueOf(tempResourceDir))
                 .resolve("projects_for_distribution_version_increment_tests");
     }
 

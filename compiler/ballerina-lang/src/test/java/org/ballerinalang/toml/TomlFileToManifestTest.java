@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test class to populate a Manifest object from a toml file.
@@ -39,7 +38,7 @@ public class TomlFileToManifestTest {
     @Test(description = "Test which covers all the attributes tested above")
     public void testTomlFile() throws URISyntaxException {
         URI ballerinaTomlURI = getClass().getClassLoader().getResource("Ballerina.toml").toURI();
-        Path ballerinTomlPath = Paths.get(ballerinaTomlURI);
+        Path ballerinTomlPath = Path.of(ballerinaTomlURI);
         
         Manifest manifest = TomlParserUtils.getManifest(ballerinTomlPath.getParent());
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
@@ -57,7 +56,7 @@ public class TomlFileToManifestTest {
           expectedExceptionsMessageRegExp = ".*expected begin_array but was string at path.*")
     public void testInvalidTomlFile() throws URISyntaxException, IOException, TomlException {
         URI ballerinaTomlURI = getClass().getClassLoader().getResource("invalid-ballerina.toml").toURI();
-        Path ballerinTomlPath = Paths.get(ballerinaTomlURI);
+        Path ballerinTomlPath = Path.of(ballerinaTomlURI);
         ManifestProcessor.parseTomlContentFromFile(ballerinTomlPath);
     }
 }

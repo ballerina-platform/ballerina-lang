@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ import java.util.List;
  */
 public class ModifierTest {
 
-    private final Path basePath = Paths.get("src", "test", "resources", "modifier");
+    private final Path basePath = Path.of("src", "test", "resources", "modifier");
 
     @Test
     public void testUpdate() throws IOException {

@@ -31,7 +31,6 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
@@ -43,7 +42,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 public class DumpBuildTimeTask implements Task {
     private static final String BUILD_TIME_JSON = "build-time.json";
     private final transient PrintStream out;
-    private final Path currentDir = Paths.get(System.getProperty("user.dir"));
+    private final Path currentDir = Path.of(System.getProperty("user.dir"));
 
     public DumpBuildTimeTask(PrintStream out) {
         this.out = out;
@@ -55,7 +54,7 @@ public class DumpBuildTimeTask implements Task {
             BuildTime.getInstance().totalDuration = System.currentTimeMillis() - BuildTime.getInstance().timestamp;
             BuildTime.getInstance().offline = project.buildOptions().offlineBuild();
             Path buildTimeFile = getBuildTimeFilePath(project);
-            Path buildTimeFileRelativePath = Paths.get(System.getProperty("user.dir")).relativize(buildTimeFile);
+            Path buildTimeFileRelativePath = Path.of(System.getProperty("user.dir")).relativize(buildTimeFile);
             this.out.println("\nDumping build time information\n\t" + buildTimeFileRelativePath);
             persistBuildTimeToFile(buildTimeFile);
         }

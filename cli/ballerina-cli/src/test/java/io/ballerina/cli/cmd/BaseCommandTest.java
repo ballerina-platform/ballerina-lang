@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -55,7 +54,7 @@ public abstract class BaseCommandTest {
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
         this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
-        this.homeCache = Paths.get("build", "userHome");
+        this.homeCache = Path.of("build", "userHome");
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }
@@ -116,7 +115,7 @@ public abstract class BaseCommandTest {
 
         try (var files = Files.walk(balaProjectDirectory)) {
             files.forEach(a -> {
-                Path b = Paths.get(String.valueOf(balaDestPath),
+                Path b = Path.of(String.valueOf(balaDestPath),
                         a.toString().substring(balaProjectDirectory.toString().length()));
                 try {
                     if (!a.toString().equals(String.valueOf(balaProjectDirectory))) {

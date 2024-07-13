@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -82,7 +81,7 @@ public class RepoHierarchyTestCase extends BaseTest {
         balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
                 tempProjectDirectory.toString());
     
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "a", VERSION);
+        Path dirPath = Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "a", VERSION);
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve("a" + ".zip")));
     }
@@ -98,7 +97,7 @@ public class RepoHierarchyTestCase extends BaseTest {
         balClient.runMain("install", clientArgs, envVariables, new String[]{}, new LogLeecher[]{},
                 tempProjectDirectory.toString());
         
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "b", VERSION);
+        Path dirPath = Path.of(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "b", VERSION);
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve("b" + ".zip")));
     }

@@ -56,7 +56,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -421,7 +420,7 @@ public class ManifestBuilder {
 
     private void validateIconPathForPng(String icon, TomlTableNode pkgNode) {
         if (icon != null && hasPngExtension(icon)) {
-            Path iconPath = Paths.get(icon);
+            Path iconPath = Path.of(icon);
             if (!iconPath.isAbsolute()) {
                 iconPath = this.projectPath.resolve(iconPath);
             }
@@ -553,7 +552,7 @@ public class ManifestBuilder {
                         Map<String, Object> platformEntryMap = new HashMap<>();
                         String pathValue = getStringValueFromPlatformEntry(platformEntryTable, PATH);
                         if (pathValue != null) {
-                            Path path = Paths.get(pathValue);
+                            Path path = Path.of(pathValue);
                             if (!path.isAbsolute()) {
                                 path = this.projectPath.resolve(path);
                             }

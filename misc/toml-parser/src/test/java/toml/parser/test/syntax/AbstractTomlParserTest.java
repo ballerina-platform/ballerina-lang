@@ -20,7 +20,8 @@ package toml.parser.test.syntax;
 
 import toml.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Test util for testing toml.
@@ -33,7 +34,7 @@ public abstract class AbstractTomlParserTest {
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("syntax", resourceDirectoryName, path), Paths.get("syntax",
+        ParserTestUtils.test(Path.of("syntax", resourceDirectoryName, path), Path.of("syntax",
                 resourceDirectoryName, filePath));
     }
 }

@@ -45,7 +45,6 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -336,7 +335,7 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
+        List<Path> paths = Files.walk(Path.of(projectRootString), 3).toList();
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);

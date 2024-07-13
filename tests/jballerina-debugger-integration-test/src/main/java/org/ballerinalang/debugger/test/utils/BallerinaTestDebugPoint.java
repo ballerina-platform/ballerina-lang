@@ -23,7 +23,6 @@ import org.eclipse.lsp4j.debug.SourceBreakpoint;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.debugger.test.utils.FileUtils.FILE_SEPARATOR;
 import static org.ballerinalang.debugger.test.utils.FileUtils.FILE_SEPARATOR_REGEX;
@@ -85,9 +84,9 @@ public class BallerinaTestDebugPoint {
     public Source getSource() throws BallerinaTestException {
         Source source = new Source();
         if (filePathUri.getScheme().equals(URI_SCHEME_FILE)) {
-            String[] paths = Paths.get(filePathUri).toAbsolutePath().toString().split(FILE_SEPARATOR_REGEX);
+            String[] paths = Path.of(filePathUri).toAbsolutePath().toString().split(FILE_SEPARATOR_REGEX);
             source.setName(paths[paths.length - 1]);
-            source.setPath(Paths.get(filePathUri).toAbsolutePath().toString());
+            source.setPath(Path.of(filePathUri).toAbsolutePath().toString());
         } else if (filePathUri.getScheme().equals(URI_SCHEME_BALA)) {
             String[] paths = filePathUri.getPath().split(URI_SEPARATOR);
             source.setName(paths[paths.length - 1]);

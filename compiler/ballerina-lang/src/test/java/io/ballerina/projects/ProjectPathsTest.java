@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Tests the ProjectPaths util.
@@ -198,7 +197,7 @@ public class ProjectPathsTest {
 
     @Test(expectedExceptions = ProjectException.class)
     public void testPackageRootNegative() {
-        Assert.assertEquals(ProjectPaths.packageRoot(Paths.get("/tmp")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(Path.of("/tmp")), buildProjectPath);
     }
 
     @Test(expectedExceptions = ProjectException.class)
@@ -235,7 +234,7 @@ public class ProjectPathsTest {
 
         Assert.assertFalse(ProjectPaths.isBalFile(buildProjectPath.resolve("Ballerina.toml")));
         Assert.assertFalse(ProjectPaths.isBalFile(buildProjectPath));
-        Assert.assertFalse(ProjectPaths.isBalFile(Paths.get("/tmp/non-existent-path")));
+        Assert.assertFalse(ProjectPaths.isBalFile(Path.of("/tmp/non-existent-path")));
     }
 
     @Test
@@ -248,7 +247,7 @@ public class ProjectPathsTest {
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
                                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")));
-        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(Paths.get("/tmp/non-existent-path")));
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(Path.of("/tmp/non-existent-path")));
 
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(
                 buildProjectPath.resolve("test-utils").resolve("utils.bal")));

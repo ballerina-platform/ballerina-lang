@@ -31,7 +31,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Locale;
 
 enum CodeType {
@@ -105,7 +105,7 @@ public class CombinedCompilerPlugin extends CompilerPlugin {
 
     private void releaseLock() {
         try {
-            Files.delete(Paths.get(lockFilePath));
+            Files.delete(Path.of(lockFilePath));
         } catch (IOException e) {
             throw new RuntimeException(
                     "Error while deleting the lock file: " + lockFilePath + " " + e.getMessage());

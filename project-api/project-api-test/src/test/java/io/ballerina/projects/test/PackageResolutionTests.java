@@ -79,7 +79,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -99,10 +98,10 @@ import static org.mockito.Mockito.when;
  */
 @Test(groups = "broken")
 public class PackageResolutionTests extends BaseTest {
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static Path tempResourceDir;
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
 
     @BeforeTest
     public void setup() throws IOException {

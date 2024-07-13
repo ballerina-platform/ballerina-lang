@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,7 +41,7 @@ public class PackCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+    static Path logFile = Path.of("./src/test/resources/compiler_plugin_tests/" +
             "log_creator_combined_plugin/compiler-plugin.txt");
 
     @BeforeClass
@@ -52,12 +51,12 @@ public class PackCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Path testResourcesPath = Paths.get(testResourcesURI);
+            Path testResourcesPath = Path.of(testResourcesURI);
             Files.walkFileTree(testResourcesPath,
                     new BuildCommandTest.Copy(testResourcesPath, this.testResources));
 
             // Copy the compiler plugin jars to the test resources directory
-            Path compilerPluginJarsPath = Paths.get("build", "compiler-plugin-jars");
+            Path compilerPluginJarsPath = Path.of("build", "compiler-plugin-jars");
             Files.walkFileTree(compilerPluginJarsPath,
                     new BuildCommandTest.Copy(compilerPluginJarsPath,
                             this.testResources.resolve("compiler-plugin-jars")));
@@ -104,7 +103,7 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins")
     public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
-        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
+        Path compilerPluginPath = Path.of("./src/test/resources/test-resources/compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
                 .toAbsolutePath().toString());
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im")
@@ -328,7 +327,7 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack an empty package with compiler plugin")
     public void testPackEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Paths.get("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
+        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
         BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
                 .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
