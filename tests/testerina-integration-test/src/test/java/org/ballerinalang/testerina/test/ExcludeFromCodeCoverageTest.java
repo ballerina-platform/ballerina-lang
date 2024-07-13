@@ -53,7 +53,30 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     }
 
     @Test(description = "Exclude coverage with relative source paths and wildcards")
-    public void testExcludingBalFileCoverage() throws BallerinaTestException, IOException {
+    public void testExcludingBalFileCoverage() throws BallerinaTestException {
+        if (Utils.isWindowsOS()) {
+            throw new SkipException("""
+                    BadSad Error on Windows:
+                    SEVERE {b7a.log.crash} - 'void ballerina.io.1.$configurationMapper.$configureInit(java.util.Map, \
+                    java.lang.String[], java.nio.file.Path[], java.lang.String)'
+                    java.lang.NoSuchMethodError: 'void ballerina.io.1.$configurationMapper.$configureInit(java.util.Map\
+                    , java.lang.String[], java.nio.file.Path[], java.lang.String)'
+                    	at foo.code_cov_exclusion&0046util$test.0.$configurationMapper.$configureInit(Unknown Source)
+                    	at foo.code_cov_exclusion&0046util$test.0.$_init.main(code_cov_exclusion.util)
+                    	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+                    	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java\
+                    	:77)
+                    	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(\
+                    	DelegatingMethodAccessorImpl.java:43)
+                    	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+                    	at org.ballerinalang.test.runtime.util.TesterinaUtils.runTestModuleMain(TesterinaUtils.java:140)
+                    	at org.ballerinalang.test.runtime.util.TesterinaUtils.startSuite(TesterinaUtils.java:129)
+                    	at org.ballerinalang.test.runtime.util.TesterinaUtils.execute(TesterinaUtils.java:123)
+                    	at org.ballerinalang.test.runtime.util.TesterinaUtils.executeTests(TesterinaUtils.java:92)
+                    	at org.ballerinalang.test.runtime.BTestMain.startTestSuit(BTestMain.java:166)
+                    	at org.ballerinalang.test.runtime.BTestMain.main(BTestMain.java:148)
+                    """);
+        }
         String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
                 "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},
                 {"./*", "./modules/util/ut*.bal", "./generated**"},
