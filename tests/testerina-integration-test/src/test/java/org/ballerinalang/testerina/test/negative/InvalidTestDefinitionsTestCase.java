@@ -45,8 +45,7 @@ public class InvalidTestDefinitionsTestCase extends BaseTestCase {
     @Test
     public void testClassLevelTestDefinitions() throws BallerinaTestException {
         String[] args = new String[]{"class_invalid-test-definitions.bal"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         Assert.assertTrue(output.contains(
                 "ERROR [class_invalid-test-definitions.bal:(20:5,20:20)] invalid usage of test annotation"));
     }
@@ -54,8 +53,7 @@ public class InvalidTestDefinitionsTestCase extends BaseTestCase {
     @Test
     public void testSvcLevelTestDefinitions() throws BallerinaTestException {
         String[] args = new String[]{"svc_invalid-test-definitions.bal"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         Assert.assertTrue(output.contains(
                 "ERROR [svc_invalid-test-definitions.bal:(21:5,21:20)] invalid usage of test annotation"));
     }

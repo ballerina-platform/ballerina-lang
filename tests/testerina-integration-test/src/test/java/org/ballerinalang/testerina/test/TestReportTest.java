@@ -63,10 +63,8 @@ public class TestReportTest extends BaseTestCase {
 
     @Test()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
-        String msg = "warning: Could not find the required HTML report tools for code coverage";
-        String[] args = mergeCoverageArgs(new String[]{"--test-report"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("--test-report");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
@@ -78,10 +76,8 @@ public class TestReportTest extends BaseTestCase {
 
     @Test ()
     public void testWarningForCoverageFormatFlag() throws BallerinaTestException, IOException {
-        String msg = "warning: ignoring --coverage-format flag since code coverage is not enabled";
         String[] args = new String[]{"--coverage-format=xml"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);

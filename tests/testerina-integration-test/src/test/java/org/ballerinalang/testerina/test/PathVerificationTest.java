@@ -42,15 +42,14 @@ public class PathVerificationTest extends BaseTestCase {
 
     @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"path-verification"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("path-verification");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("PathVerificationTest-verifyTestsOutsidePath.txt", output);
     }
 
     @Test
     public void verifyMissingTestsDirectory() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
+        String[] args = mergeCoverageArgs("missing-tests-dir");
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("PathVerificationTest-verifyMissingTestsDirectory.txt", output);

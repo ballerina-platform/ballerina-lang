@@ -59,9 +59,9 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
-        FileUtils.copyFolder(Paths.get("build").resolve("compiler-plugin-jars"),
+        FileUtils.copyFolder(Paths.get("build/compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
-        repoBalaPath = Paths.get(balServer.getServerHome()).resolve("repo");
+        repoBalaPath = Paths.get(balServer.getServerHome(), "repo");
     }
 
     @DataProvider(name = "provideCoverageData")
@@ -197,7 +197,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
 
     private void runCommand(String projectName, String[] args) throws BallerinaTestException {
         Path projectPath = projectBasedTestsPath.resolve("code-coverage-report-test").resolve(projectName);
-        Path resultsJsonPath = projectPath.resolve("target").resolve("report").resolve("test_results.json");
+        Path resultsJsonPath = projectPath.resolve("target/report/test_results.json");
         balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath.toString());
         Gson gson = new Gson();
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {

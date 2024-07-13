@@ -126,7 +126,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     @Test
     public void testMockingFunctionInSingleFileProject() throws BallerinaTestException, IOException {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
-        String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
+        String[] args = mergeCoverageArgs("function-mock.bal");
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionInSingleFileProject.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
@@ -135,7 +135,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     @Test
     public void testLegacyMockingFunctionInSingleFileProject() throws BallerinaTestException, IOException {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
-        String[] args = mergeCoverageArgs(new String[]{"function-legacy-mock.bal"});
+        String[] args = mergeCoverageArgs("function-legacy-mock.bal");
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionInSingleFileProject.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));

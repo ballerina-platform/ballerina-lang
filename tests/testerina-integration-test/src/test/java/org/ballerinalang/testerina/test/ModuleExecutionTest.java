@@ -59,8 +59,7 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_SingleTest() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
@@ -70,37 +69,31 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_StartWildCardTest() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*Test"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_StartWildCardTest.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_StartWildCardTest.txt", output);
     }
 
     @Test()
     public void test_DefaultModule_MiddleWildCardTest() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*test*"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_MiddleWildCardTest.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_MiddleWildCardTest.txt", output);
     }
 
     @Test()
     public void test_DefaultModule_EndWildCardTest() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_EndWildCardTest.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_EndWildCardTest.txt", output);
     }
 
     @Test()
@@ -111,43 +104,34 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_AllTests.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_AllTests.txt", output);
     }
 
     @Test()
     public void test_Module1_SingleTest() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests",
                 "moduleExecution.Module1:module1_test1"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_SingleTest.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_SingleTest.txt", output);
     }
 
     @Test()
     public void test_Module1_WildCardTest() throws BallerinaTestException, IOException {
-        String msg1 = "2 passing";
-        String msg2 = "[pass] module1_test1";
-        String msg3 = "[pass] module1_test2";
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("--tests", "moduleExecution.Module1:module1_*");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WildCardTest.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WildCardTest.txt", output);
     }
 
     @Test()
     public void test_WildCardTest() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("--tests", "common*");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
@@ -156,13 +140,12 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_Module1_WithGroups() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
+        String[] args = mergeCoverageArgs("--tests", "moduleExecution.Module1:*", "--groups", "g1");
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WithGroups.txt",
-                output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WithGroups.txt", output);
     }
 
     @AfterMethod

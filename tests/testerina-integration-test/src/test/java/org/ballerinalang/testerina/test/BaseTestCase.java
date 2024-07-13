@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * Parent test class for all integration test cases. This will provide basic functionality for integration tests. This
  * will initialize a single ballerina instance which will be used by all the test cases throughout.
  */
-public class BaseTestCase {
+public abstract class BaseTestCase {
 
     public static BalServer balServer;
     Path tempProjectDirectory;
@@ -49,13 +49,11 @@ public class BaseTestCase {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
 
         // copy TestProjects to a temp
-        Path originalSingleFileTestsDir = Paths.get("src", "test", "resources", "single-file-tests")
-                .toAbsolutePath();
+        Path originalSingleFileTestsDir = Paths.get("src/test/resources/single-file-tests").toAbsolutePath();
         singleFileTestsPath = tempProjectDirectory.resolve("single-file-tests");
         FileUtils.copyFolder(originalSingleFileTestsDir, singleFileTestsPath);
 
-        Path originalProjTestsDir = Paths.get("src", "test", "resources", "project-based-tests")
-                .toAbsolutePath();
+        Path originalProjTestsDir = Paths.get("src/test/resources/project-based-tests").toAbsolutePath();
         projectBasedTestsPath = tempProjectDirectory.resolve("project-based-tests");
         FileUtils.copyFolder(originalProjTestsDir, projectBasedTestsPath);
     }
@@ -84,7 +82,7 @@ public class BaseTestCase {
         }
     }
 
-    protected String[] mergeCoverageArgs(String[] cmdArgs) {
+    protected String[] mergeCoverageArgs(String... cmdArgs) {
         return Stream.concat(Arrays.stream(coverageArgs), Arrays.stream(cmdArgs)).toArray(String[]::new);
     }
 }

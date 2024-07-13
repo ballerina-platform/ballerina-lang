@@ -49,8 +49,7 @@ public class ModuleExecutionFlowTest extends BaseTestCase {
     @Test()
     public void testModuleExecutionFlow() throws BallerinaTestException, IOException {
         String[] args = new String[]{};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("ModuleExecutionFlowTest-test-listener-shutdown.txt", output);
     }
 

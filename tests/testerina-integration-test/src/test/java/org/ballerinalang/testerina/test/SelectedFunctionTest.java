@@ -42,50 +42,44 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testSingleFunctionExecution() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("--tests", "testFunc", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("SelectedFunctionTest-testSingleFunctionExecution.txt", output);
     }
 
     @Test
     public void testDependentFunctionExecution() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc2", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("--tests", "testFunc2", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("SelectedFunctionTest-testDependentFunctionExecution.txt", output);
     }
 
     @Test
     public void testMultipleFunctionExecution() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("--tests", "testFunc,testFunc2", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("SelectedFunctionTest-testMultipleFunctionExecution.txt", output);
     }
 
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("--tests", "nonExistingFunc", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SelectedFunctionTest-testNonExistingFunctionExecution.txt", output);
     }
 
     @Test
     public void testDisabledFunctionExecution() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("--tests", "testDisabledFunc", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("SelectedFunctionTest-testDisabledFunctionExecution.txt", output);
     }
 
     @Test
     public void testDependentDisabledFunctionExecution() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(
-                new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+                "--tests", "testDependentDisabledFunc", "single-test-execution.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SelectedFunctionTest-testDependentDisabledFunctionExecution.txt",
                 output);
     }

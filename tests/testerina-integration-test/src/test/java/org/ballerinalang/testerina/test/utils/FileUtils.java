@@ -68,11 +68,10 @@ public class FileUtils {
      * @param packagePath path of the package
      */
     public static void copyBallerinaExec(Path packagePath, String suffix) throws IOException {
-        Path execPath = packagePath.resolve("target").resolve("cache").resolve("tests_cache")
-                .resolve("coverage").resolve("ballerina.exec");
+        Path execPath = packagePath.resolve("target/cache/tests_cache/coverage/ballerina.exec");
         if (execPath.toFile().exists()) {
             Files.copy(execPath,
-                    Paths.get(System.getProperty("user.dir")).resolve("build").resolve("jacoco").resolve(
+                    Paths.get(System.getProperty("user.dir"), "build", "jacoco",
                             packagePath.getFileName().toString() + suffix + ".exec"));
 
         }

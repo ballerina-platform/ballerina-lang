@@ -49,8 +49,7 @@ public class ModuleGracefulStopTest extends BaseTestCase {
     @Test()
     public void testModuleGracefulStop() throws BallerinaTestException, IOException {
         String[] args = new String[]{};
-        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath,
-                false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);

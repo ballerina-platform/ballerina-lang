@@ -42,17 +42,15 @@ public class DisableTestsTestCase extends BaseTestCase {
 
     @Test
     public void testDisablingTests() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"disable-test.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("disable-test.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("DisableTestsTestCase-testDisablingTests.txt", output);
     }
 
     @Test
     public void testDisablingTestsWithDependsOn() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"disable-with-depends-on.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("disable-with-depends-on.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("DisableTestsTestCase-testDisablingTestsWithDependsOn.txt", output);
     }
 }

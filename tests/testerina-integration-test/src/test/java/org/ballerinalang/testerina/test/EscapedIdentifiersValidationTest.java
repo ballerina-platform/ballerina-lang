@@ -41,10 +41,8 @@ public class EscapedIdentifiersValidationTest extends BaseTestCase {
 
     @Test
     public void validateEscapedIdentifiersTest() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"validate-escaped-identifiers"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("EscapedIdentifiersValidationTest-validateEscapedIdentifiersTest.txt",
-                output);
+        String[] args = mergeCoverageArgs("validate-escaped-identifiers");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
+        AssertionUtils.assertOutput("EscapedIdentifiersValidationTest-validateEscapedIdentifiersTest.txt", output);
     }
 }

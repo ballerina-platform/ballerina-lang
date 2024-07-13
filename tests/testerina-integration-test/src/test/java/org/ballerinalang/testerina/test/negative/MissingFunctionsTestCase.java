@@ -43,28 +43,22 @@ public class MissingFunctionsTestCase extends BaseTestCase {
 
     @Test
     public void testMissingBeforeFunction() throws BallerinaTestException, IOException {
-        String errMsg = "ERROR [before-func-negative.bal:(22:13,22:31)] undefined symbol 'beforeFuncNonExist'";
-        String[] args = mergeCoverageArgs(new String[]{"before-func-negative.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("before-func-negative.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingBeforeFunction.txt", output);
     }
 
     @Test
     public void testMissingAfterFunction() throws BallerinaTestException, IOException {
-        String errMsg = "ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'";
-        String[] args = mergeCoverageArgs(new String[]{"after-func-negative.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("after-func-negative.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingAfterFunction.txt", output);
     }
 
     @Test
     public void testMissingDependsOnFunction() throws BallerinaTestException, IOException {
-        String errMsg = "ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'";
-        String[] args = mergeCoverageArgs(new String[]{"depends-on-negative.bal"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("depends-on-negative.bal");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingDependsOnFunction.txt", output);
     }
 

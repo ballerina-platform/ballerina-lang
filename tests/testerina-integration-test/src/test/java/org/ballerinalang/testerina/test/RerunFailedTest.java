@@ -48,9 +48,8 @@ public class RerunFailedTest extends BaseTestCase {
 
     @Test
     public void testFullTest() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("rerun-failed-tests");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
@@ -59,9 +58,8 @@ public class RerunFailedTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testFullTest")
     public void testRerunFailedTest() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String[] args = mergeCoverageArgs("--rerun-failed", "rerun-failed-tests");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
@@ -83,8 +81,7 @@ public class RerunFailedTest extends BaseTestCase {
     @Test
     public void testRerunFailedTestWithInvalidRunTestJson() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-invalid-json"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithInvalidRunTestJson.txt",
                 output.replaceAll("\r", ""));
     }
@@ -92,8 +89,7 @@ public class RerunFailedTest extends BaseTestCase {
     @Test
     public void testRerunFailedTestWithMissingModuleNameInRunTestJson() throws BallerinaTestException, IOException {
         String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-missing-module-name"};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithMissingModuleNameInRunTestJson.txt",
                 output.replaceAll("\r", ""));
     }

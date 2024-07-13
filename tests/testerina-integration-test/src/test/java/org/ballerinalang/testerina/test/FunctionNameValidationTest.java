@@ -42,9 +42,8 @@ public class FunctionNameValidationTest extends BaseTestCase {
 
     @Test
     public void validateFunctionNamesTest() throws BallerinaTestException, IOException {
-        String[] args = mergeCoverageArgs(new String[]{"validate-function-names"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+        String[] args = mergeCoverageArgs("validate-function-names");
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("FunctionNameValidationTest-validateFunctionNamesTest.txt", output);
     }
 

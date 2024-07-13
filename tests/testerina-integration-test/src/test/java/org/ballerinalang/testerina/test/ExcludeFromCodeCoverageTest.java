@@ -22,7 +22,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Utils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,8 +49,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("code-cov-exclusion");
-        resultsJsonPath = projectBasedTestsPath.resolve("code-cov-exclusion").resolve("target").resolve("report")
-                .resolve("test_results.json");
+        resultsJsonPath = projectBasedTestsPath.resolve("code-cov-exclusion/target/report/test_results.json");
     }
 
     @Test(description = "Exclude coverage with relative source paths and wildcards")
@@ -69,28 +70,27 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 {"*.bal"}
         };
         for (String [] exclusionList : exclusionListOfList) {
-            String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
-                    "--excludes=" + String.join(",", exclusionList)});
-            String output = balClient.runMainAndReadStdOut("test", args,
-                    new HashMap<>(), projectPath.toString(), false);
+            String[] args = mergeCoverageArgs("--test-report", "--coverage-format=xml",
+                    "--excludes=" + String.join(",", exclusionList));
+            String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath.toString(),
+                    false);
             Gson gson = new Gson();
 
             try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
                 resultObj = gson.fromJson(bufferedReader, JsonObject.class);
             } catch (IOException e) {
-                throw new BallerinaTestException("Failed to read test_results.json");
+                throw new BallerinaTestException("Failed to read test_results.json\nCommand output: \n" + output, e);
             }
             validateModuleWiseCoverage();
         }
     }
 
     @Test(description = "Exclude a source file from coverage exclusion list", enabled = false)
-    public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException, IOException {
+    public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException {
         String [] exclusionList =  {"./*", "!./main.bal"};
-        String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
-                "--excludes=" + String.join(",", exclusionList)});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath.toString(), false);
+        String[] args = mergeCoverageArgs("--test-report", "--coverage-format=xml",
+                "--excludes=" + String.join(",", exclusionList));
+        balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath.toString(), false);
         Gson gson = new Gson();
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
@@ -98,17 +98,15 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
-        validateModuleWiseCoverage(40F, 100F, 0F, 2, 2,
-                1, 8, 5, 61.54F);
+        validateModuleWiseCoverage(40F, 100F, 0F, 2, 2, 1, 8, 5, 61.54F);
     }
 
     @Test(description = "Exclude a folder from coverage exclusion list", enabled = false)
-    public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException, IOException {
+    public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException {
         String [] exclusionList = {"./generated", "!./generated/util"};
-        String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
-                "--excludes=" + String.join(",", exclusionList)});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath.toString(), false);
+        String[] args = mergeCoverageArgs("--test-report", "--coverage-format=xml",
+                "--excludes=" + String.join(",", exclusionList));
+        balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath.toString(), false);
         Gson gson = new Gson();
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
@@ -116,13 +114,11 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
-        validateModuleWiseCoverage(0F, 100F, 0F, 1, 2,
-                0,  6, 3, 66.67F);
+        validateModuleWiseCoverage(0F, 100F, 0F, 1, 2, 0,  6, 3, 66.67F);
     }
 
     private void validateModuleWiseCoverage() {
-        validateModuleWiseCoverage(0F, 0F, 0F, 0, 0,
-                 0, 0, 0, 0F);
+        validateModuleWiseCoverage(0F, 0F, 0F, 0, 0, 0, 0, 0, 0F);
     }
 
     private void validateModuleWiseCoverage(Float defaultModuleCov, Float utilCov, Float util2Cov,
