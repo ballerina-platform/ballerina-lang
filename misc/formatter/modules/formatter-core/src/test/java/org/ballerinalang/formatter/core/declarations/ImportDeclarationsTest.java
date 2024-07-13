@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of import declarations.
@@ -89,6 +89,6 @@ public class ImportDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("declarations", "import").toString();
+        return Path.of("declarations/import").toString();
     }
 }

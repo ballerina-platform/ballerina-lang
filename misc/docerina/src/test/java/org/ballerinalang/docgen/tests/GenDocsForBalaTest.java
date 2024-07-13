@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
@@ -40,7 +39,7 @@ import java.util.stream.Stream;
  * Test generating API docs for a bala.
  */
 public class GenDocsForBalaTest {
-    private final Path resourceDir = Paths.get("src", "test", "resources");
+    private final Path resourceDir = Path.of("src", "test", "resources");
     private Path docsPath;
 
     @BeforeMethod

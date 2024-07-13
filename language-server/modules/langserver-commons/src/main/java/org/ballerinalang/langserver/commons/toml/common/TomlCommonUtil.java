@@ -19,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -68,7 +67,7 @@ public final class TomlCommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
+            return Optional.of(Path.of(new URL(uri).toURI()));
         } catch (URISyntaxException | MalformedURLException e) {
             // ignore
         }

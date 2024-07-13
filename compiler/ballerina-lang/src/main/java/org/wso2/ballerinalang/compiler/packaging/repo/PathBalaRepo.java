@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -53,7 +52,7 @@ public class PathBalaRepo implements Repo<Path> {
         this.manifest = manifest;
         this.dependencyManifests = dependencyManifests;
         // path value for zip converter does'nt matter
-        this.zipConverter = new ZipConverter(Paths.get(""));
+        this.zipConverter = new ZipConverter(Path.of(""));
     }
     
     @Override

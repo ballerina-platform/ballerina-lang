@@ -43,7 +43,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test goto definition language server feature.
@@ -83,7 +82,7 @@ public class ReferencesTest {
     
     @Test(dataProvider = "testReferencesWithinStdLibDataProvider")
     public void testReferencesWithinStdLib(String configPath) throws IOException, URISyntaxException {
-        Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
+        Path ballerinaHome = Path.of(CommonUtil.BALLERINA_HOME);
 
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -150,7 +149,7 @@ public class ReferencesTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(root.toUri());
+            Path expectedPath = Path.of(root.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

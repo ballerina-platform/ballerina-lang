@@ -28,7 +28,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,7 +45,7 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    static Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+    static Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -60,14 +59,14 @@ public class RunCommandTest extends BaseCommandTest {
         super.setup();
         try {
             this.testResources = super.tmpDir.resolve("build-test-resources");
-            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Paths.get("build", "user-home");
+            Path customUserHome = Path.of("build", "user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             this.projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new BuildCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
@@ -299,10 +298,10 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins",
             dataProvider = "optimizeDependencyCompilation")
     public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
-        Path logFile = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
-        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");
+        Path compilerPluginPath = Path.of("./src/test/resources/test-resources").resolve("compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im"),
                 testDistCacheDirectory, projectEnvironmentBuilder);
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im"),

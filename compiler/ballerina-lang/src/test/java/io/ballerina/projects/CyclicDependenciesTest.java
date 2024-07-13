@@ -26,7 +26,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +34,7 @@ import java.util.Set;
  * Contains test cases to validate the detection of cyclic dependencies in {@code DependencyGraph}.
  */
 public class CyclicDependenciesTest {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources", "cyclic-graphs");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources", "cyclic-graphs");
 
     private static final ResolutionEngine.DependencyNode PACKAGE_01 = createNode("nipyf", "js", "1.0.2");
     private static final ResolutionEngine.DependencyNode PACKAGE_02 = createNode("nipyf", "toml", "1.0.0");

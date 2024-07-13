@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.List;
  * Format CLI tool test suit for testing tool's exceptions.
  */
 public class FormatCmdTest {
-    private static final Path RES_DIR = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src").resolve("test").resolve("resources").toAbsolutePath();
     private static final String NOT_A_BAL_PROJECT = "notAProject";
     private static final String BAL_PROJECT = "project";
 
@@ -90,7 +89,7 @@ public class FormatCmdTest {
         try {
             for (Path dir : dirs) {
                 Path tempDir = dir.resolveSibling(dir.getFileName() + "Temp");
-                Path assertDir = Paths.get(dir.toString().replace("/source/", "/assert/"));
+                Path assertDir = Path.of(dir.toString().replace("/source/", "/assert/"));
                 FormatUtil.execute(argList, false, null, null, false, dir);
                 Assert.assertEquals(Files.readString(dir.resolve("main.bal")),
                         Files.readString(assertDir.resolve("main.bal")));

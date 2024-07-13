@@ -59,7 +59,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -212,7 +211,7 @@ public final class TestUtils {
                     try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                         writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                         out.println("\tView the test report at: " +
-                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize());
+                                FILE_PROTOCOL + Path.of(htmlFile.getPath()).toAbsolutePath().normalize());
                     }
                 }
             } else {
@@ -231,7 +230,7 @@ public final class TestUtils {
      * @return path of the report tools template
      */
     public static Path getReportToolsPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+        return Path.of(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
                 resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
                 resolve(REPORT_ZIP_NAME);
     }
@@ -337,7 +336,7 @@ public final class TestUtils {
      * @return                  Path to the json file
      */
     public static Path getJsonFilePath(Path testsCachePath) {
-        return Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        return Path.of(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
     }
 
     public static String getJsonFilePathInFatJar(String separator) {
@@ -347,7 +346,7 @@ public final class TestUtils {
     }
 
     public static void clearFailedTestsJson(Path targetPath) {
-        Path rerunTestJsonPath = Paths.get(targetPath.toString(), RERUN_TEST_JSON_FILE);
+        Path rerunTestJsonPath = Path.of(targetPath.toString(), RERUN_TEST_JSON_FILE);
         if (Files.exists(rerunTestJsonPath)) {
             try {
                 Files.delete(rerunTestJsonPath);
@@ -369,7 +368,7 @@ public final class TestUtils {
      * @return jacoco agent jar path
      */
     public static String getJacocoAgentJarPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+        return Path.of(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
     }
 

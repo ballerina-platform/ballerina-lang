@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of behavioural type descriptors.
@@ -43,6 +43,6 @@ public class BehaviouralTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("types", "behavioural").toString();
+        return Path.of("types/behavioural").toString();
     }
 }

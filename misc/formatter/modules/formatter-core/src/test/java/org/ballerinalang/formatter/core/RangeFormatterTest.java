@@ -37,7 +37,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public abstract class RangeFormatterTest {
-    private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
+    private final Path resourceDirectory = Path.of("src").resolve("test").resolve("resources").toAbsolutePath();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
@@ -107,7 +106,7 @@ public abstract class RangeFormatterTest {
         List<String> skippedTests = this.skipList();
         try {
             String testResourceDir = getTestResourceDir();
-            File jsonConfigFile = Paths.get(resourceDirectory.toString(), getTestResourceDir(),
+            File jsonConfigFile = Path.of(resourceDirectory.toString(), getTestResourceDir(),
                     getConfigJsonFileName()).toFile();
             JsonArray jsonArray = gson.fromJson(new FileReader(jsonConfigFile), JsonArray.class);
             int jsonArraySize = jsonArray.size();
@@ -118,8 +117,8 @@ public abstract class RangeFormatterTest {
                 if (skippedTests.contains(fileName)) {
                     continue;
                 }
-                Path assertFilePath = Paths.get(resourceDirectory.toString(), testResourceDir, ASSERT_DIR, fileName);
-                Path sourceFilePath = Paths.get(resourceDirectory.toString(), testResourceDir, SOURCE_DIR, fileName);
+                Path assertFilePath = Path.of(resourceDirectory.toString(), testResourceDir, ASSERT_DIR, fileName);
+                Path sourceFilePath = Path.of(resourceDirectory.toString(), testResourceDir, SOURCE_DIR, fileName);
                 ArrayList<LineRange> lineRanges = new ArrayList<>();
                 for (JsonElement positionElement : jsonObject.getAsJsonArray("positions")) {
                     JsonObject position = positionElement.getAsJsonObject();

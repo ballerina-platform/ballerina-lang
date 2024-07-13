@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -30,7 +29,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
-    private static final Path LOG_FILE = Paths.get("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+    private static final Path LOG_FILE = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
             .toAbsolutePath();
 
     @Override
@@ -41,14 +40,14 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Files.writeString(LOG_FILE, "");
         try {
             this.testResources = super.tmpDir.resolve("test-cmd-test-resources");
-            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Paths.get("build", "user-home");
+            Path customUserHome = Path.of("build", "user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new TestCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Path.of(testResourcesURI), new TestCommandTest.Copy(Path.of(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");

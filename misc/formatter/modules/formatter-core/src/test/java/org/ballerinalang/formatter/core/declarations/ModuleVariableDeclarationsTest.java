@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of module variable declarations.
@@ -43,6 +43,6 @@ public class ModuleVariableDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("declarations", "module-variable").toString();
+        return Path.of("declarations/module-variable").toString();
     }
 }

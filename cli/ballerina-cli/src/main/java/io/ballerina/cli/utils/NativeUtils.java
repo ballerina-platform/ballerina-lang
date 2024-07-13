@@ -50,7 +50,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -271,7 +270,7 @@ public final class NativeUtils {
 
         for (String jarFilePath : jarFilePaths) {
             try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+                urlList.add(Path.of(jarFilePath).toUri().toURL());
             } catch (MalformedURLException e) {
                 // This path cannot get executed
                 throw new RuntimeException("Failed to create classloader with all jar files", e);

@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -56,8 +56,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     private void setup() throws Exception {
         System.setProperty("enableJBallerinaTests", "true");
         setUpDatabase();
-        String balFile = Paths.get("src", "test", "resources", "data", "streaming", "streaming_test.bal")
-                .toAbsolutePath().toString();
+        String balFile = Path.of("src/test/resources/data/streaming/streaming_test.bal").toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         // Had to increase this to 150 from 100 which worked with BVM. Created an issue: #16846
         envProperties.put("JAVA_OPTS", "-Xms150m -Xmx150m");
@@ -67,8 +66,7 @@ public class TableDataStreamingTestCase extends BaseTest {
     }
 
     private void setUpDatabase() throws SQLException {
-        String dbScriptPath = Paths
-                .get("data", "streaming", "datafiles", "streaming_test_data.sql").toString();
+        String dbScriptPath = Path.of("data/streaming/datafiles/streaming_test_data.sql").toString();
         testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY,
                 "STREAMING_TEST_DB");
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());

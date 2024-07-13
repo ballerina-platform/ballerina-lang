@@ -37,7 +37,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -298,7 +297,7 @@ public final class PackageUtils {
     private static Optional<Path> getPathFromURI(String fileUri) {
         try {
             if (isValidPath(fileUri)) {
-                return Optional.of(Paths.get(fileUri).normalize());
+                return Optional.of(Path.of(fileUri).normalize());
             }
 
             URI uri = URI.create(fileUri);
@@ -307,7 +306,7 @@ public final class PackageUtils {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
-            return Optional.of(Paths.get(converted).normalize());
+            return Optional.of(Path.of(converted).normalize());
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
@@ -321,7 +320,7 @@ public final class PackageUtils {
             return false;
         }
         try {
-            Paths.get(path);
+            Path.of(path);
         } catch (InvalidPathException ex) {
             return false;
         }

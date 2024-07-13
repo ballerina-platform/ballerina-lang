@@ -44,7 +44,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -70,8 +69,8 @@ public class PushCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI),
-                               new BuildCommandTest.Copy(Paths.get(testResourcesURI), this.testResources));
+            Files.walkFileTree(Path.of(testResourcesURI),
+                               new BuildCommandTest.Copy(Path.of(testResourcesURI), this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
@@ -81,9 +80,9 @@ public class PushCommandTest extends BaseCommandTest {
     @Override
     public void afterMethod() throws IOException {
         super.afterMethod();
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build").resolve("validProjectWithTarget");
         ProjectUtils.deleteDirectory(validBalProject);
-        validBalProject = Paths.get("build").resolve("tool-gayals");
+        validBalProject = Path.of("build").resolve("tool-gayals");
         ProjectUtils.deleteDirectory(validBalProject);
     }
 
@@ -109,8 +108,8 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "Successfully pushed src/test/resources/test-resources/custom-repo/" +
                 "luheerathan-pact1-any-0.1.0.bala to 'repo-push-pull' repository.\n";
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
-        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+        Path mockRepo = Path.of("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
+        Path balaPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
                 "luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pull" };
@@ -128,8 +127,8 @@ public class PushCommandTest extends BaseCommandTest {
         String pomFile = packageName + "-" + version + POM_EXTENSION;
         String pushPullPath = mockRepo.resolve(org).resolve(packageName).resolve(version).toAbsolutePath().toString();
         for (String ext : new String[]{".sha1", ".md5", ""}) {
-            Assert.assertTrue(Paths.get(pushPullPath, artifact + ext).toFile().exists());
-            Assert.assertTrue(Paths.get(pushPullPath, pomFile + ext).toFile().exists());
+            Assert.assertTrue(Path.of(pushPullPath, artifact + ext).toFile().exists());
+            Assert.assertTrue(Path.of(pushPullPath, pomFile + ext).toFile().exists());
         }
     }
 
@@ -138,8 +137,8 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
                 "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
-        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+        Path mockRepo = Path.of("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
+        Path balaPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
                 "luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pul" };
@@ -185,7 +184,7 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test(description = "Push package with custom path")
     public void testPushWithCustomPath() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build").resolve("validProjectWithTarget");
 
         FileUtils.copyDirectory(
                 this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
@@ -199,7 +198,7 @@ public class PushCommandTest extends BaseCommandTest {
         String[] args = { "--repository=local" };
         new CommandLine(pushCommand).parseArgs(args);
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build").resolve("ballerina-home");
 
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
@@ -223,7 +222,7 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test(description = "Push a tool to local repository")
     public void testPushToolToLocal() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("tool-gayals");
+        Path validBalProject = Path.of("build").resolve("tool-gayals");
 
         FileUtils.copyDirectory(
                 this.testResources.resolve("tool-gayals").toFile(), validBalProject.toFile());
@@ -237,7 +236,7 @@ public class PushCommandTest extends BaseCommandTest {
         String[] args = { "--repository=local" };
         new CommandLine(pushCommand).parseArgs(args);
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build").resolve("ballerina-home");
 
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
@@ -345,13 +344,13 @@ public class PushCommandTest extends BaseCommandTest {
 
     @Test
     public void testPushToCustomRepo() throws IOException {
-        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        Path validBalProject = Path.of("build").resolve("validProjectWithTarget");
         FileUtils.copyDirectory(
                 this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("target").toFile());
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Path mockRepo = Path.of("build").resolve("ballerina-home");
         // Test if no arguments was passed in
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);

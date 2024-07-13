@@ -20,7 +20,8 @@ package io.ballerinalang.compiler.parser.test.syntax.trivia;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Test capturing trivia.
@@ -28,7 +29,7 @@ import java.nio.file.Paths;
 public abstract class AbstractTriviaTest {
 
     void test(String sourceFilePath, String filePath) {
-        ParserTestUtils.test(Paths.get("trivia", sourceFilePath), ParserRuleContext.COMP_UNIT,
-                Paths.get("trivia", filePath));
+        ParserTestUtils.test(Path.of("trivia", sourceFilePath), ParserRuleContext.COMP_UNIT,
+                Path.of("trivia", filePath));
     }
 }

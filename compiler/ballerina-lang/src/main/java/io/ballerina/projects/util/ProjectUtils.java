@@ -76,7 +76,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -472,7 +471,7 @@ public final class ProjectUtils {
         if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
-        return Paths.get(org, pkgName, version, platform);
+        return Path.of(org, pkgName, version, platform);
     }
 
     public static String getJarFileName(Package pkg) {
@@ -504,7 +503,7 @@ public final class ProjectUtils {
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     public static Path getBalHomePath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME));
+        return Path.of(System.getProperty(BALLERINA_HOME));
     }
 
     public static Path getBallerinaRTJarPath() {
@@ -677,10 +676,10 @@ public final class ProjectUtils {
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Path.of(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
+            homeRepoPath = Path.of(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -1118,7 +1117,7 @@ public final class ProjectUtils {
      * @return temporary target path
      */
     public static String getTemporaryTargetPath() {
-        return Paths.get(System.getProperty("java.io.tmpdir"))
+        return Path.of(System.getProperty("java.io.tmpdir"))
                 .resolve("ballerina-cache" + System.nanoTime()).toString();
     }
 

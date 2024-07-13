@@ -64,7 +64,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,7 +83,7 @@ import static org.awaitility.Awaitility.await;
  * @since 2.0.0
  */
 public class TestWorkspaceManager {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/project");
     private final String dummyContent = "function foo() {" + CommonUtil.LINE_SEPARATOR + "}";
     private final String dummyDidChangeContent = "function foo1() {" + CommonUtil.LINE_SEPARATOR + "}";
     private BallerinaWorkspaceManager workspaceManager;

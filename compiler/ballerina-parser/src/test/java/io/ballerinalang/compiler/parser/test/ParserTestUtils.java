@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
@@ -66,7 +65,7 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
  */
 public final class ParserTestUtils {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/");
 
     /**
      * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.

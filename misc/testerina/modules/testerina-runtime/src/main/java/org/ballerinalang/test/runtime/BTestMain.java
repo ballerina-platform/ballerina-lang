@@ -50,7 +50,6 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -86,8 +85,8 @@ public final class BTestMain {
         }
         //running using the suite json
         boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
-        Path testSuiteJsonPath = Paths.get(args[1]);
-        Path targetPath = Paths.get(args[2]);
+        Path testSuiteJsonPath = Path.of(args[1]);
+        Path targetPath = Path.of(args[2]);
         Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                         .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
         String jacocoAgentJarPath = args[3];
@@ -149,7 +148,7 @@ public final class BTestMain {
                         testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
                         testArgs[testArgs.length - 1] = args[i];
                     }
-                    result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
+                    result = startTestSuit(Path.of(testSuite.getSourceRootPath()), testSuite, classLoader,
                             testArgs);
                     exitStatus = (result == 1) ? result : exitStatus;
                 }
@@ -188,7 +187,7 @@ public final class BTestMain {
         List<URL> urlList = new ArrayList<>();
         for (String jarFilePath : jarFilePaths) {
             try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+                urlList.add(Path.of(jarFilePath).toUri().toURL());
             } catch (MalformedURLException e) {
                 // This path cannot get executed
                 throw new RuntimeException("Failed to create classloader with all jar files", e);

@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the line wrapping.
@@ -43,6 +43,6 @@ public class BlocksTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("misc", "blocks").toString();
+        return Path.of("misc/blocks").toString();
     }
 }

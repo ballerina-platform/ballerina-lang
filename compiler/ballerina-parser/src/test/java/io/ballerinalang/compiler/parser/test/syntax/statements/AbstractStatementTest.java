@@ -20,7 +20,8 @@ package io.ballerinalang.compiler.parser.test.syntax.statements;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Test parsing statements.
@@ -30,11 +31,11 @@ import java.nio.file.Paths;
 public class AbstractStatementTest {
 
     void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
+        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Path.of("statements", filePath));
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("statements/", filePath));
+        ParserTestUtils.test(Path.of("statements", path), ParserRuleContext.TOP_LEVEL_NODE,
+                Path.of("statements", filePath));
     }
 }

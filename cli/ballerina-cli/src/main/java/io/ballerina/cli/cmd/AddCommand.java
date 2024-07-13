@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +58,7 @@ public class AddCommand implements BLauncherCmd {
     private String template = "lib";
 
     public AddCommand() {
-        this.userDir = Paths.get(System.getProperty("user.dir"));
+        this.userDir = Path.of(System.getProperty("user.dir"));
         this.errStream = System.err;
         this.exitWhenFinish = true;
         CommandUtil.initJarFs();

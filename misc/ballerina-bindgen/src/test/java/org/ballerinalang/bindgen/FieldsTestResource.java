@@ -20,7 +20,6 @@ package org.ballerinalang.bindgen;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -64,14 +63,14 @@ public class FieldsTestResource implements InterfaceTestResource {
     public Object[] getInstanceObjectMultiArray2 = new Object[2];
     public List<?> getInstanceInterface = new ArrayList<>();
     public AbstractList<?> getInstanceAbstractClass = new ArrayList<>();
-    public Path getInstanceObject = Paths.get("/test.txt");
+    public Path getInstanceObject = Path.of("/test.txt");
     public Set<File> getInstanceGenericObject = new HashSet<>();
     public System.Logger.Level getInstanceEnumeration = System.Logger.Level.ALL;
     public ArithmeticException getInstanceThrowable = new ArithmeticException();
 
     // Different access modifiers in instance fields
     private short getInstancePrivateField = 2;
-    protected Path getInstanceProtectedField = Paths.get("/test.txt");
+    protected Path getInstanceProtectedField = Path.of("/test.txt");
     int getInstanceDefaultField = 3;
 
     // Static primitive fields
@@ -113,14 +112,14 @@ public class FieldsTestResource implements InterfaceTestResource {
     public Object[] getStaticObjectMultiArray2 = new Object[2];
     public static List<?> getStaticInterface = new ArrayList<>();
     public static AbstractList<?> getStaticAbstractClass = new ArrayList<>();
-    public static Path getStaticObject = Paths.get("/test.txt");
+    public static Path getStaticObject = Path.of("/test.txt");
     public static Set<File> getStaticGenericObject = new HashSet<>();
     public static System.Logger.Level getStaticEnumeration = System.Logger.Level.ALL;
     public static ArithmeticException getStaticThrowable = new ArithmeticException();
 
     // Different access modifiers in static fields
     private static short getStaticPrivateField = 2;
-    protected static Path getStaticProtectedField = Paths.get("/test.txt");
+    protected static Path getStaticProtectedField = Path.of("/test.txt");
     static int getStaticDefaultField = 3;
 
     @Override
