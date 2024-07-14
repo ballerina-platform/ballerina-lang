@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -105,6 +106,7 @@ public class PullCommand implements BLauncherCmd {
         this.outStream = errStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.repositoryName = null;
     }
 
     @Override
@@ -142,7 +144,7 @@ public class PullCommand implements BLauncherCmd {
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
+            CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -159,7 +161,7 @@ public class PullCommand implements BLauncherCmd {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
+            CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -196,70 +198,25 @@ public class PullCommand implements BLauncherCmd {
             settings = Settings.from();
         }
 
-        Repository targetRepository = null;
-        if (repositoryName != null) {
-            for (Repository repository : settings.getRepositories()) {
-                if (repositoryName.equals(repository.id())) {
-                    targetRepository = repository;
-                    break;
-                }
-            }
+        if (repositoryName == null) {
+            repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+            version = pullFromCentral(settings, orgName, packageName, version);
+        } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
+            pullFromMavenRepo(settings, orgName, packageName, version);
         }
 
-        if (targetRepository == null && repositoryName != null) {
-            String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
-                    "repositories mentioned in the Settings.toml are supported.";
-            CommandUtil.printError(this.errStream, errMsg, null, false);
+        if (!resolveDependencies(orgName, packageName, version)) {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        if (targetRepository != null) {
-            MavenResolverClient mavenResolverClient = new MavenResolverClient();
-            if (!targetRepository.username().isEmpty() && !targetRepository.password().isEmpty()) {
-                mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url(),
-                        targetRepository.username(), targetRepository.password());
-            } else {
-                mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url());
-            }
-            Proxy proxy = settings.getProxy();
-            mavenResolverClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
-
-            Path mavenBalaCachePath = RepoUtils.createAndGetHomeReposPath()
-                    .resolve(ProjectConstants.REPOSITORIES_DIR)
-                    .resolve(targetRepository.id())
-                    .resolve(ProjectConstants.BALA_DIR_NAME);
-
-            try {
-                Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
-                mavenResolverClient.pullPackage(orgName, packageName, version,
-                        String.valueOf(tmpDownloadDirectory.toAbsolutePath()));
-                Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
-                        .resolve(packageName + "-" + version + BALA_EXTENSION);
-                Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
-                        .resolve(version).resolve(PLATFORM);
-                ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
-                Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
-                try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
-                    JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
-                    String platform = resultObj.get(PLATFORM).getAsString();
-                    Path actualBalaPath = mavenBalaCachePath.resolve(orgName).resolve(packageName)
-                            .resolve(version).resolve(platform);
-                    org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
-                            actualBalaPath.toFile());
-                }
-            } catch (MavenResolverClientException e) {
-                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (IOException e) {
-                throw createLauncherException(
-                        "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
-            }
-            PrintStream out = System.out;
-            out.println("Successfully pulled the package from the custom repository.");
-            return;
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
         }
 
+    }
+
+    private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME)
@@ -303,19 +260,88 @@ public class PullCommand implements BLauncherCmd {
             errStream.println("package not found: " + orgName + "/" + packageName);
             CommandUtil.exitError(this.exitWhenFinish);
         }
+        return version;
+    }
 
-        outStream.println("Resolving dependencies");
-        BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
-        boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version, buildOptions);
-        if (hasCompilationErrors) {
-            CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+    private void pullFromMavenRepo(Settings settings, String orgName, String packageName, String version) {
+        Repository targetRepository = null;
+        for (Repository repository : settings.getRepositories()) {
+            if (repositoryName.equals(repository.id())) {
+                targetRepository = repository;
+                break;
+            }
+        }
+
+        if (targetRepository == null && repositoryName != null) {
+            String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
+                    "repositories mentioned in the Settings.toml are supported.";
+            CommandUtil.printError(this.errStream, errMsg, null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+        if (targetRepository != null) {
+            MavenResolverClient mavenResolverClient = new MavenResolverClient();
+            if (!targetRepository.username().isEmpty() && !targetRepository.password().isEmpty()) {
+                mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url(),
+                        targetRepository.username(), targetRepository.password());
+            } else {
+                mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url());
+            }
+            Proxy proxy = settings.getProxy();
+            mavenResolverClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
+
+            Path mavenBalaCachePath = RepoUtils.createAndGetHomeReposPath()
+                    .resolve(ProjectConstants.REPOSITORIES_DIR)
+                    .resolve(targetRepository.id())
+                    .resolve(ProjectConstants.BALA_DIR_NAME)
+                    .resolve(orgName).resolve(packageName).resolve(version);
+
+            try {
+                Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
+                mavenResolverClient.pullPackage(orgName, packageName, version,
+                        String.valueOf(tmpDownloadDirectory.toAbsolutePath()));
+                Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
+                        .resolve(packageName + "-" + version + BALA_EXTENSION);
+                Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
+                        .resolve(version).resolve(PLATFORM);
+                ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
+                Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
+                try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+                    JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+                    String platform = resultObj.get(PLATFORM).getAsString();
+                    Path actualBalaPath = mavenBalaCachePath.resolve(platform);
+                    org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
+                            actualBalaPath.toFile());
+                }
+            } catch (MavenResolverClientException e) {
+                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+            } catch (IOException e) {
+                throw createLauncherException(
+                        "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+            }
+            PrintStream out = System.out;
+            out.println("Successfully pulled the package from the custom repository.");
         }
+    }
+
+    private boolean resolveDependencies(String orgName, String packageName, String version) {
+        outStream.println("Resolving dependencies\n");
+
+        try {
+            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+            boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
+                    orgName, packageName, version, buildOptions, repositoryName);
+            if (hasCompilationErrors) {
+                CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                return false;
+            }
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream,
+                    "error occurred while resolving dependencies, reason: " + e.getMessage(), null, false);
+        }
+        return true;
     }
 
     @Override

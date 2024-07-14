@@ -1156,10 +1156,10 @@ public class CommandUtil {
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                          BuildOptions buildOptions) {
+                                          BuildOptions buildOptions, String repository) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+                .resolve(repository);
         Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
