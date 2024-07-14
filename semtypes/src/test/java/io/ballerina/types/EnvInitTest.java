@@ -21,6 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.lang.ref.Reference;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,7 +54,7 @@ public class EnvInitTest {
         // Access the private field atomTable using reflection
         Field atomTableField = Env.class.getDeclaredField("atomTable");
         atomTableField.setAccessible(true);
-        Map<AtomicType, TypeAtom> atomTable = (Map) atomTableField.get(env);
+        Map<AtomicType, Reference<TypeAtom>> atomTable = (Map) atomTableField.get(env);
 
         // Check that the atomTable contains the expected entries
         Assert.assertEquals(atomTable.size(), 10);
@@ -62,7 +63,7 @@ public class EnvInitTest {
                 PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
-        TypeAtom typeAtom0 = atomTable.get(cellAtomicVal);
+        TypeAtom typeAtom0 = atomTable.get(cellAtomicVal).get();
         Assert.assertNotNull(typeAtom0);
         Assert.assertEquals(typeAtom0.atomicType(), cellAtomicVal);
 
@@ -70,7 +71,7 @@ public class EnvInitTest {
                 PredefinedType.NEVER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
-        TypeAtom typeAtom1 = atomTable.get(cellAtomicNever);
+        TypeAtom typeAtom1 = atomTable.get(cellAtomicNever).get();
         Assert.assertNotNull(typeAtom1);
         Assert.assertEquals(typeAtom1.atomicType(), cellAtomicNever);
 
@@ -78,7 +79,7 @@ public class EnvInitTest {
                 PredefinedType.INNER, CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
-        TypeAtom typeAtom2 = atomTable.get(cellAtomicInner);
+        TypeAtom typeAtom2 = atomTable.get(cellAtomicInner).get();
         Assert.assertNotNull(typeAtom2);
         Assert.assertEquals(typeAtom2.atomicType(), cellAtomicInner);
 
@@ -87,7 +88,7 @@ public class EnvInitTest {
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED
         );
 
-        TypeAtom typeAtom3 = atomTable.get(cellAtomicInnerMapping);
+        TypeAtom typeAtom3 = atomTable.get(cellAtomicInnerMapping).get();
         Assert.assertNotNull(typeAtom3);
         Assert.assertEquals(typeAtom3.atomicType(), cellAtomicInnerMapping);
 
@@ -95,11 +96,11 @@ public class EnvInitTest {
                 FixedLengthArray.empty(), PredefinedType.CELL_SEMTYPE_INNER_MAPPING
         );
 
-        TypeAtom typeAtom4 = atomTable.get(listAtomicMapping);
+        TypeAtom typeAtom4 = atomTable.get(listAtomicMapping).get();
         Assert.assertNotNull(typeAtom4);
         Assert.assertEquals(typeAtom4.atomicType(), listAtomicMapping);
 
-        TypeAtom typeAtom5 = atomTable.get(PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO);
+        TypeAtom typeAtom5 = atomTable.get(PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO).get();
         Assert.assertNotNull(typeAtom5);
         Assert.assertEquals(typeAtom5.atomicType(), PredefinedType.CELL_ATOMIC_INNER_MAPPING_RO);
 
@@ -107,7 +108,7 @@ public class EnvInitTest {
                 FixedLengthArray.empty(), PredefinedType.CELL_SEMTYPE_INNER_MAPPING_RO
         );
 
-        TypeAtom typeAtom6 = atomTable.get(listAtomicMappingRo);
+        TypeAtom typeAtom6 = atomTable.get(listAtomicMappingRo).get();
         Assert.assertNotNull(typeAtom6);
         Assert.assertEquals(typeAtom6.atomicType(), listAtomicMappingRo);
 
@@ -115,7 +116,7 @@ public class EnvInitTest {
                 PredefinedType.INNER_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
         );
 
-        TypeAtom typeAtom7 = atomTable.get(cellAtomicInnerRo);
+        TypeAtom typeAtom7 = atomTable.get(cellAtomicInnerRo).get();
         Assert.assertNotNull(typeAtom7);
         Assert.assertEquals(typeAtom7.atomicType(), cellAtomicInnerRo);
 
@@ -123,7 +124,7 @@ public class EnvInitTest {
                 PredefinedType.UNDEF, CellAtomicType.CellMutability.CELL_MUT_NONE
         );
 
-        TypeAtom typeAtom8 = atomTable.get(cellAtomicUndef);
+        TypeAtom typeAtom8 = atomTable.get(cellAtomicUndef).get();
         Assert.assertNotNull(typeAtom8);
         Assert.assertEquals(typeAtom8.atomicType(), cellAtomicUndef);
 
@@ -132,7 +133,7 @@ public class EnvInitTest {
                 PredefinedType.CELL_SEMTYPE_UNDEF
         );
 
-        TypeAtom typeAtom9 = atomTable.get(listAtomicTwoElement);
+        TypeAtom typeAtom9 = atomTable.get(listAtomicTwoElement).get();
         Assert.assertNotNull(typeAtom8);
         Assert.assertEquals(typeAtom9.atomicType(), listAtomicTwoElement);
     }
@@ -142,10 +143,11 @@ public class EnvInitTest {
         Env env = new Env();
         Field atomTableField = Env.class.getDeclaredField("atomTable");
         atomTableField.setAccessible(true);
-        Map<AtomicType, TypeAtom> recListAtoms = (Map<AtomicType, TypeAtom>) atomTableField.get(env);
+        Map<AtomicType, Reference<TypeAtom>> recListAtoms =
+                (Map<AtomicType, Reference<TypeAtom>>) atomTableField.get(env);
         Collection<Integer> indices = new HashSet<>();
         for (var each : recListAtoms.values()) {
-            Assert.assertTrue(indices.add(each.index()), "Duplicate index found: " + each.index());
+            Assert.assertTrue(indices.add(each.get().index()), "Duplicate index found: " + each.get().index());
         }
     }
 
