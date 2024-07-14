@@ -22,7 +22,8 @@ package io.ballerina.types;
  *
  * @since 2201.8.0
  */
-public class BasicTypeBitSet implements SemType {
+public final class BasicTypeBitSet implements SemType {
+
     public final int bitset;
 
     private BasicTypeBitSet(int bitset) {
@@ -30,11 +31,17 @@ public class BasicTypeBitSet implements SemType {
     }
 
     public static BasicTypeBitSet from(int bitset) {
+        if (bitset == 0) {
+            return BitSetCache.ZERO;
+        }
+        if (Integer.bitCount(bitset) == 1) {
+            return BitSetCache.CACHE[Integer.numberOfTrailingZeros(bitset)];
+        }
         return new BasicTypeBitSet(bitset);
     }
 
     public static BasicTypeBitSet union(BasicTypeBitSet t1, BasicTypeBitSet t2) {
-        return new BasicTypeBitSet(t1.bitset | t2.bitset);
+        return BasicTypeBitSet.from(t1.bitset | t2.bitset);
     }
 
     @Override
@@ -61,5 +68,18 @@ public class BasicTypeBitSet implements SemType {
     @Override
     public int all() {
         return bitset;
+    }
+
+    private static final class BitSetCache {
+
+        private static final int SIZE = 0x14;
+        private static final BasicTypeBitSet[] CACHE = new BasicTypeBitSet[SIZE];
+        private static final BasicTypeBitSet ZERO = new BasicTypeBitSet(0);
+
+        static {
+            for (int i = 0; i < SIZE; i++) {
+                CACHE[i] = new BasicTypeBitSet(1 << i);
+            }
+        }
     }
 }
