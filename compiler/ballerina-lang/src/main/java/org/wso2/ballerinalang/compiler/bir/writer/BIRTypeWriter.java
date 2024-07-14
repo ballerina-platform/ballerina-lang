@@ -606,16 +606,15 @@ public class BIRTypeWriter extends TypeVisitor {
         boolean isUniformTypeBitSet = semType instanceof BasicTypeBitSet;
         buff.writeBoolean(isUniformTypeBitSet);
 
+        buff.writeInt(semType.all());
         if (isUniformTypeBitSet) {
-            buff.writeInt(((BasicTypeBitSet) semType).bitset);
             return;
         }
 
         ComplexSemType complexSemType = (ComplexSemType) semType;
-        buff.writeInt(complexSemType.all.bitset);
-        buff.writeInt(complexSemType.some.bitset);
+        buff.writeInt(complexSemType.some());
 
-        ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList;
+        ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList();
         buff.writeByte(subtypeDataList.length);
         for (ProperSubtypeData psd : subtypeDataList) {
             writeProperSubtypeData(psd);

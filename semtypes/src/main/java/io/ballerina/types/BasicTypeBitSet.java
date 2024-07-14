@@ -57,4 +57,9 @@ public class BasicTypeBitSet implements SemType {
     public int hashCode() {
         return bitset;
     }
+
+    @Override
+    public int all() {
+        return bitset;
+    }
 }

@@ -22,11 +22,15 @@ package io.ballerina.types;
  *
  * @since 2201.10.0
  */
-public class CellSemType extends ComplexSemType {
+public class CellSemType implements ComplexSemType {
+
+    // Holding on to the single value instead of the array with a single value is more memory efficient. However, if
+    // this start to cause problems in the future, we can change this to an array.
+    private final ProperSubtypeData subtypeData;
 
     private CellSemType(ProperSubtypeData[] subtypeDataList) {
-        super(BasicTypeBitSet.from(0), PredefinedType.CELL, subtypeDataList);
         assert subtypeDataList.length == 1;
+        this.subtypeData = subtypeDataList[0];
     }
 
     public static CellSemType from(ProperSubtypeData[] subtypeDataList) {
@@ -35,6 +39,21 @@ public class CellSemType extends ComplexSemType {
 
     @Override
     public String toString() {
-        return "CellSemType{" + subtypeDataList[0] + '}';
+        return "CellSemType{" + subtypeDataList()[0] + '}';
+    }
+
+    @Override
+    public int all() {
+        return 0;
+    }
+
+    @Override
+    public int some() {
+        return PredefinedType.CELL.bitset;
+    }
+
+    @Override
+    public ProperSubtypeData[] subtypeDataList() {
+        return new ProperSubtypeData[]{subtypeData};
     }
 }
