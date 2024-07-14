@@ -22,25 +22,20 @@ package io.ballerina.types.subtypedata;
 import io.ballerina.types.Atom;
 import io.ballerina.types.Bdd;
 
-/**
- * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
- */
-public interface BddNode extends Bdd {
+record BddNodeSimple(Atom atom) implements BddNode {
 
-    static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
-        if (left instanceof AllOrNothingSubtype leftNode && leftNode.isAllSubtype() &&
-                middle instanceof AllOrNothingSubtype middleNode && middleNode.isNothingSubtype() &&
-                right instanceof AllOrNothingSubtype rightNode && rightNode.isNothingSubtype()) {
-            return new BddNodeSimple(atom);
-        }
-        return new BddNodeImpl(atom, left, middle, right);
+    @Override
+    public Bdd left() {
+        return BddAllOrNothing.bddAll();
     }
 
-    Atom atom();
+    @Override
+    public Bdd middle() {
+        return BddAllOrNothing.bddNothing();
+    }
 
-    Bdd left();
-
-    Bdd middle();
-
-    Bdd right();
+    @Override
+    public Bdd right() {
+        return BddAllOrNothing.bddNothing();
+    }
 }
