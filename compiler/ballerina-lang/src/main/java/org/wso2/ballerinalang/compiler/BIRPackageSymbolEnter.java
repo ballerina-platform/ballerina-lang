@@ -1260,15 +1260,6 @@ public class BIRPackageSymbolEnter {
         }
 
         public BType readType(int cpI) throws IOException {
-            SemType semType = readSemType();
-            BType bType = readTypeInternal(cpI);
-            if (bType != null) {
-                bType.semType(semType);
-            }
-            return bType;
-        }
-
-        private BType readTypeInternal(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = Names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
