@@ -14282,7 +14282,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         List<STNode> xmlStepExtendList = new ArrayList<>();
-        startContext(ParserRuleContext.XML_STEP_EXTEND);
+        startContext(ParserRuleContext.XML_STEP_EXTENDS);
         STNode stepExtension;
         while (!isEndOfXMLStepExtend(nextToken.kind)) {
             if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
@@ -14311,9 +14311,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseXMLIndexedStepExtend() {
+        startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
         STNode openBracket = parseOpenBracket();
         STNode keyExpr = parseKeyExpr(true);
         STNode closeBracket = parseCloseBracket();
+        endContext();
         return STNodeFactory.createXMLStepIndexedExtendNode(openBracket, keyExpr, closeBracket);
     }
 

@@ -736,7 +736,10 @@ public enum ParserRuleContext {
     SINGLE_OR_ALTERNATE_WORKER("single-or-alternate-worker"),
     SINGLE_OR_ALTERNATE_WORKER_SEPARATOR("single-or-alternate-worker-separator"),
     SINGLE_OR_ALTERNATE_WORKER_END("single-or-alternate-worker-end"),
+    XML_STEP_EXTENDS("xml-step-extends"),
     XML_STEP_EXTEND("xml-step-extend"),
+    XML_STEP_EXTEND_END("xml-step-extend-end"),
+    XML_STEP_START_END("xml-step-start-end")
     ;
 
     private final String value;
