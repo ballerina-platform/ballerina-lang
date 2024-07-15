@@ -50,7 +50,7 @@ public enum CompilerPhase {
 
     CODE_GEN("codeGen");
 
-    private String value;
+    private final String value;
 
     CompilerPhase(String value) {
         this.value = value;
