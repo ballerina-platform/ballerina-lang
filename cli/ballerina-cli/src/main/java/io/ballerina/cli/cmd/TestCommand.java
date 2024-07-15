@@ -218,6 +218,7 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
+
     @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
     private Boolean optimizeCodegen;
 

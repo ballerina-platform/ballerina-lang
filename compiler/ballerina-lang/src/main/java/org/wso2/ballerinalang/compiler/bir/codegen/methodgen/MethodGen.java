@@ -118,9 +118,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -178,10 +178,6 @@ public class MethodGen {
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
                                String moduleClassName, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
-        if (JvmCodeGenUtil.isTestablePkgCodeGen && birFunc.name.value.equals("$moduleInit")) {
-            JvmCodeGenUtil.dontAddDuplicatePrefix = true;
-        }
-
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                     jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
@@ -190,7 +186,6 @@ public class MethodGen {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                     attachedType, asyncDataCollector, false);
         }
-        JvmCodeGenUtil.dontAddDuplicatePrefix = false;
     }
 
     public void genJMethodWithBObjectMethodCall(BIRFunction func, ClassWriter cw, BIRPackage module,

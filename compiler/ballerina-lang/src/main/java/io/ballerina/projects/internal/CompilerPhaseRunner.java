@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
