@@ -860,6 +860,7 @@ public final class ASTBuilderUtil {
         dupFuncSymbol.tag = invokableSymbol.tag;
         dupFuncSymbol.schedulerPolicy = invokableSymbol.schedulerPolicy;
         dupFuncSymbol.strandName = invokableSymbol.strandName;
+        dupFuncSymbol.owner = invokableSymbol.owner;
         dupFuncSymbol.setAnnotationAttachments(
                 new ArrayList<>((List<BAnnotationAttachmentSymbol>) invokableSymbol.getAnnotations()));
 

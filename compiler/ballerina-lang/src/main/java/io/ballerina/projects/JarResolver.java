@@ -30,6 +30,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -109,6 +110,7 @@ public class JarResolver {
         Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles, optimizeFinalExecutable);
+        addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.PROVIDED, jarFiles, optimizeFinalExecutable);
 
         // 2) Get all the dependencies of the root package including transitives.
         // Filter out PackageDependencyScope.TEST_ONLY scope dependencies and lang libs
@@ -133,41 +135,6 @@ public class JarResolver {
                 PlatformLibraryScope.DEFAULT,
                 getPackageName(rootPackageContext)));
 
-        // TODO: Move to a compiler extension once Compiler revamp is complete
-        // 4) Add the Observability Symbols Jar
-        if (rootPackageContext.compilationOptions().observabilityIncluded()) {
-            try {
-                // Generating an empty Jar which can be used by the Observability Symbol Collector
-                String packageName = rootPackageContext.packageOrg().value() + "-"
-                        + rootPackageContext.packageName().value();
-                Path observabilityJarPath = ProjectUtils.generateObservabilitySymbolsJar(packageName);
-
-                // Writing the Syntax Tree to the Jar
-                CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
-                        .getService(CompilerContext.class);
-                ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
-                // Cache observability jar in target
-                Path observeJarCachePath = rootPackageContext.project().targetDir()
-                        .resolve(CACHES_DIR_NAME)
-                        .resolve(rootPackageContext.packageOrg().value())
-                        .resolve(rootPackageContext.packageName().value())
-                        .resolve(rootPackageContext.packageVersion().value().toString())
-                        .resolve("observe")
-                        .resolve(rootPackageContext.packageOrg().value() + "-"
-                                + rootPackageContext.packageName().value()
-                                + "-observability-symbols.jar");
-                Path observeCachePath = Optional.of(observeJarCachePath.getParent()).orElseThrow();
-                Files.createDirectories(observeCachePath);
-                Files.copy(observabilityJarPath, observeJarCachePath, StandardCopyOption.REPLACE_EXISTING);
-
-                jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
-                        getPackageName(rootPackageContext)));
-            } catch (IOException e) {
-                err.println("\twarning: Failed to add Observability information to Jar due to: " + e.getMessage());
-            }
-        }
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
@@ -229,6 +196,13 @@ public class JarResolver {
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
                                          Set<JarLibrary> libraryPaths, boolean addOnlyUsedLibraries) {
+        addPlatformLibraryPaths(packageContext, scope, libraryPaths, false, addOnlyUsedLibraries);
+    }
+
+    private void addPlatformLibraryPaths(PackageContext packageContext,
+                                         PlatformLibraryScope scope,
+                                         Set<JarLibrary> libraryPaths,
+                                         boolean addProvidedJars, boolean addOnlyUsedLibraries) {
         // Add all the jar library dependencies of current package (packageId)
         PackageId packageId = packageContext.packageId();
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(packageId, scope);

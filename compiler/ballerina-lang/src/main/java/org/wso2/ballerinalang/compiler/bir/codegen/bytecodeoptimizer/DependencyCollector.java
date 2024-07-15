@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 
@@ -88,7 +89,11 @@ public final class DependencyCollector {
             addType((Type) constant);
         } else if (constant instanceof Handle handle) {
             addInternalName(handle.getOwner());
-            addMethodDesc(handle.getDesc());
+            if (handle.getTag() == Opcodes.H_GETFIELD) {
+                addType(Type.getType(handle.getDesc()));
+            } else {
+                addMethodDesc(handle.getDesc());
+            }
         } else if (constant instanceof String s) {
             //if the passed string matches the patters of a class name, add it as a dependency.
             if (checkStringConstant(s.replace('.', '/'))) {

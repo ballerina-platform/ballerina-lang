@@ -49,12 +49,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDepen
 import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -233,18 +231,16 @@ public class JBallerinaBackend extends CompilerBackend {
                             new PackageDiagnostic(diagnostic, moduleContext.descriptor(), project));
                 }
             }
-
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
-            // Codegen happens later when --optimize flag is active. Therefore, we cannot clean the BlangPkgs until then.
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
+            // Codegen happens later when --optimize flag is active. We cannot clean the BlangPkgs until then.
             if (!project.buildOptions().optimizeCodegen() &&
                     project.kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
-            }
-
-            if (shrink) {
-                ModuleContext.shrinkDocuments(moduleContext);
             }
         }
 
@@ -413,7 +409,6 @@ public class JBallerinaBackend extends CompilerBackend {
             case GRAAL_EXEC -> emitGraalExecutable(filePath, emitResultDiagnostics);
             case EXEC -> emitExecutable(filePath, emitResultDiagnostics);
             case BALA -> emitBala(filePath);
-            // FIXME: check if we need to pass emitResultDiagnostics to emitOptimizedExecutable
             case OPTIMIZE_CODEGEN -> emitOptimizedExecutable(filePath);
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
@@ -567,8 +562,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
-        // FIXME: 
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled, false);
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -589,8 +583,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
-                isRemoteMgtEnabled);
+        CompiledJarFile compiledTestJarFile =
+                jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0), isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream, false);
@@ -601,6 +595,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public void performOptimizedCodeGen(ModuleContext moduleContext) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
+        boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
 
         if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
             duplicateCodegen(moduleContext, isRemoteMgtEnabled);
@@ -616,7 +611,8 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile compiledJarFile =
-                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR);
+                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR,
+                        isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -646,7 +642,8 @@ public class JBallerinaBackend extends CompilerBackend {
         bLangPackage.testablePkgs.get(0).symbol.invocationData = bLangPackage.symbol.invocationData;
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
+                isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream, true);
@@ -953,7 +950,7 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new RuntimeException("Generated jar file cannot be found for the module: " +
                     packageContext.defaultModuleContext().moduleName());
         }
-        String mainClassName = "org.ballerinalang.test.runtime.BTestMain";
+
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -1120,13 +1117,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
-    private Path emitExecutable(Path executableFilePath) {
+    private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest(false);
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
-            assembleOptimizedExecutableJar(executableFilePath, manifest, jarLibraries);
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
@@ -1143,6 +1140,19 @@ public class JBallerinaBackend extends CompilerBackend {
                     excludedClasses, classPathTextCopyPath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the test executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+        return executableFilePath;
+    }
+
+    private Path emitOptimizedExecutable(Path executableFilePath) {
+        Manifest manifest = createManifest(true);
+        Collection<JarLibrary> jarLibraries =
+                jarResolver.getJarFilePathsRequiredForExecution(true);
+        try {
+            assembleOptimizedExecutableJar(executableFilePath, manifest, jarLibraries);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
@@ -1305,7 +1315,7 @@ public class JBallerinaBackend extends CompilerBackend {
         EXEC("exec"),
         BALA("bala"),
         GRAAL_EXEC("graal_exec"),
-        TEST("test")
+        TEST("test"),
         OPTIMIZE_CODEGEN("optimize_codegen")
         ;
 

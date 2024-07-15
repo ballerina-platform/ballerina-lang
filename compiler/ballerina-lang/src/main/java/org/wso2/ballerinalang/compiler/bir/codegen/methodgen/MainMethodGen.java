@@ -238,28 +238,6 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getRuntimeRegistry", GET_RUNTIME_REGISTRY_CLASS, false);
         mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP, JvmSignatures.CURRENT_MODULE_STOP, false);
-        mv.visitInsn(AASTORE);
-        mv.visitVarInsn(ALOAD, indexMap.get("newSchedulerVar"));
-        mv.visitVarInsn(ALOAD, arrIndex);
-    }
-
-    private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
-                                    AsyncDataCollector asyncDataCollector) {
-        JvmCodeGenUtil.createFunctionPointer(mv, initClass + "$SignalListener", stopFuncName);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
-        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
-        int futureIndex = indexMap.get(FUTURE_VAR);
-        mv.visitVarInsn(ASTORE, futureIndex);
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
-        mv.visitTypeInsn(NEW, STACK);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
-        int schedulerIndex = indexMap.get("newSchedulerVar");
-        mv.visitVarInsn(ALOAD, schedulerIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
