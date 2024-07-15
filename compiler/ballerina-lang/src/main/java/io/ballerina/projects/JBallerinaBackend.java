@@ -95,6 +95,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
+    private static final String RESOURCES_JAR_FILE_NAME_SUFFIX = "-" + RESOURCE_DIR_NAME;
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
@@ -349,6 +350,18 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, ModuleName moduleName) {
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
+                RESOURCES_JAR_FILE_NAME_SUFFIX);
+    }
+
+    @Override
+    public PlatformLibrary codeGeneratedTestResourcesLibrary(PackageId packageId, ModuleName moduleName) {
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
+                TEST_JAR_FILE_NAME_SUFFIX + RESOURCES_JAR_FILE_NAME_SUFFIX);
+    }
+
+    @Override
     public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
         return codeGeneratedResourcesLibrary(packageId, PlatformLibraryScope.DEFAULT);
     }
@@ -383,6 +396,21 @@ public class JBallerinaBackend extends CompilerBackend {
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+
+        // Add static resources per module
+        Map<String, byte[]> moduleResources = getResources(moduleContext);
+        if (!moduleResources.isEmpty()) {
+            try {
+                String resourceJarName = getJarFileName(moduleContext) + "-resources";
+                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                try (ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, moduleResources)) {
+                    compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache generated test resources jar, module: " +
+                        packageContext.defaultModuleContext().moduleName(), e);
+            }
         }
 
         // Add generated resources
@@ -422,6 +450,21 @@ public class JBallerinaBackend extends CompilerBackend {
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
+        }
+
+        // Add static resources for testable module
+        moduleResources = getAllResources(moduleContext);
+        if (!moduleResources.isEmpty()) {
+            try {
+                String resourceJarName = getJarFileName(moduleContext) + TEST_JAR_FILE_NAME_SUFFIX + "-resources";
+                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                try (ByteArrayOutputStream byteStream = JarWriter.write(resourceJar, moduleResources)) {
+                    compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache generated test resources jar, module: " +
+                        packageContext.defaultModuleContext().moduleName(), e);
+            }
         }
     }
 

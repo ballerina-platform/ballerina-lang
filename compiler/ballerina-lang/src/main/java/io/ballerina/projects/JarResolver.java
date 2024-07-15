@@ -199,7 +199,6 @@ public class JarResolver {
         outStream.closeArchiveEntry();
     }
 
-
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
                                          Set<JarLibrary> libraryPaths) {

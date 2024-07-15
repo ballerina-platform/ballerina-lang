@@ -59,6 +59,8 @@ public abstract class CompilerBackend {
      */
     public abstract PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName);
 
+    public abstract PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, ModuleName moduleName);
+
     /**
      * Returns the generated platform library of the specified module required to run tests.
      *
@@ -67,6 +69,8 @@ public abstract class CompilerBackend {
      * @return the generated platform library of the specified module
      */
     public abstract PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName);
+
+    public abstract PlatformLibrary codeGeneratedTestResourcesLibrary(PackageId packageId, ModuleName moduleName);
 
     public abstract PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId);
 
