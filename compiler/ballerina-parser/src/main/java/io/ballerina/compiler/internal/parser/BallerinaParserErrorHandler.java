@@ -611,8 +611,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_STEP_START = { ParserRuleContext.SLASH_ASTERISK_TOKEN,
             ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN, ParserRuleContext.SLASH_LT_TOKEN };
 
-    private static final ParserRuleContext[] XML_STEP_EXTEND = { ParserRuleContext.DOT,
-            ParserRuleContext.DOT_LT_TOKEN, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] XML_STEP_EXTEND = { ParserRuleContext.XML_STEP_EXTEND_END,
+            ParserRuleContext.DOT, ParserRuleContext.DOT_LT_TOKEN, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
+
+    private static final ParserRuleContext[] XML_STEP_START_END =
+            { ParserRuleContext.EXPRESSION_RHS, ParserRuleContext.XML_STEP_EXTENDS };
 
     private static final ParserRuleContext[] MATCH_PATTERN_LIST_MEMBER_RHS =
             { ParserRuleContext.MATCH_PATTERN_END, ParserRuleContext.PIPE };
@@ -2623,6 +2626,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_STEP_EXTEND:
                 alternativeRules = XML_STEP_EXTEND;
                 break;
+            case XML_STEP_START_END:
+                alternativeRules = XML_STEP_START_END;
+                break;
             case OPTIONAL_MATCH_GUARD:
                 alternativeRules = OPTIONAL_MATCH_GUARD;
                 break;
@@ -3227,8 +3233,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_ATOMIC_NAME_PATTERN_START;
             case XML_STEP_EXPR:
                 return ParserRuleContext.XML_STEP_START;
-            case XML_STEP_START:
-                return ParserRuleContext.XML_STEP_EXTEND;
             case SLASH_ASTERISK_TOKEN:
                 return ParserRuleContext.EXPRESSION_RHS;
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
@@ -3268,8 +3272,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TUPLE_MEMBER;
             case SINGLE_OR_ALTERNATE_WORKER:
                 return ParserRuleContext.PEER_WORKER_NAME;
+            case XML_STEP_EXTENDS:
+                return ParserRuleContext.XML_STEP_EXTEND;
+            case XML_STEP_EXTEND_END:
             case SINGLE_OR_ALTERNATE_WORKER_END:
-                endContext(); // end single-or-alternate-worker
+                endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
@@ -3357,7 +3364,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
                     endContext();
-                } else if (parentCtx == ParserRuleContext.XML_STEP_EXTEND) {
+                } else if (parentCtx == ParserRuleContext.XML_STEP_EXTENDS) {
                     return ParserRuleContext.XML_STEP_EXTEND;
                 } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
                     return ParserRuleContext.ACTION_END;
@@ -3499,6 +3506,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TUPLE_MEMBERS;
             case METHOD_NAME:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.XML_STEP_EXTENDS) {
+                    return ParserRuleContext.ARG_LIST_OPEN_PAREN;
+                }
                 return ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return ParserRuleContext.SEMICOLON;
@@ -4067,6 +4078,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLIENT_RESOURCE_ACCESS_ACTION:
             case TUPLE_MEMBERS:
             case SINGLE_OR_ALTERNATE_WORKER:
+            case XML_STEP_EXTENDS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -4798,9 +4810,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
             endContext(); // end expression
             return getNextRuleForSemicolon(nextLookahead);
-        } else if (parentCtx == ParserRuleContext.XML_STEP_EXTEND) {
-            endContext(); // end expression
-            return getNextRuleForSemicolon(nextLookahead);
         } else if (isExpressionContext(parentCtx)) {
             // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
             endContext(); // end statement
@@ -4888,7 +4897,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IMPORT_DECL -> ParserRuleContext.IMPORT_MODULE_NAME;
             case RELATIVE_RESOURCE_PATH -> ParserRuleContext.RESOURCE_ACCESSOR_DEF_OR_DECL_RHS;
             case CLIENT_RESOURCE_ACCESS_ACTION -> ParserRuleContext.METHOD_NAME;
-            case XML_STEP_EXTEND -> ParserRuleContext.IDENTIFIER;
+            case XML_STEP_EXTENDS -> ParserRuleContext.METHOD_NAME;
             default -> ParserRuleContext.FIELD_ACCESS_IDENTIFIER;
         };
     }
@@ -4925,7 +4934,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_MATCH_PATTERN -> ParserRuleContext.LIST_MATCH_PATTERNS_START;
             case RELATIVE_RESOURCE_PATH -> ParserRuleContext.PATH_PARAM_OPTIONAL_ANNOTS;
             case CLIENT_RESOURCE_ACCESS_ACTION -> ParserRuleContext.COMPUTED_SEGMENT_OR_REST_SEGMENT;
-            case XML_STEP_EXTEND -> ParserRuleContext.MEMBER_ACCESS_KEY_EXPR;
             default -> {
                 if (isInTypeDescContext()) {
                     yield ParserRuleContext.TUPLE_MEMBERS;
@@ -4961,6 +4969,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR:
             case MEMBER_ACCESS_KEY_EXPR:
                 endContext();
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.XML_STEP_EXTENDS) {
+                    return ParserRuleContext.XML_STEP_EXTEND;
+                }
                 return getNextRuleForExpr();
             case STMT_START_BRACKETED_LIST:
                 endContext();
@@ -4980,8 +4992,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RELATIVE_RESOURCE_PATH_END;
             case CLIENT_RESOURCE_ACCESS_ACTION:
                 return ParserRuleContext.RESOURCE_ACCESS_SEGMENT_RHS;
-            case XML_STEP_EXTEND:
-                return ParserRuleContext.XML_STEP_EXTEND;
             default:
                 return getNextRuleForExpr();
         }
@@ -5009,8 +5019,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.CONSTANT_EXPRESSION) {
             endContext();
             return getNextRuleForConstExpr();
-        } else if (parentCtx == ParserRuleContext.XML_STEP_EXTEND) {
-            return ParserRuleContext.CLOSE_BRACKET;
         }
         return ParserRuleContext.EXPRESSION_RHS;
     }
@@ -5079,10 +5087,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.XML_NAME_PATTERN) {
             endContext();
             parentCtx = getParentContext();
-            if (parentCtx == ParserRuleContext.XML_STEP_EXTEND) {
+            if (parentCtx == ParserRuleContext.XML_STEP_EXTENDS) {
                 return ParserRuleContext.XML_STEP_EXTEND;
             }
-            return ParserRuleContext.EXPRESSION_RHS;
+            return ParserRuleContext.XML_STEP_START_END;
         }
 
         // Type cast expression:
@@ -5205,8 +5213,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ABSOLUTE_RESOURCE_PATH_END;
             case CLIENT_RESOURCE_ACCESS_ACTION:
                 return ParserRuleContext.RESOURCE_ACCESS_SEGMENT_RHS;
-            case XML_STEP_EXTEND:
-                return ParserRuleContext.OPEN_PARENTHESIS;
+            case XML_STEP_EXTENDS:
+                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
             default:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPE_DESC_RHS;
