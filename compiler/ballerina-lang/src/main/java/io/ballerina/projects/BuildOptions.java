@@ -137,6 +137,7 @@ public class BuildOptions {
     public boolean showDependencyDiagnostics() {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
+
     public boolean optimizeCodegen() {
         return this.compilationOptions.optimizeCodegen();
     }
@@ -221,7 +222,6 @@ public class BuildOptions {
         buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
         buildOptionsBuilder.setOptimizeReport(compilationOptions.optimizeReport);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
-        buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
 
         return buildOptionsBuilder.build();
     }
@@ -293,7 +293,7 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
-
+        private Boolean showDependencyDiagnostics;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -427,17 +427,13 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
-            showDependencyDiagnostics = value;
-            return this;
-        }
         public BuildOptionsBuilder setOptimizeReport(Boolean value) {
             compilationOptionsBuilder.setOptimizeReport(value);
             return this;
         }
 
-        public BuildOptionsBuilder setVerbose(Boolean value) {
-            compilationOptionsBuilder.setVerbose(value);
+        public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
+            showDependencyDiagnostics = value;
             return this;
         }
 

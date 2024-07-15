@@ -141,9 +141,6 @@ public class CompilationOptions {
     boolean remoteManagement() {
         return toBooleanDefaultIfNull(this.remoteManagement);
     }
-    public boolean optimizeCodegen() {
-        return toBooleanDefaultIfNull(optimizeCodegen);
-    }
 
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
