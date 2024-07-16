@@ -89,8 +89,6 @@ types:
         type: type_info
   type_info:
     seq:
-      - id: semtype
-        type: semtype_info
       - id: type_tag
         type: s1
         enum: type_tag_enum

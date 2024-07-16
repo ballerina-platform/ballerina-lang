@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.org).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Atom;
@@ -22,16 +23,27 @@ import io.ballerina.types.Bdd;
 
 /**
  * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
- *
- * @param atom   the atom that this node represents
- * @param left   path that include this node's atom positively
- * @param middle path that doesn't include this node's atom
- * @param right  path that include this node's atom negatively
- * @since 2201.8.0
  */
-public record BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) implements Bdd {
+public interface BddNode extends Bdd {
 
-    public static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
-        return new BddNode(atom, left, middle, right);
+    static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        if (isSimpleNode(left, middle, right)) {
+            return new BddNodeSimple(atom);
+        }
+        return new BddNodeImpl(atom, left, middle, right);
     }
+
+    private static boolean isSimpleNode(Bdd left, Bdd middle, Bdd right) {
+        return left instanceof AllOrNothingSubtype leftNode && leftNode.isAllSubtype() &&
+                middle instanceof AllOrNothingSubtype middleNode && middleNode.isNothingSubtype() &&
+                right instanceof AllOrNothingSubtype rightNode && rightNode.isNothingSubtype();
+    }
+
+    Atom atom();
+
+    Bdd left();
+
+    Bdd middle();
+
+    Bdd right();
 }

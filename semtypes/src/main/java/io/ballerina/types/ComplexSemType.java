@@ -20,7 +20,6 @@ package io.ballerina.types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
 
@@ -29,37 +28,20 @@ import static io.ballerina.types.BasicTypeCode.BT_CELL;
  *
  * @since 2201.8.0
  */
-public class ComplexSemType implements SemType {
-    // For a basic type with code c,
-    // all & (1 << c) is non-zero iff this type contains all of the basic type
-    // some & (1 << c) is non-zero iff this type contains some but not all of the basic type
-    public final BasicTypeBitSet all;
-    public final BasicTypeBitSet some;
-    // There is one member of subtypes for each bit set in some.
-    // Ordered in increasing order of BasicTypeCode
-    public final ProperSubtypeData[] subtypeDataList;
+public interface ComplexSemType extends SemType {
 
-    ComplexSemType(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
-        this.all = all;
-        this.some = some;
-        this.subtypeDataList = subtypeDataList;
-    }
-
-    public static ComplexSemType createComplexSemType(int allBitset, BasicSubtype... subtypeList) {
+    static ComplexSemType createComplexSemType(int allBitset, BasicSubtype... subtypeList) {
         return createComplexSemType(allBitset, Arrays.asList(subtypeList));
     }
 
-    public static ComplexSemType createComplexSemType(int allBitset, int someBitset, ProperSubtypeData[] subtypeData) {
+    static ComplexSemType createComplexSemType(int allBitset, int someBitset, ProperSubtypeData[] subtypeData) {
         if (allBitset == 0 && someBitset == (1 << BT_CELL.code)) {
             return CellSemType.from(subtypeData);
         }
-        return new ComplexSemType(
-                BasicTypeBitSet.from(allBitset),
-                BasicTypeBitSet.from(someBitset),
-                subtypeData);
+        return new ComplexSemTypeImpl(allBitset, someBitset, subtypeData);
     }
 
-    public static ComplexSemType createComplexSemType(int allBitset, List<BasicSubtype> subtypeList) {
+    static ComplexSemType createComplexSemType(int allBitset, List<BasicSubtype> subtypeList) {
         int some = 0;
         ArrayList<ProperSubtypeData> dataList = new ArrayList<>();
         for (BasicSubtype basicSubtype : subtypeList) {
@@ -70,27 +52,9 @@ public class ComplexSemType implements SemType {
         return createComplexSemType(allBitset, some, dataList.toArray(ProperSubtypeData[]::new));
     }
 
-    @Override
-    public String toString() {
-        return "ComplexSemType{all=" + all + ", some=" + some + ", subtypeDataList=" +
-                Arrays.toString(subtypeDataList) + '}';
-    }
+    int all();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ComplexSemType other)) {
-            return false;
-        }
-        return Objects.equals(all, other.all) &&
-                Objects.equals(some, other.some) &&
-                Arrays.equals(subtypeDataList, other.subtypeDataList);
-    }
+    int some();
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(all, some, Arrays.hashCode(subtypeDataList));
-    }
+    ProperSubtypeData[] subtypeDataList();
 }

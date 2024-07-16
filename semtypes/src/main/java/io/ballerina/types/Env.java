@@ -17,11 +17,14 @@
  */
 package io.ballerina.types;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Env node.
@@ -29,15 +32,17 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class Env {
-    private final Map<AtomicType, TypeAtom> atomTable;
+
+    private static final int COMPACT_INDEX = 3;
     final List<ListAtomicType> recListAtoms;
     final List<MappingAtomicType> recMappingAtoms;
     final List<FunctionAtomicType> recFunctionAtoms;
+    private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 
     private final LinkedHashMap<String, SemType> types;
 
     public Env() {
-        this.atomTable = new HashMap<>();
+        this.atomTable = new WeakHashMap<>();
         this.recListAtoms = new ArrayList<>();
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
@@ -98,18 +103,26 @@ public class Env {
 
     private TypeAtom typeAtom(AtomicType atomicType) {
         synchronized (this.atomTable) {
-            TypeAtom ta = this.atomTable.get(atomicType);
-            if (ta != null) {
-                return ta;
-            } else {
-                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-                this.atomTable.put(result.atomicType(), result);
-                return result;
+            Reference<TypeAtom> ref = this.atomTable.get(atomicType);
+            if (ref != null) {
+                TypeAtom ta = ref.get();
+                if (ta != null) {
+                    return ta;
+                }
             }
+            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+            this.atomTable.put(result.atomicType(), new WeakReference<>(result));
+            return result;
         }
     }
 
-    public void insertAtomAtIndex(int index, AtomicType atomicType) {
+    public void deserializeTypeAtom(TypeAtom typeAtom) {
+        synchronized (this.atomTable) {
+            this.atomTable.put(typeAtom.atomicType(), new WeakReference<>(typeAtom));
+        }
+    }
+
+    public void insertRecAtomAtIndex(int index, AtomicType atomicType) {
         if (atomicType instanceof MappingAtomicType mappingAtomicType) {
             insertAtomAtIndexInner(index, this.recMappingAtoms, mappingAtomicType);
         } else if (atomicType instanceof ListAtomicType listAtomicType) {
@@ -210,5 +223,71 @@ public class Env {
 
     public Map<String, SemType> getTypeNameSemTypeMap() {
         return new LinkedHashMap<>(this.types);
+    }
+
+    public int atomCount() {
+        synchronized (this.atomTable) {
+            return this.atomTable.size();
+        }
+    }
+
+    // TODO: instead of compact index we should analyze the environment before serialization, but a naive bumping index
+    //   in the BIRTypeWriter created incorrect indexes in the BIR. This is a temporary workaround.
+    private CompactionData compactionData = null;
+
+    /**
+     * During type checking we create recursive type atoms that are not parts of the actual ballerina module which will
+     * not marshalled. This leaves "holes" in the rec atom lists when we unmarshall the BIR, which will then get
+     * propagated from one module to next. This method will return a new index corrected for such holes.
+     *
+     * @param recAtom atom for which you need the corrected index
+     * @return index corrected for "holes" in rec atom list
+     */
+    public synchronized int compactRecIndex(RecAtom recAtom) {
+        if (compactionData == null || !compactionData.state().equals(EnvState.from(this))) {
+            compactionData = compaction();
+        }
+        if (recAtom.index < COMPACT_INDEX) {
+            return recAtom.index;
+        }
+        return switch (recAtom.kind()) {
+            case LIST_ATOM -> compactionData.listMap().get(recAtom.index());
+            case MAPPING_ATOM -> compactionData.mapMap().get(recAtom.index());
+            case FUNCTION_ATOM -> compactionData.funcMap().get(recAtom.index());
+            case CELL_ATOM, XML_ATOM -> recAtom.index;
+        };
+    }
+
+    private CompactionData compaction() {
+        EnvState state = EnvState.from(this);
+        Map<Integer, Integer> listMap = recListCompaction(this.recListAtoms);
+        Map<Integer, Integer> mapMap = recListCompaction(this.recMappingAtoms);
+        Map<Integer, Integer> funcMap = recListCompaction(this.recFunctionAtoms);
+        return new CompactionData(state, listMap, mapMap, funcMap);
+    }
+
+    private <E extends AtomicType> Map<Integer, Integer> recListCompaction(List<E> recAtomList) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int compactIndex = COMPACT_INDEX;
+        for (int i = COMPACT_INDEX; i < recAtomList.size(); i++) {
+            if (recAtomList.get(i) != null) {
+                map.put(i, compactIndex);
+                compactIndex++;
+            }
+        }
+        return map;
+    }
+
+    record EnvState(int recListAtomCount, int recMappingAtomCount, int recFunctionAtomCount) {
+
+        public static EnvState from(Env env) {
+            return new EnvState(env.recListAtomCount(), env.recMappingAtomCount(),
+                    env.recFunctionAtomCount());
+        }
+    }
+
+    private record CompactionData(EnvState state, Map<Integer, Integer> listMap, Map<Integer, Integer> mapMap,
+                                  Map<Integer, Integer> funcMap) {
+
     }
 }

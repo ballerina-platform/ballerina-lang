@@ -113,7 +113,7 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAn
 /**
  * Writes bType to a Byte Buffer in binary format.
  * A ConstPool is used to store string typed information.
- * 
+ *
  * @since 0.995.0
  */
 public class BIRTypeWriter extends TypeVisitor {
@@ -131,7 +131,6 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     public void visitType(BType type) {
-        writeSemType(type.semType());
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.getFlags());
@@ -607,16 +606,15 @@ public class BIRTypeWriter extends TypeVisitor {
         boolean isUniformTypeBitSet = semType instanceof BasicTypeBitSet;
         buff.writeBoolean(isUniformTypeBitSet);
 
+        buff.writeInt(semType.all());
         if (isUniformTypeBitSet) {
-            buff.writeInt(((BasicTypeBitSet) semType).bitset);
             return;
         }
 
         ComplexSemType complexSemType = (ComplexSemType) semType;
-        buff.writeInt(complexSemType.all.bitset);
-        buff.writeInt(complexSemType.some.bitset);
+        buff.writeInt(complexSemType.some());
 
-        ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList;
+        ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList();
         buff.writeByte(subtypeDataList.length);
         for (ProperSubtypeData psd : subtypeDataList) {
             writeProperSubtypeData(psd);
@@ -661,49 +659,66 @@ public class BIRTypeWriter extends TypeVisitor {
         }
     }
 
+    private static final byte REC_ATOM_KIND = 0;
+    private static final byte INLINED_ATOM_KIND = 1;
+    private static final byte TYPE_ATOM_KIND = 2;
+
     private void writeBddNode(BddNode bddNode) {
         Atom atom = bddNode.atom();
-        boolean isRecAtom = atom instanceof RecAtom;
-        if (isRecAtom) {
-            RecAtom recAtom = (RecAtom) atom;
-            int index = recAtom.index;
-            // We can have cases where none of the BDDs have the actual BDD node in them just reference to it using
-            // RecAtoms. But when we deserialize the nodes we need to get the actual BDD node somehow. Currently, we
-            // "inline" the actual node first time we see it in the tree. Exception to this rule BDD_REC_ATOM_READONLY
-            // which is unique and every environment has the same node.
-            // TODO: need to think of a better way to serialize information about the actual node without "inlining"
-            //  the node
-            if (predefinedTypeEnv.isPredefinedRecAtom(index)) {
-                buff.writeBoolean(true);
-                buff.writeInt(index);
-            } else if (recAtom.kind() == Atom.Kind.XML_ATOM || visitedAtoms.contains(recAtom.getIdentifier())) {
-                buff.writeBoolean(true);
-                buff.writeInt(index);
-                buff.writeInt(recAtom.kind().ordinal());
-            } else {
-                visitedAtoms.add(recAtom.getIdentifier());
-                buff.writeBoolean(false);
-                AtomicType atomicType = switch (recAtom.kind()) {
-                    case LIST_ATOM -> typeEnv.listAtomType(recAtom);
-                    case FUNCTION_ATOM -> typeEnv.functionAtomType(recAtom);
-                    case MAPPING_ATOM -> typeEnv.mappingAtomType(recAtom);
-                    case XML_ATOM -> throw new IllegalStateException("Should not happen. Handled before reaching here");
-                    case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
-                };
-                buff.writeInt(index);
-                writeAtomicType(atomicType);
-            }
+        if (atom instanceof RecAtom recAtom) {
+            writeRecAtom(recAtom);
         } else {
-            buff.writeBoolean(false);
+            buff.writeByte(TYPE_ATOM_KIND);
             TypeAtom typeAtom = (TypeAtom) atom;
             visitedAtoms.add(typeAtom.getIdentifier());
-            buff.writeInt(typeAtom.index());
-            AtomicType atomicType = typeAtom.atomicType();
-            writeAtomicType(atomicType);
+            writeTypeAtom(typeAtom);
         }
         writeBdd(bddNode.left());
         writeBdd(bddNode.middle());
         writeBdd(bddNode.right());
+    }
+
+    private void writeRecAtom(RecAtom recAtom) {
+        if (shouldInline(recAtom)) {
+            writeInlinedRecAtom(recAtom);
+        } else {
+            buff.writeByte(REC_ATOM_KIND);
+            int index = typeEnv.compactRecIndex(recAtom);
+            buff.writeInt(index);
+            if (!predefinedTypeEnv.isPredefinedRecAtom(index)) {
+                buff.writeInt(recAtom.kind().ordinal());
+            }
+        }
+    }
+
+    private void writeInlinedRecAtom(RecAtom recAtom) {
+        visitedAtoms.add(recAtom.getIdentifier());
+        buff.writeByte(INLINED_ATOM_KIND);
+        buff.writeInt(typeEnv.compactRecIndex(recAtom));
+        TypeAtom typeAtom = switch (recAtom.kind()) {
+            case LIST_ATOM -> typeEnv.listAtom(typeEnv.listAtomType(recAtom));
+            case FUNCTION_ATOM -> typeEnv.functionAtom(typeEnv.functionAtomType(recAtom));
+            case MAPPING_ATOM -> typeEnv.mappingAtom(typeEnv.mappingAtomType(recAtom));
+            case XML_ATOM -> throw new IllegalStateException("Should not happen. Handled before reaching here");
+            case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
+        };
+        writeTypeAtom(typeAtom);
+    }
+
+    private boolean shouldInline(RecAtom recAtom) {
+        // We can have cases where none of the BDDs have the actual BDD node in them just reference to it using
+        // RecAtoms. But when we deserialize the nodes we need to get the actual BDD node somehow. Currently, we
+        // "inline" the actual node first time we see it in the tree. Exceptions to this rule are predefined rec atoms
+        // which are unique and every environment has the same atoms and XML atoms
+        if (predefinedTypeEnv.isPredefinedRecAtom(recAtom.index) || recAtom.kind() == Atom.Kind.XML_ATOM) {
+            return false;
+        }
+        return !visitedAtoms.contains(recAtom.getIdentifier());
+    }
+
+    private void writeTypeAtom(TypeAtom typeAtom) {
+        buff.writeInt(typeAtom.index());
+        writeAtomicType(typeAtom.atomicType());
     }
 
     private void writeAtomicType(AtomicType atomicType) {

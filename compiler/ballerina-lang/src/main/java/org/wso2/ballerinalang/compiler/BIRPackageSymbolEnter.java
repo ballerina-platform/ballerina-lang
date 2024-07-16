@@ -152,6 +152,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
@@ -1260,15 +1261,6 @@ public class BIRPackageSymbolEnter {
         }
 
         public BType readType(int cpI) throws IOException {
-            SemType semType = readSemType();
-            BType bType = readTypeInternal(cpI);
-            if (bType != null) {
-                bType.semType(semType);
-            }
-            return bType;
-        }
-
-        private BType readTypeInternal(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = Names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
@@ -1951,15 +1943,32 @@ public class BIRPackageSymbolEnter {
             }
         }
 
+        enum AtomKind {
+            REC,
+            INLINED,
+            TYPE
+        }
+
+        private AtomKind readAtomKind() throws IOException {
+            return switch (inputStream.readByte()) {
+                case 0 -> AtomKind.REC;
+                case 1 -> AtomKind.INLINED;
+                case 2 -> AtomKind.TYPE;
+                default -> throw new IllegalStateException("Unexpected AtomKind kind");
+            };
+        }
+
         private BddNode readBddNode() throws IOException {
-            Atom atom;
-            boolean isRecAtom = inputStream.readBoolean();
-            int index = inputStream.readInt();
-            if (isRecAtom) {
-                atom = getRecAtom(index);
-            } else {
-                atom = readAtomicType(index);
-            }
+            AtomKind atomKind = readAtomKind();
+            Atom atom = switch (atomKind) {
+                case REC -> readRecAtom();
+                case INLINED -> readInlinedAtom();
+                case TYPE -> {
+                    TypeAtom typeAtom = readTypeAtom();
+                    typeEnv.deserializeTypeAtom(typeAtom);
+                    yield typeAtom;
+                }
+            };
 
             Bdd left = readBdd();
             Bdd middle = readBdd();
@@ -1967,50 +1976,47 @@ public class BIRPackageSymbolEnter {
             return BddNode.create(atom, left, middle, right);
         }
 
-        private Atom readAtomicType(int index) throws IOException {
-            AtomicType atomicType;
-            int indexWithOffset;
-            switch (inputStream.readByte()) {
-                case 1: {
-                    atomicType = readMappingAtomicType();
-                    indexWithOffset = index + offsets.mappingOffset();
-                    break;
-                }
-                case 2: {
-                    atomicType = readListAtomicType();
-                    indexWithOffset = index + offsets.listOffset();
-                    break;
-                }
-                case 3:
-                    atomicType = readFunctionAtomicType();
-                    indexWithOffset = index + offsets.functionOffset();
-                    break;
-                case 4:
-                    atomicType = readCellAtomicType();
-                    indexWithOffset = index;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected atomicType kind");
+        private Atom readInlinedAtom() throws IOException {
+            int recAtomIndex = inputStream.readInt();
+            assert recAtomIndex != BDD_REC_ATOM_READONLY;
+            AtomicType atomicType = readTypeAtom().atomicType();
+            Atom.Kind kind;
+            if (atomicType instanceof MappingAtomicType) {
+                recAtomIndex += offsets.mappingOffset();
+                kind = Atom.Kind.MAPPING_ATOM;
+            } else if (atomicType instanceof ListAtomicType) {
+                recAtomIndex += offsets.listOffset();
+                kind = Atom.Kind.LIST_ATOM;
+            } else if (atomicType instanceof FunctionAtomicType) {
+                recAtomIndex += offsets.functionOffset();
+                kind = Atom.Kind.FUNCTION_ATOM;
+            } else {
+                throw new IllegalStateException("Unexpected inlined atomicType kind");
             }
-            if (!(atomicType instanceof CellAtomicType)) {
-                typeEnv.insertAtomAtIndex(indexWithOffset, atomicType);
-            }
-            return TypeAtom.createTypeAtom(indexWithOffset, atomicType);
+            typeEnv.insertRecAtomAtIndex(recAtomIndex, atomicType);
+            RecAtom recAtom = RecAtom.createRecAtom(recAtomIndex);
+            recAtom.setKind(kind);
+            return recAtom;
         }
 
-        private Atom getRecAtom(int index) throws IOException {
-            Atom atom;
+        private TypeAtom readTypeAtom() throws IOException {
+            int index = inputStream.readInt() + offsets.atomOffset();
+            AtomicType atomicType = switch (inputStream.readByte()) {
+                case 1 -> readMappingAtomicType();
+                case 2 -> readListAtomicType();
+                case 3 -> readFunctionAtomicType();
+                case 4 -> readCellAtomicType();
+                default -> throw new IllegalStateException("Unexpected atomicType kind");
+            };
+            return TypeAtom.createTypeAtom(index, atomicType);
+        }
+
+        private RecAtom readRecAtom() throws IOException {
+            int index = inputStream.readInt();
             Optional<RecAtom> predefinedRecAtom = predefinedTypeEnv.getPredefinedRecAtom(index);
             if (predefinedRecAtom.isPresent()) {
-                atom = predefinedRecAtom.get();
-            } else {
-                atom = readRecAtom(index);
+                return predefinedRecAtom.get();
             }
-            return atom;
-        }
-
-        private Atom readRecAtom(int index) throws IOException {
-            Atom atom;
             int kindOrdinal = inputStream.readInt();
             Atom.Kind kind = Atom.Kind.values()[kindOrdinal];
             int offset = switch (kind) {
@@ -2023,8 +2029,8 @@ public class BIRPackageSymbolEnter {
             index += offset;
             RecAtom recAtom = RecAtom.createRecAtom(index);
             recAtom.setKind(kind);
-            atom = recAtom;
-            return atom;
+            return recAtom;
+
         }
 
         private CellAtomicType readCellAtomicType() throws IOException {
@@ -2226,10 +2232,15 @@ public class BIRPackageSymbolEnter {
                 null, names);
     }
 
-    private record AtomOffsets(int listOffset, int functionOffset, int mappingOffset) {
+    private record AtomOffsets(int atomOffset, int listOffset, int functionOffset, int mappingOffset) {
 
         static AtomOffsets from(Env env) {
-            return new AtomOffsets(env.recListAtomCount(), env.recFunctionAtomCount(), env.recMappingAtomCount());
+            PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
+            int recAtomOffset = predefinedTypeEnv.reservedRecAtomCount();
+            return new AtomOffsets(env.atomCount(),
+                    env.recListAtomCount() - recAtomOffset,
+                    env.recFunctionAtomCount(),
+                    env.recMappingAtomCount() - recAtomOffset);
         }
     }
 }

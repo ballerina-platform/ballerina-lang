@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,14 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types;
+package io.ballerina.types.subtypedata;
+
+import io.ballerina.types.Atom;
+import io.ballerina.types.Bdd;
 
 /**
- * SemType node.
+ * Actual implementation of a generic Bdd node.
  *
- * @since 2201.8.0
+ * @param atom   the atom that this node represents
+ * @param left   path that include this node's atom positively
+ * @param middle path that doesn't include this node's atom
+ * @param right  path that include this node's atom negatively
+ * @since 2201.10.0
  */
-public interface SemType {
+record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
 
-    int all();
 }
