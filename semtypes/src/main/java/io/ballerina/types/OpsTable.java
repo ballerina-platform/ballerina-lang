@@ -28,6 +28,7 @@ import io.ballerina.types.typeops.FutureOps;
 import io.ballerina.types.typeops.IntOps;
 import io.ballerina.types.typeops.ListOps;
 import io.ballerina.types.typeops.MappingOps;
+import io.ballerina.types.typeops.ObjectOps;
 import io.ballerina.types.typeops.StreamOps;
 import io.ballerina.types.typeops.StringOps;
 import io.ballerina.types.typeops.TableOps;
@@ -63,7 +64,7 @@ public class OpsTable {
         OPS[i++] = new MappingOps();    // mapping
         OPS[i++] = new TableOps();      // table
         OPS[i++] = new XmlOps();        // xml
-        OPS[i++] = PANIC_IMPL;          // object
+        OPS[i++] = new ObjectOps();     // object
         OPS[i] = new CellOps();         // cell
     }
 }

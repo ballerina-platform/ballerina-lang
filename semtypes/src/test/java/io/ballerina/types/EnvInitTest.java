@@ -57,7 +57,7 @@ public class EnvInitTest {
         Map<AtomicType, Reference<TypeAtom>> atomTable = (Map) atomTableField.get(env);
 
         // Check that the atomTable contains the expected entries
-        Assert.assertEquals(atomTable.size(), 10);
+        Assert.assertEquals(atomTable.size(), 15);
 
         CellAtomicType cellAtomicVal = CellAtomicType.from(
                 PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_LIMITED
@@ -154,21 +154,22 @@ public class EnvInitTest {
     @Test
     public void testEnvInitRecAtoms() throws NoSuchFieldException, IllegalAccessException {
         Env env = new Env();
-
         Field recListAtomsField = Env.class.getDeclaredField("recListAtoms");
         recListAtomsField.setAccessible(true);
         List<ListAtomicType> recListAtoms = (List) recListAtomsField.get(env);
-        Assert.assertEquals(recListAtoms.size(), 1);
+        Assert.assertEquals(recListAtoms.size(), 2);
         ListAtomicType listAtomicRo = ListAtomicType.from(
                 FixedLengthArray.empty(), PredefinedType.CELL_SEMTYPE_INNER_RO
         );
         Assert.assertEquals(recListAtoms.get(0), listAtomicRo);
+        Assert.assertNull(recListAtoms.get(1));
 
         Field recMappingAtomsField = Env.class.getDeclaredField("recMappingAtoms");
         recMappingAtomsField.setAccessible(true);
         List<MappingAtomicType> recMappingAtoms = (List) recMappingAtomsField.get(env);
-        Assert.assertEquals(recMappingAtoms.size(), 1);
+        Assert.assertEquals(recMappingAtoms.size(), 2);
         Assert.assertEquals(recMappingAtoms.get(0), PredefinedType.MAPPING_ATOMIC_RO);
+        Assert.assertEquals(recMappingAtoms.get(1), PredefinedType.MAPPING_ATOMIC_OBJECT_RO);
 
         Field recFunctionAtomsField = Env.class.getDeclaredField("recFunctionAtoms");
         recFunctionAtomsField.setAccessible(true);

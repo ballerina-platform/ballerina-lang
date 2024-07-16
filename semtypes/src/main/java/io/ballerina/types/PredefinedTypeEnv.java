@@ -19,6 +19,7 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,15 +28,25 @@ import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_MAPPING;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_MAPPING_RO;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_RO;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER_KIND;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER_RO;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_QUALIFIER;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_UNDEF;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_VAL;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_VAL_RO;
+import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.INNER_READONLY;
 import static io.ballerina.types.PredefinedType.MAPPING;
 import static io.ballerina.types.PredefinedType.MAPPING_RO;
+import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER;
+import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER_RO;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.SemTypes.stringConst;
 import static io.ballerina.types.TypeAtom.createTypeAtom;
 
 /**
@@ -60,6 +71,7 @@ public final class PredefinedTypeEnv {
 
     private final List<InitializedTypeAtom<CellAtomicType>> initializedCellAtoms = new ArrayList<>();
     private final List<InitializedTypeAtom<ListAtomicType>> initializedListAtoms = new ArrayList<>();
+    private final List<InitializedTypeAtom<MappingAtomicType>> initializedMappingAtoms = new ArrayList<>();
     private final List<ListAtomicType> initializedRecListAtoms = new ArrayList<>();
     private final List<MappingAtomicType> initializedRecMappingAtoms = new ArrayList<>();
     private final AtomicInteger nextAtomIndex = new AtomicInteger(0);
@@ -89,40 +101,66 @@ public final class PredefinedTypeEnv {
     private CellAtomicType cellAtomicUndef;
     private ListAtomicType listAtomicTwoElement;
 
+    private CellAtomicType cellAtomicObjectMember;
+    private CellAtomicType cellAtomicObjectMemberKind;
+    private CellAtomicType cellAtomicObjectMemberRO;
+    private CellAtomicType cellAtomicObjectMemberVisibility;
+    private CellAtomicType cellAtomicValRO;
     private ListAtomicType listAtomicRO;
+    private MappingAtomicType mappingAtomicObject;
+    private MappingAtomicType mappingAtomicObjectMember;
+    private MappingAtomicType mappingAtomicObjectMemberRO;
+    private MappingAtomicType mappingAtomicObjectRO;
     private MappingAtomicType mappingAtomicRO;
     private TypeAtom atomCellInner;
     private TypeAtom atomCellInnerMapping;
     private TypeAtom atomCellInnerMappingRO;
     private TypeAtom atomCellInnerRO;
     private TypeAtom atomCellNever;
+    private TypeAtom atomCellObjectMember;
+    private TypeAtom atomCellObjectMemberKind;
+    private TypeAtom atomCellObjectMemberRO;
+    private TypeAtom atomCellObjectMemberVisibility;
     private TypeAtom atomCellUndef;
     private TypeAtom atomCellVal;
+    private TypeAtom atomCellValRO;
     private TypeAtom atomListMapping;
     private TypeAtom atomListMappingRO;
     private TypeAtom atomListTwoElement;
+    private TypeAtom atomMappingObject;
+    private TypeAtom atomMappingObjectMember;
+    private TypeAtom atomMappingObjectMemberRO;
 
     private void addInitializedCellAtom(CellAtomicType atom) {
-        int index = nextAtomIndex.getAndIncrement();
-        initializedCellAtoms.add(new InitializedTypeAtom<>(atom, index));
+        addInitializedAtom(initializedCellAtoms, atom);
     }
 
     private void addInitializedListAtom(ListAtomicType atom) {
-        int index = nextAtomIndex.getAndIncrement();
-        initializedListAtoms.add(new InitializedTypeAtom<>(atom, index));
+        addInitializedAtom(initializedListAtoms, atom);
+    }
+
+    private void addInitializedMapAtom(MappingAtomicType atom) {
+        addInitializedAtom(initializedMappingAtoms, atom);
+    }
+
+    private <E extends AtomicType> void addInitializedAtom(Collection<? super InitializedTypeAtom<E>> atoms, E atom) {
+        atoms.add(new InitializedTypeAtom<>(atom, nextAtomIndex.getAndIncrement()));
     }
 
     private int cellAtomIndex(CellAtomicType atom) {
-        for (InitializedTypeAtom<CellAtomicType> initializedCellAtom : initializedCellAtoms) {
-            if (initializedCellAtom.atomicType() == atom) {
-                return initializedCellAtom.index();
-            }
-        }
-        throw new IndexOutOfBoundsException();
+        return atomIndex(initializedCellAtoms, atom);
     }
 
     private int listAtomIndex(ListAtomicType atom) {
-        for (InitializedTypeAtom<ListAtomicType> initializedListAtom : initializedListAtoms) {
+        return atomIndex(initializedListAtoms, atom);
+    }
+
+    private int mappingAtomIndex(MappingAtomicType atom) {
+        return atomIndex(initializedMappingAtoms, atom);
+    }
+
+    private <E extends AtomicType> int atomIndex(List<InitializedTypeAtom<E>> initializedAtoms, E atom) {
+        for (InitializedTypeAtom<E> initializedListAtom : initializedAtoms) {
             if (initializedListAtom.atomicType() == atom) {
                 return initializedListAtom.index();
             }
@@ -296,6 +334,162 @@ public final class PredefinedTypeEnv {
         return atomListTwoElement;
     }
 
+    synchronized CellAtomicType cellAtomicValRO() {
+        if (cellAtomicValRO == null) {
+            cellAtomicValRO = CellAtomicType.from(
+                    IMPLEMENTED_VAL_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE
+            );
+            addInitializedCellAtom(cellAtomicValRO);
+        }
+        return cellAtomicValRO;
+    }
+
+    synchronized TypeAtom atomCellValRO() {
+        if (atomCellValRO == null) {
+            CellAtomicType cellAtomicValRO = cellAtomicValRO();
+            atomCellValRO = createTypeAtom(cellAtomIndex(cellAtomicValRO), cellAtomicValRO);
+        }
+        return atomCellValRO;
+    }
+
+    synchronized MappingAtomicType mappingAtomicObjectMemberRO() {
+        if (mappingAtomicObjectMemberRO == null) {
+            mappingAtomicObjectMemberRO = MappingAtomicType.from(
+                    new String[]{"kind", "value", "visibility"},
+                    new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL_RO,
+                            CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY},
+                    CELL_SEMTYPE_UNDEF);
+            addInitializedMapAtom(mappingAtomicObjectMemberRO);
+        }
+        return mappingAtomicObjectMemberRO;
+    }
+
+    synchronized TypeAtom atomMappingObjectMemberRO() {
+        if (atomMappingObjectMemberRO == null) {
+            MappingAtomicType mappingAtomicObjectMemberRO = mappingAtomicObjectMemberRO();
+            atomMappingObjectMemberRO = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMemberRO),
+                    mappingAtomicObjectMemberRO);
+        }
+        return atomMappingObjectMemberRO;
+    }
+
+    synchronized CellAtomicType cellAtomicObjectMemberRO() {
+        if (cellAtomicObjectMemberRO == null) {
+            cellAtomicObjectMemberRO = CellAtomicType.from(
+                    MAPPING_SEMTYPE_OBJECT_MEMBER_RO, CellAtomicType.CellMutability.CELL_MUT_NONE
+            );
+            addInitializedCellAtom(cellAtomicObjectMemberRO);
+        }
+        return cellAtomicObjectMemberRO;
+    }
+
+    synchronized TypeAtom atomCellObjectMemberRO() {
+        if (atomCellObjectMemberRO == null) {
+            CellAtomicType cellAtomicObjectMemberRO = cellAtomicObjectMemberRO();
+            atomCellObjectMemberRO = createTypeAtom(cellAtomIndex(cellAtomicObjectMemberRO), cellAtomicObjectMemberRO);
+        }
+        return atomCellObjectMemberRO;
+    }
+
+    synchronized CellAtomicType cellAtomicObjectMemberKind() {
+        if (cellAtomicObjectMemberKind == null) {
+            cellAtomicObjectMemberKind = CellAtomicType.from(
+                    Core.union(stringConst("field"), stringConst("method")),
+                    CellAtomicType.CellMutability.CELL_MUT_NONE
+            );
+            addInitializedCellAtom(cellAtomicObjectMemberKind);
+        }
+        return cellAtomicObjectMemberKind;
+    }
+
+    synchronized TypeAtom atomCellObjectMemberKind() {
+        if (atomCellObjectMemberKind == null) {
+            CellAtomicType cellAtomicObjectMemberKind = cellAtomicObjectMemberKind();
+            atomCellObjectMemberKind =
+                    createTypeAtom(cellAtomIndex(cellAtomicObjectMemberKind), cellAtomicObjectMemberKind);
+        }
+        return atomCellObjectMemberKind;
+    }
+
+    synchronized CellAtomicType cellAtomicObjectMemberVisibility() {
+        if (cellAtomicObjectMemberVisibility == null) {
+            cellAtomicObjectMemberVisibility = CellAtomicType.from(
+                    Core.union(stringConst("public"), stringConst("private")),
+                    CellAtomicType.CellMutability.CELL_MUT_NONE
+            );
+            addInitializedCellAtom(cellAtomicObjectMemberVisibility);
+        }
+        return cellAtomicObjectMemberVisibility;
+    }
+
+    synchronized TypeAtom atomCellObjectMemberVisibility() {
+        if (atomCellObjectMemberVisibility == null) {
+            CellAtomicType cellAtomicObjectMemberVisibility = cellAtomicObjectMemberVisibility();
+            atomCellObjectMemberVisibility = createTypeAtom(cellAtomIndex(cellAtomicObjectMemberVisibility),
+                    cellAtomicObjectMemberVisibility);
+        }
+        return atomCellObjectMemberVisibility;
+    }
+
+    synchronized MappingAtomicType mappingAtomicObjectMember() {
+        if (mappingAtomicObjectMember == null) {
+            mappingAtomicObjectMember = MappingAtomicType.from(
+                    new String[]{"kind", "value", "visibility"},
+                    new CellSemType[]{CELL_SEMTYPE_OBJECT_MEMBER_KIND, CELL_SEMTYPE_VAL,
+                            CELL_SEMTYPE_OBJECT_MEMBER_VISIBILITY},
+                    CELL_SEMTYPE_UNDEF);
+            ;
+            addInitializedMapAtom(mappingAtomicObjectMember);
+        }
+        return mappingAtomicObjectMember;
+    }
+
+    synchronized TypeAtom atomMappingObjectMember() {
+        if (atomMappingObjectMember == null) {
+            MappingAtomicType mappingAtomicObjectMember = mappingAtomicObjectMember();
+            atomMappingObjectMember = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMember),
+                    mappingAtomicObjectMember);
+        }
+        return atomMappingObjectMember;
+    }
+
+    synchronized CellAtomicType cellAtomicObjectMember() {
+        if (cellAtomicObjectMember == null) {
+            cellAtomicObjectMember = CellAtomicType.from(
+                    MAPPING_SEMTYPE_OBJECT_MEMBER, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED
+            );
+            addInitializedCellAtom(cellAtomicObjectMember);
+        }
+        return cellAtomicObjectMember;
+    }
+
+    synchronized TypeAtom atomCellObjectMember() {
+        if (atomCellObjectMember == null) {
+            CellAtomicType cellAtomicObjectMember = cellAtomicObjectMember();
+            atomCellObjectMember = createTypeAtom(cellAtomIndex(cellAtomicObjectMember), cellAtomicObjectMember);
+        }
+        return atomCellObjectMember;
+    }
+
+    synchronized MappingAtomicType mappingAtomicObject() {
+        if (mappingAtomicObject == null) {
+            mappingAtomicObject = MappingAtomicType.from(
+                    new String[]{"$qualifiers"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_QUALIFIER},
+                    CELL_SEMTYPE_OBJECT_MEMBER
+            );
+            addInitializedMapAtom(mappingAtomicObject);
+        }
+        return mappingAtomicObject;
+    }
+
+    synchronized TypeAtom atomMappingObject() {
+        if (atomMappingObject == null) {
+            MappingAtomicType mappingAtomicObject = mappingAtomicObject();
+            atomMappingObject = createTypeAtom(mappingAtomIndex(mappingAtomicObject), mappingAtomicObject);
+        }
+        return atomMappingObject;
+    }
+
     synchronized ListAtomicType listAtomicRO() {
         if (listAtomicRO == null) {
             listAtomicRO = ListAtomicType.from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
@@ -310,6 +504,17 @@ public final class PredefinedTypeEnv {
             initializedRecMappingAtoms.add(mappingAtomicRO);
         }
         return mappingAtomicRO;
+    }
+
+    synchronized MappingAtomicType getMappingAtomicObjectRO() {
+        if (mappingAtomicObjectRO == null) {
+            mappingAtomicObjectRO = MappingAtomicType.from(
+                    new String[]{"$qualifiers"}, new CellSemType[]{CELL_SEMTYPE_OBJECT_QUALIFIER},
+                    CELL_SEMTYPE_OBJECT_MEMBER_RO
+            );
+            initializedRecMappingAtoms.add(mappingAtomicObjectRO);
+        }
+        return mappingAtomicObjectRO;
     }
 
     // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.
