@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
@@ -114,6 +115,11 @@ public class JarResolver {
                 PlatformLibraryScope.DEFAULT,
                 getPackageName(rootPackageContext)));
 
+        // Add resources
+        Optional.ofNullable(jBalBackend.codeGeneratedResourcesLibrary(rootPackageContext.packageId()))
+                .ifPresent(library -> jarFiles.add(
+                        new JarLibrary(library.path(), PlatformLibraryScope.DEFAULT,
+                                getPackageName(rootPackageContext))));
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
@@ -295,4 +301,5 @@ public class JarResolver {
         }
         return className;
     }
+
 }

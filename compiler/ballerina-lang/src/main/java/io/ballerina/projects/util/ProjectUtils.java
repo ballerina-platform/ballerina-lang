@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -110,9 +111,11 @@ import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BIN
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
+import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -1407,6 +1410,40 @@ public class ProjectUtils {
         }
         // Locking mode SOFT
         return CompatibleRange.LOCK_MAJOR;
+    }
+
+    public static Map<String, byte[]> getAllGeneratedResources(Path generatedResourcesPath) {
+        Map<String, byte[]> resourcesMap = new HashMap<>();
+        if (Files.isDirectory(generatedResourcesPath)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+                    generatedResourcesPath, Files::isRegularFile)) {
+                for (Path entry : stream) {
+                    Path entryName = entry.getFileName();
+                    if (entryName == null) {
+                        continue;
+                    }
+                    String resourcePath = RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR + entryName.toString();
+                    resourcesMap.put(resourcePath, Files.readAllBytes(entry));
+                }
+            } catch (IOException e) {
+                throw new ProjectException("An error occurred while reading the cached resources from: " +
+                        generatedResourcesPath, e);
+            }
+        }
+
+        return resourcesMap;
+    }
+
+    public static String getConflictingResourcesMsg(String packageDesc, List<String> conflictingResourceFiles) {
+        StringBuilder errorMessage = new StringBuilder();
+        errorMessage.append("failed due to generated resources conflicting with the " +
+                "resources in the current package '").append(packageDesc).append("'. Conflicting resource files:");
+        if (conflictingResourceFiles != null && !conflictingResourceFiles.isEmpty()) {
+            for (String file : conflictingResourceFiles) {
+                errorMessage.append("\n").append(file);
+            }
+        }
+        return errorMessage.toString();
     }
 
     /**

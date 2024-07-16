@@ -21,7 +21,6 @@ package io.ballerina.projects.internal;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.util.ProjectConstants;
-import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 
@@ -41,9 +40,20 @@ public class ProvidedResourceConfig extends ResourceConfig {
         super(documentId, path, name, content);
     }
 
-    public static ProvidedResourceConfig from(DocumentId documentId, Path resource, Path modulePath) {
-        Path resourcePath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME).relativize(resource);
-        String unixPath = FilenameUtils.separatorsToUnix(resourcePath.toString());
+    public static ProvidedResourceConfig from(DocumentId documentId, Path resource, Path packagePath) {
+        Path relativeResourcePath;
+        if (resource.startsWith(packagePath)) {
+            relativeResourcePath = packagePath.relativize(resource);
+        } else {
+            relativeResourcePath = resource;
+        }
+        String resourcePath = relativeResourcePath.toString();
+        String marker = ProjectConstants.RESOURCE_DIR_NAME + "/";
+        int markerIndex = resourcePath.indexOf(marker);
+        String unixPath = markerIndex != -1
+                ? resourcePath.substring(markerIndex + marker.length())
+                : resourcePath;
         return new ProvidedResourceConfig(documentId, resource, unixPath, null);
     }
+
 }
