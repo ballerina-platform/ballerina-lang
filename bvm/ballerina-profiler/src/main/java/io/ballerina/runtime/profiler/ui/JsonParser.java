@@ -89,7 +89,7 @@ public class JsonParser {
         }
     }
 
-    private void writeToValueJson(Data output) {;
+    private void writeToValueJson(Data output) {
         int totalTime = getTotalTime(output);
         output.value = totalTime;
         writePerformanceJson(output.toString());
@@ -158,7 +158,8 @@ public class JsonParser {
         @Override
         public String toString() {
             StringBuilder text = new StringBuilder();
-            text.append("{").append("\"name\":\"").append(this.name).append("\",\"value\":").append(this.value).append(",\"children\":[");
+            text.append("{").append("\"name\":\"").append(this.name).append("\",\"value\":").
+                    append(this.value).append(",\"children\":[");
             for(Data child : children) {
                 text.append(child.toString()).append(",");
             }
