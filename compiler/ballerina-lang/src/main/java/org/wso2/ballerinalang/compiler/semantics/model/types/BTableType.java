@@ -55,6 +55,7 @@ public class BTableType extends BType implements TableType {
 
     public BTableType mutableType;
     public final Env env;
+    boolean resolving;
 
     public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
@@ -114,6 +115,12 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public SemType semType() {
+        if (resolving || constraint.tag == TypeTags.SEMANTIC_ERROR) {
+            // this is to handle negative table recursions. e.g.  type T table<T>
+            return PredefinedType.TABLE;
+        }
+        resolving = true;
+
         SemType constraintTy = constraint instanceof BParameterizedType p ? p.paramValueType.semType() :
                 constraint.semType();
         constraintTy = SemTypes.intersect(constraintTy, PredefinedType.MAPPING);
@@ -142,10 +149,12 @@ public class BTableType extends BType implements TableType {
             }
 
             SemType normalizedKs = new ListDefinition().tupleTypeWrapped(env, stringConstants);
+            resolving = false;
             return TableSubtype.tableContaining(env, constraintTy, normalizedKc, normalizedKs);
         }
 
-        if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER) {
+        if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER &&
+                keyTypeConstraint.tag != TypeTags.SEMANTIC_ERROR) {
             SemType keyConstraint = keyTypeConstraint.semType();
             SemType normalizedKc;
             ListAtomicType lat = Core.listAtomicType(cx, keyConstraint);
@@ -160,9 +169,11 @@ public class BTableType extends BType implements TableType {
                 normalizedKc = keyConstraint;
             }
 
+            resolving = false;
             return TableSubtype.tableContaining(env, constraintTy, normalizedKc, PredefinedType.VAL);
         }
 
+        resolving = false;
         return TableSubtype.tableContaining(env, constraintTy);
     }
 }
