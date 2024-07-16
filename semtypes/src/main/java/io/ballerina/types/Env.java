@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Env node.
@@ -37,6 +38,7 @@ public class Env {
     final List<ListAtomicType> recListAtoms;
     final List<MappingAtomicType> recMappingAtoms;
     final List<FunctionAtomicType> recFunctionAtoms;
+    private final AtomicInteger distinctAtomCount;
     private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 
     private final LinkedHashMap<String, SemType> types;
@@ -47,6 +49,7 @@ public class Env {
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
+        distinctAtomCount = new AtomicInteger(0);
 
         PredefinedTypeEnv.getInstance().initializeEnv(this);
     }
@@ -61,6 +64,14 @@ public class Env {
 
     public int recFunctionAtomCount() {
         return this.recFunctionAtoms.size();
+    }
+
+    public int distinctAtomCount() {
+        return this.distinctAtomCount.get();
+    }
+
+    public int distinctAtomCountGetAndIncrement() {
+        return this.distinctAtomCount.getAndIncrement();
     }
 
     public RecAtom recFunctionAtom() {
@@ -254,7 +265,7 @@ public class Env {
             case LIST_ATOM -> compactionData.listMap().get(recAtom.index());
             case MAPPING_ATOM -> compactionData.mapMap().get(recAtom.index());
             case FUNCTION_ATOM -> compactionData.funcMap().get(recAtom.index());
-            case CELL_ATOM, XML_ATOM -> recAtom.index;
+            case CELL_ATOM, XML_ATOM, DISTINCT_ATOM -> recAtom.index;
         };
     }
 

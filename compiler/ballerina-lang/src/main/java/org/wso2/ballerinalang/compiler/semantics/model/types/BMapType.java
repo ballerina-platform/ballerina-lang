@@ -33,8 +33,8 @@ import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.ANY;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.VAL;
 
 /**
  * @since 0.94
@@ -108,7 +108,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         }
         md = new MappingDefinition();
         if (hasTypeHoles()) {
-            return md.defineMappingTypeWrapped(env, List.of(), ANY);
+            return md.defineMappingTypeWrapped(env, List.of(), VAL);
         }
         SemType elementTypeSemType = constraint.semType();
         if (elementTypeSemType == null) {

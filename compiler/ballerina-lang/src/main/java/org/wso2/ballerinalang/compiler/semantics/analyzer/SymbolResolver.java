@@ -1076,7 +1076,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                 PackageID.VALUE, symTable.cloneableType, symTable.langValueModuleSymbol,
                                 symTable.builtinPos, BUILTIN);
                 symTable.detailType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.cloneableType, null);
-                symTable.errorType = new BErrorType(null, symTable.detailType);
+                symTable.errorType = new BErrorType(symTable.typeEnv(), null, symTable.detailType);
                 symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                         symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos
                         , BUILTIN);
@@ -1497,7 +1497,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, data.env);
         }
 
-        BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+        BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, detailType);
         errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
 

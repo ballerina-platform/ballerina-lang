@@ -127,6 +127,7 @@ public final class SemTypeHelper {
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:
             case TypeTags.STREAM:
+            case TypeTags.ERROR:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {

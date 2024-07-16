@@ -36,8 +36,8 @@ import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.ANY;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.VAL;
 
 /**
  * {@code BRecordType} represents record type in Ballerina.
@@ -155,7 +155,7 @@ public class BRecordType extends BStructureType implements RecordType {
         }
         md = new MappingDefinition();
         if (hasTypeHoles()) {
-            return md.defineMappingTypeWrapped(env, List.of(), ANY);
+            return md.defineMappingTypeWrapped(env, List.of(), VAL);
         }
 
         List<Field> semFields = new ArrayList<>(this.fields.size());

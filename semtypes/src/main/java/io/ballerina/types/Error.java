@@ -26,7 +26,7 @@ import static io.ballerina.types.PredefinedType.BDD_SUBTYPE_RO;
 import static io.ballerina.types.PredefinedType.ERROR;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.basicSubtype;
-import static io.ballerina.types.RecAtom.createRecAtom;
+import static io.ballerina.types.RecAtom.createDistinctRecAtom;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
 
@@ -37,8 +37,8 @@ import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {
-        SubtypeData sd = bddIntersect((Bdd) subtypeData(detail, BasicTypeCode.BT_MAPPING), BDD_SUBTYPE_RO);
-        if (sd instanceof AllOrNothingSubtype allOrNothingSubtype) {
+        SubtypeData mappingSd = subtypeData(detail, BasicTypeCode.BT_MAPPING);
+        if (mappingSd instanceof AllOrNothingSubtype allOrNothingSubtype) {
             if (allOrNothingSubtype.isAllSubtype()) {
                 return ERROR;
             } else {
@@ -46,15 +46,17 @@ public class Error {
                 return NEVER;
             }
         }
-        if (sd == BDD_SUBTYPE_RO) {
+
+        SubtypeData sd = bddIntersect((Bdd) mappingSd, BDD_SUBTYPE_RO);
+        if (sd.equals(BDD_SUBTYPE_RO)) {
             return ERROR;
         }
         return basicSubtype(BT_ERROR, (ProperSubtypeData) sd);
     }
 
-    public SemType errorDistinct(int distinctId) {
+    public static SemType errorDistinct(int distinctId) {
         assert distinctId >= 0;
-        BddNode bdd = bddAtom(createRecAtom(-distinctId - 1));
+        BddNode bdd = bddAtom(createDistinctRecAtom(-distinctId - 1));
         return basicSubtype(BT_ERROR, bdd);
     }
 }

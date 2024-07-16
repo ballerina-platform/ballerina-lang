@@ -699,7 +699,8 @@ public class BIRTypeWriter extends TypeVisitor {
             case LIST_ATOM -> typeEnv.listAtom(typeEnv.listAtomType(recAtom));
             case FUNCTION_ATOM -> typeEnv.functionAtom(typeEnv.functionAtomType(recAtom));
             case MAPPING_ATOM -> typeEnv.mappingAtom(typeEnv.mappingAtomType(recAtom));
-            case XML_ATOM -> throw new IllegalStateException("Should not happen. Handled before reaching here");
+            case XML_ATOM, DISTINCT_ATOM ->
+                    throw new IllegalStateException("Should not happen. Handled before reaching here");
             case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
         };
         writeTypeAtom(typeAtom);
@@ -710,7 +711,8 @@ public class BIRTypeWriter extends TypeVisitor {
         // RecAtoms. But when we deserialize the nodes we need to get the actual BDD node somehow. Currently, we
         // "inline" the actual node first time we see it in the tree. Exceptions to this rule are predefined rec atoms
         // which are unique and every environment has the same atoms and XML atoms
-        if (predefinedTypeEnv.isPredefinedRecAtom(recAtom.index) || recAtom.kind() == Atom.Kind.XML_ATOM) {
+        if (predefinedTypeEnv.isPredefinedRecAtom(recAtom.index) || recAtom.kind() == Atom.Kind.XML_ATOM ||
+                recAtom.kind() == Atom.Kind.DISTINCT_ATOM) {
             return false;
         }
         return !visitedAtoms.contains(recAtom.getIdentifier());

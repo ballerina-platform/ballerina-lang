@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.ANY;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.VAL;
 
 /**
  * {@code {@link BTupleType }} represents the tuple type.
@@ -272,7 +272,7 @@ public class BTupleType extends BType implements TupleType {
         }
         ld = new ListDefinition();
         if (hasTypeHoles()) {
-            return ld.defineListTypeWrapped(env, ANY);
+            return ld.defineListTypeWrapped(env, VAL);
         }
         boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;

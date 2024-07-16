@@ -5393,7 +5393,7 @@ public class Types {
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+        BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, detailType);
         errorType.addFlags(errorTypeSymbol.flags);
         errorTypeSymbol.type = errorType;
         errorType.typeIdSet = BTypeIdSet.emptySet();
