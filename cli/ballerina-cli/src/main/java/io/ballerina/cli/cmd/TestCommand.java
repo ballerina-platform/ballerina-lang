@@ -80,6 +80,15 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    TestCommand(Path projectPath, boolean exitWhenFinish, Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.outStream = System.out;
+        this.errStream = System.err;
+        this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
+    }
+
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -89,7 +98,8 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       Boolean testReport, Boolean coverage, String coverageFormat) {
+                Boolean testReport, Boolean coverage, String coverageFormat,
+                Boolean optimizeDependencyCompilation) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -97,6 +107,7 @@ public class TestCommand implements BLauncherCmd {
         this.testReport = testReport;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
         this.offline = true;
     }
 
