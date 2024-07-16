@@ -3,4 +3,4 @@ Compiling source
 WARNING [Dependencies.toml:(6:1,18:1)] Detected corrupted Dependencies.toml file. Dependencies will be updated to the latest versions.
 
 Generating executable
-	target/bin/test1.jar
+	target\bin\test1.jar
