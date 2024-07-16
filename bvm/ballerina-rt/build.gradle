@@ -108,8 +108,6 @@ dependencies {
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
 
-    dist "com.google.code.gson:gson:${project.gsonVersion}"
-
     // Transaction related third party jars
     dist "com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}"
     dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"

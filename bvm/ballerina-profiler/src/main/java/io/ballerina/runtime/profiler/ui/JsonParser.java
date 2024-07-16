@@ -18,19 +18,22 @@
 
 package io.ballerina.runtime.profiler.ui;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.JsonInternalUtils;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 
 /**
  * This class contains the JSON parser of the Ballerina profiler.
@@ -56,13 +59,13 @@ public class JsonParser {
         }
     }
 
-    private int getTotalTime(JsonObject node) {
+    private int getTotalTime(Data node) {
         int totalTime = 0;
-        JsonArray children = node.getAsJsonArray("children");
+        List<Data> children = node.children;
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
-                if (children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt() != -1) {
-                    totalTime += children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt();
+                if (children.get(i).value != -1) {
+                    totalTime += children.get(i).value;
                 }
             }
         }
@@ -86,14 +89,10 @@ public class JsonParser {
         }
     }
 
-    private void writeToValueJson(Data output) {
-        Gson gson = new Gson();
-        String json = gson.toJson(output);
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        int totalTime = getTotalTime(jsonObject);
-        jsonObject.remove(VALUE_KEY);
-        jsonObject.addProperty(VALUE_KEY, totalTime);
-        writePerformanceJson(jsonObject.toString());
+    private void writeToValueJson(Data output) {;
+        int totalTime = getTotalTime(output);
+        output.value = totalTime;
+        writePerformanceJson(output.toString());
     }
 
     private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String stackTrace) {
@@ -109,12 +108,15 @@ public class JsonParser {
     }
 
     private List<StackTraceItem> populateStackTraceItems(String jsonInput) {
-        Gson gson = new Gson();
-        JsonArray jsonArr = gson.fromJson(jsonInput, JsonArray.class);
-        List<StackTraceItem> stackTraceItems = new ArrayList<>();
-        for (JsonElement jsonElement : jsonArr) {
-            StackTraceItem person = gson.fromJson(jsonElement, StackTraceItem.class);
-            stackTraceItems.add(person);
+        Object jsonObj = io.ballerina.runtime.internal.JsonParser.parse(jsonInput, TYPE_JSON);
+        BArray arr = (BArray) jsonObj;
+        ArrayList<StackTraceItem> stackTraceItems = new ArrayList<>();
+        for (int i = 0; i < arr.getLength(); i++) {
+            Map<BmpStringValue, Object> arrItem = (Map<BmpStringValue, Object>) arr.get(i);
+            stackTraceItems.add(new StackTraceItem(Integer.parseInt(arrItem.get(new BmpStringValue("time")).toString()),
+                    List.of(JsonInternalUtils.convertJSONToBArray(arrItem.get(new BmpStringValue("stackTrace")),
+                            new BArrayType(TYPE_STRING)).getStringArray())));
+
         }
         return stackTraceItems;
     }
@@ -128,6 +130,7 @@ public class JsonParser {
 
         int time;
         List<String> stackTrace;
+
 
         public StackTraceItem(int time, List<String> stackTrace) {
             this.time = time;
@@ -151,5 +154,20 @@ public class JsonParser {
             this.value = value;
             this.children = children;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder text = new StringBuilder();
+            text.append("{").append("\"name\":\"").append(this.name).append("\",\"value\":").append(this.value).append(",\"children\":[");
+            for(Data child : children) {
+                text.append(child.toString()).append(",");
+            }
+            if (!children.isEmpty()) {
+                text.deleteCharAt(text.length() - 1);
+            }
+            text.append("]}");
+            return text.toString();
+        }
+
     }
 }
