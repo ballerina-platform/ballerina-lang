@@ -723,6 +723,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamePatternChainingNode);
     }
 
+    public void visit(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        visitSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public void visit(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        visitSyntaxNode(xMLStepMethodCallExtendNode);
+    }
+
     public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         visitSyntaxNode(xMLAtomicNamePatternNode);
     }

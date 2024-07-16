@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,7 +20,7 @@ package io.ballerina.compiler.internal.parser.tree;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,70 +28,68 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.10.0
  */
-public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
-    public final STNode expression;
-    public final STNode xmlStepStart;
-    public final STNode xmlStepExtend;
+public class STXMLStepMethodCallExtendNode extends STNode {
+    public final STNode dotToken;
+    public final STNode methodName;
+    public final STNode parenthesizedArgList;
 
-    STXMLStepExpressionNode(
-            STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+    STXMLStepMethodCallExtendNode(
+            STNode dotToken,
+            STNode methodName,
+            STNode parenthesizedArgList) {
         this(
-                expression,
-                xmlStepStart,
-                xmlStepExtend,
+                dotToken,
+                methodName,
+                parenthesizedArgList,
                 Collections.emptyList());
     }
 
-    STXMLStepExpressionNode(
-            STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend,
+    STXMLStepMethodCallExtendNode(
+            STNode dotToken,
+            STNode methodName,
+            STNode parenthesizedArgList,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.XML_STEP_EXPRESSION, diagnostics);
-        this.expression = expression;
-        this.xmlStepStart = xmlStepStart;
-        this.xmlStepExtend = xmlStepExtend;
+        super(SyntaxKind.XML_STEP_METHOD_CALL_EXTEND, diagnostics);
+        this.dotToken = dotToken;
+        this.methodName = methodName;
+        this.parenthesizedArgList = parenthesizedArgList;
 
         addChildren(
-                expression,
-                xmlStepStart,
-                xmlStepExtend);
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
-    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STXMLStepExpressionNode(
-                this.expression,
-                this.xmlStepStart,
-                this.xmlStepExtend,
+        return new STXMLStepMethodCallExtendNode(
+                this.dotToken,
+                this.methodName,
+                this.parenthesizedArgList,
                 diagnostics);
     }
 
-    public STXMLStepExpressionNode modify(
-            STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+    public STXMLStepMethodCallExtendNode modify(
+            STNode dotToken,
+            STNode methodName,
+            STNode parenthesizedArgList) {
         if (checkForReferenceEquality(
-                expression,
-                xmlStepStart,
-                xmlStepExtend)) {
+                dotToken,
+                methodName,
+                parenthesizedArgList)) {
             return this;
         }
 
-        return new STXMLStepExpressionNode(
-                expression,
-                xmlStepStart,
-                xmlStepExtend,
+        return new STXMLStepMethodCallExtendNode(
+                dotToken,
+                methodName,
+                parenthesizedArgList,
                 diagnostics);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLStepExpressionNode(this, position, parent);
+        return new XMLStepMethodCallExtendNode(this, position, parent);
     }
 
     @Override

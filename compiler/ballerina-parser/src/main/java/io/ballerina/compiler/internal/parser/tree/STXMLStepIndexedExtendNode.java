@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,7 +20,7 @@ package io.ballerina.compiler.internal.parser.tree;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,70 +28,68 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.10.0
  */
-public class STXMLStepExpressionNode extends STXMLNavigateExpressionNode {
+public class STXMLStepIndexedExtendNode extends STNode {
+    public final STNode openBracket;
     public final STNode expression;
-    public final STNode xmlStepStart;
-    public final STNode xmlStepExtend;
+    public final STNode closeBracket;
 
-    STXMLStepExpressionNode(
+    STXMLStepIndexedExtendNode(
+            STNode openBracket,
             STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+            STNode closeBracket) {
         this(
+                openBracket,
                 expression,
-                xmlStepStart,
-                xmlStepExtend,
+                closeBracket,
                 Collections.emptyList());
     }
 
-    STXMLStepExpressionNode(
+    STXMLStepIndexedExtendNode(
+            STNode openBracket,
             STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend,
+            STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.XML_STEP_EXPRESSION, diagnostics);
+        super(SyntaxKind.XML_STEP_INDEXED_EXTEND, diagnostics);
+        this.openBracket = openBracket;
         this.expression = expression;
-        this.xmlStepStart = xmlStepStart;
-        this.xmlStepExtend = xmlStepExtend;
+        this.closeBracket = closeBracket;
 
         addChildren(
+                openBracket,
                 expression,
-                xmlStepStart,
-                xmlStepExtend);
+                closeBracket);
     }
 
-    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STXMLStepExpressionNode(
+        return new STXMLStepIndexedExtendNode(
+                this.openBracket,
                 this.expression,
-                this.xmlStepStart,
-                this.xmlStepExtend,
+                this.closeBracket,
                 diagnostics);
     }
 
-    public STXMLStepExpressionNode modify(
+    public STXMLStepIndexedExtendNode modify(
+            STNode openBracket,
             STNode expression,
-            STNode xmlStepStart,
-            STNode xmlStepExtend) {
+            STNode closeBracket) {
         if (checkForReferenceEquality(
+                openBracket,
                 expression,
-                xmlStepStart,
-                xmlStepExtend)) {
+                closeBracket)) {
             return this;
         }
 
-        return new STXMLStepExpressionNode(
+        return new STXMLStepIndexedExtendNode(
+                openBracket,
                 expression,
-                xmlStepStart,
-                xmlStepExtend,
+                closeBracket,
                 diagnostics);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XMLStepExpressionNode(this, position, parent);
+        return new XMLStepIndexedExtendNode(this, position, parent);
     }
 
     @Override

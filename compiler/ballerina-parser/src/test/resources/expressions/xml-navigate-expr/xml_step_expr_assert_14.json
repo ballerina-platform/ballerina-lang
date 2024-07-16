@@ -1,99 +1,89 @@
 {
-  "kind": "XML_FILTER_EXPRESSION",
+  "kind": "XML_STEP_EXPRESSION",
   "children": [
     {
-      "kind": "INDEXED_EXPRESSION",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "children": [
         {
-          "kind": "INDEXED_EXPRESSION",
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "children": [
+        {
+          "kind": "SLASH_LT_TOKEN"
+        },
+        {
+          "kind": "LIST",
           "children": [
             {
-              "kind": "XML_STEP_EXPRESSION",
+              "kind": "XML_ATOMIC_NAME_PATTERN",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                },
+                {
+                  "kind": "COLON_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "GT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "XML_STEP_INDEXED_EXTEND",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "BINARY_EXPRESSION",
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "value": "d"
                     }
                   ]
                 },
                 {
-                  "kind": "XML_NAME_PATTERN_CHAIN",
-                  "children": [
-                    {
-                      "kind": "SLASH_LT_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "XML_ATOMIC_NAME_PATTERN",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
-                            },
-                            {
-                              "kind": "COLON_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "GT_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "LIST",
-              "children": [
+                  "kind": "GT_TOKEN"
+                },
                 {
-                  "kind": "BINARY_EXPRESSION",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "d"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "GT_TOKEN"
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "e"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "e"
                     }
                   ]
                 }
@@ -111,11 +101,11 @@
           ]
         },
         {
-          "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-          "kind": "LIST",
+          "kind": "XML_STEP_INDEXED_EXTEND",
           "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
@@ -124,36 +114,36 @@
                   "value": "f"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "CLOSE_BRACKET_TOKEN",
-          "trailingMinutiae": [
+            },
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "kind": "XML_NAME_PATTERN_CHAIN",
-      "children": [
-        {
-          "kind": "DOT_LT_TOKEN"
         },
         {
-          "kind": "LIST",
+          "kind": "XML_NAME_PATTERN_CHAIN",
           "children": [
             {
-              "kind": "ASTERISK_TOKEN"
+              "kind": "DOT_LT_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ASTERISK_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "GT_TOKEN"
             }
           ]
-        },
-        {
-          "kind": "GT_TOKEN"
         }
       ]
     }
