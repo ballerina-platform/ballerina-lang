@@ -1698,7 +1698,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private boolean isInSamePackage(BSymbol objectTypeSymbol, PackageID packageID) {
-        return objectTypeSymbol.pkgID.equals(packageID);
+        return objectTypeSymbol.pkgID.equals(packageID) && !packageID.isTestPkg;
     }
 
     @Override
