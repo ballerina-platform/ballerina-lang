@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 
@@ -62,10 +64,10 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null,
-                        Collections.emptyList(), Collections.emptyList());
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null, null, null);
+                null, null, null, null,
+                null, null, Collections.emptyList(), Collections.emptyList());
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
@@ -83,9 +85,21 @@ public class ProjectFiles {
         DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
         DocumentData balToolToml = loadDocument(packageDirPath.resolve(ProjectConstants.BAL_TOOL_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
-
+        List<Path> resources = loadResources(packageDirPath);
+        // load generated resources
+        List<Path> generatedResources = loadResources(packageDirPath.resolve(GENERATED_MODULES_ROOT));
+        if (!generatedResources.isEmpty()) {
+            resources.addAll(generatedResources);
+        }
+        List<Path> testResources = loadResources(packageDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
+        // load generated test resources
+        List<Path> generatedTestResources = loadResources(packageDirPath.resolve(
+                GENERATED_MODULES_ROOT).resolve(TEST_DIR_NAME));
+        if (!generatedTestResources.isEmpty()) {
+            testResources.addAll(generatedResources);
+        }
         return PackageData.from(packageDirPath, defaultModule, otherModules, ballerinaToml, dependenciesToml,
-                cloudToml, compilerPluginToml, balToolToml, packageMd);
+                cloudToml, compilerPluginToml, balToolToml, packageMd, resources, testResources);
     }
 
     private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {
@@ -119,7 +133,7 @@ public class ProjectFiles {
 
     private static boolean isNewModule(Path packageDirPath, Path path) {
         String dirName = path.toFile().getName();
-        if (dirName.equals(TEST_DIR_NAME)) {
+        if (dirName.equals(TEST_DIR_NAME) || dirName.equals(RESOURCE_DIR_NAME)) {
             return false;
         }
         Path modulePath = packageDirPath.resolve(ProjectConstants.MODULES_ROOT).resolve(dirName);
@@ -187,11 +201,8 @@ public class ProjectFiles {
             }
         }
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        List<Path> resources = loadResources(moduleDirPath);
-        List<Path> testResources = loadResources(moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
-                resources, testResources);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
 
     private static void verifyDuplicateNames(List<DocumentData> srcDocs, List<DocumentData> generatedDocs,
@@ -213,14 +224,13 @@ public class ProjectFiles {
         }
     }
 
-    public static List<Path> loadResources(Path modulePath) {
-        Path resourcesPath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+    public static List<Path> loadResources(Path packagePath) {
+        Path resourcesPath = packagePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         if (Files.notExists(resourcesPath)) {
             return Collections.emptyList();
         }
-
         try {
-            checkReadPermission(modulePath);
+            checkReadPermission(packagePath);
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }

@@ -311,17 +311,35 @@ public abstract class BalaWriter {
     }
 
     private void addPackageSource(ZipOutputStream balaOutputStream) throws IOException {
+        List<String> resourceFiles = new ArrayList<>();
+        // copy resources
+        for (DocumentId documentId : packageContext.resourceIds()) {
+            String resourceFile = this.packageContext.resourceContext(documentId).name();
+            if (!resourceFiles.contains(resourceFile)) {
+                Path resourcePath = Paths.get(RESOURCE_DIR_NAME).resolve(resourceFile);
+                putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(
+                        this.packageContext.resourceContext(documentId).content()));
+                resourceFiles.add(resourceFile);
+            }
+        }
+        // copy resources from `target/resources`
+        Map<String, byte[]> cachedResources = ProjectUtils.getAllCachedResources(
+                packageContext.project().targetDir());
+        cachedResources.forEach(
+                (path, content) ->
+                {
+                    try {
+                        putZipEntry(balaOutputStream, Paths.get(path), new ByteArrayInputStream(
+                                content));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+
         // add module sources
         for (ModuleId moduleId : this.packageContext.moduleIds()) {
             Module module = this.packageContext.project().currentPackage().module(moduleId);
-
-            // copy resources
-            for (DocumentId documentId : module.resourceIds()) {
-                Resource resource = module.resource(documentId);
-                Path resourcePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(module.moduleName().toString())
-                        .resolve(RESOURCE_DIR_NAME).resolve(resource.name());
-                putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(resource.content()));
-            }
 
             // Generate empty bal file for default module in tools
             if (module.isDefaultModule() && packageContext.balToolTomlContext().isPresent() &&

@@ -1,0 +1,5 @@
+[plugin]
+class = "io.context.plugins.CompilerPluginWithResourceAddition"
+
+[[dependency]]
+path = "/Users/wso2/GitRepos/ballerina-lang/project-api/test-artifacts/pkg-provided-compiler-plugin-with-resource-addition/build/libs/pkg-provided-compiler-plugin-with-resource-addition-1.0.0.jar"

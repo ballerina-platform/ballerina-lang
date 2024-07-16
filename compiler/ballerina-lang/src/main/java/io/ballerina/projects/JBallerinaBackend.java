@@ -78,6 +78,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -95,6 +96,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    public static final String JAR_NAME_SEPARATOR = "-";
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -188,6 +190,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.cleanBLangPackage();
             }
         }
+
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
@@ -346,6 +349,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return codeGeneratedResourcesLibrary(packageId, PlatformLibraryScope.DEFAULT);
+    }
+
+    @Override
     public PlatformLibrary runtimeLibrary() {
         return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
     }
@@ -370,10 +378,14 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, new HashMap<>());
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+        if (moduleContext.project().currentPackage().packageContext() == packageContext &&
+                moduleContext.isDefaultModule()) {
+            cacheResources(compilationCache, moduleContext.project().buildOptions().skipTests());
         }
         // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
@@ -388,7 +400,7 @@ public class JBallerinaBackend extends CompilerBackend {
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
                 isRemoteMgtEnabled);
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, new HashMap<>());
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -750,32 +762,6 @@ public class JBallerinaBackend extends CompilerBackend {
         return Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
     }
 
-    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = new HashMap<>();
-        for (DocumentId documentId : moduleContext.resourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org().toString() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
-    }
-
-    private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = getResources(moduleContext);
-        for (DocumentId documentId : moduleContext.testResourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
-    }
-
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
         PlatformLibraryScope scope;
         String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);
@@ -948,6 +934,70 @@ public class JBallerinaBackend extends CompilerBackend {
                     DiagnosticSeverity.WARNING);
             emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
                     this.packageContext().descriptor().name().toString()));
+        }
+    }
+
+    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
+        Package pkg = packageCache.getPackageOrThrow(packageId);
+        CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(
+                CompilationCache.class);
+        return compilationCache.getPlatformSpecificLibrary(this,
+                                RESOURCE_DIR_NAME)
+                .map(path -> new JarLibrary(path, scope))
+                .orElse(null);
+    }
+
+    private Map<String, byte[]> getResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : packageContext.resourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private Map<String, byte[]> getAllResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = getResources(packageContext);
+        for (DocumentId documentId : packageContext.testResourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private void cacheResources(CompilationCache compilationCache, boolean skipTests) {
+        Map<String, byte[]> resources;
+        if (skipTests) {
+            resources = new HashMap<>(getResources(packageContext));
+        } else {
+            resources = new HashMap<>(getAllResources(packageContext));
+        }
+        pkgResolution.allDependencies()
+                .stream()
+                .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
+                .map(pkgDep -> pkgDep.packageInstance().packageContext())
+                .forEach(pkgContext -> {
+                    resources.putAll(getResources(pkgContext));
+                });
+        // Add generated resources
+        Map<String, byte[]> cachedResources = ProjectUtils.getAllCachedResources(
+                    packageContext.project().targetDir());
+        resources.putAll(cachedResources);
+        if (!resources.isEmpty()) {
+            try {
+                String resourceJarName =
+                        RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
+                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                try (ByteArrayOutputStream byteStream = JarWriter.writeResources(resourceJar, resources)) {
+                    compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache resources jar, package: " +
+                        packageContext.packageName(), e);
+            }
         }
     }
 }
