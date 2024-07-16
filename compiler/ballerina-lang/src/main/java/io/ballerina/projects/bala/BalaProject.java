@@ -33,6 +33,7 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -138,5 +139,10 @@ public class BalaProject extends Project {
     @Override
     public Path targetDir() {
         throw new UnsupportedOperationException("target directory is not supported for BalaProject");
+    }
+
+    @Override
+    public Path generatedResourcesDir() {
+        throw new UnsupportedOperationException("generated resources directory is not supported for BalaProject");
     }
 }

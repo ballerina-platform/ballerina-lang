@@ -53,9 +53,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -65,6 +68,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
+import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
 
 /**
  * {@code BalaWriter} writes a package to bala format.
@@ -129,6 +133,7 @@ public abstract class BalaWriter {
                 this.packageContext.project().sourceRoot(),
                 this.packageContext.packageName().toString());
         addPackageSource(balaOutputStream);
+        addResources(balaOutputStream);
         addIncludes(balaOutputStream);
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
@@ -315,14 +320,6 @@ public abstract class BalaWriter {
         for (ModuleId moduleId : this.packageContext.moduleIds()) {
             Module module = this.packageContext.project().currentPackage().module(moduleId);
 
-            // copy resources
-            for (DocumentId documentId : module.resourceIds()) {
-                Resource resource = module.resource(documentId);
-                Path resourcePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(module.moduleName().toString())
-                        .resolve(RESOURCE_DIR_NAME).resolve(resource.name());
-                putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(resource.content()));
-            }
-
             // Generate empty bal file for default module in tools
             if (module.isDefaultModule() && packageContext.balToolTomlContext().isPresent() &&
                     module.documentIds().isEmpty()) {
@@ -349,6 +346,37 @@ public abstract class BalaWriter {
                     putZipEntry(balaOutputStream, documentPath,
                             new ByteArrayInputStream(new String(documentContent).getBytes(StandardCharsets.UTF_8)));
                 }
+            }
+        }
+    }
+
+    private void addResources(ZipOutputStream balaOutputStream) throws IOException {
+        Set<String> resourceFiles = new HashSet<>();
+
+        // copy resources
+        for (DocumentId documentId : packageContext.resourceIds()) {
+            String resourceFile = packageContext.resourceContext(documentId).name();
+            Path resourcePath = Paths.get(RESOURCE_DIR_NAME).resolve(resourceFile);
+            if (resourceFiles.add(resourcePath.toString())) {
+                putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(
+                        packageContext.resourceContext(documentId).content()));
+            }
+        }
+
+        // copy resources from `target/resources`
+        if (packageContext.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            Map<String, byte[]> cachedResources = ProjectUtils.getAllGeneratedResources(
+                    packageContext.project().generatedResourcesDir());
+            List<String> conflictingResourceFiles = cachedResources.keySet().stream()
+                    .filter(path -> !resourceFiles.add(path))
+                    .collect(Collectors.toList());
+
+            if (!conflictingResourceFiles.isEmpty()) {
+                throw new ProjectException(getConflictingResourcesMsg(packageContext.descriptor().toString(), conflictingResourceFiles));
+            }
+
+            for (Map.Entry<String, byte[]> entry : cachedResources.entrySet()) {
+                putZipEntry(balaOutputStream, Paths.get(entry.getKey()), new ByteArrayInputStream(entry.getValue()));
             }
         }
     }

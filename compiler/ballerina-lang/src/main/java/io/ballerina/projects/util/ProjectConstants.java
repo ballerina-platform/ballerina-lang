@@ -113,7 +113,7 @@ public class ProjectConstants {
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
     public static final String TEST_UBER_JAR_SUFFIX = "-testable";
-    public static final String FAT_JAR_ROOT_DIR = "/";
+    public static final String DIR_PATH_SEPARATOR = "/";
     public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
     public static final String EXCLUDED_CLASSES_FILE = "excludedClasses.txt";
 
