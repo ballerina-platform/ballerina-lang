@@ -7095,10 +7095,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
             } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
                 XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
-                FunctionCallExpressionNode funcCallExpr = xmlStepMethodCallExtendNode.functionCallExpression();
-                BLangInvocation bLangInvocation =
-                        createBLangInvocation(funcCallExpr.functionName(), funcCallExpr.arguments(),
-                                funcCallExpr.location(), false);
+                SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
+                BLangInvocation bLangInvocation = createBLangInvocation(methodName,
+                        xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(), false);
                 bLangInvocation.expr = curExpr == null ? expr : curExpr;
                 curExpr = new BLangXMLMethodCallStepExtend(bLangInvocation);
             } else {
