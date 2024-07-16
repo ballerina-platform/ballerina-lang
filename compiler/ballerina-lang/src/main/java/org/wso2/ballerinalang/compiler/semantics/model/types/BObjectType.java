@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -101,47 +102,58 @@ public class BObjectType extends BStructureType implements ObjectType {
             return od.getSemType(env);
         }
         od = new ObjectDefinition();
-        // FIXME:
+        // I don't think this is actually possible
         assert !hasTypeHoles() : "unimplemented";
-        List<Member> members = new ArrayList<>();
-        Set<String> memberNames = new HashSet<>();
-
+        List<Member> members = new ArrayList<>(fields.size());
         ObjectQualifiers qualifiers = getObjectQualifiers();
+        Set<String> memberNames = new HashSet<>();
         for (BField field : fields.values()) {
-            String name = field.name.value;
-            if (memberNames.contains(name)) {
-                continue;
-            }
-            memberNames.add(name);
-            Member.Visibility visibility = Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC) ?
-                    Member.Visibility.Public : Member.Visibility.Private;
-            SemType type = field.type.semType();
-            if (type == null) {
-                type = PredefinedType.NEVER;
-            }
-            if (qualifiers.readonly()) {
-                type = Core.intersect(type, PredefinedType.VAL_READONLY);
-            }
-            members.add(new Member(name, type, Member.Kind.Field, visibility, true));
+            Optional<Member> member = createMember(field, qualifiers.readonly(), memberNames);
+            member.ifPresent(members::add);
         }
 
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
         for (BAttachedFunction fun : objectSymbol.attachedFuncs) {
-            String name = fun.funcName.value;
-            if (memberNames.contains(name)) {
-                continue;
-            }
-            memberNames.add(name);
-            Member.Visibility visibility = Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC) ?
-                    Member.Visibility.Public : Member.Visibility.Private;
-            SemType type = fun.type.semType();
-            assert type != null : "function type is fully implemented";
-            if (Core.isNever(type)) {
-                throw new IllegalArgumentException("method is never");
-            }
-            members.add(new Member(name, type, Member.Kind.Method, visibility, true));
+            Optional<Member> member = createMember(fun, memberNames);
+            member.ifPresent(members::add);
         }
         return od.define(env, qualifiers, members);
+    }
+
+    private static Optional<Member> createMember(BAttachedFunction func, Set<String> visitedFields) {
+        String name = func.funcName.value;
+        if (visitedFields.contains(name)) {
+            return Optional.empty();
+        }
+        visitedFields.add(name);
+        Member.Visibility visibility = Symbols.isFlagOn(func.symbol.flags, Flags.PUBLIC) ?
+                Member.Visibility.Public : Member.Visibility.Private;
+        SemType type = func.type.semType();
+        assert type != null : "function type is fully implemented";
+        assert !Core.isNever(type) : "method can't be never";
+        return Optional.of(new Member(name, type, Member.Kind.Method, visibility, true));
+    }
+
+    private static Optional<Member> createMember(BField field, boolean readonlyObject, Set<String> visitedFields) {
+        String name = field.name.value;
+        if (visitedFields.contains(name)) {
+            return Optional.empty();
+        }
+        visitedFields.add(name);
+        Member.Visibility visibility = Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC) ?
+                Member.Visibility.Public : Member.Visibility.Private;
+        SemType type = field.type.semType();
+        if (type == null) {
+            type = PredefinedType.NEVER;
+        }
+        boolean immutableField;
+        if (readonlyObject || Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+            type = Core.intersect(type, PredefinedType.VAL_READONLY);
+            immutableField = true;
+        } else {
+            immutableField = false;
+        }
+        return Optional.of(new Member(name, type, Member.Kind.Field, visibility, immutableField));
     }
 
     private ObjectQualifiers getObjectQualifiers() {
