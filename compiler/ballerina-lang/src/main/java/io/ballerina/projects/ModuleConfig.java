@@ -34,25 +34,19 @@ public class ModuleConfig {
     private final List<DocumentConfig> testSrcDocs;
     private final List<ModuleDescriptor> dependencies;
     private final DocumentConfig moduleMd;
-    private final List<ResourceConfig> resources;
-    private final List<ResourceConfig> testResources;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs,
                          DocumentConfig moduleMd,
-                         List<ModuleDescriptor> dependencies,
-                         List<ResourceConfig> resources,
-                         List<ResourceConfig> testResources) {
+                         List<ModuleDescriptor> dependencies) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
         this.dependencies = dependencies;
         this.moduleMd = moduleMd;
-        this.resources = resources;
-        this.testResources = testResources;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -61,8 +55,7 @@ public class ModuleConfig {
                                     List<DocumentConfig> testSrcDocs,
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
-                Collections.emptyList(), Collections.emptyList());
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -74,7 +67,7 @@ public class ModuleConfig {
                                     List<ResourceConfig> resources,
                                     List<ResourceConfig> testResources) {
         return new ModuleConfig(
-                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources, testResources);
+                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     public ModuleId moduleId() {
@@ -105,11 +98,13 @@ public class ModuleConfig {
         return Optional.ofNullable(this.moduleMd);
     }
 
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> resources() {
-        return resources;
+        return null;
     }
 
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> testResources() {
-        return testResources;
+        return null;
     }
 }
