@@ -116,6 +116,17 @@ public class PackCommand implements BLauncherCmd {
     }
 
     PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                boolean skipCopyLibsFromDist, Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.offline = true;
+    }
+
+    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;

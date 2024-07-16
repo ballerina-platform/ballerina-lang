@@ -72,6 +72,16 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                 Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.offline = true;
+    }
+
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean dumpBuildTime) {
         this.projectPath = projectPath;
         this.outStream = outStream;
