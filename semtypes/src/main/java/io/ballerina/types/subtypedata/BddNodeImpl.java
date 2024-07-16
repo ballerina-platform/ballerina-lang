@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,7 @@ import io.ballerina.types.Bdd;
  * @param left   path that include this node's atom positively
  * @param middle path that doesn't include this node's atom
  * @param right  path that include this node's atom negatively
- * @since 2201.8.0
+ * @since 2201.10.0
  */
 record BddNodeImpl(Atom atom, Bdd left, Bdd middle, Bdd right) implements BddNode {
 

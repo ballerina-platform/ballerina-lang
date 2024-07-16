@@ -231,8 +231,18 @@ public class Env {
         }
     }
 
+    // TODO: instead of compact index we should analyze the environment before serialization, but a naive bumping index
+    //   in the BIRTypeWriter created incorrect indexes in the BIR. This is a temporary workaround.
     private CompactionData compactionData = null;
 
+    /**
+     * During type checking we create recursive type atoms that are not parts of the actual ballerina module which will
+     * not marshalled. This leaves "holes" in the rec atom lists when we unmarshall the BIR, which will then get
+     * propagated from one module to next. This method will return a new index corrected for such holes.
+     *
+     * @param recAtom atom for which you need the corrected index
+     * @return index corrected for "holes" in rec atom list
+     */
     public synchronized int compactRecIndex(RecAtom recAtom) {
         if (compactionData == null || !compactionData.state().equals(EnvState.from(this))) {
             compactionData = compaction();
@@ -276,8 +286,8 @@ public class Env {
         }
     }
 
-    record CompactionData(EnvState state, Map<Integer, Integer> listMap, Map<Integer, Integer> mapMap,
-                          Map<Integer, Integer> funcMap) {
+    private record CompactionData(EnvState state, Map<Integer, Integer> listMap, Map<Integer, Integer> mapMap,
+                                  Map<Integer, Integer> funcMap) {
 
     }
 }

@@ -22,8 +22,7 @@ import java.util.Objects;
 
 /**
  * @param all             all & (1 << c) is non-zero iff this type contains all the basic type with code c
- * @param some            some & (1 << c) is non-zero iff this type contains some but not all the basic type with code
- *                        c
+ * @param some            some & (1 << c) is non-zero iff this type contains some but not all the basic type with code c
  * @param subtypeDataList There is one member of subtypes for each bit set in some. Ordered in increasing order of
  *                        BasicTypeCode
  */
