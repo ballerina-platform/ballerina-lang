@@ -160,7 +160,7 @@ public class JsonParser {
             StringBuilder text = new StringBuilder();
             text.append("{").append("\"name\":\"").append(this.name).append("\",\"value\":").
                     append(this.value).append(",\"children\":[");
-            for(Data child : children) {
+            for (Data child : children) {
                 text.append(child.toString()).append(",");
             }
             if (!children.isEmpty()) {
