@@ -1699,7 +1699,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private boolean isInSamePackage(BSymbol objectTypeSymbol, PackageID packageID) {
-        return objectTypeSymbol.pkgID.equals(packageID) && !packageID.isTestPkg;
+        return objectTypeSymbol.pkgID.equals(packageID);
+    }
+
+    private boolean isImportedPackage(BSymbol objectTypeSymbol, PackageID packageID) {
+        return isInSamePackage(objectTypeSymbol, packageID) && !packageID.isTestPkg;
     }
 
     @Override
@@ -1936,7 +1940,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.globalVarMap.put(symbol, globalVarDcl);
         }
 
-        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
+        if (!isImportedPackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
             this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
         }
         return globalVarDcl;
