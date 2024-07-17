@@ -1702,10 +1702,6 @@ public class BIRGen extends BLangNodeVisitor {
         return objectTypeSymbol.pkgID.equals(packageID);
     }
 
-    private boolean isImportedPackage(BSymbol objectTypeSymbol, PackageID packageID) {
-        return isInSamePackage(objectTypeSymbol, packageID) && !packageID.isTestPkg;
-    }
-
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
     }
@@ -1940,7 +1936,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.globalVarMap.put(symbol, globalVarDcl);
         }
 
-        if (!isImportedPackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
+        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID) ||
+            env.enclPkg.packageID.isTestPkg) {
             this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
         }
         return globalVarDcl;
