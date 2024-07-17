@@ -116,7 +116,6 @@ public class JsonParser {
             stackTraceItems.add(new StackTraceItem(Integer.parseInt(arrItem.get(new BmpStringValue("time")).toString()),
                     List.of(JsonInternalUtils.convertJSONToBArray(arrItem.get(new BmpStringValue("stackTrace")),
                             new BArrayType(TYPE_STRING)).getStringArray())));
-
         }
         return stackTraceItems;
     }
@@ -130,7 +129,6 @@ public class JsonParser {
 
         int time;
         List<String> stackTrace;
-
 
         public StackTraceItem(int time, List<String> stackTrace) {
             this.time = time;
@@ -169,6 +167,5 @@ public class JsonParser {
             text.append("]}");
             return text.toString();
         }
-
     }
 }
