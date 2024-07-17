@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
@@ -70,6 +71,7 @@ public final class Builder {
             valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
     public static final SemType MAPPING = from(BT_MAPPING);
+    public static final SemType FUNCTION = from(BT_FUNCTION);
     static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
     static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
             neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
@@ -347,6 +349,10 @@ public final class Builder {
 
     public static SemType mappingType() {
         return MAPPING;
+    }
+
+    public static SemType functionType() {
+        return FUNCTION;
     }
 
     public static SemType anyDataType(Context context) {

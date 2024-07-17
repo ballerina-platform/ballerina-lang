@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.types.semtype;
  *
  * @since 2201.10.0
  */
-public class RecAtom implements Atom {
+public final class RecAtom implements Atom {
 
     public final int index;
     private static final int BDD_REC_ATOM_READONLY = 0;
