@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.FPValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
@@ -70,6 +72,7 @@ public final class Builder {
             valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
     public static final SemType MAPPING = from(BT_MAPPING);
+    public static final SemType FUNCTION = from(BT_FUNCTION);
     static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
     static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
             neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
@@ -299,6 +302,9 @@ public final class Builder {
             return typeOfArray(cx, arrayValue);
         } else if (object instanceof BMap mapValue) {
             return typeOfMap(cx, mapValue);
+        } else if (object instanceof FPValue fpValue) {
+            // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
+            return Optional.of(from(cx, fpValue.getType()));
         }
         return Optional.empty();
     }
@@ -347,6 +353,10 @@ public final class Builder {
 
     public static SemType mappingType() {
         return MAPPING;
+    }
+
+    public static SemType functionType() {
+        return FUNCTION;
     }
 
     public static SemType anyDataType(Context context) {

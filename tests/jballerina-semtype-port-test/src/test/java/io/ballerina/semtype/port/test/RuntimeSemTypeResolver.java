@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.Definition;
+import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import org.ballerinalang.model.elements.Flag;
@@ -38,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -49,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -62,6 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
@@ -122,8 +127,52 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case TUPLE_TYPE_NODE -> resolveTupleTypeDesc(cx, mod, defn, depth, (BLangTupleTypeNode) td);
             case CONSTRAINED_TYPE -> resolveConstrainedTypeDesc(cx, mod, defn, depth, (BLangConstrainedType) td);
             case RECORD_TYPE -> resolveRecordTypeDesc(cx, mod, defn, depth, (BLangRecordTypeNode) td);
+            case FUNCTION_TYPE -> resolveFunctionTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
+    }
+
+    private SemType resolveFunctionTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                            BLangTypeDefinition defn, int depth, BLangFunctionTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
+        if (isFunctionTop(td)) {
+            if (td.flagSet.contains(Flag.ISOLATED) || td.flagSet.contains(Flag.TRANSACTIONAL)) {
+                FunctionDefinition fd = new FunctionDefinition();
+                return fd.define(env, Builder.neverType(), Builder.valType(),
+                        FunctionQualifiers.create(
+                                td.flagSet.contains(Flag.ISOLATED),
+                                td.flagSet.contains(Flag.TRANSACTIONAL)));
+            }
+            return Builder.functionType();
+        }
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType(env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        attachedDefinitions.put(td, fd);
+        List<SemType> params =
+                td.params.stream().map(param -> resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode))
+                        .toList();
+        SemType rest;
+        if (td.restParam == null) {
+            rest = Builder.neverType();
+        } else {
+            BLangArrayType restArrayType = (BLangArrayType) td.restParam.typeNode;
+            rest = resolveTypeDesc(cx, mod, defn, depth + 1, restArrayType.elemtype);
+        }
+        SemType returnType = td.returnTypeNode != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.returnTypeNode) :
+                Builder.nilType();
+        ListDefinition paramListDefinition = new ListDefinition();
+        return fd.define(env,
+                paramListDefinition.defineListTypeWrapped(env, params.toArray(SemType[]::new), params.size(), rest,
+                        CELL_MUT_NONE),
+                returnType,
+                FunctionQualifiers.create(td.flagSet.contains(Flag.ISOLATED), td.flagSet.contains(Flag.TRANSACTIONAL)));
+    }
+
+    private boolean isFunctionTop(BLangFunctionTypeNode td) {
+        return td.params.isEmpty() && td.restParam == null && td.returnTypeNode == null;
     }
 
     private SemType resolveRecordTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,

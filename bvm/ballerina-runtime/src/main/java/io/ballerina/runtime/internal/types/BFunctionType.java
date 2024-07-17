@@ -25,6 +25,15 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.util.Arrays;
 
@@ -33,12 +42,16 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-public class BFunctionType extends BAnnotatableType implements FunctionType {
+public class BFunctionType extends BAnnotatableType implements FunctionType, PartialSemTypeSupplier {
 
     public Type restType;
     public Type retType;
     public long flags;
     public Parameter[] parameters;
+    private static final Env env = Env.getInstance();
+    private static final SemType ISOLATED_TOP = createIsolatedTop(env);
+
+    private FunctionDefinition defn;
 
     public BFunctionType(Module pkg) {
         super("function ()", pkg, Object.class);
@@ -219,5 +232,94 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public long getFlags() {
         return flags;
+    }
+
+    private static SemType createIsolatedTop(Env env) {
+        FunctionDefinition fd = new FunctionDefinition();
+        SemType ret = Builder.valType();
+        // FIXME: add a comment explaining why we are using neverType here
+        return fd.define(env, Builder.neverType(), ret, FunctionQualifiers.create(true, false));
+    }
+
+    @Override
+    synchronized SemType createSemType(Context cx) {
+        if (isFunctionTop()) {
+            SemType topType = getTopType();
+            return Core.union(topType, BTypeConverter.wrapAsPureBType(this));
+        }
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        this.defn = fd;
+        SemType[] params = new SemType[parameters.length];
+        boolean hasBType = false;
+        for (int i = 0; i < parameters.length; i++) {
+            var result = getSemType(cx, parameters[i].type);
+            hasBType = hasBType || result.hasBTypePart;
+            params[i] = result.pureSemTypePart;
+        }
+        SemType rest;
+        if (restType instanceof BArrayType arrayType) {
+            var result = getSemType(cx, arrayType.getElementType());
+            hasBType = hasBType || result.hasBTypePart;
+            rest = result.pureSemTypePart;
+        } else {
+            rest = Builder.neverType();
+        }
+
+        SemType returnType;
+        if (retType != null) {
+            var result = getSemType(cx, retType);
+            hasBType = hasBType || result.hasBTypePart;
+            returnType = result.pureSemTypePart;
+        } else {
+            returnType = Builder.nilType();
+        }
+        ListDefinition paramListDefinition = new ListDefinition();
+        SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
+        SemType result = fd.define(env, paramType, returnType, getQualifiers());
+        if (hasBType) {
+            cx.markProvisionTypeReset();
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(result, bTypePart);
+        }
+        return result;
+    }
+
+    private SemType getTopType() {
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
+            return ISOLATED_TOP;
+        }
+        return Builder.functionType();
+    }
+
+    private record SemTypeResult(boolean hasBTypePart, SemType pureSemTypePart) {
+
+    }
+
+    private FunctionQualifiers getQualifiers() {
+        return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
+                SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
+    }
+
+    // FIXME: consider moving this to builder
+    private static SemTypeResult getSemType(Context cx, Type type) {
+        SemType semType = Builder.from(cx, type);
+        if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
+            return new SemTypeResult(true, Core.intersect(semType, Core.SEMTYPE_TOP));
+        }
+        return new SemTypeResult(false, semType);
+    }
+
+    private boolean isFunctionTop() {
+        return parameters == null && restType == null && retType == null;
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
     }
 }
