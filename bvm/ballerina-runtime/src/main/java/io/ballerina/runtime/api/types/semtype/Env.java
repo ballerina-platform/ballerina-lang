@@ -50,13 +50,18 @@ public final class Env {
     private final ReadWriteLock recMapLock = new ReentrantReadWriteLock();
     private final List<MappingAtomicType> recMappingAtoms;
 
+    private final ReadWriteLock recFunctionLock = new ReentrantReadWriteLock();
+    private final List<FunctionAtomicType> recFunctionAtoms;
+
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private Env() {
         this.atomTable = new HashMap<>();
         this.recListAtoms = new ArrayList<>();
-        recListAtoms.add(LIST_ATOMIC_RO);
         this.recMappingAtoms = new ArrayList<>();
+        this.recFunctionAtoms = new ArrayList<>();
+
+        recListAtoms.add(LIST_ATOMIC_RO);
         recMappingAtoms.add(MAPPING_ATOMIC_RO);
 
         this.cellAtom(Builder.CELL_ATOMIC_VAL);
@@ -178,6 +183,40 @@ public final class Env {
         } finally {
             recMapLock.readLock().unlock();
         }
+    }
+
+    public RecAtom recFunctionAtom() {
+        recFunctionLock.writeLock().lock();
+        try {
+            int result = this.recFunctionAtoms.size();
+            // represents adding () in nballerina
+            this.recFunctionAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        } finally {
+            recFunctionLock.writeLock().unlock();
+        }
+    }
+
+    public void setRecFunctionAtomType(RecAtom rec, FunctionAtomicType atomicType) {
+        recFunctionLock.writeLock().lock();
+        try {
+            this.recFunctionAtoms.set(rec.index(), atomicType);
+        } finally {
+            recFunctionLock.writeLock().unlock();
+        }
+    }
+
+    public FunctionAtomicType getRecFunctionAtomType(RecAtom recAtom) {
+        recFunctionLock.readLock().lock();
+        try {
+            return this.recFunctionAtoms.get(recAtom.index());
+        } finally {
+            recFunctionLock.readLock().unlock();
+        }
+    }
+
+    public Atom functionAtom(FunctionAtomicType atomicType) {
+        return this.typeAtom(atomicType);
     }
 
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {

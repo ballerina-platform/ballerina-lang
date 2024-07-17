@@ -232,16 +232,6 @@ public class SemTypeTest {
                 "table-readonly-t.bal",
                 "table-t.bal"
         ));
-        Predicate<File> functionFilter = createRuntimeFileNameFilter(Set.of(
-                "function2-tv.bal",
-                "function-intersection-tv.bal",
-                "function-param-tv.bal",
-                "function-rec-tv.bal",
-                "function-rest-tv.bal",
-                "function-tv.bal",
-                "function-union-tv.bal",
-                "func-quals-tv.bal"
-        ));
         Predicate<File> xmlFilter = createRuntimeFileNameFilter(Set.of(
                 "xml-complex-ro-tv.bal",
                 "xml-complex-rw-tv.bal",
@@ -259,7 +249,6 @@ public class SemTypeTest {
         ));
         return balFiles.stream()
                 .filter(tableFilter)
-                .filter(functionFilter)
                 .filter(xmlFilter)
                 .filter(objectFilter)
                 .map(File::getAbsolutePath).toArray();
