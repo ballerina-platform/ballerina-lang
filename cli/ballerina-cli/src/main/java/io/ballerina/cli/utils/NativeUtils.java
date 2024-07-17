@@ -600,9 +600,8 @@ public class NativeUtils {
             dependencies.addAll(testSuiteEntry.getValue().getTestExecutionDependencies());
 
         }
-        dependencies = dependencies.stream().distinct().toList();
-        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                .toList();
+        dependencies = dependencies.stream().distinct()
+                .map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x))).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.forEach(classPath::add);

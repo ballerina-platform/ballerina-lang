@@ -182,15 +182,13 @@ public class SignatureInfoModelBuilder {
             return;
         }
 
-        List<Parameter> parameters = new ArrayList<>(parameterSymbols
-                .subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
-                .stream()
-                .map(param -> new Parameter(param, false, false, context))
-                .toList());
-
         Optional<ParameterSymbol> restParam = functionTypeSymbol.flatMap(FunctionTypeSymbol::restParam);
-        parameters = Stream.concat(parameters.stream(),
-                restParam.stream().map(param -> new Parameter(param, true, false, context))).toList();
+        List<Parameter> parameters = Stream.concat(
+                parameterSymbols.subList(skipFirstParam() ? 1 : 0, parameterSymbols.size())
+                    .stream()
+                    .map(param -> new Parameter(param, false, false, context)),
+                restParam.stream().map(parameter -> new Parameter(parameter, false, true, context))
+        ).toList();
 
         // Create a list of param info models
         for (Parameter param : parameters) {

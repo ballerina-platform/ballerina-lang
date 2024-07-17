@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -129,7 +130,7 @@ public class ProjectFiles {
         }
 
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
-            return new ArrayList<>(pathStream
+            return pathStream
                     .filter(path -> !path.equals(modulesDirPath))
                     .filter(Files::isDirectory)
                     .filter(path -> {
@@ -145,7 +146,7 @@ public class ProjectFiles {
                         return true;
                     })
                     .map(ProjectFiles::loadModule)
-                    .toList());
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -172,13 +173,13 @@ public class ProjectFiles {
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
                 verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath, false);
-                srcDocs = Stream.concat(srcDocs.stream(), generatedDocs.stream()).toList();
+                srcDocs.addAll(generatedDocs);
                 if (Files.isDirectory(generatedSourcesRoot.resolve(TEST_DIR_NAME))) {
                     List<DocumentData> generatedTestDocs =
                             loadTestDocuments(generatedSourcesRoot.resolve(TEST_DIR_NAME));
                     verifyDuplicateNames(testSrcDocs, generatedTestDocs, moduleDirPath.toFile().getName(),
                             moduleDirPath, true);
-                    testSrcDocs = Stream.concat(testSrcDocs.stream(), generatedTestDocs.stream()).toList();
+                    testSrcDocs.addAll(generatedTestDocs);
                 }
             }
         }
@@ -240,7 +241,7 @@ public class ProjectFiles {
                     .filter(BAL_EXTENSION_MATCHER::matches)
                     .filter(Files::isRegularFile)
                     .map(ProjectFiles::loadDocument)
-                    .toList();
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new ProjectException(e);
         }
@@ -256,7 +257,7 @@ public class ProjectFiles {
             return pathStream
                     .filter(BAL_EXTENSION_MATCHER::matches)
                     .map(ProjectFiles::loadTestDocument)
-                    .toList();
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new ProjectException(e);
         }
