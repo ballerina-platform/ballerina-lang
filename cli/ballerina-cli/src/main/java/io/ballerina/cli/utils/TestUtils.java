@@ -62,6 +62,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -481,11 +482,10 @@ public final class TestUtils {
      */
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
-        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
+        Set<Path> jars = new HashSet<>(getModuleJarPaths(jBallerinaBackend, currentPackage));
 
         List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver)
-                .stream().filter(dependency -> !jarList.contains(dependency)).toList();
+                .stream().filter(dependency -> !jars.contains(dependency)).toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();

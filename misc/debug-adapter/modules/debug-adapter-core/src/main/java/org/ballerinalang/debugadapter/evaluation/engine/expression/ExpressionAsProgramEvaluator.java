@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
@@ -497,7 +498,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             }
 
             // Replaces original package name with the evaluation package name.
-            List<IdentifierToken> moduleParts = new ArrayList<>(importDeclarationNode.moduleName().stream().toList());
+            List<Node> moduleParts = importDeclarationNode.moduleName().stream().collect(Collectors.toList());
             IdentifierToken packageToken = NodeFactory.createIdentifierToken(EVALUATION_PACKAGE_NAME);
             moduleParts.remove(0);
             moduleParts.add(0, packageToken);

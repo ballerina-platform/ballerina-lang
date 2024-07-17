@@ -70,9 +70,8 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
                 functionSymbols.stream()
                         .filter(symbol -> symbol.typeDescriptor().restParam().isPresent())
                         .filter(symbol -> symbol.getName().isPresent() && !symbol.getName().get().contains("$"))
-                        .filter(symbol -> completionItems
-                                .addAll(populateBallerinaFunctionCompletionItems(symbol, context)))
-                        .toList();
+                        .forEach(symbol -> completionItems
+                                .addAll(populateBallerinaFunctionCompletionItems(symbol, context)));
             }
         }
         this.sort(context, node, completionItems);

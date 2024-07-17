@@ -27,7 +27,7 @@ import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -70,7 +70,7 @@ public final class QNameRefCompletionUtil {
                         || symbol.kind() == SymbolKind.TYPE_DEFINITION
                         || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
-                .toList()).orElseGet(ArrayList::new);
+                .toList()).orElseGet(Collections::emptyList);
     }
 
     /**
@@ -110,7 +110,7 @@ public final class QNameRefCompletionUtil {
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
                 .toList())
-                .orElseGet(ArrayList::new);
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -127,7 +127,7 @@ public final class QNameRefCompletionUtil {
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
                 .toList())
-                .orElseGet(ArrayList::new);
+                .orElseGet(Collections::emptyList);
     }
 
     /**

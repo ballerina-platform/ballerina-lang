@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -303,16 +302,13 @@ public final class ConfigReader {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
-                List<ModuleMemberDeclarationNode> filteredVarNodes = modulePartNode.members().stream()
-                        .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                                node instanceof ModuleVariableDeclarationNode)
-                        .toList();
-                for (ModuleMemberDeclarationNode node : filteredVarNodes) {
-                    if (node.location().lineRange().startLine().line() <= position &&
-                            node.location().lineRange().endLine().line() >= position) {
-                        return node;
-                    }
-                }
+                return modulePartNode.members().stream()
+                    .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                        node instanceof ModuleVariableDeclarationNode &&
+                        node.location().lineRange().startLine().line() <= position &&
+                        node.location().lineRange().endLine().line() >= position)
+                    .findFirst()
+                    .orElse(null);
             }
         }
         return null;
