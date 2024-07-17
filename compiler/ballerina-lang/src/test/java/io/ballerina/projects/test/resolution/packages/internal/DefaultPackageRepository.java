@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Test implementation of the package repository.
@@ -65,7 +66,7 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
                 .stream()
                 .map(PackageDescWrapper::pkgDesc)
                 .map(PackageDescriptor::version)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
