@@ -36,6 +36,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
@@ -108,7 +109,7 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         CompatibleRange compatibilityRange = ProjectUtils.getCompatibleRange(minSemVer, packageLockingMode);
         List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
                 minSemVer, semVers, compatibilityRange);
-        return compatibleVersions.stream().map(PackageVersion::from).toList();
+        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
     }
 
     private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
