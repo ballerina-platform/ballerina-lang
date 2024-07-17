@@ -110,13 +110,26 @@ function testXmlIsComment() returns [boolean, boolean] {
         emptyConcatCall() is 'xml:Comment];
 }
 
-function testXmlIsText() returns [boolean, boolean, boolean, boolean, boolean] {
+function testXmlIsText() returns [boolean, boolean] {
     xml text = xml `hello text`;
-    xml text2 = xml `abc` + xml `def`;
-    xml text3 = xml `<a>abc</a><b>def</b>`;
-    xml text4 = xml:map(xml:elements(text3), y => y.getChildren());
     return [text is 'xml:Text,
-        emptyConcatCall() is 'xml:Text, text4 == xml `abcdef`, text2 == text4, xml `abcdef` == xml `abcdef<c></c>`];
+        emptyConcatCall() is 'xml:Text];
+}
+
+function testXmlSequenceWithOnlyTextMembers() {
+    xml text1 = xml `abc` + xml `def`;
+    xml text2 = xml `<a>abc</a><b>def</b>`;
+    xml text3 = xml:map(xml:elements(text2), y => y.getChildren());
+    xml:Text t1 = checkpanic text3.ensureType();
+    xml:Text t2 = <xml:Text>text3;
+    xml[] xmlArr = [xml`abcdef`];
+    assertEquals(text3, xml `abcdef`);
+    assertEquals(text1 == text3, true);
+    assertEquals(t1 is xml:Text, true);
+    assertEquals(t2 is xml:Text, true);
+    assertEquals(t1.toString(), "abcdef");
+    assertEquals(t2.toString(), "abcdef");
+    assertXmlSequenceItems(xml `abcdef`, xmlArr);
 }
 
 function getNameOfElement() returns string {

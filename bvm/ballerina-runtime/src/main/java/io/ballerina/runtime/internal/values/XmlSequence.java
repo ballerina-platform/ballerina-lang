@@ -76,7 +76,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             this.children = values;
             return;
         }
-        createXmlSequenceByCheckingAdjacentTextItems(values);
+        setSequenceMembersConcatenatingAdjacentTextItems(values);
     }
 
     public XmlSequence(BXml child) {
@@ -633,26 +633,27 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         };
     }
 
-    private void createXmlSequenceByCheckingAdjacentTextItems(List<BXml> values) {
-        this.children = new ArrayList<>();
-        boolean prev = false;
+    private void setSequenceMembersConcatenatingAdjacentTextItems(List<BXml> values) {
+        ArrayList<BXml> members = new ArrayList<>();
+        boolean isPreviousValueText = false;
         StringBuilder text = new StringBuilder();
         for (BXml value : values) {
             if (value.getNodeType() == XmlNodeType.TEXT) {
-                prev = true;
+                isPreviousValueText = true;
                 text.append(value.getTextValue());
             } else {
-                if (prev) {
-                    this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
-                    prev = false;
+                if (isPreviousValueText) {
+                    members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+                    isPreviousValueText = false;
                     text.setLength(0);
                 }
-                this.children.add(value);
+                members.add(value);
             }
         }
         if (!text.isEmpty()) {
-            this.children.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
+            members.add(XmlFactory.createXMLText(StringUtils.fromString(text.toString())));
         }
+        this.children = members;
     }
 
     private Type getSequenceType(Type tempExprType) {
@@ -698,7 +699,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (o instanceof XmlSequence rhsXMLSequence) {
             return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
-        if (o instanceof XmlItem || (o instanceof XmlText && this.isSingleton())) {
+        if (this.isSingleton() && (o instanceof XmlItem || o instanceof XmlText)) {
             return isEqual(this.getChildrenList().get(0), o);
         }
         return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;

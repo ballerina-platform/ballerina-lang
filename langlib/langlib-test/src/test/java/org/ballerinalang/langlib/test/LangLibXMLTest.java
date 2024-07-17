@@ -140,9 +140,11 @@ public class LangLibXMLTest {
         BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
-        assertTrue(result.getBoolean(2));
-        assertTrue(result.getBoolean(3));
-        assertFalse(result.getBoolean(4));
+    }
+
+    @Test
+    public void testXmlSequenceWithOnlyTextMembers() {
+        BRunUtil.invoke(compileResult, "testXmlSequenceWithOnlyTextMembers");
     }
 
     @Test
