@@ -121,8 +121,16 @@ public final class SemTypes {
         return ObjectDefinition.distinct(distinctId);
     }
 
-    public static SemType tableContaining(Env env, SemType mappingType) {
-        return TableSubtype.tableContaining(env, mappingType);
+    public static SemType tableContaining(Env env, SemType tableConstraint) {
+        return TableSubtype.tableContaining(env, tableConstraint);
+    }
+
+    public static SemType tableContainingKeySpecifier(Context cx, SemType tableConstraint, String[] fieldNames) {
+        return TableSubtype.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
+    }
+
+    public static SemType tableContainingKeyConstraint(Context cx, SemType tableConstraint, SemType keyConstraint) {
+        return TableSubtype.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);
     }
 
     public static SemType futureContaining(Env env, SemType constraint) {

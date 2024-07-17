@@ -22,6 +22,7 @@ import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.BddNodeSimple;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -458,10 +459,8 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left().equals(BddAllOrNothing.bddAll())
-                && bddNode.middle().equals(BddAllOrNothing.bddNothing())
-                && bddNode.right().equals(BddAllOrNothing.bddNothing())) {
-            return env.mappingAtomType(bddNode.atom());
+        if (bddNode instanceof BddNodeSimple bddNodeSimple) {
+            return env.mappingAtomType(bddNodeSimple.atom());
         }
         return null;
     }
@@ -509,10 +508,8 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left().equals(BddAllOrNothing.bddAll())
-                && bddNode.middle().equals(BddAllOrNothing.bddNothing())
-                && bddNode.right().equals(BddAllOrNothing.bddNothing())) {
-            return env.listAtomType(bddNode.atom());
+        if (bddNode instanceof BddNodeSimple bddNodeSimple) {
+            return env.listAtomType(bddNodeSimple.atom());
         }
         return null;
     }

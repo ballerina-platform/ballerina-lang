@@ -21,8 +21,6 @@ import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
-import io.ballerina.types.FixedLengthArray;
-import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -69,7 +67,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -649,55 +646,20 @@ public class SemTypeResolver {
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangTableTypeNode td) {
-        SemType memberType = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
+        SemType tableConstraint = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
 
         if (td.tableKeySpecifier != null) {
             List<IdentifierNode> fieldNameIdentifierList = td.tableKeySpecifier.fieldNameIdentifierList;
             String[] fieldNames = fieldNameIdentifierList.stream().map(IdentifierNode::getValue).toArray(String[]::new);
-
-            SemType[] fieldTypes = new SemType[fieldNames.length]; // Need to preserve the original order
-            for (int i = 0; i < fieldNames.length; i++) {
-                SemType key = SemTypes.stringConst(fieldNames[i]);
-                fieldTypes[i] = Core.mappingMemberTypeInnerVal(cx, memberType, key);
-            }
-
-            SemType normalizedKc;
-            if (fieldTypes.length > 1) {
-                ListDefinition ld = new ListDefinition();
-                normalizedKc = ld.tupleTypeWrapped(cx.env, fieldTypes);
-            } else {
-                normalizedKc = fieldTypes[0];
-            }
-
-            Arrays.sort(fieldNames);
-            SemType[] stringConstants = new SemType[fieldNames.length]; // Need to normalize the order
-            for (int i = 0; i < fieldNames.length; i++) {
-                stringConstants[i] = SemTypes.stringConst(fieldNames[i]);
-            }
-
-            SemType normalizedKs = new ListDefinition().tupleTypeWrapped(cx.env, stringConstants);
-            return TableSubtype.tableContaining(cx.env, memberType, normalizedKc, normalizedKs);
+            return TableSubtype.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
         }
 
         if (td.tableKeyTypeConstraint != null) {
             SemType keyConstraint = resolveTypeDesc(cx, mod, defn, depth, td.tableKeyTypeConstraint.keyType);
-            SemType normalizedKc;
-            ListAtomicType lat = Core.listAtomicType(cx, keyConstraint);
-            if (lat != null && PredefinedType.CELL_ATOMIC_UNDEF.equals(Core.cellAtomicType(lat.rest()))) {
-                FixedLengthArray members = lat.members();
-                normalizedKc = switch (members.fixedLength()) {
-                    case 0 -> PredefinedType.VAL;
-                    case 1 -> Core.cellAtomicType(members.initial().get(0)).ty();
-                    default -> keyConstraint;
-                };
-            } else {
-                normalizedKc = keyConstraint;
-            }
-
-            return TableSubtype.tableContaining(cx.env, memberType, normalizedKc, PredefinedType.VAL);
+            return TableSubtype.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);
         }
 
-        return TableSubtype.tableContaining(cx.env, memberType);
+        return TableSubtype.tableContaining(cx.env, tableConstraint);
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,

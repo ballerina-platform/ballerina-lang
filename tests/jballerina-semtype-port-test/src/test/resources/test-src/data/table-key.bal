@@ -13,8 +13,6 @@ type KS3 table<R> key(department);
 
 type KS4 table<R> key(city, department);
 
-// KS4<:KS5
-// KS5<:KS4
 type KS5 table<R> key(department, city);
 
 type KS6 table<R> key(name, department, city);
