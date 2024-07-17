@@ -39,6 +39,7 @@ public final class Context {
     public final Env env;
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
 
     private final List<BType> provisionalTypes = new ArrayList<>();
     private boolean resetProvisionalTypes = false;
@@ -119,6 +120,14 @@ public final class Context {
             return this.env.getRecMappingAtomType(recAtom);
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType();
+        }
+    }
+
+    public FunctionAtomicType functionAtomicType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return this.env.getRecFunctionAtomType(recAtom);
+        } else {
+            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 

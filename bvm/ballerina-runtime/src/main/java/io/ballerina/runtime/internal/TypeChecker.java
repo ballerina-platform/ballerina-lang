@@ -59,6 +59,7 @@ import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
@@ -592,7 +593,8 @@ public final class TypeChecker {
     private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
         Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
         if (sourceSingletonType.isEmpty()) {
-            return Core.containsBasicType(target, B_TYPE_TOP) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
+            return Core.containsBasicType(target, B_TYPE_TOP) && !(sourceValue instanceof FPValue) ?
+                    TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
         }
         SemType singletonType = sourceSingletonType.get();
         return isSubTypeInner(singletonType, target);
