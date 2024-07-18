@@ -28,13 +28,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -284,7 +284,7 @@ public class JvmInstructionGen {
 
     public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
     public static final String ANON_METHOD_DELEGATE = "$anon$method$delegate$";
-    //this anytype is currently set from package gen class
+    //this any type is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
@@ -323,127 +323,65 @@ public class JvmInstructionGen {
         }
 
         switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", ANY_TO_JBYTE, false);
-                break;
-            case JTypeTags.JCHAR:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", ANY_TO_JCHAR, false);
-                break;
-            case JTypeTags.JSHORT:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJShort", ANY_TO_JSTRING, false);
-                break;
-            case JTypeTags.JINT:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJInt", ANY_TO_BYTE, false);
-                break;
-            case JTypeTags.JLONG:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", ANY_TO_JLONG, false);
-                break;
-            case JTypeTags.JFLOAT:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJFloat", ANY_TO_JFLOAT, false);
-                break;
-            case JTypeTags.JDOUBLE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", ANY_TO_JDOUBLE, false);
-                break;
-            case JTypeTags.JBOOLEAN:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", ANY_TO_JBOOLEAN,
-                        false);
-                break;
-            case JTypeTags.JREF:
-                mv.visitTypeInsn(CHECKCAST, ((JType.JRefType) jType).typeValue);
-                break;
+            case JTypeTags.JBYTE -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", ANY_TO_JBYTE, false);
+            case JTypeTags.JCHAR -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", ANY_TO_JCHAR, false);
+            case JTypeTags.JSHORT ->
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJShort", ANY_TO_JSTRING, false);
+            case JTypeTags.JINT -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJInt", ANY_TO_BYTE, false);
+            case JTypeTags.JLONG -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", ANY_TO_JLONG, false);
+            case JTypeTags.JFLOAT ->
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJFloat", ANY_TO_JFLOAT, false);
+            case JTypeTags.JDOUBLE ->
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", ANY_TO_JDOUBLE, false);
+            case JTypeTags.JBOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", ANY_TO_JBOOLEAN,
+                    false);
+            case JTypeTags.JREF -> mv.visitTypeInsn(CHECKCAST, ((JType.JRefType) jType).typeValue);
         }
     }
 
     private void generateJVarLoad(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case JTypeTags.JCHAR:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case JTypeTags.JSHORT:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case JTypeTags.JINT:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case JTypeTags.JLONG:
-                mv.visitVarInsn(LLOAD, valueIndex);
-                break;
-            case JTypeTags.JFLOAT:
-                mv.visitVarInsn(FLOAD, valueIndex);
-                break;
-            case JTypeTags.JDOUBLE:
-                mv.visitVarInsn(DLOAD, valueIndex);
-                break;
-            case JTypeTags.JBOOLEAN:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case JTypeTags.JARRAY:
-            case JTypeTags.JREF:
-                mv.visitVarInsn(ALOAD, valueIndex);
-                break;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + jType);
+            case JTypeTags.JBYTE, JTypeTags.JSHORT, JTypeTags.JINT, JTypeTags.JBOOLEAN, JTypeTags.JCHAR ->
+                    mv.visitVarInsn(ILOAD, valueIndex);
+            case JTypeTags.JLONG -> mv.visitVarInsn(LLOAD, valueIndex);
+            case JTypeTags.JFLOAT -> mv.visitVarInsn(FLOAD, valueIndex);
+            case JTypeTags.JDOUBLE -> mv.visitVarInsn(DLOAD, valueIndex);
+            case JTypeTags.JARRAY, JTypeTags.JREF -> mv.visitVarInsn(ALOAD, valueIndex);
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + jType);
         }
     }
 
     private void generateJVarStore(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
-            case JTypeTags.JBYTE:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case JTypeTags.JCHAR:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case JTypeTags.JSHORT:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case JTypeTags.JINT:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case JTypeTags.JLONG:
-                mv.visitVarInsn(LSTORE, valueIndex);
-                break;
-            case JTypeTags.JFLOAT:
-                mv.visitVarInsn(FSTORE, valueIndex);
-                break;
-            case JTypeTags.JDOUBLE:
-                mv.visitVarInsn(DSTORE, valueIndex);
-                break;
-            case JTypeTags.JBOOLEAN:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case JTypeTags.JARRAY:
-            case JTypeTags.JREF:
-                mv.visitVarInsn(ASTORE, valueIndex);
-                break;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + jType);
+            case JTypeTags.JBYTE, JTypeTags.JCHAR, JTypeTags.JSHORT, JTypeTags.JINT, JTypeTags.JBOOLEAN ->
+                    mv.visitVarInsn(ISTORE, valueIndex);
+            case JTypeTags.JLONG -> mv.visitVarInsn(LSTORE, valueIndex);
+            case JTypeTags.JFLOAT -> mv.visitVarInsn(FSTORE, valueIndex);
+            case JTypeTags.JDOUBLE -> mv.visitVarInsn(DSTORE, valueIndex);
+            case JTypeTags.JARRAY, JTypeTags.JREF -> mv.visitVarInsn(ASTORE, valueIndex);
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + jType);
         }
     }
 
     private void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
         targetType = JvmCodeGenUtil.getImpliedType(targetType);
-        switch (targetType.tag) {
-            case TypeTags.BYTE: // Wouldn't reach here for int atm.
-            case TypeTags.UNSIGNED8_INT:
+        switch (targetType.tag) { // Wouldn't reach here for int atm.
+            case TypeTags.BYTE, TypeTags.UNSIGNED8_INT -> {
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2B);
                 mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, TO_UNSIGNED_LONG, "(B)J", false);
-                return;
-            case TypeTags.UNSIGNED16_INT:
+            }
+            case TypeTags.UNSIGNED16_INT -> {
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2S);
                 mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, TO_UNSIGNED_LONG, "(S)J", false);
-                return;
-            case TypeTags.UNSIGNED32_INT:
+            }
+            case TypeTags.UNSIGNED32_INT -> {
                 mv.visitInsn(L2I);
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
-                return;
+            }
         }
     }
 
@@ -452,11 +390,11 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
 
         switch (varDcl.kind) {
-            case SELF:
+            case SELF -> {
                 mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
                 return;
-            case CONSTANT:
-            case GLOBAL:
+            }
+            case CONSTANT, GLOBAL -> {
                 String varName = varDcl.name.value;
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -464,8 +402,9 @@ public class JvmInstructionGen {
                 String typeSig = getTypeDesc(bType);
                 mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
                 return;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
 
         generateVarLoadForType(mv, bType, valueIndex);
@@ -483,45 +422,20 @@ public class JvmInstructionGen {
         }
 
         switch (bType.tag) {
-            case TypeTags.BYTE:
+            case TypeTags.BYTE -> {
                 mv.visitVarInsn(ILOAD, valueIndex);
                 mv.visitInsn(I2B);
                 mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
-                break;
-            case TypeTags.FLOAT:
-                mv.visitVarInsn(DLOAD, valueIndex);
-                break;
-            case TypeTags.BOOLEAN:
-                mv.visitVarInsn(ILOAD, valueIndex);
-                break;
-            case TypeTags.ARRAY:
-            case TypeTags.MAP:
-            case TypeTags.STREAM:
-            case TypeTags.TABLE:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.UNION:
-            case TypeTags.TUPLE:
-            case TypeTags.RECORD:
-            case TypeTags.ERROR:
-            case TypeTags.JSON:
-            case TypeTags.FUTURE:
-            case TypeTags.OBJECT:
-            case TypeTags.DECIMAL:
-            case TypeTags.INVOKABLE:
-            case TypeTags.FINITE:
-            case TypeTags.HANDLE:
-            case TypeTags.TYPEDESC:
-            case TypeTags.READONLY:
-                mv.visitVarInsn(ALOAD, valueIndex);
-                break;
-            case JTypeTags.JTYPE:
-                generateJVarLoad(mv, (JType) bType, valueIndex);
-                break;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+            }
+            case TypeTags.FLOAT -> mv.visitVarInsn(DLOAD, valueIndex);
+            case TypeTags.BOOLEAN -> mv.visitVarInsn(ILOAD, valueIndex);
+            case TypeTags.ARRAY, TypeTags.MAP, TypeTags.STREAM, TypeTags.TABLE, TypeTags.ANY, TypeTags.ANYDATA,
+                    TypeTags.NIL, TypeTags.NEVER, TypeTags.UNION, TypeTags.TUPLE, TypeTags.RECORD, TypeTags.ERROR,
+                    TypeTags.JSON, TypeTags.FUTURE, TypeTags.OBJECT, TypeTags.DECIMAL, TypeTags.INVOKABLE,
+                    TypeTags.FINITE, TypeTags.HANDLE, TypeTags.TYPEDESC, TypeTags.READONLY ->
+                    mv.visitVarInsn(ALOAD, valueIndex);
+            case JTypeTags.JTYPE -> generateJVarLoad(mv, (JType) bType, valueIndex);
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
     }
 
@@ -553,43 +467,15 @@ public class JvmInstructionGen {
         }
 
         switch (bType.tag) {
-            case TypeTags.BYTE:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case TypeTags.FLOAT:
-                mv.visitVarInsn(DSTORE, valueIndex);
-                break;
-            case TypeTags.BOOLEAN:
-                mv.visitVarInsn(ISTORE, valueIndex);
-                break;
-            case TypeTags.ARRAY:
-            case TypeTags.MAP:
-            case TypeTags.STREAM:
-            case TypeTags.TABLE:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.UNION:
-            case TypeTags.TUPLE:
-            case TypeTags.DECIMAL:
-            case TypeTags.RECORD:
-            case TypeTags.ERROR:
-            case TypeTags.JSON:
-            case TypeTags.FUTURE:
-            case TypeTags.OBJECT:
-            case TypeTags.INVOKABLE:
-            case TypeTags.FINITE:
-            case TypeTags.HANDLE:
-            case TypeTags.TYPEDESC:
-            case TypeTags.READONLY:
-                mv.visitVarInsn(ASTORE, valueIndex);
-                break;
-            case JTypeTags.JTYPE:
-                generateJVarStore(mv, (JType) bType, valueIndex);
-                break;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+            case TypeTags.BYTE, TypeTags.BOOLEAN -> mv.visitVarInsn(ISTORE, valueIndex);
+            case TypeTags.FLOAT -> mv.visitVarInsn(DSTORE, valueIndex);
+            case TypeTags.ARRAY, TypeTags.MAP, TypeTags.STREAM, TypeTags.TABLE, TypeTags.ANY, TypeTags.ANYDATA,
+                    TypeTags.NIL, TypeTags.NEVER, TypeTags.UNION, TypeTags.TUPLE, TypeTags.DECIMAL, TypeTags.RECORD,
+                    TypeTags.ERROR, TypeTags.JSON, TypeTags.FUTURE, TypeTags.OBJECT, TypeTags.INVOKABLE,
+                    TypeTags.FINITE, TypeTags.HANDLE, TypeTags.TYPEDESC, TypeTags.READONLY ->
+                    mv.visitVarInsn(ASTORE, valueIndex);
+            case JTypeTags.JTYPE -> generateJVarStore(mv, (JType) bType, valueIndex);
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
     }
 
@@ -617,7 +503,7 @@ public class JvmInstructionGen {
 
     void generatePlatformIns(JInstruction ins, int localVarOffset) {
         switch (ins.jKind) {
-            case JCAST -> generateJCastIns((JCast) ins);
+            case J_CAST -> generateJCastIns((JCast) ins);
             case CALL -> generateJMethodCallIns(localVarOffset, (JMethodCallInstruction) ins);
             case LARGE_ARRAY -> generateJLargeArrayIns(localVarOffset, (JLargeArrayInstruction) ins);
             default -> generateJLargeMapIns(localVarOffset, (JLargeMapInstruction) ins);
@@ -708,74 +594,29 @@ public class JvmInstructionGen {
 
         InstructionKind insKind = binaryIns.kind;
         switch (insKind) {
-            case ADD:
-                this.generateAddIns(binaryIns);
-                break;
-            case SUB:
-                this.generateSubIns(binaryIns);
-                break;
-            case MUL:
-                this.generateMulIns(binaryIns);
-                break;
-            case DIV:
-                this.generateDivIns(binaryIns);
-                break;
-            case MOD:
-                this.generateRemIns(binaryIns);
-                break;
-            case EQUAL:
-                this.generateEqualIns(binaryIns);
-                break;
-            case NOT_EQUAL:
-                this.generateNotEqualIns(binaryIns);
-                break;
-            case GREATER_THAN:
-                this.generateGreaterThanIns(binaryIns);
-                break;
-            case GREATER_EQUAL:
-                this.generateGreaterEqualIns(binaryIns);
-                break;
-            case LESS_THAN:
-                this.generateLessThanIns(binaryIns);
-                break;
-            case LESS_EQUAL:
-                this.generateLessEqualIns(binaryIns);
-                break;
-            case REF_EQUAL:
-                this.generateRefEqualIns(binaryIns);
-                break;
-            case REF_NOT_EQUAL:
-                this.generateRefNotEqualIns(binaryIns);
-                break;
-            case CLOSED_RANGE:
-                this.generateClosedRangeIns(binaryIns);
-                break;
-            case HALF_OPEN_RANGE:
-                this.generateClosedRangeIns(binaryIns);
-                break;
-            case ANNOT_ACCESS:
-                this.generateAnnotAccessIns(binaryIns);
-                break;
-            case BITWISE_AND:
-                this.generateBitwiseAndIns(binaryIns);
-                break;
-            case BITWISE_OR:
-                this.generateBitwiseOrIns(binaryIns);
-                break;
-            case BITWISE_XOR:
-                this.generateBitwiseXorIns(binaryIns);
-                break;
-            case BITWISE_LEFT_SHIFT:
-                this.generateBitwiseLeftShiftIns(binaryIns);
-                break;
-            case BITWISE_RIGHT_SHIFT:
-                this.generateBitwiseRightShiftIns(binaryIns);
-                break;
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                this.generateBitwiseUnsignedRightShiftIns(binaryIns);
-                break;
-            default:
-                throw new BLangCompilerException("JVM generation is not supported for instruction kind : " + insKind);
+            case ADD -> this.generateAddIns(binaryIns);
+            case SUB -> this.generateSubIns(binaryIns);
+            case MUL -> this.generateMulIns(binaryIns);
+            case DIV -> this.generateDivIns(binaryIns);
+            case MOD -> this.generateRemIns(binaryIns);
+            case EQUAL -> this.generateEqualIns(binaryIns);
+            case NOT_EQUAL -> this.generateNotEqualIns(binaryIns);
+            case GREATER_THAN -> this.generateGreaterThanIns(binaryIns);
+            case GREATER_EQUAL -> this.generateGreaterEqualIns(binaryIns);
+            case LESS_THAN -> this.generateLessThanIns(binaryIns);
+            case LESS_EQUAL -> this.generateLessEqualIns(binaryIns);
+            case REF_EQUAL -> this.generateRefEqualIns(binaryIns);
+            case REF_NOT_EQUAL -> this.generateRefNotEqualIns(binaryIns);
+            case CLOSED_RANGE, HALF_OPEN_RANGE -> this.generateClosedRangeIns(binaryIns);
+            case ANNOT_ACCESS -> this.generateAnnotAccessIns(binaryIns);
+            case BITWISE_AND -> this.generateBitwiseAndIns(binaryIns);
+            case BITWISE_OR -> this.generateBitwiseOrIns(binaryIns);
+            case BITWISE_XOR -> this.generateBitwiseXorIns(binaryIns);
+            case BITWISE_LEFT_SHIFT -> this.generateBitwiseLeftShiftIns(binaryIns);
+            case BITWISE_RIGHT_SHIFT -> this.generateBitwiseRightShiftIns(binaryIns);
+            case BITWISE_UNSIGNED_RIGHT_SHIFT -> this.generateBitwiseUnsignedRightShiftIns(binaryIns);
+            default -> throw new BLangCompilerException("JVM generation is not supported " +
+                            "for instruction kind : " + insKind);
         }
     }
 
@@ -829,7 +670,7 @@ public class JvmInstructionGen {
                 this.mv.visitJumpInsn(IF_ICMPGT, label1);
             } else if (opcode == IFLE) {
                 this.mv.visitJumpInsn(IF_ICMPLE, label1);
-            } else if (opcode == IFGE) {
+            } else {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
             }
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
@@ -866,18 +707,13 @@ public class JvmInstructionGen {
     }
 
     private String getCompareFuncName(int opcode) {
-        switch (opcode) {
-            case IFGT:
-                return "compareValueGreaterThan";
-            case IFGE:
-                return "compareValueGreaterThanOrEqual";
-            case IFLT:
-                return "compareValueLessThan";
-            case IFLE:
-                return "compareValueLessThanOrEqual";
-            default:
-                throw new BLangCompilerException("Opcode: '" + opcode + "' is not a comparison opcode.");
-        }
+        return switch (opcode) {
+            case IFGT -> "compareValueGreaterThan";
+            case IFGE -> "compareValueGreaterThanOrEqual";
+            case IFLT -> "compareValueLessThan";
+            case IFLE -> "compareValueLessThanOrEqual";
+            default -> throw new BLangCompilerException("Opcode: '" + opcode + "' is not a comparison opcode.");
+        };
     }
 
     private void generateEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
@@ -1818,7 +1654,7 @@ public class JvmInstructionGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);
 
-            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+            String pkgClassName = currentPackageName.equals(".") || currentPackageName.isEmpty() ?
                     MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
                     ANNOTATION_MAP_NAME);
 
@@ -1849,6 +1685,7 @@ public class JvmInstructionGen {
         LambdaFunction lambdaFunction = functions.get(funcKey);
         if (lambdaFunction == null) {
             lambdaFunction = asyncDataCollector.addAndGetLambda(name, inst, false);
+            functions.put(funcKey, lambdaFunction);
         }
         JvmCodeGenUtil.visitInvokeDynamic(mv, lambdaFunction.enclosingClass, lambdaFunction.lambdaName,
                 inst.closureMaps.size());
@@ -1874,7 +1711,7 @@ public class JvmInstructionGen {
         String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
         // Set annotations if available.
         this.mv.visitInsn(DUP);
-        String pkgClassName = funcPkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
         this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
         // Format of name `$anon$method$delegate$Foo.func$0`.
@@ -2317,162 +2154,64 @@ public class JvmInstructionGen {
             generateBinaryOpIns((BIRNonTerminator.BinaryOp) inst);
         } else {
             switch (inst.getKind()) {
-                case MOVE:
-                    generateMoveIns((BIRNonTerminator.Move) inst);
-                    break;
-                case CONST_LOAD:
-                    generateConstantLoadIns((BIRNonTerminator.ConstantLoad) inst);
-                    break;
-                case NEW_STRUCTURE:
-                    generateMapNewIns((BIRNonTerminator.NewStructure) inst, localVarOffset);
-                    break;
-                case NEW_INSTANCE:
-                    generateObjectNewIns((BIRNonTerminator.NewInstance) inst, localVarOffset);
-                    break;
-                case MAP_STORE:
-                    generateMapStoreIns((FieldAccess) inst);
-                    break;
-                case NEW_TABLE:
-                    generateTableNewIns((NewTable) inst);
-                    break;
-                case TABLE_STORE:
-                    generateTableStoreIns((FieldAccess) inst);
-                    break;
-                case TABLE_LOAD:
-                    generateTableLoadIns((FieldAccess) inst);
-                    break;
-                case NEW_ARRAY:
-                    generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
-                    break;
-                case ARRAY_STORE:
-                    generateArrayStoreIns((FieldAccess) inst);
-                    break;
-                case MAP_LOAD:
-                    generateMapLoadIns((FieldAccess) inst);
-                    break;
-                case ARRAY_LOAD:
-                    generateArrayValueLoad((FieldAccess) inst);
-                    break;
-                case NEW_ERROR:
-                    generateNewErrorIns((BIRNonTerminator.NewError) inst);
-                    break;
-                case TYPE_CAST:
-                    generateCastIns((BIRNonTerminator.TypeCast) inst);
-                    break;
-                case IS_LIKE:
-                    generateIsLikeIns((BIRNonTerminator.IsLike) inst);
-                    break;
-                case TYPE_TEST:
-                    typeTestGen.generateTypeTestIns((BIRNonTerminator.TypeTest) inst);
-                    break;
-                case OBJECT_STORE:
-                    generateObjectStoreIns((FieldAccess) inst);
-                    break;
-                case OBJECT_LOAD:
-                    generateObjectLoadIns((FieldAccess) inst);
-                    break;
-                case NEW_XML_ELEMENT:
-                    generateNewXMLElementIns((BIRNonTerminator.NewXMLElement) inst);
-                    break;
-                case NEW_XML_TEXT:
-                    generateNewXMLTextIns((BIRNonTerminator.NewXMLText) inst);
-                    break;
-                case NEW_XML_COMMENT:
-                    generateNewXMLCommentIns((BIRNonTerminator.NewXMLComment) inst);
-                    break;
-                case NEW_XML_PI:
-                    generateNewXMLProcIns((BIRNonTerminator.NewXMLProcIns) inst);
-                    break;
-                case NEW_XML_QNAME:
-                    generateNewXMLQNameIns((BIRNonTerminator.NewXMLQName) inst);
-                    break;
-                case NEW_STRING_XML_QNAME:
-                    generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
-                    break;
-                case NEW_XML_SEQUENCE:
-                    generateNewXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
-                    break;
-                case XML_SEQ_STORE:
-                    generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);
-                    break;
-                case XML_SEQ_LOAD:
-                case XML_LOAD:
-                    generateXMLLoadIns((FieldAccess) inst);
-                    break;
-                case XML_LOAD_ALL:
-                    generateXMLLoadAllIns((BIRNonTerminator.XMLAccess) inst);
-                    break;
-                case XML_ATTRIBUTE_STORE:
-                    generateXMLAttrStoreIns((FieldAccess) inst);
-                    break;
-                case XML_ATTRIBUTE_LOAD:
-                    generateXMLAttrLoadIns((FieldAccess) inst);
-                    break;
-                case NEW_REG_EXP:
-                    generateNewRegExpIns((BIRNonTerminator.NewRegExp) inst);
-                    break;
-                case NEW_RE_DISJUNCTION:
-                    generateNewRegExpDisjunctionIns((BIRNonTerminator.NewReDisjunction) inst);
-                    break;
-                case NEW_RE_SEQUENCE:
-                    generateNewRegExpSequenceIns((BIRNonTerminator.NewReSequence) inst);
-                    break;
-                case NEW_RE_ASSERTION:
-                    generateNewRegExpAssertionIns((BIRNonTerminator.NewReAssertion) inst);
-                    break;
-                case NEW_RE_ATOM_QUANTIFIER:
-                    generateNewRegExpAtomQuantifierIns((BIRNonTerminator.NewReAtomQuantifier) inst);
-                    break;
-                case NEW_RE_LITERAL_CHAR_ESCAPE:
-                    generateNewRegExpLiteralCharOrEscapeIns((BIRNonTerminator.NewReLiteralCharOrEscape) inst);
-                    break;
-                case NEW_RE_CHAR_CLASS:
-                    generateNewRegExpCharacterClassIns((BIRNonTerminator.NewReCharacterClass) inst);
-                    break;
-                case NEW_RE_CHAR_SET:
-                    generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
-                    break;
-                case NEW_RE_CHAR_SET_RANGE:
-                    generateNewRegExpCharSetRangeIns((BIRNonTerminator.NewReCharSetRange) inst);
-                    break;
-                case NEW_RE_CAPTURING_GROUP:
-                    generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);
-                    break;
-                case NEW_RE_FLAG_EXPR:
-                    generateNewRegExpFlagExprIns((BIRNonTerminator.NewReFlagExpression) inst);
-                    break;
-                case NEW_RE_FLAG_ON_OFF:
-                    generateNewRegExpFlagOnOffIns((BIRNonTerminator.NewReFlagOnOff) inst);
-                    break;
-                case NEW_RE_QUANTIFIER:
-                    generateNewRegExpQuantifierIns((BIRNonTerminator.NewReQuantifier) inst);
-                    break;
-                case FP_LOAD:
-                    generateFPLoadIns((BIRNonTerminator.FPLoad) inst);
-                    break;
-                case STRING_LOAD:
-                    generateStringLoadIns((FieldAccess) inst);
-                    break;
-                case TYPEOF:
-                    generateTypeofIns((BIRNonTerminator.UnaryOP) inst);
-                    break;
-                case NOT:
-                    generateNotIns((BIRNonTerminator.UnaryOP) inst);
-                    break;
-                case NEW_TYPEDESC:
-                    generateNewTypedescIns((BIRNonTerminator.NewTypeDesc) inst);
-                    break;
-                case NEGATE:
-                    generateNegateIns((BIRNonTerminator.UnaryOP) inst);
-                    break;
-                case PLATFORM:
-                    generatePlatformIns((JInstruction) inst, localVarOffset);
-                    break;
-                case RECORD_DEFAULT_FP_LOAD:
-                    generateRecordDefaultFPLoadIns((BIRNonTerminator.RecordDefaultFPLoad) inst);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for operation " + inst);
+                case MOVE -> generateMoveIns((BIRNonTerminator.Move) inst);
+                case CONST_LOAD -> generateConstantLoadIns((BIRNonTerminator.ConstantLoad) inst);
+                case NEW_STRUCTURE -> generateMapNewIns((BIRNonTerminator.NewStructure) inst, localVarOffset);
+                case NEW_INSTANCE -> generateObjectNewIns((BIRNonTerminator.NewInstance) inst, localVarOffset);
+                case MAP_STORE -> generateMapStoreIns((FieldAccess) inst);
+                case NEW_TABLE -> generateTableNewIns((NewTable) inst);
+                case TABLE_STORE -> generateTableStoreIns((FieldAccess) inst);
+                case TABLE_LOAD -> generateTableLoadIns((FieldAccess) inst);
+                case NEW_ARRAY -> generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
+                case ARRAY_STORE -> generateArrayStoreIns((FieldAccess) inst);
+                case MAP_LOAD -> generateMapLoadIns((FieldAccess) inst);
+                case ARRAY_LOAD -> generateArrayValueLoad((FieldAccess) inst);
+                case NEW_ERROR -> generateNewErrorIns((BIRNonTerminator.NewError) inst);
+                case TYPE_CAST -> generateCastIns((BIRNonTerminator.TypeCast) inst);
+                case IS_LIKE -> generateIsLikeIns((BIRNonTerminator.IsLike) inst);
+                case TYPE_TEST -> typeTestGen.generateTypeTestIns((BIRNonTerminator.TypeTest) inst);
+                case OBJECT_STORE -> generateObjectStoreIns((FieldAccess) inst);
+                case OBJECT_LOAD -> generateObjectLoadIns((FieldAccess) inst);
+                case NEW_XML_ELEMENT -> generateNewXMLElementIns((BIRNonTerminator.NewXMLElement) inst);
+                case NEW_XML_TEXT -> generateNewXMLTextIns((BIRNonTerminator.NewXMLText) inst);
+                case NEW_XML_COMMENT -> generateNewXMLCommentIns((BIRNonTerminator.NewXMLComment) inst);
+                case NEW_XML_PI -> generateNewXMLProcIns((BIRNonTerminator.NewXMLProcIns) inst);
+                case NEW_XML_QNAME -> generateNewXMLQNameIns((BIRNonTerminator.NewXMLQName) inst);
+                case NEW_STRING_XML_QNAME -> generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
+                case NEW_XML_SEQUENCE -> generateNewXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
+                case XML_SEQ_STORE -> generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);
+                case XML_SEQ_LOAD, XML_LOAD -> generateXMLLoadIns((FieldAccess) inst);
+                case XML_LOAD_ALL -> generateXMLLoadAllIns((BIRNonTerminator.XMLAccess) inst);
+                case XML_ATTRIBUTE_STORE -> generateXMLAttrStoreIns((FieldAccess) inst);
+                case XML_ATTRIBUTE_LOAD -> generateXMLAttrLoadIns((FieldAccess) inst);
+                case NEW_REG_EXP -> generateNewRegExpIns((BIRNonTerminator.NewRegExp) inst);
+                case NEW_RE_DISJUNCTION -> generateNewRegExpDisjunctionIns((BIRNonTerminator.NewReDisjunction) inst);
+                case NEW_RE_SEQUENCE -> generateNewRegExpSequenceIns((BIRNonTerminator.NewReSequence) inst);
+                case NEW_RE_ASSERTION -> generateNewRegExpAssertionIns((BIRNonTerminator.NewReAssertion) inst);
+                case NEW_RE_ATOM_QUANTIFIER ->
+                        generateNewRegExpAtomQuantifierIns((BIRNonTerminator.NewReAtomQuantifier) inst);
+                case NEW_RE_LITERAL_CHAR_ESCAPE ->
+                        generateNewRegExpLiteralCharOrEscapeIns((BIRNonTerminator.NewReLiteralCharOrEscape) inst);
+                case NEW_RE_CHAR_CLASS ->
+                        generateNewRegExpCharacterClassIns((BIRNonTerminator.NewReCharacterClass) inst);
+                case NEW_RE_CHAR_SET -> generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
+                case NEW_RE_CHAR_SET_RANGE ->
+                        generateNewRegExpCharSetRangeIns((BIRNonTerminator.NewReCharSetRange) inst);
+                case NEW_RE_CAPTURING_GROUP ->
+                        generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);
+                case NEW_RE_FLAG_EXPR -> generateNewRegExpFlagExprIns((BIRNonTerminator.NewReFlagExpression) inst);
+                case NEW_RE_FLAG_ON_OFF -> generateNewRegExpFlagOnOffIns((BIRNonTerminator.NewReFlagOnOff) inst);
+                case NEW_RE_QUANTIFIER -> generateNewRegExpQuantifierIns((BIRNonTerminator.NewReQuantifier) inst);
+                case FP_LOAD -> generateFPLoadIns((BIRNonTerminator.FPLoad) inst);
+                case STRING_LOAD -> generateStringLoadIns((FieldAccess) inst);
+                case TYPEOF -> generateTypeofIns((BIRNonTerminator.UnaryOP) inst);
+                case NOT -> generateNotIns((BIRNonTerminator.UnaryOP) inst);
+                case NEW_TYPEDESC -> generateNewTypedescIns((BIRNonTerminator.NewTypeDesc) inst);
+                case NEGATE -> generateNegateIns((BIRNonTerminator.UnaryOP) inst);
+                case PLATFORM -> generatePlatformIns((JInstruction) inst, localVarOffset);
+                case RECORD_DEFAULT_FP_LOAD ->
+                        generateRecordDefaultFPLoadIns((BIRNonTerminator.RecordDefaultFPLoad) inst);
+                default -> throw new BLangCompilerException("JVM generation is not supported for operation " + inst);
             }
         }
     }
