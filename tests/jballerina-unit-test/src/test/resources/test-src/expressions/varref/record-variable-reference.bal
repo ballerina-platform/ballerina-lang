@@ -244,6 +244,7 @@ function testVarAssignmentOfRecordLiteral2() {
     assertEquality(true, married);
     assertEquality(12, age.age);
     assertEquality("Y", age.format);
+    assertEquality({}, theMap);
 }
 
 function testVarAssignmentOfRecordLiteral3() {
@@ -601,6 +602,24 @@ function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     // error<record { record { int d; } x; }> err = error("Transaction Failure", x = {d: 0});
 
     // error(x = {d}) = err;
+}
+
+function testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring() {
+    record {|string state; int zipCode;|} {state, zipCode} = {state: "Alabama", zipCode: 35004};
+    assertEquality("Alabama", state);
+    assertEquality(35004, zipCode);
+
+    record {|string street; float...;|} {street, ...coordinates} = {street: "Highway 61", "lat": 37.30, "lon": -90.40};
+    assertEquality("Highway 61", street);
+    assertEquality({lat: 37.30, lon: -90.40}, coordinates);
+
+    record {string state;} {state: state2, ...other} = {state: "Colorado", "zipCode": 80001};
+    assertEquality("Colorado", state2);
+    assertEquality({zipCode: 80001}, other);
+
+    var {country, ...rest} = {country: "USA", zipCode: 80001};
+    assertEquality("USA", country);
+    assertEquality({zipCode: 80001}, rest);
 }
 
 function assertEquality(anydata expected, any actual) {

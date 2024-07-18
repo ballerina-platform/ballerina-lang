@@ -2199,11 +2199,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangRecordVariableDef varDefNode, AnalyzerData data) {
-        // TODO: 10/18/18 Need to support record literals as well
-        if (varDefNode.var.expr != null && varDefNode.var.expr.getKind() == RECORD_LITERAL_EXPR) {
-            dlog.error(varDefNode.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_TYPE, "record binding pattern");
-            return;
-        }
         analyzeNode(varDefNode.var, data);
     }
 

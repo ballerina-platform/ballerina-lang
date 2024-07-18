@@ -172,8 +172,13 @@ public class RecordVariableReferenceTest {
     }
 
     @Test
-    public void testMappingBindingPatternsAsMemberBindingPatterns() {
+    public void testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
         BRunUtil.invoke(result, "testMappingBindingPatternAgainstOpenRecordInTupleDestructuring");
+    }
+
+    @Test
+    public void testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring() {
+        BRunUtil.invoke(result, "testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring");
     }
 
     @Test
