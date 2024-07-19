@@ -768,7 +768,7 @@ public class NewCommandTest extends BaseCommandTest {
                 [build-options]
                 observabilityIncluded = true
 
-                [[platform.java21.dependency]]
+                [[platform.java17.dependency]]
                 artifactId = "project1"
                 groupId = "com.example"
                 version = "1.0"
