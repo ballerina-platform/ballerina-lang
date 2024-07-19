@@ -29,22 +29,19 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
+ *  Represents xml step expression with extensions.
+ *
  * @since 2201.10.0
  */
 public class BLangExtendedXMLNavigationAccess extends BLangExpression implements XMLNavigationAccess {
 
-    // BLangNodes
     public BLangXMLNavigationAccess stepExpr;
     public final List<BLangXMLStepExtend> extensions;
 
-    // Parser Flags and Data
-    public final NavAccessType navAccessType;
-
     public BLangExtendedXMLNavigationAccess(Location pos, BLangXMLNavigationAccess stepExpr,
-                                            NavAccessType navAccessType, List<BLangXMLStepExtend> extensions) {
+                                            List<BLangXMLStepExtend> extensions) {
         this.pos = pos;
         this.stepExpr = stepExpr;
-        this.navAccessType = navAccessType;
         this.extensions = extensions;
     }
 
@@ -70,7 +67,7 @@ public class BLangExtendedXMLNavigationAccess extends BLangExpression implements
 
     @Override
     public NavAccessType getNavAccessType() {
-        return navAccessType;
+        return this.stepExpr.navAccessType;
     }
 
     @Override
@@ -80,18 +77,13 @@ public class BLangExtendedXMLNavigationAccess extends BLangExpression implements
 
     @Override
     public BLangExpression getExpression() {
-        return null;
+        return stepExpr;
     }
 
     @Override
     public String toString() {
-        switch (navAccessType) {
-            case CHILDREN:
-                return  "/*";
-            case CHILD_ELEMS:
-                StringJoiner filters = new StringJoiner(" |");
-                return "/<" + filters.toString() + ">";
-        }
-        return null;
+        StringJoiner extensionString = new StringJoiner("");
+        this.extensions.forEach(extension -> extensionString.add(extension.toString()));
+        return stepExpr.toString() + extensionString.toString();
     }
 }

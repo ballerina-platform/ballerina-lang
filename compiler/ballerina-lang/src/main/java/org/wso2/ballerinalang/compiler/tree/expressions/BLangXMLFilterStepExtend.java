@@ -24,7 +24,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
+import java.util.StringJoiner;
 
+/**
+ * Represents xml step extension consisting of filters.
+ *
+ * @since 2201.10.0
+ */
 public class BLangXMLFilterStepExtend extends BLangXMLStepExtend {
 
     public final List<BLangXMLElementFilter> filters;
@@ -50,5 +56,12 @@ public class BLangXMLFilterStepExtend extends BLangXMLStepExtend {
     @Override
     public NodeKind getKind() {
         return NodeKind.XML_STEP_FILTER_EXTEND;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner filters = new StringJoiner(" |");
+        this.filters.forEach(f -> filters.add(f.toString()));
+        return "." + "/<" + filters.toString() + ">";
     }
 }

@@ -1646,9 +1646,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
-        analyzeNode(extendedXMLNavigationAccess.stepExpr, env);
-        extendedXMLNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, env));
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        analyzeNode(extendedXmlNavigationAccess.stepExpr, env);
+        extendedXmlNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, env));
     }
 
     @Override

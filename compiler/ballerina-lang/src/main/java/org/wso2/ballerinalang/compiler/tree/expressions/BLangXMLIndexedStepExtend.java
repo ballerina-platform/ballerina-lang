@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -42,11 +41,6 @@ public class BLangXMLIndexedStepExtend extends BLangXMLStepExtend {
     }
 
     @Override
-    public Location getPosition() {
-        return null;
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -59,6 +53,11 @@ public class BLangXMLIndexedStepExtend extends BLangXMLStepExtend {
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return modifier.transform(this, props);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + String.valueOf(indexExpr) + "]";
     }
 
 }

@@ -1915,12 +1915,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
-        extendedXMLNavigationAccess.stepExpr = rewriteExpr(extendedXMLNavigationAccess.stepExpr);
-        result = extendedXMLNavigationAccess;
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        extendedXmlNavigationAccess.stepExpr = rewriteExpr(extendedXmlNavigationAccess.stepExpr);
+        result = extendedXmlNavigationAccess;
     }
-
-
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {

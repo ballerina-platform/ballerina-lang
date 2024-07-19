@@ -2457,9 +2457,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
-        extendedXMLNavigationAccess.stepExpr = rewrite(extendedXMLNavigationAccess.stepExpr);
-        result = extendedXMLNavigationAccess;
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        extendedXmlNavigationAccess.stepExpr = rewrite(extendedXmlNavigationAccess.stepExpr);
+        result = extendedXmlNavigationAccess;
     }
 
     //statements

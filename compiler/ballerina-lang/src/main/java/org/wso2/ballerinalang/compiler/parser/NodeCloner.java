@@ -2356,7 +2356,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangExtendedXMLNavigationAccess clone = new BLangExtendedXMLNavigationAccess(
                 source.pos,
                 clone(source.stepExpr),
-                source.navAccessType,
                 cloneList(source.extensions));
         source.cloneRef = clone;
     }
