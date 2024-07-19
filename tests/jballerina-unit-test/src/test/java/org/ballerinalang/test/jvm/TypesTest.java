@@ -36,6 +36,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.XmlText;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -160,6 +161,11 @@ public class TypesTest {
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
         Assert.assertEquals(intValue, input, "Invalid integer value returned.");
+    }
+
+    @Test(description = "Test comparison between XML Sequence with one text member and xml:Text")
+    public void testXMLSequenceWithOneTextMemberToXMLTextCast() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextMember");
     }
 
     @Test(description = "Test integer to byte cast")
@@ -592,7 +598,7 @@ public class TypesTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
                     "is not " +
                     "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:588\\)")
+                    "\tat types:testGetFromNull\\(types.bal:596\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }

@@ -143,11 +143,6 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testXmlSequenceWithOnlyTextMembers() {
-        BRunUtil.invoke(compileResult, "testXmlSequenceWithOnlyTextMembers");
-    }
-
-    @Test
     public void testGetNameOfElement() {
         Object returns = BRunUtil.invoke(compileResult, "getNameOfElement");
         assertEquals(returns.toString(), "elem");

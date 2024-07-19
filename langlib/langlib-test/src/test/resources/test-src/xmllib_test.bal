@@ -116,22 +116,6 @@ function testXmlIsText() returns [boolean, boolean] {
         emptyConcatCall() is 'xml:Text];
 }
 
-function testXmlSequenceWithOnlyTextMembers() {
-    xml text1 = xml `abc` + xml `def`;
-    xml text2 = xml `<a>abc</a><b>def</b>`;
-    xml text3 = xml:map(xml:elements(text2), y => y.getChildren());
-    xml:Text t1 = checkpanic text3.ensureType();
-    xml:Text t2 = <xml:Text>text3;
-    xml[] xmlArr = [xml`abcdef`];
-    assertEquals(text3, xml `abcdef`);
-    assertEquals(text1 == text3, true);
-    assertEquals(t1 is xml:Text, true);
-    assertEquals(t2 is xml:Text, true);
-    assertEquals(t1.toString(), "abcdef");
-    assertEquals(t2.toString(), "abcdef");
-    assertXmlSequenceItems(xml `abcdef`, xmlArr);
-}
-
 function getNameOfElement() returns string {
     'xml:Element element = xml `<elem>elem</elem>`;
     return element.getName();
