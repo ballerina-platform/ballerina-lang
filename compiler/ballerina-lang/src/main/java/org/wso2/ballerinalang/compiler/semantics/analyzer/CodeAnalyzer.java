@@ -2885,9 +2885,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
-    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess, AnalyzerData data) {
-        analyzeExpr(extendedXMLNavigationAccess.stepExpr, data);
-        extendedXMLNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, data));
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess, AnalyzerData data) {
+        analyzeExpr(extendedXmlNavigationAccess.stepExpr, data);
+        extendedXmlNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, data));
     }
 
     @Override
@@ -2903,14 +2903,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend, AnalyzerData data) {
         analyzeExpr(xmlMethodCallStepExtend.invocation, data);
-//        validateMethodInvocationsInXMLNavigationExpression(xmlMethodCallStepExtend.invocation);
-    }
-
-    private void validateMethodInvocationsInXMLNavigationExpression(BLangInvocation invocation) {
-        // avoid langlib invocations re-written to have the receiver as first argument.
-        if ((invocation.symbol.flags & Flags.LANG_LIB) != Flags.LANG_LIB) {
-            return;
-        }
     }
 
     @Override

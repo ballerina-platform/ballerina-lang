@@ -4457,7 +4457,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             List<BLangXMLStepExtend> extensions =
                     createBLangXMLStepExtends(xmlStepExpressionNode.xmlStepExtend(), xmlNavigationAccess);
             return new BLangExtendedXMLNavigationAccess(getPosition(xmlStepExpressionNode), xmlNavigationAccess,
-                    XMLNavigationAccess.NavAccessType.fromInt(starCount), extensions);
+                    extensions);
         }
         return xmlNavigationAccess;
     }

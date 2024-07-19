@@ -380,7 +380,7 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING = "getElementNameNilLifting";
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
-    public static final String XML_GET_ELEMENTS = "elements";
+    public static final String XML_ELEMENTS = "elements";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -10625,6 +10625,7 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
     }
+
     private void createMapFunctionForStepExpr(BLangXMLNavigationAccess xmlNavigation,
                                               List<BLangXMLStepExtend> extensions) {
         Location pos = xmlNavigation.pos;
@@ -10640,7 +10641,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangInvocation elements =
-                createLanglibXMLInvocation(pos, XML_GET_ELEMENTS, xmlNavigation.expr, new ArrayList<>(),
+                createLanglibXMLInvocation(pos, XML_ELEMENTS, xmlNavigation.expr, new ArrayList<>(),
                         new ArrayList<>());
         BLangInvocation invocationNode = createLanglibXMLInvocation(pos, XML_MAP, elements, args, new ArrayList<>());
         result = rewriteExpr(invocationNode);
@@ -10690,6 +10691,19 @@ public class Desugar extends BLangNodeVisitor {
             expression = rewriteExpr(expression);
         }
 
+        expression = createExpressionForExtensions(pos, extensions, arrowFunction, expression);
+
+        arrowFunction.body = new BLangExprFunctionBody();
+        arrowFunction.body.expr = expression;
+        arrowFunction.body.pos = arrowFunction.body.expr.pos;
+        result = rewrite(arrowFunction, env);
+        return (BLangLambdaFunction) result;
+    }
+
+    private BLangExpression createExpressionForExtensions(Location pos, List<BLangXMLStepExtend> extensions,
+                                                          BLangArrowFunction arrowFunction,
+                                                          BLangExpression expression) {
+        BType xmlType = symTable.xmlType;
         for (BLangXMLStepExtend extension : extensions) {
             if (extension.getKind() == NodeKind.XML_STEP_INDEXED_EXTEND) {
                 BLangXMLIndexedStepExtend indexedStepExtend = (BLangXMLIndexedStepExtend) extension;
@@ -10726,12 +10740,7 @@ public class Desugar extends BLangNodeVisitor {
             expression.setBType(xmlType);
         }
         expression.setBType(xmlType);
-
-        arrowFunction.body = new BLangExprFunctionBody();
-        arrowFunction.body.expr = expression;
-        arrowFunction.body.pos = arrowFunction.body.expr.pos;
-        result = rewrite(arrowFunction, env);
-        return (BLangLambdaFunction) result;
+        return expression;
     }
 
     private BLangIndexBasedAccess createIndexBasedAccessNode(Location pos, BLangExpression indexExpr,
