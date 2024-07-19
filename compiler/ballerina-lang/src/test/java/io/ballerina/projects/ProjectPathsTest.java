@@ -51,13 +51,11 @@ public class ProjectPathsTest {
         Files.createFile(buildProjectPath.resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal"));
 
         // Create another module
-        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1").
-                resolve(ProjectConstants.TEST_DIR_NAME));
-        Files.createFile(buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1").
-                resolve("main.bal"));
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1").
-                        resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal"));
+        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
+                .resolve(ProjectConstants.TEST_DIR_NAME));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1/main.bal"));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
+                        .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal"));
 
         // Create standalone files outside project directory
         Files.createFile(tempDir.resolve("test.bal")); // path - /tmp/ballerina-test-223233/test.bal
@@ -65,55 +63,46 @@ public class ProjectPathsTest {
 
         // Create standalone file inside project directory
         Files.createDirectory(buildProjectPath.resolve("test-utils"));
-        Files.createFile(buildProjectPath.resolve("test-utils")
-                .resolve("utils.bal")); // path - /tmp/testProj/test-utils/utils.bal
+        Files.createFile(buildProjectPath.resolve("test-utils/utils.bal")); // path - /tmp/testProj/test-utils/utils.bal
 
         // Create generated files
         // Generated file for default module
         Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT));
         Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
                 resolve(ProjectConstants.TEST_DIR_NAME));
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("gen.bal"));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("gen.bal"));
         // Generate test file for default module
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
-                        resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test.bal"));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT)
+                .resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test.bal"));
 
         // Generated file for module 01
-        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
-                resolve("module1"));
-        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1").
-                resolve(ProjectConstants.TEST_DIR_NAME));
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1").
-                        resolve("gen_mod1.bal"));
+        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1"));
+        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1")
+                .resolve(ProjectConstants.TEST_DIR_NAME));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1")
+                .resolve("gen_mod1.bal"));
         // Generate test file for module 01
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1").
-                        resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod1.bal"));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1")
+                .resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod1.bal"));
 
         // Generated file for module 02 (A new generated module)
         Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module2"));
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module2").
-                        resolve("gen_mod2.bal"));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module2")
+                .resolve("gen_mod2.bal"));
 
         // Generated test file for module 03 (A new generated module)
         Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3"));
-        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3").
-                resolve(ProjectConstants.TEST_DIR_NAME));
-        Files.createFile(
-                buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3").
-                        resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod3.bal"));
+        Files.createDirectories(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3")
+                .resolve(ProjectConstants.TEST_DIR_NAME));
+        Files.createFile(buildProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module3")
+                .resolve(ProjectConstants.TEST_DIR_NAME).resolve("gen_test_mod3.bal"));
 
         // Create a bala project
         balaProjectPath = tempDir.resolve("testBalaProj");
         Files.createDirectories(balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1"));
         Files.createFile(balaProjectPath.resolve(ProjectConstants.PACKAGE_JSON));
         Files.createFile(balaProjectPath.resolve(ProjectConstants.BALA_JSON));
-        Files.createFile(balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1").
-                resolve("mod1.bal"));
+        Files.createFile(balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1/mod1.bal"));
     }
 
     @Test
@@ -126,8 +115,7 @@ public class ProjectPathsTest {
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
-                .resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
-                .resolve("main.bal")), buildProjectPath);
+                .resolve(ProjectConstants.MODULES_ROOT).resolve("module1/main.bal")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")), buildProjectPath);
@@ -135,10 +123,9 @@ public class ProjectPathsTest {
         // test package root of generated files
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve(ProjectConstants.GENERATED_MODULES_ROOT)
-                .resolve("module1").resolve("gen_mod1.bal")), buildProjectPath);
+                .resolve("module1/gen_mod1.bal")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
-                .resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module2")
-                .resolve("gen_mod2.bal")), buildProjectPath);
+                .resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module2/gen_mod2.bal")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                         .resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("gen.bal")), buildProjectPath);
 
@@ -147,7 +134,7 @@ public class ProjectPathsTest {
                 .resolve("main_test.bal")), buildProjectPath);
         // test package root of bala project
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
-                .resolve(ProjectConstants.MODULES_ROOT).resolve("mod1").resolve("mod1.bal")), balaProjectPath);
+                .resolve(ProjectConstants.MODULES_ROOT).resolve("mod1/mod1.bal")), balaProjectPath);
 
         // test package root of generated test files
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
@@ -202,7 +189,7 @@ public class ProjectPathsTest {
 
     @Test(expectedExceptions = ProjectException.class)
     public void testPackageRootNegative2() {
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath.resolve("test-utils").resolve("utils.bal")),
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath.resolve("test-utils/utils.bal")),
                 buildProjectPath);
     }
 
@@ -243,18 +230,17 @@ public class ProjectPathsTest {
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(buildProjectPath.resolve("main.bal")));
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(buildProjectPath.resolve("Ballerina.toml")));
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
-                buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1").resolve("main.bal")));
+                buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1/main.bal")));
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 buildProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("module1")
                                 .resolve(ProjectConstants.TEST_DIR_NAME).resolve("main_test.bal")));
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(Path.of("/tmp/non-existent-path")));
 
-        Assert.assertTrue(ProjectPaths.isStandaloneBalFile(
-                buildProjectPath.resolve("test-utils").resolve("utils.bal")));
+        Assert.assertTrue(ProjectPaths.isStandaloneBalFile(buildProjectPath.resolve("test-utils/utils.bal")));
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(tempDir.resolve("test.bal")));
 
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
-                balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1").resolve("mod1.bal")));
+                balaProjectPath.resolve(ProjectConstants.MODULES_ROOT).resolve("mod1/mod1.bal")));
 
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 balaProjectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve("module1")

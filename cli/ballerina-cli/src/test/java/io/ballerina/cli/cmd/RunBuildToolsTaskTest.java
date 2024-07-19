@@ -245,7 +245,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     }
 
     private void addBuildJsonToProjects(String projectName, long time) {
-        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target").resolve("build");
+        Path buildJsonPath = buildToolResources.resolve(projectName).resolve("target/build");
         String buildJsonContent = "{\n" +
                 "  \"last_build_time\": 1710907945705,\n" +
                 "  \"last_update_time\": " + time + ",\n" +

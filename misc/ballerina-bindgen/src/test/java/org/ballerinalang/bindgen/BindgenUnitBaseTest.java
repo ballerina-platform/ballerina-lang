@@ -40,8 +40,7 @@ public class BindgenUnitBaseTest {
 
     protected boolean withOptionalParamTypes = false;
     protected boolean withOptionalReturnTypes = false;
-    protected Path resourceDirectory = Path.of("src").resolve("test").resolve("resources")
-            .resolve("unit-test-resources").toAbsolutePath();
+    protected Path resourceDirectory = Path.of("src/test/resources/unit-test-resources").toAbsolutePath();
 
     /**
      * Test the constructor bindings generated.

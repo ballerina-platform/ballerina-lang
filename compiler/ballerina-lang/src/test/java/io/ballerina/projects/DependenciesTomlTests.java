@@ -38,7 +38,7 @@ import static io.ballerina.projects.BallerinaTomlTests.getPackageManifest;
  */
 public class DependenciesTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path DEPENDENCIES_TOML_REPO = RESOURCE_DIRECTORY.resolve("dependencies-toml");
     static final PrintStream OUT = System.out;
 

@@ -37,8 +37,7 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class DotGraphsTests {
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources",
-            "dot-graphs");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/dot-graphs");
 
     @Test(enabled = false)
     public void test() {

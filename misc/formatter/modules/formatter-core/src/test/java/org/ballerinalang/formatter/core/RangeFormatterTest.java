@@ -46,7 +46,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public abstract class RangeFormatterTest {
-    private final Path resourceDirectory = Path.of("src").resolve("test").resolve("resources").toAbsolutePath();
+    private final Path resourceDirectory = Path.of("src/test/resources").toAbsolutePath();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 

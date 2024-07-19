@@ -50,7 +50,7 @@ public class FileSystemRepositoryTests {
         }
     }
 
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("test-repo");
     private FileSystemRepository fileSystemRepository;
 

@@ -38,7 +38,7 @@ import static io.netty.util.internal.PlatformDependent.isWindows;
  * @since 2201.2.1
  */
 public class FileSystemRepositoryGetPackagesTests {
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources", "repository-resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/repository-resources");
     private Map<String, List<String>> nonEmptyRepoPackages;
     private Map<String, List<String>> emptyRepoPackages;
     private Environment environment;

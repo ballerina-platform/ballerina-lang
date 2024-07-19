@@ -45,7 +45,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BallerinaTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
 
     @Test
