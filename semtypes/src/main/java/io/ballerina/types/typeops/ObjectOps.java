@@ -25,27 +25,10 @@ import io.ballerina.types.SubtypeData;
 
 import static io.ballerina.types.Common.bddEveryPositive;
 import static io.ballerina.types.Common.bddSubtypeDiff;
-import static io.ballerina.types.Common.bddSubtypeIntersect;
-import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 import static io.ballerina.types.PredefinedType.MAPPING_SUBTYPE_OBJECT;
 
-public final class ObjectOps implements BasicTypeOps {
-
-    @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return bddSubtypeUnion(t1, t2);
-    }
-
-    @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return bddSubtypeIntersect(t1, t2);
-    }
-
-    @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return bddSubtypeDiff(t1, t2);
-    }
+public final class ObjectOps extends CommonOps implements BasicTypeOps {
 
     @Override
     public SubtypeData complement(SubtypeData t) {

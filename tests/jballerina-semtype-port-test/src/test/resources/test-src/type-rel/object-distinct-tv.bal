@@ -1,27 +1,27 @@
-// @type OD1 < O1
-// @type OD2 < O1
-// @type OD1 <> OD2
-// @type OD3 < OD1
+// @type DistinctObject1 < ObjectTy1
+// @type DistinctObject2 < ObjectTy1
+// @type DistinctObject1 <> DistinctObject2
+// @type DistinctObject3 < DistinctObject1
 
-type OD1 distinct O1;
+type DistinctObject1 distinct ObjectTy1;
 
-type OD2 distinct O1;
+type DistinctObject2 distinct ObjectTy1;
 
-type OD3 distinct OD1;
+type DistinctObject3 distinct DistinctObject1;
 
-type O1 object {
+type ObjectTy1 object {
     int foo;
     function bar() returns int;
 };
 
-// @type ORD1 < OR
-// @type ORD1 <> ORD2
-type ORD1 distinct object {
-    ORD1? oo;
+// @type RecursiveDistinctObject1 < RecursiveObject
+// @type RecursiveDistinctObject1 <> RecursiveDistinctObject2
+type RecursiveDistinctObject1 distinct object {
+    RecursiveDistinctObject1? oo;
 };
 
-type ORD2 distinct OR;
+type RecursiveDistinctObject2 distinct RecursiveObject;
 
-type OR object {
-    OR? oo;
+type RecursiveObject object {
+    RecursiveObject? oo;
 };
