@@ -106,7 +106,6 @@ function testOnFailWithCheckInWorkers() {
         s.forEach(function (string k) {
             string _ = check getVal2();
         });
-
     } on fail {
     }
 }

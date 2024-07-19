@@ -491,6 +491,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = false;
         data.env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
         data.returnTypes.push(new LinkedHashSet<>());
@@ -517,6 +519,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
         data.transactionalFuncCheckStack.pop();
+        data.failureHandled = failureHandled;
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -2985,8 +2988,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
 
-        boolean failureHandled = data.failureHandled;
-        data.failureHandled = false;
         // If this is a worker we are already in a worker action system,
         // if not we need to initiate a worker action system
         if (isWorker) {
@@ -3003,7 +3004,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 this.finalizeCurrentWorkerActionSystem(data);
             }
         }
-        data.failureHandled = failureHandled;
 
         if (isWorker) {
             data.workerActionSystemStack.peek().endWorkerActionStateMachine();

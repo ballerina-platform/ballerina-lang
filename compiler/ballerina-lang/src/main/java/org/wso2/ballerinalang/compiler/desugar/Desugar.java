@@ -7798,7 +7798,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        BLangOnFailClause onFailClause = this.onFailClause;
+        this.onFailClause = null;
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        this.onFailClause = onFailClause;
         BLangFunction function = bLangLambdaFunction.function;
         // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
         if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
