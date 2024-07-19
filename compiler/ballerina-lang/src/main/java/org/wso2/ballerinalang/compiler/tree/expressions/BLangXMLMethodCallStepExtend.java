@@ -23,10 +23,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+/**
+ * Represents method calls on xml step expression extension.
+ *
+ * @since 2201.10.0
+ */
 public class BLangXMLMethodCallStepExtend extends BLangXMLStepExtend {
 
-    // BLangNodes
     public BLangInvocation invocation;
+
     public BLangXMLMethodCallStepExtend(BLangInvocation invocation) {
         this.invocation = invocation;
         this.invocation.parent = this;
@@ -39,10 +44,7 @@ public class BLangXMLMethodCallStepExtend extends BLangXMLStepExtend {
 
     @Override
     public String toString() {
-        StringBuilder br = new StringBuilder();
-        br.append("(");
-        br.append(")");
-        return br.toString();
+        return "." + invocation.toString();
     }
 
     @Override
