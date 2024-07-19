@@ -19,14 +19,16 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.BasicTypeOps;
+import io.ballerina.types.Bdd;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
 
+import static io.ballerina.types.Common.bddEveryPositive;
 import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
+import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 import static io.ballerina.types.PredefinedType.MAPPING_SUBTYPE_OBJECT;
-import static io.ballerina.types.typeops.MappingOps.mappingSubtypeIsEmpty;
 
 public final class ObjectOps implements BasicTypeOps {
 
@@ -52,7 +54,15 @@ public final class ObjectOps implements BasicTypeOps {
 
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
-        return mappingSubtypeIsEmpty(cx, t);
+        return objectSubTypeIsEmpty(cx, t);
+    }
+
+    private static boolean objectSubTypeIsEmpty(Context cx, SubtypeData t) {
+        return memoSubtypeIsEmpty(cx, cx.mappingMemo, ObjectOps::objectBddIsEmpty, (Bdd) t);
+    }
+
+    private static boolean objectBddIsEmpty(Context cx, Bdd b) {
+        return bddEveryPositive(cx, b, null, null, MappingOps::mappingFormulaIsEmpty);
     }
 
     private SubtypeData objectSubTypeComplement(SubtypeData t) {

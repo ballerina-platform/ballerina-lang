@@ -194,6 +194,20 @@ public class SemTypeResolver {
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangObjectTypeNode td) {
+        SemType innerType = resolveNonDistinctObject(cx, mod, defn, depth, td);
+        if (td.flagSet.contains(Flag.DISTINCT)) {
+            return getDistinctObjectType(cx, innerType);
+        }
+        return innerType;
+    }
+
+    private static SemType getDistinctObjectType(Context cx, SemType innerType) {
+        return Core.intersect(SemTypes.objectDistinct(cx.env.distinctAtomCountGetAndIncrement()), innerType);
+    }
+
+    private SemType resolveNonDistinctObject(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                             int depth,
+                                             BLangObjectTypeNode td) {
         if (td.defn != null) {
             return td.defn.getSemType(cx.env);
         }
@@ -514,13 +528,26 @@ public class SemTypeResolver {
         }
 
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
-            return resolveTypeDefn(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+            SemType ty = resolveTypeDefn(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+            if (td.flagSet.contains(Flag.DISTINCT)) {
+                return getDistinctSemType(cx, ty);
+            }
+            return ty;
         } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
             return resolveTypeDefn(cx, mod, constant.associatedTypeDefinition, depth);
         } else {
             throw new UnsupportedOperationException("constants and class defns not implemented");
         }
+    }
+
+    private SemType getDistinctSemType(Context cx, SemType innerType) {
+        if (Core.isSubtypeSimple(innerType, PredefinedType.OBJECT)) {
+            return getDistinctObjectType(cx, innerType);
+        } else if (Core.isSubtypeSimple(innerType, PredefinedType.ERROR)) {
+            return getDistinctErrorType(cx, innerType);
+        }
+        throw new IllegalArgumentException("Distinct type not supported for: " + innerType);
     }
 
     private SemType resolveIntSubtype(String name) {
@@ -624,9 +651,13 @@ public class SemTypeResolver {
         }
 
         if (td.flagSet.contains(Flag.DISTINCT)) {
-            err = Core.intersect(SemTypes.errorDistinct(cx.env.distinctAtomCountGetAndIncrement()), err);
+            err = getDistinctErrorType(cx, err);
         }
         return err;
+    }
+
+    private static SemType getDistinctErrorType(Context cx, SemType err) {
+        return Core.intersect(SemTypes.errorDistinct(cx.env.distinctAtomCountGetAndIncrement()), err);
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,

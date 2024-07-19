@@ -21,6 +21,7 @@ import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.Member;
 import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
@@ -40,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * {@code BObjectType} represents object type in Ballerina.
@@ -64,17 +66,20 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BTypeIdSet typeIdSet = new BTypeIdSet();
 
     private ObjectDefinition od = null;
+    private final DistinctIdSupplier distinctIdSupplier;
 
     public BObjectType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
         assert env != null;
         this.env = env;
+        this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     public BObjectType(Env env, BTypeSymbol tSymbol, long flags) {
         super(TypeTags.OBJECT, tSymbol, flags);
         assert env != null;
         this.env = env;
+        this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     @Override
@@ -98,6 +103,14 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public SemType semType() {
+        SemType result = semTypeInner();
+        if (Symbols.isFlagOn(this.getFlags(), Flags.DISTINCT)) {
+            return Core.intersect(SemTypes.objectDistinct(distinctIdSupplier.get()), result);
+        }
+        return result;
+    }
+
+    private SemType semTypeInner() {
         if (od != null) {
             return od.getSemType(env);
         }
@@ -224,5 +237,23 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public boolean isNullable() {
         return false;
+    }
+
+    private static class DistinctIdSupplier implements Supplier<Integer> {
+
+        private static final int UN_INITIALIZED = -1;
+        private int id = UN_INITIALIZED;
+        private final Env env;
+
+        private DistinctIdSupplier(Env env) {
+            this.env = env;
+        }
+
+        public synchronized Integer get() {
+            if (id == UN_INITIALIZED) {
+                id = env.distinctAtomCountGetAndIncrement();
+            }
+            return id;
+        }
     }
 }
