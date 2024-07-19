@@ -44,7 +44,7 @@ public class IfElseStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/if-else").toString();
+        return Path.of("statements", "if-else").toString();
     }
 
     public List<String> skipList() {

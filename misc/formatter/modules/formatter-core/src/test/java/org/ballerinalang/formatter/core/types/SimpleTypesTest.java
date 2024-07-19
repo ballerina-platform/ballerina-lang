@@ -42,6 +42,6 @@ public class SimpleTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("types/simple").toString();
+        return Path.of("types", "simple").toString();
     }
 }

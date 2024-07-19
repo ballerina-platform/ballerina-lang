@@ -49,6 +49,6 @@ public class RelationalExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/relational").toString();
+        return Path.of("expressions", "relational").toString();
     }
 }

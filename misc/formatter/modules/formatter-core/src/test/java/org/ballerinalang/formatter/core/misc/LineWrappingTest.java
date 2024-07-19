@@ -42,6 +42,6 @@ public class LineWrappingTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("misc/linewrapping").toString();
+        return Path.of("misc", "linewrapping").toString();
     }
 }

@@ -49,6 +49,6 @@ public class MultiplicativeExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/multiplicative").toString();
+        return Path.of("expressions", "multiplicative").toString();
     }
 }

@@ -49,6 +49,6 @@ public class BinaryBitwiseExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/binary-bitwise").toString();
+        return Path.of("expressions", "binary-bitwise").toString();
     }
 }

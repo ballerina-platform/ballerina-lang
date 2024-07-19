@@ -42,6 +42,6 @@ public class WaitActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/wait").toString();
+        return Path.of("actions", "wait").toString();
     }
 }

@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 
-
 /**
  * This class tests the deprecated syntax APIs.
  *

@@ -42,6 +42,6 @@ public class ModuleEnumDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/module-enumeration").toString();
+        return Path.of("declarations", "module-enumeration").toString();
     }
 }

@@ -42,6 +42,6 @@ public class PanicStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/panic").toString();
+        return Path.of("statements", "panic").toString();
     }
 }

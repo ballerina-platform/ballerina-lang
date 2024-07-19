@@ -49,6 +49,6 @@ public class LogicalExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/logical").toString();
+        return Path.of("expressions", "logical").toString();
     }
 }

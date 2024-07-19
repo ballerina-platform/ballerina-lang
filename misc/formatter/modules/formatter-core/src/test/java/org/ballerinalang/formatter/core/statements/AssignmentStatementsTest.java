@@ -49,6 +49,6 @@ public class AssignmentStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/assignment").toString();
+        return Path.of("statements", "assignment").toString();
     }
 }

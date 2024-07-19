@@ -87,6 +87,6 @@ public class ImportDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/import").toString();
+        return Path.of("declarations", "import").toString();
     }
 }

@@ -42,6 +42,6 @@ public class CompoundAssignmentStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/compound-assignment").toString();
+        return Path.of("statements", "compound-assignment").toString();
     }
 }

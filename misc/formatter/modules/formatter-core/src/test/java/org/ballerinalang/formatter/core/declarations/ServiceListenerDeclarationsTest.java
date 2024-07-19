@@ -42,6 +42,6 @@ public class ServiceListenerDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/service-listener").toString();
+        return Path.of("declarations", "service-listener").toString();
     }
 }

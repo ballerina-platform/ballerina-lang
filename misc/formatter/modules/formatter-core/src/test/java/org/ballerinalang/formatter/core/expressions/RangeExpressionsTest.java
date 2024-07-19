@@ -42,6 +42,6 @@ public class RangeExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/range").toString();
+        return Path.of("expressions", "range").toString();
     }
 }

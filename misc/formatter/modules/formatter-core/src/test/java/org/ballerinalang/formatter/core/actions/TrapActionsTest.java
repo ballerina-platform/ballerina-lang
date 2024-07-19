@@ -42,6 +42,6 @@ public class TrapActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/trap").toString();
+        return Path.of("actions", "trap").toString();
     }
 }

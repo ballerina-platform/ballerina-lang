@@ -42,6 +42,6 @@ public class StringTemplateExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/string-template").toString();
+        return Path.of("expressions", "string-template").toString();
     }
 }
