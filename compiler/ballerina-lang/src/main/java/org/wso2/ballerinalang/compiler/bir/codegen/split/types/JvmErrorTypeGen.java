@@ -75,7 +75,7 @@ public class JvmErrorTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.errorTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.errorTypescw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorTypesClass, null, OBJECT, null);
+        this.errorTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {

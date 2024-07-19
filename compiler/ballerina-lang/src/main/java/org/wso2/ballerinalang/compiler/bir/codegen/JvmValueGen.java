@@ -201,8 +201,7 @@ public class JvmValueGen {
                         asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
-                        asyncDataCollector, jvmTypeGen);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
@@ -297,7 +296,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          AsyncDataCollector asyncDataCollector, JvmTypeGen jvmTypeGen) {
+                                          JvmTypeGen jvmTypeGen) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -519,7 +518,7 @@ public class JvmValueGen {
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
         String splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-        splitcw.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+        splitCW.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
         int methodCountPerSplitClass = 0;
 
@@ -542,7 +541,7 @@ public class JvmValueGen {
                 splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
                 splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
                 splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-                splitcw.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+                splitCW.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
                 methodCountPerSplitClass = 0;
             }

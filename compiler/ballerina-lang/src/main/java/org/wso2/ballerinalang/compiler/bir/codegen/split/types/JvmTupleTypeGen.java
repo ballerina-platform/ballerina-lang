@@ -86,7 +86,7 @@ public class JvmTupleTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.tupleTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.tupleTypescw.visit(V21, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
+        this.tupleTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {

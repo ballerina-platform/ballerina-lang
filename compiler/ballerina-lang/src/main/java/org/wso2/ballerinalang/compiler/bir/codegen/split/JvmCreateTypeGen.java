@@ -169,7 +169,7 @@ public class JvmCreateTypeGen {
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
-        typescw.visit(V21, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
+        this.typesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
     }
 
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,

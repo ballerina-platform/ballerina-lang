@@ -75,7 +75,7 @@ public class JvmUnionTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.unionTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.unionTypescw.visit(V21, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
+        this.unionTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {

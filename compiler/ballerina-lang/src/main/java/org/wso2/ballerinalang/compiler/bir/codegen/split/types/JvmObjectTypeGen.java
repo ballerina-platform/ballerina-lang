@@ -121,7 +121,7 @@ public class JvmObjectTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.objectTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.objectTypescw.visit(V21, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
+        this.objectTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
