@@ -43,6 +43,6 @@ public class FlushActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/flush").toString();
+        return Path.of("actions", "flush").toString();
     }
 }

@@ -43,6 +43,6 @@ public class StartActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/start").toString();
+        return Path.of("actions", "start").toString();
     }
 }

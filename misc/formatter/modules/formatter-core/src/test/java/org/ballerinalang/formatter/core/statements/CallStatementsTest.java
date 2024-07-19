@@ -43,6 +43,6 @@ public class CallStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/call").toString();
+        return Path.of("statements", "call").toString();
     }
 }

@@ -43,6 +43,6 @@ public class WhileStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/while").toString();
+        return Path.of("statements", "while").toString();
     }
 }

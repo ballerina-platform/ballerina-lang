@@ -43,6 +43,6 @@ public class ObjectConstructorExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/object-constructor").toString();
+        return Path.of("expressions", "object-constructor").toString();
     }
 }

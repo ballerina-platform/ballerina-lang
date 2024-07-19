@@ -43,6 +43,6 @@ public class ModuleVariableDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/module-variable").toString();
+        return Path.of("declarations", "module-variable").toString();
     }
 }

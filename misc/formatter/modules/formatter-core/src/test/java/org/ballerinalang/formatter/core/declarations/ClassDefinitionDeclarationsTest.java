@@ -57,6 +57,6 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
      */
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/class-definition").toString();
+        return Path.of("declarations", "class-definition").toString();
     }
 }

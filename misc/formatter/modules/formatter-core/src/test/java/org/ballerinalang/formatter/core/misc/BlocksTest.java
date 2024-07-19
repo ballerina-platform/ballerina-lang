@@ -43,6 +43,6 @@ public class BlocksTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("misc/blocks").toString();
+        return Path.of("misc", "blocks").toString();
     }
 }

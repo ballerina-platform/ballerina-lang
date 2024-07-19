@@ -50,6 +50,6 @@ public class ShiftExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/shift").toString();
+        return Path.of("expressions", "shift").toString();
     }
 }

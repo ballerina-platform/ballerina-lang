@@ -43,6 +43,6 @@ public class LetExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/let").toString();
+        return Path.of("expressions", "let").toString();
     }
 }

@@ -43,6 +43,6 @@ public class BehaviouralTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("types/behavioural").toString();
+        return Path.of("types", "behavioural").toString();
     }
 }

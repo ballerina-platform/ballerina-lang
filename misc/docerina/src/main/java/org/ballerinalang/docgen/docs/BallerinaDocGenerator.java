@@ -230,7 +230,7 @@ public final class BallerinaDocGenerator {
         if (!sourceLocation.isEmpty()) {
             output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
                     .resolve(moduleLib.modules.get(0).version).resolve(ICON_NAME);
-            Path iconPath = Paths.get(sourceLocation);
+            Path iconPath = Path.of(sourceLocation);
             try {
                 byte[] iconByteArray = Files.readAllBytes(iconPath);
                 Files.write(output, iconByteArray);

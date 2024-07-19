@@ -43,6 +43,6 @@ public class MetadataTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("misc/metadata").toString();
+        return Path.of("misc", "metadata").toString();
     }
 }

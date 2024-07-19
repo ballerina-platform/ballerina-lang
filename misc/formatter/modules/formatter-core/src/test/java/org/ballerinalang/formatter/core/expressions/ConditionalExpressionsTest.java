@@ -43,6 +43,6 @@ public class ConditionalExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/conditional").toString();
+        return Path.of("expressions", "conditional").toString();
     }
 }

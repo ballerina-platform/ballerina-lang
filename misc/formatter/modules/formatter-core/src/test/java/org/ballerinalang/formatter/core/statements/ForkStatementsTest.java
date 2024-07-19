@@ -43,6 +43,6 @@ public class ForkStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/fork").toString();
+        return Path.of("statements", "fork").toString();
     }
 }

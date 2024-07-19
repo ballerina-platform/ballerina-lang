@@ -43,6 +43,6 @@ public class UnaryExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/unary").toString();
+        return Path.of("expressions", "unary").toString();
     }
 }

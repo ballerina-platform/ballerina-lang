@@ -43,6 +43,6 @@ public class SequenceTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("types/sequence").toString();
+        return Path.of("types", "sequence").toString();
     }
 }

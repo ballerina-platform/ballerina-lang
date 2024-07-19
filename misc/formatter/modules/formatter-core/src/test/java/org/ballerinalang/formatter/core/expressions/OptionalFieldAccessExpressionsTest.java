@@ -43,6 +43,6 @@ public class OptionalFieldAccessExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/optional-field-access").toString();
+        return Path.of("expressions", "optional-field-access").toString();
     }
 }

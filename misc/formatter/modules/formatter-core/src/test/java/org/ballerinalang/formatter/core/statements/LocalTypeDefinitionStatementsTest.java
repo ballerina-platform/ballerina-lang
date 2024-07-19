@@ -43,6 +43,6 @@ public class LocalTypeDefinitionStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/local-type-definition").toString();
+        return Path.of("statements", "local-type-definition").toString();
     }
 }

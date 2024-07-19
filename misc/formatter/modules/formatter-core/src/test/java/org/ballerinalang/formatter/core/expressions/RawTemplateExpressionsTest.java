@@ -43,6 +43,6 @@ public class RawTemplateExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/raw-template").toString();
+        return Path.of("expressions", "raw-template").toString();
     }
 }

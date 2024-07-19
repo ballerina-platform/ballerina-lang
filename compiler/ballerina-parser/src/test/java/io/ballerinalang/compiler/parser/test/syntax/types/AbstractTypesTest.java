@@ -22,7 +22,6 @@ import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
 import java.nio.file.Path;
 
-
 /**
  * Test parsing expressions.
  */

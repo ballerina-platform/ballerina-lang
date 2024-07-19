@@ -43,6 +43,6 @@ public class ConstantExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/constant").toString();
+        return Path.of("expressions", "constant").toString();
     }
 }

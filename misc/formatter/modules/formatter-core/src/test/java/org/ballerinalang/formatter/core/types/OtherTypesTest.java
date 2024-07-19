@@ -43,6 +43,6 @@ public class OtherTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("types/other").toString();
+        return Path.of("types", "other").toString();
     }
 }

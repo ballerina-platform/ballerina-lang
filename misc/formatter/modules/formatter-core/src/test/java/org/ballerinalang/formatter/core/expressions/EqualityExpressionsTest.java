@@ -50,6 +50,6 @@ public class EqualityExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/equality").toString();
+        return Path.of("expressions", "equality").toString();
     }
 }

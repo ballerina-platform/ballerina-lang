@@ -43,6 +43,6 @@ public class FunctionDefinitionDeclarationsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("declarations/function-definition").toString();
+        return Path.of("declarations", "function-definition").toString();
     }
 }

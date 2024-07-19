@@ -43,6 +43,6 @@ public class ForEachStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/foreach").toString();
+        return Path.of("statements", "foreach").toString();
     }
 }

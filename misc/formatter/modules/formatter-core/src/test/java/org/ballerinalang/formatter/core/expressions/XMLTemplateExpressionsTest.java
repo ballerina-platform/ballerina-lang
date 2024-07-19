@@ -43,6 +43,6 @@ public class XMLTemplateExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/xml-template").toString();
+        return Path.of("expressions", "xml-template").toString();
     }
 }

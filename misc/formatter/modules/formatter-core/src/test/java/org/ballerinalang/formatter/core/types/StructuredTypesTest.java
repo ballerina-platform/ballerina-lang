@@ -43,6 +43,6 @@ public class StructuredTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("types/structured").toString();
+        return Path.of("types", "structured").toString();
     }
 }

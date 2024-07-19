@@ -43,6 +43,6 @@ public class XMLNSDeclarationStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/xmlns-declaration").toString();
+        return Path.of("statements", "xmlns-declaration").toString();
     }
 }

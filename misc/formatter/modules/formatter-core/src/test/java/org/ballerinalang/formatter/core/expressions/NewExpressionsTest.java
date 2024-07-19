@@ -43,6 +43,6 @@ public class NewExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/new").toString();
+        return Path.of("expressions", "new").toString();
     }
 }

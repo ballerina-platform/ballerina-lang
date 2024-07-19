@@ -43,6 +43,6 @@ public class QueryExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("expressions/query").toString();
+        return Path.of("expressions", "query").toString();
     }
 }

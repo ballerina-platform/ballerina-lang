@@ -43,6 +43,6 @@ public class LineBreaksTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("misc/linebreaks").toString();
+        return Path.of("misc", "linebreaks").toString();
     }
 }

@@ -55,6 +55,6 @@ public class RemoteConfigurationTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("configurations/remote").toString();
+        return Path.of("configurations", "remote").toString();
     }
 }

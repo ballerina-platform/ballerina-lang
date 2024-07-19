@@ -43,6 +43,6 @@ public class MatchStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("statements/match").toString();
+        return Path.of("statements", "match").toString();
     }
 }

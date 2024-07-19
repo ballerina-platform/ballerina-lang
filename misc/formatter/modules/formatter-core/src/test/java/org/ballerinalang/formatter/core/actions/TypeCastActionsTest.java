@@ -43,6 +43,6 @@ public class TypeCastActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/type-cast").toString();
+        return Path.of("actions", "type-cast").toString();
     }
 }

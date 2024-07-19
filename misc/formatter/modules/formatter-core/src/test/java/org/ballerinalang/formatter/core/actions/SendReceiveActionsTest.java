@@ -43,6 +43,6 @@ public class SendReceiveActionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Path.of("actions/send-receive").toString();
+        return Path.of("actions", "send-receive").toString();
     }
 }
