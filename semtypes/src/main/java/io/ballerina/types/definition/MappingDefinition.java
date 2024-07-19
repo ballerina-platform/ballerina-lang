@@ -75,8 +75,8 @@ public class MappingDefinition implements Definition {
 
     public SemType define(Env env, List<CellField> fields, CellSemType rest) {
         SplitField sfh = splitFields(fields);
-        MappingAtomicType atomicType = MappingAtomicType.from(sfh.names.toArray(new String[]{}),
-                sfh.types.toArray(new CellSemType[]{}), rest);
+        MappingAtomicType atomicType = MappingAtomicType.from(sfh.names.toArray(String[]::new),
+                sfh.types.toArray(CellSemType[]::new), rest);
         Atom atom;
         RecAtom rec = this.rec;
         if (rec != null) {
@@ -121,7 +121,7 @@ public class MappingDefinition implements Definition {
     }
 
     private SplitField splitFields(List<CellField> fields) {
-        CellField[] sortedFields = fields.toArray(new CellField[]{});
+        CellField[] sortedFields = fields.toArray(CellField[]::new);
         Arrays.sort(sortedFields, Comparator.comparing(MappingDefinition::fieldName));
         List<String> names = new ArrayList<>();
         List<CellSemType> types = new ArrayList<>();

@@ -8330,7 +8330,7 @@ public class Desugar extends BLangNodeVisitor {
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
+        BObjectType objectClassType = new BObjectType(symTable.typeEnv(), classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
         objectClassType.typeIdSet.add(objectType.typeIdSet);

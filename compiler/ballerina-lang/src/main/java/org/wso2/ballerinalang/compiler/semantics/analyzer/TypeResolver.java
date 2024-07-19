@@ -380,7 +380,7 @@ public class TypeResolver {
             typeFlags |= Flags.OBJECT_CTOR;
         }
 
-        BObjectType objectType = new BObjectType(tSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), tSymbol, typeFlags);
         resolvingStructureTypes.add(objectType);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
             classDefinition.oceEnvData.objectType = objectType;
@@ -1119,7 +1119,7 @@ public class TypeResolver {
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
 
-        BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), objectSymbol, typeFlags);
         resolvingStructureTypes.add(objectType);
         objectSymbol.type = objectType;
         td.symbol = objectSymbol;

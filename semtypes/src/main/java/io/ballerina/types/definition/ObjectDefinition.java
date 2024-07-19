@@ -28,14 +28,19 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.BddNode;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static io.ballerina.types.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.types.Core.createBasicSemType;
 import static io.ballerina.types.Core.union;
+import static io.ballerina.types.PredefinedType.basicSubtype;
+import static io.ballerina.types.RecAtom.createDistinctRecAtom;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
+import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
 /**
  * Represent object type desc.
@@ -45,6 +50,12 @@ import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 public final class ObjectDefinition implements Definition {
 
     private final MappingDefinition mappingDefinition = new MappingDefinition();
+
+    public static SemType distinct(int distinctId) {
+        assert distinctId >= 0;
+        BddNode bdd = bddAtom(createDistinctRecAtom(-distinctId - 1));
+        return basicSubtype(BT_OBJECT, bdd);
+    }
 
     // Each object type is represented as mapping type (with its basic type set to object) as fallows
     // {
@@ -87,7 +98,7 @@ public final class ObjectDefinition implements Definition {
     private SemType objectContaining(SemType mappingType) {
         SubtypeData bdd = Core.subtypeData(mappingType, BasicTypeCode.BT_MAPPING);
         assert bdd instanceof Bdd;
-        return createBasicSemType(BasicTypeCode.BT_OBJECT, bdd);
+        return createBasicSemType(BT_OBJECT, bdd);
     }
 
     private CellSemType restMemberType(Env env, CellAtomicType.CellMutability mut, boolean immutable) {

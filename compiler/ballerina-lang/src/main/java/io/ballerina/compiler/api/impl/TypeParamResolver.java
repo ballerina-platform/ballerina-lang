@@ -198,7 +198,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         BObjectTypeSymbol newTypeSymbol = new BObjectTypeSymbol(objectTypeSymbol.tag, objectTypeSymbol.flags,
                 objectTypeSymbol.name, objectTypeSymbol.pkgID, objectTypeSymbol.getType(), objectTypeSymbol.owner,
                 objectTypeSymbol.pos, objectTypeSymbol.origin);
-        BObjectType newObjectType = new BObjectType(newTypeSymbol, typeInSymbol.getFlags());
+        BObjectType newObjectType = new BObjectType(typeInSymbol.env, newTypeSymbol, typeInSymbol.getFlags());
 
         newObjectType.fields = newObjectFields;
         newTypeSymbol.attachedFuncs = newAttachedFuncs;

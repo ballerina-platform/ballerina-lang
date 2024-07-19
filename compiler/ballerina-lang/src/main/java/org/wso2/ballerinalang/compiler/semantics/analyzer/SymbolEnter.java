@@ -894,7 +894,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeFlags |= Flags.OBJECT_CTOR;
         }
 
-        BObjectType objectType = new BObjectType(tSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), tSymbol, typeFlags);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
             classDefinition.oceEnvData.objectType = objectType;
             objectType.classDef = classDefinition;
@@ -1859,7 +1859,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // `typeDefSymbol` is different to `definedObjType.tsymbol` in a type definition statement that use
         // already defined type as the base type.
         if (definedObjType.tsymbol != tSymbol) {
-            BObjectType objType = new BObjectType(tSymbol);
+            BObjectType objType = new BObjectType(symTable.typeEnv(), tSymbol);
             tSymbol.type = objType;
             definedObjType = objType;
         }

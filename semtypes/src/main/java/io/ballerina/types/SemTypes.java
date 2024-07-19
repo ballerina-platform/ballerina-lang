@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -114,6 +115,10 @@ public final class SemTypes {
 
     public static SemType errorDistinct(int distinctId) {
         return Error.errorDistinct(distinctId);
+    }
+
+    public static SemType objectDistinct(int distinctId) {
+        return ObjectDefinition.distinct(distinctId);
     }
 
     public static SemType tableContaining(Env env, SemType mappingType) {
