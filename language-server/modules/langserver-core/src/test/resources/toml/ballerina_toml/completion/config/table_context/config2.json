@@ -6,46 +6,46 @@
   "source": "source/project2/Ballerina.toml",
   "items": [
     {
-      "label": "platform.java21",
+      "label": "platform.java17",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
-      "insertText": "[platform.java21]"
+      "insertText": "[platform.java17]"
     },
     {
-      "label": "platform.java21.dependency",
+      "label": "platform.java17.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.dependency]]"
+      "insertText": "[[platform.java17.dependency]]"
     },
     {
-      "label": "platform.java21.repository",
+      "label": "platform.java17.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.repository]]"
+      "insertText": "[[platform.java17.repository]]"
     },
     {
-      "label": "platform.java21",
+      "label": "platform.java11",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
-      "insertText": "[platform.java21]"
+      "insertText": "[platform.java11]"
     },
     {
-      "label": "platform.java21.dependency",
+      "label": "platform.java11.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.dependency]]"
+      "insertText": "[[platform.java11.dependency]]"
     },
     {
-      "label": "platform.java21.repository",
+      "label": "platform.java11.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.repository]]"
+      "insertText": "[[platform.java11.repository]]"
     },
     {
       "label": "license",
