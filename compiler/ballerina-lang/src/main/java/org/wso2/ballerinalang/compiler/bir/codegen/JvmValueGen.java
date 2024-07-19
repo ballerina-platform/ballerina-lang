@@ -68,7 +68,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
@@ -221,7 +221,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
         fv.visitEnd();
@@ -305,7 +305,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
                 new String[]{MAP_VALUE});
 
         Map<String, BField> fields = recordType.fields;
@@ -462,7 +462,7 @@ public class JvmValueGen {
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
         this.createObjectFields(cw, fields);
@@ -519,7 +519,7 @@ public class JvmValueGen {
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
         String splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-        splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+        splitcw.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
         int methodCountPerSplitClass = 0;
 
@@ -542,7 +542,7 @@ public class JvmValueGen {
                 splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
                 splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
                 splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
-                splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+                splitcw.visit(V21, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
                 methodCountPerSplitClass = 0;
             }
