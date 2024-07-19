@@ -148,11 +148,9 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull a package from custom remote repository")
     public void testPullCustom() throws SettingsTomlException, IOException {
 
-        Path customrRepoPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
-                "repositories", "repo-push-pull");
-        Path settingsTomlPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
-                "Settings.toml");
-        Path mockBallerinaHome = Path.of("build").resolve("ballerina-home");
+        Path customrRepoPath = Path.of("src/test/resources/test-resources/custom-repo/repositories/repo-push-pull");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/custom-repo/Settings.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pull");
@@ -170,11 +168,9 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull a package from custom remote repository(not exist in Settings.toml)")
     public void testPullNonExistingCustom() throws SettingsTomlException, IOException {
 
-        Path customrRepoPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
-                "repositories", "repo-push-pull");
-        Path settingsTomlPath = Path.of("src", "test", "resources", "test-resources", "custom-repo",
-                "Settings.toml");
-        Path mockBallerinaHome = Path.of("build").resolve("ballerina-home");
+        Path customrRepoPath = Path.of("src/test/resources/test-resources/custom-repo/repositories/repo-push-pull");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/custom-repo/Settings.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pul");

@@ -53,8 +53,8 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    static Path logFile = Path.of(".", "src", "test", "resources", "compiler_plugin_tests",
-            "log_creator_combined_plugin", "compiler-plugin.txt");
+    static Path logFile =
+            Path.of("./src/test/resources/compiler_plugin_tests/log_creator_combined_plugin/compiler-plugin.txt");
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -80,7 +80,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile a ballerina project")
     public void testRunBalProjectWithProfileFlag() throws IOException {
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -90,7 +90,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
+        Path htmlPath = projectPath.resolve("target/profiler/ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
@@ -104,7 +104,7 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile a ballerina project with build tools")
     public void testRunBalProjectWithProfileFlagWithBuildTools() throws IOException {
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_b");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_b");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -114,7 +114,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").replaceAll("\\\\", "/").strip();
         Assert.assertEquals(buildLog, getOutput("profile-project-with-build-tool.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
+        Path htmlPath = projectPath.resolve("target/profiler/ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
@@ -129,7 +129,7 @@ public class ProfileCommandTest extends BaseCommandTest {
     @Test(description = "Test profile command with help")
     public void testProfileCommandAndHelp() throws IOException {
         String[] args = {"--help"};
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
+        Path projectPath = this.testResources.resolve("projectForProfile/package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         new CommandLine(profileCommand).parseArgs(args);
@@ -157,8 +157,8 @@ public class ProfileCommandTest extends BaseCommandTest {
     @Test(description = "Profile an empty package with code generator build tools")
     public void testProfileEmptyProjectWithBuildTools() throws IOException {
         Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString());
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString());
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());

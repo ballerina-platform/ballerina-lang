@@ -41,7 +41,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("test-cmd-test-resources");
             Path testBuildDirectory = Path.of("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path customUserHome = Path.of("build", "user-home");
+            Path customUserHome = Path.of("build/user-home");
             Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
@@ -107,7 +107,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file")
     public void testTestBalFile() {
-        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true, "");
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
@@ -122,7 +122,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with additional args")
     public void testTestBalFileWithAdditionalArgs() {
-        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
                 false, true, "-H:Name=foo");
@@ -138,7 +138,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     //TODO: Change the output once the resource generation plugin is disabled
     @Test(description = "Test a valid ballerina file with periods in the file name")
     public void testTestBalFileWithPeriods() {
-        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample.tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,

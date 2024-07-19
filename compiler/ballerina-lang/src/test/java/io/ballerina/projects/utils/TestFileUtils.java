@@ -33,7 +33,7 @@ import java.nio.file.Path;
  */
 public class TestFileUtils {
 
-    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path UTIL_RESOURCES = RESOURCE_DIRECTORY.resolve("utils");
 
     @DataProvider(name = "providePngFiles")

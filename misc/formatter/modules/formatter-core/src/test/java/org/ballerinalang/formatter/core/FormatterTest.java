@@ -46,7 +46,7 @@ public abstract class FormatterTest {
 
     // TODO: Add test cases for syntax error scenarios as well
 
-    private final Path resourceDirectory = Path.of("src").resolve("test").resolve("resources").toAbsolutePath();
+    private final Path resourceDirectory = Path.of("src/test/resources").toAbsolutePath();
     private Path buildDirectory = Path.of("build").toAbsolutePath().normalize();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
@@ -209,7 +209,7 @@ public abstract class FormatterTest {
         }
         List<String> skippedTests = this.skipList();
         try {
-            return Files.walk(this.buildDirectory.resolve("resources").resolve("test")
+            return Files.walk(this.buildDirectory.resolve("resources/test")
                     .resolve(this.getTestResourceDir()))
                     .filter(path -> {
                         File file = path.toFile();
