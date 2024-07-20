@@ -163,7 +163,6 @@ picocli-4.0.1.jar                                                               
 ballerina-log-api-1.1.0.jar                                                                         jar            apache2
 netty-common-4.1.39.Final.jar                                                                       bundle         apache2
 ballerina-formatter-1.1.0.jar                                                                       jar            apache2
-quartz-jobs-2.3.0.jar                                                                               jar            apache2
 ballerina-kafka-1.1.0.jar                                                                           jar            apache2
 kafka_2.13-3.7.1.jar                                                                                jar            apache2
 broker-coordination-0.970.0.jar                                                                     bundle         apache2
