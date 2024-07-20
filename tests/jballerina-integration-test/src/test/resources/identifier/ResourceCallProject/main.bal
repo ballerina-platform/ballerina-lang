@@ -42,3 +42,16 @@ public function printInternal(handle receiver, handle strValue) = @java:Method {
     'class: "java/io/PrintStream",
     paramTypes: ["java.lang.String"]
 } external;
+
+public isolated client class Client {
+    final string greeting;
+
+    public isolated function init(string greeting = "Hello World!") returns error? {
+        self.greeting = greeting;
+        return;
+    }
+
+    resource isolated function get users\.getPresence(map<string|string[]> headers = {}) returns string|error {
+        return string `/users.getPresence ${self.greeting} ${headers.toString()}`;
+    }
+}
