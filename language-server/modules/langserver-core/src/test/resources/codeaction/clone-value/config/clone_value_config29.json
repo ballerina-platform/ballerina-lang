@@ -1,0 +1,20 @@
+{
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "source": "clone_value10.bal",
+  "description": "Clone a array value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": []
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": []
+    }
+  ]
+}
