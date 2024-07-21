@@ -257,6 +257,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepIndexedExtendNode;
+import io.ballerina.compiler.syntax.tree.XMLStepMethodCallExtendNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.XmlFactory;
@@ -358,6 +359,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -427,11 +429,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -4446,17 +4452,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
-        BLangExpression childIndex = null;
-        for (Node extension : xmlStepExpressionNode.xmlStepExtend()) {
-            if (extension.kind() == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
-                childIndex = createExpression(((XMLStepIndexedExtendNode) extension).expression());
-                break;
-            }
+        BLangXMLNavigationAccess xmlNavigationAccess = new BLangXMLNavigationAccess(
+                getPosition(xmlStepExpressionNode.expression(), xmlStepExpressionNode.xmlStepStart()), expr, filters,
+                XMLNavigationAccess.NavAccessType.fromInt(starCount));
+        if (xmlStepExpressionNode.xmlStepExtend().size() > 0) {
+            List<BLangXMLStepExtend> extensions =
+                    createBLangXMLStepExtends(xmlStepExpressionNode.xmlStepExtend(), xmlNavigationAccess);
+            return new BLangExtendedXMLNavigationAccess(getPosition(xmlStepExpressionNode), xmlNavigationAccess,
+                    extensions);
         }
-        // TODO : implement the value for childIndex
-        BLangXMLNavigationAccess xmlNavigationAccess =
-                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                XMLNavigationAccess.NavAccessType.fromInt(starCount), childIndex);
         return xmlNavigationAccess;
     }
 
@@ -7086,5 +7090,37 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
+    }
+
+    private List<BLangXMLStepExtend> createBLangXMLStepExtends(NodeList<Node> nodes, BLangExpression expr) {
+        List<BLangXMLStepExtend> extensions = new ArrayList<>(nodes.size());
+        BLangXMLStepExtend curExpr = null;
+        for (Node node : nodes) {
+            Location pos = getPosition(node);
+            switch (node.kind()) {
+                case XML_STEP_INDEXED_EXTEND -> curExpr = new BLangXMLIndexedStepExtend(pos,
+                        createExpression(((XMLStepIndexedExtendNode) node).expression()));
+                case XML_STEP_METHOD_CALL_EXTEND -> {
+                    XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
+                    SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
+                    BLangInvocation bLangInvocation = createBLangInvocation(methodName,
+                            xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(),
+                            false);
+                    bLangInvocation.expr = curExpr == null ? expr : curExpr;
+                    curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);
+                }
+                case XML_NAME_PATTERN_CHAIN -> {
+                    XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
+                    List<BLangXMLElementFilter> filters = new ArrayList<>();
+                    for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
+                        filters.add(createXMLElementFilter(namePattern));
+                    }
+                    curExpr = new BLangXMLFilterStepExtend(pos, filters);
+                }
+                default -> throw new IllegalStateException("Invalid xml step extension kind: " + node.kind());
+            }
+            extensions.add(curExpr);
+        }
+        return extensions;
     }
 }

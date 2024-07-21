@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -124,6 +125,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -671,4 +675,12 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangUserDefinedType node, T data);
 
     public abstract void visit(BLangValueType node, T data);
+
+    public abstract void  visit(BLangXMLIndexedStepExtend node, T props);
+
+    public abstract void visit(BLangXMLFilterStepExtend node, T props);
+
+    public abstract void visit(BLangXMLMethodCallStepExtend node, T props);
+
+    public abstract void visit(BLangExtendedXMLNavigationAccess node, T props);
 }

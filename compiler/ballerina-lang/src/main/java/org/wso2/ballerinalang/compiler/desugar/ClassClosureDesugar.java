@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -1092,11 +1093,15 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
-        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
     }
 
-
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
+        extendedXMLNavigationAccess.stepExpr = rewriteExpr(extendedXMLNavigationAccess.stepExpr);
+        result = extendedXMLNavigationAccess;
+    }
+    
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
         jsonAccessExpr.indexExpr = rewriteExpr(jsonAccessExpr.indexExpr);

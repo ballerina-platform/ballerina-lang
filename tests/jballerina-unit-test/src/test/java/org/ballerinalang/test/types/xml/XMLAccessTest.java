@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -189,7 +190,7 @@ public class XMLAccessTest {
                         "<child2 xmlns=\"foo\">D</child2>");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLElementAccessNavigationAccessComposition() {
         BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLElementAccessNavigationAccessComposition");
         Assert.assertEquals(returns.get(0).toString(),
@@ -223,7 +224,7 @@ public class XMLAccessTest {
         BRunUtil.invoke(navigation, "testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLNavigationWithEscapeCharacter() {
         BRunUtil.invoke(navigation, "testXMLNavigationWithEscapeCharacter");
     }
@@ -288,27 +289,54 @@ public class XMLAccessTest {
         BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
-    public void testXMLNavExpressionNegative() {
-        String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to invoke the method on the result of the navigation expression.";
+    @Test(dataProvider = "xmlStepExtension")
+    public void testXmlStepExtension(String function) {
+        BRunUtil.invoke(navigation, function);
+    }
 
-        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
-                "expressions, use a grouping expression (parenthesis) " +
-                "if you intend to member-access the result of the navigation expression.";
+    @DataProvider
+    private Object[] xmlStepExtension() {
+        return new Object[]{"testXmlIndexedStepExtend", "testXmlFilterStepExtend", "testXmlIndexedAndFilterStepExtend",
+                "testXmlMethodCallStepExtend", "testXmlMethodCallIndexedAndFilterStepExtend"};
+    }
+
+    @Test
+    public void testXMLNavExpressionNegative() {
         int i = 0;
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 13);
-        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 13);
-        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 13);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "cannot find xml namespace prefix 'ns'", 6, 15);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 7, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'x2'", 8, 9);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'j'", 8, 18);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 17,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "too many arguments in call to 'get()'", 18, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 19,
+                18);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined function 'foo' in type 'xml'", 21, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 22, 14);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'int', found 'string'", 23,
+                23);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found 'int'", 25, 23);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 29, 23);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 31, 31);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'xml:ProcessingInstruction', found 'xml:Element'", 33, 60);
+        BAssertUtil.validateError(navigationNegative, i++, "incompatible types: expected 'xml', found '()'", 34, 19);
+        BAssertUtil.validateError(navigationNegative, i++, "undefined symbol 'r'", 36, 26);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'boolean', found 'xml:Element'", 38, 34);
+        BAssertUtil.validateError(navigationNegative, i++,
+                "incompatible types: expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns (boolean)', found" +
+                        " 'function (xml) returns ()'",
+                39, 29);
+
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
     }
 
-    @Test(enabled = false) // disabling until providing semantic support for step extension
+    @Test
     public void testXMLNavExpressionTypeCheckNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/types/xml/xml-nav-access-type-check-negative.bal");
         int i = 0;
