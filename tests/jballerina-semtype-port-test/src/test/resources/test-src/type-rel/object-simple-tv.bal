@@ -57,3 +57,8 @@ type GG4 object {
     function foo(int a) returns int;
     public int a;
 };
+
+// @type I1 < OO1
+type I1 object {
+    public isolated function foo(int a) returns int;
+}

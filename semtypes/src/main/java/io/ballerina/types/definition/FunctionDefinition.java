@@ -57,13 +57,13 @@ public final class FunctionDefinition implements Definition {
         return s;
     }
 
-    public SemType define(Env env, SemType args, SemType ret) {
-        FunctionAtomicType atomicType = FunctionAtomicType.from(args, ret);
+    public SemType define(Env env, SemType args, SemType ret, FunctionQualifiers qualifiers) {
+        FunctionAtomicType atomicType = FunctionAtomicType.from(args, ret, qualifiers.semType());
         return defineInternal(env, atomicType);
     }
 
-    public SemType defineGeneric(Env env, SemType args, SemType ret) {
-        FunctionAtomicType atomicType = FunctionAtomicType.genericFrom(args, ret);
+    public SemType defineGeneric(Env env, SemType args, SemType ret, FunctionQualifiers qualifiers) {
+        FunctionAtomicType atomicType = FunctionAtomicType.genericFrom(args, ret, qualifiers.semType());
         return defineInternal(env, atomicType);
     }
 
