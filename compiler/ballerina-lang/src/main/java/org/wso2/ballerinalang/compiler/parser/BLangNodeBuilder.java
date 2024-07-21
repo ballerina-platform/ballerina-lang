@@ -4450,9 +4450,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         BLangExpression expr = createExpression(xmlStepExpressionNode.expression());
-        BLangXMLNavigationAccess xmlNavigationAccess =
-                new BLangXMLNavigationAccess(getPosition(xmlStepExpressionNode), expr, filters,
-                        XMLNavigationAccess.NavAccessType.fromInt(starCount));
+        BLangXMLNavigationAccess xmlNavigationAccess = new BLangXMLNavigationAccess(
+                getPosition(xmlStepExpressionNode.expression(), xmlStepExpressionNode.xmlStepStart()), expr, filters,
+                XMLNavigationAccess.NavAccessType.fromInt(starCount));
         if (xmlStepExpressionNode.xmlStepExtend().size() > 0) {
             List<BLangXMLStepExtend> extensions =
                     createBLangXMLStepExtends(xmlStepExpressionNode.xmlStepExtend(), xmlNavigationAccess);
@@ -7089,24 +7089,26 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangXMLStepExtend> extensions = new ArrayList<>();
         BLangXMLStepExtend curExpr = null;
         for (Node node : nodes) {
+            Location pos = getPosition(node);
             SyntaxKind kind = node.kind();
             if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
                 curExpr =
-                        new BLangXMLIndexedStepExtend(createExpression(((XMLStepIndexedExtendNode) node).expression()));
+                        new BLangXMLIndexedStepExtend(pos,
+                                createExpression(((XMLStepIndexedExtendNode) node).expression()));
             } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
                 XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
                 SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
                 BLangInvocation bLangInvocation = createBLangInvocation(methodName,
                         xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(), false);
                 bLangInvocation.expr = curExpr == null ? expr : curExpr;
-                curExpr = new BLangXMLMethodCallStepExtend(bLangInvocation);
+                curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);
             } else {
                 XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
                 List<BLangXMLElementFilter> filters = new ArrayList<>();
                 for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
                     filters.add(createXMLElementFilter(namePattern));
                 }
-                curExpr = new BLangXMLFilterStepExtend(filters);
+                curExpr = new BLangXMLFilterStepExtend(pos, filters);
             }
             extensions.add(curExpr);
         }

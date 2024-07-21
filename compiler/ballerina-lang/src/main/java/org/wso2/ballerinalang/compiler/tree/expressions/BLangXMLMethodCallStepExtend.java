@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -32,7 +33,8 @@ public class BLangXMLMethodCallStepExtend extends BLangXMLStepExtend {
 
     public BLangInvocation invocation;
 
-    public BLangXMLMethodCallStepExtend(BLangInvocation invocation) {
+    public BLangXMLMethodCallStepExtend(Location pos, BLangInvocation invocation) {
+        this.pos = pos;
         this.invocation = invocation;
         this.invocation.parent = this;
     }

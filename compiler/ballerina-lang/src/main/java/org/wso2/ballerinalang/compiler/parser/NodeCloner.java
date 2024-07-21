@@ -2316,19 +2316,19 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLIndexedStepExtend source) {
-        BLangXMLIndexedStepExtend clone = new BLangXMLIndexedStepExtend(source.indexExpr);
+        BLangXMLIndexedStepExtend clone = new BLangXMLIndexedStepExtend(source.pos, source.indexExpr);
         source.cloneRef = clone;
     }
 
     @Override
     public void visit(BLangXMLFilterStepExtend source) {
-        BLangXMLFilterStepExtend clone = new BLangXMLFilterStepExtend(cloneList(source.filters));
+        BLangXMLFilterStepExtend clone = new BLangXMLFilterStepExtend(source.pos, cloneList(source.filters));
         source.cloneRef = clone;
     }
 
     @Override
     public void visit(BLangXMLMethodCallStepExtend source) {
-        BLangXMLMethodCallStepExtend clone = new BLangXMLMethodCallStepExtend(clone(source.invocation));
+        BLangXMLMethodCallStepExtend clone = new BLangXMLMethodCallStepExtend(source.pos, clone(source.invocation));
         source.cloneRef = clone;
     }
 
