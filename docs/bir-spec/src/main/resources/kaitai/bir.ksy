@@ -268,6 +268,8 @@ types:
         type: semtype_info
       - id: ret_type
         type: semtype_info
+      - id: qualifier_type
+        type: semtype_info
       - id: is_generic
         type: u1
   semtype_cell_atomic_type:
