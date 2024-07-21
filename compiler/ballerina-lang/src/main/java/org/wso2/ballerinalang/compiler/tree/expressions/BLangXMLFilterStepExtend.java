@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -35,7 +36,8 @@ public class BLangXMLFilterStepExtend extends BLangXMLStepExtend {
 
     public final List<BLangXMLElementFilter> filters;
 
-    public BLangXMLFilterStepExtend(List<BLangXMLElementFilter> filters) {
+    public BLangXMLFilterStepExtend(Location pos, List<BLangXMLElementFilter> filters) {
+        this.pos = pos;
         this.filters = filters;
     }
 
