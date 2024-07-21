@@ -7086,29 +7086,31 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private List<BLangXMLStepExtend> createBLangXMLStepExtends(NodeList<Node> nodes, BLangExpression expr) {
-        List<BLangXMLStepExtend> extensions = new ArrayList<>();
+        List<BLangXMLStepExtend> extensions = new ArrayList<>(nodes.size());
         BLangXMLStepExtend curExpr = null;
         for (Node node : nodes) {
             Location pos = getPosition(node);
-            SyntaxKind kind = node.kind();
-            if (kind == SyntaxKind.XML_STEP_INDEXED_EXTEND) {
-                curExpr =
-                        new BLangXMLIndexedStepExtend(pos,
-                                createExpression(((XMLStepIndexedExtendNode) node).expression()));
-            } else if (kind == SyntaxKind.XML_STEP_METHOD_CALL_EXTEND) {
-                XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
-                SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
-                BLangInvocation bLangInvocation = createBLangInvocation(methodName,
-                        xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(), false);
-                bLangInvocation.expr = curExpr == null ? expr : curExpr;
-                curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);
-            } else {
-                XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
-                List<BLangXMLElementFilter> filters = new ArrayList<>();
-                for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
-                    filters.add(createXMLElementFilter(namePattern));
+            switch (node.kind()) {
+                case XML_STEP_INDEXED_EXTEND -> curExpr = new BLangXMLIndexedStepExtend(pos,
+                        createExpression(((XMLStepIndexedExtendNode) node).expression()));
+                case XML_STEP_METHOD_CALL_EXTEND -> {
+                    XMLStepMethodCallExtendNode xmlStepMethodCallExtendNode = (XMLStepMethodCallExtendNode) node;
+                    SimpleNameReferenceNode methodName = xmlStepMethodCallExtendNode.methodName();
+                    BLangInvocation bLangInvocation = createBLangInvocation(methodName,
+                            xmlStepMethodCallExtendNode.parenthesizedArgList().arguments(), methodName.location(),
+                            false);
+                    bLangInvocation.expr = curExpr == null ? expr : curExpr;
+                    curExpr = new BLangXMLMethodCallStepExtend(pos, bLangInvocation);
                 }
-                curExpr = new BLangXMLFilterStepExtend(pos, filters);
+                case XML_NAME_PATTERN_CHAIN -> {
+                    XMLNamePatternChainingNode xmlNamePatternChainingNode = (XMLNamePatternChainingNode) node;
+                    List<BLangXMLElementFilter> filters = new ArrayList<>();
+                    for (Node namePattern : xmlNamePatternChainingNode.xmlNamePattern()) {
+                        filters.add(createXMLElementFilter(namePattern));
+                    }
+                    curExpr = new BLangXMLFilterStepExtend(pos, filters);
+                }
+                default -> throw new IllegalStateException("Invalid xml step extension kind: " + node.kind());
             }
             extensions.add(curExpr);
         }

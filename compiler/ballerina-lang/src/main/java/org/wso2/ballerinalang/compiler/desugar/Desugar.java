@@ -6646,7 +6646,7 @@ public class Desugar extends BLangNodeVisitor {
         // Handle element name access.
         if (fieldName.equals("_")) {
             return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ELEMENT_NAME_NIL_LIFTING,
-                    fieldAccessExpr.expr, new ArrayList<>(), new ArrayList<>());
+                    fieldAccessExpr.expr, Collections.emptyList(), Collections.emptyList());
         }
 
         BLangLiteral attributeNameLiteral = createStringLiteral(fieldAccessExpr.field.pos, fieldName);
@@ -6654,7 +6654,7 @@ public class Desugar extends BLangNodeVisitor {
         args.add(isOptionalAccessToLiteral(fieldAccessExpr));
 
         return createLanglibXMLInvocation(fieldAccessExpr.pos, XML_INTERNAL_GET_ATTRIBUTE, fieldAccessExpr.expr, args,
-                new ArrayList<>());
+                Collections.emptyList());
     }
 
     private BLangExpression isOptionalAccessToLiteral(BLangFieldBasedAccess fieldAccessExpr) {
@@ -8583,7 +8583,7 @@ public class Desugar extends BLangNodeVisitor {
         ArrayList<BLangExpression> filters = expandFilters(xmlElementAccess.filters);
 
         BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, XML_INTERNAL_GET_ELEMENTS,
-                xmlElementAccess.expr, new ArrayList<>(), filters);
+                xmlElementAccess.expr, Collections.emptyList(), filters);
         result = rewriteExpr(invocationNode);
     }
 
@@ -8605,8 +8605,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createLanglibXMLInvocation(Location pos, String functionName,
                                                        BLangExpression invokeOnExpr,
-                                                       ArrayList<BLangExpression> args,
-                                                       ArrayList<BLangExpression> restArgs) {
+                                                       List<BLangExpression> args,
+                                                       List<BLangExpression> restArgs) {
         invokeOnExpr = rewriteExpr(invokeOnExpr);
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -10641,14 +10641,15 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangInvocation elements =
-                createLanglibXMLInvocation(pos, XML_ELEMENTS, xmlNavigation.expr, new ArrayList<>(),
-                        new ArrayList<>());
-        BLangInvocation invocationNode = createLanglibXMLInvocation(pos, XML_MAP, elements, args, new ArrayList<>());
+                createLanglibXMLInvocation(pos, XML_ELEMENTS, xmlNavigation.expr, Collections.emptyList(),
+                        Collections.emptyList());
+        BLangInvocation invocationNode =
+                createLanglibXMLInvocation(pos, XML_MAP, elements, args, Collections.emptyList());
         result = rewriteExpr(invocationNode);
     }
 
     public BLangLambdaFunction createArrowFunctionForNavigation(Location pos, List<BLangXMLStepExtend> extensions,
-                                                                String func, ArrayList<BLangExpression> filters) {
+                                                                String func, List<BLangExpression> filters) {
         BLangPackage enclPkg = env.enclPkg;
         PackageID pkgID = enclPkg.packageID;
         BType xmlType = symTable.xmlType;
@@ -10682,12 +10683,12 @@ public class Desugar extends BLangNodeVisitor {
         varRef.setBType(xmlElementType);
 
         BLangExpression expression =
-                createLanglibXMLInvocation(pos, func, varRef, new ArrayList<>(), new ArrayList<>());
+                createLanglibXMLInvocation(pos, func, varRef, Collections.emptyList(), Collections.emptyList());
         expression = rewriteExpr(expression);
 
         if (filters.size() > 0) {
-            expression =
-                    createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, new ArrayList<>(), filters);
+            expression = createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, Collections.emptyList(),
+                    filters);
             expression = rewriteExpr(expression);
         }
 
@@ -10703,44 +10704,53 @@ public class Desugar extends BLangNodeVisitor {
     private BLangExpression createExpressionForExtensions(Location pos, List<BLangXMLStepExtend> extensions,
                                                           BLangArrowFunction arrowFunction,
                                                           BLangExpression expression) {
-        BType xmlType = symTable.xmlType;
         for (BLangXMLStepExtend extension : extensions) {
-            if (extension.getKind() == NodeKind.XML_STEP_INDEXED_EXTEND) {
-                BLangXMLIndexedStepExtend indexedStepExtend = (BLangXMLIndexedStepExtend) extension;
-                expression = createIndexBasedAccessNode(pos, indexedStepExtend.indexExpr, expression);
-                if (indexedStepExtend.indexExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) indexedStepExtend.indexExpr;
-                    simpleVarRef.symbol.closure = true;
-                    arrowFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, pos));
-                }
-            } else if (extension.getKind() == NodeKind.XML_STEP_FILTER_EXTEND) {
-                BLangXMLFilterStepExtend filterStepExtend = (BLangXMLFilterStepExtend) extension;
-                ArrayList<BLangExpression> filterExtensions = expandFilters(filterStepExtend.filters);
-                expression = createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, new ArrayList<>(),
-                        filterExtensions);
-            } else {
-                BLangXMLMethodCallStepExtend methodCallStepExtend = (BLangXMLMethodCallStepExtend) extension;
-                BLangInvocation invocation = methodCallStepExtend.invocation;
-                if (invocation.requiredArgs.size() > 0) {
-                    invocation.requiredArgs.remove(0);
-                }
-                for (int i = 0; i < invocation.requiredArgs.size(); i++) {
-                    if (invocation.requiredArgs.get(i).getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) invocation.requiredArgs.get(i);
-                        simpleVarRef.symbol.closure = true;
-                        arrowFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, pos));
-                    }
-                }
-                expression = createLanglibXMLInvocation(pos, invocation.name.value, expression,
-                        (ArrayList<BLangExpression>) invocation.requiredArgs,
-                        (ArrayList<BLangExpression>) invocation.restArgs);
-                expression = rewrite(expression, env);
-                expression = types.addConversionExprIfRequired(expression, symTable.xmlType);
+            switch (extension.getKind()) {
+                case XML_STEP_INDEXED_EXTEND ->
+                        expression = createExpressionForIndexedStepExtend(pos, arrowFunction, expression,
+                                (BLangXMLIndexedStepExtend) extension);
+                case XML_STEP_FILTER_EXTEND -> expression =
+                        createExpressionForFilterStepExtend(pos, expression, (BLangXMLFilterStepExtend) extension);
+                case XML_STEP_METHOD_CALL_EXTEND ->
+                        expression = createExpressionForMethodCallStepExtend(pos, arrowFunction, expression,
+                                (BLangXMLMethodCallStepExtend) extension);
+                default -> throw new IllegalStateException("Invalid xml step extension: " + extension.getKind());
             }
-            expression.setBType(xmlType);
+            expression.setBType(symTable.xmlType);
         }
-        expression.setBType(xmlType);
         return expression;
+    }
+
+    private BLangExpression createExpressionForMethodCallStepExtend(Location pos, BLangArrowFunction arrowFunction,
+                                                                    BLangExpression expression,
+                                                                    BLangXMLMethodCallStepExtend methodCallStepExtend) {
+        BLangInvocation invocation = methodCallStepExtend.invocation;
+        if (invocation.requiredArgs.size() > 0) {
+            invocation.requiredArgs.remove(0);
+        }
+
+        for (BLangExpression arg: invocation.requiredArgs) {
+            markAndAddPossibleClosureVarsToArrowFunction(pos, arrowFunction, arg);
+        }
+        expression = createLanglibXMLInvocation(pos, invocation.name.value, expression, invocation.requiredArgs,
+                invocation.restArgs);
+        expression = rewrite(expression, env);
+        return types.addConversionExprIfRequired(expression, symTable.xmlType);
+    }
+
+    private BLangExpression createExpressionForFilterStepExtend(Location pos, BLangExpression expression,
+                                                                BLangXMLFilterStepExtend filterStepExtend) {
+        ArrayList<BLangExpression> filterExtensions = expandFilters(filterStepExtend.filters);
+        return createLanglibXMLInvocation(pos, XML_INTERNAL_GET_ELEMENTS, expression, Collections.emptyList(),
+                filterExtensions);
+    }
+
+    private BLangExpression createExpressionForIndexedStepExtend(Location pos, BLangArrowFunction arrowFunction,
+                                                                 BLangExpression expression,
+                                                                 BLangXMLIndexedStepExtend indexedStepExtend) {
+        BLangExpression indexExpr = indexedStepExtend.indexExpr;
+        markAndAddPossibleClosureVarsToArrowFunction(pos, arrowFunction, indexExpr);
+        return createIndexBasedAccessNode(pos, indexExpr, expression);
     }
 
     private BLangIndexBasedAccess createIndexBasedAccessNode(Location pos, BLangExpression indexExpr,
@@ -10750,5 +10760,15 @@ public class Desugar extends BLangNodeVisitor {
         indexBasedAccess.indexExpr = indexExpr;
         indexBasedAccess.expr = expr;
         return indexBasedAccess;
+    }
+
+    private static void markAndAddPossibleClosureVarsToArrowFunction(Location pos, BLangArrowFunction arrFunction,
+                                                                     BLangExpression expression) {
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+        simpleVarRef.symbol.closure = true;
+        arrFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, pos));
     }
 }
