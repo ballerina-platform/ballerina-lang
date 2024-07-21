@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 19,
+    "character": 19 
+  },
+  "source": "add_readonly_negative2.bal",
+  "expected": [
+    {
+      "title": "Add readonly to 'MyClass'"
+    }
+  ]
+}

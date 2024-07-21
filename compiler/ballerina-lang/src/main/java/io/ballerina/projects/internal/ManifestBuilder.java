@@ -69,6 +69,7 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
@@ -566,6 +567,8 @@ public class ManifestBuilder {
                         String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
                         String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
                         String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
+                        Boolean graalvmCompatibility = getBooleanValueFromPlatformEntry(platformEntryTable,
+                                GRAALVM_COMPATIBLE);
                         if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope)
                                 && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
                             reportDiagnostic(platformEntryTable,
@@ -579,6 +582,7 @@ public class ManifestBuilder {
                         platformEntryMap.put(ARTIFACT_ID, artifactId);
                         platformEntryMap.put(VERSION, version);
                         platformEntryMap.put(SCOPE, scope);
+                        platformEntryMap.put(GRAALVM_COMPATIBLE, graalvmCompatibility);
                         platformEntry.add(platformEntryMap);
                     }
                 }
@@ -836,6 +840,14 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    private Boolean getBooleanValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return null;
+        }
+        return getBooleanFromTomlTableNode(topLevelNode);
     }
 
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
