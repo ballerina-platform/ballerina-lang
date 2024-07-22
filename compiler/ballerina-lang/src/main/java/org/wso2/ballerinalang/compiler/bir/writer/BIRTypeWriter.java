@@ -745,6 +745,7 @@ public class BIRTypeWriter extends TypeVisitor {
     private void writeFunctionAtomicType(FunctionAtomicType functionAtomicType) {
         writeSemType(functionAtomicType.paramType());
         writeSemType(functionAtomicType.retType());
+        writeSemType(functionAtomicType.qualifiers());
         buff.writeBoolean(functionAtomicType.isGeneric());
     }
 

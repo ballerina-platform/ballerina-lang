@@ -22,6 +22,7 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.definition.FunctionDefinition;
+import io.ballerina.types.definition.FunctionQualifiers;
 import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
@@ -189,6 +190,13 @@ public class BInvokableType extends BType implements InvokableType {
     @Override
     public SemType semType() {
         if (isFunctionTop()) {
+            if (Symbols.isFlagOn(getFlags(), Flags.ISOLATED) || Symbols.isFlagOn(getFlags(), Flags.TRANSACTIONAL)) {
+                FunctionQualifiers qualifiers =
+                        FunctionQualifiers.from(env, Symbols.isFlagOn(getFlags(), Flags.ISOLATED),
+                                Symbols.isFlagOn(getFlags(), Flags.TRANSACTIONAL));
+                FunctionDefinition definition = new FunctionDefinition();
+                definition.define(env, PredefinedType.NEVER, PredefinedType.VAL, qualifiers);
+            }
             return PredefinedType.FUNCTION;
         }
         if (defn != null) {
@@ -210,10 +218,12 @@ public class BInvokableType extends BType implements InvokableType {
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
         // TODO: probably we need to move this method from Types.
         boolean isGeneric = Types.containsTypeParams(this);
+        FunctionQualifiers qualifiers = FunctionQualifiers.from(env, Symbols.isFlagOn(getFlags(), Flags.ISOLATED),
+                Symbols.isFlagOn(getFlags(), Flags.TRANSACTIONAL));
         if (isGeneric) {
-            return fd.defineGeneric(env, paramTypes, returnType);
+            return fd.defineGeneric(env, paramTypes, returnType, qualifiers);
         }
-        return fd.define(env, paramTypes, returnType);
+        return fd.define(env, paramTypes, returnType, qualifiers);
     }
 
     private static SemType from(BType type) {

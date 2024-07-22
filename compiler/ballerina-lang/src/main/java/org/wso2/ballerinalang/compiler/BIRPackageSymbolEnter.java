@@ -2082,9 +2082,10 @@ public class BIRPackageSymbolEnter {
         private FunctionAtomicType readFunctionAtomicType() throws IOException {
             SemType paramType = readSemType();
             SemType retType = readSemType();
+            SemType qualifiers = readSemType();
             boolean isGeneric = inputStream.readBoolean();
-            return isGeneric ? FunctionAtomicType.genericFrom(paramType, retType) :
-                    FunctionAtomicType.from(paramType, retType);
+            return isGeneric ? FunctionAtomicType.genericFrom(paramType, retType, qualifiers) :
+                    FunctionAtomicType.from(paramType, retType, qualifiers);
         }
 
         private IntSubtype readIntSubtype() throws IOException {

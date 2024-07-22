@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import io.ballerina.types.definition.FunctionDefinition;
+import io.ballerina.types.definition.FunctionQualifiers;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -204,7 +205,7 @@ public class SemTypeCoreTest {
 
     private SemType func(Env env, SemType args, SemType ret) {
         FunctionDefinition def = new FunctionDefinition();
-        return def.define(env, args, ret);
+        return def.define(env, args, ret, FunctionQualifiers.from(env, false, false));
     }
 
     @Test

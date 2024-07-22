@@ -22,17 +22,19 @@ package io.ballerina.types;
  *
  * @param paramType semtype of parameters represented as a tuple
  * @param retType   semtype of the return value
+ * @param qualifiers qualifiers of the function
  * @param isGeneric atomic type represent a generic (i.e. have parameters/return type with {@code typeParam} annotation)
  * @since 2201.8.0
  */
-public record FunctionAtomicType(SemType paramType, SemType retType, boolean isGeneric) implements AtomicType {
+public record FunctionAtomicType(SemType paramType, SemType retType, SemType qualifiers, boolean isGeneric)
+        implements AtomicType {
 
-    public static FunctionAtomicType from(SemType paramType, SemType rest) {
-        return new FunctionAtomicType(paramType, rest, false);
+    public static FunctionAtomicType from(SemType paramType, SemType rest, SemType qualifiers) {
+        return new FunctionAtomicType(paramType, rest, qualifiers, false);
     }
 
-    public static FunctionAtomicType genericFrom(SemType paramType, SemType rest) {
-        return new FunctionAtomicType(paramType, rest, true);
+    public static FunctionAtomicType genericFrom(SemType paramType, SemType rest, SemType qualifiers) {
+        return new FunctionAtomicType(paramType, rest, qualifiers, true);
     }
 
     @Override

@@ -26,6 +26,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
+import io.ballerina.types.definition.FunctionQualifiers;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.definition.Member;
@@ -267,13 +268,22 @@ public class SemTypeResolver {
         SemType returnType = functionType.getReturnTypeNode() != null ?
                 resolveTypeDesc(cx, mod, defn, depth + 1, functionType.getReturnTypeNode()) : PredefinedType.NIL;
         ListDefinition paramListDefinition = new ListDefinition();
+        FunctionQualifiers qualifiers = FunctionQualifiers.from(cx.env, functionType.flagSet.contains(Flag.ISOLATED),
+                functionType.flagSet.contains(Flag.TRANSACTIONAL));
         return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
-                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
+                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangFunctionTypeNode td) {
         if (isFunctionTop(td)) {
+            if (td.flagSet.contains(Flag.ISOLATED) || td.flagSet.contains(Flag.TRANSACTIONAL)) {
+                FunctionQualifiers qualifiers = FunctionQualifiers.from(cx.env, td.flagSet.contains(Flag.ISOLATED),
+                        td.flagSet.contains(Flag.TRANSACTIONAL));
+                // I think param type here is wrong. It should be the intersection of all list types, but I think
+                //  never is close enough
+                return new FunctionDefinition().define(cx.env, PredefinedType.NEVER, PredefinedType.VAL, qualifiers);
+            }
             return PredefinedType.FUNCTION;
         }
         if (td.defn != null) {
@@ -294,8 +304,10 @@ public class SemTypeResolver {
         SemType returnType = td.returnTypeNode != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.returnTypeNode) :
                 PredefinedType.NIL;
         ListDefinition paramListDefinition = new ListDefinition();
+        FunctionQualifiers qualifiers = FunctionQualifiers.from(cx.env, td.flagSet.contains(Flag.ISOLATED),
+                td.flagSet.contains(Flag.TRANSACTIONAL));
         return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
-                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
+                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
     }
 
     private boolean isFunctionTop(BLangFunctionTypeNode td) {
