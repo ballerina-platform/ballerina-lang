@@ -898,7 +898,6 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         find(typeInit.userDefinedType);
-        find(typeInit.argsExpr);
         find(typeInit.initInvocation);
     }
 
