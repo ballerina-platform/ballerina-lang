@@ -62,7 +62,9 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.STICKY_FLAG;
 
 /**
@@ -117,7 +119,8 @@ public class PackageResolution {
 
             // If the package instance is the current package, we have reached the root of the dependency graph.
             // We skip the generation of the cache for the current package.
-            if (packageInstance.descriptor() == this.rootPackageContext.descriptor()) {
+            PackageDescriptor packageDescriptor = packageInstance.descriptor();
+            if (packageDescriptor == this.rootPackageContext.descriptor()) {
                 break;
             }
 
@@ -132,17 +135,27 @@ public class PackageResolution {
             List<String> cmdArgs = new ArrayList<>();
             cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
             cmdArgs.add("pull");
-            cmdArgs.add(STICKY_FLAG + "=" + resolutionOptions.sticky());
-            cmdArgs.add(OFFLINE_FLAG + "=" + resolutionOptions.offline());
-            cmdArgs.add(packageInstance.descriptor().toString());
+            cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
+            cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
+
+            // Specify which repository to resolve the dependency from
+            Optional<BlendedManifest.Dependency> dependency =
+                    blendedManifest.userSpecifiedDependency(packageDescriptor.org(), packageDescriptor.name());
+            if (dependency.isPresent() && dependency.get().repository() != null) {
+                cmdArgs.add(REPOSITORY_FLAG + EQUAL + dependency.get().repository());
+            }
+            cmdArgs.add(packageDescriptor.toString());
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
             try {
                 Process process = processBuilder.start();
                 int i = process.waitFor();
                 if (i != 0) {
-                    throw new ProjectException(
-                            "failed to compile " + packageInstance.descriptor().toString());
+                    String errMessage = packageDescriptor.toString();
+                    if (dependency.isPresent()) {
+                        errMessage += " [repository=" + dependency.get().repository() + "]";
+                    }
+                    throw new ProjectException("failed to compile " + errMessage);
                 }
             } catch (IOException | InterruptedException e) {
                 throw new ProjectException(e);

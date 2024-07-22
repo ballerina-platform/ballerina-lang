@@ -143,6 +143,14 @@ public class RunCommand implements BLauncherCmd {
         this.errStream = outStream;
         this.offline = true;
     }
+    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.exitWhenFinish = exitWhenFinish;
+        this.outStream = outStream;
+        this.errStream = outStream;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.offline = true;
+    }
 
     RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
