@@ -88,7 +88,7 @@ function testCheckedExprWithNoErrorType3() {
 function testOnFailWithCheckInLambdaFunction() {
     function _ = function() {
         do {
-            function _ = function () {
+            function _ = function() {
                 string _ = check getVal("");
             };
         } on fail {
@@ -103,7 +103,7 @@ function getVal(string str) returns string|error {
 function testOnFailWithCheckInWorkers() {
     string[] s = [];
     worker A {
-        s.forEach(function (string k) {
+        s.forEach(function(string k) {
             string _ = check getVal2();
         });
     } on fail {
