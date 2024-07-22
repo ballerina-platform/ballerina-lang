@@ -19,9 +19,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
-    runtimeClasspath {
-        transitive false
-    }
+    runtimeClasspath.transitive = false
 }
 
 dependencies {
