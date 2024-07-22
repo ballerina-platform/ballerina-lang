@@ -78,6 +78,8 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"changeVarTypeOfWildcardBindings2.json"},
                 {"changeVarTypeOfWildcardBindings3.json"},
                 {"changeVarTypeOfWildcardBindings4.json"},
+                {"changeVarTypeOfWildcardBindings5.json"},
+                {"changeVarTypeOfWildcardBindings6.json"},
         };
     }
 

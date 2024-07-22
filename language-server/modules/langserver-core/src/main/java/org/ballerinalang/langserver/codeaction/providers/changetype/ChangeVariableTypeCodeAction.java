@@ -307,10 +307,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         if (bindingPatternNode.kind() == SyntaxKind.WILDCARD_BINDING_PATTERN) {
             return Optional.of(UNDERSCORE);
         }
-        if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            return Optional.empty();
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());
         }
-        return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());
+        return Optional.empty();
     }
 
     private Optional<String> getObjectFieldName(ObjectFieldNode node) {
