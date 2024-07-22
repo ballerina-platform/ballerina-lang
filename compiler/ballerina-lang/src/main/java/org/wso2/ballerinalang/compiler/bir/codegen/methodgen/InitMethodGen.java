@@ -514,7 +514,7 @@ public class InitMethodGen {
         BIROperand defaultFP = new BIROperand(defaultFuncVar);
         boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
         return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, defaultFP, args, argOperand, false,
-                thenBB, null, workerDerivative);
+                thenBB, null, workerDerivative, new ArrayList<>());
     }
 
     private BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,

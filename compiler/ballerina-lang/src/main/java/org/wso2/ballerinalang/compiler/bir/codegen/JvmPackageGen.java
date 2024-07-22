@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
@@ -116,11 +115,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_GE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -140,11 +139,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
 public class JvmPackageGen {
 
     private static final Unifier unifier = new Unifier();
-
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final MethodGen methodGen;
-    private final FrameClassGen frameClassGen;
     private final InitMethodGen initMethodGen;
     private final ConfigMethodGen configMethodGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
@@ -165,7 +162,6 @@ public class JvmPackageGen {
         methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
-        frameClassGen = new FrameClassGen();
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
 
@@ -336,14 +332,12 @@ public class JvmPackageGen {
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = unifier.build(retType);
         }
-
         String jvmMethodDescription;
         if (receiver == null) {
             jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(functionTypeDesc.paramTypes, retType);
         } else {
             jvmMethodDescription = JvmCodeGenUtil.getMethodDesc(functionTypeDesc.paramTypes, retType, receiver.type);
         }
-
         return new BIRFunctionWrapper(packageID, currentFunc, moduleClass, jvmMethodDescription);
     }
 
@@ -357,12 +351,10 @@ public class JvmPackageGen {
             // some generated functions will not have bir function
             return null;
         }
-
         return func;
     }
 
     private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
-
         for (BIRFunction func : functions) {
             if (func.name.value.equals(funcName)) {
                 return func;
@@ -394,7 +386,6 @@ public class JvmPackageGen {
                         generatePackageVariable(globalVar, cw);
                     }
                 }
-
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmConstantsGen,
                         asyncDataCollector, isRemoteMgtEnabled);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
@@ -405,7 +396,6 @@ public class JvmPackageGen {
                 if (isTestable) {
                     initMethodGen.generateGetTestExecutionState(cw, moduleClass);
                 }
-
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
                 initMethodGen.generateModuleStop(cw, moduleInitClass, asyncDataCollector, jvmConstantsGen);
@@ -419,13 +409,12 @@ public class JvmPackageGen {
             cw.visitSource(javaClass.sourceFileName, null);
             // generate methods
             for (BIRFunction func : javaClass.functions) {
-                methodGen.generateMethod(func, cw, module, null, moduleClass, jvmTypeGen, jvmCastGen,
-                        jvmConstantsGen, asyncDataCollector);
+                methodGen.generateMethod(func, cw, module, null, moduleClass, jvmTypeGen, jvmCastGen, jvmConstantsGen
+                        , asyncDataCollector);
             }
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
                     jvmConstantsGen);
             cw.visitEnd();
-
             byte[] bytes = getBytes(cw, module);
             jarEntries.put(moduleClass + CLASS_FILE_SUFFIX, bytes);
         });
@@ -459,12 +448,10 @@ public class JvmPackageGen {
 
         // link typedef - object attached native functions
         linkTypeDefinitions(module, isEntry);
-
         return jvmClassMap;
     }
 
     private void linkGlobalVars(BIRPackage module, String initClass, boolean isEntry) {
-
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.constValue.type,
@@ -478,25 +465,19 @@ public class JvmPackageGen {
                 globalVarClassMap.put(pkgName + globalVar.name.value, initClass);
             }
         }
-
         globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
-
     private void linkTypeDefinitions(BIRPackage module, boolean isEntry) {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
-
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
-
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
             }
-
             List<BIRFunction> attachedFuncs = optionalTypeDef.attachedFuncs;
             String typeName = toNameString(bType);
             for (BIRFunction func : attachedFuncs) {
-
                 // link the bir function for lookup
                 String functionName = func.name.value;
                 String lookupKey = typeName + "." + functionName;
@@ -528,7 +509,6 @@ public class JvmPackageGen {
         if (functions.isEmpty()) {
             return;
         }
-
         int funcSize = functions.size();
         int count = 0;
         // Generate init class. Init function should be the first function of the package, hence check first
@@ -624,7 +604,6 @@ public class JvmPackageGen {
     }
 
     public byte[] getBytes(ClassWriter cw, BIRNode node) {
-
         byte[] result;
         try {
             return cw.toByteArray();
@@ -646,7 +625,6 @@ public class JvmPackageGen {
         } catch (Throwable e) {
             throw new BLangCompilerException(e.getMessage(), e);
         }
-
         return result;
     }
 
@@ -660,7 +638,6 @@ public class JvmPackageGen {
     }
 
     BType lookupTypeDef(NewInstance objectNewIns) {
-
         if (!objectNewIns.isExternalDef) {
             return objectNewIns.def.type;
         } else {
@@ -681,7 +658,6 @@ public class JvmPackageGen {
                     return objectTypeSymbol.type;
                 }
             }
-
             throw new BLangCompilerException("Reference to unknown type " + objectNewIns.externalPackageId
                     + "/" + objectNewIns.objectName);
         }
@@ -744,8 +720,7 @@ public class JvmPackageGen {
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
-        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries
-        );
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
@@ -756,9 +731,6 @@ public class JvmPackageGen {
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen, module);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, asyncDataCollector);
-
-        // generate frame classes
-        frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
@@ -772,7 +744,6 @@ public class JvmPackageGen {
 
         // clear class name mappings
         clearPackageGenInfo();
-
         return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
     }
 

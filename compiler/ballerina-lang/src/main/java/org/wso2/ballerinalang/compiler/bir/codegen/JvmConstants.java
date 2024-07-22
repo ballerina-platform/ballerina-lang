@@ -259,8 +259,6 @@ public class JvmConstants {
     public static final String SET_DETAIL_TYPE_METHOD = "setDetailType";
     public static final String SET_TYPEID_SET_METHOD = "setTypeIdSet";
     public static final String TRAP_ERROR_METHOD = "trapError";
-    public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
-    public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
     // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
