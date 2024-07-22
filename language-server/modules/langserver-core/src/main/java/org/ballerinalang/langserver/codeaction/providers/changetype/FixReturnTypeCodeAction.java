@@ -166,7 +166,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             String returnTypeDesc = functionSignatureNode.returnTypeDesc().isEmpty() ? "error?" :
                     functionSignatureNode.returnTypeDesc().get().type().toString().trim()
                             .concat("|").concat("error");
-            return List.of(getTypeChangeCodeAction(context, Set.of(returnTypeDesc), startEndPositionDetails,
+            return List.of(getReturnTypeChangeCodeAction(context, Set.of(returnTypeDesc), startEndPositionDetails,
                     functionSignatureNode, new ArrayList<>()));
 
         }
@@ -222,7 +222,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
 
         types = getPossibleCombinations(combinedTypes, types);
 
-        types.forEach(type -> codeActions.add(getTypeChangeCodeAction(context, type, startEndPositionDetails,
+        types.forEach(type -> codeActions.add(getReturnTypeChangeCodeAction(context, type, startEndPositionDetails,
                 functionSignatureNode, importEdits)));
 
         return codeActions;
@@ -233,10 +233,10 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         return NAME;
     }
 
-    private static CodeAction getTypeChangeCodeAction(CodeActionContext context, Set<String> typeSet,
-                                                      StartEndPositionDetails positionDetails,
-                                                      FunctionSignatureNode functionSignatureNode,
-                                                      List<TextEdit> importEdits) {
+    private static CodeAction getReturnTypeChangeCodeAction(CodeActionContext context, Set<String> typeSet,
+                                                            StartEndPositionDetails positionDetails,
+                                                            FunctionSignatureNode functionSignatureNode,
+                                                            List<TextEdit> importEdits) {
         List<TextEdit> edits = new ArrayList<>();
 
         String editText;
