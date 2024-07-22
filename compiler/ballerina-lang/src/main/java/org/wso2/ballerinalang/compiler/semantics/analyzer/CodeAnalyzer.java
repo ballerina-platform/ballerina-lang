@@ -3087,7 +3087,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                                                                   bLangLambdaFunction.function);
             }
         }
-
         // If this is a worker we are already in a worker action system,
         // if not we need to initiate a worker action system
         if (isWorker) {
