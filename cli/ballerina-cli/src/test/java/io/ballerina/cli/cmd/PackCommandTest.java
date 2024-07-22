@@ -98,7 +98,7 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java17")
+                .resolve("winery").resolve("0.1.0").resolve("java21")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -106,7 +106,7 @@ public class PackCommandTest extends BaseCommandTest {
     public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
         Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
-                        .toAbsolutePath().toString());
+                .toAbsolutePath().toString());
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im")
                 .toAbsolutePath().toString());
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_modifier_im")
@@ -180,7 +180,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
     }
 
@@ -196,17 +196,17 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
 
         Path balaDestPath = balaDirPath.resolve("extracted");
-        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("one-1.0.0.jar")
                 .toFile().exists());
     }
 
-    @Test(description = "Pack a package with java11 and java17 platform libs")
-    public void testPackageWithJava11andJava17PlatformLibs() throws IOException {
+    @Test(description = "Pack a package with multiple java platform libs")
+    public void testPackageWithMultipleJavaPlatformLibs() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithJava11and17PlatformLibs");
         System.setProperty(USER_DIR, projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
@@ -217,14 +217,14 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
-        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala")
                 .toFile().exists());
 
         Path balaDestPath = balaDirPath.resolve("extracted");
-        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("one-1.0.0.jar")
                 .toFile().exists());
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("two-2.0.0.jar")
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("two-2.0.0.jar")
                 .toFile().exists());
     }
 
@@ -303,7 +303,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java21-0.1.0.bala")
                 .toFile().exists());
 
         assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
@@ -321,7 +321,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithCompilerPlugin-java17-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithCompilerPlugin-java21-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
     }
@@ -358,7 +358,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithTool-java17-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithTool-java21-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("compile-empty-project-with-tool.txt"));
     }
@@ -561,6 +561,142 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertFalse(packageJsonContent.contains("\"graalvmCompatible\""));
+    }
+
+    @Test(description = "Pack with graalvm compatible single dependency.")
+    public void testPackProjectWithPlatformLibsGraal1() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal1");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal1.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": true"));
+    }
+
+    @Test(description = "Pack with non-graalvm compatible single dependency")
+    public void testPackProjectWithPlatformLibsGraal2() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal2");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal2.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
+    }
+
+    @Test(description = "Pack with a non-graalvm compatible dependency, a graalvm compatible dependency, dependency " +
+            "with unspecified attribute")
+    public void testPackProjectWithPlatformLibsGraal3() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal3");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal3.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
+    }
+
+    @Test(description = "Pack with a graalvm compatible dependency, dependency with unspecified attribute")
+    public void testPackProjectWithPlatformLibsGraal4() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal4");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal4.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertFalse(packageJsonContent.contains("\"graalvmCompatible\""));
+    }
+
+    @Test(description = "Pack with a non-graalvm compatible dependency, 'graalvmCompatible=true' attribute set at " +
+            "the platform")
+    public void testPackProjectWithPlatformLibsGraal5() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal5");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal5.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
+    }
+
+    @Test(description = "Pack with a graalvm compatible dependency, 'graalvmCompatible=false' attribute set at " +
+            "the platform")
+    public void testPackProjectWithPlatformLibsGraal6() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal6");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal6.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
+    }
+
+    @Test(description = "Pack with a graalvm compatible dependency, dependency with unspecified attribute with " +
+            "different java platforms")
+    public void testPackProjectWithPlatformLibsGraal7() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibsGraal7");
+        System.setProperty(USER_DIR, projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("pack-project-with-platform-libs-graal7.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Path balaFilePath = balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala");
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaFilePath, balaDestPath);
+        String packageJsonContent = Files.readString(balaDestPath.resolve("package.json"));
+        Assert.assertTrue(packageJsonContent.contains("\"graalvmCompatible\": false"));
     }
 
     @AfterClass

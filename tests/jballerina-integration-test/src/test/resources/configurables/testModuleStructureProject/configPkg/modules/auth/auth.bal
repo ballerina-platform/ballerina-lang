@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
-
 configurable string abc = ?;
+
+public type Error distinct error;
+
 # Returns the string `Hello` with the input string name.
 #
 # + name - name as a string
 # + return - "Hello, " with the input string name
 public function hello(string name) returns string {
-    auth:Error? e = ();
+    Error? e = ();
     if !(name is "") {
         return "Hello, " + name;
     }

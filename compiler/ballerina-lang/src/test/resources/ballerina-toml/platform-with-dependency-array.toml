@@ -3,4 +3,4 @@ org = "ballerina"
 name = "debugger_helpers"
 version = "1.0.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]

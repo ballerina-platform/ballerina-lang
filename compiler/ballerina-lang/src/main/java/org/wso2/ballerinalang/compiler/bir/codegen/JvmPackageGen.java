@@ -94,7 +94,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
@@ -383,7 +383,7 @@ public class JvmPackageGen {
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             boolean isTestable = testExecuteFunc != null;
             if (isInitClass) {
-                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
+                cw.visit(V21, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
                 jvmTypeGen.generateGetAnonTypeMethod(cw, moduleClass);
@@ -408,11 +408,12 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
+                initMethodGen.generateModuleStop(cw, moduleInitClass, asyncDataCollector, jvmConstantsGen);
                 ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(jvmTypeGen, jvmConstantsGen);
                 stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
                         immediateImports);
             } else {
-                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+                cw.visit(V21, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
             }
             cw.visitSource(javaClass.sourceFileName, null);
@@ -743,8 +744,8 @@ public class JvmPackageGen {
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
-        new ShutDownListenerGen(jvmConstantsGen).generateShutdownSignalListener(moduleInitClass, jarEntries,
-                asyncDataCollector);
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries
+        );
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function

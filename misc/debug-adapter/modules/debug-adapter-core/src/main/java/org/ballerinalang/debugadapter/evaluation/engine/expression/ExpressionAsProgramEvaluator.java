@@ -252,7 +252,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             validateForCompilationErrors(pkgCompilation);
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         } catch (ProjectException e) {
             throw createEvaluationException("failed to create executables while evaluating expression: "

@@ -48,7 +48,7 @@ public class PackageJson {
 
     // Dependencies
     private List<Dependency> dependencies; //?
-    private String platform; // target of the bala ie. java17, any etc.
+    private String platform; // target of the bala ie. java21, any etc.
     private JsonArray platformDependencies; // platform dependencies
 
     private Boolean graalvmCompatible; // GraalVM compatibility property for package
