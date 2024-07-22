@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.util.Arrays;
@@ -41,13 +42,15 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-public class BFunctionType extends BAnnotatableType implements FunctionType {
+public class BFunctionType extends BAnnotatableType implements FunctionType, PartialSemTypeSupplier {
 
     public Type restType;
     public Type retType;
     public long flags;
     public Parameter[] parameters;
-    private final Env env = Env.getInstance();
+    private static final Env env = Env.getInstance();
+    private static final SemType ISOLATED_TOP = createIsolatedTop(env);
+
     private FunctionDefinition defn;
 
     public BFunctionType(Module pkg) {
@@ -229,10 +232,18 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return flags;
     }
 
+    private static SemType createIsolatedTop(Env env) {
+        FunctionDefinition fd = new FunctionDefinition();
+        SemType ret = Builder.valType();
+        // FIXME: add a comment explaining why we are using neverType here
+        return fd.define(env, Builder.neverType(), ret, FunctionQualifiers.create(true, false));
+    }
+
     @Override
     synchronized SemType createSemType(Context cx) {
         if (isFunctionTop()) {
-            return Builder.functionType();
+            SemType topType = getTopType();
+            return Core.union(topType, BTypeConverter.wrapAsPureBType(this));
         }
         if (defn != null) {
             return defn.getSemType(env);
@@ -266,7 +277,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
-        SemType result = fd.define(env, paramType, returnType);
+        SemType result = fd.define(env, paramType, returnType, getQualifiers());
         if (hasBType) {
             cx.markProvisionTypeReset();
             SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
@@ -275,8 +286,20 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return result;
     }
 
+    private SemType getTopType() {
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
+            return ISOLATED_TOP;
+        }
+        return Builder.functionType();
+    }
+
     private record SemTypeResult(boolean hasBTypePart, SemType pureSemTypePart) {
 
+    }
+
+    private FunctionQualifiers getQualifiers() {
+        return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
+                SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }
 
     // FIXME: consider moving this to builder

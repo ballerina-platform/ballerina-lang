@@ -50,8 +50,8 @@ public class FunctionDefinition implements Definition {
         return semType;
     }
 
-    public SemType define(Env env, SemType args, SemType ret) {
-        FunctionAtomicType atomicType = new FunctionAtomicType(args, ret);
+    public SemType define(Env env, SemType args, SemType ret, FunctionQualifiers qualifiers) {
+        FunctionAtomicType atomicType = new FunctionAtomicType(args, ret, qualifiers.toSemType(env));
         RecAtom rec = this.rec;
         Atom atom;
         if (rec != null) {
@@ -62,4 +62,5 @@ public class FunctionDefinition implements Definition {
         }
         return this.createSemType(atom);
     }
+
 }
