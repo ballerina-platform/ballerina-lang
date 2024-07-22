@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.Definition;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import org.ballerinalang.model.elements.Flag;
@@ -133,10 +134,17 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
     private SemType resolveFunctionTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
                                             BLangTypeDefinition defn, int depth, BLangFunctionTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
         if (isFunctionTop(td)) {
+            if (td.flagSet.contains(Flag.ISOLATED) || td.flagSet.contains(Flag.TRANSACTIONAL)) {
+                FunctionDefinition fd = new FunctionDefinition();
+                return fd.define(env, Builder.neverType(), Builder.valType(),
+                        FunctionQualifiers.create(
+                                td.flagSet.contains(Flag.ISOLATED),
+                                td.flagSet.contains(Flag.TRANSACTIONAL)));
+            }
             return Builder.functionType();
         }
-        Env env = (Env) cx.getInnerEnv();
         Definition attachedDefinition = attachedDefinitions.get(td);
         if (attachedDefinition != null) {
             return attachedDefinition.getSemType(env);
@@ -158,7 +166,9 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         ListDefinition paramListDefinition = new ListDefinition();
         return fd.define(env,
                 paramListDefinition.defineListTypeWrapped(env, params.toArray(SemType[]::new), params.size(), rest,
-                        CELL_MUT_NONE), returnType);
+                        CELL_MUT_NONE),
+                returnType,
+                FunctionQualifiers.create(td.flagSet.contains(Flag.ISOLATED), td.flagSet.contains(Flag.TRANSACTIONAL)));
     }
 
     private boolean isFunctionTop(BLangFunctionTypeNode td) {

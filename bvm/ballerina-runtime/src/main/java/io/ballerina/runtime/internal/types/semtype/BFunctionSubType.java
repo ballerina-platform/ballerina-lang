@@ -79,21 +79,32 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
     }
 
     private static boolean functionFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        return functionPathIsEmpty(cx, functionUnionParams(cx, pos), pos, neg);
+        return functionPathIsEmpty(cx, functionUnionParams(cx, pos), functionUnionQualifiers(cx, pos), pos, neg);
     }
 
-    private static boolean functionPathIsEmpty(Context cx, SemType params, Conjunction pos, Conjunction neg) {
+    private static boolean functionPathIsEmpty(Context cx, SemType params, SemType qualifier, Conjunction pos,
+                                               Conjunction neg) {
         if (neg == null) {
             return false;
         }
         FunctionAtomicType t = cx.functionAtomicType(neg.atom());
         SemType t0 = t.paramType();
         SemType t1 = t.retType();
-        return (Core.isSubType(cx, t0, params) && functionPhi(cx, t0, Core.complement(t1), pos))
-                || functionPathIsEmpty(cx, params, pos, neg.next());
+        SemType t2 = t.qualifiers();
+        return (Core.isSubType(cx, qualifier, t2) && Core.isSubType(cx, t0, params) &&
+                functionPhi(cx, t0, Core.complement(t1), pos))
+                || functionPathIsEmpty(cx, params, qualifier, pos, neg.next());
     }
 
     private static boolean functionPhi(Context cx, SemType t0, SemType t1, Conjunction pos) {
+        if (pos == null) {
+            // t0 is NEVER only for function top types with qualifiers
+            return !Core.isNever(t0) && (Core.isEmpty(cx, t0) || Core.isEmpty(cx, t1));
+        }
+        return functionPhiInner(cx, t0, t1, pos);
+    }
+
+    private static boolean functionPhiInner(Context cx, SemType t0, SemType t1, Conjunction pos) {
         if (pos == null) {
             return Core.isEmpty(cx, t0) || Core.isEmpty(cx, t1);
         } else {
@@ -102,8 +113,8 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
             SemType s1 = s.retType();
             return (Core.isSubType(cx, t0, s0)
                     || Core.isSubType(cx, functionIntersectRet(cx, pos.next()), Core.complement(t1)))
-                    && functionPhi(cx, t0, Core.intersect(t1, s1), pos.next())
-                    && functionPhi(cx, Core.diff(t0, s0), t1, pos.next());
+                    && functionPhiInner(cx, t0, Core.intersect(t1, s1), pos.next())
+                    && functionPhiInner(cx, Core.diff(t0, s0), t1, pos.next());
         }
     }
 
@@ -119,6 +130,13 @@ public class BFunctionSubType extends SubType implements DelegatedSubType {
             return Builder.neverType();
         }
         return Core.union(cx.functionAtomicType(pos.atom()).paramType(), functionUnionParams(cx, pos.next()));
+    }
+
+    private static SemType functionUnionQualifiers(Context cx, Conjunction pos) {
+        if (pos == null) {
+            return Builder.neverType();
+        }
+        return Core.union(cx.functionAtomicType(pos.atom()).qualifiers(), functionUnionQualifiers(cx, pos.next()));
     }
 
     @Override

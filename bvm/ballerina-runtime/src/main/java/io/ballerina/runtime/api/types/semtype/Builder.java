@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.FPValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -301,6 +302,9 @@ public final class Builder {
             return typeOfArray(cx, arrayValue);
         } else if (object instanceof BMap mapValue) {
             return typeOfMap(cx, mapValue);
+        } else if (object instanceof FPValue fpValue) {
+            // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
+            return Optional.of(from(cx, fpValue.getType()));
         }
         return Optional.empty();
     }

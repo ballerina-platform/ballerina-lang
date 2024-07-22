@@ -18,6 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-public record FunctionAtomicType(SemType paramType, SemType retType) implements AtomicType {
+public record FunctionAtomicType(SemType paramType, SemType retType, SemType qualifiers) implements AtomicType {
 
 }
