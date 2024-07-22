@@ -16,8 +16,10 @@
  * under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 description = 'Ballerina - Ballerina Shell CLI'
 
@@ -26,12 +28,12 @@ group = 'io.ballerina'
 dependencies {
     implementation project(":ballerina-shell:shell-core")
     implementation project(':ballerina-parser')
-    implementation("org.jline:jline:${project.jlineVersion}")
+    implementation(libs.jline)
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
 
-    testImplementation('org.testng:testng')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation(libs.testng)
+    implementation libs.gson
 }
 
 compileJava {

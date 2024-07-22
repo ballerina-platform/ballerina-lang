@@ -16,7 +16,9 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     compile.transitive = false
@@ -30,12 +32,12 @@ dependencies {
     compileOnly project(':diagram-util')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    compileOnly (libs.eclipse.lsp4j)
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(':language-server:language-server-core')
-    testImplementation 'com.google.code.gson:gson:2.10.1'
-    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    testImplementation libs.gson
+    testImplementation libs.eclipse.lsp4j
 }
 
 test {

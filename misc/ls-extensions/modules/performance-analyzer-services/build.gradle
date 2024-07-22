@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -29,22 +31,22 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':ballerina-tools-api')
     compileOnly project(':language-server:language-server-commons')
-    implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
+    implementation(libs.swagger.parser.v2) {
         exclude group: "io.swagger", module: "swagger-compat-spec-parser"
         exclude group: "org.slf4j", module: "slf4j-ext"
         exclude group: "javax.validation", module: "validation-api"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    compileOnly(libs.eclipse.lsp4j)
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(':ballerina-parser')
     testImplementation project(':language-server:language-server-commons')
     testImplementation project(':language-server:language-server-core')
-    testImplementation "com.google.code.gson:gson:${project.gsonVersion}"
-    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
-    testImplementation (group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.28.0')
-    testImplementation (group: 'net.javacrumbs.json-unit', name: 'json-unit-json-path', version: '2.28.0')
+    testImplementation libs.gson
+    testImplementation(libs.eclipse.lsp4j)
+    testImplementation(libs.json.unit.assertj)
+    testImplementation(libs.json.unit.json.path)
 
 }
 

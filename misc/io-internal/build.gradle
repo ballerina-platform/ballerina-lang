@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+plugins {
+    id 'ballerinaStdLibBuild'
+}
 
 configurations.all {
     resolutionStrategy {

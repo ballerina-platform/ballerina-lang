@@ -15,8 +15,9 @@
  *
  */
 
- 
-apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
+plugins {
+    id 'ballerinaLangLibBuild'
+}
 
 dependencies {
     implementation ('org.apache.ws.commons.axiom:axiom-api') {

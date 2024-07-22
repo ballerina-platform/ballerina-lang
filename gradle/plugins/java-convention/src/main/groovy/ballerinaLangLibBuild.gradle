@@ -15,8 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     distributionBala {

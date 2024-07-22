@@ -43,13 +43,13 @@ dependencies {
     interopImports project(':ballerina-runtime')
 }
 
-class CreateBalaTask extends JavaExec {
+class CreateNativeBalaTask extends JavaExec {
     def isBuiltin = 'false'
     def skipWarnings = 'false'
     def jvmTarget = 'false'
     def newParser = 'true'
 
-    CreateBalaTask() {
+    CreateNativeBalaTask() {
         setMainClass('org.ballerinalang.stdlib.utils.GenerateBala')
         setEnableAssertions(true)
     }
@@ -96,7 +96,7 @@ jar {
     outputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
 }
 
-tasks.register('createBala', CreateBalaTask) {
+tasks.register('createBala', CreateNativeBalaTask) {
     dependsOn createBalHome
     dependsOn jar
     dependsOn configurations.balaImplementation

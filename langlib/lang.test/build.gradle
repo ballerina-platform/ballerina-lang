@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaStdLibBuildInternal.gradle"
+plugins {
+    id 'ballerinaStdLibBuildInternal'
+}
 
 
 dependencies {

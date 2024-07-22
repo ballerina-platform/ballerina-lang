@@ -15,18 +15,20 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProjectWithExtBala'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
-    implementation 'info.picocli:picocli'
+    implementation libs.picocli
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-cli')
     implementation project(':formatter:formatter-core')
 
-    testImplementation 'org.testng:testng'
-    testImplementation "commons-io:commons-io:${project.commonsIoVersion}"
+    testImplementation libs.testng
+    testImplementation libs.commons.io
 }
 
 test {

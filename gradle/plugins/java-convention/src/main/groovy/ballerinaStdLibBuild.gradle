@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     dist {
@@ -70,7 +72,7 @@ dependencies {
 }
 
 @CacheableTask
-class BallerinaLangLibBuildTask extends JavaExec {
+class BallerinaLangStdLibBuildTask extends JavaExec {
     @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
     @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name
@@ -92,7 +94,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
         return super.getJvmArgumentProviders()
     }
 
-    BallerinaLangLibBuildTask() {
+    BallerinaLangStdLibBuildTask() {
         setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
         standardOutput = System.out
         errorOutput = System.err
@@ -160,6 +162,8 @@ ext {
         modName = 'testobserve'
     } else if (project.projectDir.name == 'observe-internal') {
         modName = 'observe'
+    } else if (project.projectDir.name == 'io-internal') {
+        modName = 'io'
     } else {
         modName = project.projectDir.name
     }
@@ -168,7 +172,7 @@ ext {
 def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Ballerina.toml")
 def ballerinaConfigFileContent = ballerinaConfigFile.text
 def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
-def modVersion = "0.0.0"
+def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
 def jarFileName = modOrg + "-" + modName + "-" + modVersion
 
 
@@ -177,7 +181,7 @@ tasks.register('copyBallerinaProject', Copy) {
     into project.buildDir.toString() + "/ballerina-src"
 }
 
-tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
+tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
     classpath = files(project.configurations.balaCreat, jar.archiveFile)
     outputJarFileName = jarFileName
     skipBootstrap = 'true'

@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
+plugins {
+    id 'ballerinaLangLibBuild'
+}
 
 dependencies {
     implementation project(':ballerina-runtime')

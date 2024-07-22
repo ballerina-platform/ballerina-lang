@@ -16,8 +16,10 @@
  *  under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     compile.transitive = false
@@ -29,19 +31,19 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    compileOnly(libs.eclipse.lsp4j)
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
-    implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
-    implementation "org.javatuples:javatuples:${project.javaTuples}"
+    implementation libs.apache.commons.lang3
+    implementation libs.java.tuples
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(':ballerina-lang')
     testImplementation project(':formatter:formatter-core')
     testImplementation project(':language-server:language-server-core')
-    testImplementation "org.javatuples:javatuples:${project.javaTuples}"
-    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    testImplementation libs.java.tuples
+    testImplementation(libs.eclipse.lsp4j)
 }
 
 test {

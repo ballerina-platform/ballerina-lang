@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     dist {
@@ -39,9 +41,7 @@ configurations {
 }
 
 dependencies {
-    dist project(':ballerina-rt')
     balaCreat project(':lib-creator')
-
 
     distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
@@ -62,15 +62,15 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:bool', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
     //distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
 }
 
 @CacheableTask
-class BallerinaLangLibBuildTask extends JavaExec {
+class BallerinaLangNativeLibBuildTask extends JavaExec {
     @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
     @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name
@@ -92,7 +92,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
         return super.getJvmArgumentProviders()
     }
 
-    BallerinaLangLibBuildTask() {
+    BallerinaLangNativeLibBuildTask() {
         setMainClass('org.ballerinalang.stdlib.utils.BuildLangLib')
         standardOutput = System.out
         errorOutput = System.err
@@ -127,7 +127,7 @@ tasks.register('createDistributionCache') {
     doLast {
         configurations.distributionBala.each { artifact ->
             copy {
-                from zipTree( artifact.getPath() )
+                from zipTree(artifact.getPath())
                 into "$buildDir/repo"
             }
         }
@@ -152,16 +152,8 @@ tasks.register('copyInteropImports', Copy) {
 }
 
 ext {
-    if (project.projectDir.name == "testerina-core") {
-        modName = "test"
-    } else if (project.projectDir.name == 'langserver-stdlib'){
-        modName = 'module1'
-    } else if (project.projectDir.name == 'observability-test-utils'){
-        modName = 'testobserve'
-    } else if (project.projectDir.name == 'observe-internal') {
-        modName = 'observe'
-    } else if (project.projectDir.name == 'io-internal') {
-        modName = 'io'
+    if (project.projectDir.name == "debug-adapter-runtime") {
+        modName = "debugger_helpers"
     } else {
         modName = project.projectDir.name
     }
@@ -171,15 +163,14 @@ def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Bal
 def ballerinaConfigFileContent = ballerinaConfigFile.text
 def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
 def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
-def jarFileName = modOrg + "-" + modName + "-" + modVersion
-
+def jarFileName = modOrg + "-" + project.ext.modName + "-" + modVersion
 
 tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
     into project.buildDir.toString() + "/ballerina-src"
 }
 
-tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
+tasks.register('ballerinaLangLibBuild', BallerinaLangNativeLibBuildTask) {
     classpath = files(project.configurations.balaCreat, jar.archiveFile)
     outputJarFileName = jarFileName
     skipBootstrap = 'true'
@@ -193,7 +184,7 @@ tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
 }
 
 artifacts {
-    distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
+    distributionBala file("$buildDir/ballerina-src/target/${project.ext.modName}.zip"), {
         builtBy(ballerinaLangLibBuild)
     }
     distributionBirJar file("$buildDir/ballerina-src/target/${jarFileName}.jar"), {

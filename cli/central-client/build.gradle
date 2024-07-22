@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations {
     birJar
@@ -30,19 +32,19 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-runtime')
-    implementation 'me.tongfei:progressbar'
-    implementation 'com.google.code.gson:gson'
-    implementation 'com.google.code.findbugs:jsr305'
-    implementation 'com.github.zafarkhaja:java-semver'
-    implementation 'commons-io:commons-io'
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'com.squareup.okio:okio'
+    implementation libs.tongfei.progressbar
+    implementation libs.gson
+    implementation libs.findbugs.jsr305
+    implementation libs.zafarkhaja.jsemver
+    implementation libs.commons.io
+    implementation libs.okhttp
+    implementation libs.squareup.okio
 
-    testImplementation "com.squareup.okhttp3:mockwebserver:${mockWebserverVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${mockitoTestNGVersion}"
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.awaitility:awaitility'
+    testImplementation libs.okhttp.mockwebserver
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.testng
+    testImplementation libs.awaitility
 }
 
 tasks.register('createTestDistributionCache', Copy) {
