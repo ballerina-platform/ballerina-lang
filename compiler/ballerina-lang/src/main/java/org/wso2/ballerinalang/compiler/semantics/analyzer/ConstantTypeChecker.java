@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -111,7 +112,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -2789,7 +2789,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         Map<String, BLangNode> modTable;
         BConstantSymbol constantSymbol;
         int compoundExprCount = 0;
-        Deque<String> anonTypeNameSuffixes = new ConcurrentLinkedDeque<>();
+        Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
         Location pos;
     }
 }

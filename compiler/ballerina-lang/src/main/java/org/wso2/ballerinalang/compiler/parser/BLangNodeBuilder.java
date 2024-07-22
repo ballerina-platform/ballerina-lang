@@ -500,6 +500,7 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
@@ -509,7 +510,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Matcher;
 
 import static org.ballerinalang.model.elements.Flag.INCLUDED;
@@ -540,8 +540,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangMissingNodesHelper missingNodesHelper;
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
-    private Deque<BLangStatement> additionalStatements = new ConcurrentLinkedDeque<>();
-    private final Deque<String> anonTypeNameSuffixes = new ConcurrentLinkedDeque<>();
+    private Deque<BLangStatement> additionalStatements = new ArrayDeque<>();
+    private final Deque<String> anonTypeNameSuffixes = new ArrayDeque<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
     /* To keep track if we are inside a finite context */

@@ -112,6 +112,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
@@ -124,7 +125,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -226,8 +226,8 @@ public class TypeResolver {
         }
 
         for (BLangNode def : moduleDefs) {
-            resolvingTypes = new ConcurrentLinkedDeque<>();
-            resolvingModuleDefs = new ConcurrentLinkedDeque<>();
+            resolvingTypes = new ArrayDeque<>();
+            resolvingModuleDefs = new ArrayDeque<>();
             switch (def.getKind()) {
                 case CLASS_DEFN -> {
                     intersectionTypeList = new HashMap<>();
@@ -613,7 +613,7 @@ public class TypeResolver {
         // In such case, we create a new list with relevant type names.
         List<String> dependencyList = new ArrayList<>();
         dependencyList.add(currentDefnName);
-        for (var resolvingModuleDef : resolvingModuleDefs) {
+        for (String resolvingModuleDef : resolvingModuleDefs) {
             dependencyList.add(0, resolvingModuleDef);
             if (resolvingModuleDef.equals(currentDefnName)) {
                 break;

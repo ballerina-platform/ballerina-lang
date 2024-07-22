@@ -222,6 +222,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -234,7 +235,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -296,7 +296,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.unifier = new Unifier();
-        this.anonTypeNameSuffixes = new ConcurrentLinkedDeque<>();
+        this.anonTypeNameSuffixes = new ArrayDeque<>();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -5101,7 +5101,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
-        Deque<SymbolEnv> prevEnvs = new ConcurrentLinkedDeque<>();
+        Deque<SymbolEnv> prevEnvs = new ArrayDeque<>();
         // The `typeChecker` field is used to set the correct typeChecker to call in query context.
         // TODO: Create new SemanticAnalyzer by extending current SemanticAnalyzer and use from QueryTypeChecker.
         TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);

@@ -252,6 +252,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
@@ -264,7 +265,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -4172,7 +4172,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         public final List<BLangAlternateWorkerReceive> alternateWorkerReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
-        private Deque<WorkerActionStateMachine> workerActionStateMachines = new ConcurrentLinkedDeque<>();
+        private Deque<WorkerActionStateMachine> workerActionStateMachines = new ArrayDeque<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
         private Map<String, Integer> workerEventIndexMap = new HashMap<>();
         private boolean hasErrors = false;
@@ -4427,7 +4427,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
         int workerSystemMovementSequence;
-        Deque<WorkerActionSystem> workerActionSystemStack = new ConcurrentLinkedDeque<>();
+        Deque<WorkerActionSystem> workerActionSystemStack = new ArrayDeque<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
         // Field related to transactions
         int transactionCount;
@@ -4437,9 +4437,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean commitRollbackAllowed;
         int commitCountWithinBlock;
         int rollbackCountWithinBlock;
-        Deque<Boolean> loopWithinTransactionCheckStack = new ConcurrentLinkedDeque<>();
-        Deque<Boolean> returnWithinTransactionCheckStack = new ConcurrentLinkedDeque<>();
-        Deque<Boolean> transactionalFuncCheckStack = new ConcurrentLinkedDeque<>();
+        Deque<Boolean> loopWithinTransactionCheckStack = new ArrayDeque<>();
+        Deque<Boolean> returnWithinTransactionCheckStack = new ArrayDeque<>();
+        Deque<Boolean> transactionalFuncCheckStack = new ArrayDeque<>();
         // Fields related to lock
         boolean withinLockBlock;
         // Common fields
@@ -4448,7 +4448,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean queryToTableWithKey;
         boolean withinQuery;
         Types.QueryConstructType queryConstructType;
-        Deque<LinkedHashSet<BType>> returnTypes = new ConcurrentLinkedDeque<>();
+        Deque<LinkedHashSet<BType>> returnTypes = new ArrayDeque<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
     }
 }
