@@ -22,10 +22,10 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * {@code TransactionLocalContext} stores the transaction related information.
@@ -60,8 +60,8 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        this.transactionBlockIdStack = new ConcurrentLinkedDeque<>();
-        this.transactionFailure = new ConcurrentLinkedDeque<>();
+        this.transactionBlockIdStack = new ArrayDeque<>();
+        this.transactionFailure = new ArrayDeque<>();
         this.rollbackOnlyError = null;
         this.isTransactional = true;
         this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());

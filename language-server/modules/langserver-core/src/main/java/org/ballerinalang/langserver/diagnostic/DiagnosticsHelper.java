@@ -37,6 +37,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -78,7 +78,7 @@ public class DiagnosticsHelper {
     private DiagnosticsHelper(LanguageServerContext serverContext) {
         serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
-        this.cyclicDependencyErrors = new ConcurrentLinkedDeque<>();
+        this.cyclicDependencyErrors = new ArrayDeque<>();
     }
 
     /**

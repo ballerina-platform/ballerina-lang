@@ -229,6 +229,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -241,7 +242,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -286,7 +286,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
-        this.currDependentSymbolDeque = new ConcurrentLinkedDeque<>();
+        this.currDependentSymbolDeque = new ArrayDeque<>();
         this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
         this.unusedLocalVariables = new HashMap<>();
     }
@@ -310,7 +310,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         this.possibleFailureUnInitVars = new LinkedHashMap<>();
-        this.enclosingOnFailClause = new ConcurrentLinkedDeque<>();
+        this.enclosingOnFailClause = new ArrayDeque<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);

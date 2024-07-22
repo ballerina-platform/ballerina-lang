@@ -90,13 +90,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -161,7 +161,7 @@ public class QueryTypeChecker extends TypeChecker {
         commonAnalyzerData.checkedErrorList = new HashSet<>();
 
         Deque<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
-        commonAnalyzerData.queryFinalClauses = new ConcurrentLinkedDeque<>();
+        commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
 
         int prevLetCount = commonAnalyzerData.letCount;
         commonAnalyzerData.letCount = 0;
@@ -241,7 +241,7 @@ public class QueryTypeChecker extends TypeChecker {
 
         //reset common analyzer data
         Deque<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
-        commonAnalyzerData.queryFinalClauses = new ConcurrentLinkedDeque<>();
+        commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
 
         int prevLetCount = commonAnalyzerData.letCount;
         commonAnalyzerData.letCount = 0;

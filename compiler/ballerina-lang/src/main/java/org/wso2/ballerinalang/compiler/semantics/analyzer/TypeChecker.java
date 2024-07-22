@@ -187,6 +187,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
@@ -200,7 +201,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -358,7 +358,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
-        return checkExpr(expr, env, symTable.noType, new ConcurrentLinkedDeque<>());
+        return checkExpr(expr, env, symTable.noType, new ArrayDeque<>());
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
@@ -370,8 +370,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
         data.prevEnvs = prevEnvs;
-        data.commonAnalyzerData.queryFinalClauses = new ConcurrentLinkedDeque<>();
-        data.commonAnalyzerData.queryEnvs = new ConcurrentLinkedDeque<>();
+        data.commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
+        data.commonAnalyzerData.queryEnvs = new ArrayDeque<>();
         return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 

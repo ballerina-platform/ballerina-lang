@@ -18,10 +18,10 @@
 
 package io.ballerina.shell.cli.jline.parser;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * State machine implementation for ballerina parser.
@@ -71,7 +71,7 @@ public class ParserStateMachine {
 
     public ParserStateMachine() {
         this.state = ParserState.NORMAL;
-        this.stack = new ConcurrentLinkedDeque<>();
+        this.stack = new ArrayDeque<>();
     }
 
     public void feed(char character) {

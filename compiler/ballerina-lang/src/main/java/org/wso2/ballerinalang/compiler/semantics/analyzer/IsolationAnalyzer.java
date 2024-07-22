@@ -264,6 +264,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -271,7 +272,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -297,8 +297,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
     private boolean inIsolatedStartAction = false;
-    private final Deque<LockInfo> copyInLockInfoStack = new ConcurrentLinkedDeque<>();
-    private final Deque<Set<BSymbol>> isolatedLetVarStack = new ConcurrentLinkedDeque<>();
+    private final Deque<LockInfo> copyInLockInfoStack = new ArrayDeque<>();
+    private final Deque<Set<BSymbol>> isolatedLetVarStack = new ArrayDeque<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 

@@ -307,6 +307,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -323,7 +324,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -398,7 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private ClassClosureDesugar classClosureDesugar;
     private LargeMethodSplitter largeMethodSplitter;
 
-    public Deque<BLangLockStmt> enclLocks = new ConcurrentLinkedDeque<>();
+    public Deque<BLangLockStmt> enclLocks = new ArrayDeque<>();
     private BLangOnFailClause onFailClause;
     private boolean shouldReturnErrors;
     private int transactionBlockCount;
@@ -424,8 +424,8 @@ public class Desugar extends BLangNodeVisitor {
     private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
-    private Deque<BLangMatchStatement> matchStmtStack = new ConcurrentLinkedDeque<>();
-    Deque<BLangExpression> accessExprStack = new ConcurrentLinkedDeque<>();
+    private Deque<BLangMatchStatement> matchStmtStack = new ArrayDeque<>();
+    Deque<BLangExpression> accessExprStack = new ArrayDeque<>();
     private BLangMatchClause successClause;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
@@ -10061,8 +10061,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.setBType(originalExprType);
         // Reset the variables
-        this.matchStmtStack = new ConcurrentLinkedDeque<>();
-        this.accessExprStack = new ConcurrentLinkedDeque<>();
+        this.matchStmtStack = new ArrayDeque<>();
+        this.accessExprStack = new ArrayDeque<>();
         this.successClause = null;
         this.safeNavigationAssignment = null;
         return stmtExpression;
