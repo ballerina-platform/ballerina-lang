@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Constants used in test cases.
  */
 public final class TestConstant {
+
     public static final String CONTENT_TYPE_JSON = "application/json";
     public static final String CONTENT_TYPE_XML = "application/xml";
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";

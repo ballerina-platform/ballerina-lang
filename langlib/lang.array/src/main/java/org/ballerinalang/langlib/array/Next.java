@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BObject;
  * @since 1.0
  */
 public final class Next {
+
     private Next() {
     }
 

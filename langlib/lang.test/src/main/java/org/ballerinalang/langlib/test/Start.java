@@ -22,6 +22,7 @@ package org.ballerinalang.langlib.test;
  * @since 2.0.0
  */
 public final class Start {
+
     private Start() {
     }
 

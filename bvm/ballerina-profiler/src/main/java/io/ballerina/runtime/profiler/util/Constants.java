@@ -26,6 +26,7 @@ import java.io.PrintStream;
  * @since 2201.8.0
  */
 public final class Constants {
+
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GRAY = "\033[37m";
     public static final String ANSI_CYAN = "\033[1;38;2;32;182;176m";

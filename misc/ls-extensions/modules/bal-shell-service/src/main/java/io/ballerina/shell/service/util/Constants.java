@@ -21,6 +21,7 @@ package io.ballerina.shell.service.util;
  * @since 2201.1.1
  */
 public final class Constants {
+
     public static final String MIME_TYPE_PLAIN_TEXT = "plain/text";
     public static final String MIME_TYPE_TABLE = "ballerina-notebook/table-view";
     public static final String MIME_TYPE_JSON = "ballerina-notebook/json-view";

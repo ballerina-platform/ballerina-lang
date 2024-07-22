@@ -23,6 +23,7 @@ package io.ballerina.toml.internal.parser;
  * @since 1.2.0
  */
 public final class LexerTerminals {
+
     // Keywords
     public static final String TRUE = "true";
     public static final String FALSE = "false";

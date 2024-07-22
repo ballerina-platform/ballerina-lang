@@ -83,6 +83,7 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
  * @since 2.0.0
  */
 public final class BalaFiles {
+
     private static final Gson gson = new Gson();
 
     // TODO change class name to utils

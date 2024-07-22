@@ -45,6 +45,7 @@ import java.util.Optional;
  * Utility class for go to definition functionality of language server.
  */
 public final class ReferencesUtil {
+
     private ReferencesUtil() {
     }
     

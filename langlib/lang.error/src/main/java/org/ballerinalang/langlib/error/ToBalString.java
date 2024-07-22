@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BString;
  * @since 2.0.0
  */
 public final class ToBalString {
+
     private ToBalString() {
     }
 

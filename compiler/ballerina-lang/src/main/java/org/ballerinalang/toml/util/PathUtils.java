@@ -24,6 +24,7 @@ import java.util.Locale;
  *
  */
 public final class PathUtils {
+
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private PathUtils() {

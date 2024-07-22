@@ -30,6 +30,7 @@ import io.ballerina.syntaxapicallsgen.segment.SyntaxKindSegment;
  * @since 2.0.0
  */
 public final class SegmentFactory {
+
     private static final String NULL_LITERAL = "null";
 
     private SegmentFactory() {

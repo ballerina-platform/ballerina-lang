@@ -25,6 +25,7 @@ import io.ballerina.semtype.subtypedata.IntSubtype;
  * @since 2.0.0
  */
 public final class PredefinedType {
+
     public static final UniformTypeBitSet NEVER = uniformTypeUnion(0);
     public static final UniformTypeBitSet NIL = uniformType(UniformTypeCode.UT_NIL);
     public static final UniformTypeBitSet BOOLEAN = uniformType(UniformTypeCode.UT_BOOLEAN);

@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
  * @since 1.0
  */
 public final class XMLNSCompletionItemBuilder {
+
     private XMLNSCompletionItemBuilder() {
     }
 

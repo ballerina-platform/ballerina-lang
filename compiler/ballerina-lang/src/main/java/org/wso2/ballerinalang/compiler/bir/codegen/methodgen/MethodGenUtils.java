@@ -54,6 +54,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  * @since 2.0.0
  */
 public final class MethodGenUtils {
+
     public static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = ".<init>";
     static final String STOP_FUNCTION_SUFFIX = ".<stop>";

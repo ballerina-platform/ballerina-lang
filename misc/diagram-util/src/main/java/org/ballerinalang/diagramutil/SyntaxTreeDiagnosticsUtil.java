@@ -29,6 +29,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
  */
 
 public final class SyntaxTreeDiagnosticsUtil {
+
     private SyntaxTreeDiagnosticsUtil() {
     }
 

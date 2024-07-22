@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
  * @since 0.94
  */
 public final class SymTag {
+
     public static final long NIL = 0;
     public static final long IMPORT = 1;
     public static final long ANNOTATION = 1 << 1;

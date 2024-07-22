@@ -29,6 +29,7 @@ import java.util.HashMap;
  * @since 2.0.0
  */
 public final class InvokerMemory {
+
     private static final String QUOTE = "'";
     private static final HashMap<String, HashMap<String, Object>> memory = new HashMap<>();
 

@@ -23,6 +23,7 @@ package io.ballerina.compiler.internal.parser.tree;
  * @since 2.0.0
  */
 public final class STTreeModifiers {
+
     private STTreeModifiers() {
     }
 

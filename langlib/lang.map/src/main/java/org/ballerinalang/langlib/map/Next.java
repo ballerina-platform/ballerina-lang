@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BObject;
 //        isPublic = true
 //)
 public final class Next {
+
     private Next() {
     }
 

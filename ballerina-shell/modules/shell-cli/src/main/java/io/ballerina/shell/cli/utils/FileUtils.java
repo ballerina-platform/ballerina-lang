@@ -35,6 +35,7 @@ import java.util.Scanner;
  * @since 2.0.0
  */
 public final class FileUtils {
+
     private static final String SPECIAL_DELIMITER = "\\A";
 
     private FileUtils() {

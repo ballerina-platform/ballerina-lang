@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
  * @since 2.0.0
  */
 public final class ImportDeclarationContextUtil {
+
     private ImportDeclarationContextUtil() {
     }
 

@@ -23,6 +23,7 @@ import java.io.File;
  * Utilities for Maven dependency resolving.
  */
 public final class Utils {
+
     private Utils() {
     }
 

@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
  * @since 1.3.0
  */
 public final class AssertFalse {
+
     private AssertFalse() {
     }
 

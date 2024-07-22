@@ -21,6 +21,7 @@ package org.ballerinalang.test.context;
  * Constant used for server startup.
  */
 public final class Constant {
+
     //Name of the system property define the location of the service distribution
     public static final String SYSTEM_PROP_SERVER_ZIP = "server.zip";
     //Name of the system property define the location of the jballerina service distribution

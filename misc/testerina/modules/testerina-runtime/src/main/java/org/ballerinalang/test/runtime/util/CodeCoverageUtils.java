@@ -76,6 +76,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
  * @since 1.2.0
  */
 public final class CodeCoverageUtils {
+
     private  static final String REPORT_ZIP_DIRECTORY = Paths.get(System.getProperty(BALLERINA_HOME))
             .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.TOOLS_DIR_NAME)
             .resolve(TesterinaConstants.COVERAGE_DIR).resolve(REPORT_ZIP_NAME).toString()

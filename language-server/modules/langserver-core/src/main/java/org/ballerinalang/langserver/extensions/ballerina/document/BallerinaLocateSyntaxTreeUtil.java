@@ -38,6 +38,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public final class BallerinaLocateSyntaxTreeUtil {
+
     private static final String POSITION = "position";
     private static final String LOCATE_PATH_PROPERTY = "isNodePath";
     private static final String LOCATED_NODE_PROPERTY = "isLocatedNode";
