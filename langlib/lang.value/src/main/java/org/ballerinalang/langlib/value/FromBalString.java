@@ -32,6 +32,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.FROM_BAL_STRING_
  * @since 2.0.0
  */
 public final class FromBalString {
+
     private FromBalString() {
     }
 

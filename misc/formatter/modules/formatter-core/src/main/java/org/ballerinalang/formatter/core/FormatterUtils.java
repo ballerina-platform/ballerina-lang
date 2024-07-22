@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
  * Class that contains the util functions used by the formatting tree modifier.
  */
 public final class FormatterUtils {
+
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
     private static final String FORMAT_FILE_FIELD = "configPath";
     private static final String FORMAT_OPTION_FILE_EXT = ".toml";

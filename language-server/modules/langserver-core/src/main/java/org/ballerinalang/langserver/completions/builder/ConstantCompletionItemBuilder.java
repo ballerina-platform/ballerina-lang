@@ -36,6 +36,7 @@ import java.util.Optional;
  * @since 1.0
  */
 public final class ConstantCompletionItemBuilder {
+
     private ConstantCompletionItemBuilder() {
     }
 

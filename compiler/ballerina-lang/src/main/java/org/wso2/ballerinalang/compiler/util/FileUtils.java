@@ -44,6 +44,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  * @since 0.970.0
  */
 public final class FileUtils {
+
     private static final String SRC_DIR = "src";
 
     private FileUtils() {

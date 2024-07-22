@@ -32,6 +32,7 @@ import java.util.HashMap;
  * @since 2.0.0
  */
 public final class ServiceAnnotValue {
+
     static HashMap<Integer, MapValue> serviceAnnotMap = new HashMap();
     private static BObject listener;
     private static boolean started;

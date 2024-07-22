@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
  * @since 1.0.0
  */
 public final class JavaUtils {
+
     private static final String booleanTypeName = "boolean";
     private static final String byteTypeName = "byte";
     private static final String shortTypeName = "short";

@@ -46,6 +46,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessag
  * @since 0.8.0
  */
 public final class Main {
+
     private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
     private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";

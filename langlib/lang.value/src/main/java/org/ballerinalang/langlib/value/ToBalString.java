@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BString;
  * @since Swan Lake
  */
 public final class ToBalString {
+
     private ToBalString() {
     }
 

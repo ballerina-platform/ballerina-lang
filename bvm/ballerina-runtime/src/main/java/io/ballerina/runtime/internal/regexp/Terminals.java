@@ -23,6 +23,7 @@ package io.ballerina.runtime.internal.regexp;
  * @since 2201.3.0
  */
 public final class Terminals {
+
     public static final char MINUS = '-';
     public static final char BACKSLASH = '\\';
     public static final char BITWISE_XOR = '^';

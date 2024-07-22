@@ -41,6 +41,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //        isPublic = true
 //)
 public final class LastIndexOf {
+
     private LastIndexOf() {
     }
 

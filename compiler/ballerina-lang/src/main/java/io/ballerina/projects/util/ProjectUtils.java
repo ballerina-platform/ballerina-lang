@@ -129,6 +129,7 @@ import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
  * @since 2.0.0
  */
 public final class ProjectUtils {
+
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");

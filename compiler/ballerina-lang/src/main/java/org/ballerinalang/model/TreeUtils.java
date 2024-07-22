@@ -26,7 +26,7 @@ import java.util.Map;
  * This contains model tree related utility functions. 
  */
 public final class TreeUtils {
-    
+
     private static Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
     
     static {

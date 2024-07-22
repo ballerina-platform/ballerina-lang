@@ -34,6 +34,7 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
  * @since 2201.3.0
  */
 public final class Matches {
+
     private Matches() {
     }
 

@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BXml;
 //        isPublic = true
 //)
 public final class Next {
+
     private Next() {
     }
 

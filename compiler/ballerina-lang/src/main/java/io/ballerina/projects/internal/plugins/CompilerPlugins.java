@@ -42,6 +42,7 @@ import java.util.ServiceLoader;
  * @since 2.0.0
  */
 public final class CompilerPlugins {
+
     static List<CompilerPlugin> builtInPlugins = new ArrayList<>();
 
     private CompilerPlugins() {

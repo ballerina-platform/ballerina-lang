@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BXml;
  * @since 2.0
  */
 public final class Data {
+
     private static final BString empty = StringUtils.fromString("");
 
     private Data() {

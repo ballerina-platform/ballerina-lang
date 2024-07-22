@@ -12,6 +12,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
  * @since 2.0.0
  */
 public final class ClassDefinitionNodeContextUtil {
+
     private ClassDefinitionNodeContextUtil() {
     }
 

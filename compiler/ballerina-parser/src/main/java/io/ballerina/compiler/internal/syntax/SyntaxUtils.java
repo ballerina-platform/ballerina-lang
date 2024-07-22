@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.Token;
  * @since 2.0.0
  */
 public final class SyntaxUtils {
+
     private SyntaxUtils() {
     }
 

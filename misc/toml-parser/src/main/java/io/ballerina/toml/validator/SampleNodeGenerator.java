@@ -37,6 +37,7 @@ import io.ballerina.toml.syntax.tree.Token;
  * @since v2.0.0
  */
 public final class SampleNodeGenerator {
+
     private static final String NEW_LINE = System.lineSeparator();
 
     private SampleNodeGenerator() {

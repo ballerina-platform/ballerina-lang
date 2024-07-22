@@ -43,6 +43,7 @@ import javax.xml.XMLConstants;
 //        isPublic = true
 //)
 public final class CreateElement {
+
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
     private static final String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";

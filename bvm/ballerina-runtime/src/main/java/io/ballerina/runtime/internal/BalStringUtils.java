@@ -51,6 +51,7 @@ import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStri
  * @since 2.0.0
  */
 public final class BalStringUtils {
+
     private static boolean hasCycles = false;
 
     private BalStringUtils() {}

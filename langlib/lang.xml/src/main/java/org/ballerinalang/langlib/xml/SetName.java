@@ -40,6 +40,7 @@ import javax.xml.namespace.QName;
 //        isPublic = true
 //)
 public final class SetName {
+
     private static final String OPERATION = "set element name in xml";
 
     private SetName() {

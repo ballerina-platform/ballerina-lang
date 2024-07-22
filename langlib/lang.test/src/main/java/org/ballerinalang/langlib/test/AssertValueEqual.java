@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  * @since 1.3.0
  */
 public final class AssertValueEqual {
+
     private AssertValueEqual() {
     }
 

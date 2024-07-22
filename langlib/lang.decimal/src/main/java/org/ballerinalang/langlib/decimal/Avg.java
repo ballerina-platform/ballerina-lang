@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BDecimal;
  * @since 2201.6.0
  */
 public final class Avg {
+
     private Avg() {
     }
 

@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
  * @since 2201.6.0
  */
 public final class InlayHintProvider {
+
     private InlayHintProvider() {
     }
 

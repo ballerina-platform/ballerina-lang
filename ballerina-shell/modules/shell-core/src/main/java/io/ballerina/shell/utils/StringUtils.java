@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  * @since 2.0.0
  */
 public final class StringUtils {
+
     private static final int MAX_VAR_STRING_LENGTH = 78;
     private static final String QUOTE = "'";
     private static final String SPACE = " ";

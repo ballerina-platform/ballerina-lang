@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
  * Utility class for managing responses.
  */
 public final class ResponseReader {
+
     private static final Logger LOG = LoggerFactory.getLogger(ResponseReader.class);
 
     private ResponseReader() {

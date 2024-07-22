@@ -21,6 +21,7 @@ package io.ballerina.converters;
  * @since 2.0.0
  */
 public final class Constants {
+
     public static final String CAPABILITY_NAME = "jsonToRecord";
 
     private Constants() {

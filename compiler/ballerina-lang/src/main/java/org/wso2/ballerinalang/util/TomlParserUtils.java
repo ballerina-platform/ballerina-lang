@@ -36,6 +36,7 @@ import java.nio.file.Path;
  * @since 0.982.0
  */
 public final class TomlParserUtils {
+
     private TomlParserUtils() {
     }
 
