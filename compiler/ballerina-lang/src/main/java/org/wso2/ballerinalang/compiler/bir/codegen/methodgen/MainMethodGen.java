@@ -47,19 +47,20 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ICONST_2;
-import static org.objectweb.asm.Opcodes.IFNULL;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
@@ -71,7 +72,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_RESULT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_ALL_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
@@ -87,15 +90,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_LISTENER_FOUND_METHOD_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
@@ -105,15 +104,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
@@ -125,7 +121,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TEST_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_METHOD_SIGNATURE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
@@ -136,6 +132,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 public class MainMethodGen {
 
     public static final String INIT_FUTURE_VAR = "initFutureVar";
+    public static final String FUTURE_RESULT_VAR = "futureResultVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
     public static final String CONFIG_VAR = "configVar";
     private final SymbolTable symbolTable;
@@ -159,6 +156,10 @@ public class MainMethodGen {
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
                                    String initClass, boolean serviceEPAvailable, boolean isTestable) {
 
+        int schedulerVarIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
+        int futureResultVarIndex = indexMap.addIfNotExists(FUTURE_RESULT_VAR, symbolTable.anyType);
+        int futureVarIndex = indexMap.addIfNotExists(INIT_FUTURE_VAR, symbolTable.anyType);
+
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
                 null, null);
         mv.visitCode();
@@ -175,17 +176,18 @@ public class MainMethodGen {
         // start all listeners and TRAP signal handler
         startListenersAndSignalHandler(mv, serviceEPAvailable);
 
-        genInitScheduler(mv);
+        genInitScheduler(mv, schedulerVarIndex);
         // register a shutdown hook to call package stop() method.
         if (!isTestable) {
-            genShutdownHook(mv, initClass);
+            genShutdownHook(mv, initClass, schedulerVarIndex);
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex,
+                futureResultVarIndex);
 
         if (hasInitFunction && !isTestable) {
-            setListenerFound(mv, serviceEPAvailable);
+            setListenerFound(mv, serviceEPAvailable, schedulerVarIndex);
         }
         stopListeners(mv, serviceEPAvailable);
         if (!serviceEPAvailable && !isTestable) {
@@ -193,7 +195,7 @@ public class MainMethodGen {
         }
 
         if (isTestable) {
-            generateModuleStopCall(initClass, mv);
+            generateModuleStopCall(initClass, mv, schedulerVarIndex);
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -219,8 +221,9 @@ public class MainMethodGen {
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                             boolean isTestable) {
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+                                             boolean isTestable, int schedulerVarIndex, int futureVarIndex,
+                                             int futureResultVarIndex) {
+        mv.visitVarInsn(ALOAD, schedulerVarIndex);
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
         } else if (isTestable) {
@@ -230,12 +233,12 @@ public class MainMethodGen {
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, isTestable);
-        genReturn(mv, indexMap);
+        genSubmitToScheduler(initClass, mv, isTestable, futureVarIndex, futureResultVarIndex);
+        genReturn(mv, indexMap, futureResultVarIndex);
     }
 
-    private void generateModuleStopCall(String initClass, MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+    private void generateModuleStopCall(String initClass, MethodVisitor mv, int schedulerVarIndex) {
+        mv.visitVarInsn(ALOAD, schedulerVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getRuntimeRegistry", GET_RUNTIME_REGISTRY_CLASS, false);
         mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP, JvmSignatures.CURRENT_MODULE_STOP, false);
     }
@@ -302,13 +305,13 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListenersAndSignalHandler", "(Z)V", false);
     }
 
-    private void genShutdownHook(MethodVisitor mv, String initClass) {
+    private void genShutdownHook(MethodVisitor mv, String initClass, int schedulerVarIndex) {
         String shutdownClassName = initClass + "$SignalListener";
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime",
                            GET_RUNTIME, false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+        mv.visitVarInsn(ALOAD, schedulerVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getRuntimeRegistry",
                 GET_RUNTIME_REGISTRY_CLASS, false);
         mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD,
@@ -316,30 +319,22 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", ADD_SHUTDOWN_HOOK, false);
     }
 
-    private void genInitScheduler(MethodVisitor mv) {
+    private void genInitScheduler(MethodVisitor mv, int schedulerVarIndex) {
         mv.visitTypeInsn(NEW , SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL , SCHEDULER , JVM_INIT_METHOD, "(Z)V", false);
-        int schedulerVarIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
         mv.visitVarInsn(ASTORE, schedulerVarIndex);
     }
 
-    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable) {
+    private void setListenerFound(MethodVisitor mv, boolean serviceEPAvailable, int schedulerVarIndex) {
         // need to set immortal=true and start the scheduler again
         if (serviceEPAvailable) {
-            int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
             mv.visitInsn(ICONST_1);
             mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, SET_LISTENER_FOUND_METHOD_NAME, "(Z)V", false);
             startScheduler(schedulerVarIndex, mv);
         }
-    }
-
-    private void storeFuture(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int mainFutureVarIndex = indexMap.addIfNotExists(INIT_FUTURE_VAR, symbolTable.anyType);
-        mv.visitVarInsn(ASTORE, mainFutureVarIndex);
-        mv.visitVarInsn(ALOAD, mainFutureVarIndex);
     }
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
@@ -455,33 +450,22 @@ public class MainMethodGen {
         return defaultableNames;
     }
 
-    private void genReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
-        // store future value
-        mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
-        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE, "result", GET_OBJECT);
-
+    private void genReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, int futureResultVarIndex) {
+        mv.visitVarInsn(ALOAD, futureResultVarIndex);
         mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD,
                            HANDLE_ERROR_RETURN, false);
     }
 
-    private void genSubmitToScheduler(String initClass, MethodVisitor mv, boolean isTestFunction) {
+    private void genSubmitToScheduler(String initClass, MethodVisitor mv, boolean isTestFunction,
+                                       int futureVarIndex, int futureResultVarIndex) {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$");
-
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-
         BType anyType = symbolTable.anyType;
         jvmTypeGen.loadType(mv, anyType);
         MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, MAIN_METHOD, asyncDataCollector);
-        storeFuture(indexMap, mv);
-        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND, GET_STRAND);
-        mv.visitTypeInsn(NEW, STACK);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
-
-        startScheduler(indexMap.get(SCHEDULER_VAR), mv);
-        handleErrorFromFutureValue(mv, initClass, isTestFunction);
+        mv.visitVarInsn(ASTORE, futureVarIndex);
+        handleErrorFromFutureValue(mv, initClass, isTestFunction, futureVarIndex, futureResultVarIndex);
     }
 
     private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -489,15 +473,19 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction) {
-        mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction,
+                                            int futureVarIndex, int futureResultVarIndex) {
+        mv.visitVarInsn(ALOAD, futureVarIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, FUTURE_VALUE, GET_RESULT, RETURN_OBJECT, false);
+        mv.visitVarInsn(ASTORE, futureResultVarIndex);
 
         // handle any runtime errors
+        mv.visitVarInsn(ALOAD, futureResultVarIndex);
+        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
         Label labelIf = new Label();
-        mv.visitJumpInsn(IFNULL, labelIf);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+        mv.visitJumpInsn(IFEQ, labelIf);
+        mv.visitVarInsn(ALOAD, futureResultVarIndex);
+        mv.visitTypeInsn(CHECKCAST, THROWABLE);
         if (isTestFunction) {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_THROWABLE, false);
             mv.visitInsn(LCONST_1);

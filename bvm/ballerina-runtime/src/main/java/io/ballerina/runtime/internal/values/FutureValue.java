@@ -18,6 +18,7 @@
  package io.ballerina.runtime.internal.values;
 
  import io.ballerina.runtime.api.async.Callback;
+ import io.ballerina.runtime.api.creators.ErrorCreator;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
@@ -28,6 +29,8 @@
 
  import java.util.Map;
  import java.util.StringJoiner;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.ExecutionException;
 
  /**
   * <p>
@@ -57,11 +60,14 @@
 
      Type type;
 
+     public final CompletableFuture<Object> completableFuture;
+
      @Deprecated
      public FutureValue(Strand strand, Callback callback, Type constraint) {
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
+         this.completableFuture = new CompletableFuture<>();
      }
 
      @Override
@@ -111,21 +117,16 @@
      }
 
      /**
-      * Returns the strand that the future is attached to.
-      * @return {@code Strand}
-      */
-     @Override
-     public Strand getStrand() {
-         return this.strand;
-     }
-
-     /**
       * Returns the result value of the future.
       * @return result value
       */
      @Override
      public Object getResult() {
-         return this.result;
+         try {
+             return completableFuture.get();
+         } catch (ExecutionException| InterruptedException e){
+             return ErrorCreator.createError(e);
+         }
      }
 
      /**
@@ -134,7 +135,7 @@
       */
      @Override
      public boolean isDone() {
-         return this.isDone;
+         return completableFuture.isDone();
      }
 
      /**
@@ -144,15 +145,6 @@
      @Override
      public Throwable getPanic() {
          return this.panic;
-     }
-
-     /**
-      * {@code CallableUnitCallback} listening on the completion of this future.
-      * @return registered {@code CallableUnitCallback}
-      */
-     @Override
-     public Callback getCallback() {
-         return this.callback;
      }
 
      @Override

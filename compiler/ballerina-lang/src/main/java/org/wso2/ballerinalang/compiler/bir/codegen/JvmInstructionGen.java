@@ -1671,8 +1671,6 @@ public class JvmInstructionGen {
         String name = inst.funcName.value;
 
         String funcKey = inst.pkgId.toString() + ":" + name;
-
-
         BType type = JvmCodeGenUtil.getImpliedType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + type);
@@ -1704,23 +1702,7 @@ public class JvmInstructionGen {
         } else {
             mv.visitInsn(ICONST_0);
         }
-        this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                                FP_INIT, false);
-
-        PackageID boundMethodPkgId = inst.boundMethodPkgId;
-        String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
-        // Set annotations if available.
-        this.mv.visitInsn(DUP);
-        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
-                jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
-        // Format of name `$anon$method$delegate$Foo.func$0`.
-        this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
-                                     name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
-                                     name);
-        this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
-                PROCESS_FP_ANNOTATIONS, false);
-
+        this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
         this.storeToVar(inst.lhsOp.variableDcl);
     }
 

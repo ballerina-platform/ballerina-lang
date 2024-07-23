@@ -127,8 +127,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_ISOLATED_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_NON_ISOLATED_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -175,7 +175,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
@@ -186,8 +185,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.REMOVE_WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_FUNCTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SYNC_SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TRY_TAKE_DATA;
@@ -809,9 +807,9 @@ public class JvmTerminatorGen {
         LambdaFunction lambdaFunction = asyncDataCollector.addAndGetLambda(callIns.name.value, callIns, true);
         JvmCodeGenUtil.createFunctionPointer(this.mv, lambdaFunction.enclosingClass, lambdaFunction.lambdaName);
 
-        boolean concurrent = false;
+        boolean isIsolated = false;
         String strandName = null;
-        // check for concurrent annotation
+        // check for isIsolated annotation
         if (!callIns.annotAttachments.isEmpty()) {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
@@ -825,7 +823,7 @@ public class JvmTerminatorGen {
                     Map<String, BIRNode.ConstValue> recordValue = (Map<String, BIRNode.ConstValue>) strandAnnot;
                     if (recordValue.containsKey(STRAND_THREAD)) {
                         if (STRAND_VALUE_ANY.equals(recordValue.get(STRAND_THREAD).value)) {
-                            concurrent = true;
+                            isIsolated = true;
                         }
                     }
 
@@ -857,7 +855,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, attachedType, parentFunction, concurrent);
+        this.submitToScheduler(callIns.lhsOp, attachedType, parentFunction, isIsolated);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
@@ -985,15 +983,22 @@ public class JvmTerminatorGen {
 
         if (fpCall.isAsync) {
             String workerName = fpCall.lhsOp.variableDcl.metaVarName;
-
+            boolean isIsolated = false;
+            // check for isIsolated annotation
+            for (BIRNode.BIRAnnotationAttachment annotationAttachment : fpCall.annotAttachments) {
+                Object strandAnnot = ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue.value;
+                if (strandAnnot instanceof Map) {
+                    Map<String, BIRNode.ConstValue> recordValue = (Map<String, BIRNode.ConstValue>) strandAnnot;
+                    if (recordValue.containsKey(STRAND_THREAD)) {
+                        if (STRAND_VALUE_ANY.equals(recordValue.get(STRAND_THREAD).value)) {
+                            isIsolated = true;
+                        }
+                    }
+                }
+                break;
+            }
             // load function ref now
             this.loadVar(fpCall.fp.variableDcl);
-            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", IS_CONCURRENT, false);
-            Label notConcurrent = new Label();
-            this.mv.visitJumpInsn(IFEQ, notConcurrent);
-            Label concurrent = new Label();
-            this.mv.visitLabel(concurrent);
-            this.loadVar(fpCall.fp.variableDcl);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadFpReturnType(fpCall.lhsOp);
             this.loadVar(fpCall.fp.variableDcl);
@@ -1004,23 +1009,7 @@ public class JvmTerminatorGen {
             }
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, true);
-            Label afterSubmit = new Label();
-            this.mv.visitJumpInsn(GOTO, afterSubmit);
-            this.mv.visitLabel(notConcurrent);
-            this.loadVar(fpCall.fp.variableDcl);
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
-            loadFpReturnType(fpCall.lhsOp);
-            this.loadVar(fpCall.fp.variableDcl);
-            if (workerName == null) {
-                this.mv.visitInsn(ACONST_NULL);
-            } else {
-                this.mv.visitLdcInsn(workerName);
-            }
-            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName", ANNOTATION_GET_STRAND,
-                                    false);
-            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, false);
-            this.mv.visitLabel(afterSubmit);
+            this.submitToScheduler(fpCall.lhsOp, attachedType, funcName, isIsolated);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
                     PASS_OBJECT_RETURN_OBJECT, true);
@@ -1179,16 +1168,13 @@ public class JvmTerminatorGen {
     }
 
     private void genFlushIns(BIRTerminator.Flush ins, int localVarOffset, int invocationVarIndex) {
-
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         JvmCodeGenUtil.loadChannelDetails(this.mv, Arrays.asList(ins.channels), invocationVarIndex);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleFlush",
-                                HANDLE_FLUSH, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleFlush", HANDLE_FLUSH, false);
         this.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    private void submitToScheduler(BIROperand lhsOp, BType attachedType, String parentFunction, boolean concurrent) {
-
+    private void submitToScheduler(BIROperand lhsOp, BType attachedType, String parentFunction, boolean isIsolated) {
         String metaDataVarName;
         if (attachedType != null) {
             metaDataVarName = setAndGetStrandMetadataVarName(attachedType.tsymbol.name.value, parentFunction,
@@ -1197,12 +1183,10 @@ public class JvmTerminatorGen {
             metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(parentFunction, asyncDataCollector);
         }
         this.mv.visitFieldInsn(GETSTATIC, this.strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
-        if (concurrent) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                    SCHEDULE_FUNCTION, false);
+        if (isIsolated) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_ISOLATED_CALL, SCHEDULE_CALL, false);
         } else {
-            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
-                    SCHEDULE_LOCAL, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_NON_ISOLATED_CALL, SCHEDULE_CALL, false);
         }
         // store return
         if (lhsOp.variableDcl != null) {

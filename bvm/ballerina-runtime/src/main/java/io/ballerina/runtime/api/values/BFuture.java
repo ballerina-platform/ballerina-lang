@@ -20,6 +20,8 @@
  import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.internal.scheduling.Strand;
 
+ import java.util.concurrent.ExecutionException;
+
  /**
   * <p>
   * Represent a Ballerina future in Java.
@@ -34,16 +36,6 @@
       * The abortion occurs only after the next yield point.
       */
      void cancel();
-
-     // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
-     /**
-      * Returns the strand that the future is attached to.
-      *
-      * @return     strand
-      * @deprecated
-      */
-     @Deprecated(since = "2201.6.0", forRemoval = true)
-     Strand getStrand();
 
      /**
       * Returns the result value of the future.
@@ -65,11 +57,4 @@
       * @return panic error or null if not panic occurred
       */
      Throwable getPanic();
-
-     /**
-      * Returns {@link Callback} listening on the completion of this future.
-      *
-      * @return registered {@link Callback}
-      */
-     Callback getCallback();
  }

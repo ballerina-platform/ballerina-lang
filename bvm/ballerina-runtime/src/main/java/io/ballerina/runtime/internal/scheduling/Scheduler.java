@@ -42,6 +42,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,6 +56,8 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 public class Scheduler {
 
     private static final PrintStream err = System.err;
+
+    private final ReentrantLock globalNonIsolatedLock = new ReentrantLock();
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -125,43 +128,49 @@ public class Scheduler {
         return new HashMap<>(currentStrands);
     }
 
-    /**
-     * Schedules given function by creating a new strand group.
-     *
-     * @param params     parameters to underlying function.
-     * @param fp         function pointer to be executed.
-     * @param parent     parent of the new Strand that get created here.
-     * @param returnType return type of the function.
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return {@link FutureValue} reference to the given function pointer invocation.
-     */
-    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+    @SuppressWarnings("Code generated method for schedule isolated fucntion pointer call")
+    public FutureValue scheduleIsolatedCall(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
-        return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
-    }
 
-    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
-                                        String strandName, StrandMetadata metadata , Callback callback) {
-        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
-    }
-
-    /**
-     * Schedules given function to the callers strand group.
-     *
-     * @param params     parameters to underlying function.
-     * @param fp         function to be executed.
-     * @param parent     parent of the new Strand that get created here.
-     * @param returnType return type of the function.
-     * @param strandName name for new strand
-     * @param metadata   meta data of new strand
-     * @return {@link FutureValue} reference to the given function invocation.
-     */
-    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
-                                     String strandName, StrandMetadata metadata) {
+        System.out.println("Isolated");
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
-        return scheduleLocal(params, fp, parent, future);
+        params[0] = future.strand;
+        Thread.ofVirtual().name(strandName).start(() -> {
+            try {
+                System.out.println(strandName +  " started");
+                Function function = fp.getFunction();
+                Object result = function.apply(params);
+                future.completableFuture.complete(result);
+                System.out.println(strandName +  " done");
+            } catch (Exception e) {
+                e.printStackTrace();
+                future.completableFuture.completeExceptionally(e);
+            }
+        });
+        System.out.println("Scheduled");
+        return future;
     }
+
+    @SuppressWarnings("Code generated method for schedule non isolated fucntion pointer call")
+    public FutureValue scheduleNonIsolatedCall(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+                                        String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
+        params[0] = future.strand;
+        Thread.ofVirtual().name(strandName).start(() -> {
+            try {
+                Function function = fp.getFunction();
+                globalNonIsolatedLock.lock();
+                Object result = function.apply(params);
+                future.completableFuture.complete(result);
+            } catch (Exception e) {
+                future.completableFuture.completeExceptionally(e);
+            } finally {
+                globalNonIsolatedLock.unlock();
+            }
+        });
+        return future;
+    }
+
 
     public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, FutureValue future) {
         params[0] = future.strand;

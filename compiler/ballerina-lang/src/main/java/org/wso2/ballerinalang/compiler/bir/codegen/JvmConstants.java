@@ -260,6 +260,9 @@ public class JvmConstants {
     public static final String SET_TYPEID_SET_METHOD = "setTypeIdSet";
     public static final String TRAP_ERROR_METHOD = "trapError";
 
+    // future related constants
+    public static final String GET_RESULT = "getResult";
+
     // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
     public static final String SET_ORIGINAL_MEMBERS_METHOD = "setOriginalMemberTypes";
@@ -385,8 +388,8 @@ public class JvmConstants {
     public static final String CLASS_FILE_SUFFIX = ".class";
 
     // scheduler related constants
-    public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
-    public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
+    public static final String SCHEDULE_ISOLATED_CALL = "scheduleIsolatedCall";
+    public static final String SCHEDULE_NON_ISOLATED_CALL = "scheduleNonIsolatedCall";
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
