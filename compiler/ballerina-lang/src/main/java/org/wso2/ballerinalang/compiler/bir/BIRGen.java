@@ -1415,8 +1415,10 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
             boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
+            List<BIRAnnotationAttachment> annots =
+                    getBIRAnnotAttachmentsForASTAnnotAttachments(invocationExpr.annAttachments);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative);
+                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative, annots);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());

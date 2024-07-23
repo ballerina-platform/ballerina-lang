@@ -342,6 +342,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(0);
         }
         buf.writeBoolean(fpCall.isAsync);
+        BIRWriterUtils.writeAnnotAttachments(this.cp, buf, fpCall.annotAttachments);
         addCpAndWriteString(fpCall.thenBB.id.value);
     }
 

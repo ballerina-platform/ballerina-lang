@@ -1497,6 +1497,8 @@ types:
         if: has_lhs_operand == 1
       - id: is_asynch
         type: u1
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: then_bb_id_name_cp_index
         type: s4
   instruction_wk_receive:
