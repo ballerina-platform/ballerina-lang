@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
+
 /**
  * {@code FunctionType} represents a function type in ballerina.
  *
@@ -34,4 +36,6 @@ public interface FunctionType extends AnnotatableType {
     Type getRestType();
 
     Parameter[] getParameters();
+
+    FunctionQualifiers getQualifiers();
 }

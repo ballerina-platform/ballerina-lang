@@ -606,6 +606,11 @@ public final class TypeChecker {
             return Core.isSubType(cx, source, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
         }
         if (!Core.containsBasicType(target, B_TYPE_TOP)) {
+            if (Core.containsBasicType(source, Builder.objectType())) {
+                // This is a hack but since target defines the minimal it is fine
+                SemType sourcePureSemType = Core.intersect(source, SEMTYPE_TOP);
+                return Core.isSubType(cx, sourcePureSemType, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
+            }
             return TypeCheckResult.FALSE;
         }
         SemType sourcePureSemType = Core.intersect(source, SEMTYPE_TOP);
