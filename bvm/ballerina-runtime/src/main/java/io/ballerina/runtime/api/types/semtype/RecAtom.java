@@ -26,9 +26,9 @@ package io.ballerina.runtime.api.types.semtype;
  */
 public final class RecAtom implements Atom {
 
-    public final int index;
+    private final int index;
     private static final int BDD_REC_ATOM_READONLY = 0;
-    public static final RecAtom ZERO = new RecAtom(BDD_REC_ATOM_READONLY);
+    private static final RecAtom ZERO = new RecAtom(BDD_REC_ATOM_READONLY);
 
     private RecAtom(int index) {
         this.index = index;
@@ -38,6 +38,10 @@ public final class RecAtom implements Atom {
         if (index == BDD_REC_ATOM_READONLY) {
             return ZERO;
         }
+        return new RecAtom(index);
+    }
+
+    public static RecAtom createDistinctRecAtom(int index) {
         return new RecAtom(index);
     }
 

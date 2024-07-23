@@ -47,7 +47,7 @@ final class BTypeConverter {
     private static final SemType implementedTypes =
             unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
                     Builder.floatType(), Builder.decimalType(), Builder.stringType(), Builder.listType(),
-                    Builder.mappingType(), Builder.functionType());
+                    Builder.mappingType(), Builder.functionType(), Builder.objectType());
     private static final SemType READONLY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.readonlyType());
     private static final SemType ANY_SEMTYPE_PART = Core.intersect(implementedTypes, Builder.anyType());
 

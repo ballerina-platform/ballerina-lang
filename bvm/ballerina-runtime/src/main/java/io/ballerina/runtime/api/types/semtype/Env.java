@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static io.ballerina.runtime.api.types.semtype.Builder.LIST_ATOMIC_RO;
-import static io.ballerina.runtime.api.types.semtype.MappingAtomicType.MAPPING_ATOMIC_RO;
 
 /**
  * Represent the environment in which {@code SemTypes} are defined in. Type checking types defined in different
@@ -45,15 +43,17 @@ public final class Env {
     private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();
 
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
-    private final List<ListAtomicType> recListAtoms;
+    final List<ListAtomicType> recListAtoms;
 
     private final ReadWriteLock recMapLock = new ReentrantReadWriteLock();
-    private final List<MappingAtomicType> recMappingAtoms;
+    final List<MappingAtomicType> recMappingAtoms;
 
     private final ReadWriteLock recFunctionLock = new ReentrantReadWriteLock();
     private final List<FunctionAtomicType> recFunctionAtoms;
 
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
+
+    private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
 
     private Env() {
         this.atomTable = new HashMap<>();
@@ -61,20 +61,7 @@ public final class Env {
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
 
-        recListAtoms.add(LIST_ATOMIC_RO);
-        recMappingAtoms.add(MAPPING_ATOMIC_RO);
-
-        this.cellAtom(Builder.CELL_ATOMIC_VAL);
-        this.cellAtom(Builder.CELL_ATOMIC_NEVER);
-
-        this.cellAtom(Builder.CELL_ATOMIC_INNER);
-
-        this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING);
-        this.listAtom(Builder.LIST_ATOMIC_MAPPING);
-
-        this.cellAtom(Builder.CELL_ATOMIC_INNER_MAPPING_RO);
-        this.listAtom(Builder.LIST_ATOMIC_MAPPING_RO);
-        this.cellAtom(Builder.CELL_ATOMIC_INNER_RO);
+        PredefinedTypeEnv.getInstance().initializeEnv(this);
     }
 
     public static Env getInstance() {
@@ -221,5 +208,9 @@ public final class Env {
 
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
 
+    }
+
+    public int distinctAtomCountGetAndIncrement() {
+        return this.distinctAtomCount.getAndIncrement();
     }
 }

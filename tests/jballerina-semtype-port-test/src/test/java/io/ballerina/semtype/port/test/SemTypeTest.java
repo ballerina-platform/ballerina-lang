@@ -241,11 +241,6 @@ public class SemTypeTest {
                 "xml-te.bal"
         ));
         Predicate<File> objectFilter = createRuntimeFileNameFilter(Set.of(
-                "object-binaryops-tv.bal",
-                "object-qulifiers-tv.bal",
-                "object-rec-tv.bal",
-                "object-simple-tv.bal",
-                "object-distinct-tv.bal"
         ));
         return balFiles.stream()
                 .filter(tableFilter)
