@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -54,6 +55,8 @@ public final class Env {
     private final List<FunctionAtomicType> recFunctionAtoms;
 
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
+
+    private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
 
     private Env() {
         this.atomTable = new HashMap<>();
@@ -221,5 +224,9 @@ public final class Env {
 
     private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
 
+    }
+
+    public int distinctAtomCountGetAndIncrement() {
+        return this.distinctAtomCount.getAndIncrement();
     }
 }

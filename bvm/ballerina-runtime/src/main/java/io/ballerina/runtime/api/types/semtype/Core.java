@@ -19,6 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
+import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
@@ -33,6 +34,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_INT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_STRING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
@@ -398,4 +400,14 @@ public final class Core {
         return cat.ty();
     }
 
+    public static SemType createBasicSemType(BasicTypeCode typeCode, Bdd bdd) {
+        if (bdd instanceof BddAllOrNothing) {
+            return bdd.isAll() ? Builder.from(typeCode) : Builder.neverType();
+        }
+        SubType subType = switch (typeCode.code()) {
+            case CODE_OBJECT -> BObjectSubType.createDelegate(bdd);
+            default -> throw new IllegalArgumentException("Unexpected type code: " + typeCode);
+        };
+        return SemType.from(0, 1 << typeCode.code(), new SubType[]{subType});
+    }
 }

@@ -66,17 +66,15 @@ public class MappingDefinition implements Definition {
         BCellField[] cellFields = new BCellField[fields.length];
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
-            SemType type = field.ty;
-            SemType cellType = cellContaining(env, field.optional ? union(type, undef()) : type,
-                    field.readonly ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
-            cellFields[i] = new BCellField(field.name, cellType);
+            BCellField cellField = BCellField.from(env, field, mut);
+            cellFields[i] = cellField;
         }
         SemType restCell = cellContaining(env, union(rest, undef()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
         return define(env, cellFields, restCell);
     }
 
-    private SemType define(Env env, BCellField[] cellFields, SemType rest) {
+    SemType define(Env env, BCellField[] cellFields, SemType rest) {
         String[] names = new String[cellFields.length];
         SemType[] types = new SemType[cellFields.length];
         sortAndSplitFields(cellFields, names, types);
@@ -107,5 +105,12 @@ public class MappingDefinition implements Definition {
 
     record BCellField(String name, SemType type) {
 
+        static BCellField from(Env env, Field field, CellAtomicType.CellMutability mut) {
+            SemType type = field.ty;
+            SemType cellType = cellContaining(env, field.optional ? union(type, undef()) : type,
+                    field.readonly ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
+            BCellField cellField = new BCellField(field.name, cellType);
+            return cellField;
+        }
     }
 }

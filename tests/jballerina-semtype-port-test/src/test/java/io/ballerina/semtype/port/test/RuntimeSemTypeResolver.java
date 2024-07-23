@@ -19,6 +19,7 @@
 package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -28,9 +29,15 @@ import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.types.semtype.Member;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
+import io.ballerina.runtime.internal.types.semtype.ObjectQualifiers;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.types.ArrayTypeNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -42,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -55,6 +63,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MIN_VALUE;
@@ -73,7 +83,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private static final SemType[] EMPTY_SEMTYPE_ARR = {};
     Map<BLangType, SemType> attachedSemType = new HashMap<>();
     Map<BLangTypeDefinition, SemType> semTypeMemo = new HashMap<>();
-    Map<BLangType, Definition> attachedDefinitions = new HashMap<>();
+    Map<BLangNode, Definition> attachedDefinitions = new HashMap<>();
 
     @Override
     public void resolveTypeDefn(TypeTestContext<SemType> cx, Map<String, BLangNode> modTable,
@@ -112,7 +122,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     }
 
     private SemType resolveTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                    int depth, BLangType td) {
+                                    int depth, TypeNode td) {
         if (td == null) {
             return null;
         }
@@ -128,8 +138,92 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case CONSTRAINED_TYPE -> resolveConstrainedTypeDesc(cx, mod, defn, depth, (BLangConstrainedType) td);
             case RECORD_TYPE -> resolveRecordTypeDesc(cx, mod, defn, depth, (BLangRecordTypeNode) td);
             case FUNCTION_TYPE -> resolveFunctionTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
+            case OBJECT_TYPE -> resolveObjectTypeDesc(cx, mod, defn, depth, (BLangObjectTypeNode) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
+    }
+
+    private SemType resolveObjectTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                          BLangTypeDefinition defn, int depth, BLangObjectTypeNode td) {
+        SemType innerType = resolveNonDistinctObject(cx, mod, defn, depth, td);
+        if (td.flagSet.contains(Flag.DISTINCT)) {
+            return getDistinctObjectType((Env) cx.getInnerEnv(), innerType);
+        }
+        return innerType;
+    }
+
+    private SemType resolveNonDistinctObject(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                             BLangTypeDefinition defn, int depth, BLangObjectTypeNode td) {
+        Env env = (Env) cx.getInnerEnv();
+        Definition attachedDefinition = attachedDefinitions.get(td);
+        if (attachedDefinition != null) {
+            return attachedDefinition.getSemType(env);
+        }
+        ObjectDefinition od = new ObjectDefinition();
+        attachedDefinitions.put(td, od);
+        Stream<Member> fieldStream = td.fields.stream().map(field -> {
+            Set<Flag> flags = field.flagSet;
+            Member.Visibility visibility = flags.contains(Flag.PUBLIC) ? Member.Visibility.Public :
+                    Member.Visibility.Private;
+            SemType ty = resolveTypeDesc(cx, mod, defn, depth + 1, field.typeNode);
+            return new Member(field.name.value, ty, Member.Kind.Field, visibility, flags.contains(Flag.READONLY));
+        });
+        Stream<Member> methodStream = td.getFunctions().stream().map(method -> {
+            Member.Visibility visibility = method.flagSet.contains(Flag.PUBLIC) ? Member.Visibility.Public :
+                    Member.Visibility.Private;
+            SemType ty = resolveFunctionType(cx, mod, defn, depth + 1, method);
+            return new Member(method.name.value, ty, Member.Kind.Method, visibility, true);
+        });
+        List<Member> members = Stream.concat(fieldStream, methodStream).toList();
+        ObjectQualifiers qualifiers = getQualifiers(td);
+        return od.define(env, qualifiers, members);
+    }
+
+    private ObjectQualifiers getQualifiers(BLangObjectTypeNode td) {
+        Set<Flag> flags = td.symbol.getFlags();
+        ObjectQualifiers.NetworkQualifier networkQualifier;
+        assert !(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE)) :
+                "object can't be both client and service";
+        if (flags.contains(Flag.CLIENT)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
+        } else if (flags.contains(Flag.SERVICE)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Service;
+        } else {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.None;
+        }
+        return new ObjectQualifiers(flags.contains(Flag.ISOLATED), flags.contains(Flag.READONLY), networkQualifier);
+    }
+
+    private SemType resolveFunctionType(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                        BLangTypeDefinition defn,
+                                        int depth, BLangFunction functionType) {
+        Env env = (Env) cx.getInnerEnv();
+        Definition attached = attachedDefinitions.get(functionType);
+        if (attached != null) {
+            return attached.getSemType(env);
+        }
+        FunctionDefinition fd = new FunctionDefinition();
+        attachedDefinitions.put(functionType, fd);
+        SemType[] params = functionType.getParameters().stream()
+                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode)).toArray(SemType[]::new);
+        SemType rest;
+        if (functionType.getRestParameters() == null) {
+            rest = Builder.neverType();
+        } else {
+            ArrayTypeNode arrayType = (ArrayTypeNode) functionType.getRestParameters().getTypeNode();
+            rest = resolveTypeDesc(cx, mod, defn, depth + 1, arrayType.getElementType());
+        }
+        SemType returnType = functionType.getReturnTypeNode() != null ?
+                resolveTypeDesc(cx, mod, defn, depth + 1, functionType.getReturnTypeNode()) : Builder.nilType();
+        ListDefinition paramListDefinition = new ListDefinition();
+        FunctionQualifiers qualifiers = FunctionQualifiers.create(functionType.flagSet.contains(Flag.ISOLATED),
+                functionType.flagSet.contains(Flag.TRANSACTIONAL));
+        return fd.define(env, paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
+    }
+
+    private SemType getDistinctObjectType(Env env, SemType innerType) {
+        return Core.intersect(ObjectDefinition.distinct(env.distinctAtomCountGetAndIncrement()), innerType);
     }
 
     private SemType resolveFunctionTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -363,13 +457,25 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         }
 
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
-            return resolveTypeDefnRec(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+            SemType ty = resolveTypeDefnRec(cx, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+            if (td.flagSet.contains(Flag.DISTINCT)) {
+                return getDistinctSemType(cx, ty);
+            }
+            return ty;
         } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
             return resolveTypeDefnRec(cx, mod, constant.associatedTypeDefinition, depth);
         } else {
             throw new UnsupportedOperationException("constants and class defns not implemented");
         }
+    }
+
+    private SemType getDistinctSemType(TypeTestContext<SemType> cx, SemType innerType) {
+        Env env = (Env) cx.getInnerEnv();
+        if (Core.isSubtypeSimple(innerType, Builder.objectType())) {
+            return getDistinctObjectType(env, innerType);
+        }
+        throw new IllegalArgumentException("Distinct type not supported for: " + innerType);
     }
 
     private SemType resolveIntSubtype(String name) {

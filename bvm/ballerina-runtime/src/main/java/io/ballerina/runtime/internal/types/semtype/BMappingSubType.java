@@ -88,7 +88,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
                 (context, bdd) -> bddEvery(context, bdd, null, null, BMappingSubType::mappingFormulaIsEmpty), inner);
     }
 
-    private static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
+    static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
             combined = MAPPING_ATOMIC_INNER;
@@ -182,7 +182,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubTypeData data() {
-        throw new IllegalStateException("unimplemented");
+        return inner();
     }
 
     @Override
