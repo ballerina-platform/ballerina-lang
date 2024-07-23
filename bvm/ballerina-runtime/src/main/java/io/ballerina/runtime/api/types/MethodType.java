@@ -34,4 +34,6 @@ public interface MethodType extends FunctionType {
      * @return true if {@link MethodType} method is isolated otherwise false.
      */
     boolean isIsolated();
+
+    String name();
 }

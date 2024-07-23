@@ -46,6 +46,7 @@ public final class BasicTypeCode {
     public static final int CODE_UNDEF = 0x12;
     public static final int CODE_B_TYPE = 0x13;
 
+    // TODO: see if we can turn this class to an enum with a value
     // Inherently immutable
     public static final BasicTypeCode BT_NIL = from(CODE_NIL);
     public static final BasicTypeCode BT_BOOLEAN = from(CODE_BOOLEAN);

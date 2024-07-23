@@ -28,7 +28,7 @@ import static io.ballerina.runtime.api.types.semtype.Conjunction.and;
  *
  * @since 2201.10.0
  */
-public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNode {
+public abstract sealed class Bdd extends SubType implements SubTypeData permits BddAllOrNothing, BddNode {
 
     Bdd(boolean all, boolean nothing) {
         super(all, nothing);
@@ -229,4 +229,24 @@ public abstract sealed class Bdd extends SubType permits BddAllOrNothing, BddNod
                 && bddEvery(cx, bn.middle(), pos, neg, predicate)
                 && bddEvery(cx, bn.right(), pos, and(bn.atom(), neg), predicate);
     }
+
+    public static boolean bddEveryPositive(Context cx, Bdd b, Conjunction pos, Conjunction neg,
+                                           BddPredicate predicate) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing == BddAllOrNothing.NOTHING || predicate.apply(cx, pos, neg);
+        } else {
+            BddNode bn = (BddNode) b;
+            return bddEveryPositive(cx, bn.left(), andIfPositive(bn.atom(), pos), neg, predicate)
+                    && bddEveryPositive(cx, bn.middle(), pos, neg, predicate)
+                    && bddEveryPositive(cx, bn.right(), pos, andIfPositive(bn.atom(), neg), predicate);
+        }
+    }
+
+    private static Conjunction andIfPositive(Atom atom, Conjunction next) {
+        if (atom instanceof RecAtom recAtom && recAtom.index() < 0) {
+            return next;
+        }
+        return and(atom, next);
+    }
+
 }

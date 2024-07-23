@@ -31,12 +31,15 @@ import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
+import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,6 +50,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
@@ -54,7 +58,6 @@ import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
-import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 
 /**
  * Utility class for creating semtypes.
@@ -64,71 +67,45 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 public final class Builder {
 
     private static final String[] EMPTY_STRING_ARR = new String[0];
-    private static final SemType NEVER = SemType.from(0);
     private static final SemType VAL = SemType.from(VT_MASK);
-    private static final SemType UNDEF = from(BasicTypeCode.BT_UNDEF);
-    private static final SemType INNER = basicTypeUnion(VAL.all | UNDEF.all);
-    static final CellAtomicType CELL_ATOMIC_VAL = new CellAtomicType(
-            valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
-    );
-    public static final SemType MAPPING = from(BT_MAPPING);
-    public static final SemType FUNCTION = from(BT_FUNCTION);
-    static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
-    static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
-            neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
-    );
+    private static final SemType OBJECT = from(BT_OBJECT);
 
-    public static final int BDD_REC_ATOM_READONLY = 0;
-    // represents both readonly & map<readonly> and readonly & readonly[]
-    private static final BddNode BDD_SUBTYPE_RO = bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));
-    public static final SemType MAPPING_RO = basicSubType(BT_MAPPING, BMappingSubType.createDelegate(BDD_SUBTYPE_RO));
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING_RO =
-            new CellAtomicType(union(MAPPING_RO, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-
-    static final CellAtomicType CELL_ATOMIC_INNER = new CellAtomicType(
-            inner(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-    static final SemType CELL_SEMTYPE_INNER = basicSubType(BT_CELL,
-            BCellSubType.createDelegate(bddAtom(createTypeAtom(2, CELL_ATOMIC_INNER))));
-    public static final ListAtomicType LIST_ATOMIC_INNER = new ListAtomicType(
-            FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
-    private static final SemType VAL_READONLY = unionOf(SemType.from(VT_INHERENTLY_IMMUTABLE),
-            basicSubType(BT_LIST, BListSubType.createDelegate(BDD_SUBTYPE_RO)),
-            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(BDD_SUBTYPE_RO))
-    );
-    public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
-    public static final CellAtomicType CELL_ATOMIC_INNER_RO
-            = new CellAtomicType(INNER_READONLY, CELL_MUT_NONE);
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING
-            = new CellAtomicType(union(MAPPING, UNDEF), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-    static final SemType CELL_SEMTYPE_INNER_MAPPING = basicSubType(
-            BT_CELL, BCellSubType.createDelegate(bddAtom(createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING))));
-    public static final ListAtomicType LIST_ATOMIC_MAPPING =
-            new ListAtomicType(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING);
-
-    static final SemType CELL_SEMTYPE_INNER_MAPPING_RO = basicSubType(
-            BT_CELL,
-            BCellSubType.createDelegate(bddAtom(createTypeAtom(5, CELL_ATOMIC_INNER_MAPPING_RO))));
-    public static final ListAtomicType LIST_ATOMIC_MAPPING_RO =
-            new ListAtomicType(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING_RO);
-
-    private static final TypeAtom ATOM_CELL_INNER_RO = createTypeAtom(7, CELL_ATOMIC_INNER_RO);
-    static final SemType CELL_SEMTYPE_INNER_RO = basicSubType(
-            BT_CELL, BCellSubType.createDelegate(bddAtom(ATOM_CELL_INNER_RO)));
-    public static final ListAtomicType LIST_ATOMIC_RO = new ListAtomicType(
-            FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
+    private static final SemType INNER = basicTypeUnion(VAL.all | from(BasicTypeCode.BT_UNDEF).all);
     private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
-    public static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
-    public static final MappingAtomicType MAPPING_ATOMIC_INNER = new MappingAtomicType(
-            EMPTY_STRING_ARR, EMPTY_TYPES_ARR, CELL_SEMTYPE_INNER);
-
-    public static final SemType SIMPLE_OR_STRING =
+    private static final SemType SIMPLE_OR_STRING =
             basicTypeUnion((1 << BasicTypeCode.BT_NIL.code())
                     | (1 << BasicTypeCode.BT_BOOLEAN.code())
                     | (1 << BasicTypeCode.BT_INT.code())
                     | (1 << BasicTypeCode.BT_FLOAT.code())
                     | (1 << BasicTypeCode.BT_DECIMAL.code())
                     | (1 << BasicTypeCode.BT_STRING.code()));
-    private static final Env env = Env.getInstance();
+
+    private static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
+
+    private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
+    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
+
+    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
+    private static final ConcurrentLazyContainer<SemType> READONLY_TYPE = new ConcurrentLazyContainer<>(() -> unionOf(
+            SemType.from(VT_INHERENTLY_IMMUTABLE),
+            basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
+            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
+            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO))
+    ));
+    private static final ConcurrentLazyContainer<SemType> MAPPING_RO = new ConcurrentLazyContainer<>(() ->
+            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
+    );
+    private static final ConcurrentLazyContainer<SemType> INNER_RO =
+            new ConcurrentLazyContainer<>(() -> union(readonlyType(), inner()));
+
+    private static final ConcurrentLazyContainer<ListAtomicType> LIST_ATOMIC_INNER =
+            new ConcurrentLazyContainer<>(() -> new ListAtomicType(
+                    FixedLengthArray.empty(), PredefinedTypeEnv.getInstance().cellSemTypeInner()));
+    private static final ConcurrentLazyContainer<MappingAtomicType> MAPPING_ATOMIC_INNER =
+            new ConcurrentLazyContainer<>(() -> new MappingAtomicType(
+                    EMPTY_STRING_ARR, EMPTY_TYPES_ARR, PredefinedTypeEnv.getInstance().cellSemTypeInner()));
+
+    private static final PredefinedTypeEnv PREDEFINED_TYPE_ENV = PredefinedTypeEnv.getInstance();
 
     private Builder() {
     }
@@ -157,7 +134,7 @@ public final class Builder {
     }
 
     public static SemType neverType() {
-        return basicTypeUnion(0);
+        return SemType.from(0);
     }
 
     public static SemType nilType() {
@@ -165,7 +142,7 @@ public final class Builder {
     }
 
     public static SemType undef() {
-        return UNDEF;
+        return from(BasicTypeCode.BT_UNDEF);
     }
 
     public static SemType cell() {
@@ -209,12 +186,12 @@ public final class Builder {
     }
 
     public static SemType readonlyType() {
-        return VAL_READONLY;
+        return READONLY_TYPE.get();
     }
 
-    public static SemType basicTypeUnion(int bitset) {
+    static SemType basicTypeUnion(int bitset) {
         return switch (bitset) {
-            case 0 -> NEVER;
+            case 0 -> neverType();
             case VT_MASK -> VAL;
             default -> {
                 if (Integer.bitCount(bitset) == 1) {
@@ -230,10 +207,17 @@ public final class Builder {
 
     public static SemType basicSubType(BasicTypeCode basicTypeCode, SubType subType) {
         assert !(subType instanceof Bdd) : "BDD should always be wrapped with a delegate";
+        assert checkDelegate(basicTypeCode, subType);
         int some = 1 << basicTypeCode.code();
         SubType[] subTypes = initializeSubtypeArray(some);
         subTypes[0] = subType;
         return SemType.from(0, some, subTypes);
+    }
+
+    private static boolean checkDelegate(BasicTypeCode basicTypeCode, SubType subType) {
+        return (basicTypeCode != BT_MAPPING || subType instanceof BMappingSubType)
+                && (basicTypeCode != BT_LIST || subType instanceof BListSubType)
+                && (basicTypeCode != BT_CELL || subType instanceof BCellSubType);
     }
 
     public static SemType intConst(long value) {
@@ -305,6 +289,8 @@ public final class Builder {
         } else if (object instanceof FPValue fpValue) {
             // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
             return Optional.of(from(cx, fpValue.getType()));
+        } else if (object instanceof AbstractObjectValue objectValue) {
+            return typeOfObject(cx, objectValue);
         }
         return Optional.empty();
     }
@@ -312,6 +298,11 @@ public final class Builder {
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
         TypeWithShape typeWithShape = (TypeWithShape) mapValue.getType();
         return typeWithShape.shapeOf(cx, mapValue);
+    }
+
+    private static Optional<SemType> typeOfObject(Context cx, AbstractObjectValue objectValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) objectValue.getType();
+        return typeWithShape.shapeOf(cx, objectValue);
     }
 
     private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
@@ -352,11 +343,11 @@ public final class Builder {
     }
 
     public static SemType mappingType() {
-        return MAPPING;
+        return from(BT_MAPPING);
     }
 
     public static SemType functionType() {
-        return FUNCTION;
+        return from(BT_FUNCTION);
     }
 
     public static SemType anyDataType(Context context) {
@@ -375,16 +366,40 @@ public final class Builder {
         return accum;
     }
 
-    private static SemType unionOf(SemType type1, SemType type2) {
-        return union(type1, type2);
-    }
-
     private static SemType unionOf(SemType... types) {
         SemType accum = types[0];
         for (int i = 1; i < types.length; i++) {
             accum = union(accum, types[i]);
         }
         return accum;
+    }
+
+    public static SemType objectType() {
+        return OBJECT;
+    }
+
+    static SemType mappingRO() {
+        return MAPPING_RO.get();
+    }
+
+    static SemType innerReadOnly() {
+        return INNER_RO.get();
+    }
+
+    static CellAtomicType cellAtomicVal() {
+        return PREDEFINED_TYPE_ENV.cellAtomicVal();
+    }
+
+    private static BddNode bddSubtypeRo() {
+        return bddAtom(RecAtom.createRecAtom(0));
+    }
+
+    public static ListAtomicType listAtomicInner() {
+        return LIST_ATOMIC_INNER.get();
+    }
+
+    public static MappingAtomicType mappingAtomicInner() {
+        return MAPPING_ATOMIC_INNER.get();
     }
 
     private static final class IntTypeCache {

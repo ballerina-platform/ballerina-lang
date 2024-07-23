@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -61,6 +62,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     private BTypedesc typedesc;
     private final BObjectType objectType;
     private final Type type;
+    private SemType shape;
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
@@ -232,5 +234,13 @@ public abstract class AbstractObjectValue implements ObjectValue {
                         INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_OBJECT_FIELD_VALUE_ERROR,
                         fieldName, fieldType, TypeChecker.getType(value)));
+    }
+
+    public final SemType shapeOf() {
+        return shape;
+    }
+
+    public final void cacheShape(SemType semType) {
+        this.shape = semType;
     }
 }
