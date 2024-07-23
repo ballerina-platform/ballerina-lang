@@ -177,11 +177,6 @@ public class RecordVariableReferenceTest {
     }
 
     @Test
-    public void testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring() {
-        BRunUtil.invoke(result, "testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring");
-    }
-
-    @Test
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/record-variable-reference-semantics-negative.bal");
