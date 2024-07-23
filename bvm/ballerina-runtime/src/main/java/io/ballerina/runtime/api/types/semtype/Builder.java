@@ -47,6 +47,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
@@ -72,6 +73,7 @@ public final class Builder {
             valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED
     );
     public static final SemType MAPPING = from(BT_MAPPING);
+    private static final SemType OBJECT = from(BT_OBJECT);
     public static final SemType FUNCTION = from(BT_FUNCTION);
     static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
     static final CellAtomicType CELL_ATOMIC_NEVER = new CellAtomicType(
@@ -91,6 +93,7 @@ public final class Builder {
             BCellSubType.createDelegate(bddAtom(createTypeAtom(2, CELL_ATOMIC_INNER))));
     public static final ListAtomicType LIST_ATOMIC_INNER = new ListAtomicType(
             FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
+    // FIXME: add object readonly
     private static final SemType VAL_READONLY = unionOf(SemType.from(VT_INHERENTLY_IMMUTABLE),
             basicSubType(BT_LIST, BListSubType.createDelegate(BDD_SUBTYPE_RO)),
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(BDD_SUBTYPE_RO))
@@ -385,6 +388,10 @@ public final class Builder {
             accum = union(accum, types[i]);
         }
         return accum;
+    }
+
+    public static SemType objectType() {
+        return OBJECT;
     }
 
     private static final class IntTypeCache {
