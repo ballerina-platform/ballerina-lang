@@ -48,8 +48,8 @@ public class TestListener {
 
     public function gracefulStop() returns error? {
         incrementAndAssert(self.name, "current", 10, true);
-        incrementAndAssert(self.name, "second dependent", 11, true);
-        incrementAndAssert(self.name, "first dependent", 12, true);
+        incrementAndAssert(self.name, "first dependent", 11, true);
+        incrementAndAssert(self.name, "second dependent", 12, true);
         incrementAndAssert(self.name, "basic", 13, true);
     }
 

@@ -5,6 +5,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -624,19 +625,39 @@ public class Package {
         }
 
         private Package createNewPackage() {
+            Package oldPackage = this.project.currentPackage();
+            PackageResolution oldResolution = oldPackage.getResolution();;
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
                     this.packageMdContext, this.compilationOptions, this.moduleContextMap,
                     DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
-
+            if (isOldDependencyGraphValid(oldPackage, this.project.currentPackage())) {
+                this.project.currentPackage().packageContext().getResolution(oldResolution);
+            }
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
             offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().packageContext()
                     .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             return this.project.currentPackage();
+        }
+
+        private static boolean isOldDependencyGraphValid(Package oldPackage, Package currentPackage) {
+            Set<String> oldPackageImports = ProjectUtils.getPackageImports(oldPackage);
+            Set<String> currentPackageImports = ProjectUtils.getPackageImports(currentPackage);
+            String oldDependencyTomlContent = oldPackage.packageContext.dependenciesTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String currentDependencyTomlContent = currentPackage.packageContext.dependenciesTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String oldBallerinaTomlContent = oldPackage.packageContext.ballerinaTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            String currentBallerinaTomlContent = currentPackage.packageContext.ballerinaTomlContext()
+                    .map(d -> d.tomlDocument().textDocument().toString()).orElse("");
+            return oldPackageImports.equals(currentPackageImports) &&
+                    oldDependencyTomlContent.equals(currentDependencyTomlContent) &&
+                    oldBallerinaTomlContent.equals(currentBallerinaTomlContent);
         }
 
         private void cleanPackageCache(DependencyGraph<ResolvedPackageDependency> oldGraph,

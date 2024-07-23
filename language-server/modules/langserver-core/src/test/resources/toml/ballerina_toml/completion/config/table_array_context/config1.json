@@ -99,6 +99,14 @@
       "detail": "Table",
       "sortText": "C",
       "insertText": "[format]"
+    },
+    {
+      "label": "graalvmCompatible",
+      "kind": "Snippet",
+      "detail": "Boolean",
+      "sortText": "A",
+      "insertText": "graalvmCompatible=${1:false}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

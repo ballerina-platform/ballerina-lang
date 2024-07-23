@@ -2,7 +2,7 @@ NAME
        ballerina-pack - Create distribution format of the current package
 
 SYNOPSIS
-       bal build [OPTIONS] [<package>]
+       bal pack [OPTIONS] [<package>]
 
 
 DESCRIPTION

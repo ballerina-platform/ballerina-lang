@@ -39,7 +39,10 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
-    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
+    implementation("org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}") {
+        exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+    }
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')

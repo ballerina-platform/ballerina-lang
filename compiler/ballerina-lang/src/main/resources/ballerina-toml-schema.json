@@ -181,6 +181,9 @@
                   },
                   "scope": {
                     "type": "string"
+                  },
+                  "graalvmCompatible": {
+                    "type": "boolean"
                   }
                 }
               }
@@ -240,6 +243,9 @@
                   },
                   "scope": {
                     "type": "string"
+                  },
+                  "graalvmCompatible": {
+                    "type": "boolean"
                   }
                 }
               }

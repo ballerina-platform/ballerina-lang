@@ -2,7 +2,7 @@ NAME
        ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
-       bal build [OPTIONS] [<package>]
+       bal doc [OPTIONS] [<package>]
 
 
 DESCRIPTION

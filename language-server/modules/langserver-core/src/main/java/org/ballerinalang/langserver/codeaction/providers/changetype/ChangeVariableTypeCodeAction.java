@@ -69,6 +69,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Change Variable Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2652", "BCE3931");
+    private static final String UNDERSCORE = "_";
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -254,8 +255,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     private Optional<String> getVariableName(Node matchedNode) {
         return switch (matchedNode.kind()) {
-            case LOCAL_VAR_DECL -> getLocalVarName((VariableDeclarationNode) matchedNode);
-            case MODULE_VAR_DECL -> getModuleVarName((ModuleVariableDeclarationNode) matchedNode);
+            case LOCAL_VAR_DECL -> getVarNameFromBindingPattern(((VariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().bindingPattern());
+            case MODULE_VAR_DECL -> getVarNameFromBindingPattern(((ModuleVariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().bindingPattern());
             case ASSIGNMENT_STATEMENT -> {
                 AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
                 Node varRef = assignmentStmtNode.varRef();
@@ -275,9 +278,11 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case LET_EXPRESSION -> {
                 Node parent = matchedNode.parent();
                 yield switch (parent.kind()) {
-                    case LOCAL_VAR_DECL -> getLocalVarName((VariableDeclarationNode) parent);
-                    case MODULE_VAR_DECL -> getModuleVarName((ModuleVariableDeclarationNode) parent);
-                    case OBJECT_FIELD -> getObjectFieldName((ObjectFieldNode) parent);
+                    case LOCAL_VAR_DECL -> getVarNameFromBindingPattern(((VariableDeclarationNode) parent)
+                                .typedBindingPattern().bindingPattern());
+                    case MODULE_VAR_DECL -> getVarNameFromBindingPattern(((ModuleVariableDeclarationNode) parent)
+                                .typedBindingPattern().bindingPattern());
+                    case OBJECT_FIELD -> getObjectFieldName((ObjectFieldNode) parent);   
                     case LET_VAR_DECL -> getLetVarName((LetVariableDeclarationNode) parent);
                     default -> Optional.empty();
                 };
@@ -285,23 +290,17 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             default -> Optional.empty();
         };
     }
-    
-    private Optional<String> getLocalVarName(VariableDeclarationNode node) {
-        BindingPatternNode bindingPatternNode = node.typedBindingPattern().bindingPattern();
-        if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            return Optional.empty();
+
+    private Optional<String> getVarNameFromBindingPattern(BindingPatternNode bindingPatternNode) {
+        if (bindingPatternNode.kind() == SyntaxKind.WILDCARD_BINDING_PATTERN) {
+            return Optional.of(UNDERSCORE);
         }
-        return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());        
-    }
-    
-    private Optional<String> getModuleVarName(ModuleVariableDeclarationNode node) {
-        BindingPatternNode bindingPattern = node.typedBindingPattern().bindingPattern();
-        if (bindingPattern.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            return Optional.empty();
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());
         }
-        return Optional.of(((CaptureBindingPatternNode) bindingPattern).variableName().text());      
+        return Optional.empty();
     }
-    
+
     private Optional<String> getObjectFieldName(ObjectFieldNode node) {
         return Optional.of(node.fieldName().text());
     }

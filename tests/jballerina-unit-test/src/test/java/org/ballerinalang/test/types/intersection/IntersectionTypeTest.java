@@ -264,6 +264,13 @@ public class IntersectionTypeTest {
         assertEquals(result.getErrorCount(), index);
     }
 
+    @Test
+    public void testErrorIntersectionAccessTest() {
+        CompileResult result = BCompileUtil.compile("test-src/types/intersection/error-intersection-access");
+        assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testErrorIntersectionFromImportedModule");
+    }
+
     @AfterClass
     public void tearDown() {
         readOnlyIntersectionResults = null;

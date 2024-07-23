@@ -379,7 +379,7 @@ class BindgenNodeFactory {
         } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_GET) {
             returnType = ((JField) bFunction).getFunctionReturnType();
         }
-        if (returnType == null || returnType.equals("")) {
+        if (returnType == null || returnType.isEmpty()) {
             return null;
         } else if (isMultiDimensionalArray(returnType)) {
             throw new BindgenException("multidimensional arrays are currently unsupported");
@@ -879,7 +879,7 @@ class BindgenNodeFactory {
     }
 
     private static NameReferenceNode createNameReferenceNode(String namespace, String name) {
-        if (name == null || "".equals(name.trim())) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("name must not be null, blank, or empty");
         }
         if (namespace == null) {

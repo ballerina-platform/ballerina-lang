@@ -19,13 +19,12 @@ package org.ballerinalang.test.runtime.api;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 
-import java.io.PrintStream;
+import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
+import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsyncSequentially;
 
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -34,57 +33,24 @@ import java.io.PrintStream;
  */
 public class RuntimeAPICall {
 
-    private static final PrintStream out = System.out;
-
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        balRuntime.invokeMethodAsync("add",
-                new Callback() {
-                    @Override
-                    public void notifySuccess(Object result) {
-                        out.println(result);
-                    }
-
-                    @Override
-                    public void notifyFailure(BError error) {
-                        out.println("Error: " + error);
-                    }
-                }, 5L, 7L);
+        blockAndInvokeMethodAsync(balRuntime, "add", 5L, 7L);
 
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
                 StringUtils.fromString("John Doe"));
-        balRuntime.invokeMethodAsyncSequentially(person, "getNameWithTitle", null, null, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                out.println(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                out.println("Error: " + error);
-            }
-        }, null, PredefinedTypes.TYPE_STRING, StringUtils.fromString("Dr. "), false);
-
+        blockAndInvokeMethodAsyncSequentially(balRuntime, person, "getNameWithTitle", PredefinedTypes.TYPE_STRING,
+                StringUtils.fromString("Dr. "), false);
         balRuntime.stop();
 
         balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
         balRuntime.init();
         balRuntime.start();
-        balRuntime.invokeMethodAsync("getPerson",
-                new Callback() {
-                    @Override
-                    public void notifySuccess(Object result) {
-                        out.println(result);
-                    }
-
-                    @Override
-                    public void notifyFailure(BError error) {
-                        out.println("Error: " + error);
-                    }
-                }, 1001L, StringUtils.fromString("John"), StringUtils.fromString("100m"));
+        blockAndInvokeMethodAsync(balRuntime, "getPerson", 1001L, StringUtils.fromString("John"),
+                StringUtils.fromString("100m"));
         balRuntime.stop();
     }
 }
