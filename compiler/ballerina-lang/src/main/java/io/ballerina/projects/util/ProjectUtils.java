@@ -56,7 +56,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -88,7 +87,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -545,30 +543,6 @@ public class ProjectUtils {
                 new FileOutputStream(jarPath.toFile())), manifest);
         jarOutputStream.close();
         return jarPath;
-    }
-
-    public static void assembleExecutableJar(Manifest manifest,
-                                             List<CompiledJarFile> compiledPackageJarList,
-                                             Path targetPath) throws IOException {
-
-        // Used to prevent adding duplicated entries during the final jar creation.
-        HashSet<String> copiedEntries = new HashSet<>();
-
-        try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
-                new BufferedOutputStream(new FileOutputStream(targetPath.toString())))) {
-            copyRuntimeJar(outStream, getBallerinaRTJarPath(), copiedEntries);
-
-            JarArchiveEntry e = new JarArchiveEntry(JarFile.MANIFEST_NAME);
-            outStream.putArchiveEntry(e);
-            manifest.write(new BufferedOutputStream(outStream));
-            outStream.closeArchiveEntry();
-
-            for (CompiledJarFile compiledJarFile : compiledPackageJarList) {
-                for (Map.Entry<String, byte[]> keyVal : compiledJarFile.getJarEntries().entrySet()) {
-                    copyEntry(copiedEntries, outStream, keyVal);
-                }
-            }
-        }
     }
 
     private static void copyEntry(HashSet<String> copiedEntries,

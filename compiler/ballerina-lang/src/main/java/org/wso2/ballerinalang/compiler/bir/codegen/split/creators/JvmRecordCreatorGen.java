@@ -30,11 +30,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -79,7 +79,7 @@ public class JvmRecordCreatorGen {
     }
 
     public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     Map<String, byte[]> jarEntries, List<BIRTypeDefinition> recordTypeDefList) {
+                                     JAREntries jarEntries, List<BIRTypeDefinition> recordTypeDefList) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, recordsClass, null, OBJECT, null);
         generateCreateRecordMethods(cw, recordTypeDefList, recordsClass);

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class JvmObjectTypeGen {
         this.objectTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
+    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JAREntries jarEntries) {
         objectTypesCw.visitEnd();
         jarEntries.put(objectTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(objectTypesCw, module));
     }

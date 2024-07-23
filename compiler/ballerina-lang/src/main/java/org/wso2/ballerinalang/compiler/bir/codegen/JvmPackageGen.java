@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -371,7 +372,7 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+    private void generateModuleClasses(BIRPackage module, JAREntries jarEntries, String moduleInitClass,
                                        String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                        JvmConstantsGen jvmConstantsGen, Map<String, JavaClass> jvmClassMapping,
                                        boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
@@ -696,7 +697,7 @@ public class JvmPackageGen {
         }
     }
 
-    CompiledJarFile generate(BIRPackage module) {
+    CompiledJarFile generate(BIRPackage module, Map<String, byte[]> resources) {
         boolean serviceEPAvailable = module.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : module.importModules) {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
@@ -713,7 +714,8 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
         // use a map to store class byte values
-        final Map<String, byte[]> jarEntries = new HashMap<>();
+        final JAREntries jarEntries = new JAREntries(
+                getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."));
 
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen);
@@ -773,7 +775,7 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+        return new CompiledJarFile(jarEntries, resources);
     }
 
     private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {

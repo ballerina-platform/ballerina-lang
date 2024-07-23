@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,7 +149,7 @@ public class JvmRefTypeConstantsGen {
         mv.visitFieldInsn(GETSTATIC, typeRefVarConstantsClass, varName, GET_TYPE_REF_TYPE_IMPL);
     }
 
-    public void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(JAREntries jarEntries) {
         genMethodReturn(mv);
         visitRefTypePopulateInitMethod();
         cw.visitEnd();

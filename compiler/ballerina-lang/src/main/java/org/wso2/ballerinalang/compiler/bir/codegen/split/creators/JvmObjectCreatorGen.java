@@ -31,10 +31,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -96,7 +96,7 @@ public class JvmObjectCreatorGen {
     }
 
     public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, Map<String, byte[]> jarEntries,
+                                     String moduleInitClass, JAREntries jarEntries,
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);

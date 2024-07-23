@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,7 +152,7 @@ public class JvmErrorTypeConstantsGen {
                 GET_ERROR_TYPE_IMPL);
     }
 
-    public void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(JAREntries jarEntries) {
         genMethodReturn(mv);
         visitErrorTypePopulateInitMethod();
         cw.visitEnd();

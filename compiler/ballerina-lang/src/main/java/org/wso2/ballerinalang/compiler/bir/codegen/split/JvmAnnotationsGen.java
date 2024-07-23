@@ -28,11 +28,11 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -71,7 +71,7 @@ public class JvmAnnotationsGen {
         this.module = module;
     }
 
-    public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
+    public void generateAnnotationsClass(JAREntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
         generateProcessAnnotationsMethod(cw, module.typeDefs, module.packageID);

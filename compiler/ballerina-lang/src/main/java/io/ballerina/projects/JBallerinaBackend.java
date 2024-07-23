@@ -22,7 +22,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -364,13 +363,14 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, getResources(moduleContext),
+                isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
@@ -386,9 +386,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
-                isRemoteMgtEnabled);
+                getResources(moduleContext), isRemoteMgtEnabled);
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());

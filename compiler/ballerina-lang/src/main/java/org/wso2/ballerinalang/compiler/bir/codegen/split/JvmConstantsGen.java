@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Map;
@@ -101,7 +102,7 @@ public class JvmConstantsGen {
         refTypeConstantsGen.setJvmRefTypeGen(jvmCreateTypeGen.getJvmRefTypeGen());
     }
 
-    public void generateConstants(Map<String, byte[]> jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
+    public void generateConstants(JAREntries jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
         errorTypeConstantsGen.generateClass(jarEntries);

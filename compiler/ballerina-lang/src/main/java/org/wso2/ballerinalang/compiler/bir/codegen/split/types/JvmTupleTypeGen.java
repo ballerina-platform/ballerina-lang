@@ -31,9 +31,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.List;
-import java.util.Map;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -89,7 +89,7 @@ public class JvmTupleTypeGen {
         this.tupleTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
+    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JAREntries jarEntries) {
         tupleTypesCw.visitEnd();
         jarEntries.put(tupleTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(tupleTypesCw, module));
     }

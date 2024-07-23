@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -167,7 +168,7 @@ public class JvmTupleTypeConstantsGen {
         mv.visitFieldInsn(GETSTATIC, tupleVarConstantsClass, varName, GET_TUPLE_TYPE_IMPL);
     }
 
-    public void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(JAREntries jarEntries) {
         genMethodReturn(mv);
         visitTupleTypeConstPopulateInitMethods();
         cw.visitEnd();

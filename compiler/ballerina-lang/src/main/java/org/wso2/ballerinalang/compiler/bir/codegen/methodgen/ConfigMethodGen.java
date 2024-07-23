@@ -35,10 +35,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -96,7 +96,7 @@ public class ConfigMethodGen {
 
     public void generateConfigMapper(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                      JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor,
-                                     Map<String, byte[]> jarEntries, SymbolTable symbolTable) {
+                                     JAREntries jarEntries, SymbolTable symbolTable) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);

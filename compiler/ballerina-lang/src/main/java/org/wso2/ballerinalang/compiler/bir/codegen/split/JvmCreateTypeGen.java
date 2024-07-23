@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -173,7 +174,7 @@ public class JvmCreateTypeGen {
     }
 
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                  Map<String, byte[]> jarEntries,
+                                  JAREntries jarEntries,
                                   String moduleInitClass, SymbolTable symbolTable) {
         generateCreateTypesMethod(typesCw, module.typeDefs, moduleInitClass, symbolTable);
         typesCw.visitEnd();
@@ -486,7 +487,7 @@ public class JvmCreateTypeGen {
     // -------------------------------------------------------
 
     public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                      String moduleInitClass, Map<String, byte[]> jarEntries) {
+                                      String moduleInitClass, JAREntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
         generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);

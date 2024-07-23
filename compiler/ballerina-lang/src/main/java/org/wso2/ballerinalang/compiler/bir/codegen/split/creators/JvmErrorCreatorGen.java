@@ -29,10 +29,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -75,8 +75,8 @@ public class JvmErrorCreatorGen {
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                    Map<String, byte[]> jarEntries, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
-                                    SymbolTable symbolTable) {
+                                    JAREntries jarEntries,
+                                    List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
         generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);

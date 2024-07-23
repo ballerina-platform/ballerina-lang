@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class JvmArrayTypeConstantsGen {
         mv.visitFieldInsn(GETSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
     }
 
-    public void generateClass(Map<String, byte[]> jarEntries) {
+    public void generateClass(JAREntries jarEntries) {
         genMethodReturn(mv);
         visitArrayTypeConstPopulateInitMethods();
         cw.visitEnd();

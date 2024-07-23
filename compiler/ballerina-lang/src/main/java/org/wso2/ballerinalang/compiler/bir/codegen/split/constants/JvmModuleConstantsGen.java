@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class JvmModuleConstantsGen {
                                             s -> JvmConstants.MODULE_VAR_PREFIX + constantIndex.getAndIncrement());
     }
 
-    public void generateConstantInit(Map<String, byte[]> jarEntries) {
+    public void generateConstantInit(JAREntries jarEntries) {
 
         if (moduleVarMap.isEmpty()) {
             return;

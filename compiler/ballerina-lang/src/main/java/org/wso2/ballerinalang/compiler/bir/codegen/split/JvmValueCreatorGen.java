@@ -32,12 +32,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -63,7 +63,7 @@ public class JvmValueCreatorGen {
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                            String moduleInitClass, Map<String, byte[]> jarEntries,
+                                            String moduleInitClass, JAREntries jarEntries,
                                             SymbolTable symbolTable, JvmCastGen jvmCastGen,
                                             List<BIRNode.BIRFunction> sortedFunctions,
                                             AsyncDataCollector asyncDataCollector) {

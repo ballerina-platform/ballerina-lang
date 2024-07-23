@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -118,7 +119,7 @@ public class LambdaGen {
     }
 
     public void generateLambdaClasses(AsyncDataCollector asyncDataCollector,
-                                      Map<String, byte[]> jarEntries) {
+                                      JAREntries jarEntries) {
         Map<String, LambdaClass> lambdaClasses = asyncDataCollector.getLambdaClasses();
         if (lambdaClasses.isEmpty()) {
             return;

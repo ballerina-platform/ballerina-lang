@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JVM byte code generator from BIR model.
@@ -59,16 +60,17 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, boolean isRemoteMgtEnabled) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, Map<String, byte[]> resources, boolean isRemoteMgtEnabled) {
         // generate module
-        return generate(bLangPackage.symbol, isRemoteMgtEnabled);
+        return generate(bLangPackage.symbol, resources, isRemoteMgtEnabled);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled) {
-        return generate(bLangTestablePackage.symbol, isRemoteMgtEnabled);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, Map<String, byte[]> resources, boolean isRemoteMgtEnabled) {
+        return generate(bLangTestablePackage.symbol, resources, isRemoteMgtEnabled);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean isRemoteMgtEnabled) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, Map<String, byte[]> resources,
+                                     boolean isRemoteMgtEnabled) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -84,7 +86,7 @@ public class CodeGenerator {
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir);
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, resources);
         cleanUpBirPackage(packageSymbol);
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.JAREntries;
 
 import java.util.Map;
 
@@ -92,7 +93,7 @@ public class JvmRecordTypeGen {
         this.recordTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, recordTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
+    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JAREntries jarEntries) {
         recordTypesCw.visitEnd();
         jarEntries.put(recordTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(recordTypesCw, module));
     }
