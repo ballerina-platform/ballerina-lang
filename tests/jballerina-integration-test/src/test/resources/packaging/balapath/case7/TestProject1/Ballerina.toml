@@ -3,7 +3,7 @@ org-name= "wso2"
 version= "0.1.0"
 
 [platform]
-target = "java17"
+target = "java21"
 
     [[platform.libraries]]
     artifactId = "utils"

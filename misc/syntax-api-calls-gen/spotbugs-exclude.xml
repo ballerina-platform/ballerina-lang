@@ -1,5 +1,5 @@
 <!--
-  ~  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~  Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -18,21 +18,7 @@
 
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.test.runtime.BTestMain"/>
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.test.runtime.util.CodeCoverageUtils"/>
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.test.runtime.util.TesterinaUtils"/>
-    </Match>
-    <Match>
-        <Package name="org.ballerinalang.test.runtime.entity"/>
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.test.runtime.util.JacocoInstrumentUtils"/>
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.test.runtime.CustomSystemClassLoader"/>
+        <Class name="io.ballerina.syntaxapicallsgen.config.SyntaxTreeDescriptor" />
+        <Bug pattern="NP_UNWRITTEN_FIELD,UWF_UNWRITTEN_FIELD" />
     </Match>
 </FindBugsFilter>

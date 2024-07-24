@@ -3,7 +3,7 @@ org = "ballerina"
 name = "lang.test"
 version = "1.0.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "../libs/ballerina-lang-test-2.0.0-alpha7-SNAPSHOT.jar"
 groupId = "ballerina"
 artifactId = "io"

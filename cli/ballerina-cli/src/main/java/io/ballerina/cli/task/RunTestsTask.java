@@ -178,7 +178,7 @@ public class RunTestsTask implements Task {
         }
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name

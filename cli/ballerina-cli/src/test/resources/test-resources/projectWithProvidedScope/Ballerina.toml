@@ -3,7 +3,7 @@ org = "foo"
 name = "pkg_a"
 version = "1.0.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 groupId = "com.example"
 artifactId = "project1"
 version = "1.0"

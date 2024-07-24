@@ -175,7 +175,7 @@ public class DeprecateCommand implements BLauncherCmd {
                     settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
                     settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             client.deprecatePackage(packageValue, deprecationMsg,
-                    JvmTarget.JAVA_17.code(),
+                    JvmTarget.JAVA_21.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();

@@ -656,7 +656,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                                                  PackageCompilation packageCompilation) {
         Lock lock = projectContext.lockAndGet();
         try {
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17, false);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21, false);
             Package pkg = projectContext.project.currentPackage();
             for (Module module : pkg.modules()) {
                 for (DocumentId id : module.documentIds()) {

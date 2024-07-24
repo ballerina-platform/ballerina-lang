@@ -122,7 +122,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
                 .resolve(compilerPluginName).toString();
         balClient.runMain("pack", new String[]{}, null, null, new LogLeecher[]{}, compilerPluginBalaPath);
         Path balaPath = projectBasedTestsPath.resolve(compilerPluginBalaPath).resolve("target").resolve("bala")
-                .resolve("samjs-" + compilerPluginName + "-java17-0.1.0.bala");
+                .resolve("samjs-" + compilerPluginName + "-java21-0.1.0.bala");
         BCompileUtil.copyBalaToExtractedDist(balaPath, "samjs", compilerPluginName, "0.1.0", repoBalaPath);
     }
 

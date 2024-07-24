@@ -3,8 +3,8 @@ org = "sameera"
 name = "myproject"
 version = "0.1.0"
 
-[platform.java17]
+[platform.java21]
 graalvmCompatible = false
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "./libs/one-1.0.0.jar"
