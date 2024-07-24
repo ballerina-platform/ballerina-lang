@@ -635,6 +635,8 @@ public class Package {
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             if (isOldDependencyGraphValid(oldPackage, this.project.currentPackage())) {
                 this.project.currentPackage().packageContext().getResolution(oldResolution);
+            } else {
+                this.project.compilerPluginContexts().clear();
             }
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
             offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
