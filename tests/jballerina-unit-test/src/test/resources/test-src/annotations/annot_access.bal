@@ -403,6 +403,18 @@ type Student record {|
     string name;
 |};
 
+const Examples EXAMPLES = {
+    response: {}
+};
+
+@annot {
+    examples: EXAMPLES
+}
+type Teacher record {|
+    int id;
+    string name;
+|};
+
 function testConstTypeAnnotAccess() {
     Employee employee = {id: 1, name: "chirans"};
     typedesc<any> t = typeof employee;
@@ -419,6 +431,14 @@ function testConstTypeAnnotAccess() {
     AnnotationRecord1 config1 = <AnnotationRecord1> annot1;
     assertEquality({"response":{}}, config1.examples);
     assertTrue(config1.examples is readonly);
+
+    Teacher teacher = {id: 1, name: "James"};
+    typedesc<any> t1 = typeof teacher;
+    AnnotationRecord? annot2 = t1.@annot;
+    assertTrue(annot2 is AnnotationRecord);
+    AnnotationRecord config2 = <AnnotationRecord> annot2;
+    assertEquality({"response":{}}, config2.examples);
+    assertTrue(config2.examples is readonly);
 }
 
 function testListExprInConstAnnot() {
