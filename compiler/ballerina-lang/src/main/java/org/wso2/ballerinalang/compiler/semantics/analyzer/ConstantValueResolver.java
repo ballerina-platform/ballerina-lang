@@ -130,6 +130,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
+    public void setCurrentPackageId(PackageID packageID) {
+        this.pkgID = packageID;
+    }
+
     public void resolve(List<BLangConstant> constants, PackageID packageID, SymbolEnv symEnv) {
         this.dlog.setCurrentPackageId(packageID);
         this.pkgID = packageID;
