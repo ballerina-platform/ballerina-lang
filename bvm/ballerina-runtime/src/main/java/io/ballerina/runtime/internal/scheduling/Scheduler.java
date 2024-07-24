@@ -128,7 +128,7 @@ public class Scheduler {
         return new HashMap<>(currentStrands);
     }
 
-    @SuppressWarnings("Code generated method for schedule isolated fucntion pointer call")
+    @SuppressWarnings("Code generated method for schedule isolated function pointer call")
     public FutureValue scheduleIsolatedCall(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
 
@@ -151,7 +151,7 @@ public class Scheduler {
         return future;
     }
 
-    @SuppressWarnings("Code generated method for schedule non isolated fucntion pointer call")
+    @SuppressWarnings("Code generated method for schedule non isolated function pointer call")
     public FutureValue scheduleNonIsolatedCall(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
