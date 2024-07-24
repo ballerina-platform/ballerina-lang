@@ -207,9 +207,10 @@ public class JvmCodeGenUtil {
         }
         // For attached functions from another module where the type is an anonType, the call name will be in
         // the format `(objectTypeName).funcName`. We need to remove the type name.
-        if (value.startsWith("(") && value.contains(").")) {
-            value = value.substring(value.indexOf(").") + 2);
-        }
+//        if (value.startsWith("(") && value.contains(").")) {
+//            System.out.println("*********************************** value - " + value + " - object - " + objectType);
+//            value = value.substring(value.indexOf(").") + 2);
+//        }
         return Utils.encodeFunctionIdentifier(value);
     }
 
