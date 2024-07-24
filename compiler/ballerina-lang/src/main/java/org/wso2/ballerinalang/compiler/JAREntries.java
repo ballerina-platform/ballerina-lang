@@ -29,22 +29,20 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 /**
- * This class holds .class files as entries of a program jar file and convert them to a ByteArrayOutputStream.
+ * This class holds .class files as entries of a program JAR file and converts them into a ByteArrayOutputStream.
  *
  * @since 2201.10.0
  */
 public class JAREntries {
-    private ByteArrayOutputStream byteArrayOutputStream;
-    private JarOutputStream entries;
+    private final ByteArrayOutputStream byteArrayOutputStream;
+    private final JarOutputStream entries;
 
     public JAREntries(String mainClassName) {
         this.byteArrayOutputStream = new ByteArrayOutputStream();
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        if (mainClassName != null) {
-            mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
-        }
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
         try {
             entries = new JarOutputStream(this.byteArrayOutputStream, manifest);
         } catch (IOException e) {
@@ -59,11 +57,11 @@ public class JAREntries {
             entries.write(value);
             entries.closeEntry();
         } catch (IOException e) {
-            throw new ProjectException("Failed put jar entry", e);
+            throw new ProjectException("Failed to put jar entry", e);
         }
     }
 
-    public void putJarArchiveEntry(String key, byte[] value) {
+    protected void putJarArchiveEntry(String key, byte[] value) {
         JarArchiveEntry entry = new JarArchiveEntry(key);
         try {
             entries.putNextEntry(entry);
@@ -74,7 +72,7 @@ public class JAREntries {
         }
     }
 
-    public void end() {
+    protected void end() {
         try {
             entries.close();
         } catch (IOException e) {
@@ -82,7 +80,7 @@ public class JAREntries {
         }
     }
 
-    public ByteArrayOutputStream getByteArrayOutputStream() {
+    protected ByteArrayOutputStream getByteArrayOutputStream() {
         return byteArrayOutputStream;
     }
 }
