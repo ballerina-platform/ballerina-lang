@@ -205,12 +205,6 @@ public class JvmCodeGenUtil {
         if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
             value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
         }
-        // For attached functions from another module where the type is an anonType, the call name will be in
-        // the format `(objectTypeName).funcName`. We need to remove the type name.
-//        if (value.startsWith("(") && value.contains(").")) {
-//            System.out.println("*********************************** value - " + value + " - object - " + objectType);
-//            value = value.substring(value.indexOf(").") + 2);
-//        }
         return Utils.encodeFunctionIdentifier(value);
     }
 
