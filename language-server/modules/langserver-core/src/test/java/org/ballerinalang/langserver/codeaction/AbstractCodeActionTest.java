@@ -485,15 +485,17 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
     private boolean validateCreateConfigTomlCommand(JsonObject actualCommand, JsonArray actualArgs, JsonArray expArgs,
                                                                                       Path sourceRoot) {
-        String actualFilePath = actualArgs.get(0).getAsString().replace(sourceRoot.toString(), "");
-        if (actualFilePath.startsWith("/") || actualFilePath.startsWith("\\")) {
-            actualFilePath = actualFilePath.substring(1);
-        }
-        String expectedFilePath = expArgs.get(0).getAsString();
-
         String actualTextEdit = actualArgs.get(1).getAsString();
         String expectedTextEdit = expArgs.get(1).getAsString();
-
+        String expectedFilePath = expArgs.get(0).getAsString();
+        String actualFilePath = actualArgs.get(0).getAsString().replace(sourceRoot.toString(), "");
+        if (actualFilePath.startsWith("/")) {
+            actualFilePath = actualFilePath.substring(1);
+        } else if (actualFilePath.startsWith("\\")) {
+            actualFilePath = actualFilePath.substring(1);
+            actualFilePath = actualFilePath.replace("\\", "/");
+            actualTextEdit = actualTextEdit.replaceAll(System.lineSeparator(), "\n");
+        }
         if (actualFilePath.equals(expectedFilePath) && actualTextEdit.equals(expectedTextEdit)) {
             return true;
         }
