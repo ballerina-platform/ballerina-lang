@@ -290,8 +290,7 @@ public final class PredefinedType {
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
-    static String toString(BasicTypeBitSet bt) {
-        int bitset = bt.bitset;
+    static String toString(int bitset) {
         StringJoiner sj = new StringJoiner("|", Integer.toBinaryString(bitset) + "[", "]");
 
         addIfBitSet(sj, bitset, NEVER.bitset, "never");

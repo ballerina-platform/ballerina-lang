@@ -46,7 +46,7 @@ public final class BasicTypeBitSet implements SemType {
 
     @Override
     public String toString() {
-        return PredefinedType.toString(this);
+        return PredefinedType.toString(this.bitset);
     }
 
     @Override
