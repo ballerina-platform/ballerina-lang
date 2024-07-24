@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -26,6 +25,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -50,7 +50,6 @@ public class BTableType extends BType implements TableType {
 
     public BTableType mutableType;
     public final Env env;
-    boolean resolving;
 
     public BTableType(Env env, int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
@@ -110,31 +109,41 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public SemType semType() {
-        if (resolving || constraint.tag == TypeTags.SEMANTIC_ERROR) {
+        boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
+        SemType s = semTypeInner();
+        return readonly ? SemTypes.intersect(PredefinedType.IMPLEMENTED_VAL_READONLY, s) : s;
+    }
+
+    private SemType semTypeInner() {
+        BType constraintType = Types.getReferredType(constraint);
+        if (constraintType.tag == TypeTags.TABLE || constraintType.tag == TypeTags.SEMANTIC_ERROR) {
             // this is to handle negative table recursions. e.g.  type T table<T>
             return PredefinedType.TABLE;
+        } else if (constraintType instanceof BIntersectionType intersectionType) {
+            for (BType memberType : intersectionType.getConstituentTypes()) {
+                if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
+                    // Negative scenario
+                    return PredefinedType.TABLE;
+                }
+            }
         }
-        resolving = true;
 
-        SemType tableConstraint = constraint instanceof BParameterizedType p ? p.paramValueType.semType() :
-                constraint.semType();
+        SemType tableConstraint = constraintType instanceof BParameterizedType p ? p.paramValueType.semType() :
+                constraintType.semType();
         tableConstraint = SemTypes.intersect(tableConstraint, PredefinedType.MAPPING);
 
         Context cx = Context.from(env); // apis calling with 'cx' here are only accessing the env field internally
         String[] fieldNames = fieldNameList.toArray(String[]::new);
         if (!fieldNameList.isEmpty()) {
-            resolving = false;
             return SemTypes.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
         }
 
         if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER &&
                 keyTypeConstraint.tag != TypeTags.SEMANTIC_ERROR) {
             SemType keyConstraint = keyTypeConstraint.semType();
-            resolving = false;
             return SemTypes.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);
         }
 
-        resolving = false;
         return SemTypes.tableContaining(env, tableConstraint);
     }
 }

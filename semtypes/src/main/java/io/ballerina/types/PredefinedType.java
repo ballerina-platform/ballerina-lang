@@ -106,8 +106,9 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES =
-            union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE, union(REGEXP, union(FUTURE,
-                    union(ERROR, union(STREAM, union(TYPEDESC, union(TABLE, union(LIST, MAPPING)))))))))));
+            union(CELL, union(UNDEF, union(OBJECT, union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
+                    union(REGEXP, union(FUTURE, union(ERROR, union(STREAM, union(TYPEDESC, union(TABLE,
+                            union(LIST, MAPPING))))))))))))));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
@@ -224,7 +225,8 @@ public final class PredefinedType {
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_THREE_ELEMENT_RO),
-            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO)
+            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
+            BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
     );
 
     public static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);

@@ -60,6 +60,7 @@ import static io.ballerina.types.PredefinedType.REGEXP;
 import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 import static io.ballerina.types.PredefinedType.XML;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.typeops.CellOps.intersectCellAtomicType;
@@ -712,7 +713,7 @@ public final class Core {
     }
 
     public static SemType createJson(Context context) {
-        SemType memo = context.anydataMemo;
+        SemType memo = context.jsonMemo;
         Env env = context.env;
 
         if (memo != null) {
@@ -723,6 +724,7 @@ public final class Core {
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.defineListTypeWrapped(env, j);
         mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), j);
+        context.jsonMemo = j;
         return j;
     }
 
@@ -741,6 +743,24 @@ public final class Core {
         listDef.defineListTypeWrapped(env, ad);
         mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
         context.anydataMemo = ad;
+        return ad;
+    }
+
+    public static SemType createCloeanble(Context context) {
+        SemType memo = context.cloneableMemo;
+        Env env = context.env;
+
+        if (memo != null) {
+            return memo;
+        }
+        ListDefinition listDef = new ListDefinition();
+        MappingDefinition mapDef = new MappingDefinition();
+        SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
+        SemType ad = union(VAL_READONLY, union(XML, union(listDef.getSemType(env), union(tableTy,
+                mapDef.getSemType(env)))));
+        listDef.defineListTypeWrapped(env, ad);
+        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
+        context.cloneableMemo = ad;
         return ad;
     }
 
