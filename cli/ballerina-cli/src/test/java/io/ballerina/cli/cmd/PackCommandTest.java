@@ -1,6 +1,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
@@ -98,7 +99,7 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -201,7 +202,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("one-1.0.0.jar")
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("one-1.0.0.jar")
                 .toFile().exists());
     }
 
@@ -222,9 +223,9 @@ public class PackCommandTest extends BaseCommandTest {
 
         Path balaDestPath = balaDirPath.resolve("extracted");
         ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java21-0.1.0.bala"), balaDestPath);
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("one-1.0.0.jar")
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("one-1.0.0.jar")
                 .toFile().exists());
-        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java21").resolve("two-2.0.0.jar")
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve(JvmTarget.JAVA_21.code()).resolve("two-2.0.0.jar")
                 .toFile().exists());
     }
 

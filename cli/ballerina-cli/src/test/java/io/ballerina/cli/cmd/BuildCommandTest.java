@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
@@ -273,7 +274,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -293,7 +294,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testCodeGeneratorForBuildProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar");
         Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
         String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
@@ -366,7 +367,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
-                                  .resolve("conflictProject").resolve("0.1.7").resolve("java21")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve(JvmTarget.JAVA_21.code())
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
@@ -412,7 +413,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                                  .resolve("winery").resolve("0.1.0").resolve("java21")
+                                  .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                                   .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -428,7 +429,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -445,7 +446,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -465,11 +466,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery.storage-0.1.0.jar").toFile().exists());
     }
 
@@ -486,10 +487,10 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-testable-0.1.0.jar").toFile().exists());
     }
 
@@ -514,11 +515,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java21")
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
         Assert.assertFalse(
                 projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
@@ -732,8 +733,9 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(buildLog.contains("_org/validProjectWithEmptyBallerinaToml:0.1.0"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("_org")
-                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java21")
-                                  .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
+                .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0")
+                .resolve(JvmTarget.JAVA_21.code())
+                .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
     }
 
     @Test(description = "tests consistent conflicted jars reporting")
@@ -876,7 +878,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java21")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -900,7 +902,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java21")
+                .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));

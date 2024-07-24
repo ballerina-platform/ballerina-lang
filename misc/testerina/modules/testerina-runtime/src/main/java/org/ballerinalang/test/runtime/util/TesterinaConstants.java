@@ -57,7 +57,7 @@ public class TesterinaConstants {
     public static final String TESTABLE = "testable";
     public static final String MODIFIED = "mod";
     public static final String CACHE_DIR = "cache";
-    public static final String JAVA_21_DIR = "java21";
+    public static final String JAVA_PLATFORM_DIR = "java21";
     public static final String ANON_ORG = "$anon";
     public static final String WILDCARD = "*";
 

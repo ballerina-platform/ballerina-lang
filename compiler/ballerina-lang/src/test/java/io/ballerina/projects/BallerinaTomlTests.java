@@ -60,7 +60,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform("java21");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         Assert.assertTrue(platform.graalvmCompatible());
@@ -113,7 +113,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform("java21").dependencies();
+        List<Map<String, Object>> platformDependencies = packageManifest.platform(JvmTarget.JAVA_21.code())
+                .dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
 
@@ -122,7 +123,7 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform("java21");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 3);
         for (Map<String, Object> library : platformDependencies) {
