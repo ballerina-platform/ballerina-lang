@@ -763,19 +763,6 @@ public class JBallerinaBackend extends CompilerBackend {
         return resourceMap;
     }
 
-    private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = getResources(moduleContext);
-        for (DocumentId documentId : moduleContext.testResourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
-    }
-
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
         PlatformLibraryScope scope;
         String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);

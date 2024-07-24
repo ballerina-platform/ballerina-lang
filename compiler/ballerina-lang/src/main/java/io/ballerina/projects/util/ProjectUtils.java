@@ -545,19 +545,6 @@ public class ProjectUtils {
         return jarPath;
     }
 
-    private static void copyEntry(HashSet<String> copiedEntries,
-                                  ZipArchiveOutputStream outStream,
-                                  Map.Entry<String, byte[]> keyVal) throws IOException {
-        String entryName = keyVal.getKey();
-        if (!isCopiedOrExcludedEntry(entryName, copiedEntries)) {
-            byte[] entryContent = keyVal.getValue();
-            JarArchiveEntry entry = new JarArchiveEntry(entryName);
-            outStream.putArchiveEntry(entry);
-            outStream.write(entryContent);
-            outStream.closeArchiveEntry();
-        }
-    }
-
     /**
      * Copies a given jar file into the executable fat jar.
      *

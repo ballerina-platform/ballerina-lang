@@ -60,12 +60,14 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, Map<String, byte[]> resources, boolean isRemoteMgtEnabled) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, Map<String, byte[]> resources,
+                                    boolean isRemoteMgtEnabled) {
         // generate module
         return generate(bLangPackage.symbol, resources, isRemoteMgtEnabled);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, Map<String, byte[]> resources, boolean isRemoteMgtEnabled) {
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, Map<String, byte[]> resources,
+                                              boolean isRemoteMgtEnabled) {
         return generate(bLangTestablePackage.symbol, resources, isRemoteMgtEnabled);
     }
 
