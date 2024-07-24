@@ -18,17 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
@@ -37,17 +28,14 @@ import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
  */
 public class ForEach {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                      XML_VERSION, "forEach");
-
-    public static void forEach(BXml x, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BXml x, BFunctionPointer func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{x, true}, METADATA);
+            func.call(x);
             return;
         }
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                () -> new Object[]{x.getItem(index.incrementAndGet()), true}, result -> {
-                }, () -> null, Scheduler.getStrand().scheduler);
+        int size = x.size();
+        for (int i = 0; i < size; i++) {
+            func.call(x.getItem(i));
+        }
     }
 }

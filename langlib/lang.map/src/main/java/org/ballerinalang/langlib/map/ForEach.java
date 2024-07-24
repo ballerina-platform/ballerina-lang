@@ -37,15 +37,12 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
  */
 public class ForEach {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
-                                                                      MAP_VERSION, "forEach");
-
-    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BMap<?, ?> m, BFunctionPointer func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true}, result -> {
-                }, () -> null, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            func.call(m.get(keys[index.incrementAndGet()]));
+        }
     }
 }

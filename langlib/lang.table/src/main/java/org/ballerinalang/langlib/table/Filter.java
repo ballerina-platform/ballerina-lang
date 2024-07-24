@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -39,34 +40,22 @@ import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        returnType = {@ReturnType(type = TypeKind.TABLE)},
-//        isPublic = true
-//)
 public class Filter {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
-                                                                      TABLE_VERSION, "filter");
-
-    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
+    public static BTable<?, ?> filter(BTable<BString, ?> tbl, BFunctionPointer func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        BTable newTable =
-                ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
-                        tableType.getFieldNames(), false));
+        BTable<BString, Object> newTable = ValueCreator.createTableValue(TypeCreator
+                        .createTableType(tableType.getConstrainedType(), tableType.getFieldNames(), false));
         int size = tbl.size();
-        AtomicInteger index = new AtomicInteger(-1);
-        Object[] keys = tbl.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{tbl.get(keys[index.incrementAndGet()]), true},
-                result -> {
-                    if ((Boolean) result) {
-                        Object key = keys[index.get()];
-                        Object value = tbl.get(key);
-                        newTable.put(key, value);
-                    }
-                }, () -> newTable, Scheduler.getStrand().scheduler);
+        BString[] keys = tbl.getKeys();
+        for (int i = 0; i < size; i++) {
+            BString key = keys[i];
+            Object value = tbl.get(key);
+            boolean isFiltered = (boolean) func.call(value);
+            if (isFiltered) {
+                newTable.put(key, value);
+            }
+        }
         return newTable;
     }
 }

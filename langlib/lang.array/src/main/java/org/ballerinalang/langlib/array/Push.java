@@ -30,12 +30,6 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "push",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "vals", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";

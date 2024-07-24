@@ -35,12 +35,6 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "fromString",
-//        args = {@Argument(name = "s", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class FromString {
 
     private static final BString ERROR_REASON = getModulePrefixedReason(FLOAT_LANG_LIB,

@@ -33,15 +33,6 @@ import javax.xml.XMLConstants;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "createElement",
-//        args = {
-//                @Argument(name = "name", type = TypeKind.STRING),
-//                @Argument(name = "children", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class CreateElement {
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";

@@ -26,15 +26,6 @@ import io.ballerina.runtime.internal.XmlFactory;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "createProcessingInstruction",
-//        args = {
-//                @Argument(name = "target", type = TypeKind.STRING),
-//                @Argument(name = "content", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class CreateProcessingInstruction {
 
     public static BXml createProcessingInstruction(BString target, BString content) {

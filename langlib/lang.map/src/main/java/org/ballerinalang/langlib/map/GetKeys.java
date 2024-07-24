@@ -27,13 +27,6 @@ import io.ballerina.runtime.api.values.BString;
  * Extern function to get key arrays from the map.
  * ballerina.model.map:keys()
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map",
-//        functionName = "keys",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class GetKeys {
 
     public static BArray keys(BMap<?, ?> m) {

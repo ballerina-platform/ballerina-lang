@@ -26,12 +26,6 @@ import io.ballerina.runtime.api.values.BArray;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "shift",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Shift {
 
     public static Object shift(BArray arr) {

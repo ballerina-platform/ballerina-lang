@@ -48,10 +48,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class Call {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, FUNCTION_LANG_LIB,
-                                                                      "1.0.0", "call");
-
-    public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
+    public static Object call(BFunctionPointer func, Object... args) {
         BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
@@ -68,7 +65,7 @@ public class Call {
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }
 
-        return func.asyncCall(argsList.toArray(), METADATA);
+        return func.call(argsList.toArray());
     }
 
     private static boolean checkIsValidPositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
@@ -89,10 +86,8 @@ public class Call {
                     errored = true;
                 }
                 argsList.add(arg);
-                argsList.add(true);
             } else if (parameter.isDefault) {
                 argsList.add(0);
-                argsList.add(false);
             } else {
                 errored = true;
             }
@@ -121,7 +116,6 @@ public class Call {
             }
             if (!errored) {
                 argsList.add(new ArrayValueImpl(restType, -1L, initialValues));
-                argsList.add(true);
             }
         } else if (numOfRestArgs > 0) {
             errored = true;

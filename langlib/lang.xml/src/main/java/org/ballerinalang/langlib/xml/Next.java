@@ -31,17 +31,9 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang
-//        .xml"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
 public class Next {
-    //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
+        BIterator<?> xmlIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BXml bXml = (BXml) m.get(StringUtils.fromString("m"));
 
         if (xmlIterator == null) {

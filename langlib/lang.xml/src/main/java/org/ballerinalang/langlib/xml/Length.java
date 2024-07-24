@@ -25,12 +25,6 @@ import io.ballerina.runtime.api.values.BXml;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml", functionName = "length",
-//        args = {@Argument(name = "x", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Length {
 
     public static long length(BXml xml) {

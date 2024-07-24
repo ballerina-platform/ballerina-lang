@@ -20,12 +20,6 @@ import io.ballerina.runtime.api.values.BFuture;
 /**
  * Extern function future.cancel().
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.future",
-//        functionName = "cancel",
-//        args = {@Argument(name = "f", type = TypeKind.FUTURE)},
-//        isPublic = true
-//)
 public class Cancel {
 
     public static void cancel(BFuture futureValue) {

@@ -28,12 +28,6 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
-//        args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
 public class Ceiling {
 
     public static BDecimal ceiling(BDecimal x) {

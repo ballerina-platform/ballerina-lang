@@ -39,13 +39,6 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map",
-//        functionName = "toArray",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class ToArray {
 
     public static BArray toArray(BMap<?, ?> m) {

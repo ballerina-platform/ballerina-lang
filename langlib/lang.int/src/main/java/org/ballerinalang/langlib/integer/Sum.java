@@ -28,12 +28,6 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 /**
  * Native implementation of lang.int:sum(int...).
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "sum",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Sum {
 
     public static long sum(long[] ns) {

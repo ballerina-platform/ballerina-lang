@@ -39,12 +39,6 @@ import java.util.Arrays;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "setChildren",
-//        args = {@Argument(name = "children", type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";

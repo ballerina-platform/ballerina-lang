@@ -23,12 +23,6 @@ package org.ballerinalang.langlib.integer;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "min",
-//        args = {@Argument(name = "n", type = TypeKind.INT), @Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Min {
 
     public static long min(long n, long[] ns) {

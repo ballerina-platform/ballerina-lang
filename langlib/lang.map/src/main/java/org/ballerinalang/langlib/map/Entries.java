@@ -37,13 +37,6 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map",
-//        functionName = "entries",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.MAP)},
-//        isPublic = true
-//)
 public class Entries {
 
     public static BMap<?, ?> entries(BMap<?, ?> m) {

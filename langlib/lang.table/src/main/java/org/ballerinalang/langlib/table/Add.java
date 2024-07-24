@@ -27,11 +27,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "add",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "val", type = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
 public class Add {
 
     public static void add(BTable tbl, BMap val) {

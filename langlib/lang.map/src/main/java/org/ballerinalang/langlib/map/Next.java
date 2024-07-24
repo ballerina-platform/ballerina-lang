@@ -31,13 +31,6 @@ import io.ballerina.runtime.api.values.BObject;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator",
-//        structPackage = "ballerina/lang.map"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(BObject m) {

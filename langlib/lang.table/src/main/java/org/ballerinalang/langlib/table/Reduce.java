@@ -18,45 +18,23 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:reduce(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "reduce",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
-//                @Argument(name = "initial", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Reduce {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
-                                                                      TABLE_VERSION, "reduce");
-
-    public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
+    public static Object reduce(BTable<BString, Object> tbl, BFunctionPointer func, Object initial) {
         int size = tbl.values().size();
-        AtomicReference<Object> accum = new AtomicReference<>(initial);
-        AtomicInteger index = new AtomicInteger(-1);
         Object[] values = tbl.values().toArray();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{accum.get(), true, values[index.incrementAndGet()], true},
-                accum::set, accum::get, Scheduler.getStrand().scheduler);
-        return accum.get();
+        for (int i = 0; i < size; i++) {
+            initial = func.call(initial, values[i]);
+        }
+        return initial;
     }
-
 }

@@ -26,12 +26,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "length",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Length {
 
     public static long length(BTable tbl) {
