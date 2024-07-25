@@ -87,4 +87,12 @@ public class IdentifierLiteralTest  extends BaseTest {
                 new LogLeecher[]{runLeecher}, testFileLocation);
         runLeecher.waitForText(5000);
     }
+
+    @Test()
+    public void testResourceFunctionCall() throws BallerinaTestException {
+        LogLeecher runLeecher = new LogLeecher("1 passing");
+        bMainInstance.runMain("test", new String[0], null, new String[0], new LogLeecher[]{runLeecher},
+                testFileLocation + File.separator + "ResourceCallProject");
+        runLeecher.waitForText(5000);
+    }
 }

@@ -235,12 +235,14 @@ public class TypeSymbolTest {
     @DataProvider(name = "StructuredTypeSymbolLocationPos")
     public Object[][] getStructuredTypeSymbolLocationPos() {
         return new Object[][]{
-                {67, 11, 90, 0, 5},
-                {68, 10, 91, 0, 11},
-                {69, 13, 92, 0, 13},
-                {70, 11, 93, 0, 30},
-                {71, 11, 94, 5, 8},
-                {72, 11, 96, 0, 10},
+                {67, 11, 92, 0, 5},
+                {68, 10, 93, 0, 11},
+                {69, 13, 94, 0, 13},
+                {70, 11, 95, 0, 30},
+                {71, 11, 96, 5, 8},
+                {72, 11, 98, 0, 10},
+                {73, 14, 99, 0, 17},
+                {74, 14, 100, 0, 25}
         };
     }
 

@@ -118,10 +118,9 @@ public class StrandDumpTest extends BaseTest {
         }
 
         List<String> runCmdSet = new ArrayList<>();
+        bMainInstance.addJavaAgents(envProperties);
         runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
+        runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
         String tempBalHome = new File("src" + File.separator + "test" + File.separator +
                 "resources" + File.separator + "ballerina.home").getAbsolutePath();
         runCmdSet.add("-Dballerina.home=" + tempBalHome);
