@@ -35,6 +35,8 @@ import java.util.Optional;
  */
 public class StringSubtype implements ProperSubtypeData {
 
+    private static final EnumerableString[] EMPTY_STRING_ARR = {};
+    private static final EnumerableCharString[] EMPTY_CHAR_ARR = {};
     CharStringSubtype charData;
     NonCharStringSubtype nonCharData;
 
@@ -98,12 +100,12 @@ public class StringSubtype implements ProperSubtypeData {
     public static SemType stringConst(String value) {
         CharStringSubtype chara;
         NonCharStringSubtype nonChar;
-        if (value.length() == 1) {
+        if (value.codePointCount(0, value.length()) == 1) {
             chara = CharStringSubtype.from(true,
                     new EnumerableCharString[]{EnumerableCharString.from(value)});
-            nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{});
+            nonChar = NonCharStringSubtype.from(true, EMPTY_STRING_ARR);
         } else {
-            chara = CharStringSubtype.from(true, new EnumerableCharString[]{});
+            chara = CharStringSubtype.from(true, EMPTY_CHAR_ARR);
             nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{EnumerableString.from(value)});
         }
         return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, new StringSubtype(chara, nonChar));
@@ -111,8 +113,8 @@ public class StringSubtype implements ProperSubtypeData {
 
     public static SemType stringChar() {
         StringSubtype st = new StringSubtype(
-                CharStringSubtype.from(false, new EnumerableCharString[]{}),
-                NonCharStringSubtype.from(true, new EnumerableString[]{}));
+                CharStringSubtype.from(false, EMPTY_CHAR_ARR),
+                NonCharStringSubtype.from(true, EMPTY_STRING_ARR));
         return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, st);
     }
 
