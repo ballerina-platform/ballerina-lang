@@ -165,13 +165,14 @@ public class Generator {
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
                 } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                    ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+                    DefaultableVariable defaultableVariable = getModuleVariable(variableDeclarationNode,
                             semanticModel, module);
-                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                    if (containsToken(variableDeclarationNode.qualifiers(),
                             SyntaxKind.CONFIGURABLE_KEYWORD)) {
                         module.configurables.add(defaultableVariable);
-                    } else if (((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
-                            ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
+                    } else if (variableDeclarationNode.visibilityQualifier().isPresent() &&
+                            variableDeclarationNode.visibilityQualifier().get().kind()
                                     .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         module.variables.add(defaultableVariable);
                     }
