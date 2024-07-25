@@ -39,8 +39,10 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -103,11 +105,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public SemType semType() {
-        SemType result = semTypeInner();
-        if (Symbols.isFlagOn(this.getFlags(), Flags.DISTINCT)) {
-            return Core.intersect(SemTypes.objectDistinct(distinctIdSupplier.get()), result);
-        }
-        return result;
+        return distinctIdSupplier.get().stream().map(SemTypes::objectDistinct).reduce(semTypeInner(), Core::intersect);
     }
 
     private SemType semTypeInner() {
@@ -239,21 +237,24 @@ public class BObjectType extends BStructureType implements ObjectType {
         return false;
     }
 
-    private static class DistinctIdSupplier implements Supplier<Integer> {
+    private final class DistinctIdSupplier implements Supplier<List<Integer>> {
 
-        private static final int UN_INITIALIZED = -1;
-        private int id = UN_INITIALIZED;
+        private List<Integer> ids = null;
+        private static final Map<BTypeIdSet.BTypeId, Integer> allocatedIds = new ConcurrentHashMap<>();
         private final Env env;
 
         private DistinctIdSupplier(Env env) {
             this.env = env;
         }
 
-        public synchronized Integer get() {
-            if (id == UN_INITIALIZED) {
-                id = env.distinctAtomCountGetAndIncrement();
+        public synchronized List<Integer> get() {
+            if (ids != null) {
+                return ids;
             }
-            return id;
+            ids = typeIdSet.getAll().stream()
+                    .map(each -> allocatedIds.computeIfAbsent(each, (key) -> env.distinctAtomCountGetAndIncrement()))
+                    .toList();
+            return ids;
         }
     }
 }
