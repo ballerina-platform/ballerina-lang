@@ -97,7 +97,7 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
         }
 
         TypeSymbol varTypeSymbol = variableSymbol.typeDescriptor();
-        Types types = context.currentSemanticModel().get().types();
+        Types types = semanticModel.types();
         if (!varTypeSymbol.subtypeOf(types.ANYDATA) || types.REGEX.subtypeOf(varTypeSymbol)) {
             return false;
         }
@@ -155,15 +155,15 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
             NonTerminalNode node = rootNode.findNode(location.textRange());
             NonTerminalNode parentNode = node.parent();
             SyntaxKind parentKind = parentNode.kind();
-            if (parentKind == SyntaxKind.METHOD_CALL) {
-                MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) parentNode;
-                if (LIST_UPDATING_METHODS.contains(methodCallExpressionNode.methodName().toSourceCode())) {
-                    return true;
-                }
-            }
             if (parentKind == SyntaxKind.INDEXED_EXPRESSION
                     && parentNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
                 return true;
+            }
+            if (parentKind == SyntaxKind.METHOD_CALL) {
+                if (LIST_UPDATING_METHODS.contains(((MethodCallExpressionNode) parentNode)
+                        .methodName().toSourceCode())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -173,10 +173,9 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
         for (Location location : references) {
             NonTerminalNode node = rootNode.findNode(location.textRange());
             NonTerminalNode parentNode = node.parent();
-            SyntaxKind parentKind = parentNode.kind();
-            if (parentKind == SyntaxKind.METHOD_CALL) {
-                MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) parentNode;
-                if (TABLE_UPDATING_METHODS.contains(methodCallExpressionNode.methodName().toSourceCode())) {
+            if (parentNode.kind() == SyntaxKind.METHOD_CALL) {
+                if (TABLE_UPDATING_METHODS.contains(((MethodCallExpressionNode) parentNode)
+                        .methodName().toSourceCode())) {
                     return true;
                 }
             }
@@ -191,15 +190,12 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
                 ExpressionNode exprNode = ((AssignmentStatementNode) node).expression();
                 if (exprNode.kind() == SyntaxKind.METHOD_CALL) {
                     MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) exprNode;
-                    if (MAPPING_UPDATING_METHODS.contains(methodCallExpressionNode.methodName().toSourceCode())) {
-                        return true;
-                    }
+                    return MAPPING_UPDATING_METHODS.contains(methodCallExpressionNode.methodName().toSourceCode());
                 }
                 return false;
             }
             NonTerminalNode parentNode = node.parent();
-            SyntaxKind parentKind = parentNode.kind();
-            if (parentKind == SyntaxKind.INDEXED_EXPRESSION
+            if (parentNode.kind() == SyntaxKind.INDEXED_EXPRESSION
                     && parentNode.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
                 return true;
             }
