@@ -76,7 +76,6 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProvider {
 
-    private static final String NAME = "Extract to configurable";
     private static final String CONFIGURABLE_NAME_PREFIX = "config";
     private static final List<SyntaxKind> argumentSyntaxList = List.of(SyntaxKind.FUNCTION_CALL,
             SyntaxKind.METHOD_CALL, SyntaxKind.EXPLICIT_NEW_EXPRESSION, SyntaxKind.IMPLICIT_NEW_EXPRESSION);
@@ -189,7 +188,7 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
                     }
                     ParameterSymbol parameterSymbol = parameterSymbols.get(argIdx);
                     String paramName = parameterSymbol.getName().orElse(CONFIGURABLE_NAME_PREFIX);
-                    String confName = getConfigurableNameUsingParamName(context, paramName);
+                    String confName = getConfigurableName(context, paramName);
                     ConfigurableData configurableData = getConfigurableData(context);
                     Position positionToAddConfVar = configurableData.position();
                     boolean addNewLineAtStart = configurableData.addNewLineAtStart() && firstEdit;
@@ -260,7 +259,7 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
 
     @Override
     public String getName() {
-        return NAME;
+        return CommandConstants.EXTRACT_TO_CONFIGURABLE;
     }
 
     private static List<TextEdit> getTextEdits(CodeActionContext context, Node node, TypeSymbol typeSymbol,
@@ -316,7 +315,7 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
         return NameUtil.generateTypeName(CONFIGURABLE_NAME_PREFIX, allNames);
     }
 
-    private static String getConfigurableNameUsingParamName(CodeActionContext context, String paramName) {
+    private static String getConfigurableName(CodeActionContext context, String paramName) {
         Position pos = context.range().getEnd();
         Set<String> allNames = context.visibleSymbols(new Position(pos.getLine(), pos.getCharacter())).stream()
                 .map(Symbol::getName)
