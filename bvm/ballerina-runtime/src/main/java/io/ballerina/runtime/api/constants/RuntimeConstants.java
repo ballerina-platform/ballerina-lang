@@ -90,6 +90,8 @@ public class RuntimeConstants {
     // Empty value for string
     public static final BString STRING_EMPTY_VALUE = StringUtils.fromString("");
 
+    public static final Long INT_MAX_VALUE = 9223372036854775807L;
+    public static final Long INT_MIN_VALUE = -9223372036854775807L - 1L;
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
     public static final Integer SIGNED32_MAX_VALUE = 2147483647;
