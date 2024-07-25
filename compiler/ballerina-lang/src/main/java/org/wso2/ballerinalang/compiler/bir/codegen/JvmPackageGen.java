@@ -707,7 +707,6 @@ public class JvmPackageGen {
             }
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
-
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
@@ -743,7 +742,6 @@ public class JvmPackageGen {
                 typeHashVisitor, jvmTypeGen);
         configMethodGen.generateConfigMapper(immediateImports, module, moduleInitClass, jvmConstantsGen,
                                              typeHashVisitor, jarEntries, symbolTable);
-
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries

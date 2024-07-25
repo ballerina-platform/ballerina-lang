@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
  */
 public class JBIRFunction extends BIRNode.BIRFunction {
 
-
     public JBIRFunction(BIRFunction birFunction) {
         super(birFunction.pos, birFunction.name, birFunction.originalName, birFunction.flags, birFunction.origin,
                 birFunction.type, birFunction.requiredParams, birFunction.receiver, birFunction.restParam,
