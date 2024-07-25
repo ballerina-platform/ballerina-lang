@@ -80,7 +80,8 @@ public class ConvertToConfigurableCodeActionTest extends AbstractCodeActionTest 
                 {"negativeTest8.json"},
                 {"negativeTest9.json"},
                 {"negativeTest10.json"},
-                {"negativeTest11.json"}
+                {"negativeTest11.json"},
+                {"negativeTest12.json"}
         };
     }
 

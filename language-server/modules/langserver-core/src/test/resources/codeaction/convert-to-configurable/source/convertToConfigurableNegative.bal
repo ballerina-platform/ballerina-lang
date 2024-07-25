@@ -42,3 +42,9 @@ type Person record {
     int age;
     stream<string> i;
 };
+
+int valueReAssigned = 1234;
+
+function valueReAssign() {
+    valueReAssigned = 123;
+}
