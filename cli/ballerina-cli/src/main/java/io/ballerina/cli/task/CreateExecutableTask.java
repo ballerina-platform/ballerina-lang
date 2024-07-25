@@ -146,13 +146,11 @@ public class CreateExecutableTask implements Task {
 
             if (project.buildOptions().getTargetPath() != null) {
                 this.out.println("\t" + relativePathToExecutableString);
+            } else if (relativePathToExecutableString.contains("..")
+                    || relativePathToExecutableString.contains("." + File.separator)) {
+                this.out.println("\t" + executablePathString);
             } else {
-                if (relativePathToExecutableString.contains("..")
-                        || relativePathToExecutableString.contains("." + File.separator)) {
-                    this.out.println("\t" + executablePathString);
-                } else {
-                    this.out.println("\t" + relativePathToExecutableString);
-                }
+                this.out.println("\t" + relativePathToExecutableString);
             }
         }
 

@@ -31,6 +31,6 @@ import java.util.Set;
  * @since 2201.10.0
  */
 record NativeDependencyOptimizationReport(Set<String> startPointClasses, Set<String> usedExternalClasses,
-                                                 Set<String> usedClasses, Set<String> unusedClasses) {
+                                          Set<String> usedClasses, Set<String> unusedClasses) {
 
 }

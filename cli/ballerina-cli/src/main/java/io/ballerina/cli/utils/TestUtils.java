@@ -480,11 +480,10 @@ public class TestUtils {
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
-        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver);
-
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
-        dependencies.removeAll(jarList);
-        dependencies.removeAll(jarResolver.optimizedJarLibraryPaths);
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver).stream()
+                .filter(each -> !jarList.contains(each) && !jarResolver.optimizedJarLibraryPaths.contains(each))
+                .toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();

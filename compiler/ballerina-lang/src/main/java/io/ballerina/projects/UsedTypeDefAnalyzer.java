@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,8 +41,8 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
             new CompilerContext.Key<>();
     private final Map<BType, BIRNode.BIRTypeDefinition> globalTypeDefPool = new HashMap<>();
     private final Set<BType> visitedTypes = new HashSet<>();
-    private PackageCache pkgCache;
-    private UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
+    private final PackageCache pkgCache;
+    private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
 
     private UsedTypeDefAnalyzer(CompilerContext context) {
         context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
@@ -91,7 +92,7 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
         }
     }
 
-    protected void populateTypeDefPool(BIRNode.BIRPackage birPackage, Set<String> interopDependencies) {
+    void populateTypeDefPool(BIRNode.BIRPackage birPackage, Collection<String> interopDependencies) {
         birPackage.typeDefs.forEach(typeDef -> {
             // In case there are more than one reference types referencing to the same type
             if (typeDef.referenceType != null && typeDef.type.tag == TypeTags.TYPEREFDESC) {
@@ -99,20 +100,20 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
             } else {
                 globalTypeDefPool.putIfAbsent(typeDef.type, typeDef);
             }
-            if (interopDependencies != null && interopDependencies.contains(typeDef.internalName.toString())) {
+            if (interopDependencies.contains(typeDef.internalName.toString())) {
                 usedBIRNodeAnalyzer.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
             }
         });
     }
 
-    protected void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
+    void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
         final AnalyzerData data = new AnalyzerData();
         data.currentParentNode = typeDef;
         typeDef.referencedTypes.forEach(refType -> visitType(refType, data));
         visitType(typeDef.type, data);
     }
 
-    protected void analyzeTypeDefWithinScope(BType bType, BIRNode.BIRDocumentableNode parentNode) {
+    void analyzeTypeDefWithinScope(BType bType, BIRNode.BIRDocumentableNode parentNode) {
         final AnalyzerData data = new AnalyzerData();
         data.currentParentNode = parentNode;
         visitType(bType, data);
@@ -170,7 +171,7 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
         });
     }
 
-    public boolean isTestablePkgImportedModuleDependency(BType bType) {
+    private boolean isTestablePkgImportedModuleDependency(BType bType) {
         if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
             return false;
         }
@@ -179,7 +180,8 @@ public final class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAn
                 !bType.tsymbol.pkgID.equals(usedBIRNodeAnalyzer.currentPkgID);
     }
 
-    public static class AnalyzerData {
+    public static final class AnalyzerData {
+
         BIRNode.BIRDocumentableNode currentParentNode;
         boolean shouldAnalyzeChildren = true;
     }
