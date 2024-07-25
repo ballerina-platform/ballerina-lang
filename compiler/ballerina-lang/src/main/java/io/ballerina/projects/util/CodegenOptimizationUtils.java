@@ -42,6 +42,9 @@ import static io.ballerina.projects.util.CodegenOptimizationConstants.INTEROP_DE
  */
 public final class CodegenOptimizationUtils {
 
+    private static final String ENV_OPTION_BAL_JAVA_DEBUG = "BAL_DISABLE_HARDCODED_OPTIMIZATIONS";
+    private static final boolean DISABLE_HARDCODED_OPTIMIZATIONS =
+            System.getenv().containsKey(ENV_OPTION_BAL_JAVA_DEBUG);
     private static final Set<String> WHITELSITED_FILE_NAMES = Set.of("types.bal", "error.bal", "stream_types.bal");
     private static final Set<String> PKGS_WITH_WHITELSITED_FILES =
             Set.of("ballerinax/mysql", "ballerina/sql", "ballerinax/persist.sql");
@@ -92,15 +95,23 @@ public final class CodegenOptimizationUtils {
     }
 
     public static boolean isWhiteListedModule(String packageName) {
+        // Drive modules get called from java side, observe is used at compiler level and we can't analyze langlib
+        // modules. So, we must always whitelist them.
         return isObserveModule(packageName) || isDriverModule(packageName) || isJBallerinaModule(packageName) ||
                 isLangLibModule(packageName);
     }
 
     public static boolean isPackageWithWhiteListedFiles(String packageName) {
+        if (DISABLE_HARDCODED_OPTIMIZATIONS) {
+            return false;
+        }
         return PKGS_WITH_WHITELSITED_FILES.contains(packageName);
     }
 
     public static boolean isWhiteListedFile(String fileName) {
+        if (DISABLE_HARDCODED_OPTIMIZATIONS) {
+            return false;
+        }
         return WHITELSITED_FILE_NAMES.contains(fileName);
     }
 
@@ -129,20 +140,23 @@ public final class CodegenOptimizationUtils {
     }
 
     public static Map<String, Set<String>> getHardcodedDependencies() {
+        if (DISABLE_HARDCODED_OPTIMIZATIONS) {
+            return Map.of();
+        }
         Properties prop = new Properties();
         try {
             InputStream stream = CodegenOptimizationUtils.class.getClassLoader()
                     .getResourceAsStream(INTEROP_DEPENDENCIES_PROPERTIES_FILE);
             prop.load(stream);
-            Pattern pattern = Pattern.compile(",");
-            return prop.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            e -> e.getKey().toString(),
-                            e -> pattern.splitAsStream(e.getValue().toString())
-                                    .collect(Collectors.toUnmodifiableSet())
-                    ));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load interop-dependencies : ", e);
         }
+        Pattern pattern = Pattern.compile(",");
+        return prop.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().toString(),
+                        e -> pattern.splitAsStream(e.getValue().toString())
+                                .collect(Collectors.toUnmodifiableSet())
+                ));
     }
 }
