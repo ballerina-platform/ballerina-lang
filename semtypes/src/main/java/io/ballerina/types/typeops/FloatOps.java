@@ -56,7 +56,7 @@ public class FloatOps extends CommonOps implements BasicTypeOps {
     @Override
     public SubtypeData complement(SubtypeData t) {
         FloatSubtype s = (FloatSubtype) t;
-        return FloatSubtype.createFloatSubtype(!s.allowed, (EnumerableFloat[]) s.values);
+        return FloatSubtype.createFloatSubtype(!s.allowed, s.values);
     }
 
     @Override
