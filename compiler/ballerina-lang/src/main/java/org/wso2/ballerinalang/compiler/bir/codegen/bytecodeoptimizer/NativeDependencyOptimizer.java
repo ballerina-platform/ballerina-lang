@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import io.ballerina.projects.util.CodegenOptimizationUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -32,14 +33,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static io.ballerina.projects.util.CodegenOptimizationUtils.getWhiteListedClasses;
 
 /**
  * Optimizes a given JAR on class file level.
@@ -48,37 +52,11 @@ import java.util.Stack;
  */
 public final class NativeDependencyOptimizer {
 
-    private static final String CLASS = ".class";
-    private static final String SERVICE_PROVIDER_DIRECTORY = "META-INF/services/";
-    private static final String NATIVE_IMAGE_DIRECTORY = "META-INF/native-image";
-    private static final String REFLECT_CONFIG_JSON = "reflect-config.json";
-    private static final String JNI_CONFIG_JSON = "jni-config.json";
-    private static final String MODULE_INFO = "module-info";
-
-    // These directories are whitelisted due to usages of "sun.misc.Unsafe" class
-    // TODO Find a way to whitelist only the necessary class files
-    private static final Set<String> WHITELISTED_DIRECTORIES = new HashSet<>(List.of("io/netty/util"));
-
-    /**
-     * These classes are used by GraalVM when building the native-image. Since they are not connected to the root class,
-     * they will be removed by the NativeDependencyOptimizer if they are not whitelisted.
-     */
-    private static final Set<String> GRAALVM_FEATURE_CLASSES =
-            new HashSet<>(List.of("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
-
-    /**
-     * key = implementation class name, value = interface class name.
-     * Since one interface can be implemented by more than one child class, it is possible to have duplicate values.
-     * <p>
-     * TODO modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
-     */
-    private static final Map<String, String> implementationWiseAllServiceProviders = new HashMap<>();
-
     /**
      * key = used interface, value = used implementation.
      */
     private static final Map<String, Set<String>> interfaceWiseAllServiceProviders = new HashMap<>();
-    private static final Set<String> usedSpInterfaces = new LinkedHashSet<>();
+    private static final Collection<String> usedSpInterfaces = new LinkedHashSet<>();
     private static final Gson gson = new Gson();
     private final Set<String> startPointClasses;
     private final Stack<String> usedClassesStack;
@@ -90,45 +68,21 @@ public final class NativeDependencyOptimizer {
 
     public NativeDependencyOptimizer(Set<String> startPointClasses, ZipFile originalJarFile,
                                      ZipArchiveOutputStream optimizedJarStream) {
-
         this.startPointClasses = startPointClasses;
         this.originalJarFile = originalJarFile;
         this.optimizedJarStream = optimizedJarStream;
         this.usedClassesStack = new Stack<>();
     }
 
-    private static boolean isWhiteListedEntryName(String entryName) {
-        if (entryName.equals(MODULE_INFO + CLASS)) {
-            return true;
-        }
-
-        for (String whiteListedDirectory : WHITELISTED_DIRECTORIES) {
-            if (entryName.startsWith(whiteListedDirectory)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static LinkedHashSet<String> getServiceProviderImplementations(ZipFile originalJarFile,
-                                                                           ZipArchiveEntry entry) throws IOException {
+    private static Iterable<String> getServiceProviderImplementations(ZipFile originalJarFile,
+                                                                      ZipArchiveEntry entry) throws IOException {
         String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
-        String[] serviceImplClassesArr = allImplString.split("\n");
-        LinkedHashSet<String> serviceProviderDependencies = new LinkedHashSet<>();
-
-        for (String serviceClass : serviceImplClassesArr) {
-            // Skipping the licensing comments
-            if (serviceClass.startsWith("#") || serviceClass.isBlank()) {
-                continue;
-            }
-            serviceProviderDependencies.add(getServiceProviderClassName(serviceClass));
-        }
-
-        return serviceProviderDependencies;
-    }
-
-    private static boolean isServiceProvider(String entryName) {
-        return entryName.startsWith(SERVICE_PROVIDER_DIRECTORY);
+        Pattern pattern = Pattern.compile("\n");
+        return pattern.splitAsStream(allImplString)
+                // Skipping the licensing comments
+                .filter(serviceClass -> !serviceClass.startsWith("#") && !serviceClass.isBlank())
+                .map(NativeDependencyOptimizer::getServiceProviderClassName)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static String getServiceProviderClassName(String providerFileName) {
@@ -144,12 +98,12 @@ public final class NativeDependencyOptimizer {
 
         while (!usedClassesStack.empty()) {
             String usedClassName = usedClassesStack.pop();
-            if (visitedClasses.contains(usedClassName + CLASS)) {
+            if (visitedClasses.contains(usedClassName + CodegenOptimizationUtils.CLASS)) {
                 continue;
             }
 
-            visitedClasses.add(usedClassName + CLASS);
-            ZipArchiveEntry usedJarEntry = originalJarFile.getEntry(usedClassName + CLASS);
+            visitedClasses.add(usedClassName + CodegenOptimizationUtils.CLASS);
+            ZipArchiveEntry usedJarEntry = originalJarFile.getEntry(usedClassName + CodegenOptimizationUtils.CLASS);
 
             if (usedJarEntry == null) {
                 externalClasses.add(usedClassName);
@@ -175,32 +129,26 @@ public final class NativeDependencyOptimizer {
         while (jarEntries.hasMoreElements()) {
             ZipArchiveEntry currentEntry = jarEntries.nextElement();
 
-            if (isServiceProvider(currentEntry.getName())) {
+            if (CodegenOptimizationUtils.isServiceProvider(currentEntry.getName())) {
                 analyzeServiceProviders(currentEntry);
             }
 
-            if (isReflectionConfig(currentEntry.getName())) {
+            if (CodegenOptimizationUtils.isReflectionConfig(currentEntry.getName())) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(originalJarFile.getInputStream(currentEntry), StandardCharsets.UTF_8))) {
                     whitelistReflectionClasses(reader);
                 }
             }
         }
-        startPointClasses.addAll(GRAALVM_FEATURE_CLASSES);
+        startPointClasses.addAll(getWhiteListedClasses());
     }
 
     private void analyzeServiceProviders(ZipArchiveEntry currentEntry) throws IOException {
         String spInterfaceClassName = getServiceProviderClassName(currentEntry.getName());
         for (String spImplementationClassName : getServiceProviderImplementations(originalJarFile, currentEntry)) {
-            implementationWiseAllServiceProviders.put(spImplementationClassName, spInterfaceClassName);
             interfaceWiseAllServiceProviders.putIfAbsent(spInterfaceClassName, new LinkedHashSet<>());
             interfaceWiseAllServiceProviders.get(spInterfaceClassName).add(spImplementationClassName);
         }
-    }
-
-    private boolean isReflectionConfig(String entryName) {
-        return (entryName.endsWith(REFLECT_CONFIG_JSON) || entryName.endsWith(JNI_CONFIG_JSON)) &&
-                entryName.startsWith(NATIVE_IMAGE_DIRECTORY);
     }
 
     private void whitelistReflectionClasses(Reader reader) {
@@ -222,13 +170,13 @@ public final class NativeDependencyOptimizer {
             if (entry.isDirectory()) {
                 return true;
             }
-            if (!entryName.endsWith(CLASS)) {
-                if (isServiceProvider(entryName)) {
+            if (!entryName.endsWith(CodegenOptimizationUtils.CLASS)) {
+                if (CodegenOptimizationUtils.isServiceProvider(entryName)) {
                     return usedSpInterfaces.contains(getServiceProviderClassName(entryName));
                 }
                 return true;
             }
-            return visitedClasses.contains(entryName) || isWhiteListedEntryName(entryName);
+            return visitedClasses.contains(entryName) || CodegenOptimizationUtils.isWhiteListedEntryName(entryName);
         };
 
         originalJarFile.copyRawEntries(optimizedJarStream, usedClassPredicate);
@@ -245,8 +193,9 @@ public final class NativeDependencyOptimizer {
         while (entries.hasMoreElements()) {
             ZipArchiveEntry entry = entries.nextElement();
             String className = entry.getName();
-            if (!entry.isDirectory() && className.endsWith(CLASS) && !visitedClasses.contains(className) &&
-                    !className.equals(MODULE_INFO + CLASS)) {
+            if (!entry.isDirectory() && className.endsWith(CodegenOptimizationUtils.CLASS) &&
+                    !visitedClasses.contains(className) &&
+                    !className.equals(CodegenOptimizationUtils.MODULE_INFO + CodegenOptimizationUtils.CLASS)) {
                 unusedClasses.add(className);
             }
         }
@@ -256,9 +205,9 @@ public final class NativeDependencyOptimizer {
     /*
     This function can be used when modularizing the native dependency optimization.
      */
-    public boolean jarContainsStartPoints() {
+    private boolean jarContainsStartPoints() {
         for (String startPoint : startPointClasses) {
-            ZipArchiveEntry jarEntry = originalJarFile.getEntry(startPoint + CLASS);
+            ZipArchiveEntry jarEntry = originalJarFile.getEntry(startPoint + CodegenOptimizationUtils.CLASS);
             if (jarEntry != null) {
                 return true;
             }

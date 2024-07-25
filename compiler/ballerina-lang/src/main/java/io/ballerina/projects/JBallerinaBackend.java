@@ -132,10 +132,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
     private final CodeGenOptimizationReportEmitter codeGenOptimizationReportEmitter;
     private final Map<String, ByteArrayOutputStream> optimizedJarStreams;
-    protected final Set<PackageID> unusedCompilerLevelPackageIds;
-    protected final Set<PackageId> unusedProjectLevelPackageIds;
-    protected final Set<ModuleId> unusedModuleIds;
-    protected final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
+    private final Set<PackageID> unusedCompilerLevelPackageIds;
+    final Set<PackageId> unusedProjectLevelPackageIds;
+    final Set<ModuleId> unusedModuleIds;
+    final Map<PackageId, Set<String>> pkgWiseUsedNativeClassPaths;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -238,8 +238,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 ModuleContext.shrinkDocuments(moduleContext);
             }
             // Codegen happens later when --optimize flag is active. We cannot clean the BlangPkgs until then.
-            if (!project.buildOptions().optimizeCodegen() &&
-                    project.kind() == ProjectKind.BALA_PROJECT) {
+            if (!project.buildOptions().optimizeCodegen() && project.kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
         }
