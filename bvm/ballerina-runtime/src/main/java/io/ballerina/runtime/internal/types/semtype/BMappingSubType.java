@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
-import static io.ballerina.runtime.api.types.semtype.Builder.MAPPING_ATOMIC_INNER;
 
 public class BMappingSubType extends SubType implements DelegatedSubType {
 
@@ -91,7 +90,7 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
     static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
-            combined = MAPPING_ATOMIC_INNER;
+            combined = Builder.mappingAtomicInner();
         } else {
             // combine all the positive atoms using intersection
             combined = cx.mappingAtomType(posList.atom());

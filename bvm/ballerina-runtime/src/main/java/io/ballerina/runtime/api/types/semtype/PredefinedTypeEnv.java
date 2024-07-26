@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
-import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER_MAPPING;
-import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER_MAPPING_RO;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.Builder.stringConst;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
@@ -255,7 +253,8 @@ final class PredefinedTypeEnv {
     synchronized ListAtomicType listAtomicMapping() {
         if (listAtomicMapping == null) {
             listAtomicMapping = new ListAtomicType(
-                    FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING
+                    FixedLengthArray.empty(), basicSubType(
+                    BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInnerMapping())))
             );
             addInitializedListAtom(listAtomicMapping);
         }
@@ -272,7 +271,9 @@ final class PredefinedTypeEnv {
 
     synchronized ListAtomicType listAtomicMappingRO() {
         if (listAtomicMappingRO == null) {
-            listAtomicMappingRO = new ListAtomicType(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_MAPPING_RO);
+            listAtomicMappingRO = new ListAtomicType(FixedLengthArray.empty(), basicSubType(
+                    BT_CELL,
+                    BCellSubType.createDelegate(bddAtom(atomCellInnerMappingRO()))));
             addInitializedListAtom(listAtomicMappingRO);
         }
         return listAtomicMappingRO;
