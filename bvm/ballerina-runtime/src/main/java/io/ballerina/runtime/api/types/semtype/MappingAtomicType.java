@@ -22,16 +22,11 @@ package io.ballerina.runtime.api.types.semtype;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.CELL_SEMTYPE_INNER_RO;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
 import static io.ballerina.runtime.api.types.semtype.Core.intersectMemberSemTypes;
 import static io.ballerina.runtime.api.types.semtype.Core.isNever;
 
 public record MappingAtomicType(String[] names, SemType[] types, SemType rest) implements AtomicType {
-
-    public static final MappingAtomicType MAPPING_ATOMIC_RO = new MappingAtomicType(
-            new String[]{}, new SemType[]{}, CELL_SEMTYPE_INNER_RO
-    );
 
     public MappingAtomicType intersectMapping(Env env, MappingAtomicType other) {
         int expectedSize = Integer.min(types().length, other.types().length);

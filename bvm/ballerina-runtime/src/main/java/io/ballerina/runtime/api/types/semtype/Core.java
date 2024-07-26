@@ -370,12 +370,12 @@ public final class Core {
     private static Optional<CellAtomicType> cellAtomicType(SemType t) {
         SemType cell = Builder.cell();
         if (t.some == 0) {
-            return cell.equals(t) ? Optional.of(Builder.CELL_ATOMIC_VAL) : Optional.empty();
+            return cell.equals(t) ? Optional.of(Builder.cellAtomicVal()) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, cell)) {
                 return Optional.empty();
             }
-            return bddCellAtomicType((Bdd) getComplexSubtypeData(t, BT_CELL), Builder.CELL_ATOMIC_VAL);
+            return bddCellAtomicType((Bdd) getComplexSubtypeData(t, BT_CELL), Builder.cellAtomicVal());
         }
     }
 
