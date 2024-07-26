@@ -642,7 +642,7 @@ public class DocModelTest {
 
         Assert.assertEquals(confString.get().description, "A configurable variable of string type without " +
                 "default value" + System.lineSeparator());
-        Assert.assertEquals(confString.get().defaultValue, "\"?\"");
+        Assert.assertEquals(confString.get().defaultValue, "?");
         Assert.assertEquals(confString.get().type.category, "builtin");
         Assert.assertEquals(confString.get().type.name, "string");
 
