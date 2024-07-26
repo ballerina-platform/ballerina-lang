@@ -634,6 +634,29 @@ public class DocModelTest {
         Assert.assertEquals(tuple.get().type.memberTypes.get(1).category, "builtin");
     }
 
+    @Test(description = "Test module configurable variables")
+    public void testModuleConfigurableVariables() {
+        Optional<DefaultableVariable> confString = testModule.configurables.stream()
+                .filter(client -> client.name.equals("confString")).findAny();
+        Assert.assertTrue(confString.isPresent());
+
+        Assert.assertEquals(confString.get().description, "A configurable variable of string type without " +
+                "default value" + System.lineSeparator());
+        Assert.assertEquals(confString.get().defaultValue, "\"?\"");
+        Assert.assertEquals(confString.get().type.category, "builtin");
+        Assert.assertEquals(confString.get().type.name, "string");
+
+        Optional<DefaultableVariable> defaultConfString = testModule.configurables.stream()
+                .filter(client -> client.name.equals("defaultConfString")).findAny();
+        Assert.assertTrue(defaultConfString.isPresent());
+
+        Assert.assertEquals(defaultConfString.get().description, "A configurable variable of string type with " +
+                "default value" + System.lineSeparator());
+        Assert.assertEquals(defaultConfString.get().defaultValue, "\"confidential\"");
+        Assert.assertEquals(defaultConfString.get().type.category, "builtin");
+        Assert.assertEquals(defaultConfString.get().type.name, "string");
+    }
+
     @Test(description = "Test record rest field")
     public void testRecordRestField() {
         Optional<Record> keyValRec = testModule.records.stream()
