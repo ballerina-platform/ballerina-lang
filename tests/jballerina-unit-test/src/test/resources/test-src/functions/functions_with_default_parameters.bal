@@ -348,6 +348,33 @@ function testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
     assertEquality(baz4(10), 31);
 }
 
+isolated function intOrErrorError() returns int|error => error("err!");
+isolated function intOrErrorInt() returns int|error => 4;
+
+function functionWithIndirectUsageOfCheckInParamDefault(
+    function () returns int|error fn = function () returns int|error {
+        int intResult = check intOrErrorError();
+        return intResult + 1;
+    }) returns int|error => fn();
+
+function testValidCheckUsageViaDefaults() {
+    int|error res = functionWithIndirectUsageOfCheckInParamDefault();
+    assertEquality(true, res is error);
+    error err = <error> res;
+    assertEquality("err!", err.message());
+
+    record {|
+        function (int intP = checkpanic intOrErrorError()) returns int|error x = function (int intP) returns int|error {
+            int val = check intOrErrorInt();
+            return val + intP;
+        };
+        string y;
+    |} rec = {y: "test"};
+    function (int intP = 1 + checkpanic intOrErrorInt()) returns int|error x = rec.x;
+    assertEquality(9, x());
+    assertEquality("test", rec.y);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

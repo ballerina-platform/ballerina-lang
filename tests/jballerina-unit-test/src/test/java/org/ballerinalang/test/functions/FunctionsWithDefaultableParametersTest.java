@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -37,8 +38,10 @@ import org.testng.annotations.Test;
  *
  * @since 0.995.0
  */
-public class FunctionsWithDefaultableArguments {
+public class FunctionsWithDefaultableParametersTest {
 
+    private static final String CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER =
+            "cannot use 'check' in the default value of a parameter";
     private CompileResult result;
 
     @BeforeClass
@@ -268,6 +271,33 @@ public class FunctionsWithDefaultableArguments {
     @Test
     public void testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
         BRunUtil.invoke(result, "testUsingParamInAnonFuncDefaultValueOfSubsequentParam");
+    }
+
+    @Test
+    public void testValidCheckUsageViaDefaults() {
+        BRunUtil.invoke(result, "testValidCheckUsageViaDefaults");
+    }
+
+    @Test
+    public void testCheckInParameterDefaultNegative() {
+        int i = 0;
+        CompileResult result = BCompileUtil.compile(
+                "test-src/functions/check_in_parameter_default_negative.bal");
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 19, 21);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 21, 47);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 25, 19);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 28, 31);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 31, 37);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 31, 69);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 35, 41);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 38, 23);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 42, 37);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 43, 37);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in the default expression of a record field",
+                                  43, 75);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 47, 37);
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 47, 72);
+        Assert.assertEquals(i, result.getErrorCount());
     }
 
     @AfterClass
