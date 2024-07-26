@@ -512,8 +512,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (funcNode.body != null) {
 
             DefaultValueState prevDefaultValueState = data.defaultValueState;
-            if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                    prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            if (inDefaultValue(prevDefaultValueState)) {
                 data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
             }
             analyzeNode(funcNode.body, data);
@@ -1704,7 +1703,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         analyzeTypeNode(varNode.typeNode, data);
 
+        DefaultValueState prevDefaultValueState = data.defaultValueState;
+        if (varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+            data.defaultValueState = DefaultValueState.PARAMETER_DEFAULT;
+        }
         analyzeExpr(varNode.expr, data);
+        data.defaultValueState = prevDefaultValueState;
 
         if (Objects.isNull(varNode.symbol)) {
             return;
@@ -3110,8 +3114,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
 
         DefaultValueState prevDefaultValueState = data.defaultValueState;
-        if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+        if (inDefaultValue(prevDefaultValueState)) {
             data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
         }
         analyzeExpr(bLangArrowFunction.body.expr, data);
@@ -3296,14 +3299,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(checkedExpr.expr, data);
 
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            if (data.defaultValueState == DefaultValueState.PARAMETER_DEFAULT && checksErrors(checkedExpr)) {
+                dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
+            }
             // Check at module level.
             return;
         }
 
-        BLangInvokableNode enclInvokable = data.env.enclInvokable;
+        if (checksErrors(checkedExpr)) {
+            if (data.defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
+                dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
+                return;
+            }
 
-        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
-        if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
             if (data.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
                 dlog.error(checkedExpr.pos,
                            DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
@@ -3332,6 +3340,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
 
+        BLangInvokableNode enclInvokable = data.env.enclInvokable;
         if (enclInvokable == null) {
             return;
         }
@@ -4388,8 +4397,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return null;
     }
 
+    private boolean inDefaultValue(DefaultValueState prevDefaultValueState) {
+        return prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER ||
+                prevDefaultValueState == DefaultValueState.PARAMETER_DEFAULT;
+    }
+
+    private boolean checksErrors(BLangCheckedExpr checkedExpr) {
+        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
+        return equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty();
+    }
+
     private enum DefaultValueState {
         NOT_IN_DEFAULT_VALUE,
+        PARAMETER_DEFAULT,
         RECORD_FIELD_DEFAULT,
         OBJECT_FIELD_INITIALIZER,
         FUNCTION_IN_DEFAULT_VALUE
