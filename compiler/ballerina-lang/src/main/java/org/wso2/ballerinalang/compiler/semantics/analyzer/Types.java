@@ -5379,11 +5379,18 @@ public class Types {
         BErrorType lhsErrorType = (BErrorType) lhsType;
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
-        BErrorType errorType = createErrorType(detailType, lhsType.getFlags(), env);
-        errorType.tsymbol.flags |= rhsType.getFlags();
+        BErrorType errorType = createErrorType(detailType, lhsType.getFlags() | rhsType.getFlags(), env);
+
+        // This is to propagate same distinctId to effective type
+        lhsErrorType.setDistinctId();
+        rhsErrorType.setDistinctId();
+        if (lhsErrorType.distinctId != -1) {
+            errorType.distinctId = lhsErrorType.distinctId;
+        } else if (rhsErrorType.distinctId != -1) {
+            errorType.distinctId = rhsErrorType.distinctId;
+        }
 
         errorType.typeIdSet = BTypeIdSet.getIntersection(lhsErrorType.typeIdSet, rhsErrorType.typeIdSet);
-
         return errorType;
     }
 
