@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
+import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -79,10 +80,15 @@ public final class Builder {
 
     private static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
 
+    private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
+    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
+
+    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
     private static final ConcurrentLazyContainer<SemType> READONLY_TYPE = new ConcurrentLazyContainer<>(() -> unionOf(
             SemType.from(VT_INHERENTLY_IMMUTABLE),
             basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
-            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
+            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
+            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO))
     ));
     private static final ConcurrentLazyContainer<SemType> MAPPING_RO = new ConcurrentLazyContainer<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))

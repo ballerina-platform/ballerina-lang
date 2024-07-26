@@ -44,6 +44,7 @@ final class PredefinedTypeEnv {
         // Initialize RecAtoms
         mappingAtomicRO();
         listAtomicRO();
+        mappingAtomicObjectRO();
 
         // initialize atomic types
         cellAtomicVal();
@@ -492,7 +493,7 @@ final class PredefinedTypeEnv {
         return mappingAtomicRO;
     }
 
-    synchronized MappingAtomicType getMappingAtomicObjectRO() {
+    synchronized MappingAtomicType mappingAtomicObjectRO() {
         if (mappingAtomicObjectRO == null) {
             mappingAtomicObjectRO = new MappingAtomicType(
                     new String[]{"$qualifiers"}, new SemType[]{cellSemTypeVal()},
