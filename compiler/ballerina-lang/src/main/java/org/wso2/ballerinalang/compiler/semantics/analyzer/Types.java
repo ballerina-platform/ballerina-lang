@@ -204,9 +204,12 @@ public class Types {
     }
 
     public Types(CompilerContext context) {
+        this(context, new Env());
+    }
+
+    public Types(CompilerContext context, Env typeEnv) {
         context.put(TYPES_KEY, this);
 
-        Env typeEnv = new Env();
         this.semTypeCtx = Context.from(typeEnv);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);

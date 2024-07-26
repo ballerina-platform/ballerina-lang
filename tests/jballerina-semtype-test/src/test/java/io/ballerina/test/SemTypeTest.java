@@ -56,7 +56,7 @@ import static io.ballerina.test.utils.Constants.SUBTYPE_SYMBOL;
  */
 public class SemTypeTest {
 
-    private final Types types = Types.getInstance(new CompilerContext());
+    private Types types;
 
     @DataProvider(name = "filePathProvider")
     public Object[] filePathProvider() {
@@ -84,6 +84,9 @@ public class SemTypeTest {
     private Set<String> actualSubTypeRelations(String filePath) {
         CompileResult compileResult = BCompileUtil.compile(filePath);
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        // Need to use the same semtypeEnv used in the compiler as we keep cache for some BTypes.
+        types = new Types(new CompilerContext(), bLangPackage.semtypeEnv);
+
         List<BTypeDefinitionSymbol> bTypeDefinitionSymbols = new ArrayList<>();
         for (Scope.ScopeEntry value : bLangPackage.symbol.scope.entries.values()) {
             BSymbol bSymbol = value.symbol;
