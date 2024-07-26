@@ -206,6 +206,5 @@ public class IntegerRangeOperatorTest {
     public void tearDown() {
         result = null;
         negativeResult = null;
-        negativeResult = null;
     }
 }

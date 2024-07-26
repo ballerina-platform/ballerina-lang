@@ -460,6 +460,62 @@ function testXmlSubtypesAddition() {
     assertEquality(p, result7);
 }
 
+function testXmlAdditionWithQueryExpressions() {
+    xml y1 = xml `foo` + from string s in ["a", "b"] select xml `${s}`;
+    xml:Text expectedVal = xml `fooab`;
+    assertTrue(y1 is xml:Text);
+    assertEquality(y1.toString(), expectedVal.toString());
+
+    xml y2 = xml `foo` + from string s in ["a", "b"] select xml `<a><b>${s}</b></a>`;
+    assertTrue(y2 == xml `foo<a><b>a</b></a><a><b>b</b></a>`);
+
+    xml y3 = xml `foo` + from xml:Element s in xml `<a><b>1</b></a><a><b>1</b></a>` select xml `bar`;
+    expectedVal = xml `foobarbar`;
+    assertTrue(y3 is xml:Text);
+    assertEquality(y3.toString(), expectedVal.toString());
+
+    xml y4 = xml `<a>1</a>` + from var s in xml `<a><b>1</b></a><a><b>1</b></a>` select xml `bar`;
+    assertTrue(y4 == xml `<a>1</a>barbar`);
+
+    xml y5 = (from var s in xml `<a><b>1</b></a><a><b>1</b></a>` select xml `bar`) + xml `<a>1</a>`;
+    assertTrue(y5 == xml `barbar<a>1</a>`);
+
+    xml y6 = xml `foo` + from string s in "AB" select xml `${s}`;
+    expectedVal = xml `fooAB`;
+    assertTrue(y6 is xml:Text);
+    assertEquality(y6.toString(), expectedVal.toString());
+
+    map<string> m = {a: "a", b: "b"};
+    xml y7 = xml `foo` + from string s in m select xml `${<string> m[s]}`;
+    expectedVal = xml `fooab`;
+    assertTrue(y7 is xml:Text);
+    assertEquality(y7.toString(), xml `fooab`.toString());
+
+    xml y8 = (from string s in ["a", "b"] select xml `${s}`) + xml `foo`;
+    expectedVal = xml `abfoo`;
+    assertTrue(y8 is xml:Text);
+    assertEquality(y8.toString(), expectedVal.toString());
+
+    xml y9 = (from string s in ["a", "b"] select xml `<a><b>${s}</b></a>`) + xml `foo`;
+    assertTrue(y9 == xml `<a><b>a</b></a><a><b>b</b></a>foo`);
+
+    xml y10 = (from xml:Element s in xml `<a><b>1</b></a><a><b>1</b></a>` select xml `bar`) + xml `foo`;
+    expectedVal = xml `barbarfoo`;
+    assertTrue(y10 is xml:Text);
+    assertEquality(y10.toString(), expectedVal.toString());
+
+    xml y11 = (from string s in "AB" select xml `${s}`) + xml `foo`;
+    expectedVal = xml `ABfoo`;
+    assertTrue(y11 is xml:Text);
+    assertEquality(y11.toString(), expectedVal.toString());
+
+    m = {a: "a", b: "b"};
+    xml y12 = (from string s in m select xml `${<string> m[s]}`) + xml `foo`;
+    expectedVal = xml `abfoo`;
+    assertTrue(y12 is xml:Text);
+    assertEquality(y12.toString(), xml `abfoo`.toString());
+}
+
 int intVal = 10;
 
 function testNoShortCircuitingInAdditionWithNullable() {
@@ -544,4 +600,8 @@ function assertEquality(any actual, any expected) {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function assertTrue(any actual) {
+    assertEquality(actual, true);
 }

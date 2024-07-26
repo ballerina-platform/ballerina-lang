@@ -63,6 +63,13 @@ jobs:
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -Pnative.test --max-workers=2 --scan --no-daemon
 
+      - name: Upload Heap Dumps
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+         name: heap_dump-${{ matrix.branch }}.hprof
+         path: '*.hprof'
+
       - name: Generate Jacoco report
         if: github.event_name == 'pull_request'
         run: ./gradlew createCodeCoverageReport

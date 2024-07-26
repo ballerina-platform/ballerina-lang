@@ -5334,7 +5334,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 isOptionalFloatOrDecimal(referredExpType)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
         } else {
-            lhsType = checkExpr(binaryExpr.lhsExpr, data);
+            if (binaryExpr.opKind == OperatorKind.ADD) {
+                lhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.lhsExpr,
+                        binaryExpr.expectedType, data.env, data);
+            } else {
+                lhsType = checkExpr(binaryExpr.lhsExpr, data);
+            }
         }
 
         if (binaryExpr.opKind == OperatorKind.AND) {
@@ -5351,7 +5356,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 isOptionalFloatOrDecimal(referredExpType)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
         } else {
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
+            if (binaryExpr.opKind == OperatorKind.ADD) {
+                rhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.rhsExpr,
+                        binaryExpr.expectedType, rhsExprEnv, data);
+            } else {
+                rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
+            }
         }
 
         // Set error type as the actual type.
@@ -5420,7 +5430,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
     }
 
-    public boolean isOptionalFloatOrDecimal(BType expectedType) {
+    private BType checkOperandTypeForAdditiveExpressions(BLangExpression expression, BType expectedType,
+                                                        SymbolEnv exprEnv, AnalyzerData data) {
+        BType silentType = checkExprSilent(nodeCloner
+                .cloneNode(expression), expectedType, data);
+        if (TypeTags.isIntegerTypeTag(silentType.tag)
+                || silentType.tag == TypeTags.DECIMAL
+                || silentType.tag == TypeTags.FLOAT
+                || TypeTags.isStringTypeTag(silentType.tag)
+                || TypeTags.isXMLTypeTag(silentType.tag)) {
+            return checkExpr(expression, exprEnv, silentType, data);
+        } else {
+            return checkExpr(expression, exprEnv, data);
+        }
+    }
+
+    private boolean isOptionalFloatOrDecimal(BType expectedType) {
         if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
             Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
             while (memberTypeIterator.hasNext()) {
