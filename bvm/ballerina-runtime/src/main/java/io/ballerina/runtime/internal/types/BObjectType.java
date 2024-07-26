@@ -29,14 +29,23 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.semtype.Member;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
+import io.ballerina.runtime.internal.types.semtype.ObjectQualifiers;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -49,7 +58,7 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
  *
  * @since 0.995.0
  */
-public class BObjectType extends BStructureType implements ObjectType {
+public class BObjectType extends BStructureType implements ObjectType, PartialSemTypeSupplier, TypeWithShape {
 
     private MethodType[] methodTypes;
     private MethodType initMethod;
@@ -62,6 +71,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private String cachedToString;
     private boolean resolving;
+    private ObjectDefinition od;
+    private final Env env = Env.getInstance();
+    private SemType softSemTypeCache;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -243,5 +255,83 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public TypeIdSet getTypeIdSet() {
         return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
+    }
+
+    @Override
+    synchronized SemType createSemType(Context cx) {
+        // FIXME: port the distinct part
+        return semTypeInner(cx);
+    }
+
+    private SemType semTypeInner(Context cx) {
+        if (softSemTypeCache != null) {
+            return softSemTypeCache;
+        }
+        if (od != null) {
+            return od.getSemType(env);
+        }
+        od = new ObjectDefinition();
+        ObjectQualifiers qualifiers = getObjectQualifiers();
+        List<Member> members = new ArrayList<>();
+        boolean hasBTypes = false;
+        for (Entry<String, Field> entry : fields.entrySet()) {
+            String name = entry.getKey();
+            Field field = entry.getValue();
+            boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
+            boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+            SemType ty = Builder.from(cx, field.getFieldType());
+            SemType pureBTypePart = Core.intersect(ty, Core.B_TYPE_TOP);
+            if (!Core.isNever(pureBTypePart)) {
+                hasBTypes = true;
+                ty = Core.intersect(ty, Core.SEMTYPE_TOP);
+            }
+            members.add(new Member(name, ty, Member.Kind.Field,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
+        }
+        for (MethodType method : methodTypes) {
+            boolean isPublic = SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.PUBLIC);
+            SemType semType = Builder.from(cx, method.getType());
+            SemType pureBTypePart = Core.intersect(semType, Core.B_TYPE_TOP);
+            if (!Core.isNever(pureBTypePart)) {
+                hasBTypes = true;
+                semType = Core.intersect(semType, Core.SEMTYPE_TOP);
+            }
+            members.add(new Member(method.getName(), semType, Member.Kind.Method,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
+        }
+        SemType semTypePart = od.define(env, qualifiers, members);
+        if (hasBTypes) {
+            cx.markProvisionTypeReset();
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            softSemTypeCache = Core.union(semTypePart, bTypePart);
+            return softSemTypeCache;
+        }
+        return semTypePart;
+    }
+
+    private ObjectQualifiers getObjectQualifiers() {
+        boolean isolated = SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
+        boolean readonly = SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY);
+        ObjectQualifiers.NetworkQualifier networkQualifier;
+        if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.SERVICE)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Service;
+        } else if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.CLIENT)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
+        } else {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.None;
+        }
+        return new ObjectQualifiers(isolated, readonly, networkQualifier);
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        // FIXME:
+        return Optional.of(createSemType(cx));
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        od = null;
     }
 }
