@@ -253,8 +253,12 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
                 hasBTypePart = true;
                 fieldType = Core.intersect(fieldType, Core.SEMTYPE_TOP);
             }
+            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+            if (Core.isNever(fieldType)) {
+                isReadonly = true;
+            }
             mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
-                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY), isOptional);
+                    isReadonly, isOptional);
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -318,12 +322,16 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
                 continue;
             }
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
             SemType fieldType = Builder.from(cx, field.getFieldType());
+            if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
+                fieldType = Builder.undef();
+            }
             if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
                 return Optional.of(neverType());
             }
             fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
-                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY), isOptional));
+                    isReadonly, isOptional));
         }
         MappingDefinition md = new MappingDefinition();
         SemType semTypePart;
