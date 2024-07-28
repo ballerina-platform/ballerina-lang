@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "xml<xml> xmlResult = "
+          "newText": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text> xmlResult = "
         }
       ],
       "command": {
@@ -30,7 +30,7 @@
           "createVariableInQueryAction3.bal",
           {
             "line": 2,
-            "character": 13
+            "character": 68
           }
         ]
       },
