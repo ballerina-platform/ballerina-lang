@@ -36,8 +36,10 @@ import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -287,6 +289,8 @@ public final class Builder {
         } else if (object instanceof FPValue fpValue) {
             // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
             return Optional.of(from(cx, fpValue.getType()));
+        } else if (object instanceof AbstractObjectValue objectValue) {
+            return typeOfObject(cx, objectValue);
         }
         return Optional.empty();
     }
@@ -294,6 +298,11 @@ public final class Builder {
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
         TypeWithShape typeWithShape = (TypeWithShape) mapValue.getType();
         return typeWithShape.shapeOf(cx, mapValue);
+    }
+
+    private static Optional<SemType> typeOfObject(Context cx, AbstractObjectValue objectValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) objectValue.getType();
+        return typeWithShape.shapeOf(cx, objectValue);
     }
 
     private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
