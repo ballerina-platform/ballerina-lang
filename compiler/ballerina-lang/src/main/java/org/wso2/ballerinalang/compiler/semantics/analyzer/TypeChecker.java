@@ -5368,12 +5368,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
                     break;
                 } else if (leftConstituent != null || rightConstituent != null) {
-                    Location pos = binaryExpr.pos;
                     if (leftConstituent != null && types.isAssignable(rhsType, symTable.stringType)) {
-                        actualType = getXmlBinaryOpResultType(lhsType, leftConstituent, data.env, pos);
+                        actualType = getXmlStringBinaryOpResultType(lhsType, leftConstituent, data.env, binaryExpr.pos);
                         break;
                     } else if (rightConstituent != null && types.isAssignable(lhsType, symTable.stringType)) {
-                        actualType = getXmlBinaryOpResultType(rhsType, rightConstituent, data.env, pos);
+                        actualType =
+                                getXmlStringBinaryOpResultType(rhsType, rightConstituent, data.env, binaryExpr.pos);
                         break;
                     }
                 }
@@ -5429,7 +5429,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
     }
 
-    private BType getXmlBinaryOpResultType(BType opType, BType constituentType, SymbolEnv env, Location pos) {
+    private BType getXmlStringBinaryOpResultType(BType opType, BType constituentType, SymbolEnv env, Location pos) {
         if (types.isAssignable(symTable.xmlTextType, constituentType)) {
             return opType;
         }
@@ -5437,8 +5437,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BTypeSymbol typeSymbol =
                 Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                         env.scope.owner, pos, VIRTUAL);
-        BType type = new BXMLType(BUnionType.create(typeSymbol, constituentType, symTable.xmlTextType),
-                symTable.xmlType.tsymbol);
+        BType type = new BXMLType(BUnionType.create(typeSymbol, constituentType, symTable.xmlTextType), null);
         typeSymbol.type = type;
         return type;
     }
