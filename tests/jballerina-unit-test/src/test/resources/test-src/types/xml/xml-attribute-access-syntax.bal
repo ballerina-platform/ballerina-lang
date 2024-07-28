@@ -202,36 +202,47 @@ type XE xml:Element;
 function testXmlAttributeAccessOnXmlUnionTypes() {
     xml<xml:Element|xml:Text> x1 = xml `<a attr="aa">a</a>`;
     assertNonErrorValue(x1.attr, "aa");
+    assertNonErrorValue(x1?.attr, "aa");
 
     xml<xml:Element|xml:Comment> x2 = xml `<b attr="ba">b</b>`;
     assertNonErrorValue(x2.attr, "ba");
+    assertNonErrorValue(x2?.attr, "ba");
 
     xml<xml:Element|xml:ProcessingInstruction> x3 = xml `<c attr="ca">c</c>`;
     assertNonErrorValue(x3.attr, "ca");
+    assertNonErrorValue(x3?.attr, "ca");
 
     xml<xml:Element|xml:Text|xml:ProcessingInstruction> x4 = xml `<d attr="da">d</d>`;
     assertNonErrorValue(x4.attr, "da");
+    assertNonErrorValue(x4?.attr, "da");
 
     xml<xml:Element|xml:Comment|xml:ProcessingInstruction> x5 = xml `<e attr="ea">e</e>`;
     assertNonErrorValue(x5.attr, "ea");
+    assertNonErrorValue(x5?.attr, "ea");
 
     xml<xml:Element|xml:Comment|xml:Text> x6 = xml `<f attr="fa">f</f>`;
     assertNonErrorValue(x6.attr, "fa");
+    assertNonErrorValue(x6?.attr, "fa");
 
     xml<xml:Element|xml:ProcessingInstruction|xml:Comment|xml:Text> x7 = xml `<g attr="ga">g</g>`;
     assertNonErrorValue(x7.attr, "ga");
+    assertNonErrorValue(x7?.attr, "ga");
 
     xml:Element|xml:ProcessingInstruction x8 = xml `<h attr="ha">h</h>`;
     assertNonErrorValue(x8.attr, "ha");
+    assertNonErrorValue(x8?.attr, "ha");
 
     xml:Element|xml:Text x9 = xml `<j attr="ja">j</j>`;
     assertNonErrorValue(x9.attr, "ja");
+    assertNonErrorValue(x9?.attr, "ja");
 
     xml:Element|xml:Comment x10 = xml `<k attr="ka">k</k>`;
     assertNonErrorValue(x10.attr, "ka");
+    assertNonErrorValue(x10?.attr, "ka");
 
     XC|XE x11 = xml `<l attr="la">l</l>`;
     assertNonErrorValue(x11.attr, "la");
+    assertNonErrorValue(x11?.attr, "la");
 }
 
 function testErrorsOnXmlAttributeAccessOnNonXmlElementValue() {
@@ -239,67 +250,88 @@ function testErrorsOnXmlAttributeAccessOnNonXmlElementValue() {
 
     xml:Comment x1 = xml `<!--comment-->`;
     assertError(x1.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x1?.attr, errorMessage, "invalid xml attribute access on xml comment");
 
     xml:Text x2 = xml `text`;
     assertError(x2.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x2?.attr, errorMessage, "invalid xml attribute access on xml text");
 
     xml:ProcessingInstruction x3 = xml `<?data?>`;
     assertError(x3.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x3?.attr, errorMessage, "invalid xml attribute access on xml pi");
 
     xml<xml:Comment|xml:Text> x4 = xml `<!--comment-->text`;
     assertError(x4.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x4?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Comment|xml:ProcessingInstruction> x5 = xml `<?data?><!--comment-->`;
     assertError(x5.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x5?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Text|xml:ProcessingInstruction> x6 = xml `<?data?>text`;
     assertError(x6.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x6?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Text|xml:ProcessingInstruction|xml:Comment> x7 = xml `<!--comment--><?data?>text`;
     assertError(x7.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x7?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Element|xml:Text> x8 = xml `text`;
     assertError(x8.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x8?.attr, errorMessage, "invalid xml attribute access on xml text");
 
     xml<xml:Element|xml:Comment> x9 = xml `<!--comment-->`;
     assertError(x9.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x9?.attr, errorMessage, "invalid xml attribute access on xml comment");
 
     xml<xml:Element|xml:ProcessingInstruction> x10 = xml `<?target?>`;
     assertError(x10.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x10?.attr, errorMessage, "invalid xml attribute access on xml pi");
 
     xml<xml:Element|xml:Text> x11 = xml `<a attr="attr">a</a>text`;
     assertError(x11.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x11?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Element|xml:Comment> x12 = xml `<a attr="attr">a</a><!--comment-->`;
     assertError(x12.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x12?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Element|xml:ProcessingInstruction> x13 = xml `<a attr="attr">a</a><?target?>`;
     assertError(x13.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x13?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     xml<xml:Element|xml:ProcessingInstruction|xml:Comment|xml:Text> x14 =
             xml `<a attr="attr">a</a><?target?><!--comment-->text`;
     assertError(x14.attr, errorMessage, "invalid xml attribute access on xml sequence");
+    assertError(x14?.attr, errorMessage, "invalid xml attribute access on xml sequence");
 
     XC x15 = xml `<!--comment-->`;
     assertError(x15.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x15?.attr, errorMessage, "invalid xml attribute access on xml comment");
 
     XPI x16 = xml `<?data?>`;
     assertError(x16.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x16?.attr, errorMessage, "invalid xml attribute access on xml pi");
 
     XT x17 = xml `text`;
     assertError(x17.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x17?.attr, errorMessage, "invalid xml attribute access on xml text");
 
     xml:Comment|xml:Text x18 = xml `<!--comment-->`;
     assertError(x18.attr, errorMessage, "invalid xml attribute access on xml comment");
+    assertError(x18?.attr, errorMessage, "invalid xml attribute access on xml comment");
 
     xml:Text|xml:ProcessingInstruction x19 = xml `text`;
     assertError(x19.attr, errorMessage, "invalid xml attribute access on xml text");
+    assertError(x19?.attr, errorMessage, "invalid xml attribute access on xml text");
 
     xml:ProcessingInstruction|xml:Comment x20 = xml `<?data?>`;
     assertError(x20.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x20?.attr, errorMessage, "invalid xml attribute access on xml pi");
 
     xml:ProcessingInstruction|xml:Element x21 = xml `<?target?>`;
     assertError(x21.attr, errorMessage, "invalid xml attribute access on xml pi");
+    assertError(x21?.attr, errorMessage, "invalid xml attribute access on xml pi");
 }
 
 function assertNonErrorValue(anydata|error actual, anydata expected) {
