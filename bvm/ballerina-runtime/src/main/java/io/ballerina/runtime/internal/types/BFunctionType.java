@@ -297,7 +297,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
 
     }
 
-    private FunctionQualifiers getQualifiers() {
+    @Override
+    public FunctionQualifiers getQualifiers() {
         return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }

@@ -31,9 +31,9 @@ public record Member(String name, SemType valueTy, Kind kind, Visibility visibil
         Method;
 
         private static final MappingDefinition.Field FIELD =
-                new MappingDefinition.Field("kind", booleanConst(true), true, false);
+                new MappingDefinition.Field("kind", stringConst("field"), true, false);
         private static final MappingDefinition.Field METHOD =
-                new MappingDefinition.Field("kind", booleanConst(false), true, false);
+                new MappingDefinition.Field("kind", stringConst("method"), true, false);
 
         public MappingDefinition.Field field() {
             return switch (this) {

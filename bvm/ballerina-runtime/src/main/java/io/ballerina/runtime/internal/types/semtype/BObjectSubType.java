@@ -58,7 +58,6 @@ public final class BObjectSubType extends SubType implements DelegatedSubType {
 
     @Override
     public boolean isEmpty(Context cx) {
-        // FIXME: distinct
         return cx.memoSubtypeIsEmpty(cx.mappingMemo,
                 (context, bdd) -> bddEveryPositive(context, bdd, null, null, BMappingSubType::mappingFormulaIsEmpty),
                 inner);
