@@ -136,9 +136,6 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
                         // the posType came from the rest type
                         mt = insertField(pos, fieldPair.name(), d);
                     } else {
-                        if (Core.isSubType(cx, fieldPair.type1(), Builder.cellContaining(cx.env, Builder.undef()))) {
-                            continue;
-                        }
                         SemType[] posTypes = pos.types().clone();
                         posTypes[fieldPair.index1()] = d;
                         mt = new MappingAtomicType(pos.names(), posTypes, pos.rest());
