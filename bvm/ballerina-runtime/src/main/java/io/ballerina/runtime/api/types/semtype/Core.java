@@ -114,6 +114,7 @@ public final class Core {
         return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
     }
 
+    // TODO: this should return SubTypeData not subtype
     public static SubType getComplexSubtypeData(SemType t, BasicTypeCode code) {
         assert (t.some() & (1 << code.code())) != 0;
         SubType subType = t.subTypeByCode(code.code());

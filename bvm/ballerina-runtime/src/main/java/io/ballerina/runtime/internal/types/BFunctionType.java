@@ -237,7 +237,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
     private static SemType createIsolatedTop(Env env) {
         FunctionDefinition fd = new FunctionDefinition();
         SemType ret = Builder.valType();
-        // FIXME: add a comment explaining why we are using neverType here
         return fd.define(env, Builder.neverType(), ret, FunctionQualifiers.create(true, false));
     }
 
@@ -305,7 +304,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }
 
-    // FIXME: consider moving this to builder
+    // TODO: consider moving this to builder
     private static SemTypeResult getSemType(Context cx, Type type) {
         SemType semType = Builder.from(cx, type);
         if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
