@@ -21,7 +21,6 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import static io.ballerina.runtime.api.types.semtype.Builder.booleanConst;
 import static io.ballerina.runtime.api.types.semtype.Builder.stringConst;
 
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {

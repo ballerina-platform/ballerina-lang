@@ -39,7 +39,6 @@ import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
-import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
