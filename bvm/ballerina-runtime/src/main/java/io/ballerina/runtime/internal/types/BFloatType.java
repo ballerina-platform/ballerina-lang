@@ -19,7 +19,12 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
+
+import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -28,7 +33,7 @@ import io.ballerina.runtime.api.types.FloatType;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BType implements FloatType {
+public class BFloatType extends BSemTypeWrapper implements FloatType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
@@ -36,26 +41,41 @@ public class BFloatType extends BType implements FloatType {
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        super(typeName, pkg, Double.class);
+        this(new BFloatTypeImpl(typeName, pkg), Builder.floatType());
     }
 
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return (V) new Double(0);
-    }
-    
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) new Double(0);
+    private BFloatType(BFloatTypeImpl bType, SemType semType) {
+        super(bType, semType);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.FLOAT_TAG;
+    public static BFloatType singletonType(Double value) {
+        return new BFloatType(new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE), Builder.floatConst(value));
     }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+    private static final class BFloatTypeImpl extends BType implements FloatType {
+
+        private BFloatTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Double.class);
+        }
+
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return (V) new Double(0);
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) new Double(0);
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.FLOAT_TAG;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

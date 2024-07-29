@@ -197,7 +197,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
         for (int i = 0; i < nNeg; i++) {
             // Be careful to avoid integer overflow.
-            if (lastBoundary > Long.MAX_VALUE - i) {
+            if (lastBoundary > Integer.MAX_VALUE - i) {
                 break;
             }
             indices.add(lastBoundary + i);

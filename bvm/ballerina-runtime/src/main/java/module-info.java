@@ -28,6 +28,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.api.types;
     exports io.ballerina.runtime.api.utils;
     exports io.ballerina.runtime.api.values;
+    exports io.ballerina.runtime.api.types.semtype;
 
     exports io.ballerina.runtime.observability;
     exports io.ballerina.runtime.observability.metrics;
