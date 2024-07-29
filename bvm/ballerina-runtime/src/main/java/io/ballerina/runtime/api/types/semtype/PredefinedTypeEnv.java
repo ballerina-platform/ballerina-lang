@@ -57,14 +57,14 @@ final class PredefinedTypeEnv {
         cellAtomicInnerRO();
     }
 
-    private static PredefinedTypeEnv INSTANCE;
+    private static PredefinedTypeEnv instance;
 
-    public synchronized static PredefinedTypeEnv getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new PredefinedTypeEnv();
-            INSTANCE.initilizeEnv();
+    public static synchronized PredefinedTypeEnv getInstance() {
+        if (instance == null) {
+            instance = new PredefinedTypeEnv();
+            instance.initilizeEnv();
         }
-        return INSTANCE;
+        return instance;
     }
 
     private final List<InitializedTypeAtom<CellAtomicType>> initializedCellAtoms = new ArrayList<>();
@@ -74,7 +74,6 @@ final class PredefinedTypeEnv {
     private final List<MappingAtomicType> initializedRecMappingAtoms = new ArrayList<>();
     private final AtomicInteger nextAtomIndex = new AtomicInteger(0);
 
-    // FIXME: instead use enums and enum map
     // This is to avoid passing down env argument when doing cell type operations.
     // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
     private CellAtomicType cellAtomicVal;
@@ -529,7 +528,7 @@ final class PredefinedTypeEnv {
         return Integer.max(initializedRecListAtoms.size(), initializedRecMappingAtoms.size());
     }
 
-    // FIXME: avoid creating these multiple times
+    // TODO: avoid creating these multiple times
     private SemType cellSemTypeObjectMemberKind() {
         return Builder.basicSubType(
                 BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberKind()))

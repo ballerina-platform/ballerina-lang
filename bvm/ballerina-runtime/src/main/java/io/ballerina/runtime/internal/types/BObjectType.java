@@ -64,7 +64,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
@@ -88,7 +87,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     private boolean resolving;
     private ObjectDefinition od;
     private final Env env = Env.getInstance();
-    // FIXME: better name
+    // TODO: better name
     private SemType softSemTypeCache;
     private final DistinctIdSupplier distinctIdSupplier;
 
