@@ -249,4 +249,6 @@ public abstract sealed class Bdd extends SubType implements SubTypeData permits 
         return and(atom, next);
     }
 
+    public abstract boolean posMaybeEmpty();
+
 }

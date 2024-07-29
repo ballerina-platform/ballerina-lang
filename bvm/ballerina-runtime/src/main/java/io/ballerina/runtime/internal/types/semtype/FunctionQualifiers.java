@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 public final class FunctionQualifiers {
 
-    private final static FunctionQualifiers DEFAULT = new FunctionQualifiers(false, false);
+    private static final FunctionQualifiers DEFAULT = new FunctionQualifiers(false, false);
     private final boolean isolated;
     private final boolean transactional;
     private SemType semType;
