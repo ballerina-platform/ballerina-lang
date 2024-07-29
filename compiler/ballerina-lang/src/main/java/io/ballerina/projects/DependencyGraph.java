@@ -23,10 +23,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 /**
  * Represents a generic immutable dependency graph.
@@ -303,4 +306,58 @@ public class DependencyGraph<T> {
             return currentDependencies;
         }
     }
+
+    /**
+     * Returns the levels of dependencies.
+     *
+     * @return the list of levels, each level contains a list of nodes
+     */
+    public List<List<T>> getLevels() {
+        List<List<T>> levels = new ArrayList<>();
+        Map<T, Integer> nodeLevels = new HashMap<>();
+        Queue<T> queue = new LinkedList<>();
+
+        // Initialize levels for all nodes with no incoming edges (root nodes)
+        for (T node : dependencies.keySet()) {
+            if (getDirectDependents(node).isEmpty()) {
+                queue.add(node);
+                nodeLevels.put(node, 0);
+            }
+        }
+
+        // Perform BFS to determine the levels of each node
+        while (!queue.isEmpty()) {
+            T current = queue.poll();
+            int currentLevel = nodeLevels.get(current);
+
+            // Ensure the levels list has a sublist for the current level
+            if (levels.size() == currentLevel) {
+                levels.add(new ArrayList<>());
+            }
+            levels.get(currentLevel).add(current);
+
+            // Process each dependency of the current node
+            for (T dependency : getDirectDependencies(current)) {
+                // Only process if the dependency has not been assigned a level yet
+                if (!nodeLevels.containsKey(dependency)) {
+                    nodeLevels.put(dependency, currentLevel + 1);
+                    queue.add(dependency);
+                }
+            }
+        }
+
+        return levels;
+    }
+
+
+
+//    /**
+//     * Returns the dependency graph as an unmodifiable map.
+//     *
+//     * @return the dependency graph
+//     */
+//    public Map<T, Set<T>> getGraph() {
+//        return this.dependencies;
+//    }
+
 }
