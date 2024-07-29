@@ -3298,46 +3298,49 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failVisited = true;
         analyzeExpr(checkedExpr.expr, data);
 
+        DefaultValueState defaultValueState = data.defaultValueState;
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-            if (data.defaultValueState == DefaultValueState.PARAMETER_DEFAULT && checksErrors(checkedExpr)) {
+            if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
                 dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
             }
             // Check at module level.
             return;
         }
 
-        if (checksErrors(checkedExpr)) {
-            if (data.defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
-                dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
-                return;
-            }
+        if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
+            dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
+            return;
+        }
 
-            if (data.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+            dlog.error(checkedExpr.pos,
+                       DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+            return;
+        }
+
+        if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            BAttachedFunction initializerFunc =
+                    ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
+
+            if (initializerFunc == null) {
                 dlog.error(checkedExpr.pos,
-                           DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+                        DiagnosticErrorCode
+                                .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
                 return;
             }
 
-            if (data.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
-                BAttachedFunction initializerFunc =
-                        ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
-
-                if (initializerFunc == null) {
-                    dlog.error(checkedExpr.pos,
-                            DiagnosticErrorCode
-                                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
-                    return;
-                }
-
-                BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
-                BType initMethodReturnType = initializerFunc.type.retType;
-                if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
-                    dlog.error(checkedExpr.pos, DiagnosticErrorCode
-                            .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
-                            initMethodReturnType, exprErrorTypes);
-                }
+            BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
+            if (exprErrorTypes == symTable.semanticError) {
                 return;
             }
+
+            BType initMethodReturnType = initializerFunc.type.retType;
+            if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
+                dlog.error(checkedExpr.pos, DiagnosticErrorCode
+                        .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
+                        initMethodReturnType, exprErrorTypes);
+            }
+            return;
         }
 
         BLangInvokableNode enclInvokable = data.env.enclInvokable;
@@ -4401,11 +4404,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
                 prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER ||
                 prevDefaultValueState == DefaultValueState.PARAMETER_DEFAULT;
-    }
-
-    private boolean checksErrors(BLangCheckedExpr checkedExpr) {
-        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
-        return equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty();
     }
 
     private enum DefaultValueState {

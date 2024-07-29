@@ -297,7 +297,11 @@ public class FunctionsWithDefaultableParametersTest {
                                   43, 75);
         BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 47, 37);
         BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 47, 72);
-        Assert.assertEquals(i, result.getErrorCount());
+        BAssertUtil.validateError(result, i++, CANNOT_USE_CHECK_IN_THE_DEFAULT_VALUE_OF_A_PARAMETER, 52, 21);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 52, 27);
+        Assert.assertEquals(i - 1, result.getErrorCount());
+        Assert.assertEquals(1, result.getWarnCount());
     }
 
     @AfterClass

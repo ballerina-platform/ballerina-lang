@@ -46,3 +46,7 @@ type Foo record {|
 class Bar {
     function fn = function (int v = check intOrError(), int[] w = [12, check intOrError()]) {};
 }
+
+isolated function intFunc() returns int => 1;
+
+function f5(int a = check intFunc()) returns int => a;
