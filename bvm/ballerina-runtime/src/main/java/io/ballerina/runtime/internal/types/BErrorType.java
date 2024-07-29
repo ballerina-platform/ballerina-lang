@@ -24,20 +24,31 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BErrorType extends BAnnotatableType implements ErrorType {
+public class BErrorType extends BAnnotatableType implements ErrorType, PartialSemTypeSupplier, TypeWithShape {
 
-    public Type detailType = PredefinedTypes.TYPE_ERROR_DETAIL;
+    public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
+    private DistinctIdSupplier distinctIdSupplier;
+    private static final AtomicInteger nextId = new AtomicInteger(0);
+    private final int id = nextId.getAndIncrement();
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -50,6 +61,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+        this.distinctIdSupplier = null;
     }
 
     @Override
@@ -112,5 +124,58 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    synchronized SemType createSemType(Context cx) {
+        boolean hasBType = false;
+        SemType err;
+        if (detailType == null || isTopType()) {
+            err = Builder.errorType();
+            hasBType = true;
+        } else {
+            SemType detailType = Builder.from(cx, getDetailType());
+            if (!Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP))) {
+                hasBType = true;
+                detailType = Core.intersect(detailType, Core.SEMTYPE_TOP);
+            }
+            err = ErrorUtils.errorDetail(detailType);
+        }
+
+        if (distinctIdSupplier == null) {
+            distinctIdSupplier = new DistinctIdSupplier(cx.env, getTypeIdSet());
+        }
+        SemType pureSemType =
+                distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
+        if (hasBType) {
+            return Core.union(pureSemType, BTypeConverter.wrapAsPureBType(this));
+        }
+        return pureSemType;
+    }
+
+    private boolean isTopType() {
+        return detailType == PredefinedTypes.TYPE_DETAIL;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        BError errorValue = (BError) object;
+        Object details = errorValue.getDetails();
+        if (!(details instanceof BMap errorDetails)) {
+            return Optional.empty();
+        }
+        SemType detailType = Builder.from(cx, errorDetails.getType());
+        boolean hasBType = !Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP));
+        return BMapType.readonlyShape(cx, errorDetails)
+                .map(ErrorUtils::errorDetail)
+                .map(err -> distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct)
+                        .reduce(err, Core::intersect))
+                .map(semType -> {
+                    if (hasBType) {
+                        return Core.union(semType, BTypeConverter.wrapAsPureBType(this));
+                    } else {
+                        return semType;
+                    }
+                });
     }
 }

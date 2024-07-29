@@ -218,6 +218,10 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
             return Optional.of(cachedShape);
         }
 
+        return readonlyShape(cx, value);
+    }
+
+    static Optional<SemType> readonlyShape(Context cx, BMap value) {
         int nFields = value.size();
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
         Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
@@ -230,7 +234,7 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
             fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
         }
         MappingDefinition md = new MappingDefinition();
-        SemType semType = md.defineMappingTypeWrapped(env, fields, Builder.neverType(), CELL_MUT_NONE);
+        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), CELL_MUT_NONE);
         value.cacheShape(semType);
         return Optional.of(semType);
     }

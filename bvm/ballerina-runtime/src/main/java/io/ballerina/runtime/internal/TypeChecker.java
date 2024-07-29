@@ -569,7 +569,19 @@ public final class TypeChecker {
         if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, target));
+        return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, source), Builder.from(cx, target));
+    }
+
+    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType source, SemType target) {
+        TypeCheckResult result;
+        result = isSubTypeWithShapeInner(cx, sourceValue, target);
+        if (result == TypeCheckResult.MAYBE) {
+            if (Core.containsBasicType(source, B_TYPE_TOP)) {
+                return TypeCheckResult.MAYBE;
+            }
+            return TypeCheckResult.FALSE;
+        }
+        return result;
     }
 
     private static TypeCheckResult isSubType(Context cx, Type source, Type target) {
@@ -587,17 +599,24 @@ public final class TypeChecker {
         if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        return isSubTypeWithShape(cx, sourceValue, target);
+        return isSubTypeWithShape(cx, sourceValue, source, target);
     }
 
-    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
+    private static TypeCheckResult isSubTypeWithShapeInner(Context cx, Object sourceValue, SemType target) {
         Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
         if (sourceSingletonType.isEmpty()) {
-            return Core.containsBasicType(target, B_TYPE_TOP) && !(sourceValue instanceof FPValue) ?
+            return fallbackToBTypeWithoutShape(sourceValue, target) ?
                     TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
         }
         SemType singletonType = sourceSingletonType.get();
         return isSubTypeInner(singletonType, target);
+    }
+
+    private static boolean fallbackToBTypeWithoutShape(Object sourceValue, SemType target) {
+        if (!Core.containsBasicType(target, B_TYPE_TOP)) {
+            return false;
+        }
+        return !(sourceValue instanceof FPValue);
     }
 
     private static TypeCheckResult isSubTypeInner(SemType source, SemType target) {

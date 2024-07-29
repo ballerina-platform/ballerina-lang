@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
@@ -36,10 +37,11 @@ import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
-import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,10 +49,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
@@ -90,7 +94,8 @@ public final class Builder {
             SemType.from(VT_INHERENTLY_IMMUTABLE),
             basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
-            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO))
+            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO)),
+            basicSubType(BT_XML, XmlUtils.XML_SUBTYPE_RO)
     ));
     private static final ConcurrentLazyContainer<SemType> MAPPING_RO = new ConcurrentLazyContainer<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
@@ -289,10 +294,24 @@ public final class Builder {
         } else if (object instanceof FPValue fpValue) {
             // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
             return Optional.of(from(cx, fpValue.getType()));
+        } else if (object instanceof BError errorValue) {
+            return typeOfError(cx, errorValue);
         } else if (object instanceof AbstractObjectValue objectValue) {
             return typeOfObject(cx, objectValue);
+        } else if (object instanceof XmlValue xmlValue) {
+            return typeOfXml(cx, xmlValue);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfXml(Context cx, XmlValue xmlValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) xmlValue.getType();
+        return typeWithShape.shapeOf(cx, xmlValue);
+    }
+
+    private static Optional<SemType> typeOfError(Context cx, BError errorValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) errorValue.getType();
+        return typeWithShape.shapeOf(cx, errorValue);
     }
 
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
@@ -350,6 +369,30 @@ public final class Builder {
         return from(BT_FUNCTION);
     }
 
+    public static SemType errorType() {
+        return from(BT_ERROR);
+    }
+
+    public static SemType xmlType() {
+        return from(BT_XML);
+    }
+
+    public static SemType xmlElementType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_ELEMENT_RO | XmlUtils.XML_PRIMITIVE_ELEMENT_RW);
+    }
+
+    public static SemType xmlCommentType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_COMMENT_RO | XmlUtils.XML_PRIMITIVE_COMMENT_RW);
+    }
+
+    public static SemType xmlTextType() {
+        return XmlUtils.xmlSequence(XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
+    }
+
+    public static SemType xmlPIType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW);
+    }
+
     public static SemType anyDataType(Context context) {
         SemType memo = context.anydataMemo;
         if (memo != null) {
@@ -390,7 +433,7 @@ public final class Builder {
         return PREDEFINED_TYPE_ENV.cellAtomicVal();
     }
 
-    private static BddNode bddSubtypeRo() {
+    public static BddNode bddSubtypeRo() {
         return bddAtom(RecAtom.createRecAtom(0));
     }
 

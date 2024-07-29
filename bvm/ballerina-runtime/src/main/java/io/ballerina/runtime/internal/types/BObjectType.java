@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -67,9 +66,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
 
@@ -93,9 +89,9 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     private boolean resolving;
     private ObjectDefinition od;
     private final Env env = Env.getInstance();
-    // FIXME: better name
+    // TODO: better name
     private SemType softSemTypeCache;
-    private final DistinctIdSupplier distinctIdSupplier;
+    private DistinctIdSupplier distinctIdSupplier;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -107,7 +103,6 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     public BObjectType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags, Object.class);
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
-        this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     @Override
@@ -250,6 +245,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+        this.distinctIdSupplier = null;
     }
 
     public BObjectType duplicate() {
@@ -283,6 +279,9 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
 
     @Override
     synchronized SemType createSemType(Context cx) {
+        if (distinctIdSupplier == null) {
+            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
+        }
         return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
                 .reduce(semTypeInner(cx), Core::intersect);
     }
@@ -363,11 +362,14 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public synchronized Optional<SemType> shapeOf(Context cx, Object object) {
         AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
         SemType cachedShape = abstractObjectValue.shapeOf();
         if (cachedShape != null) {
             return Optional.of(cachedShape);
+        }
+        if (distinctIdSupplier == null) {
+            distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
         SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(
                 valueShape(cx, abstractObjectValue), Core::intersect);
@@ -436,30 +438,6 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     public void resetSemTypeCache() {
         super.resetSemTypeCache();
         od = null;
-    }
-
-    private final class DistinctIdSupplier implements Supplier<Collection<Integer>> {
-
-        private List<Integer> ids = null;
-        private static final Map<TypeId, Integer> allocatedIds = new ConcurrentHashMap<>();
-        private final Env env;
-
-        private DistinctIdSupplier(Env env) {
-            this.env = env;
-        }
-
-        public synchronized Collection<Integer> get() {
-            if (ids != null) {
-                return ids;
-            }
-            if (typeIdSet == null) {
-                return List.of();
-            }
-            ids = typeIdSet.getIds().stream().map(typeId -> allocatedIds.computeIfAbsent(typeId,
-                            ignored -> env.distinctAtomCountGetAndIncrement()))
-                    .toList();
-            return ids;
-        }
     }
 
     protected Collection<MethodData> allMethods(Context cx) {

@@ -86,7 +86,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message) {
-        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), PredefinedTypes.TYPE_DETAIL),
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 

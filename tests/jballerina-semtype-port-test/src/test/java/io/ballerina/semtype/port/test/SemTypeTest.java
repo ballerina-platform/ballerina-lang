@@ -232,20 +232,8 @@ public class SemTypeTest {
                 "table-readonly-t.bal",
                 "table-t.bal"
         ));
-        Predicate<File> xmlFilter = createRuntimeFileNameFilter(Set.of(
-                "xml-complex-ro-tv.bal",
-                "xml-complex-rw-tv.bal",
-                "xml-never-tv.bal",
-                "xml-readonly-tv.bal",
-                "xml-sequence-tv.bal",
-                "xml-te.bal"
-        ));
-        Predicate<File> objectFilter = createRuntimeFileNameFilter(Set.of(
-        ));
         return balFiles.stream()
                 .filter(tableFilter)
-                .filter(xmlFilter)
-                .filter(objectFilter)
                 .map(File::getAbsolutePath).toArray();
     }
 

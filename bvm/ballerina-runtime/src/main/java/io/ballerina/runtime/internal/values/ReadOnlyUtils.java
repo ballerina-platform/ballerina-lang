@@ -184,9 +184,9 @@ public final class ReadOnlyUtils {
                 return createAndSetImmutableIntersectionType(type, readonlyPI);
             case TypeTags.XML_TAG:
                 BXmlType origXmlType = (BXmlType) type;
-                BXmlType immutableXmlType = new BXmlType(READONLY_XML_TNAME, origXmlType.getPackage(),
-                                                         origXmlType.getTag(), true);
-                immutableXmlType.constraint = getImmutableType(origXmlType.constraint, unresolvedTypes);
+                BXmlType immutableXmlType =
+                        new BXmlType(READONLY_XML_TNAME, getImmutableType(origXmlType.constraint, unresolvedTypes),
+                                origXmlType.getPackage(), origXmlType.getTag(), true);
                 return createAndSetImmutableIntersectionType(origXmlType, immutableXmlType);
             case TypeTags.ARRAY_TAG:
                 BArrayType origArrayType = (BArrayType) type;
