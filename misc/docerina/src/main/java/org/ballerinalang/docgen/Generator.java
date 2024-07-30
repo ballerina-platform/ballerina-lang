@@ -611,7 +611,7 @@ public class Generator {
                     String methodName = "";
                     String accessor = "";
                     String resourcePath = "";
-                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DECLARATION) {
                         accessor = methodNode.methodName().text();
                         resourcePath = methodNode.relativeResourcePath().stream().
                                 collect(StringBuilder::new, (firstString,
