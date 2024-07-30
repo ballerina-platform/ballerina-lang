@@ -240,12 +240,9 @@ public class SemTypeTest {
                 "xml-sequence-tv.bal",
                 "xml-te.bal"
         ));
-        Predicate<File> objectFilter = createRuntimeFileNameFilter(Set.of(
-        ));
         return balFiles.stream()
                 .filter(tableFilter)
                 .filter(xmlFilter)
-                .filter(objectFilter)
                 .map(File::getAbsolutePath).toArray();
     }
 

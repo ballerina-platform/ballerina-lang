@@ -97,4 +97,9 @@ public final class BddNode extends Bdd {
         return left.equals(BddAllOrNothing.ALL) && middle.equals(BddAllOrNothing.NOTHING) &&
                 right.equals(BddAllOrNothing.NOTHING);
     }
+
+    @Override
+    public boolean posMaybeEmpty() {
+        return middle.posMaybeEmpty() || right.posMaybeEmpty();
+    }
 }
