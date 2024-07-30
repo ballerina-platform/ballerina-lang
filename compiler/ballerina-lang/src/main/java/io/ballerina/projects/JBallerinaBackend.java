@@ -948,13 +948,12 @@ public class JBallerinaBackend extends CompilerBackend {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(
                 CompilationCache.class);
-        return compilationCache.getPlatformSpecificLibrary(this,
-                                RESOURCE_DIR_NAME)
+        return compilationCache.getPlatformSpecificLibrary(this, RESOURCE_DIR_NAME)
                 .map(path -> new JarLibrary(path, scope))
                 .orElse(null);
     }
 
-    private Map<String, byte[]> getResources(PackageContext packageContext) {
+    private Map<String, byte[]> getPackageResources(PackageContext packageContext) {
         Map<String, byte[]> resourceMap = new HashMap<>();
         for (DocumentId documentId : packageContext.resourceIds()) {
             String resourceName = RESOURCE_DIR_NAME + "/"
@@ -964,8 +963,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return resourceMap;
     }
 
-    private Map<String, byte[]> getAllResources(PackageContext packageContext) {
-        Map<String, byte[]> resourceMap = getResources(packageContext);
+    private Map<String, byte[]> getPackageAndTestResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = getPackageResources(packageContext);
         for (DocumentId documentId : packageContext.testResourceIds()) {
             String resourceName = RESOURCE_DIR_NAME + "/"
                     + packageContext.resourceContext(documentId).name();
@@ -989,7 +988,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
-                    Map<String, byte[]> depResources = getResources(pkgContext);
+                    Map<String, byte[]> depResources = getPackageResources(pkgContext);
                     for (Map.Entry<String, byte[]> entry : depResources.entrySet()) {
                         if (resources.containsKey(entry.getKey())) {
                             addConflictingDepResourceDiag(pkgContext.descriptor().toString(),
@@ -1000,8 +999,8 @@ public class JBallerinaBackend extends CompilerBackend {
                     }
                 });
         // Add resources from the package
-        Map<String, byte[]> packageResources = skipTests ? getResources(packageContext) :
-                getAllResources(packageContext);
+        Map<String, byte[]> packageResources = skipTests ? getPackageResources(packageContext) :
+                getPackageAndTestResources(packageContext);
         for (Map.Entry<String, byte[]> entry : packageResources.entrySet()) {
             if (resources.containsKey(entry.getKey())) {
                 addConflictingDepResourceDiag(packageContext.descriptor().toString(),
