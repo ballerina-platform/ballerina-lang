@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
@@ -38,6 +39,7 @@ import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FPValue;
 
 import java.math.BigDecimal;
@@ -289,10 +291,17 @@ public final class Builder {
         } else if (object instanceof FPValue fpValue) {
             // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
             return Optional.of(from(cx, fpValue.getType()));
+        } else if (object instanceof BError errorValue) {
+            return typeOfError(cx, errorValue);
         } else if (object instanceof AbstractObjectValue objectValue) {
             return typeOfObject(cx, objectValue);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfError(Context cx, BError errorValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) errorValue.getType();
+        return typeWithShape.shapeOf(cx, errorValue);
     }
 
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
