@@ -713,7 +713,7 @@ public class JvmPackageGen {
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
-        // use a map to store class byte values
+        // use a ByteArrayOutputStream to store class byte values
         final JAREntries jarEntries = new JAREntries(
                 getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."));
 
