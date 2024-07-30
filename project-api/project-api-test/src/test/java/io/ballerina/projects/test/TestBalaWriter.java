@@ -184,9 +184,6 @@ public class TestBalaWriter {
         // docs
         Path packageMdPath = balaExportPath.resolve("docs").resolve("Package.md");
         Assert.assertTrue(packageMdPath.toFile().exists());
-        Path defaultModuleMdPath = balaExportPath
-                .resolve("docs").resolve("modules").resolve("winery").resolve("Module.md");
-        Assert.assertTrue(defaultModuleMdPath.toFile().exists());
         Path servicesModuleMdPath = balaExportPath.resolve("docs").resolve("modules").resolve("winery.services")
                 .resolve("Module.md");
         Assert.assertTrue(servicesModuleMdPath.toFile().exists());

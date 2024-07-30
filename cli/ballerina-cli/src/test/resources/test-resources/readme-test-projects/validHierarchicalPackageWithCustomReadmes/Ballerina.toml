@@ -1,0 +1,9 @@
+[package]
+org = "foo"
+name = "bar.winery"
+version = "0.1.0"
+readme = "Package.md"
+
+[package.modules.bar.winery.storage]
+readme = "modules/storage/Module.md"
+
