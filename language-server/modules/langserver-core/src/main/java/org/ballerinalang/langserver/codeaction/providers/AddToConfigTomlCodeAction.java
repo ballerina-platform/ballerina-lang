@@ -67,7 +67,6 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
 
-    private static final String NAME = "Add to Config.toml";
     private static final String CONFIG_TOML = "Config.toml";
 
     @Override
@@ -133,32 +132,17 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return withConfigTomlCodeActions(basicType, anyDataOrJsonType, moduleConfigDetails, selectedConf,
+        return getWithConfigTomlCodeActions(basicType, anyDataOrJsonType, moduleConfigDetails, selectedConf,
                 configTomlPath, toml.get(), module, lastNodeLine);
     }
 
-    private List<CodeAction> withConfigTomlCodeActions(TypeSymbol basicType, TypeSymbol anyDataOrJsonType,
-                                                       ConfigurableFinder.ModuleConfigDetails moduleConfigDetails,
-                                                       ConfigurableFinder.ConfigVariable selectedConf,
-                                                       Path configTomlPath, Toml toml,
-                                                       Module module, int lastNodeLine) {
-        Position position;
-        boolean hasAtLeastOneEntry = lastNodeLine != 0;
-        if (lastNodeLine == 0 && !module.isDefaultModule()) {
-            Map<String, TopLevelNode> entries = toml.rootNode().entries();
-            for (TopLevelNode node : entries.values()) {
-                int nodeLine = node.location().lineRange().endLine().line();
-                if (nodeLine > lastNodeLine) {
-                    lastNodeLine = nodeLine;
-                }
-            }
-            position = PositionUtil.toPosition(
-                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 3, 0));
-        } else {
-            position = PositionUtil.toPosition(
-                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 1, 0));
-        }
-
+    private List<CodeAction> getWithConfigTomlCodeActions(TypeSymbol basicType, TypeSymbol anyDataOrJsonType,
+                                                          ConfigurableFinder.ModuleConfigDetails moduleConfigDetails,
+                                                          ConfigurableFinder.ConfigVariable selectedConf,
+                                                          Path configTomlPath, Toml toml,
+                                                          Module module, int lastNodeLine) {
+        boolean hasAtLeastOneEntry = lastNodeLine > 0;
+        Position position = getTomlInsertPosition(toml, module, lastNodeLine);
         List<CodeAction> codeActions = new ArrayList<>();
         if (selectedConf.isRequired()) {
             TextEdit textEdit = new TextEdit(new Range(position, position),
@@ -176,6 +160,25 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         return codeActions;
     }
 
+    private static Position getTomlInsertPosition(Toml toml, Module module, int lastNodeLine) {
+        Position position;
+        if (lastNodeLine == 0 && !module.isDefaultModule()) {
+            Map<String, TopLevelNode> entries = toml.rootNode().entries();
+            for (TopLevelNode node : entries.values()) {
+                int nodeLine = node.location().lineRange().endLine().line();
+                if (nodeLine > lastNodeLine) {
+                    lastNodeLine = nodeLine;
+                }
+            }
+            position = PositionUtil.toPosition(
+                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 3, 0));
+        } else {
+            position = PositionUtil.toPosition(
+                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 1, 0));
+        }
+        return position;
+    }
+
     private static List<CodeAction> withoutConfigTomlCodeActions(TypeSymbol basicType, TypeSymbol anyDataOrJsonType,
                                                           ConfigurableFinder.ModuleConfigDetails moduleConfigDetails,
                                                           ConfigurableFinder.ConfigVariable selectedConf,
@@ -184,13 +187,13 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         if (selectedConf.isRequired()) {
             String newText = getEdits(moduleConfigDetails, basicType, anyDataOrJsonType);
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.ADD_ALL_TO_CONFIG_TOML,
-                    new Command(NAME, CommandConstants.CREATE_CONFIG_TOML_COMMAND,
+                    new Command(CommandConstants.ADD_TO_CONFIG_TOML, CommandConstants.CREATE_CONFIG_TOML_COMMAND,
                             List.of(configTomlPath.toString(), newText)), CodeActionKind.Empty);
             codeActions.add(codeAction);
         }
         String newText = getTableEntryEdit(selectedConf, basicType, anyDataOrJsonType);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.ADD_TO_CONFIG_TOML,
-                new Command(NAME, CommandConstants.CREATE_CONFIG_TOML_COMMAND,
+                new Command(CommandConstants.ADD_TO_CONFIG_TOML, CommandConstants.CREATE_CONFIG_TOML_COMMAND,
                         List.of(configTomlPath.toString(), newText)), CodeActionKind.Empty);
         codeActions.add(codeAction);
         return codeActions;
@@ -286,6 +289,6 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
 
     @Override
     public String getName() {
-        return NAME;
+        return CommandConstants.ADD_TO_CONFIG_TOML;
     }
 }
