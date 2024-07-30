@@ -386,4 +386,9 @@ public class ObjectTypeReferenceTest {
     public void testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection() {
         BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection");
     }
+
+    @Test
+    public void testInclusionWithDifferentParamNames() {
+        BRunUtil.invoke(compileResult, "testInclusionWithDifferentParamNames");
+    }
 }
