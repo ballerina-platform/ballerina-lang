@@ -19,7 +19,6 @@
 package io.ballerina.shell.parser;
 
 import java.util.Set;
-import java.util.Optional;
 
 /**
  * Class contains constant values related to shell parser trials.
@@ -33,8 +32,6 @@ public class ParserConstants {
     public static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init", "__java_recall",
             "__java_memorize", "__recall_any", "__recall_any_error", "__memorize", "__stmts", "__run");
 
-    public static final Set<String> RESTRICTED_SOURCE_NAMES = Set.of("main()");
-
     /**
      * Checks if the given function name is restricted.
      *
@@ -43,17 +40,6 @@ public class ParserConstants {
      */
     public static boolean isFunctionNameRestricted(String functionName) {
         return RESTRICTED_FUNCTION_NAMES.contains(functionName) || functionName.startsWith(WRAPPER_PREFIX);
-    }
-
-    /**
-     * Check if the given source includes restricted keywords
-     * @param source
-     * @return {@code Optional<String>} if the source include restricted keywords. {@code Optional<Empty>} otherwise
-     */
-    public static Optional<String> getMatchedRestrictedSource(String source) {
-        return RESTRICTED_SOURCE_NAMES.stream()
-                .filter(source::contains)
-                .findFirst();
     }
 
     private ParserConstants() {}
