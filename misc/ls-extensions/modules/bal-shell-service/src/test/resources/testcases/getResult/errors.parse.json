@@ -39,7 +39,7 @@
     "source": "public function main() {\n    \n}",
     "result": {
       "errors":["Parsing the node from the statement failed."],
-      "diagnostics":["Found restricted keyword \u0027main()\u0027 in the declaration.\nDiscarded \u0027public function main() {\n    \n}\u0027 without loading."],
+      "diagnostics":["Function name \u0027main\u0027 not allowed in Ballerina Shell.\n"],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
       "consoleOut":""
     }
