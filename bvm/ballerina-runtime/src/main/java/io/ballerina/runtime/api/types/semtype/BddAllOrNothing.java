@@ -41,4 +41,9 @@ public final class BddAllOrNothing extends Bdd {
     public boolean equals(Object o) {
         return this == o;
     }
+
+    @Override
+    public boolean posMaybeEmpty() {
+        return this == ALL;
+    }
 }

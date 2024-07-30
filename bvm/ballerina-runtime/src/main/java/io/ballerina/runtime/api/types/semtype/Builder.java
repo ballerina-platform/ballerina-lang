@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
@@ -349,6 +350,11 @@ public final class Builder {
         return from(BT_FUNCTION);
     }
 
+    public static SemType errorType() {
+        return from(BT_ERROR);
+    }
+
+
     public static SemType anyDataType(Context context) {
         SemType memo = context.anydataMemo;
         if (memo != null) {
@@ -389,7 +395,7 @@ public final class Builder {
         return PREDEFINED_TYPE_ENV.cellAtomicVal();
     }
 
-    private static BddNode bddSubtypeRo() {
+    public static BddNode bddSubtypeRo() {
         return bddAtom(RecAtom.createRecAtom(0));
     }
 

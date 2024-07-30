@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.Definition;
+import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
@@ -139,8 +141,33 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case RECORD_TYPE -> resolveRecordTypeDesc(cx, mod, defn, depth, (BLangRecordTypeNode) td);
             case FUNCTION_TYPE -> resolveFunctionTypeDesc(cx, mod, defn, depth, (BLangFunctionTypeNode) td);
             case OBJECT_TYPE -> resolveObjectTypeDesc(cx, mod, defn, depth, (BLangObjectTypeNode) td);
+            case ERROR_TYPE -> resolveErrorTypeDesc(cx, mod, defn, depth, (BLangErrorType) td);
             default -> throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         };
+    }
+
+    private SemType resolveErrorTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                         BLangTypeDefinition defn, int depth, BLangErrorType td) {
+        SemType innerType = createErrorType(cx, mod, defn, depth, td);
+        if (td.flagSet.contains(Flag.DISTINCT)) {
+            Env env = (Env) cx.getInnerEnv();
+            return getDistinctErrorType(env, innerType);
+        }
+        return innerType;
+    }
+
+    private static SemType getDistinctErrorType(Env env, SemType innerType) {
+        return Core.intersect(ErrorUtils.errorDistinct(env.distinctAtomCountGetAndIncrement()), innerType);
+    }
+
+    private SemType createErrorType(TypeTestContext<SemType> cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth, BLangErrorType td) {
+        if (td.detailType == null) {
+            return Builder.errorType();
+        } else {
+            SemType detailType = resolveTypeDesc(cx, mod, defn, depth + 1, td.detailType);
+            return ErrorUtils.errorDetail(detailType);
+        }
     }
 
     private SemType resolveObjectTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -474,6 +501,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         Env env = (Env) cx.getInnerEnv();
         if (Core.isSubtypeSimple(innerType, Builder.objectType())) {
             return getDistinctObjectType(env, innerType);
+        } else if (Core.isSubtypeSimple(innerType, Builder.errorType())) {
+            return getDistinctErrorType(env, innerType);
         }
         throw new IllegalArgumentException("Distinct type not supported for: " + innerType);
     }
