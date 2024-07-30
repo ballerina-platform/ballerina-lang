@@ -82,17 +82,12 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
-        String orgName;
-        try {
-            Project project = context.workspace().loadProject(context.filePath());
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                return Collections.emptyList();
-            }
-            orgName = project.currentPackage().packageOrg().value();
-        } catch (Throwable e) {
+        Module module = context.currentModule().get();
+        Project project = module.project();
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return Collections.emptyList();
         }
-
+        String orgName = project.currentPackage().packageOrg().value();
         SemanticModel semanticModel = context.currentSemanticModel().get();
         Types types = semanticModel.types();
         TypeBuilder builder = types.builder();
@@ -123,7 +118,6 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         if (toml.isEmpty()) {
             return Collections.emptyList();
         }
-        Module module = context.currentModule().get();
         int lastNodeLine = module.isDefaultModule() ? rootModuleConfigDiff(toml.get(),
                 orgName, module.moduleName().toString(), configVarMap)
                 : nonRootModuleConfigDiff(toml.get(), orgName, module.moduleName(), configVarMap);
