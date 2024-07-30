@@ -41,7 +41,7 @@ public final class ErrorUtils {
         if (data == AllOrNothing.ALL) {
             return Builder.errorType();
         } else if (data == AllOrNothing.NOTHING) {
-            throw new IllegalStateException("Error subtype without any detail");
+            return Builder.neverType();
         }
 
         assert data instanceof Bdd;

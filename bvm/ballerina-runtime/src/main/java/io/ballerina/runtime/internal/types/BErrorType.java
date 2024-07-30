@@ -29,11 +29,15 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 0.995.0
  */
-public class BErrorType extends BAnnotatableType implements ErrorType, PartialSemTypeSupplier {
+public class BErrorType extends BAnnotatableType implements ErrorType, PartialSemTypeSupplier, TypeWithShape {
 
     public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
@@ -158,4 +162,25 @@ public class BErrorType extends BAnnotatableType implements ErrorType, PartialSe
         return detailType == PredefinedTypes.TYPE_DETAIL;
     }
 
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        BError errorValue = (BError) object;
+        Object details = errorValue.getDetails();
+        if (!(details instanceof BMap errorDetails)) {
+            return Optional.empty();
+        }
+        SemType detailType = Builder.from(cx, errorDetails.getType());
+        boolean hasBType = !Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP));
+        return BMapType.shapeOfInner(cx, errorDetails)
+                .map(ErrorUtils::errorDetail)
+                .map(err -> distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct)
+                        .reduce(err, Core::intersect))
+                .map(semType -> {
+                    if (hasBType) {
+                        return Core.union(semType, BTypeConverter.wrapAsPureBType(this));
+                    } else {
+                        return semType;
+                    }
+                });
+    }
 }
