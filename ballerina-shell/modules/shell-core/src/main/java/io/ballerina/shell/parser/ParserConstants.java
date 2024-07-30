@@ -18,8 +18,8 @@
 
 package io.ballerina.shell.parser;
 
-import java.util.Optional;
 import java.util.Set;
+import java.util.Optional;
 
 /**
  * Class contains constant values related to shell parser trials.
@@ -46,7 +46,7 @@ public class ParserConstants {
     }
 
     /**
-     * Check if the given source includes restricted keywords.
+     * Check if the given source includes restricted keywords
      * @param source
      * @return {@code Optional<String>} if the source include restricted keywords. {@code Optional<Empty>} otherwise
      */
