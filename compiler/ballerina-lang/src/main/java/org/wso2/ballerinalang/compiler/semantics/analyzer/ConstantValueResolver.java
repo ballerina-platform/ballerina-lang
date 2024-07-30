@@ -130,10 +130,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public void setCurrentPackageId(PackageID packageID) {
-        this.pkgID = packageID;
-    }
-
     public void resolve(List<BLangConstant> constants, PackageID packageID, SymbolEnv symEnv) {
         this.dlog.setCurrentPackageId(packageID);
         this.pkgID = packageID;
@@ -876,11 +872,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol structureSymbol = recordType.tsymbol;
         for (BField field : recordType.fields.values()) {
             field.type = ImmutableTypeCloner.getImmutableType(pos, types, field.type, env,
-                    pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
+                    env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names,
                     new HashSet<>());
             Name fieldName = field.symbol.name;
             field.symbol = new BVarSymbol(field.symbol.flags | Flags.READONLY, fieldName,
-                    pkgID, field.type, structureSymbol, pos, SOURCE);
+                    env.enclPkg.packageID, field.type, structureSymbol, pos, SOURCE);
             structureSymbol.scope.define(fieldName, field.symbol);
         }
     }
