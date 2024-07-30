@@ -55,6 +55,6 @@ public final class ErrorUtils {
     public static SemType errorDistinct(int distinctId) {
         assert distinctId >= 0;
         Bdd bdd = bddAtom(createDistinctRecAtom(-distinctId - 1));
-        return basicSubType(BT_ERROR, bdd);
+        return basicSubType(BT_ERROR, BErrorSubType.createDelegate(bdd));
     }
 }
