@@ -82,6 +82,9 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
+        if (context.currentModule().isEmpty()) {
+            return Collections.emptyList();
+        }
         Module module = context.currentModule().get();
         Project project = module.project();
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -115,14 +118,14 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         }
 
         Optional<Toml> toml = readToml(configTomlPath);
-        if (toml.isEmpty()) {
+        if (toml.isEmpty() || configVarMap.isEmpty()) {
             return Collections.emptyList();
         }
         int lastNodeLine = module.isDefaultModule() ? rootModuleConfigDiff(toml.get(),
                 orgName, module.moduleName().toString(), configVarMap)
                 : nonRootModuleConfigDiff(toml.get(), orgName, module.moduleName(), configVarMap);
 
-        if (configVarMap.isEmpty() || !configVarMap.containsKey(selectedConf.name())) {
+        if (!configVarMap.containsKey(selectedConf.name())) {
             return Collections.emptyList();
         }
 
