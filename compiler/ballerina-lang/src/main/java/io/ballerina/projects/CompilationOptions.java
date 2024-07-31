@@ -40,13 +40,15 @@ public class CompilationOptions {
     Boolean enableCache;
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
+    Boolean optimizeCodegen;
+    Boolean optimizeReport;
 
-    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
-                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement) {
+    private CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
+                               Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+                               Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
+                               Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
+                               Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
+                               Boolean optimizeCodegen, Boolean remoteManagement, Boolean optimizeReport) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -62,6 +64,8 @@ public class CompilationOptions {
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
+        this.optimizeCodegen = optimizeCodegen;
+        this.optimizeReport = optimizeReport;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
     }
@@ -124,6 +128,14 @@ public class CompilationOptions {
 
     public boolean enableCache() {
         return toBooleanDefaultIfNull(this.enableCache);
+    }
+
+    public boolean optimizeCodegen() {
+        return toBooleanDefaultIfNull(optimizeCodegen);
+    }
+
+    public boolean optimizeReport() {
+        return toBooleanDefaultIfNull(optimizeReport);
     }
 
     boolean remoteManagement() {
@@ -218,6 +230,16 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setRemoteManagement(this.remoteManagement);
         }
+        if (theirOptions.optimizeCodegen != null) {
+            compilationOptionsBuilder.setOptimizeCodegen(theirOptions.optimizeCodegen);
+        } else {
+            compilationOptionsBuilder.setOptimizeCodegen(this.optimizeCodegen);
+        }
+        if (theirOptions.optimizeReport != null) {
+            compilationOptionsBuilder.setOptimizeReport(theirOptions.optimizeReport);
+        } else {
+            compilationOptionsBuilder.setOptimizeReport(this.optimizeReport);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -272,7 +294,9 @@ public class CompilationOptions {
         private Boolean exportComponentModel;
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
+        private static Boolean optimizeCodegen;
         private Boolean remoteManagement;
+        private static Boolean optimizeReport;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -349,6 +373,20 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder setOptimizeCodegen(Boolean value) {
+            if (optimizeCodegen == null) {
+                optimizeCodegen = value;
+            }
+            return this;
+        }
+
+        CompilationOptionsBuilder setOptimizeReport(Boolean value) {
+            if (optimizeReport == null) {
+                optimizeReport = value;
+            }
+            return this;
+        }
+
         public CompilationOptionsBuilder setEnableCache(Boolean value) {
             enableCache = value;
             return this;
@@ -360,10 +398,10 @@ public class CompilationOptions {
         }
 
         public CompilationOptions build() {
-            return new CompilationOptions(offline, observabilityIncluded, dumpBir,
-                    dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement);
+            return new CompilationOptions(offline, observabilityIncluded, dumpBir, dumpBirFile, cloud,
+                    listConflictedClasses, sticky, dumpGraph, dumpRawGraph, withCodeGenerators, withCodeModifiers,
+                    configSchemaGen, exportOpenAPI, exportComponentModel, enableCache, disableSyntaxTree,
+                    optimizeCodegen, remoteManagement, optimizeReport);
         }
     }
 }

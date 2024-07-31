@@ -52,7 +52,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -158,6 +160,9 @@ public class JvmCodeGenUtil {
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    public static Boolean isOptimizedCodeGen = false;
+    public static Boolean isRootPkgCodeGen = false;
+    public static Map<String, PackageID> duplicatePkgsMap = new HashMap<>();
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
@@ -291,7 +296,22 @@ public class JvmCodeGenUtil {
         if (!orgName.equalsIgnoreCase("$anon")) {
             packageName = orgName + separator + packageName;
         }
+
+        if (isOptimizedReferenceInsideOptimizedPkg(packageID) || isOptimizedReferenceInsideRootPkg(packageID)) {
+            packageName = "OPTIMIZED_" + packageName;
+        }
+
         return packageName;
+    }
+
+    private static Boolean isOptimizedReferenceInsideRootPkg(PackageID referencePkgID) {
+        return isRootPkgCodeGen && duplicatePkgsMap
+                .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
+    }
+
+    private static Boolean isOptimizedReferenceInsideOptimizedPkg(PackageID referencePkgID) {
+        return isOptimizedCodeGen && duplicatePkgsMap
+                .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
     }
 
     public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {
@@ -811,5 +831,8 @@ public class JvmCodeGenUtil {
                 return 'L' + className + ';';
             }
         }
+    }
+    public static void markIsRootPackage() {
+        isRootPkgCodeGen = true;
     }
 }

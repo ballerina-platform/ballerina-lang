@@ -138,6 +138,14 @@ public class BuildOptions {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
+    public boolean optimizeCodegen() {
+        return this.compilationOptions.optimizeCodegen();
+    }
+
+    public boolean optimizeReport() {
+        return this.compilationOptions.optimizeReport();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -211,6 +219,8 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
+        buildOptionsBuilder.setOptimizeReport(compilationOptions.optimizeReport);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
 
         return buildOptionsBuilder.build();
@@ -250,7 +260,9 @@ public class BuildOptions {
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
-        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics");
+        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
+        OPTIMIZE_CODEGEN("optimizeCodegen"),
+        OPTIMIZE_REPORT("optimizeReport");
 
         private final String name;
 
@@ -282,7 +294,6 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
         private Boolean showDependencyDiagnostics;
-
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -406,8 +417,18 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setOptimizeCodegen(Boolean value) {
+            compilationOptionsBuilder.setOptimizeCodegen(value);
+            return this;
+        }
+
         public BuildOptionsBuilder setRemoteManagement(Boolean value) {
             compilationOptionsBuilder.setRemoteManagement(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setOptimizeReport(Boolean value) {
+            compilationOptionsBuilder.setOptimizeReport(value);
             return this;
         }
 

@@ -1,0 +1,39 @@
+{
+  "thushara_piyasekara/client_class_usage:0.1.0": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUsed.$get$^",
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUsed.init"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUsed.$init$"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUnused.$get$^",
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUnused.init"
+      ],
+      "virtualFunctions": [
+        "thushara_piyasekara/client_class_usage:0.1.0:ClientUnused.$init$"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "ClientUsed"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "ClientUnused"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
