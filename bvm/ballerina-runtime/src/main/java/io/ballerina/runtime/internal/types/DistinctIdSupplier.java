@@ -26,13 +26,14 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 final class DistinctIdSupplier implements Supplier<Collection<Integer>> {
 
     private List<Integer> ids = null;
-    private static final Map<TypeId, Integer> allocatedIds = new ConcurrentHashMap<>();
+    private static final Map<TypeIdWrapper, Integer> allocatedIds = new ConcurrentHashMap<>();
     private final Env env;
     private final TypeIdSet typeIdSet;
 
@@ -48,9 +49,27 @@ final class DistinctIdSupplier implements Supplier<Collection<Integer>> {
         if (typeIdSet == null) {
             return List.of();
         }
-        ids = typeIdSet.getIds().stream().map(typeId -> allocatedIds.computeIfAbsent(typeId,
+        ids = typeIdSet.getIds().stream().map(TypeIdWrapper::new).map(typeId -> allocatedIds.computeIfAbsent(typeId,
                         ignored -> env.distinctAtomCountGetAndIncrement()))
                 .toList();
         return ids;
+    }
+
+    // This is to avoid whether id is primary or not affecting the hashcode.
+    private record TypeIdWrapper(TypeId typeId) {
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TypeIdWrapper other) {
+                return typeId.getName().equals(other.typeId().getName()) &&
+                        typeId.getPkg().equals(other.typeId().getPkg());
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(typeId.getPkg(), typeId.getName());
+        }
     }
 }

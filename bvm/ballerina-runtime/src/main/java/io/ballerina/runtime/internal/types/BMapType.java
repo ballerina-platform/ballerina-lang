@@ -219,10 +219,10 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
             return Optional.of(cachedShape);
         }
 
-        return shapeOfInner(cx, value);
+        return readonlyShape(cx, value);
     }
 
-    static Optional<SemType> shapeOfInner(Context cx, BMap value) {
+    static Optional<SemType> readonlyShape(Context cx, BMap value) {
         int nFields = value.size();
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
         Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
