@@ -57,7 +57,7 @@ public class DependencyGraph<T> {
             return (DependencyGraph<T>) EMPTY_GRAPH;
         }
 
-
+        return new DependencyGraph<>(null, dependencies);
     }
 
     private DependencyGraph(T rootNode, Map<T, Set<T>> dependencies) {
