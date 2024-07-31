@@ -18,15 +18,14 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.scheduling.Strand;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
+ * Class that keep Ballerina locks based on lock name.
  * @since 1.2.0
  */
 public class BLockStore {
@@ -34,23 +33,36 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private  Map<String, BLock> globalLockMap;
+    private  final Map<String, ReentrantLock> globalLockMap;
+
+    private final ReentrantReadWriteLock storeLock;
 
     public BLockStore() {
-        globalLockMap = new ConcurrentHashMap<>();
+        this.globalLockMap = new ConcurrentHashMap<>();
+        this.storeLock = new ReentrantReadWriteLock();
     }
 
-    public void addLockToMap(String lockName) {
-        globalLockMap.put(lockName, new BLock());
+    public ReentrantLock addLockToMap(String lockName) {
+        try {
+            storeLock.writeLock().lock();
+            ReentrantLock lock = new ReentrantLock();
+            globalLockMap.put(lockName, lock);
+            return lock;
+        } finally {
+            storeLock.writeLock().unlock();
+        }
     }
 
-    public BLock getLockFromMap(String lockName) {
-        return globalLockMap.computeIfAbsent(lockName, (k) -> new BLock());
-    }
-
-    public void panicIfInLock(Strand strand) {
-        if (strand.acquiredLockCount > 0) {
-            throw ErrorCreator.createError(ErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+    public ReentrantLock getLockFromMap(String lockName) {
+        try {
+            storeLock.readLock().lock();
+            ReentrantLock lock = globalLockMap.get(lockName);
+            if (lock != null) {
+                return lock;
+            }
+            return addLockToMap(lockName);
+        } finally {
+            storeLock.readLock().unlock();
         }
     }
 }

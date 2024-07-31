@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -72,7 +73,7 @@ public class ErrorValue extends BError implements RefValue {
     private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
-    private final Object details;
+    private final BMap<BString, Object> details;
 
     private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
@@ -87,12 +88,17 @@ public class ErrorValue extends BError implements RefValue {
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public ErrorValue(BString message, Object details) {
+    public ErrorValue(BString message, BMap<BString, Object> details) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details) {
+    public ErrorValue(BString message, BError cause) {
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP), message, cause,
+                null);
+    }
+
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details) {
         super(message);
         this.type = type;
         this.message = message;
@@ -100,7 +106,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details,
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
         this.type = type;

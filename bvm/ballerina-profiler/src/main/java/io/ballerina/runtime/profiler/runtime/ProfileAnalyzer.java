@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.profiler.runtime;
 
-import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.io.FileWriter;
@@ -74,9 +73,7 @@ public class ProfileAnalyzer {
     }
 
     public void stop(Strand strand, Data data) {
-        if (strand.getState().equals(State.RUNNABLE)) {
-            data.stop(String.valueOf(strand.getId()));
-        }
+        data.stop(String.valueOf(strand.getId()));
         strand.setProperty(STRAND_PROFILER_STACK_PROPERTY, data.stackKey.substring(0,
                 data.stackKey.length() - data.stackIndex.length()));
     }

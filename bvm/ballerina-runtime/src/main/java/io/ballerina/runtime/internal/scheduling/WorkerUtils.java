@@ -17,10 +17,7 @@
   */
  package io.ballerina.runtime.internal.scheduling;
 
- import io.ballerina.runtime.api.PredefinedTypes;
- import io.ballerina.runtime.internal.TypeChecker;
  import io.ballerina.runtime.internal.values.ChannelDetails;
- import io.ballerina.runtime.internal.values.ErrorValue;
  import io.ballerina.runtime.internal.values.RefValue;
 
  /**
@@ -29,17 +26,9 @@
   * @since 0.995.0
   */
  public class WorkerUtils {
-
-     /**
-      * Notify worker data channels if this is a error return in a union type.
-      * @param value return value
-      * @param strand current strand
-      * @param channels worker date channels that current worker interacts
-      */
+     
      public static void handleWorkerError(RefValue value, Strand strand, ChannelDetails[] channels) {
-         if (TypeChecker.checkIsType(value, PredefinedTypes.TYPE_ERROR)) {
-             strand.handleChannelError(channels, (ErrorValue) value);
-         }
+
      }
 
      private WorkerUtils() {}

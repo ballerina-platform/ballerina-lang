@@ -71,8 +71,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
-    @Deprecated
-    @Override
     public Type[] getParameterTypes() {
         Type[] types = new Type[parameters.length];
         for (int i = 0; i < parameters.length; i++) {

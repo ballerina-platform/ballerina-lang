@@ -17,9 +17,9 @@
   */
  package io.ballerina.runtime.internal.values;
 
- import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.api.creators.ErrorCreator;
  import io.ballerina.runtime.api.types.Type;
+ import io.ballerina.runtime.api.values.BError;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
  import io.ballerina.runtime.api.values.BTypedesc;
@@ -48,24 +48,12 @@
 
      public Strand strand;
 
-     public Object result;
-
-     public boolean isDone;
-
-     public Throwable panic;
-
-     public Callback callback;
-
-     private boolean waited;
-
      Type type;
 
      public final CompletableFuture<Object> completableFuture;
 
-     @Deprecated
-     public FutureValue(Strand strand, Callback callback, Type constraint) {
+     public FutureValue(Strand strand, Type constraint) {
          this.strand = strand;
-         this.callback = callback;
          this.type = new BFutureType(constraint);
          this.completableFuture = new CompletableFuture<>();
      }
@@ -73,12 +61,15 @@
      @Override
      public String stringValue(BLink parent) {
          StringJoiner sj = new StringJoiner(",", "{", "}");
-         sj.add("isDone:" + isDone);
+         boolean isDone =  completableFuture.isDone();
+         sj.add("isDone:" + completableFuture.isDone());
+         Object result = completableFuture.getNow(null);
          if (isDone) {
-             sj.add("result:" + StringUtils.getStringVal(result, parent));
-         }
-         if (panic != null) {
-             sj.add("panic:" + panic.getLocalizedMessage());
+             if (result instanceof BError error) {
+                 sj.add("panic:" + error.getLocalizedMessage());
+             } else {
+                 sj.add("result:" + StringUtils.getStringVal(completableFuture.getNow(null), parent));
+             }
          }
          return "future " + sj;
      }
@@ -113,7 +104,7 @@
 
      @Override
      public void cancel() {
-         this.strand.cancel = true;
+         this.completableFuture.cancel(true);
      }
 
      /**
@@ -124,7 +115,7 @@
      public Object getResult() {
          try {
              return completableFuture.get();
-         } catch (ExecutionException| InterruptedException e){
+         } catch (ExecutionException | InterruptedException e) {
              return ErrorCreator.createError(e);
          }
      }
@@ -138,25 +129,9 @@
          return completableFuture.isDone();
      }
 
-     /**
-      * Returns {@code Throwable} if the attached strand panic.
-      * @return panic error or null if not panic occurred
-      */
-     @Override
-     public Throwable getPanic() {
-         return this.panic;
-     }
-
      @Override
      public String toString() {
          return stringValue(null);
      }
 
-     public boolean hasWaited() {
-         return waited;
-     }
-
-     public void setWaited(boolean waited) {
-         this.waited = waited;
-     }
  }

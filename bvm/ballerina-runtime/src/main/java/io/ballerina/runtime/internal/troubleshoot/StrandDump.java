@@ -18,17 +18,13 @@
 
 package io.ballerina.runtime.internal.troubleshoot;
 
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static io.ballerina.runtime.internal.scheduling.ItemGroup.getCreatedStrandGroupCount;
 
 /**
  * Used to get the status of current Ballerina strands.
@@ -38,12 +34,11 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.getCreatedStran
 public class StrandDump {
 
     public static String getStrandDump() {
-        Map<Integer, Strand> availableStrands = Scheduler.getCurrentStrands();
-        int createdStrandGroupCount = getCreatedStrandGroupCount();
-        int createdStrandCount = Strand.getCreatedStrandCount();
-        int availableStrandCount = availableStrands.size();
+        Map<Integer, Strand> availableStrands = new HashMap<>();
+        int createdStrandGroupCount = 0;
+        int createdStrandCount = 0;
+        int availableStrandCount = 0;
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
-        populateAvailableStrandGroups(availableStrands, availableStrandGroups);
 
         String strandDumpOutput = generateOutput(availableStrandGroups, availableStrandCount, createdStrandGroupCount,
                 createdStrandCount);
@@ -71,31 +66,10 @@ public class StrandDump {
         return outputStr.toString();
     }
 
-    private static void populateAvailableStrandGroups(Map<Integer, Strand> availableStrands,
-                                                      Map<Integer, List<String>> availableStrandGroups) {
-        for (Strand strand : availableStrands.values()) {
-            int strandGroupId = strand.getStrandGroup().getId();
-            String strandState = strand.dumpState();
-            availableStrandGroups.computeIfAbsent(strandGroupId, k -> {
-                ArrayList<String> strandDataList = new ArrayList<>();
-                strandDataList.add(getStrandGroupStatus(strand.getStrandGroup().isScheduled()));
-                return strandDataList;
-            }).add(strandState);
-        }
-    }
-
     private static void cleanUp(Map<Integer, Strand> availableStrands,
                                 Map<Integer, List<String>> availableStrandGroups) {
         availableStrands.clear();
         availableStrandGroups.clear();
-    }
-
-    private static String getStrandGroupStatus(boolean isStrandGroupScheduled) {
-        if (isStrandGroupScheduled) {
-            return "RUNNABLE";
-        } else {
-            return "QUEUED";
-        }
     }
 
     private StrandDump() {}

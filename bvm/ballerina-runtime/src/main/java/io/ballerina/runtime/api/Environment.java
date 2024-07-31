@@ -50,9 +50,8 @@ public abstract class Environment {
      * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
      * must return as soon as possible to avoid starvation of Ballerina code execution.
      *
-     * @return {@link Future} which will resume the current strand when completed.
      */
-    public abstract Future markAsync();
+    public abstract void markAsync();
 
     /**
      * Gets an instance of Ballerina runtime.

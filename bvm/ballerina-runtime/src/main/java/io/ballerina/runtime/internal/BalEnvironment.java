@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.internal.scheduling.State;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Optional;
@@ -37,7 +37,6 @@ import java.util.Optional;
 public class BalEnvironment extends Environment {
 
     private final Strand strand;
-    private BalFuture future;
     private Module currentModule;
     private String funcName;
     private Parameter[] funcPathParams;
@@ -50,7 +49,6 @@ public class BalEnvironment extends Environment {
     public BalEnvironment(Strand strand, Module currentModule) {
         this.strand = strand;
         this.currentModule = currentModule;
-        future = new BalFuture(this.strand);
         this.repository = new RepositoryImpl();
     }
 
@@ -85,15 +83,11 @@ public class BalEnvironment extends Environment {
      * Mark the current executing strand as async. Execution of Ballerina code after the current
      * interop will stop until given BalFuture is completed. However the java thread will not be blocked
      * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
-     * must return as soon as possible to avoid starvation of ballerina code execution.
-     *
-     * @return BalFuture which will resume the current strand when completed.
+     * must return as soon as possible to avoid starvation of ballerina code execution.WD
      */
     @Override
-    public BalFuture markAsync() {
-        strand.blockedOnExtern = true;
-        strand.setState(State.BLOCK_AND_YIELD);
-        return future;
+    public void markAsync() {
+        Scheduler.getStrand().yield();
     }
 
     /**
@@ -103,7 +97,7 @@ public class BalEnvironment extends Environment {
      */
     @Override
     public BalRuntime getRuntime() {
-        return new BalRuntime(strand.scheduler, currentModule);
+        return strand.scheduler.runtime;
     }
 
     /**

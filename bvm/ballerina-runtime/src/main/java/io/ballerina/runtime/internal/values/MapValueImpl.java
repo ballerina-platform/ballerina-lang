@@ -318,7 +318,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
+        Map<String, BFunctionPointer> defaultValues = new HashMap<>();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             defaultValues.putAll(((BRecordType) type).getDefaultValues());
         }
@@ -342,9 +342,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         }
 
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+        for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
-            BFunctionPointer<Object, ?> value = entry.getValue();
+            BFunctionPointer value = entry.getValue();
             populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{Scheduler.getStrand()}));
         }
     }

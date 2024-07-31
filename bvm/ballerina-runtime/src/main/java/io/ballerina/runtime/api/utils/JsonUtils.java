@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.JsonType;
@@ -40,7 +41,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -239,7 +239,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -256,7 +256,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 
@@ -272,7 +272,7 @@ public class JsonUtils {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 

@@ -17,11 +17,6 @@
   */
  package io.ballerina.runtime.api.values;
 
- import io.ballerina.runtime.api.async.Callback;
- import io.ballerina.runtime.internal.scheduling.Strand;
-
- import java.util.concurrent.ExecutionException;
-
  /**
   * <p>
   * Represent a Ballerina future in Java.
@@ -50,11 +45,4 @@
       * @return true if future is completed
       */
      boolean isDone();
-
-     /**
-      * Returns {@code Throwable} if the attached strand panic.
-      *
-      * @return panic error or null if not panic occurred
-      */
-     Throwable getPanic();
  }
