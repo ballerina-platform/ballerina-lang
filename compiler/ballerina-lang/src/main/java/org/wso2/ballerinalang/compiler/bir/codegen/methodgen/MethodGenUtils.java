@@ -22,7 +22,6 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -32,19 +31,13 @@ import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_ISOLATED_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
@@ -70,14 +63,6 @@ public class MethodGenUtils {
 
     static boolean isModuleInitFunction(BIRNode.BIRFunction func) {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
-    }
-
-    public static void submitToScheduler(MethodVisitor mv, String strandMetadataClass, String workerName,
-                                  AsyncDataCollector asyncDataCollector) {
-        String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
-        mv.visitLdcInsn(workerName);
-        mv.visitFieldInsn(GETSTATIC, strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_ISOLATED_CALL, SCHEDULE_CALL, false);
     }
 
     public static void visitReturn(MethodVisitor mv, String funcName, String className) {

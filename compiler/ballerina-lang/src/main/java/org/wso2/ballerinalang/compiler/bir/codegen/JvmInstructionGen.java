@@ -255,7 +255,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;

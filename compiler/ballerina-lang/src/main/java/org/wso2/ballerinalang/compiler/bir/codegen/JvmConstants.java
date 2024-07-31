@@ -164,7 +164,7 @@ public class JvmConstants {
     public static final String TYPE_REF_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypeReferenceType";
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
-    public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
+    public static final String CURRENT_MODULE_VAR_NAME = "$currentModule";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
@@ -198,6 +198,7 @@ public class JvmConstants {
     public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
     public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
     public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
+    public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "io/ballerina/runtime/internal/MapUtils";
     public static final String TABLE_UTILS = "io/ballerina/runtime/internal/TableUtils";
@@ -373,7 +374,8 @@ public class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
-    public static final String RUNTIME_REGISTRY_VARIABLE = "$runtimeRegistry";
+    public static final String RUNTIME_REGISTRY_VARIABLE = "runtimeRegistry";
+    public static final String SCHEDULER_VARIABLE = "scheduler";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
@@ -392,8 +394,9 @@ public class JvmConstants {
     public static final String CLASS_FILE_SUFFIX = ".class";
 
     // scheduler related constants
-    public static final String SCHEDULE_ISOLATED_CALL = "scheduleIsolatedCall";
-    public static final String SCHEDULE_NON_ISOLATED_CALL = "scheduleNonIsolatedCall";
+    public static final String START_ISOLATED_WORKER = "startIsolatedWorker";
+    public static final String START_ISOLATED_WORKER_ON_DAEMON_THREAD = "startIsolatedWorkerOnDaemonThread";
+    public static final String START_NON_ISOLATED_WORKER = "startNonIsolatedWorker";
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";

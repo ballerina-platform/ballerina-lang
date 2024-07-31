@@ -839,7 +839,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
         BIRNonTerminator.FPLoad fpLoad = new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID,
-                boundMethodPkgId != null ? boundMethodPkgId : pkgID, funcName, lhsOp, params, closureMapOperands,
+                funcName, lhsOp, params, closureMapOperands,
                 lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                 lambdaExpr.function.symbol.schedulerPolicy, isWorker);
         setScopeAndEmit(fpLoad);

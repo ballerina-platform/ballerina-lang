@@ -50,6 +50,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
@@ -192,7 +193,7 @@ public class JvmSignatures {
     public static final String CREATE_XML_PI = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";Z)L" + XML_VALUE + ";";
     public static final String CREATE_XML_TEXT = "(L" + B_STRING_VALUE + ";)L" + XML_VALUE + ";";
     public static final String CRETAE_XML_SEQUENCE = "()L" + XML_SEQUENCE + ";";
-    public static final String CURRENT_MODULE_STOP = "(L" + RUNTIME_REGISTRY_CLASS + ";)V";
+    public static final String CURRENT_MODULE_STOP = "(L" + SCHEDULER + ";)V";
     public static final String DECIMAL_NEGATE = "()L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_TO_HANDLE = "(L" + OBJECT + ";)L" + HANDLE_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_BOOLEAN = "(B)L" + DECIMAL_VALUE + ";";
@@ -234,7 +235,6 @@ public class JvmSignatures {
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
     public static final String GET_STRING_ARRAY = "()[L" + STRING_VALUE + ";";
     public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
-    public static final String GET_RUNTIME_REGISTRY_CLASS = "()L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_LOCK_FROM_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
     public static final String GET_LOCK_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
     public static final String GET_MAIN_ARGS = "()[L" + OBJECT + ";";
@@ -276,7 +276,8 @@ public class JvmSignatures {
     public static final String HANDLE_STOP_PANIC = "(L" + THROWABLE + ";)V";
     public static final String HANDLE_TABLE_STORE = "(L" + TABLE_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)V";
     public static final String HANDLE_THROWABLE = "(L" + JvmConstants.THROWABLE + ";)V";
-    public static final String HANDLE_WAIT_ANY = "(L" + LIST + ";)L" + STRAND_CLASS + "$WaitResult;";
+    public static final String HANDLE_WAIT = "(L" + FUTURE_VALUE + ";)L" + OBJECT + ";";
+    public static final String HANDLE_WAIT_ANY = "(L" + LIST + ";)L" + OBJECT + ";";
     public static final String HANDLE_WAIT_MULTIPLE = "(L" + MAP + ";L" + MAP_VALUE + ";)V";
     public static final String HANDLE_WORKER_ERROR =
             "(L" + REF_VALUE + ";L" + STRAND_CLASS + ";[L" + CHANNEL_DETAILS + ";)V";
@@ -310,7 +311,7 @@ public class JvmSignatures {
             "(L" + STRING_VALUE + ";L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
     public static final String INIT_LIST_INITIAL_EXPRESSION_ENTRY = "(L" + OBJECT + ";)V";
     public static final String INIT_LIST_INITIAL_SPREAD_ENTRY = "(L" + B_ARRAY + ";)V";
-    public static final String INIT_RUNTIME_REGISTRY = "(L" + RUNTIME_REGISTRY_CLASS + ";)V";
+    public static final String INIT_SIGNAL_LISTENER = "(L" + SCHEDULER + ";)V";
     public static final String MODULE_INITIALIZER = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String MODULE_STOP = "(L" + SCHEDULER + ";L" + FUTURE_VALUE + ";)V";
     public static final String INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY = "(L" + B_MAP + ";)V";
@@ -320,6 +321,7 @@ public class JvmSignatures {
     public static final String INIT_OPERAND = "(ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_OPTION = "(L" + TYPE + ";I)V";
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
+    public static final String INIT_SCHEDULER = "(L" + MODULE + ";)V";
     public static final String INIT_STRAND =
             "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" + STRAND_CLASS + ";L" + MAP + ";L"
                     + TRANSACTION_CONTEXT_CLASS + ";)V";
@@ -436,8 +438,10 @@ public class JvmSignatures {
     public static final String RETURN_TABLE_VALUE = ")L" + TABLE_VALUE + ";";
     public static final String RETURN_TYPEDESC_VALUE = ")L" + TYPEDESC_VALUE + ";";
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
-    public static final String SCHEDULE_CALL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +
-            STRAND_CLASS + ";" + "L" + TYPE + ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
+    public static final String SCHEDULE_CALL = "(L" + FUNCTION_POINTER + ";L" + STRAND_CLASS + ";" + "L" + TYPE +
+            ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";[L" + OBJECT + ";)L" + FUTURE_VALUE + ";";
+    public static final String SCHEDULE_CALL_ON_DAEMON_THREAD = "(L" + FUNCTION_POINTER + ";L" + STRAND_CLASS + ";" +
+            "L" + TYPE + ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";[L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String SEND_DATA = "(L" + OBJECT + ";L" + STRAND_CLASS + ";)V";
     public static final String SET_ARRAY_ELEMENT = "(L" + TYPE + ";IZ)V";
     public static final String SET_DECIMAL_RETURN_DECIMAL = "(L" + DECIMAL_VALUE + ";)L" + DECIMAL_VALUE + ";";
@@ -452,9 +456,8 @@ public class JvmSignatures {
     public static final String SET_TYPE_ARRAY = "([L" + TYPE + ";)V";
     public static final String SET_TYPE_ID_SET = "(L" + TYPE_ID_SET + ";)V";
     public static final String SET_VALUE = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
-    public static final String START_CALLABLE_OBSERVATION =
-            "(L" + BAL_ENV + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";JJL" + B_OBJECT + ";L" +
-                    B_STRING_VALUE + ";ZZZ)V";
+    public static final String START_CALLABLE_OBSERVATION = "(L" + BAL_ENV + ";L" + B_STRING_VALUE + ";L" +
+            B_STRING_VALUE + ";JJL" + B_OBJECT + ";L" + B_STRING_VALUE + ";ZZZ)V";
     public static final String START_RESOURCE_OBSERVATION =
             "(L" + BAL_ENV + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";JJL" + B_STRING_VALUE + ";L" +
                     B_STRING_VALUE + ";L" + B_STRING_VALUE + ";ZZ)V";

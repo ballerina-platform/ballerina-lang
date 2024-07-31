@@ -72,18 +72,14 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.DSTORE;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FSTORE;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
@@ -91,7 +87,6 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.LSTORE;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.generateReturnType;
@@ -136,7 +131,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 public class MethodGen {
 
     protected static final String STATE = "state";
-    protected static final String FUNCTION_INVOCATION = "functionInvocation";
     private static final String INVOCATION_COUNT = "%invocationCount";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
@@ -245,9 +239,7 @@ public class MethodGen {
         String funcName = func.name.value;
         BType retType = getReturnType(func);
         String desc;
-        int invocationCountArgVarIndex = -1;
         if (isWorker) {
-            invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
             desc = INITIAL_METHOD_DESC + "I" + getMethodDescParams(func.type.paramTypes) + generateReturnType(retType);
         } else if (isObjectMethodSplit) {
             desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
@@ -265,14 +257,13 @@ public class MethodGen {
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int invocationVarIndex = getIntVarIndex(indexMap, mv);
         LabelGenerator labelGen = new LabelGenerator();
 
-        // set function invocation variable
-        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex, module.packageID,
-                funcName);
+        // handle module start and init specific logic
+        handleDependantModuleForInit(mv, module.packageID, funcName);
+        handleParentModuleStart(mv, module.packageID, funcName);
         // set channel details to strand.
-        setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
+        setChannelDetailsToStrand(func, localVarOffset, mv, 0);
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                 jvmCastGen, jvmConstantsGen, asyncDataCollector,
@@ -282,12 +273,12 @@ public class MethodGen {
                 jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                invocationVarIndex, localVarOffset, module,
+                0, localVarOffset, module,
                 attachedType);
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex, localVarOffset);
+        termGen.genReturnTerm(returnVarRefIndex, func, 0, localVarOffset);
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel,
@@ -297,9 +288,7 @@ public class MethodGen {
         mv.visitEnd();
     }
 
-    private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
-                                          int invocationCountArgVarIndex, PackageID packageID, String funcName) {
-
+    private void handleDependantModuleForInit(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleInitFunction(funcName)) {
             String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
@@ -315,7 +304,9 @@ public class MethodGen {
             mv.visitInsn(ARETURN);
             mv.visitLabel(labelIf);
         }
+    }
 
+    private void handleParentModuleStart(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleStartFunction(funcName)) {
             String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, PARENT_MODULE_START_ATTEMPTED, "Z");
@@ -327,20 +318,6 @@ public class MethodGen {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, moduleClass, PARENT_MODULE_START_ATTEMPTED, "Z");
         }
-
-        if (invocationCountArgVarIndex == -1) {
-            mv.visitVarInsn(ALOAD, localVarOffset);
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
-            mv.visitInsn(DUP_X1);
-            mv.visitInsn(ICONST_1);
-            mv.visitInsn(IADD);
-            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
-        } else {
-            // this means this is a function created for a worker
-            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
-        }
-        mv.visitVarInsn(ISTORE, invocationVarIndex);
     }
 
     private BType getReturnType(BIRFunction func) {
@@ -451,13 +428,6 @@ public class MethodGen {
             default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                     jType);
         }
-    }
-
-    private int getIntVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int varIndex = indexMap.addIfNotExists(MethodGen.FUNCTION_INVOCATION, symbolTable.stringType);
-        mv.visitInsn(Opcodes.ICONST_0);
-        mv.visitVarInsn(ISTORE, varIndex);
-        return varIndex;
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,

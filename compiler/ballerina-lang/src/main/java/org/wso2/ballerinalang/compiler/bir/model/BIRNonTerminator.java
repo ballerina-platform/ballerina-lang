@@ -868,7 +868,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public String strandName;
         public Name funcName;
         public PackageID pkgId;
-        public PackageID boundMethodPkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
         public BType type;
@@ -889,11 +888,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.type.name = funcName;
         }
 
-        public FPLoad(Location location, PackageID pkgId, PackageID boundMethodPkgId, Name funcName, BIROperand lhsOp,
+        public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
                       SchedulerPolicy schedulerPolicy, boolean isWorker) {
             this(location, pkgId, funcName, lhsOp, params, closureMaps, type, strandName, schedulerPolicy);
-            this.boundMethodPkgId = boundMethodPkgId;
             this.isWorker = isWorker;
         }
 

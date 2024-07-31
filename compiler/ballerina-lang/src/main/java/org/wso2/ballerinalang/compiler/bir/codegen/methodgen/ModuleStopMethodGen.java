@@ -40,13 +40,11 @@ import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFLE;
-import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -58,21 +56,23 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_RESULT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 
 /**
  * Generates Jvm byte code for the stop method.
@@ -127,12 +127,9 @@ public class ModuleStopMethodGen {
                                     AsyncDataCollector asyncDataCollector) {
         Label labelIf = createIfLabel(mv, moduleClass);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // create FP value
         generateMethodBody(mv, initClass, stopFuncName, asyncDataCollector);
-
         // handle any runtime errors
         genHandleRuntimeErrors(mv, moduleClass, labelIf);
     }
@@ -141,11 +138,15 @@ public class ModuleStopMethodGen {
                                     AsyncDataCollector asyncDataCollector) {
         // create FP value
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
-
         // no parent strand
         mv.visitInsn(ACONST_NULL);
         jvmTypeGen.loadType(mv, new BNilType());
-        MethodGenUtils.submitToScheduler(mv, this.strandMetadataClass, "stop", asyncDataCollector);
+        String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
+        mv.visitLdcInsn("stop");
+        mv.visitFieldInsn(GETSTATIC, strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
+        mv.visitIntInsn(BIPUSH, 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_ISOLATED_WORKER, SCHEDULE_CALL, false);
         mv.visitVarInsn(ASTORE, 1);
     }
 

@@ -388,7 +388,7 @@ public class JvmPackageGen {
                     }
                 }
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmConstantsGen,
-                        asyncDataCollector, isRemoteMgtEnabled);
+                        asyncDataCollector, isRemoteMgtEnabled, moduleInitClass);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);

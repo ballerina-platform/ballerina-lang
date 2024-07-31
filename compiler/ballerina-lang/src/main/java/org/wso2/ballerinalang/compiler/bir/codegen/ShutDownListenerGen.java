@@ -39,9 +39,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_VARIABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_SIGNAL_LISTENER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
@@ -55,8 +55,7 @@ public class ShutDownListenerGen {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE, RUNTIME_REGISTRY_VARIABLE,
-                GET_RUNTIME_REGISTRY, null, null);
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE, SCHEDULER_VARIABLE, GET_SCHEDULER, null, null);
         fv.visitEnd();
 
         // create constructor
@@ -70,13 +69,13 @@ public class ShutDownListenerGen {
     }
 
     private void genConstructor(String innerClassName, ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, INIT_RUNTIME_REGISTRY, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, INIT_SIGNAL_LISTENER, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, innerClassName, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
+        mv.visitFieldInsn(PUTFIELD, innerClassName, SCHEDULER_VARIABLE, GET_SCHEDULER);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
         mv.visitEnd();
@@ -88,7 +87,7 @@ public class ShutDownListenerGen {
         // Create a scheduler. A new scheduler is used here, to make the stop function to not
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, innerClassName, RUNTIME_REGISTRY_VARIABLE, GET_RUNTIME_REGISTRY);
+        mv.visitFieldInsn(GETFIELD, innerClassName, SCHEDULER_VARIABLE, GET_SCHEDULER);
         mv.visitMethodInsn(INVOKESTATIC, initClass, CURRENT_MODULE_STOP, JvmSignatures.CURRENT_MODULE_STOP, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "run", innerClassName);
