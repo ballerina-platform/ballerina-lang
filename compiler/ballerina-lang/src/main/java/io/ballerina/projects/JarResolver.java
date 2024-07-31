@@ -111,15 +111,16 @@ public class JarResolver {
                 });
 
         // 3) Add the runtime library path
+        String packageName = getPackageName(rootPackageContext);
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                 PlatformLibraryScope.DEFAULT,
-                getPackageName(rootPackageContext)));
+                packageName));
 
         // Add resources
         Optional.ofNullable(jBalBackend.codeGeneratedResourcesLibrary(rootPackageContext.packageId()))
                 .ifPresent(library -> jarFiles.add(
                         new JarLibrary(library.path(), PlatformLibraryScope.DEFAULT,
-                                getPackageName(rootPackageContext))));
+                                packageName)));
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }

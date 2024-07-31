@@ -37,7 +37,7 @@ import java.util.Locale;
  */
 public class ProvidedResourceConfig extends ResourceConfig {
 
-    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    public static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private ProvidedResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
         super(documentId, path, name, content);
@@ -53,10 +53,17 @@ public class ProvidedResourceConfig extends ResourceConfig {
         String resourcePath = relativeResourcePath.toString();
         String marker = ProjectConstants.RESOURCE_DIR_NAME + (OS.contains("win") ? "\\" : "/");
         int markerIndex = resourcePath.indexOf(marker);
-        String unixPath = markerIndex != -1
+        String path = markerIndex != -1
                 ? resourcePath.substring(markerIndex + marker.length())
                 : resourcePath;
-        return new ProvidedResourceConfig(documentId, resource, unixPath, null);
+        return new ProvidedResourceConfig(documentId, resource, convertWinPathToUnixFormat(path), null);
+    }
+
+    public static String convertWinPathToUnixFormat(String path) {
+        if (OS.contains("win")) {
+            path = path.replace("\\", "/");
+        }
+        return path;
     }
 
 }

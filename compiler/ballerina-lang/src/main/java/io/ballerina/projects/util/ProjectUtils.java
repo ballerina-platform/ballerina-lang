@@ -112,6 +112,7 @@ import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
@@ -121,6 +122,7 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
 
 /**
  * Project related util methods.
@@ -1446,6 +1448,10 @@ public class ProjectUtils {
         return errorMessage.toString();
     }
 
+    public static String getResourcesPath() {
+        return "'" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR +
+                DOT + WILD_CARD + "'";
+    }
     /**
      * Denote the compatibility range of a given tool version.
      */

@@ -77,11 +77,10 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
 import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
+import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -724,7 +723,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "-H:IncludeResources='" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR + DOT  + WILD_CARD + "'",
+                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 

@@ -64,10 +64,8 @@ import java.util.zip.ZipInputStream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
-import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TESTS_CACHE_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
+import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
@@ -373,8 +371,7 @@ public class RunNativeImageTestTask implements Task {
                 .addQuotationMarkToString(nativeTargetPath.toString())));
 
         // Add resources
-        nativeArgs.add("-H:IncludeResources='" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR +
-                DOT  + WILD_CARD + "'");
+        nativeArgs.add("-H:IncludeResources=" + getResourcesPath());
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
