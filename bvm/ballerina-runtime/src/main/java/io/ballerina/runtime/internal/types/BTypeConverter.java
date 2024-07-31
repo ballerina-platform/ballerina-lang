@@ -122,7 +122,7 @@ final class BTypeConverter {
         } else if (type instanceof BTypeReferenceType referenceType) {
             return split(cx, referenceType.getReferredType());
         } else if (type instanceof BIntersectionType intersectionType) {
-            return split(cx, intersectionType.getEffectiveType());
+            return splitIntersection(cx, intersectionType);
         } else if (type instanceof BReadonlyType readonlyType) {
             return splitReadonly(readonlyType);
         } else if (type instanceof BFiniteType finiteType) {
@@ -132,6 +132,17 @@ final class BTypeConverter {
         } else {
             return new BTypeParts(Builder.neverType(), List.of(type));
         }
+    }
+
+    private static BTypeParts splitIntersection(Context cx, BIntersectionType intersectionType) {
+        List<Type> members = Collections.unmodifiableList(intersectionType.getConstituentTypes());
+        SemType semTypePart = Builder.valType();
+        for (Type member : members) {
+            BTypeParts memberParts = split(cx, member);
+            semTypePart = Core.intersect(memberParts.semTypePart(), semTypePart);
+        }
+        BTypeParts effectiveTypeParts = split(cx, intersectionType.getEffectiveType());
+        return new BTypeParts(semTypePart, effectiveTypeParts.bTypeParts());
     }
 
     private static BTypeParts splitSemTypeSupplier(Context cx, PartialSemTypeSupplier supplier) {
