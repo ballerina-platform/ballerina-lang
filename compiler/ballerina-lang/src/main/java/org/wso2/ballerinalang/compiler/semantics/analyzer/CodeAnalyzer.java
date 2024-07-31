@@ -3299,14 +3299,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(checkedExpr.expr, data);
 
         DefaultValueState defaultValueState = data.defaultValueState;
-        if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-            if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
-                dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
-            }
-            // Check at module level.
-            return;
-        }
-
         if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
             return;
@@ -3340,6 +3332,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
                         initMethodReturnType, exprErrorTypes);
             }
+            return;
+        }
+
+        if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
             return;
         }
 
