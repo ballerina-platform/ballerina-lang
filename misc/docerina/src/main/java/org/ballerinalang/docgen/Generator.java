@@ -326,6 +326,9 @@ public class Generator {
         } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
             module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.OPTIONAL_TYPE_DESC)) {
+            module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
         }
         // TODO: handle value type nodes
         // TODO: handle built in ref type
@@ -792,7 +795,7 @@ public class Generator {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
-                type.isNullable = recordField.questionMarkToken().isPresent();
+                type.isOptional = recordField.questionMarkToken().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
                         isDeprecated(recordField.metadata()), type, "",
                         extractAnnotationAttachmentsFromMetadataNode(semanticModel, recordField.metadata()));
