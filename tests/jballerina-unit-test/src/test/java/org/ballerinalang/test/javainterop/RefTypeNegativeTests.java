@@ -105,6 +105,6 @@ public class RefTypeNegativeTests {
     }
 
     public static BFuture returnReadOnlyValue(FPValue f) {
-        return new FutureValue(null, null, null); // OK since not used anywhere.
+        return new FutureValue(null, null); // OK since not used anywhere.
     }
 }

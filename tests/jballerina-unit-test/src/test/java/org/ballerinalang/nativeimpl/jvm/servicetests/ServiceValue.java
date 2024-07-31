@@ -59,7 +59,7 @@ public class ServiceValue {
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
-        return env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null, new HashMap<>(),
+        return env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, null, new HashMap<>(),
                                                               PredefinedTypes.TYPE_ANY);
     }
 
@@ -69,7 +69,7 @@ public class ServiceValue {
             args[j] = arrayValue.get(i);
             args[j + 1] = true;
         }
-        BFuture k = env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null,
+        BFuture k = env.getRuntime().startIsolatedWorker(l, name.getValue(), null, null, null,
                                                                    new HashMap<>(),
                                                                    PredefinedTypes.TYPE_ANY, args);
 

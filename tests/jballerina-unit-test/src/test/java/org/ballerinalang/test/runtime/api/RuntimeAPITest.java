@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.projects.Package;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -64,9 +65,11 @@ public class RuntimeAPITest {
     @Test
     public void testRecordNoStrandDefaultValue() {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
-        final Scheduler scheduler = new Scheduler(false);
+        Package currentPackage = strandResult.project().currentPackage();
+        final Scheduler scheduler = new Scheduler(new Module(currentPackage.packageOrg().value(),
+                currentPackage.packageName().value(), currentPackage.packageVersion().toString()));
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        Thread thread1 = new Thread(() -> BRunUtil.runOnSchedule(strandResult, "main", scheduler));
+        Thread thread1 = new Thread(() -> BRunUtil.call(strandResult, "main"));
         Thread thread2 = new Thread(() -> {
             try {
                 Thread.sleep(1000);
@@ -99,12 +102,15 @@ public class RuntimeAPITest {
     @Test
     public void testRuntimeManagementAPI() {
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        final Scheduler scheduler = new Scheduler(false);
+        CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
+        Package currentPackage = strandResult.project().currentPackage();
+        final Scheduler scheduler = new Scheduler(new Module(currentPackage.packageOrg().value(),
+                currentPackage.packageName().value(), currentPackage.packageVersion().toString()));
         Thread thread1 = new Thread(() -> {
             try {
-                CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
+
                 Thread.sleep(5000);
-                BRunUtil.runOnSchedule(strandResult, "main", scheduler);
+                BRunUtil.call(strandResult, "main");
             } catch (Throwable e) {
                 exceptionRef.set(e);
             }
