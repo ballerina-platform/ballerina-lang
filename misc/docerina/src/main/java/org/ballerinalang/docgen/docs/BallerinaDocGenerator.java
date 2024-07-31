@@ -92,8 +92,6 @@ public class BallerinaDocGenerator {
     private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
     private static final String CENTRAL_STDLIB_SEARCH_JSON = "stdlib-search.json";
     private static final String BALLERINA_DOC_UI_ZIP_FILE_NAME = "ballerina-doc-ui.zip";
-    private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
-    private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
     private static final String CONTENT_TYPE = "application/json";
     private static final String DOCS_FOLDER_NAME = "docs";
     private static final String ICON_NAME = "icon.png";
