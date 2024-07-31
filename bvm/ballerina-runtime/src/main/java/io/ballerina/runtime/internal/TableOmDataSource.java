@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -156,19 +157,20 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     }
 
     private void processStruct(XMLStreamWriter xmlStreamWriter, BMap<?, ?> structData,
-                               BField[] structFields, int index) throws XMLStreamException {
+                               Field[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
         Type internalType = TypeUtils.getImpliedType(structFields[index].getFieldType());
         if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BField[] internalStructFields = ((BStructureType) internalType).getFields()
-                    .values().toArray(new BField[0]);
+            Field[] internalStructFields = ((BStructureType) internalType).getFields()
+                    .values().toArray(new Field[0]);
             for (int i = 0; i < internalStructFields.length; i++) {
-                BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
+                Field internalStructField = internalStructFields[i];
+                BString internalKeyName = StringUtils.fromString(internalStructField.getFieldName());
                 Object val = structData.get(internalKeyName);
-                xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
-                    if (val instanceof MapValueImpl<?, ?> mapValue) {
-                        processStruct(xmlStreamWriter, mapValue, internalStructFields, i);
+                xmlStreamWriter.writeStartElement("", internalStructField.getFieldName(), "");
+                if (val instanceof MapValueImpl<?, ?> mapValue) {
+                    processStruct(xmlStreamWriter, mapValue, internalStructFields, i);
                 } else {
                     xmlStreamWriter.writeCharacters(val.toString());
                 }
