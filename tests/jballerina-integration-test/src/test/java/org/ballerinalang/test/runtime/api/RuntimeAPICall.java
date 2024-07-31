@@ -23,9 +23,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsync;
-import static org.ballerinalang.test.runtime.api.RuntimeAPITestUtils.blockAndInvokeMethodAsyncSequentially;
-
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
@@ -38,19 +35,17 @@ public class RuntimeAPICall {
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        blockAndInvokeMethodAsync(balRuntime, "add", 5L, 7L);
+        balRuntime.call(module, "add", 5L, 7L);
 
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
                 StringUtils.fromString("John Doe"));
-        blockAndInvokeMethodAsyncSequentially(balRuntime, person, "getNameWithTitle", PredefinedTypes.TYPE_STRING,
-                StringUtils.fromString("Dr. "), false);
+        balRuntime.call(person, "getNameWithTitle", PredefinedTypes.TYPE_STRING, StringUtils.fromString("Dr. "), false);
         balRuntime.stop();
 
         balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
         balRuntime.init();
         balRuntime.start();
-        blockAndInvokeMethodAsync(balRuntime, "getPerson", 1001L, StringUtils.fromString("John"),
-                StringUtils.fromString("100m"));
+        balRuntime.call(module, "getPerson", 1001L, StringUtils.fromString("John"), StringUtils.fromString("100m"));
         balRuntime.stop();
     }
 }

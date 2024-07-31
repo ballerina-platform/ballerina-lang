@@ -34,7 +34,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 
 /**
- * Testarina integration tests.
+ * TestartIna integration tests.
  *
  * @since 1.0.0
  */
@@ -45,11 +45,11 @@ public class TestarinaTestCase extends BaseTest {
 
     @BeforeClass(enabled = false)
     public void setUp() throws IOException, BallerinaTestException {
-        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testarina-project-");
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testartIna-project-");
 
         // copy TestProject1 to a temp
         Path originalTestProj1 = Paths.get("src", "test", "resources",
-                "testarina", "ServiceTestProject").toAbsolutePath();
+                "testartIna", "ServiceTestProject").toAbsolutePath();
         this.serviceProjectPath = this.tempProjectDirectory.resolve("ServiceTestProject");
         copyFolder(originalTestProj1, this.serviceProjectPath);
 
