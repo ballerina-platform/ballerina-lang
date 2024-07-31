@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 26,
+    "character": 26
+  },
+  "source": "add_readonly9.bal",
+  "description": "Add readonly to a record value",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<string>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 24,
+              "character": 24
+            },
+            "end": {
+              "line": 24,
+              "character": 24
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
