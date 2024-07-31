@@ -111,8 +111,8 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
         SemanticModel semanticModel = context.currentSemanticModel().get();
         Node node = posDetails.matchedCodeActionNode();
         if (hasMultipleArgsSelected(node)) {
-            FunctionTypeSymbol functionTypeSymbol  = null;
-            SeparatedNodeList<?> separatedNodeList = null;
+            FunctionTypeSymbol functionTypeSymbol;
+            SeparatedNodeList<?> separatedNodeList;
             switch (node.kind()) {
                 case FUNCTION_CALL -> {
                     Optional<Symbol> functionSymbol = semanticModel.symbol(node);
@@ -165,6 +165,9 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
             boolean firstEdit = true;
             for (int argIdx = 0; argIdx < separatedNodeList.size() && argIdx < parameterSymbols.size(); argIdx++) {
                 Node argument = separatedNodeList.get(argIdx);
+                if (argument == null) {
+                    return Collections.emptyList();
+                }
                 if (withInRange(argument, context.range())) {
                     SyntaxKind argKind = argument.kind();
                     if (argKind == SyntaxKind.NAMED_ARG) {
@@ -300,8 +303,7 @@ public class ExtractToConfigurableCodeAction implements RangeBasedCodeActionProv
                     PositionUtil.toPosition(modulePartNode.lineRange().startLine()), false);
         }
         ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
-        return new ConfigurableData(
-                new Position(lastImport.lineRange().endLine().line() + 1, 0), true);
+        return new ConfigurableData(new Position(lastImport.lineRange().endLine().line() + 1, 0), true);
     }
 
     private static String getConfigurableName(CodeActionContext context) {
