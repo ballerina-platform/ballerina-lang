@@ -21,6 +21,8 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -55,6 +57,18 @@ public class BFiniteType extends BType implements FiniteType {
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+    }
+
+    BFiniteType cloneWithValueSpace(Set<Object> valueSpace) {
+        BFiniteType newFiniteType = new BFiniteType(typeName, originalName, valueSpace, typeFlags);
+        newFiniteType.valueSpace = valueSpace;
+        newFiniteType.typeFlags = typeFlags;
+        newFiniteType.originalName = originalName;
+
+        newFiniteType.typeName = typeName;
+        newFiniteType.pkg = pkg;
+
+        return newFiniteType;
     }
 
     @Override
@@ -187,5 +201,10 @@ public class BFiniteType extends BType implements FiniteType {
         }
         BFiniteType that = (BFiniteType) o;
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+    }
+
+    @Override
+    SemType createSemType(Context cx) {
+        return BTypeConverter.fromFiniteType(cx, this);
     }
 }

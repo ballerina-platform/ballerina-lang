@@ -22,8 +22,13 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
 import java.util.Objects;
 
@@ -37,13 +42,16 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
+
+    private static final SemType READONLY_WITH_B_TYPE = Core.union(Builder.readonlyType(), Core.B_TYPE_TOP);
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
+    private volatile SemType cachedSemType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -211,5 +219,34 @@ public abstract class BType implements Type {
 
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
+    }
+
+    // If any child class allow mutation that will affect the SemType, it must call this method.
+    // TODO: update this comment to mention what context does
+    public void resetSemTypeCache() {
+        cachedSemType = null;
+    }
+
+    // If any child class partially implement SemType it must override this method.
+    SemType createSemType(Context cx) {
+        return BTypeConverter.wrapAsPureBType(this);
+    }
+
+    @Override
+    public final SemType get(Context cx) {
+        SemType semType = cachedSemType;
+        if (semType == null) {
+            synchronized (this) {
+                semType = cachedSemType;
+                if (semType == null) {
+                    semType = createSemType(cx);
+                    if (isReadOnly()) {
+                        semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
+                    }
+                    cachedSemType = semType;
+                }
+            }
+        }
+        return semType;
     }
 }

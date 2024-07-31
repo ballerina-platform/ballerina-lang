@@ -24,11 +24,22 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.Map;
 import java.util.Optional;
+
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -41,12 +52,15 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType implements MapType {
+public class BMapType extends BType implements MapType, PartialSemTypeSupplier, TypeWithShape {
 
+    public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+    private MappingDefinition defn;
+    private final Env env = Env.getInstance();
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -170,4 +184,65 @@ public class BMapType extends BType implements MapType {
         this.intersectionType = intersectionType;
     }
 
+    @Override
+    synchronized SemType createSemType(Context cx) {
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        defn = new MappingDefinition();
+        SemType restType = Builder.from(cx, getConstrainedType());
+        SemType pureBTypePart = Core.intersect(restType, Core.B_TYPE_TOP);
+        if (!Core.isNever(pureBTypePart)) {
+            cx.markProvisionTypeReset();
+            SemType pureSemTypePart = Core.intersect(restType, Core.SEMTYPE_TOP);
+            SemType semTypePart = getSemTypePart(pureSemTypePart);
+            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            return Core.union(semTypePart, bTypePart);
+        }
+        return getSemTypePart(restType);
+    }
+
+    @Override
+    public void resetSemTypeCache() {
+        super.resetSemTypeCache();
+        defn = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(get(cx));
+        }
+        BMap value = (BMap) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+
+        return readonlyShape(cx, value);
+    }
+
+    static Optional<SemType> readonlyShape(Context cx, BMap value) {
+        int nFields = value.size();
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        for (int i = 0; i < nFields; i++) {
+            Optional<SemType> valueType = Builder.shapeOf(cx, entries[i].getValue());
+            if (valueType.isEmpty()) {
+                return Optional.empty();
+            }
+            SemType fieldType = valueType.get();
+            fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
+        }
+        MappingDefinition md = new MappingDefinition();
+        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), CELL_MUT_NONE);
+        value.cacheShape(semType);
+        return Optional.of(semType);
+    }
+
+    private SemType getSemTypePart(SemType restType) {
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        return defn.defineMappingTypeWrapped(env, EMPTY_FIELD_ARR, restType, mut);
+    }
 }

@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -83,7 +82,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message) {
-        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), PredefinedTypes.TYPE_DETAIL),
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
