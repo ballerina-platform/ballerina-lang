@@ -565,10 +565,14 @@ public class TypeChecker {
         if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        result = isSubTypeWithShape(cx, sourceValue, Builder.from(cx, target));
+        return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, source), Builder.from(cx, target));
+    }
+
+    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType source, SemType target) {
+        TypeCheckResult result;
+        result = isSubTypeWithShapeInner(cx, sourceValue, target);
         if (result == TypeCheckResult.MAYBE) {
-            SemType sourceSemType = Builder.from(cx, source);
-            if (Core.containsBasicType(sourceSemType, B_TYPE_TOP)) {
+            if (Core.containsBasicType(source, B_TYPE_TOP)) {
                 return TypeCheckResult.MAYBE;
             }
             return TypeCheckResult.FALSE;
@@ -591,18 +595,10 @@ public class TypeChecker {
         if (result != TypeCheckResult.FALSE) {
             return result;
         }
-        // FIXME: don't do this if the source and targets common set don't have shapes
-        result = isSubTypeWithShape(cx, sourceValue, target);
-        if (result == TypeCheckResult.MAYBE) {
-            if (Core.containsBasicType(source, B_TYPE_TOP)) {
-                return TypeCheckResult.MAYBE;
-            }
-            return TypeCheckResult.FALSE;
-        }
-        return result;
+        return isSubTypeWithShape(cx, sourceValue, source, target);
     }
 
-    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
+    private static TypeCheckResult isSubTypeWithShapeInner(Context cx, Object sourceValue, SemType target) {
         Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
         if (sourceSingletonType.isEmpty()) {
             return fallbackToBTypeWithoutShape(sourceValue, target) ?

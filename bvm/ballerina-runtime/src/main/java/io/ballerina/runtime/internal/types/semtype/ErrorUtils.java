@@ -19,14 +19,14 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Bdd;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.*;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.RecAtom.createDistinctRecAtom;
