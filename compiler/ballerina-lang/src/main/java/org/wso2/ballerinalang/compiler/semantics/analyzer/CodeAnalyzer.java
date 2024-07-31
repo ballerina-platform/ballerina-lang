@@ -497,6 +497,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = false;
         data.env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
         data.returnTypes.push(new LinkedHashSet<>());
@@ -523,6 +525,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
         data.transactionalFuncCheckStack.pop();
+        data.failureHandled = failureHandled;
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
