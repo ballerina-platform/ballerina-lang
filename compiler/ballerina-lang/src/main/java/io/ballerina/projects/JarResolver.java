@@ -301,5 +301,4 @@ public class JarResolver {
         }
         return className;
     }
-
 }

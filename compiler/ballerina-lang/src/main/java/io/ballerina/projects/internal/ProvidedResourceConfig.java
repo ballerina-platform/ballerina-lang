@@ -23,6 +23,7 @@ import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Locale;
 
 /**
  * {@code Resource} contains necessary configuration elements required to create an instance of a {@code Resource}.
@@ -36,6 +37,8 @@ import java.nio.file.Path;
  */
 public class ProvidedResourceConfig extends ResourceConfig {
 
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
     private ProvidedResourceConfig(DocumentId documentId, Path path, String name, byte[] content) {
         super(documentId, path, name, content);
     }
@@ -48,7 +51,7 @@ public class ProvidedResourceConfig extends ResourceConfig {
             relativeResourcePath = resource;
         }
         String resourcePath = relativeResourcePath.toString();
-        String marker = ProjectConstants.RESOURCE_DIR_NAME + "/";
+        String marker = ProjectConstants.RESOURCE_DIR_NAME + (OS.contains("win") ? "\\" : "/");
         int markerIndex = resourcePath.indexOf(marker);
         String unixPath = markerIndex != -1
                 ? resourcePath.substring(markerIndex + marker.length())
