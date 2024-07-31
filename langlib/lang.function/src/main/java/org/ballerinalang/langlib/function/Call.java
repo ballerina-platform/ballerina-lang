@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.function;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
@@ -36,7 +35,6 @@ import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import java.util.LinkedList;
 import java.util.List;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;

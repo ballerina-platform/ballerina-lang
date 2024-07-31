@@ -18,17 +18,10 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).

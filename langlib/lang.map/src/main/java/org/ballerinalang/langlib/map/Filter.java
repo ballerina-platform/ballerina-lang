@@ -39,7 +39,7 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
  */
 public class Filter {
 
-    public static BMap<?,?> filter(BMap<?, ?> m, BFunctionPointer func) {
+    public static BMap<?, ?> filter(BMap<?, ?> m, BFunctionPointer func) {
         Type mapType = TypeUtils.getImpliedType(m.getType());
         Type constraint = switch (mapType.getTag()) {
             case TypeTags.MAP_TAG -> {
