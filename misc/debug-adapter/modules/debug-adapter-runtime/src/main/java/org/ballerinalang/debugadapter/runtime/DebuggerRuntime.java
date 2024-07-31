@@ -20,7 +20,6 @@ package org.ballerinalang.debugadapter.runtime;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -32,7 +31,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
@@ -42,10 +40,10 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import org.ballerinalang.langlib.internal.GetElements;
@@ -65,8 +63,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.function.Function;
 
 import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 
@@ -108,29 +104,9 @@ public class DebuggerRuntime {
      */
     public static Object invokeObjectMethod(BObject bObject, String methodName, Object... args) {
         try {
-            Scheduler scheduler = new Scheduler(1, false);
-            CountDownLatch latch = new CountDownLatch(1);
-            final Object[] finalResult = new Object[1];
             final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
-
-            Function<?, ?> func = o -> bObject.call((Strand) (((Object[]) o)[0]), methodName, paramValues);
-            Object resultFuture = scheduler.schedule(new Object[1], func, null, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    latch.countDown();
-                    finalResult[0] = result;
-                }
-
-                @Override
-                public void notifyFailure(BError error) {
-                    latch.countDown();
-                    finalResult[0] = error;
-                }
-            }, EVALUATOR_STRAND_NAME, null).result;
-
-            scheduler.start();
-            latch.await();
-            return finalResult[0];
+            final Strand strand = args[0] instanceof Strand s ?  s  : new Strand();
+            return ((ObjectValue) bObject).call(strand, methodName, paramValues);
         } catch (Exception e) {
             throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
@@ -145,43 +121,17 @@ public class DebuggerRuntime {
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object invokeFunction(ClassLoader classLoader, Scheduler scheduler, String className,
-                                        String methodName, Object... paramValues) {
+    public static Object invokeFunction(ClassLoader classLoader, String className, String methodName,
+                                        Object... paramValues) {
         try {
-            if (scheduler == null) {
-                scheduler = new Scheduler(1, false);
-            }
             Class<?> clazz = classLoader.loadClass(className);
             Method method = getMethod(methodName, clazz);
-
-            Function<Object[], Object> func = args -> {
-                try {
-                    return method.invoke(null, args);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw ErrorCreator.createError(StringUtils.fromString(
-                            "'" + methodName + "' function invocation failed: " + e.getMessage()));
-                }
-            };
-
-            final Object[] finalResult = new Object[1];
-            CountDownLatch latch = new CountDownLatch(1);
-            BFuture futureValue = scheduler.schedule(paramValues, func, null, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    latch.countDown();
-                    finalResult[0] = result;
-                }
-
-                @Override
-                public void notifyFailure(BError error) {
-                    latch.countDown();
-                    finalResult[0] = error;
-                }
-            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, EVALUATOR_STRAND_NAME, null);
-
-            scheduler.start();
-            latch.await();
-            return finalResult[0];
+            try {
+                return method.invoke(null, paramValues);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw ErrorCreator.createError(StringUtils.fromString(
+                        "'" + methodName + "' function invocation failed: " + e.getMessage()));
+            }
         } catch (Exception e) {
             throw ErrorCreator.createError(StringUtils.fromString(
                     "'" + methodName + "' function invocation failed: " + e.getMessage()));
@@ -406,8 +356,7 @@ public class DebuggerRuntime {
             String packageVersion = mainClassNameParts[2];
             String packageNameSpace = String.join(".", packageOrg, packageName, packageVersion);
 
-            // Initialize a new scheduler
-            Scheduler scheduler = new Scheduler(1, false);
+
             // Initialize configurations
             ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
@@ -415,13 +364,13 @@ public class DebuggerRuntime {
                     new Object[]{new HashMap<>(), new String[]{}, configurationDetails.paths,
                             configurationDetails.configContent});
             // Initialize the module
-            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
+            invokeFunction(classLoader, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);
             // Start the module
-            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
+            invokeFunction(classLoader, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_START_METHOD_NAME, new Object[1]);
             // Run the actual method
-            return invokeFunction(classLoader, scheduler, mainClass, functionName, functionArgs.toArray());
+            return invokeFunction(classLoader, mainClass, functionName, functionArgs.toArray());
         } catch (Exception e) {
             return e.getMessage();
         }
