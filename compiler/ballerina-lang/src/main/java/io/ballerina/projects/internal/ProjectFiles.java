@@ -203,11 +203,13 @@ public class ProjectFiles {
                 parentPath.toFile().getName())) {
             List<Path> moduleResources = loadResources(moduleDirPath);
             if (!moduleResources.isEmpty()) {
-                outStream.println("WARNING: module-level resources are not supported. Relocate the module-level " +
+                String diagnosticMsg = "WARNING: module-level resources are not supported. Relocate the module-level " +
                         "resources detected in '" + moduleDirPath.toFile().getName() + "' to the package " +
-                        "resources path. Resource files:");
-                moduleResources.forEach(outStream::println);
-                outStream.println();
+                        "resources path. Resource files:\n" +
+                        moduleResources.stream()
+                                .map(Path::toString)
+                                .collect(Collectors.joining("\n"));
+                ProjectUtils.addProjectLoadingDiagnostic(diagnosticMsg);
             }
         }
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
