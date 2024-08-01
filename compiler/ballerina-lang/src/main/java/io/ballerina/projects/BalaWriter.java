@@ -67,6 +67,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_MD_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_MD_FILE_NAME;
@@ -238,9 +239,11 @@ public abstract class BalaWriter {
                 moduleReadmeName = Optional.of(Paths.get(packageManifest.moduleReadmes().get(fqModName))
                         .getFileName()).get().toString();
             } else {
+                String moduleName = this.packageContext.moduleContext(moduleId).descriptor().name().moduleNamePart();
                 if (Files.notExists(this.packageContext.project().sourceRoot.resolve(MODULES_ROOT)
-                        .resolve(this.packageContext.moduleContext(moduleId).descriptor().name().moduleNamePart())
-                        .resolve(moduleDocDefault))) {
+                        .resolve(moduleName).resolve(moduleDocDefault)) && Files.notExists(
+                                this.packageContext.project().sourceRoot.resolve(GENERATED_MODULES_ROOT)
+                        .resolve(moduleName).resolve(moduleDocDefault))) {
                     continue;
                 }
                 moduleReadmeName = moduleDocDefault;
@@ -356,17 +359,20 @@ public abstract class BalaWriter {
                 continue;
             }
             String fqModName = this.packageContext.moduleContext(moduleId).descriptor().name().toString();
+            String moduleDirName = this.packageContext.moduleContext(moduleId).descriptor().name().moduleNamePart();
             Path moduleReadmeSrcPath = null;
             Path moduleReadmeDstPath = null;
             Path moduleDocRoot = docsDirInBala.resolve(MODULES_ROOT).resolve(fqModName);
-            Path moduleSrcDir = packageSourceDir.resolve(MODULES_ROOT).resolve(
-                    this.packageContext.moduleContext(moduleId).descriptor().name().moduleNamePart());
+            Path moduleSrcDir = packageSourceDir.resolve(MODULES_ROOT).resolve(moduleDirName);
+            Path moduleGeneratedSrcDir = packageSourceDir.resolve(GENERATED_MODULES_ROOT).resolve(moduleDirName);
 
             if (!isNewFormatPkg) {
                 if (Files.exists(moduleSrcDir.resolve(MODULE_MD_FILE_NAME))) {
                     moduleReadmeSrcPath = moduleSrcDir.resolve(MODULE_MD_FILE_NAME);
-                    moduleReadmeDstPath = moduleDocRoot.resolve(MODULE_MD_FILE_NAME);
+                } else if (Files.exists(moduleGeneratedSrcDir.resolve(MODULE_MD_FILE_NAME))) {
+                    moduleReadmeSrcPath = moduleGeneratedSrcDir.resolve(MODULE_MD_FILE_NAME);
                 }
+                moduleReadmeDstPath = moduleDocRoot.resolve(MODULE_MD_FILE_NAME);
             } else if (this.packageContext.packageManifest().moduleReadmes().containsKey(fqModName)) {
                 String moduleReadmeStr = this.packageContext.packageManifest().moduleReadmes().get(fqModName);
                 moduleReadmeSrcPath = packageSourceDir.resolve(moduleReadmeStr);
@@ -377,8 +383,10 @@ public abstract class BalaWriter {
             } else {
                 if (Files.exists(moduleSrcDir.resolve(README_MD_FILE_NAME))) {
                     moduleReadmeSrcPath = moduleSrcDir.resolve(README_MD_FILE_NAME);
-                    moduleReadmeDstPath = moduleDocRoot.resolve(README_MD_FILE_NAME);
+                } else if (Files.exists(moduleGeneratedSrcDir.resolve(README_MD_FILE_NAME))) {
+                    moduleReadmeSrcPath = moduleGeneratedSrcDir.resolve(README_MD_FILE_NAME);
                 }
+                moduleReadmeDstPath = moduleDocRoot.resolve(README_MD_FILE_NAME);
             }
 
             if (moduleReadmeSrcPath != null) {
