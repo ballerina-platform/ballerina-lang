@@ -28,6 +28,7 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BALA_EXTENSION = ".bala";
     public static final String PLATFORM = "platform";
+    public static final String TOML_EXTENSION = ".toml";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";

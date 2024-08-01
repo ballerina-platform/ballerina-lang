@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
@@ -1485,4 +1486,23 @@ public class ProjectUtils {
         return projectLoadingDiagnostic;
     }
 
+    /**
+     * Checks if there are any services in the default module of the project.
+     *
+     * @param pkg package instance
+     * @return true if there are services in the default module, false otherwise
+     */
+    public static boolean containsDefaultModuleService(Package pkg) {
+        // Here, we are looking at the services only in the default module, since they are run during a bal run.
+        // However, we can extend this to look at other services
+        // (including within dependencies) that get engaged during run.
+        Module defaultModule = pkg.getDefaultModule();
+        for (DocumentId documentId: pkg.getDefaultModule().documentIds()) {
+                ModulePartNode rootNode = defaultModule.document(documentId).syntaxTree().rootNode();
+                if (rootNode.members().stream().anyMatch(member -> member.kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                    return true;
+                }
+            }
+        return false;
+    }
 }
