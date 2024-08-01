@@ -74,6 +74,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
     compilerPluginJar project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-data')
+    compilerPluginJar project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition')
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')

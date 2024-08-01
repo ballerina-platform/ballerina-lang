@@ -68,6 +68,8 @@ public abstract class CompilerBackend {
      */
     public abstract PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName);
 
+    public abstract PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId);
+
     /**
      * Returns the platform-specific runtime library.
      *

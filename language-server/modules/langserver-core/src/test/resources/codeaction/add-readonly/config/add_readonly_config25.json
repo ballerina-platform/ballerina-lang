@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "source": "add_readonly7.bal",
+  "description": "Add readonly to a map value",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<string>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 33
+            },
+            "end": {
+              "line": 5,
+              "character": 33
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

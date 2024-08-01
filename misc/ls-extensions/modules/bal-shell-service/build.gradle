@@ -22,6 +22,7 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 configurations {
     compile.transitive = false
     compileClasspath.extendsFrom(compileOnly)
+    runtimeClasspath.transitive = false
 }
 
 dependencies {

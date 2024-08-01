@@ -96,6 +96,8 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 20);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 31);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 85, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 92, 28);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 107, 24);
         Assert.assertEquals(compile.getWarnCount(), 6);
         Assert.assertEquals(compile.getErrorCount(), i - 6);
     }

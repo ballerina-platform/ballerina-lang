@@ -51,6 +51,12 @@ class CompilerPluginManager {
     }
 
     static CompilerPluginManager from(PackageCompilation compilation) {
+        // Skip initialization if the compiler plugins are already initialized for the project
+        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
+            List<CompilerPluginContextIml> compilerPluginContexts =
+                    compilation.packageContext().project().compilerPluginContexts();
+            return new CompilerPluginManager(compilation, compilerPluginContexts);
+        }
         // TODO We need to update the DependencyGraph API. Right now it is a mess
         PackageResolution packageResolution = compilation.getResolution();
         ResolvedPackageDependency rootPkgNode = new ResolvedPackageDependency(
@@ -191,10 +197,6 @@ class CompilerPluginManager {
 
     private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins,
                                                                     PackageCompilation compilation) {
-        // Skip initialization if the compiler plugins are already initialized for the project
-        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
-            return compilation.packageContext().project().compilerPluginContexts();
-        }
         List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
         for (CompilerPluginInfo compilerPluginInfo : compilerPlugins) {
             CompilerPluginCache pluginCache =

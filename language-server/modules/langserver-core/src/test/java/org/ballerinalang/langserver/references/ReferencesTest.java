@@ -124,6 +124,7 @@ public class ReferencesTest {
                 //  being set to lang.annotations.
                 {"ref_package_alias_config1.json"},
                 {"ref_retry_spec_config1.json"},
+                {"init_function_references.json"},
         };
     }
 

@@ -403,6 +403,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (project.isEmpty()) {
                     return ballerinaProject;
                 }
+                ballerinaProject.setOrgName(project.get().currentPackage().packageOrg().value());
                 ballerinaProject.setPath(project.get().sourceRoot().toString());
                 ProjectKind projectKind = project.get().kind();
                 if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
