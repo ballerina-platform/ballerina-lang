@@ -153,6 +153,12 @@ public class DefinitionTest {
                 {"def_typereference2.json", "project"},
                 {"def_typereference3.json", "project"},
                 {"defProject15.json", "project"},
+                {"defProject16.json", "project"},
+                {"defProject17.json", "project"},
+                {"defProject18.json", "project"},
+                {"defProject19.json", "project"},
+                {"defProject19.json", "project"},
+                {"defProject20.json", "project"}
         };
     }
 

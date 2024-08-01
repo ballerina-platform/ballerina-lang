@@ -43,8 +43,9 @@ public class FindRefsInResourceAccessActionTest extends FindAllReferencesTest {
                         List.of(location(22, 22, 25),
                                 location(46, 15, 16))
                 },
-                {46, 16, location(22, 26, 27),
-                        List.of()
+                {46, 16, location(22, 22, 25),
+                        List.of(location(22, 22, 25),
+                                location(46, 15, 16))
                 },
                 // Resource function invocation
                 // Note: The symbol location of the resource-function is set to function-name's location
