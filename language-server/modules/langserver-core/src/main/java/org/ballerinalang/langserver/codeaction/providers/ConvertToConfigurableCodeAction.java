@@ -54,7 +54,6 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProvider {
 
-    private static final String NAME = "Convert to configurable";
     private static final String CONFIGURABLE = "configurable";
     private static final List<String> LIST_UPDATING_METHODS = List.of("push", "pop", "remove", "removeAll", "reverse",
             "setLength", "shift", "slice", "unshift");
@@ -205,6 +204,6 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
 
     @Override
     public String getName() {
-        return NAME;
+        return CommandConstants.CONVERT_TO_CONFIGURABLE;
     }
 }
