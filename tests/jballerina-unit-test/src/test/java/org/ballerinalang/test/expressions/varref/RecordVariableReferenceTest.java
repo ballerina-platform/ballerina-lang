@@ -271,6 +271,34 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);
     }
 
+    @Test
+    public void testDestructuringWithRecordReferenceNegative() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/record-variable-reference-in-destructuring-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[record {| int a; int b; (any|error)...; |}]', " +
+                "found '[record {| int a; int b?; |}]'", 22, 15);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[int,[record {| int b; (any|error)...; |}]]', " +
+                "found '[int,[record {| int b?; anydata...; |}]]'", 24, 18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[record {| int a; int b; int c; (any|error)...; |}]', " +
+                "found '[record {| int a; int b; anydata...; |}]'", 32, 18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[int,[record {| int b; int c; (any|error)...; |}]]', " +
+                "found '[int,[record {| int b; anydata...; |}]]'", 34, 21);
+        BAssertUtil.validateError(resultNegative, i++, "invalid field binding pattern; can only bind required fields",
+                41, 9);
+        BAssertUtil.validateError(resultNegative, i++, "invalid field binding pattern; can only bind required fields",
+                43, 14);
+        BAssertUtil.validateError(resultNegative, i++, "invalid record binding pattern; " +
+                        "unknown field 'b' in record type 'record {| int a; anydata...; |}'", 50, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid record binding pattern; " +
+                        "unknown field 'b' in record type 'record {| |} & readonly'", 52, 13);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

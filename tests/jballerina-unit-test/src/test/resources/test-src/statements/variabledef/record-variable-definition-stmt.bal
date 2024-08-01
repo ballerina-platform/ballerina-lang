@@ -791,6 +791,14 @@ function testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring(
     assertEquality("Highway 61", street);
     assertEquality({lat: 37.30, lon: -90.40}, coordinates);
 
+    record {|
+            string street;
+            float lat;
+            float lon;
+        |} {street: street1, ...otherdata} = {street: "Highway 61", "lat": 37.30, "lon": -90.40};
+    assertEquality("Highway 61", street1);
+    assertEquality({lat: 37.30, lon: -90.40}, otherdata);
+
     record {string state;} {state: state2, ...other} = {state: "Colorado", "postalCode": 80001};
     assertEquality("Colorado", state2);
     assertEquality({postalCode: 80001}, other);
