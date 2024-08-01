@@ -208,7 +208,7 @@ public class ProjectFiles {
                         "resources path. Resource files:\n" +
                         moduleResources.stream()
                                 .map(Path::toString)
-                                .collect(Collectors.joining("\n"));
+                                .collect(Collectors.joining("\n")) + "\n";
                 ProjectUtils.addProjectLoadingDiagnostic(diagnosticMsg);
             }
         }
