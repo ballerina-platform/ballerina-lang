@@ -103,9 +103,9 @@ public abstract class BalaWriter {
      */
     public Path write(Path balaPath) {
         String balaName = getBalaName(this.packageContext.packageOrg().value(),
-                this.packageContext.packageName().value(),
-                this.packageContext.packageVersion().value().toString(),
-                this.target);
+                                      this.packageContext.packageName().value(),
+                                      this.packageContext.packageVersion().value().toString(),
+                                      this.target);
         // Create the archive over write if exists
         try (ZipOutputStream balaOutputStream = new ZipOutputStream(
                 new FileOutputStream(String.valueOf(balaPath.resolve(balaName))))) {
@@ -130,8 +130,8 @@ public abstract class BalaWriter {
 
         addBalaJson(balaOutputStream);
         addPackageDoc(balaOutputStream,
-                this.packageContext.project().sourceRoot(),
-                this.packageContext.packageName().toString());
+                      this.packageContext.project().sourceRoot(),
+                      this.packageContext.packageName().toString());
         addPackageSource(balaOutputStream);
         addResources(balaOutputStream);
         addIncludes(balaOutputStream);
@@ -156,8 +156,8 @@ public abstract class BalaWriter {
 
     private void addPackageJson(ZipOutputStream balaOutputStream, Optional<JsonArray> platformLibs) {
         PackageJson packageJson = new PackageJson(this.packageContext.packageOrg().toString(),
-                this.packageContext.packageName().toString(),
-                this.packageContext.packageVersion().toString());
+                                                  this.packageContext.packageName().toString(),
+                                                  this.packageContext.packageVersion().toString());
 
         PackageManifest packageManifest = this.packageContext.packageManifest();
         packageJson.setLicenses(packageManifest.license());
@@ -243,7 +243,7 @@ public abstract class BalaWriter {
     }
 
     private String otherPlatformGraalvmCompatibleVerified(String target,
-                                                          Map<String, PackageManifest.Platform> platforms) {
+                                                                 Map<String, PackageManifest.Platform> platforms) {
         for (Map.Entry<String, PackageManifest.Platform> platform : platforms.entrySet()) {
             if (!platform.getKey().equals(target) && platform.getValue().graalvmCompatible() != null) {
                 return platform.getKey();
@@ -258,66 +258,51 @@ public abstract class BalaWriter {
             throws IOException {
         final String packageMdFileName = "Package.md";
         final String moduleMdFileName = "Module.md";
-        final String readmeMdFileName = "README.md";
 
-        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
         Path packageMd = packageSourceDir.resolve(packageMdFileName);
+        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
+
+        // If `Package.md` exists, create the docs directory & add `Package.md`
+        if (packageMd.toFile().exists()) {
+            Path packageMdInBala = docsDirInBala.resolve(packageMdFileName);
+            putZipEntry(balaOutputStream, packageMdInBala,
+                    new FileInputStream(String.valueOf(packageMd)));
+        }
 
         // If `icon` mentioned in the Ballerina.toml, add it to docs directory
         String icon = this.packageContext.packageManifest().icon();
         if (icon != null && !icon.isEmpty()) {
             Path iconPath = getIconPath(icon);
             Path iconInBala = docsDirInBala.resolve(iconPath.getFileName());
-            try (FileInputStream inputStream = new FileInputStream(String.valueOf(iconPath))) {
-                putZipEntry(balaOutputStream, iconInBala, inputStream);
-            }
+            putZipEntry(balaOutputStream, iconInBala, new FileInputStream(String.valueOf(iconPath)));
         }
 
-        // If Package.md and Module.md does not exist, pack README.md
-        if (!packageMd.toFile().exists()) {
-            packModulesToBala(pkgName, readmeMdFileName, balaOutputStream, packageSourceDir);
-        } else {
-            // Creates the docs directory & add `Package.md`
-            Path packageMdInBala = docsDirInBala.resolve(packageMdFileName);
-            try (FileInputStream inputStream = new FileInputStream(String.valueOf(packageMd))) {
-                putZipEntry(balaOutputStream, packageMdInBala, inputStream);
-            }
+        // If `Module.md` of default module exists, create `docs/modules` directory & add `Module.md`
+        Path defaultModuleMd = packageSourceDir.resolve(moduleMdFileName);
+        Path modulesDirInBalaDocs = docsDirInBala.resolve(MODULES_ROOT);
 
-            // Packs the module.md of default and non-default modules
-            packModulesToBala(pkgName, moduleMdFileName, balaOutputStream, packageSourceDir);
+        if (defaultModuleMd.toFile().exists()) {
+            Path defaultModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName).resolve(moduleMdFileName);
+            putZipEntry(balaOutputStream, defaultModuleMdInBalaDocs,
+                    new FileInputStream(String.valueOf(defaultModuleMd)));
         }
-    }
 
-    private void packModulesToBala(String pkgName, String fileName, ZipOutputStream balaOutputStream,
-                                   Path packageSourceDir)
-            throws IOException {
-
-        Path defaultMd = packageSourceDir.resolve(fileName);
+        // Add other module docs
         File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES_ROOT)));
-        Path modulesDirInBalaDocs = Paths.get(BALA_DOCS_DIR).resolve(MODULES_ROOT);
-
-        // Packs default Module
-        if (defaultMd.toFile().exists()) {
-            Path defaultMdInBala = modulesDirInBalaDocs.resolve(pkgName).resolve(fileName);
-            try (FileInputStream inputStream = new FileInputStream(String.valueOf(defaultMd))) {
-                putZipEntry(balaOutputStream, defaultMdInBala, inputStream);
-            }
-        }
-        // Packs non-default modules
         File[] directoryListing = modulesSourceDir.listFiles();
+
         if (directoryListing != null) {
             for (File moduleDir : directoryListing) {
                 if (moduleDir.isDirectory()) {
-                    // Gets filename path
-                    Path nonDefaultModuleMd = packageSourceDir.resolve(MODULES_ROOT).resolve(moduleDir.getName())
-                            .resolve(fileName);
-                    // Creates `package.module` folder, if filename path exists
-                    if (nonDefaultModuleMd.toFile().exists()) {
-                        Path nonDefaultModuleMdInBalaDocs = modulesDirInBalaDocs
-                                .resolve(pkgName + "." + moduleDir.getName()).resolve(fileName);
-                        try (FileInputStream inputStream = new FileInputStream(String.valueOf(nonDefaultModuleMd))) {
-                            putZipEntry(balaOutputStream, nonDefaultModuleMdInBalaDocs, inputStream);
-                        }
+                    // Get `Module.md` path
+                    Path otherModuleMd = packageSourceDir.resolve(MODULES_ROOT).resolve(moduleDir.getName())
+                            .resolve(moduleMdFileName);
+                    // Create `package.module` folder, if `Module.md` path exists
+                    if (otherModuleMd.toFile().exists()) {
+                        Path otherModuleMdInBalaDocs = modulesDirInBalaDocs.resolve(pkgName + "." + moduleDir.getName())
+                                .resolve(moduleMdFileName);
+                        putZipEntry(balaOutputStream, otherModuleMdInBalaDocs,
+                                new FileInputStream(String.valueOf(otherModuleMd)));
                     }
                 }
             }
@@ -353,7 +338,7 @@ public abstract class BalaWriter {
                     char[] documentContent = document.textDocument().toCharArray();
 
                     putZipEntry(balaOutputStream, documentPath,
-                            new ByteArrayInputStream(new String(documentContent).getBytes(StandardCharsets.UTF_8)));
+                                new ByteArrayInputStream(new String(documentContent).getBytes(StandardCharsets.UTF_8)));
                 }
             }
         }
@@ -428,7 +413,7 @@ public abstract class BalaWriter {
 
         try {
             putZipEntry(balaOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
-                    new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
+                        new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }

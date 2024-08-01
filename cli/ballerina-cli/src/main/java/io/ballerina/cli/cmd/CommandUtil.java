@@ -966,9 +966,9 @@ public class CommandUtil {
 
         Files.writeString(ballerinaToml, defaultManifest);
 
-        // Create README.md
-        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + ProjectConstants.README_MD_FILE_NAME);
-        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
+        // Create Package.md
+        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
+        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
