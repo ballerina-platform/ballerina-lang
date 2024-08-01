@@ -1,4 +1,6 @@
-WARNING [readmeTest] The default file for package documentation is changed to README.md. If you prefer to use the Package.md, add the following line under the '[package]' section in your Ballerina.toml file:
+WARNING [sample_tool_template] The default file for package documentation is changed to README.md. If you prefer to use the Package.md, add the following line under the '[package]' section in your Ballerina.toml file:
+
+	readme = "Package.md"
 
 Compiling source
 	testorg/sample_tool_template:1.0.0

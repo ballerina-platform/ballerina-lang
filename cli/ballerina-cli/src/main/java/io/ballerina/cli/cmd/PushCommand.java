@@ -195,7 +195,7 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateMdFilesAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
                     return;
                 }
@@ -219,7 +219,7 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateMdFilesAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath, mvnClient);
                 }
 
@@ -246,7 +246,7 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateMdFilesAndBalToml(balaPath);
                     pushBalaToRemote(balaPath, client);
                 }
             }
@@ -352,13 +352,13 @@ public class PushCommand implements BLauncherCmd {
                             + "' in " + ProjectConstants.BALLERINA_TOML
                             + " file. Run 'bal pack' to recompile and generate the bala.");
         }
-        validatePackageMdAndBalToml(packageBalaFile);
+        validateMdFilesAndBalToml(packageBalaFile);
 
         // bala file path
         return packageBalaFile;
     }
 
-    private static void validatePackageMdAndBalToml(Path balaPath) {
+    private static void validateMdFilesAndBalToml(Path balaPath) {
         // Gets package name from balapath
         String packageName = getPackageNameFromBalaName(balaPath.toFile().getName());
 
@@ -366,17 +366,10 @@ public class PushCommand implements BLauncherCmd {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 // Checks if Package.md or README.md exists and is not empty
-                if (entry.getName().equals(
-                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
+                if (entry.getName().startsWith(ProjectConstants.BALA_DOCS_DIR + "/")
+                        && entry.getName().endsWith(".md")) {
                     if (entry.getSize() == 0) {
-                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
-                    }
-                    return;
-                } else if (entry.getName().equals(
-                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.MODULES_ROOT + "/"
-                                + packageName + "/" + ProjectConstants.README_MD_FILE_NAME)) {
-                    if (entry.getSize() == 0) {
-                        throw new ProjectException(ProjectConstants.README_MD_FILE_NAME + " cannot be empty.");
+                        throw new ProjectException(Paths.get(entry.getName()).getFileName() + " cannot be empty.");
                     }
                     return;
                 }
