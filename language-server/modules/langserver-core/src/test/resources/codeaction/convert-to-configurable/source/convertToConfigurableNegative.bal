@@ -48,3 +48,6 @@ int valueReAssigned = 1234;
 function valueReAssign() {
     valueReAssigned = 123;
 }
+
+var host = "localhost";
+port = 9000;

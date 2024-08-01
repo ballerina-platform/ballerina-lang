@@ -77,7 +77,8 @@ public class ConvertToConfigurableCodeAction implements RangeBasedCodeActionProv
             return false;
         }
         ModuleVariableDeclarationNode modVarDeclarationNode = (ModuleVariableDeclarationNode) parentNode;
-        if (hasIsolatedOrFinalOrConfigurableQualifier(modVarDeclarationNode)) {
+        if (modVarDeclarationNode.typedBindingPattern().typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC
+                || hasIsolatedOrFinalOrConfigurableQualifier(modVarDeclarationNode)) {
             return false;
         }
         SemanticModel semanticModel = context.currentSemanticModel().get();
