@@ -105,8 +105,8 @@ public class TestBirAndJarCache {
                                                     module.descriptor().version());
                 Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
             }
+            Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
         }
-        Assert.assertTrue(foundPaths.contains(RESOURCE_DIR_NAME + BLANG_COMPILED_JAR_EXT));
     }
 
     @Test
