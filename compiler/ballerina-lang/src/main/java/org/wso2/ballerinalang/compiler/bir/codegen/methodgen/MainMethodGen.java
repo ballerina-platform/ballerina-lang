@@ -142,8 +142,8 @@ public class MainMethodGen {
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
     private final AsyncDataCollector asyncDataCollector;
-    private final boolean isRemoteMgtEnabled;
     private final String strandMetadataClass;
+    private final boolean isRemoteMgtEnabled;
 
     public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
                          AsyncDataCollector asyncDataCollector, boolean isRemoteMgtEnabled) {
@@ -152,8 +152,8 @@ public class MainMethodGen {
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
         this.asyncDataCollector = asyncDataCollector;
-        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
         this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
+        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
     }
 
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
