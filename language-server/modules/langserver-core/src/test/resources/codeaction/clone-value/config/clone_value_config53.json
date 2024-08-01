@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 6,
+    "character": 16
+  },
+  "source": "clone_value17.bal",
+  "description": "Clone a union value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 16
+            },
+            "end": {
+              "line": 6,
+              "character": 16
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 16
+            },
+            "end": {
+              "line": 6,
+              "character": 16
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

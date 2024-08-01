@@ -139,4 +139,9 @@ public class BalaProject extends Project {
     public Path targetDir() {
         throw new UnsupportedOperationException("target directory is not supported for BalaProject");
     }
+
+    @Override
+    public Path generatedResourcesDir() {
+        throw new UnsupportedOperationException("generated resources directory is not supported for BalaProject");
+    }
 }

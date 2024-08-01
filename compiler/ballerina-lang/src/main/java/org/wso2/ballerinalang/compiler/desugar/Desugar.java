@@ -1356,6 +1356,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        BLangOnFailClause onFailClause = this.onFailClause;
+        this.onFailClause = null;
         Map<Name, BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
         if (!funcNode.flagSet.contains(Flag.QUERY_LAMBDA)) {
             this.stmtsToBePropagatedToQuery = new HashMap<>();
@@ -1382,6 +1384,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         this.stmtsToBePropagatedToQuery = prevXmlnsDecls;
         result = funcNode;
+        this.onFailClause = onFailClause;
     }
 
     @Override

@@ -43,6 +43,13 @@ public class JarWriter {
         return byteArrayOutputStream;
     }
 
+    public static ByteArrayOutputStream writeResources(CompiledJarFile compiledJarFile, Map<String, byte[]> resources)
+            throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        writeResourcesJar(compiledJarFile, byteArrayOutputStream, resources);
+        return byteArrayOutputStream;
+    }
+
     private static Manifest getManifest(CompiledJarFile compiledJarFile) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
@@ -64,7 +71,13 @@ public class JarWriter {
                 target.write(entryContent);
                 target.closeEntry();
             }
+        }
+    }
 
+    private static void writeResourcesJar(CompiledJarFile compiledJarFile, OutputStream outputStream,
+                                          Map<String, byte[]> resources) throws IOException {
+        Manifest manifest = getManifest(compiledJarFile);
+        try (JarOutputStream target = new JarOutputStream(outputStream, manifest)) {
             // Copy resources
             for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
                 JarArchiveEntry e = new JarArchiveEntry(entry.getKey());
