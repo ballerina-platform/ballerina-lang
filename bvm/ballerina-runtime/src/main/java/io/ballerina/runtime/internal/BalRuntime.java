@@ -73,15 +73,22 @@ public class BalRuntime extends Runtime {
     private boolean moduleStarted = false;
     private boolean moduleStopped = false;
     private Thread schedulerThread = null;
+    private final ClassLoader classLoader;
 
     public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
         this.module = module;
+        this.classLoader = ClassLoader.getSystemClassLoader();
     }
 
     public BalRuntime(Module module) {
+        this(new Scheduler(true), module);
+    }
+
+    public BalRuntime(Module module, ClassLoader classLoader) {
         this.scheduler = new Scheduler(true);
         this.module = module;
+        this.classLoader = classLoader;
     }
 
     @Override
@@ -381,7 +388,7 @@ public class BalRuntime extends Runtime {
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
         String name = getFullQualifiedClassName(this.module, className);
-        return Class.forName(name);
+        return Class.forName(name, true, this.classLoader);
     }
 
     private static String getFullQualifiedClassName(Module module, String className) {
