@@ -332,27 +332,27 @@ public class Generator {
             module.booleanTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
         } else if (syntaxKind.equals(SyntaxKind.OPTIONAL_TYPE_DESC)) {
-            addNullableTypeModel((OptionalTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                    module, semanticModel);
+            addNullableTypeModel((TypeDescriptorNode) ((OptionalTypeDescriptorNode) typeDefinition.
+                            typeDescriptor()).typeDescriptor(), typeName, metaDataNode, module, semanticModel);
         }
         // TODO: handle value type nodes
         // TODO: handle built in ref type
         // TODO: handle constrained types
     }
 
-    public static void addNullableTypeModel(OptionalTypeDescriptorNode typeDescriptorNode, String typeName,
+    public static void addNullableTypeModel(TypeDescriptorNode typeDescriptorNode, String typeName,
                                             Optional<MetadataNode> metaDataNode, Module module,
                                             SemanticModel semanticModel) {
-        SyntaxKind syntaxKind = typeDescriptorNode.typeDescriptor().kind();
+        SyntaxKind syntaxKind = typeDescriptorNode.kind();
 
         switch (syntaxKind) {
             case RECORD_TYPE_DESC:
-                module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDescriptorNode.typeDescriptor(),
+                module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDescriptorNode,
                         typeName, metaDataNode, semanticModel, module));
                 break;
             case OBJECT_TYPE_DESC:
                 ObjectTypeDescriptorNode objectTypeDescriptorNode =
-                        (ObjectTypeDescriptorNode) typeDescriptorNode.typeDescriptor();
+                        (ObjectTypeDescriptorNode) typeDescriptorNode;
                 BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
                         typeName, metaDataNode, semanticModel, module);
                 if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
@@ -362,26 +362,26 @@ public class Generator {
                 }
                 break;
             case UNION_TYPE_DESC:
-                Type unionType = Type.fromNode(typeDescriptorNode.typeDescriptor(), semanticModel, module);
+                Type unionType = Type.fromNode(typeDescriptorNode, semanticModel, module);
                 if (unionType.memberTypes.stream().allMatch(type ->
                         (type.category != null && type.category.equals("errors")) ||
                                 (type.category != null && type.category.equals("builtin")) &&
                                         type.name.equals("error"))) {
                     module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
                             getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
-                            Type.fromNode(typeDescriptorNode.typeDescriptor(), semanticModel, module)));
+                            Type.fromNode(typeDescriptorNode, semanticModel, module)));
                 } else {
-                    module.unionTypes.add(getUnionTypeModel(typeDescriptorNode.typeDescriptor(),
+                    module.unionTypes.add(getUnionTypeModel(typeDescriptorNode,
                             typeName, metaDataNode, semanticModel, module));
                 }
                 break;
             case SIMPLE_NAME_REFERENCE, QUALIFIED_NAME_REFERENCE:
-                Type refType = Type.fromNode(typeDescriptorNode.typeDescriptor(), semanticModel, module);
+                Type refType = Type.fromNode(typeDescriptorNode, semanticModel, module);
                 if (refType.category.equals("errors")) {
                     module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
                             getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType));
                 } else {
-                    BType bType = getUnionTypeModel(typeDescriptorNode.typeDescriptor(), typeName,
+                    BType bType = getUnionTypeModel(typeDescriptorNode, typeName,
                             metaDataNode, semanticModel, module);
                     bType.isNullable = true;
                     module.simpleNameReferenceTypes.add(bType);
@@ -389,7 +389,7 @@ public class Generator {
                 break;
             case DISTINCT_TYPE_DESC:
                 TypeDescriptorNode distinctTypeDescriptorNode =
-                        ((DistinctTypeDescriptorNode) typeDescriptorNode.typeDescriptor()).typeDescriptor();
+                        ((DistinctTypeDescriptorNode) typeDescriptorNode).typeDescriptor();
                 SyntaxKind distinctTypeSyntaxKind = distinctTypeDescriptorNode.kind();
 
                 switch (distinctTypeSyntaxKind) {
@@ -453,7 +453,7 @@ public class Generator {
                 break;
             case ERROR_TYPE_DESC:
                 ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
-                        (ParameterizedTypeDescriptorNode) typeDescriptorNode.typeDescriptor();
+                        (ParameterizedTypeDescriptorNode) typeDescriptorNode;
                 Type type = null;
                 if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
                     type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
@@ -464,36 +464,35 @@ public class Generator {
                         getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), type));
                 break;
             case INTERSECTION_TYPE_DESC:
-                addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDescriptorNode.typeDescriptor(), typeName,
+                addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDescriptorNode, typeName,
                         metaDataNode, semanticModel, module);
                 break;
             case TABLE_TYPE_DESC:
-                TableType tableType = getTableTypeModel((TableTypeDescriptorNode) typeDescriptorNode.typeDescriptor(),
+                TableType tableType = getTableTypeModel((TableTypeDescriptorNode) typeDescriptorNode,
                         typeName, metaDataNode, semanticModel, module);
                 tableType.rowParameterType.isNullable = true;
                 module.tableTypes.add(tableType);
                 break;
             case MAP_TYPE_DESC:
-                MapType mapType = getMapTypeModel((MapTypeDescriptorNode) typeDescriptorNode.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel, module);
+                MapType mapType = getMapTypeModel((MapTypeDescriptorNode) typeDescriptorNode, typeName, metaDataNode,
+                        semanticModel, module);
                 mapType.mapParameterType.isNullable = true;
                 module.mapTypes.add(mapType);
                 break;
             case TUPLE_TYPE_DESC:
-                BType tupleType = getTupleTypeModel((TupleTypeDescriptorNode) typeDescriptorNode.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel, module);
+                BType tupleType = getTupleTypeModel((TupleTypeDescriptorNode) typeDescriptorNode, typeName,
+                        metaDataNode, semanticModel, module);
                 tupleType.isNullable = true;
                 module.tupleTypes.add(tupleType);
                 break;
             case TYPEDESC_TYPE_DESC:
-                BType typeDescType = getTypeDescModel((ParameterizedTypeDescriptorNode) typeDescriptorNode.
-                        typeDescriptor(), typeName, metaDataNode, semanticModel, module);
+                BType typeDescType = getTypeDescModel((ParameterizedTypeDescriptorNode) typeDescriptorNode, typeName,
+                        metaDataNode, semanticModel, module);
                 typeDescType.isNullable = true;
                 module.typeDescriptorTypes.add(typeDescType);
                 break;
             default:
-                BType bType = getUnionTypeModel(typeDescriptorNode.typeDescriptor(), typeName, metaDataNode,
-                        semanticModel, module);
+                BType bType = getUnionTypeModel(typeDescriptorNode, typeName, metaDataNode, semanticModel, module);
                 bType.isNullable = true;
                 switch (syntaxKind) {
                     case INT_TYPE_DESC -> module.integerTypes.add(bType);
