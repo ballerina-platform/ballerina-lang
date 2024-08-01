@@ -526,4 +526,17 @@ public class BuildProject extends Project {
             return Paths.get(this.buildOptions().getTargetPath());
         }
     }
+
+    @Override
+    public Path generatedResourcesDir() {
+        Path generatedResourcesPath = targetDir().resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (!Files.exists(generatedResourcesPath)) {
+            try {
+                Files.createDirectories(generatedResourcesPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return generatedResourcesPath;
+    }
 }

@@ -77,6 +77,9 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
+import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -94,6 +97,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    public static final String JAR_NAME_SEPARATOR = "-";
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -107,6 +111,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+    List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -187,10 +192,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.cleanBLangPackage();
             }
         }
+
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+        // add conflicting resources diagnostics
+        diagnostics.addAll(conflictedResourcesDiagnostics);
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -345,6 +353,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return codeGeneratedResourcesLibrary(packageId, PlatformLibraryScope.DEFAULT);
+    }
+
+    @Override
     public PlatformLibrary runtimeLibrary() {
         return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
     }
@@ -374,6 +387,10 @@ public class JBallerinaBackend extends CompilerBackend {
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+        if (moduleContext.project().currentPackage().packageContext() == packageContext &&
+                moduleContext.isDefaultModule()) {
+            cacheResources(compilationCache, moduleContext.project().buildOptions().skipTests());
         }
         // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
@@ -706,6 +723,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
+                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 
@@ -748,19 +766,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         return Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
-    }
-
-    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = new HashMap<>();
-        for (DocumentId documentId : moduleContext.resourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org().toString() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
     }
 
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
@@ -937,4 +942,144 @@ public class JBallerinaBackend extends CompilerBackend {
                     this.packageContext().descriptor().name().toString()));
         }
     }
+
+    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
+        Package pkg = packageCache.getPackageOrThrow(packageId);
+        CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(
+                CompilationCache.class);
+        return compilationCache.getPlatformSpecificLibrary(this, RESOURCE_DIR_NAME)
+                .map(path -> new JarLibrary(path, scope))
+                .orElse(null);
+    }
+
+    private Map<String, byte[]> getPackageResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : packageContext.resourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private Map<String, byte[]> getPackageAndTestResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = getPackageResources(packageContext);
+        for (DocumentId documentId : packageContext.testResourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            if (resourceMap.containsKey(resourceName)) {
+                addConflictingTestResourceDiag(packageContext.descriptor().toString(), resourceName);
+            }
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private void cacheResources(CompilationCache compilationCache, boolean skipTests) {
+        Map<String, byte[]> resources = new HashMap<>();
+        Map<String, String> resourceToPkgMap = new HashMap<>();
+        List<String> conflictingResourceFiles = new ArrayList<>();
+
+        // Add resources from dependencies in order
+        pkgResolution.allDependencies()
+                .stream()
+                .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
+                .map(pkgDep -> pkgDep.packageInstance().packageContext())
+                .forEach(pkgContext -> {
+                    Map<String, byte[]> depResources = getPackageResources(pkgContext);
+                    for (Map.Entry<String, byte[]> entry : depResources.entrySet()) {
+                        if (resources.containsKey(entry.getKey())) {
+                            addConflictingDepResourceDiag(pkgContext.descriptor().toString(),
+                                    resourceToPkgMap.get(entry.getKey()), entry.getKey());
+                        }
+                        resources.put(entry.getKey(), entry.getValue());
+                        resourceToPkgMap.put(entry.getKey(), pkgContext.descriptor().toString());
+                    }
+                });
+        // Add resources from the package
+        Map<String, byte[]> packageResources = skipTests ? getPackageResources(packageContext) :
+                getPackageAndTestResources(packageContext);
+        for (Map.Entry<String, byte[]> entry : packageResources.entrySet()) {
+            if (resources.containsKey(entry.getKey())) {
+                addConflictingDepResourceDiag(packageContext.descriptor().toString(),
+                        resourceToPkgMap.get(entry.getKey()), entry.getKey());
+            }
+            resources.put(entry.getKey(), entry.getValue());
+            resourceToPkgMap.put(entry.getKey(), packageContext.descriptor().toString());
+        }
+
+        // Add generated resources and check for conflicts for build projects
+        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)) {
+            Map<String, byte[]> generatedResources = ProjectUtils.getAllGeneratedResources(
+                    packageContext.project().generatedResourcesDir());
+            for (Map.Entry<String, byte[]> entry : generatedResources.entrySet()) {
+                if (resources.containsKey(entry.getKey())) {
+                    if (packageResources.containsKey(entry.getKey())) {
+                        conflictingResourceFiles.add(entry.getKey());
+                        continue;
+                    }
+                    // Issue a warning for conflicts with dependency resources
+                    addConflictingGenResourceDiag(resourceToPkgMap.get(entry.getKey()),
+                            packageContext.descriptor().toString(), entry.getKey());
+                }
+                resources.put(entry.getKey(), entry.getValue());
+            }
+            // Handle conflicting resources
+            if (!conflictingResourceFiles.isEmpty()) {
+                throw new ProjectException(getConflictingResourcesMsg(packageContext.descriptor().toString(),
+                        conflictingResourceFiles));
+            }
+        }
+
+        // Cache the resources if there are any
+        if (!resources.isEmpty()) {
+            try {
+                String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
+                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
+                try (ByteArrayOutputStream byteStream = JarWriter.writeResources(resourceJar, resources)) {
+                    compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache resources jar, package: " +
+                        packageContext.packageName(), e);
+            }
+        }
+    }
+
+    private void addConflictingDepResourceDiag(String packageDesc, String existingPackageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The packages '" +
+                        existingPackageDesc + "' and '" + packageDesc +
+                        "' both export a resource with the same name '" + resourceName +
+                        "'. Picking the resource exported by '" + packageDesc + "'."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                this.packageContext.descriptor().name().toString()));
+    }
+
+    private void addConflictingGenResourceDiag(String existingPackageDesc, String packageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The package " + existingPackageDesc +
+                        "  and the generated resources for the current package '" + packageDesc +
+                        "' both export a resource with the same name '" + resourceName + "'. " +
+                        "Picking the generated resource file."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(
+                diagnosticInfo, this.packageContext.descriptor().name().toString()));
+    }
+
+    private void addConflictingTestResourceDiag(String packageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The test specific resources and package " +
+                        "resources for '" + packageDesc + "' both export a resource with the same name '" +
+                        resourceName + "'. Picking the test specific resource."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                this.packageContext.descriptor().name().toString()));
+    }
+
 }
