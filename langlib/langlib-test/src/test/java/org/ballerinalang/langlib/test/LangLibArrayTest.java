@@ -553,6 +553,7 @@ public class LangLibArrayTest {
                 "testPush",
                 "testShiftOperation",
                 "testTupleRemove",
+                "testUnshiftOperation",
                 "testSort1",
                 "testSort2",
                 "testSort4",

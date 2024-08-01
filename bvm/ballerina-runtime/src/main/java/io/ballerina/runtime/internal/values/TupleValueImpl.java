@@ -741,6 +741,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
+        validateInherentTypeOfExistingMembers((int) index, vals.length);
         unshiftArray(index, vals.length, getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }
@@ -809,7 +810,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
-        int lastIndex = size() + unshiftByN - 1;
+        int currSize = size();
+        int lastIndex = currSize + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
             throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
@@ -817,7 +819,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         int i = (int) index;
-        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, this.size - i);
+        System.arraycopy(this.refValues, i, this.refValues, i + unshiftByN, currSize - i);
     }
 
     private int getCurrentArrayLength() {
@@ -844,6 +846,19 @@ public class TupleValueImpl extends AbstractArrayValue {
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.INCOMPATIBLE_TYPE,
                         tupleTypesList.get(i - 1), (i == numOfMandatoryTypes) ?
                                 this.tupleType.getRestType() : tupleTypesList.get(i));
+            }
+        }
+    }
+
+    private void validateInherentTypeOfExistingMembers(int index, int offset) {
+        Type targetType;
+        for (int i = index; i < this.size; i++) {
+            targetType = (i + offset >= this.tupleType.getTupleTypes().size()) ?
+                    this.tupleType.getRestType() : this.tupleType.getTupleTypes().get(i + offset);
+            if (!TypeChecker.checkIsType(this.getRefValue(i), targetType)) {
+                throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                        ErrorCodes.INCOMPATIBLE_TYPE, TypeChecker.getType(this.getRefValue(i)), targetType);
             }
         }
     }
