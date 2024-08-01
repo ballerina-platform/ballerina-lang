@@ -36,6 +36,11 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TOML_EXTENSION;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
@@ -47,12 +52,6 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
  * @since 2201.10.0
  */
 public class ProjectWatcher {
-    private static final String BAL_EXTENSION = ".bal";
-    private static final String TOML_EXTENSION = ".toml";
-    private static final String DEPENDENCIES_TOML = "Dependencies.toml";
-    private static final String RESOURCES_DIR = "resources";
-    private static final String MODULES_DIR = "modules";
-
     private final WatchService fileWatcher;
     private final Map<WatchKey, Path> watchKeys;
     private final RunCommand runCommand;
@@ -89,7 +88,7 @@ public class ProjectWatcher {
                 Path changedFileName = pathWatchEvent.context();
                 Path changedFilePath = dir.resolve(changedFileName).toAbsolutePath();
                 if (isValidFileChange(changedFilePath)) {
-                    outStream.println("\\nDetected file changes. Re-running the project...");
+                    outStream.println("\nDetected file changes. Re-running the project...");
                     thread.terminate();
                     thread.join();
                     thread = new RunCommandExecutor(runCommand, outStream);
@@ -129,23 +128,23 @@ public class ProjectWatcher {
         String fileName = fileNamePath.toString();
         if (path.getNameCount() == 1) {
             // Files (not directories) immediately in the root directory
-             if (fileName.endsWith(BAL_EXTENSION)) {
+             if (fileName.endsWith(BLANG_SOURCE_EXT)) {
                  return true;
              }
             return fileName.endsWith(TOML_EXTENSION) && !fileName.equals(DEPENDENCIES_TOML);
         }
-        if (path.startsWith(RESOURCES_DIR) && path.getNameCount() > 1) {
+        if (path.startsWith(RESOURCE_DIR_NAME) && path.getNameCount() > 1) {
             // name count > 1 to avoid files with resources prefix
             return true;
         }
-        if (path.startsWith(MODULES_DIR) && path.getNameCount() > 2) {
+        if (path.startsWith(MODULES_ROOT) && path.getNameCount() > 2) {
             // changes within submodules
             // name count > 2 means the path is in a submodule (modules/<submodule>)
             Path modulePath = path.subpath(2, path.getNameCount());
-            if (modulePath.getNameCount() == 1 && fileName.endsWith(BAL_EXTENSION)) {
+            if (modulePath.getNameCount() == 1 && fileName.endsWith(BLANG_SOURCE_EXT)) {
                     return true;
             }
-            return modulePath.startsWith(RESOURCES_DIR);
+            return modulePath.startsWith(RESOURCE_DIR_NAME);
         }
         return false;
     }
