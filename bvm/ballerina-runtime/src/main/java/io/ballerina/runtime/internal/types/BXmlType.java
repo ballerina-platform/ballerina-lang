@@ -38,7 +38,7 @@ import java.util.Optional;
 public class BXmlType extends BType implements XmlType {
 
     private final int tag;
-    public Type constraint;
+    public final Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
@@ -61,6 +61,13 @@ public class BXmlType extends BType implements XmlType {
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
+    }
+
+    public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
+        super(typeName, pkg, XmlValue.class);
+        this.tag = tag;
+        this.readonly = readonly;
+        this.constraint = constraint;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
