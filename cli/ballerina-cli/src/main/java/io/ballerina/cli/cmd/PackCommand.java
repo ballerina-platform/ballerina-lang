@@ -248,8 +248,13 @@ public class PackCommand implements BLauncherCmd {
             // Checks if Package.md is present and issues a warning
             Path packageMd = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
             if (packageMd.toFile().exists()) {
-                String warning = "The use of Package.md and Module.md is deprecated. " +
-                        "Update the package to add a README.md file.\n";
+                String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+
+                        \treadme = "Package.md"
+                        """;
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
                         DEPRECATED_DOC_FILE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
                 PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo,

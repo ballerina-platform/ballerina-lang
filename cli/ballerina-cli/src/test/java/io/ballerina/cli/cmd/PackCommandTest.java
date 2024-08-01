@@ -730,8 +730,14 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -803,8 +809,14 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertTrue(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
@@ -839,8 +851,14 @@ public class PackCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertFalse(buildLog.contains("WARNING [winery] The use of Package.md and Module.md is deprecated. " +
-                "Update the package to add a README.md file."));
+        String warning = """
+                        The default file for package documentation is changed to README.md. If you prefer to \
+                        use the Package.md, add the following line under the '[package]' section in your \
+                        Ballerina.toml file:
+
+                        \treadme = "Package.md"
+                        """;
+        Assert.assertFalse(buildLog.contains(warning));
 
         // Verify the docs
         Path balaDirPath = projectPath.resolve("target").resolve("bala");
