@@ -125,7 +125,12 @@ type Student record {|
 |};
 
 public const foo:Examples EXAMPLES_2 = {
-    response: {}
+    response: {
+        headers: {
+            "h1": "h1",
+            "h2": "h2"
+        }
+    }
 };
 
 @foo:annot {
@@ -142,7 +147,7 @@ function testConstAnnotationAccess() {
     foo:AnnotationRecord? annot = t.@foo:annot;
     assertTrue(annot is foo:AnnotationRecord);
     foo:AnnotationRecord config = <foo:AnnotationRecord> annot;
-    assertEquality({"response":{}}, config.examples);
+    assertEquality({"response":{"headers": {"h1":"h1", "h2":"h2"}}}, config.examples);
     assertTrue(config.examples is readonly);
 
     Student student = {id: 2, name: "sachintha"};
