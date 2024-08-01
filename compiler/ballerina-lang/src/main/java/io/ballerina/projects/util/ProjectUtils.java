@@ -136,6 +136,7 @@ public class ProjectUtils {
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
+    private static String projectLoadingDiagnostic;
 
     /**
      * Validates the org-name.
@@ -1473,4 +1474,15 @@ public class ProjectUtils {
          */
         EXACT
     }
+
+    // TODO: Remove this with https://github.com/ballerina-platform/ballerina-lang/issues/43212
+    //  once diagnostic support for project loading stage is added.
+    public static void addProjectLoadingDiagnostic(String diagnosticMessage) {
+        projectLoadingDiagnostic = diagnosticMessage;
+    }
+
+    public static String getProjectLoadingDiagnostic() {
+        return projectLoadingDiagnostic;
+    }
+
 }
