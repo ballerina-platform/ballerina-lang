@@ -291,6 +291,9 @@ public class Generator {
                             module.types.add(bType);
                         }
                         break;
+                    default:
+                        // No action needed
+                        break;
                 }
                 break;
             case ERROR_TYPE_DESC:
@@ -351,6 +354,9 @@ public class Generator {
                     case ARRAY_TYPE_DESC -> module.arrayTypes.add(bType);
                     case STREAM_TYPE_DESC -> module.streamTypes.add(bType);
                     case BOOLEAN_TYPE_DESC -> module.booleanTypes.add(bType);
+                    default -> {
+                        // No action needed
+                    }
                 }
         }
     }
