@@ -158,7 +158,6 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
     }
 
     private static Position getTomlInsertPosition(Toml toml, Module module, int lastNodeLine) {
-        Position position;
         if (lastNodeLine == 0 && !module.isDefaultModule()) {
             Map<String, TopLevelNode> entries = toml.rootNode().entries();
             for (TopLevelNode node : entries.values()) {
@@ -167,13 +166,11 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
                     lastNodeLine = nodeLine;
                 }
             }
-            position = PositionUtil.toPosition(
-                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 3, 0));
+            lastNodeLine = lastNodeLine == 0 ? 0 : lastNodeLine + 3;
         } else {
-            position = PositionUtil.toPosition(
-                    LinePosition.from(lastNodeLine == 0 ? 0 : lastNodeLine + 1, 0));
+            lastNodeLine = lastNodeLine == 0 ? 0 : lastNodeLine + 1;
         }
-        return position;
+        return PositionUtil.toPosition(LinePosition.from(lastNodeLine, 0));
     }
 
     private static List<CodeAction> withoutConfigTomlCodeActions(TypeSymbol basicType, TypeSymbol anyDataOrJsonType,
@@ -237,8 +234,10 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
                 : String.format("%n%s%n", defaultValueStr.value());
     }
 
-    private static int rootModuleConfigDiff(Toml baseToml, String orgName, String moduleName,
-                             Map<String, ConfigurableFinder.ConfigVariable> configVariables) {
+    private static int rootModuleConfigDiff(Toml baseToml,
+                                            String orgName,
+                                            String moduleName,
+                                            Map<String, ConfigurableFinder.ConfigVariable> configVariables) {
         String orgModuleKey = orgName + "." + moduleName;
         Optional<Toml> table = baseToml.getTable(orgModuleKey);
         table.ifPresent(toml -> configDiff(configVariables, toml.rootNode())); // [org.default-module-name]
@@ -247,7 +246,9 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
         return configDiff(configVariables, baseToml.rootNode()); // without name
     }
 
-    private static int nonRootModuleConfigDiff(Toml baseToml, String orgName, ModuleName moduleName,
+    private static int nonRootModuleConfigDiff(Toml baseToml,
+                                               String orgName,
+                                               ModuleName moduleName,
                                                Map<String, ConfigurableFinder.ConfigVariable> configVariables) {
         String moduleNameStr = moduleName.toString();
         String orgModuleKey = orgName + "." + moduleNameStr;
@@ -261,7 +262,7 @@ public class AddToConfigTomlCodeAction implements RangeBasedCodeActionProvider {
     }
 
     private static int configDiff(Map<String, ConfigurableFinder.ConfigVariable> configVariables,
-                                           TomlTableNode moduleNode) {
+                                  TomlTableNode moduleNode) {
         int lastNodeLine = 0;
         for (Map.Entry<String, TopLevelNode> entry: moduleNode.entries().entrySet()) {
             if (entry.getValue().kind() == TomlType.KEY_VALUE) {

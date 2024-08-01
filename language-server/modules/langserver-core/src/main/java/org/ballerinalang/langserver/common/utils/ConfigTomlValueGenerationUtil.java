@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Util used to generate value entries for Config.toml keys.
@@ -49,7 +48,7 @@ public final class ConfigTomlValueGenerationUtil {
      * @return value string wrapped in {@link  TomlEntryValue}
      */
     public static TomlEntryValue getDefaultValueStr(TypeSymbol type, TypeSymbol basicType,
-                                            TypeSymbol anydataOrJson, String confName) {
+                                                    TypeSymbol anydataOrJson, String confName) {
         switch (type.typeKind()) {
             case BOOLEAN -> {
                 return new TomlEntryValue("false", true);
@@ -102,16 +101,14 @@ public final class ConfigTomlValueGenerationUtil {
         }
     }
 
-    private static StringBuilder getRecordFields(RecordTypeSymbol recordTypeSymbol, StringBuilder
-            builder, String prefix) {
+    private static StringBuilder getRecordFields(RecordTypeSymbol recordTypeSymbol, StringBuilder builder,
+                                                 String prefix) {
         List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols =
                 RecordUtil.getRecordTypeSymbols(recordTypeSymbol);
 
         List<RecordFieldSymbol> validFields = new ArrayList<>();
-        Map<String, RecordFieldSymbol> fields;
         for (RawTypeSymbolWrapper<RecordTypeSymbol> symbol : recordTypeSymbols) {
-            fields = RecordUtil.getRecordFields(symbol, Collections.emptyList());
-            validFields.addAll(fields.values());
+            validFields.addAll(RecordUtil.getRecordFields(symbol, Collections.emptyList()).values());
         }
         for (RecordFieldSymbol recordFieldSymbol : validFields) {
             TypeSymbol typeSymbol = CommonUtil.getRawType(recordFieldSymbol.typeDescriptor());
@@ -153,7 +150,7 @@ public final class ConfigTomlValueGenerationUtil {
     }
 
     /**
-     * Wrapper for toml entry value and specify its for a key or not.
+     * Wrapper for toml entry value that specifies whether it's for a key or not.
      *
      * @param value entry value
      * @param keyValue is the entry for a key
