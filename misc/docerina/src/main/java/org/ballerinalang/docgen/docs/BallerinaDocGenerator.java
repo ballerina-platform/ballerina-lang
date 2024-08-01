@@ -98,9 +98,11 @@ public class BallerinaDocGenerator {
     private static final String JSON_KEY_HASH_VALUE = "hashValue";
     private static final String JSON_KEY_FILE_URL = "fileURL";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
-    public static final String SHA256_ALGORITHM = "SHA-256";
+    private static final String SHA256_ALGORITHM = "SHA-256";
     private static final String SHA256_HASH_FILE_NAME = "ballerina-doc-ui-hash.sha256";
-    public static final String PROPERTIES_FILE = "/META-INF/properties";
+    private static final String PROPERTIES_FILE = "/META-INF/properties";
+    private static final String CENTRAL_REGISTRY_PATH = "/registry";
+    private static final String CENTRAL_DOC_UI_PATH = "/docs/doc-ui";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -228,8 +230,7 @@ public class BallerinaDocGenerator {
                     .resolve(moduleLib.modules.get(0).version).resolve(ICON_NAME);
             Path iconPath = Paths.get(sourceLocation);
             try {
-                byte[] iconByteArray;
-                iconByteArray = Files.readAllBytes(iconPath);
+                byte[] iconByteArray = Files.readAllBytes(iconPath);
                 Files.write(output, iconByteArray);
             } catch (IOException e) {
                 log.error("Failed to copy icon to the API docs.", e);
@@ -267,7 +268,7 @@ public class BallerinaDocGenerator {
 
     private static void copyDocerinaUI(Path output) {
         String source = RepoUtils.getRemoteRepoURL();
-        source = source.replace("/registry", "/docs/doc-ui");
+        source = source.replace(CENTRAL_REGISTRY_PATH, CENTRAL_DOC_UI_PATH);
         Path docsDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(DOCS_FOLDER_NAME);
         Path sha256FilePath = docsDirPath.resolve(SHA256_HASH_FILE_NAME);
         Path zipFilePath = docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME);
