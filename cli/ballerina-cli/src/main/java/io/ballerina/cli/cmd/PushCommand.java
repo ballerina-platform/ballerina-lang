@@ -69,7 +69,6 @@ import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static io.ballerina.projects.util.ProjectUtils.getPackageNameFromBalaName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -359,9 +358,6 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private static void validateMdFilesAndBalToml(Path balaPath) {
-        // Gets package name from balapath
-        String packageName = getPackageNameFromBalaName(balaPath.toFile().getName());
-
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
