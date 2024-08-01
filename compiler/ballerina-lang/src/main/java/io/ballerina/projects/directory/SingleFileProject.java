@@ -105,7 +105,7 @@ public class SingleFileProject extends Project {
     public DocumentId documentId(Path file) {
         if (!this.sourceRoot.toAbsolutePath().normalize().toString().equals(
                 file.toAbsolutePath().normalize().toString())) {
-            throw new ProjectException("provided path does not belong to the project");
+            throw new ProjectException("'" + file + "' does not belong to the current project");
         }
         return this.currentPackage().getDefaultModule().documentIds().iterator().next();
     }

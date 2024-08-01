@@ -92,7 +92,7 @@ public class ProjectLoader {
         }
 
         if (!ProjectPaths.isBalFile(absFilePath)) {
-            throw new ProjectException("provided path is not a valid Ballerina source file");
+            throw new ProjectException("'" + absFilePath + "' is not a valid Ballerina source file");
         }
 
         try {
