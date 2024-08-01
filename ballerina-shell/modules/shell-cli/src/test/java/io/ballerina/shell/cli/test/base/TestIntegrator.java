@@ -116,7 +116,7 @@ public class TestIntegrator extends Thread {
      * Send the data given to the specific stream.
      */
     private void sendRequest(PrintStream stream, String string) throws InterruptedException {
-        stream.append(string).append("\n\n").flush();
+        stream.println(string);
     }
 
     /**
