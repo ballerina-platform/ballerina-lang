@@ -253,19 +253,21 @@ public class Generator {
                                         distinctTypeDescriptorNode, typeName,
                                 metaDataNode, semanticModel, module);
                         bDistinctObj.isDistinct = true;
-                        if (containsToken(distinctObjectTypeDescNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                        if (containsToken(distinctObjectTypeDescNode.objectTypeQualifiers(),
+                                SyntaxKind.SERVICE_KEYWORD)) {
                             module.serviceTypes.add(bDistinctObj);
                         } else {
                             module.objectTypes.add(bDistinctObj);
                         }
                         break;
                     case PARENTHESISED_TYPE_DESC:
-                        ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
-                                distinctTypeDescriptorNode;
+                        ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode =
+                                (ParenthesisedTypeDescriptorNode) distinctTypeDescriptorNode;
                         Type parenthesisType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel, module);
                         parenthesisType.isNullable = isNullable;
                         Error parenthesisErr = new Error(typeName, getDocFromMetadata(metaDataNode),
-                                getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), parenthesisType);
+                                getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                parenthesisType);
                         parenthesisErr.isDistinct = true;
                         module.errors.add(parenthesisErr);
                         break;
@@ -274,14 +276,16 @@ public class Generator {
                         distinctRefType.isNullable = isNullable;
                         if (distinctRefType.category.equals("errors")) {
                             Error simpleNameRefErr = new Error(typeName, getDocFromMetadata(metaDataNode),
-                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), distinctRefType);
+                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                    distinctRefType);
                             simpleNameRefErr.isDistinct = true;
                             module.errors.add(simpleNameRefErr);
                         } else {
                             List<Type> memberTypes = new ArrayList<>();
                             memberTypes.add(distinctRefType);
                             BType bType = new BType(typeName, getDocFromMetadata(metaDataNode),
-                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), memberTypes);
+                                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
+                                    memberTypes);
                             bType.isNullable = isNullable;
                             bType.isAnonymousUnionType = true;
                             module.types.add(bType);
@@ -332,6 +336,7 @@ public class Generator {
             case OPTIONAL_TYPE_DESC:
                 addTypeDefinition((TypeDescriptorNode) ((OptionalTypeDescriptorNode) typeDescriptorNode).
                         typeDescriptor(), typeName, metaDataNode, module, semanticModel, true);
+                break;
             default:
                 BType bType = getUnionTypeModel(typeDescriptorNode, typeName, metaDataNode, semanticModel, module);
                 bType.isNullable = isNullable;
