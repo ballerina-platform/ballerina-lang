@@ -1,0 +1,13 @@
+[package]
+org = "resource_addition"
+name = "combined_plugin"
+version = "0.1.0"
+
+[[dependency]]
+org = "foo"
+name = "test_pkg_resource"
+version = "0.1.0"
+repository = "local"
+
+[[platform.java17.dependency]]
+path="/Users/wso2/GitRepos/core-java/mytest/build/libs/mytest-1.0-SNAPSHOT.jar"

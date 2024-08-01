@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 15,
+    "character": 25
+  },
+  "source": "add_readonly5.bal",
+  "description": "Add readonly to class field type",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<string[]>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 29
+            },
+            "end": {
+              "line": 11,
+              "character": 29
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

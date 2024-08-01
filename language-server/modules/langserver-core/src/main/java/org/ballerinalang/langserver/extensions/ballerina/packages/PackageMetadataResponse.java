@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
  */
 public class PackageMetadataResponse {
 
+    private String orgName;
     private String path;
     private String packageName;
     private String kind;
@@ -46,5 +47,13 @@ public class PackageMetadataResponse {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
     }
 }

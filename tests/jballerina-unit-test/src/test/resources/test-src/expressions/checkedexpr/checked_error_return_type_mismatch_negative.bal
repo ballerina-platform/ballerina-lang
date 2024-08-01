@@ -84,3 +84,32 @@ function testCheckedExprWithNoErrorType3() {
     int|error i = error("Error");
     int _ = check i;
 }
+
+function testOnFailWithCheckInLambdaFunction() {
+    function _ = function() {
+        do {
+            function _ = function() {
+                string _ = check getVal("");
+            };
+        } on fail {
+        }
+    };
+}
+
+function getVal(string str) returns string|error {
+    return "";
+}
+
+function testOnFailWithCheckInWorkers() {
+    string[] s = [];
+    worker A {
+        s.forEach(function(string k) {
+            string _ = check getVal2();
+        });
+    } on fail {
+    }
+}
+
+function getVal2() returns string|error {
+    return "";
+}

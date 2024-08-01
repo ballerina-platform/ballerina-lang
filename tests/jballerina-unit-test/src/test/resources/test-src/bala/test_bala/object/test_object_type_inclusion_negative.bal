@@ -62,6 +62,6 @@ readonly service class FooClass {
 readonly service class BarClass {
     *foo:FooObj;
 
-    isolated remote function execute(string cVar, int dVar) {
+    isolated remote function execute(string cVar, int dVar, int eVar) {
     }
 }

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 14,
+    "character": 17
+  },
+  "source": "add_readonly3.bal",
+  "description": "Add readonly to record type",
+  "expected": [
+    {
+      "title": "Add readonly to 'record {|anydata...;|}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 27
+            },
+            "end": {
+              "line": 5,
+              "character": 27
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

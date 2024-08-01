@@ -211,6 +211,10 @@ public class CliProviderTest {
                 PredefinedTypes.TYPE_DECIMAL), true);
         UnionType floatBoolen = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
                 PredefinedTypes.TYPE_BOOLEAN), true);
+        UnionType intNull = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_NULL), true);
+        UnionType boolenNull = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_BOOLEAN,
+                PredefinedTypes.TYPE_NULL), true);
         return new Object[][]{
                 {"stringInt", getIntersectionType(ROOT_MODULE, stringInt), strVal, "-CstringInt=test"},
                 {"intFloat", getIntersectionType(ROOT_MODULE, intFloat), 2.2d, "-CintFloat=2.2"},
@@ -218,6 +222,8 @@ public class CliProviderTest {
                 {"intBoolean", getIntersectionType(ROOT_MODULE, intBoolean), 2L, "-CintBoolean=2"},
                 {"intDecimal", getIntersectionType(ROOT_MODULE, intDecimal), decimalVal, "-CintDecimal=3.23"},
                 {"floatBoolen", getIntersectionType(ROOT_MODULE, floatBoolen), true, "-CfloatBoolen=true"},
+                {"intNull", getIntersectionType(ROOT_MODULE, intNull), 87L, "-CintNull=87"},
+                {"boolenNull", getIntersectionType(ROOT_MODULE, boolenNull), true, "-CboolenNull=true"},
         };
     }
 

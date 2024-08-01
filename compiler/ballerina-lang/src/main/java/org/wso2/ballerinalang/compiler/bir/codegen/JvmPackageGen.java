@@ -408,6 +408,7 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
+                initMethodGen.generateModuleStop(cw, moduleInitClass, asyncDataCollector, jvmConstantsGen);
                 ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(jvmTypeGen, jvmConstantsGen);
                 stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
                         immediateImports);
@@ -743,8 +744,8 @@ public class JvmPackageGen {
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
-        new ShutDownListenerGen(jvmConstantsGen).generateShutdownSignalListener(moduleInitClass, jarEntries,
-                asyncDataCollector);
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries
+        );
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function

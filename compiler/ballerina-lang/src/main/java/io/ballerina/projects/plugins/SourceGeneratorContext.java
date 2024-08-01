@@ -84,6 +84,7 @@ public interface SourceGeneratorContext {
      * @param content  a {@code TextDocument} that contains the source code
      * @param fileName proposed prefix of the filename to be added
      */
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     void addResourceFile(byte[] content, String fileName, ModuleId moduleId);
 
     /**
@@ -92,6 +93,7 @@ public interface SourceGeneratorContext {
      * @param content  a {@code TextDocument} that contains the source code
      * @param fileName proposed prefix of the filename to be added
      */
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     void addResourceFile(byte[] content, String fileName);
 
     /**
@@ -100,6 +102,7 @@ public interface SourceGeneratorContext {
      * @param content  a {@code TextDocument} that contains the test resource content
      * @param fileName proposed prefix of the filename to be added
      */
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     void addTestResourceFile(byte[] content, String fileName, ModuleId moduleId);
 
     /**
@@ -108,6 +111,7 @@ public interface SourceGeneratorContext {
      * @param content  a {@code TextDocument} that contains the test resource content
      * @param fileName proposed prefix of the filename to be added
      */
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     void addTestResourceFile(byte[] content, String fileName);
 
     /**

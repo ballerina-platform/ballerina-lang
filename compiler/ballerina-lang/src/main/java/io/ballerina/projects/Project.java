@@ -88,6 +88,8 @@ public abstract class Project {
 
     public abstract Path targetDir();
 
+    public abstract Path generatedResourcesDir();
+
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable
         this.currentPackage = currentPackage;
