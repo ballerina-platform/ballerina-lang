@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -54,7 +54,7 @@ public class JvmMethodsSplitter {
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
-    public void generateMethods(JAREntries jarEntries, JvmCastGen jvmCastGen,
+    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen,
                                 List<BIRNode.BIRFunction> sortedFunctions, AsyncDataCollector asyncDataCollector) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,

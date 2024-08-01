@@ -22,7 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -46,7 +46,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.ST
  */
 public class FrameClassGen {
 
-    public void generateFrameClasses(BIRNode.BIRPackage pkg, JAREntries pkgEntries) {
+    public void generateFrameClasses(BIRNode.BIRPackage pkg, JarEntries pkgEntries) {
         pkg.functions.forEach(
                 func -> generateFrameClassForFunction(pkg.packageID, func, pkgEntries, null));
 
@@ -70,7 +70,7 @@ public class FrameClassGen {
     }
 
     private void generateFrameClassForFunction(PackageID packageID, BIRNode.BIRFunction func,
-                                               JAREntries pkgEntries,
+                                               JarEntries pkgEntries,
                                                BType attachedType) {
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
                                                                  func.name.value, attachedType);

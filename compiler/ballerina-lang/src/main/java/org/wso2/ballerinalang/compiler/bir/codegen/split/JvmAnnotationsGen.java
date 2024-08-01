@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -71,7 +71,7 @@ public class JvmAnnotationsGen {
         this.module = module;
     }
 
-    public void generateAnnotationsClass(JAREntries jarEntries) {
+    public void generateAnnotationsClass(JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
         generateProcessAnnotationsMethod(cw, module.typeDefs, module.packageID);

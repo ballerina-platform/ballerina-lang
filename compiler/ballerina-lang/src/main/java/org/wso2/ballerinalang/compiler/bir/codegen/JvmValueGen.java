@@ -22,7 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
@@ -183,7 +183,7 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(JAREntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
+    void generateValueClasses(JarEntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
                               AsyncDataCollector asyncDataCollector) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
@@ -456,7 +456,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          JAREntries jarEntries) {
+                                          JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -515,7 +515,7 @@ public class JvmValueGen {
                                                      JvmConstantsGen jvmConstantsGen,
                                                      AsyncDataCollector asyncDataCollector,
                                                      BIRNode.BIRTypeDefinition typeDef,
-                                                     JAREntries jarEntries) {
+                                                     JarEntries jarEntries) {
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);

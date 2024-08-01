@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class CompiledJarFile {
 
-    private JAREntries jarEntries;
+    private JarEntries jarEntries;
 
-    public CompiledJarFile(JAREntries jarEntries, Map<String, byte[]> resources) {
+    public CompiledJarFile(JarEntries jarEntries, Map<String, byte[]> resources) {
         this.jarEntries = jarEntries;
         for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
             jarEntries.putJarArchiveEntry(entry.getKey(), entry.getValue());

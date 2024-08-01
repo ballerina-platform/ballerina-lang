@@ -23,7 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
@@ -167,7 +167,7 @@ public class JvmUnionTypeConstantsGen {
         mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName, GET_UNION_TYPE_IMPL);
     }
 
-    public void generateClass(JAREntries jarEntries) {
+    public void generateClass(JarEntries jarEntries) {
         genMethodReturn(mv);
         visitUnionTypePopulateInitMethods();
         cw.visitEnd();

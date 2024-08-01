@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -63,7 +63,7 @@ public class JvmValueCreatorGen {
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                            String moduleInitClass, JAREntries jarEntries,
+                                            String moduleInitClass, JarEntries jarEntries,
                                             SymbolTable symbolTable, JvmCastGen jvmCastGen,
                                             List<BIRNode.BIRFunction> sortedFunctions,
                                             AsyncDataCollector asyncDataCollector) {

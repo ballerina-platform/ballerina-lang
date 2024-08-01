@@ -26,7 +26,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
@@ -96,7 +96,7 @@ public class ConfigMethodGen {
 
     public void generateConfigMapper(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                      JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor,
-                                     JAREntries jarEntries, SymbolTable symbolTable) {
+                                     JarEntries jarEntries, SymbolTable symbolTable) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);

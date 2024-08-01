@@ -33,11 +33,11 @@ import java.util.jar.Manifest;
  *
  * @since 2201.10.0
  */
-public class JAREntries {
+public class JarEntries {
     private final ByteArrayOutputStream byteArrayOutputStream;
     private final JarOutputStream entries;
 
-    public JAREntries(String mainClassName) {
+    public JarEntries(String mainClassName) {
         this.byteArrayOutputStream = new ByteArrayOutputStream();
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
@@ -46,7 +46,7 @@ public class JAREntries {
         try {
             entries = new JarOutputStream(this.byteArrayOutputStream, manifest);
         } catch (IOException e) {
-            throw new ProjectException("Failed create JarOutputStream to cache jar entries", e);
+            throw new ProjectException("Failed to create the JarOutputStream to cache jar entries", e);
         }
     }
 
@@ -57,7 +57,7 @@ public class JAREntries {
             entries.write(value);
             entries.closeEntry();
         } catch (IOException e) {
-            throw new ProjectException("Failed to put jar entry", e);
+            throw new ProjectException("Failed to put the jar entry", e);
         }
     }
 
@@ -68,7 +68,7 @@ public class JAREntries {
             entries.write(value);
             entries.closeEntry();
         } catch (IOException e) {
-            throw new ProjectException("Failed to put jar archive entry", e);
+            throw new ProjectException("Failed to put the jar archive entry", e);
         }
     }
 

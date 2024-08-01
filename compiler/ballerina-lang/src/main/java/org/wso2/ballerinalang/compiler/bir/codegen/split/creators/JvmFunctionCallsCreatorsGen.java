@@ -22,7 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
@@ -72,7 +72,7 @@ public class JvmFunctionCallsCreatorsGen {
     }
 
     public void generateFunctionCallsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                           JAREntries jarEntries, JvmCastGen jvmCastGen,
+                                           JarEntries jarEntries, JvmCastGen jvmCastGen,
                                            List<BIRNode.BIRFunction> sortedFunctions) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);

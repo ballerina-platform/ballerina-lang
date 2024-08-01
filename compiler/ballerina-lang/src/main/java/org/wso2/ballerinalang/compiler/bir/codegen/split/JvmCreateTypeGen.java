@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -174,7 +174,7 @@ public class JvmCreateTypeGen {
     }
 
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                  JAREntries jarEntries,
+                                  JarEntries jarEntries,
                                   String moduleInitClass, SymbolTable symbolTable) {
         generateCreateTypesMethod(typesCw, module.typeDefs, moduleInitClass, symbolTable);
         typesCw.visitEnd();
@@ -487,7 +487,7 @@ public class JvmCreateTypeGen {
     // -------------------------------------------------------
 
     public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                      String moduleInitClass, JAREntries jarEntries) {
+                                      String moduleInitClass, JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
         generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);

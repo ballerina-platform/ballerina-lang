@@ -29,7 +29,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -372,7 +372,7 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, JAREntries jarEntries, String moduleInitClass,
+    private void generateModuleClasses(BIRPackage module, JarEntries jarEntries, String moduleInitClass,
                                        String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                        JvmConstantsGen jvmConstantsGen, Map<String, JavaClass> jvmClassMapping,
                                        boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
@@ -714,7 +714,7 @@ public class JvmPackageGen {
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
         // use a ByteArrayOutputStream to store class byte values
-        final JAREntries jarEntries = new JAREntries(
+        final JarEntries jarEntries = new JarEntries(
                 getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."));
 
         // desugar parameter initialization

@@ -21,7 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JAREntries;
+import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -96,7 +96,7 @@ public class JvmObjectCreatorGen {
     }
 
     public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, JAREntries jarEntries,
+                                     String moduleInitClass, JarEntries jarEntries,
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
