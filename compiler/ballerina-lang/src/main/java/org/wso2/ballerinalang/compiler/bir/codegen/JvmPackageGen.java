@@ -28,8 +28,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.JarEntries;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;

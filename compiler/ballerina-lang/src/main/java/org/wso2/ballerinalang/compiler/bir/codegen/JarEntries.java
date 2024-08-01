@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler;
+package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.projects.ProjectException;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;

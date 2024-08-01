@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;

@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
-import org.wso2.ballerinalang.compiler.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;

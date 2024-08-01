@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
