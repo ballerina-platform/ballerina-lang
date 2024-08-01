@@ -877,8 +877,8 @@ public class Types {
                     SemTypeHelper.bTypeComponent(target), unresolvedTypes);
         }
 
-        SemType semSource = SemTypeHelper.semTypeComponent(source);
-        SemType semTarget = SemTypeHelper.semTypeComponent(target);
+        SemType semSource = SemTypeHelper.semTypeComponent(source, this.ignoreObjectTypeIds);
+        SemType semTarget = SemTypeHelper.semTypeComponent(target, this.ignoreObjectTypeIds);
         return SemTypes.isSubtype(semTypeCtx, semSource, semTarget) &&
                 isAssignableInternal(SemTypeHelper.bTypeComponent(source),
                         SemTypeHelper.bTypeComponent(target), unresolvedTypes);
