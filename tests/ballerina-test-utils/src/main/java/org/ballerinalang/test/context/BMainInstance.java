@@ -710,8 +710,7 @@ public class BMainInstance implements BMain {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
                                                 "'local' repository.");
-        this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                packagPath);
+        this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
         buildLeecher.waitForText(5000);
         this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
                 packagPath);
