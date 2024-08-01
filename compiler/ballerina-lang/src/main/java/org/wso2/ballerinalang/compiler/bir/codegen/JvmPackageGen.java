@@ -697,7 +697,7 @@ public class JvmPackageGen {
         }
     }
 
-    CompiledJarFile generate(BIRPackage module, Map<String, byte[]> resources) {
+    CompiledJarFile generate(BIRPackage module) {
         boolean serviceEPAvailable = module.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : module.importModules) {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
@@ -713,10 +713,10 @@ public class JvmPackageGen {
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
-        // use a ByteArrayOutputStream to store class byte values
-        final JarEntries jarEntries = new JarEntries(
+        CompiledJarFile compiledJarFile = new CompiledJarFile(
                 getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."));
-
+        // use a ByteArrayOutputStream to store class byte values
+        final JarEntries jarEntries = compiledJarFile.jarEntries;
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen);
         injectDefaultParamInitsToAttachedFuncs(module, initMethodGen);
@@ -775,7 +775,7 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new CompiledJarFile(jarEntries, resources);
+        return compiledJarFile;
     }
 
     private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {

@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * A wrapper class for keeping code generated binary content and metadata of a program jar file.
@@ -28,14 +27,10 @@ import java.util.Map;
  */
 public class CompiledJarFile {
 
-    private JarEntries jarEntries;
+    public JarEntries jarEntries;
 
-    public CompiledJarFile(JarEntries jarEntries, Map<String, byte[]> resources) {
-        this.jarEntries = jarEntries;
-        for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
-            jarEntries.putJarArchiveEntry(entry.getKey(), entry.getValue());
-        }
-        jarEntries.end();
+    public CompiledJarFile(String mainClassName) {
+        this.jarEntries = new JarEntries(mainClassName);
     }
 
     public ByteArrayOutputStream toByteArrayStream() throws IOException {

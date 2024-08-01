@@ -23,6 +23,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -37,17 +38,21 @@ public class JarEntries {
     private final ByteArrayOutputStream byteArrayOutputStream;
     private final JarOutputStream entries;
 
-    public JarEntries(String mainClassName) {
+    protected JarEntries(String mainClassName) {
         this.byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            entries = new JarOutputStream(this.byteArrayOutputStream, getManifest(mainClassName));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to create the JarOutputStream to cache jar entries", e);
+        }
+    }
+
+    private static Manifest getManifest(String mainClassName) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
-        try {
-            entries = new JarOutputStream(this.byteArrayOutputStream, manifest);
-        } catch (IOException e) {
-            throw new ProjectException("Failed to create the JarOutputStream to cache jar entries", e);
-        }
+        return manifest;
     }
 
     public void put(String key, byte[] value) {
@@ -61,26 +66,21 @@ public class JarEntries {
         }
     }
 
-    protected void putJarArchiveEntry(String key, byte[] value) {
-        JarArchiveEntry entry = new JarArchiveEntry(key);
+    public void putResourceEntries(Map<String, byte[]> resources) {
         try {
-            entries.putNextEntry(entry);
-            entries.write(value);
-            entries.closeEntry();
+            for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
+                JarArchiveEntry e = new JarArchiveEntry(entry.getKey());
+                entries.putNextEntry(e);
+                entries.write(entry.getValue());
+                entries.closeEntry();
+            }
         } catch (IOException e) {
-            throw new ProjectException("Failed to put the jar archive entry", e);
+            throw new ProjectException("Failed to put the resource entries", e);
         }
     }
 
-    protected void end() {
-        try {
-            entries.close();
-        } catch (IOException e) {
-            throw new ProjectException("Failed to close jarOutputStream", e);
-        }
-    }
-
-    protected ByteArrayOutputStream getByteArrayOutputStream() {
+    protected ByteArrayOutputStream getByteArrayOutputStream() throws IOException {
+        entries.close();
         return byteArrayOutputStream;
     }
 }

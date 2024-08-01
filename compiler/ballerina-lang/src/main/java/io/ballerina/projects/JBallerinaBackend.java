@@ -376,8 +376,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, getResources(moduleContext),
-                isRemoteMgtEnabled);
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -403,7 +402,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
-                getResources(moduleContext), isRemoteMgtEnabled);
+                isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
@@ -1036,8 +1035,9 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!resources.isEmpty()) {
             try {
                 String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
-                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
-                try (ByteArrayOutputStream byteStream = JarWriter.writeResources(resourceJar, resources)) {
+                CompiledJarFile resourceJar = new CompiledJarFile("");
+                resourceJar.jarEntries.putResourceEntries(resources);
+                try (ByteArrayOutputStream byteStream = resourceJar.toByteArrayStream()) {
                     compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
                 }
             } catch (IOException e) {
