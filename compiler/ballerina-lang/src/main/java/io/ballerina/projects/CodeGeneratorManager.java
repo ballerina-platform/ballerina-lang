@@ -333,6 +333,7 @@ class CodeGeneratorManager {
         }
 
         @Override
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         public void addResourceFile(byte[] content, String fileName, ModuleId moduleId) {
             if (currentPackage.moduleIds().contains(moduleId)) {
                 resourceFiles.add(new GeneratedResourceFile(content, fileName, moduleId));
@@ -343,11 +344,13 @@ class CodeGeneratorManager {
         }
 
         @Override
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         public void addResourceFile(byte[] content, String fileName) {
             addResourceFile(content, fileName, defaultModuleId);
         }
 
         @Override
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         public void addTestResourceFile(byte[] content, String fileName, ModuleId moduleId) {
             if (currentPackage.moduleIds().contains(moduleId)) {
                 testResourceFiles.add(new GeneratedTestResourceFile(content, fileName, moduleId));
@@ -358,6 +361,7 @@ class CodeGeneratorManager {
         }
 
         @Override
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         public void addTestResourceFile(byte[] content, String fileName) {
             addTestResourceFile(content, fileName, defaultModuleId);
         }
@@ -646,11 +650,13 @@ class CodeGeneratorManager {
             return this;
         }
 
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         CodeGeneratorTaskResultBuilder addResourceFiles(Collection<GeneratedResourceFile> resourceFiles) {
             generatedResourceFiles.addAll(resourceFiles);
             return this;
         }
 
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         CodeGeneratorTaskResultBuilder addTestResourceFiles(Collection<GeneratedTestResourceFile> testResourceFiles) {
             generatedTestResourceFiles.addAll(testResourceFiles);
             return this;
@@ -749,6 +755,7 @@ class CodeGeneratorManager {
             return modifier.apply().packageInstance();
         }
 
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         private void addGeneratedResource(String newResourceFilename,
                                           byte[] content,
                                           Module.Modifier modifier,
@@ -758,6 +765,7 @@ class CodeGeneratorManager {
             modifier.addResource(resourceConfig);
         }
 
+        @Deprecated(since = "2201.10.0", forRemoval = true)
         private void addGeneratedTestResource(String newTestResourceFilename,
                                               byte[] content,
                                               Module.Modifier modifier,

@@ -158,16 +158,16 @@ public class Generator {
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
-                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
-                                .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+                    ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+                    DefaultableVariable defaultableVariable = getModuleVariable(variableDeclarationNode,
                             semanticModel, module);
-                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                    if (containsToken(variableDeclarationNode.qualifiers(),
                             SyntaxKind.CONFIGURABLE_KEYWORD)) {
                         module.configurables.add(defaultableVariable);
-                    } else {
+                    } else if (variableDeclarationNode.visibilityQualifier().isPresent() &&
+                            variableDeclarationNode.visibilityQualifier().get().kind()
+                                    .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         module.variables.add(defaultableVariable);
                     }
                 }
@@ -611,7 +611,7 @@ public class Generator {
                     String methodName = "";
                     String accessor = "";
                     String resourcePath = "";
-                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DECLARATION) {
                         accessor = methodNode.methodName().text();
                         resourcePath = methodNode.relativeResourcePath().stream().
                                 collect(StringBuilder::new, (firstString,

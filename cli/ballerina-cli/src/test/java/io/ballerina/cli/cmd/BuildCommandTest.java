@@ -281,11 +281,8 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testCodeGeneratorForSingleFile() throws IOException {
         Path execPath = this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar");
         String generatedSource = "dummyfunc-generated_1.class";
-        String generatedResource = "resources/$anon/./0/openapi-spec.yaml";
-
         try (JarFile execJar = new JarFile(execPath.toString())) {
             Assert.assertNull(execJar.getJarEntry(generatedSource));
-            Assert.assertNotNull(execJar.getJarEntry(generatedResource));
         }
     }
 
@@ -297,16 +294,11 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar");
         Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
         String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
-        String generatedResource = "resources/foo/winery/0/openapi-spec.yaml";
-
         try (JarFile thinJar = new JarFile(thinJarPath.toString())) {
             Assert.assertNotNull(thinJar.getJarEntry(generatedSource));
-            Assert.assertNotNull(thinJar.getJarEntry(generatedResource));
         }
-
         try (JarFile execJar = new JarFile(execPath.toString())) {
             Assert.assertNotNull(execJar.getJarEntry(generatedSource));
-            Assert.assertNotNull(execJar.getJarEntry(generatedResource));
         }
     }
 
