@@ -707,7 +707,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
     assertValueEquality("the number of members in a tuple value should be greater " +
-    "than the member types of the tuple to perform this operation", detailMessage);
+    "than the member types of the tuple to perform a 'shift' operation", detailMessage);
 }
 
 type TestRecord1 record {string name; int age;};
@@ -831,7 +831,7 @@ function testTupleRemove() {
     assertTrue(result3 is error);
     if (result3 is error) {
         assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
-        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform this operation",
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'remove' operation",
         <string> checkpanic result3.detail()["message"]);
     }
 
@@ -1975,7 +1975,7 @@ function testArrayPop() {
     assertTrue(result3 is error);
     if (result3 is error) {
         assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
-        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform this operation",
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
         <string> checkpanic result3.detail()["message"]);
     }
 
@@ -1996,7 +1996,7 @@ function testArrayPop() {
     assertTrue(result6 is error);
     if (result6 is error) {
         assertValueEquality("{ballerina/lang.array}OperationNotSupported", result6.message());
-        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform this operation",
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
         <string> checkpanic result6.detail()["message"]);
     }
 

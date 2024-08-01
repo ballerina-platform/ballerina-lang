@@ -34,6 +34,6 @@ import io.ballerina.runtime.api.values.BArray;
 public class Remove {
 
     public static Object remove(BArray arr, long i) {
-        return arr.shift(i);
+        return arr.shift(i, "remove");
     }
 }

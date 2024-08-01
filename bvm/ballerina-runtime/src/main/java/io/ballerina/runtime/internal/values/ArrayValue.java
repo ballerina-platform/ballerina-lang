@@ -31,7 +31,7 @@ public interface ArrayValue extends RefValue, BArray, CollectionValue {
     String getJSONString();
 
     @Override
-    Object shift(long index);
+    Object shift(long index, String operation);
 
     @Override
     void setLength(long length);

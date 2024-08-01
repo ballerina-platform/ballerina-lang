@@ -35,6 +35,6 @@ import io.ballerina.runtime.api.values.BArray;
 public class Shift {
 
     public static Object shift(BArray arr) {
-        return arr.shift(0);
+        return arr.shift(0, "shift");
     }
 }

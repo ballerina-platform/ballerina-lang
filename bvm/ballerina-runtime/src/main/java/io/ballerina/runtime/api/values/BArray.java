@@ -173,6 +173,15 @@ public interface BArray extends BRefValue, BCollection {
     Object shift(long index);
 
     /**
+     * Removes and returns first member of an array.
+     *
+     * @param index array index
+     * @param operation name of the operation using the shift method
+     * @return the value that was the first member of the array
+     */
+    Object shift(long index, String operation);
+
+    /**
      * Adds values to the start of an array.
      * @param values values to add to the start of the array
      */

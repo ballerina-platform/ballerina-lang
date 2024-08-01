@@ -46,7 +46,7 @@ public class Pop {
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             checkIsClosedArray((ArrayType) type, FUNCTION_SIGNATURE);
         }
-        return arr.shift(arr.size() - 1);
+        return arr.shift(arr.size() - 1, "pop");
     }
 
     private Pop() {}

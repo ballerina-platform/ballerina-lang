@@ -423,8 +423,13 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
+        return shift(index, "shift");
+    }
+
+    @Override
+    public Object shift(long index, String operation) {
         handleImmutableArrayValue();
-        validateTupleSizeAndInherentType((int) index);
+        validateTupleSizeAndInherentType((int) index, operation);
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -825,12 +830,12 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void validateTupleSizeAndInherentType(int index) {
+    private void validateTupleSizeAndInherentType(int index, String operation) {
         List<Type> tupleTypesList = this.tupleType.getTupleTypes();
         int numOfMandatoryTypes = tupleTypesList.size();
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
-                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE);
+                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, operation);
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
         for (int i = index + 1; i <= numOfMandatoryTypes; i++) {
