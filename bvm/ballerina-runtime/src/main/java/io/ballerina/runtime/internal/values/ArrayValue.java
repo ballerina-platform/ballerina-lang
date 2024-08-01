@@ -33,8 +33,9 @@ public interface ArrayValue extends RefValue, BArray, CollectionValue {
     @Override
     Object shift(long index);
 
-    @Override
-    Object shift(long index, String operation);
+    Object pop(long index);
+
+    Object remove(long index);
 
     @Override
     void setLength(long length);

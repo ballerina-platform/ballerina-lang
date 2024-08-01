@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsClosedArray;
 
@@ -46,7 +47,7 @@ public class Pop {
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             checkIsClosedArray((ArrayType) type, FUNCTION_SIGNATURE);
         }
-        return arr.shift(arr.size() - 1, "pop");
+        return ((ArrayValue) arr).pop(arr.size() - 1);
     }
 
     private Pop() {}

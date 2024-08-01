@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
 /**
  * Native implementation of lang.array:remove((any|error)[], int).
@@ -34,6 +35,6 @@ import io.ballerina.runtime.api.values.BArray;
 public class Remove {
 
     public static Object remove(BArray arr, long i) {
-        return arr.shift(i, "remove");
+        return ((ArrayValue) arr).remove(i);
     }
 }

@@ -426,7 +426,14 @@ public class TupleValueImpl extends AbstractArrayValue {
         return shift(index, "shift");
     }
 
-    @Override
+    public Object pop(long index) {
+        return shift(index, "pop");
+    }
+
+    public Object remove(long index) {
+        return shift(index, "remove");
+    }
+
     public Object shift(long index, String operation) {
         handleImmutableArrayValue();
         validateTupleSizeAndInherentType((int) index, operation);

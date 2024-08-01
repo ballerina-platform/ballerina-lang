@@ -706,7 +706,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public Object shift(long index, String operation) {
+    public Object pop(long index) {
+        return shift(index);
+    }
+
+    @Override
+    public Object remove(long index) {
         return shift(index);
     }
 
