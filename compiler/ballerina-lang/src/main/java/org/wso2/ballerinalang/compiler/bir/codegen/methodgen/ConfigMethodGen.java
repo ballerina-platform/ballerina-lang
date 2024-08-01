@@ -26,7 +26,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
@@ -64,8 +63,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V17;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_VERSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
@@ -79,9 +76,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_MODULE_CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
@@ -98,11 +93,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class ConfigMethodGen {
     String innerClassName;
-    private final boolean isRemoteMgtEnabled;
-
-    public ConfigMethodGen(boolean isRemoteMgtEnabled) {
-        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
-    }
 
     public void generateConfigMapper(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                      JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor,
@@ -154,25 +144,9 @@ public class ConfigMethodGen {
             generateInvokeConfigureInit(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
-        generateBallerinaRuntimeInformation(mv);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CONFIGURE_INIT, innerClassName);
         mv.visitEnd();
-    }
-
-
-    private void generateBallerinaRuntimeInformation(MethodVisitor mv) {
-        String property = System.getProperty(BALLERINA_HOME);
-        mv.visitLdcInsn(property == null ? "" : property);
-        property = System.getProperty(BALLERINA_VERSION);
-        mv.visitLdcInsn(property == null ? "" : property);
-        if (isRemoteMgtEnabled) {
-            mv.visitInsn(ICONST_1);
-        } else {
-            mv.visitInsn(ICONST_0);
-        }
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, REPOSITORY_IMPL, "addBallerinaRuntimeInformation", ADD_BALLERINA_INFO,
-                false);
     }
 
     private void generateInvokeConfiguration(MethodVisitor mv, PackageID id) {

@@ -164,7 +164,7 @@ public class JvmPackageGen {
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
         methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
-        configMethodGen = new ConfigMethodGen(isRemoteMgtEnabled);
+        configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
@@ -396,7 +396,7 @@ public class JvmPackageGen {
                 }
 
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmConstantsGen,
-                        asyncDataCollector);
+                        asyncDataCollector, isRemoteMgtEnabled);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
