@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.types.semtype.BStringSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -52,6 +53,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
@@ -91,7 +93,8 @@ public final class Builder {
             SemType.from(VT_INHERENTLY_IMMUTABLE),
             basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
-            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO))
+            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO)),
+            basicSubType(BT_XML, XmlUtils.XML_SUBTYPE_RO)
     ));
     private static final ConcurrentLazyContainer<SemType> MAPPING_RO = new ConcurrentLazyContainer<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
@@ -362,6 +365,25 @@ public final class Builder {
         return from(BT_ERROR);
     }
 
+    public static SemType xmlType() {
+        return from(BT_XML);
+    }
+
+    public static SemType xmlElementType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_ELEMENT_RO | XmlUtils.XML_PRIMITIVE_ELEMENT_RW);
+    }
+
+    public static SemType xmlCommentType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_COMMENT_RO | XmlUtils.XML_PRIMITIVE_COMMENT_RW);
+    }
+
+    public static SemType xmlTextType() {
+        return XmlUtils.xmlSequence(XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
+    }
+
+    public static SemType xmlPIType() {
+        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW);
+    }
 
     public static SemType anyDataType(Context context) {
         SemType memo = context.anydataMemo;

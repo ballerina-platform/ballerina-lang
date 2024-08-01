@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.types.semtype.Member;
 import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 import io.ballerina.runtime.internal.types.semtype.ObjectQualifiers;
+import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
@@ -336,9 +337,16 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         BLangBuiltInRefTypeNode refTypeNode = (BLangBuiltInRefTypeNode) td.getType();
         return switch (refTypeNode.typeKind) {
             case MAP -> resolveMapTypeDesc(cx, mod, defn, depth, td);
+            case XML -> resolveXmlTypeDesc(cx, mod, defn, depth, td);
             default -> throw new UnsupportedOperationException(
                     "Constrained type not implemented: " + refTypeNode.typeKind);
         };
+    }
+
+    private SemType resolveXmlTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                       BLangTypeDefinition defn, int depth, BLangConstrainedType td) {
+        SemType constraint = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+        return XmlUtils.xmlSequence(constraint);
     }
 
     private SemType resolveMapTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -476,6 +484,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             return resolveIntSubtype(name);
         } else if (td.pkgAlias.value.equals("string") && name.equals("Char")) {
             return Builder.charType();
+        } else if (td.pkgAlias.value.equals("xml")) {
+            return resolveXmlSubType(name);
         }
 
         BLangNode moduleLevelDef = mod.get(name);
@@ -495,6 +505,16 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         } else {
             throw new UnsupportedOperationException("constants and class defns not implemented");
         }
+    }
+
+    private SemType resolveXmlSubType(String name) {
+        return switch (name) {
+            case "Element" -> Builder.xmlElementType();
+            case "Comment" -> Builder.xmlCommentType();
+            case "Text" -> Builder.xmlTextType();
+            case "ProcessingInstruction" -> Builder.xmlPIType();
+            default -> throw new IllegalStateException("Unknown XML subtype: " + name);
+        };
     }
 
     private SemType getDistinctSemType(TypeTestContext<SemType> cx, SemType innerType) {
@@ -533,6 +553,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private SemType resolveTypeDesc(BLangBuiltInRefTypeNode td) {
         return switch (td.typeKind) {
             case NEVER -> Builder.neverType();
+            case XML -> Builder.xmlType();
             default -> throw new UnsupportedOperationException("Built-in ref type not implemented: " + td.typeKind);
         };
     }
@@ -549,6 +570,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case READONLY -> Builder.readonlyType();
             case ANY -> Builder.anyType();
             case ANYDATA -> Builder.anyDataType((Context) cx.getInnerContext());
+            case ERROR -> Builder.errorType();
+            case XML -> Builder.xmlType();
             default -> throw new IllegalStateException("Unknown type: " + td);
         };
     }
