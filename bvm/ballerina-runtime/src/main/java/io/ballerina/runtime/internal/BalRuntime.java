@@ -415,7 +415,7 @@ public class BalRuntime extends Runtime {
                               Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
-        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
+        Function<Object[], ?> func = o -> valueCreator.call((Strand) (o[0]), functionName, args);
         FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
         Object[] argsWithStrand = new Object[args.length + 1];
         argsWithStrand[0] = future.strand;
