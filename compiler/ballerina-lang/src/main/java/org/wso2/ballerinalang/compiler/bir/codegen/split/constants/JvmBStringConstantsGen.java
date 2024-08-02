@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class JvmBStringConstantsGen {
         return index;
     }
 
-    public void generateConstantInit(Map<String, byte[]> jarEntries) {
+    public void generateConstantInit(JarEntries jarEntries) {
         if (bStringVarIndexMap.isEmpty()) {
             return;
         }
@@ -114,7 +115,7 @@ public class JvmBStringConstantsGen {
         }
     }
 
-    private void generateSurrogatesClass(Map<String, byte[]> jarEntries) {
+    private void generateSurrogatesClass(JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, surrogatesMethodsClass);
 
@@ -234,7 +235,7 @@ public class JvmBStringConstantsGen {
     }
 
     private void generateBStringInitMethodClasses(Map<String, Map<String, String>> stringVarMap,
-                                                  Map<String, byte[]> jarEntries) {
+                                                  JarEntries jarEntries) {
         ClassWriter cw = null;
         MethodVisitor mv = null;
         String constantClassName = null;

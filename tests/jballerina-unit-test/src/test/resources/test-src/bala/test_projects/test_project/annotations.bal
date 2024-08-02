@@ -49,3 +49,30 @@ public function testAnnotationsOnLocalTupleFields() returns [@annotOne {value: "
 public string gVar = "chiranS";
 
 public [@annotOne {value: gVar} int, @annotOne {value: "k"} int, string...] g1 =  [1, 2, "hello", "world"];
+
+public type Examples record {|
+    map<ExampleItem> response;
+|};
+
+public type ExampleItem record {
+    map<string> headers?;
+};
+
+public type AnnotationRecord record {|
+    string summary?;
+    Examples examples?;
+|};
+
+public const annotation AnnotationRecord annot on type;
+
+public const Examples EXAMPLES = {
+    response: {}
+};
+
+@annot {
+    examples: EXAMPLES
+}
+public type Teacher record {|
+    int id;
+    string name;
+|};

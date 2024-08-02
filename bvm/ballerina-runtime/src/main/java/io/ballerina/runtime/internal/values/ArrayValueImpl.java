@@ -706,6 +706,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public Object pop(long index) {
+        return shift(index);
+    }
+
+    @Override
+    public Object remove(long index) {
+        return shift(index);
+    }
+
+    @Override
     public Object shift(long index) {
         handleImmutableArrayValue();
         Object val = get(index);
