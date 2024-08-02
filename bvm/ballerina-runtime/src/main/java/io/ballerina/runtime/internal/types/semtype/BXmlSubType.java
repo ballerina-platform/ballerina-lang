@@ -143,7 +143,7 @@ public class BXmlSubType extends SubType implements DelegatedSubType {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(inner);
+        return Objects.hash(inner, primitives);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class BXmlSubType extends SubType implements DelegatedSubType {
         if (!(o instanceof BXmlSubType other)) {
             return false;
         }
-        return Objects.equals(bdd(), other.bdd());
+        return Objects.equals(bdd(), other.bdd()) && primitives() == other.primitives();
     }
 
 }

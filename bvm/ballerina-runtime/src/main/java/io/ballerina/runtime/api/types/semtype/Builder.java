@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -297,8 +298,15 @@ public final class Builder {
             return typeOfError(cx, errorValue);
         } else if (object instanceof AbstractObjectValue objectValue) {
             return typeOfObject(cx, objectValue);
+        } else if (object instanceof XmlValue xmlValue) {
+            return typeOfXml(cx, xmlValue);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfXml(Context cx, XmlValue xmlValue) {
+        TypeWithShape typeWithShape = (TypeWithShape) xmlValue.getType();
+        return typeWithShape.shapeOf(cx, xmlValue);
     }
 
     private static Optional<SemType> typeOfError(Context cx, BError errorValue) {
