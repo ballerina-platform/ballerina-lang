@@ -81,12 +81,19 @@ public final class XmlUtils {
 
     private static SubTypeData createXmlSubtype(int primitives, Bdd sequence) {
         int p = primitives & XML_PRIMITIVE_ALL_MASK;
+        if (primitiveShouldIncludeNever(p)) {
+            p |= XML_PRIMITIVE_NEVER;
+        }
         if (sequence == BddAllOrNothing.ALL && p == XML_PRIMITIVE_ALL_MASK) {
             return AllOrNothing.ALL;
         } else if (sequence == BddAllOrNothing.NOTHING && p == 0) {
             return AllOrNothing.NOTHING;
         }
         return from(p, sequence);
+    }
+
+    private static boolean primitiveShouldIncludeNever(int primitive) {
+        return (primitive & XML_PRIMITIVE_TEXT) == XML_PRIMITIVE_TEXT;
     }
 
     public static SubTypeData from(int primitives, Bdd sequence) {
@@ -112,7 +119,7 @@ public final class XmlUtils {
     }
 
     private static SubType makeXmlSequence(BXmlSubType xmlSubType) {
-        int primitives = XML_PRIMITIVE_NEVER | xmlSubType.primitives();
+        int primitives = xmlSubType.primitives() | XML_PRIMITIVE_NEVER;
         int atom = xmlSubType.primitives() & XML_PRIMITIVE_SINGLETON;
         Bdd sequence = (Bdd) xmlSubType.bdd().union(bddAtom(RecAtom.createRecAtom(atom)));
         return BXmlSubType.createDelegate(primitives, sequence);
