@@ -116,7 +116,8 @@ public class TestIntegrator extends Thread {
      * Send the data given to the specific stream.
      */
     private void sendRequest(PrintStream stream, String string) throws InterruptedException {
-        stream.println(string);
+        // This is a workaround since with double `System.lineSeparator()` the tests fail on windows.
+        stream.append(string).append("\n\n").flush();
     }
 
     /**
