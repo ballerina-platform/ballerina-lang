@@ -123,9 +123,8 @@ const int[] INT_ARR = [22 , 44];
 function testListConstructorExprAsKeyValue() {
     table<Row4> key(k) tbl = table [
        {k: [12 , 13], value: 17},
-       {k: [12 , INT_VAL1], value: 17}
-    // Blocked by #41979
-    //    {k: [12 , ...INT_ARR], value: 17}
+       {k: [12 , INT_VAL1], value: 17},
+       {k: [12 , ...INT_ARR], value: 17}
     ];
 
     tbl.add({k: [13 , 14], value: 25});
@@ -134,7 +133,7 @@ function testListConstructorExprAsKeyValue() {
     var tbl2 = table key(k) [
         {k: [12, 13], value: 17},
         {k: [12, 55], value: 17},
-        // {k: [12, 22, 44], value: 17},
+        {k: [12, 22, 44], value: 17},
         {k: [13, 14], value: 25},
         {k: [13, 55], value: 25},
         {k: [13, 22, 44], value: 25}
@@ -193,28 +192,39 @@ type Row6 record {
 };
 const string STR_VAL1 = "X";
 const string STR_VAL2 = "Y";
+const map<anydata> MAP_VAL = {"X": 12, "Y": 22};
+const record {|int Z;|} REC_VAL = {Z: 32};
 
 function testMappingConstructorExprAsKeyValue() {
     table<Row6> key(k) tbl = table [
         {k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "a", "B": INT_VAL1, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "a", [STR_VAL1] : INT_VAL1, "C": [13.5, 24.3]}, value: 17},
-        {k: {"A": "a", STR_VAL1, "C": [13.5, 24.3]}, value: 17}
+        {k: {"A": "a", STR_VAL1, "C": [13.5, 24.3]}, value: 17},
+        {k: {"A": "a", ...MAP_VAL, "C": [13.5, 24.3]}, value: 17},
+        {k: {"A": "a", ...MAP_VAL, ...REC_VAL, "C": [13.5, 24.3]}, value: 17}
     ];
 
     tbl.add({k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25});
     tbl.add({k: {"A": "z", "B": INT_VAL2, "C": [23.5, 65.3]}, value: 25});
     tbl.add({k: {"A": "z", [STR_VAL2] : INT_VAL2, "C": [23.5, 65.3]}, value: 25});
     tbl.add({k: {"A": "z", STR_VAL2, "C": [23.5, 65.3]}, value: 25});
+    tbl.add({k: {"A": "a", ...MAP_VAL, "C": [23.5, 65.3]}, value: 35});
+    tbl.add({k: {"A": "a", ...MAP_VAL, ...REC_VAL, "C": [23.5, 65.3]}, value: 35});
+
     var tbl2 = table key(k) [
         {k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "a", "B": 55, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "a", "X": 55, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "a", "STR_VAL1": "X", "C": [13.5, 24.3]}, value: 17},
+        {k: {"A": "a", "X": 12, "Y": 22, "C": [13.5, 24.3]}, value: 17},
+        {k: {"A": "a", "X": 12, "Y": 22, "Z": 32, "C": [13.5, 24.3]}, value: 17},
         {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25},
         {k: {"A": "z", "B": 22, "C": [23.5, 65.3]}, value: 25},
         {k: {"A": "z", "Y": 22, "C": [23.5, 65.3]}, value: 25},
-        {k: {"A": "z", "STR_VAL2": "Y", "C": [23.5, 65.3]}, value: 25}
+        {k: {"A": "z", "STR_VAL2": "Y", "C": [23.5, 65.3]}, value: 25},
+        {k: {"A": "a", "X": 12, "Y": 22, "C": [23.5, 65.3]}, value: 35},
+        {k: {"A": "a", "X": 12, "Y": 22, "Z": 32, "C": [23.5, 65.3]}, value: 35}
     ];
     assertEqual(tbl2, tbl);
 
