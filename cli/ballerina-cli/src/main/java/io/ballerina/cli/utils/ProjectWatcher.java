@@ -20,6 +20,7 @@ package io.ballerina.cli.utils;
 
 import io.ballerina.cli.cmd.RunCommand;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.FileUtils;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class ProjectWatcher {
     private final ProjectKind projectKind;
     private final ScheduledExecutorService scheduledExecutorService;
     private final Map<Path, Long> debounceMap = new ConcurrentHashMap<>();
-    private final long debounceTimeMillis = 500;
+    private static final long debounceTimeMillis = 500;
 
     public ProjectWatcher(RunCommand runCommand, Path projectPath, PrintStream outStream) throws IOException {
         this.fileWatcher = FileSystems.getDefault().newWatchService();
@@ -74,6 +75,7 @@ public class ProjectWatcher {
         this.outStream = outStream;
         this.watchKeys = new HashMap<>();
         this.projectKind = deriveProjectKind();
+        validateProjectPath();
         this.scheduledExecutorService = Executors.newScheduledThreadPool(1);
         registerFileTree(projectPath);
     }
@@ -108,7 +110,7 @@ public class ProjectWatcher {
                             try {
                                 thread[0].join();
                             } catch (InterruptedException e) {
-                                throw createLauncherException("unable to run in the watch mode:" + e.getMessage());
+                                throw createLauncherException("unable to watch the project:" + e.getMessage());
                             }
                             thread[0] = new RunCommandExecutor(runCommand, outStream);
                             thread[0].start();
@@ -191,6 +193,14 @@ public class ProjectWatcher {
     private void register(Path dir) throws IOException {
         WatchKey key = dir.register(fileWatcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         watchKeys.put(key, dir);
+    }
+
+    private void validateProjectPath() {
+        if (projectKind.equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            ProjectFiles.validateSingleFileProjectFilePath(projectPath);
+        } else {
+            ProjectFiles.validateBuildProjectDirPath(projectPath);
+        }
     }
 
     @SuppressWarnings("unchecked")
