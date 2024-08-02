@@ -35,7 +35,12 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
@@ -58,6 +63,9 @@ public class ProjectWatcher {
     private final PrintStream outStream;
     private final Path projectPath;
     private final ProjectKind projectKind;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final Map<Path, Long> debounceMap = new ConcurrentHashMap<>();
+    private final long debounceTimeMillis = 500;
 
     public ProjectWatcher(RunCommand runCommand, Path projectPath, PrintStream outStream) throws IOException {
         this.fileWatcher = FileSystems.getDefault().newWatchService();
@@ -66,13 +74,14 @@ public class ProjectWatcher {
         this.outStream = outStream;
         this.watchKeys = new HashMap<>();
         this.projectKind = deriveProjectKind();
+        this.scheduledExecutorService = Executors.newScheduledThreadPool(1);
         registerFileTree(projectPath);
     }
 
-    public void watch() throws IOException, InterruptedException {
-        RunCommandExecutor thread = new RunCommandExecutor(runCommand, outStream);
-        thread.start();
-        while (thread.shouldWatch()) {
+    public void watch() throws IOException {
+        final RunCommandExecutor[] thread = {new RunCommandExecutor(runCommand, outStream)};
+        thread[0].start();
+        while (thread[0].shouldWatch()) {
             WatchKey key;
             key = fileWatcher.poll();
             Path dir = watchKeys.get(key);
@@ -88,11 +97,24 @@ public class ProjectWatcher {
                 Path changedFileName = pathWatchEvent.context();
                 Path changedFilePath = dir.resolve(changedFileName).toAbsolutePath();
                 if (isValidFileChange(changedFilePath)) {
-                    outStream.println("\nDetected file changes. Re-running the project...");
-                    thread.terminate();
-                    thread.join();
-                    thread = new RunCommandExecutor(runCommand, outStream);
-                    thread.start();
+                    long currentTime = System.currentTimeMillis();
+                    debounceMap.put(changedFilePath, currentTime);
+                    scheduledExecutorService.schedule(() -> {
+                        Long lastModifiedTime = debounceMap.get(changedFilePath);
+                        if (lastModifiedTime != null
+                                && (System.currentTimeMillis() - lastModifiedTime >= debounceTimeMillis)) {
+                            outStream.println("\nDetected file changes. Re-running the project...");
+                            thread[0].terminate();
+                            try {
+                                thread[0].join();
+                            } catch (InterruptedException e) {
+                                throw createLauncherException("unable to run in the watch mode:" + e.getMessage());
+                            }
+                            thread[0] = new RunCommandExecutor(runCommand, outStream);
+                            thread[0].start();
+                            debounceMap.remove(changedFilePath);
+                        }
+                    }, debounceTimeMillis, TimeUnit.MILLISECONDS);
                 }
                 if (kind == ENTRY_CREATE && Files.isDirectory(changedFilePath)) {
                     registerFileTree(changedFilePath);
