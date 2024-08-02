@@ -20,7 +20,7 @@ function testTupleDestructuringWithOptionalFieldBindingPattern() {
     int b;
     int c;
     [{a, b}]= l1;
-    [int, [record {int b?;}]] l2= [1, [{b: 1}]];
+    [int, [record {int b?;}]] l2 = [1, [{b: 1}]];
     [a, [{b}]] = l2;
 }
 
@@ -30,7 +30,7 @@ function testTupleDestructuringWithUnspecifiedFields() {
     int b;
     int c;
     [{a, b, c}]= l1;
-    [int, [record {int b;}]] l2= [1, [{b: 1}]];
+    [int, [record {int b;}]] l2 = [1, [{b: 1}]];
     [a, [{b, c}]] = l2;
 }
 

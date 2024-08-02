@@ -274,7 +274,7 @@ public class RecordVariableReferenceTest {
     @Test
     public void testDestructuringWithRecordReferenceNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
-                "test-src/expressions/varref/record-variable-reference-in-destructuring-negative.bal");
+                "test-src/expressions/varref/record_bp_in_list_and_record_destructuring_assignment_negative.bal");
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
                 "expected '[record {| int a; int b; (any|error)...; |}]', " +
