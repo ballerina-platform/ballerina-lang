@@ -18,11 +18,12 @@
 package io.ballerina.compiler.internal.parser.incremental;
 
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.internal.parser.utils.PersistentStack;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
+
+import java.util.Deque;
 
 /**
  * Contains utility methods to retrieve {@code HybridNode}s from
@@ -140,8 +141,7 @@ class HybridNodes {
         if (nextOldTokenStartOffset < textEditRange.oldEndOffset) {
             return;
         }
-
-        state.textEditRanges = state.textEditRanges.pop();
+        state.textEditRanges.pop();
         state.oldTextOffset += textEditRange.newTextLength - textEditRange.oldLength;
     }
 
@@ -161,7 +161,7 @@ class HybridNodes {
     }
 
     private static boolean noOverlapWithCurrentTextEdit(Node oldNode,
-                                                        PersistentStack<TextEditRange> textEditRanges) {
+                                                        Deque<TextEditRange> textEditRanges) {
         if (textEditRanges.isEmpty()) {
             return true;
         }
