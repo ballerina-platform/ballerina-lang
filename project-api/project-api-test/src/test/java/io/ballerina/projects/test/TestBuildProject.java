@@ -464,8 +464,7 @@ public class TestBuildProject extends BaseTest {
             TestUtils.loadBuildProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
-            Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
-                    projectPath));
+            Assert.assertEquals(e.getMessage(), "'" + projectPath + "' is already within a Ballerina package");
         }
     }
 
@@ -838,7 +837,7 @@ public class TestBuildProject extends BaseTest {
             DocumentId oldDocumentId = buildProject.documentId(filePath); // get the document ID
             Assert.fail();
         } catch (ProjectException e) {
-            Assert.assertTrue(e.getMessage().contains("provided path does not belong to the project"));
+            Assert.assertTrue(e.getMessage().contains("'" + filePath + "' does not belong to the current project"));
         }
     }
 
