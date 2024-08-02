@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -117,13 +117,13 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
      *
      * @since 1.2.0
      */
-    public static class BLangNSPrefixedFieldBasedAccess extends BLangFieldBasedAccess {
+    public static class BLangPrefixedFieldBasedAccess extends BLangFieldBasedAccess {
 
         // BLangNodes
-        public BLangIdentifier nsPrefix;
+        public BLangIdentifier prefix;
 
         // Semantic Data
-        public BXMLNSSymbol nsSymbol;
+        public BSymbol symbol;
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
@@ -131,7 +131,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         }
 
         public String toString() {
-            return expr + "." + nsPrefix + ":" + field;
+            return expr + "." + prefix + ":" + field;
         }
 
         @Override

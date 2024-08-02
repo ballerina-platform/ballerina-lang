@@ -665,9 +665,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        nsPrefixedFieldBasedAccess.expr = rewrite(nsPrefixedFieldBasedAccess.expr);
-        result = nsPrefixedFieldBasedAccess;
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        prefixedFieldBasedAccess.expr = rewrite(prefixedFieldBasedAccess.expr);
+        result = prefixedFieldBasedAccess;
     }
 
     @Override

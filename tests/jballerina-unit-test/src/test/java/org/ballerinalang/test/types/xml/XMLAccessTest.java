@@ -329,7 +329,7 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationFilterNegative, index++,
                 "incompatible types: expected 'xml', found 'int'", 8, 14);
         BAssertUtil.validateError(navigationFilterNegative, index++,
-                "cannot find xml namespace prefix 'foo'", 13, 16);
+                "cannot find the prefix 'foo'", 13, 16);
         Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
     }
 

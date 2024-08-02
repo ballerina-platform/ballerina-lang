@@ -612,7 +612,7 @@ public class TreeBuilder {
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
-        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        return new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
     }
 
     public static TableKeySpecifierNode createTableKeySpecifierNode() {

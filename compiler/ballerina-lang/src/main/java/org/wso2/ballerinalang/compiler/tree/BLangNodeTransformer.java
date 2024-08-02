@@ -495,7 +495,7 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
-    public R transform(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data) {
+    public R transform(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess node, T data) {
         return transformNode(node, data);
     }
 

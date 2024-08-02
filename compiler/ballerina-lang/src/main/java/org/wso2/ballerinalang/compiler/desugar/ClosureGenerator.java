@@ -1519,9 +1519,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = isLikeExpr;
     }
 
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        result = nsPrefixedFieldBasedAccess;
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        result = prefixedFieldBasedAccess;
     }
 
     @Override
