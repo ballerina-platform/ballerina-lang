@@ -1213,12 +1213,12 @@ public function testXMLNeverType() {
 
     xml e = xml ``;
     test:assertEquals(<any> e is byte, false);
-    test:assertEquals(<any> e is xml<'xml:Element>, false);
+    test:assertEquals(<any> e is xml<'xml:Element>, true);
     test:assertEquals(<any> e is xml<'xml:Text>, true);
     test:assertEquals(<any> e is xml, true);
     test:assertEquals(<any> e is 'xml:Text, true);
     test:assertEquals(<any> e is 'xml:Element, false);
-    test:assertEquals(<any> e is xml<'xml:Element|'xml:Comment>, false);
+    test:assertEquals(<any> e is xml<'xml:Element|'xml:Comment>, true);
 }
 
 function testXMLTextType(){
