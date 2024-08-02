@@ -219,6 +219,12 @@ public final class CommandConstants {
 
     public static final String CONVERT_TO_CONFIGURABLE = "Convert to configurable";
 
+    public static final String ADD_TO_CONFIG_TOML = "Add to Config.toml";
+
+    public static final String ADD_ALL_TO_CONFIG_TOML = "Add all to Config.toml";
+
+    public static final String CREATE_CONFIG_TOML_COMMAND = "create.config.toml";
+
     private CommandConstants() {
     }
 }

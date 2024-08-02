@@ -803,6 +803,64 @@ function testShiftOnTupleWithProperConditions() {
     assertValueEquality([person2], properTuple5);
 }
 
+function testTupleRemove() {
+    [int, string, Person2...] tuple1 = [5, "hello", {id:56, name:"Sam", age:27}, {id:66, name:"John", age:77}, {id:88, name:"Ally", age:67}];
+    anydata val = tuple1.remove(3);
+    assertTrue(val is Person2);
+    assertValueEquality({id:66, name:"John", age:77}, val);
+    var fn1 = function() {
+        var _ = tuple1.remove(1);
+    };
+    error? res1 = trap fn1();
+    assertTrue(res1 is error);
+    error err1 = <error>res1;
+    var message1 = err1.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("incompatible types: expected 'string', found 'Person2'", detailMessage1);
+
+    TupleTypeA tuple2 = [7, "hello", 67.5, 89.7];
+    var result2 = tuple2.remove(2);
+    assertTrue(result2 is float);
+    assertValueEquality(67.5, result2);
+    assertTrue(tuple2 is TupleTypeA);
+    assertValueEquality([7, "hello", 89.7], tuple2);
+
+    [int...] tuple3 = [];
+    var result3 = trap tuple3.remove(2);
+    assertTrue(result3 is error);
+    if (result3 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'remove' operation",
+        <string> checkpanic result3.detail()["message"]);
+    }
+
+    [int...] tuple4 = [5];
+    var result4 = trap tuple4.remove(2);
+    assertTrue(result4 is error);
+    if (result4 is error) {
+        assertValueEquality("{ballerina/lang.array}IndexOutOfRange", result4.message());
+        assertValueEquality("tuple index out of range: index: 2, size: 1",
+        <string> checkpanic result4.detail()["message"]);
+    }
+
+    [int, int...] & readonly tuple5 = [1, 4, 5];
+    [anydata, anydata...] tuple6 = tuple5;
+    var result7 = trap tuple6.remove(1);
+    assertTrue(result7 is error);
+    if (result7 is error) {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", result7.message());
+        assertValueEquality("modification not allowed on readonly value",
+        <string> checkpanic result7.detail()["message"]);
+    }
+
+    [int, [string, float...], boolean] tuple7 = [5, ["hello", 92.5, 82.6], false];
+    var result8 = tuple7[1].remove(1);
+    assertTrue(result8 is float);
+    assertValueEquality(92.5, result8);
+    assertValueEquality([5, ["hello", 82.6], false], tuple7);
+}
+
 type UnshiftType1 record {string val1; int val2;};
 type UnshiftType2 record {string val1;};
 function testUnshiftOperation() {
@@ -1968,6 +2026,7 @@ function testPushWithErrorConstructorExpr() {
     assertValueEquality("e2", e.message());
 }
 
+type TupleTypeA [int, string, float...];
 function testArrayPop() {
     int[] arr1 = [1, 2];
     assertValueEquality(arr1.pop(), 2);
@@ -1990,6 +2049,55 @@ function testArrayPop() {
         assertValueEquality("pop() not supported on type 'int[2]'",
         <string> checkpanic result.detail()["message"]);
     }
+
+    [int, string, int...] tuple1 = [1, "hello", 4];
+    int|string result2 = tuple1.pop();
+    assertTrue(result2 is int);
+    assertValueEquality(4, result2);
+    int|string|error result3 = trap tuple1.pop();
+    assertTrue(result3 is error);
+    if (result3 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
+        <string> checkpanic result3.detail()["message"]);
+    }
+
+    [int, string, Person2...] tuple2 = [1, "hello", {id:5, name:"John", age:56}];
+    int|string|Person2 result4 = tuple2.pop();
+    assertTrue(result4 is Person2);
+    assertValueEquality({id:5, name:"John", age:56}, result4);
+
+    TupleTypeA tuple3 = [7, "hello", 67.5, 89.7];
+    var result5 = tuple3.pop();
+    assertTrue(result5 is float);
+    assertValueEquality(89.7, result5);
+    assertTrue(tuple3 is TupleTypeA);
+    assertValueEquality([7, "hello", 67.5], tuple3);
+
+    [int...] tuple4 = [];
+    var result6 = trap tuple4.pop();
+    assertTrue(result6 is error);
+    if (result6 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result6.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
+        <string> checkpanic result6.detail()["message"]);
+    }
+
+    [int, int...] & readonly tuple5 = [1, 4, 5];
+    [anydata, anydata...] tuple6 = tuple5;
+    var result7 = trap tuple6.pop();
+    assertTrue(result7 is error);
+    if (result7 is error) {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", result7.message());
+        assertValueEquality("modification not allowed on readonly value",
+        <string> checkpanic result7.detail()["message"]);
+    }
+
+    [int, [string, float...], boolean] tuple7 = [5, ["hello", 92.5], false];
+    var result8 = tuple7[1].pop();
+    assertTrue(result8 is float);
+    assertValueEquality(92.5, result8);
+    assertValueEquality([5, ["hello"], false], tuple7);
 }
 
 function testSetLengthNegative() {

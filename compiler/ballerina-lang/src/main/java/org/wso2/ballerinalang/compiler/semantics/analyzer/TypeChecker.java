@@ -8666,6 +8666,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.jsonType;
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
@@ -8760,7 +8763,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return false;
         }
 
-        if (type.tag == TypeTags.XML) {
+        if (types.isAssignable(bType, symTable.xmlType)) {
             return true;
         }
 

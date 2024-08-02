@@ -22,7 +22,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -38,8 +37,8 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -383,7 +382,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, new HashMap<>());
+            ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
@@ -405,7 +404,7 @@ public class JBallerinaBackend extends CompilerBackend {
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
                 isRemoteMgtEnabled);
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, new HashMap<>());
+            ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -1036,8 +1035,9 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!resources.isEmpty()) {
             try {
                 String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
-                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
-                try (ByteArrayOutputStream byteStream = JarWriter.writeResources(resourceJar, resources)) {
+                CompiledJarFile resourceJar = new CompiledJarFile("");
+                resourceJar.jarEntries.putResourceEntries(resources);
+                try (ByteArrayOutputStream byteStream = resourceJar.toByteArrayStream()) {
                     compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
                 }
             } catch (IOException e) {

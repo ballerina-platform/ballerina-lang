@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
 
 /**
@@ -38,6 +39,6 @@ public final class Shift {
     }
 
     public static Object shift(BArray arr) {
-        return arr.shift(0);
+        return ((ArrayValue) arr).shift(0);
     }
 }

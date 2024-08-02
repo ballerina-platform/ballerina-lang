@@ -95,7 +95,12 @@ public final class LauncherUtils {
         return launcherException;
     }
 
-    static void printLauncherException(BLauncherException e, PrintStream outStream) {
+
+    public static String prepareCompilerErrorMessage(String message) {
+        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
+    }
+
+    public static void printLauncherException(BLauncherException e, PrintStream outStream) {
         List<String> errorMessages = e.getMessages();
         errorMessages.forEach(outStream::println);
     }

@@ -14,6 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+import ballerina/test;
+
+import a_b/foo;
+
+public function main() returns error? {
+    foo:Client cl = check new ("test");
+    var response = check cl->/users\.getPresence();
+    test:assertEquals(response, "/users.getPresence test");
+    print("Tests passed");
+}
+
+function print(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printInternal(stdout1, strValue);
+}
+
+public function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+public function printInternal(handle receiver, handle strValue) = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
+
 public isolated client class Client {
     final string greeting;
 
