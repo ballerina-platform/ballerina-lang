@@ -60,6 +60,10 @@ OPTIONS
            Print the diagnostics that are related to the dependencies. By default, these
            diagnostics are not printed to the console.
 
+       --watch
+            [Experimental] Automatically re-run Ballerina service projects upon file
+            changes.
+
 
 ARGUMENTS
        --
