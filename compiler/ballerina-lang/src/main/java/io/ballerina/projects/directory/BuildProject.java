@@ -266,6 +266,7 @@ public class BuildProject extends Project {
         return true;
     }
 
+    @Override
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
@@ -524,5 +525,18 @@ public class BuildProject extends Project {
         } else {
             return Paths.get(this.buildOptions().getTargetPath());
         }
+    }
+
+    @Override
+    public Path generatedResourcesDir() {
+        Path generatedResourcesPath = targetDir().resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (!Files.exists(generatedResourcesPath)) {
+            try {
+                Files.createDirectories(generatedResourcesPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return generatedResourcesPath;
     }
 }

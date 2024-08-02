@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -98,12 +97,8 @@ public class LSClientLogger {
         String details = getErrorDetails(identifier, error, pos);
         if (config.isDebugLogEnabled()) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
-                error.printStackTrace(ps);
-            } catch (UnsupportedEncodingException e1) {
-                //ignore
-            }
+            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8);
+            error.printStackTrace(ps);
             this.languageClient.logMessage(
                     new MessageParams(MessageType.Error, message + " " + details + "\n" + baos));
         }

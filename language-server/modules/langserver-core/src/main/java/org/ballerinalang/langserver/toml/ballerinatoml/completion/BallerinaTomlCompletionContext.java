@@ -154,6 +154,7 @@ public class BallerinaTomlCompletionContext implements TomlCompletionContext {
      *
      * @return {@link Path} file path
      */
+    @Override
     @NonNull
     public Path filePath() {
         return this.filePath;

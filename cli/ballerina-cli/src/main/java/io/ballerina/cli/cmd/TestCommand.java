@@ -213,6 +213,7 @@ public class TestCommand implements BLauncherCmd {
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -308,7 +309,7 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
-            if (excludes != null && excludes.equals("")) {
+            if (excludes != null && excludes.isEmpty()) {
                 this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
             }
         } else {

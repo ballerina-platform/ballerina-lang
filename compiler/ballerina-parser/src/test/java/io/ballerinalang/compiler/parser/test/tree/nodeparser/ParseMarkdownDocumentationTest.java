@@ -45,10 +45,11 @@ public class ParseMarkdownDocumentationTest {
 
     @Test
     public void testMarkdownDocumentation2() {
-        String markdownDocText = "# This is the description\n" +
-                "#\n" +
-                "# + value - value input parameter\n" +
-                "# + return - return a integer value";
+        String markdownDocText = """
+                # This is the description
+                #
+                # + value - value input parameter
+                # + return - return a integer value""";
         MarkdownDocumentationNode markdownDoc = NodeParser.parseMarkdownDocumentation(markdownDocText);
         Assert.assertEquals(markdownDoc.kind(), SyntaxKind.MARKDOWN_DOCUMENTATION);
         Assert.assertFalse(markdownDoc.hasDiagnostics());

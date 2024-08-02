@@ -50,6 +50,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.internal.ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
@@ -207,9 +208,21 @@ public class CompileTask implements Task {
                 throw createLauncherException("package resolution contains errors");
             }
 
+            // Add corrupted dependencies toml diagnostic
+            project.currentPackage().dependencyManifest().diagnostics().diagnostics().forEach(diagnostic -> {
+                if (diagnostic.diagnosticInfo().code().equals(CORRUPTED_DEPENDENCIES_TOML.diagnosticId())) {
+                    diagnostics.add(diagnostic);
+                }
+            });
+
             // Package resolution is successful. Continue compiling the package.
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
+            }
+
+            String projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic();
+            if (projectLoadingDiagnostic != null && !projectLoadingDiagnostic.isEmpty()) {
+                out.println(projectLoadingDiagnostic);
             }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {

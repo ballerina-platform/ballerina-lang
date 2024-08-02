@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
@@ -49,6 +50,8 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.ToolDependency;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -69,6 +72,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -108,14 +112,18 @@ import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BIN
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
+import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static io.ballerina.projects.util.ProjectConstants.WILD_CARD;
 
 /**
  * Project related util methods.
@@ -129,6 +137,7 @@ public class ProjectUtils {
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
+    private static String projectLoadingDiagnostic;
 
     /**
      * Validates the org-name.
@@ -197,10 +206,18 @@ public class ProjectUtils {
     private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
         for (DocumentId docId : documentIds) {
             Document document = module.document(docId);
-
             ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-
             for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                boolean isErrorInImport = false;
+                for (Diagnostic diagnostic : importDcl.diagnostics()) {
+                    if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        isErrorInImport = true;
+                        break;
+                    }
+                }
+                if (isErrorInImport) {
+                    continue;
+                }
                 String orgName = "";
                 if (importDcl.orgName().isPresent()) {
                     orgName = importDcl.orgName().get().orgName().text();
@@ -388,7 +405,7 @@ public class ProjectUtils {
 
         // if package name has consecutive underscores, replace them with a single underscore
         if (packageName.contains("__")) {
-            packageName = packageName.replaceAll("__", "_");
+            packageName = packageName.replace("__", "_");
         }
 
         // if package name has trailing underscore remove it
@@ -434,7 +451,7 @@ public class ProjectUtils {
 
     public static String getBalaName(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -451,7 +468,7 @@ public class ProjectUtils {
      */
     public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
-        if (platform == null || "".equals(platform)) {
+        if (platform == null || platform.isEmpty()) {
             platform = "any";
         }
         return Paths.get(org, pkgName, version, platform);
@@ -1399,6 +1416,44 @@ public class ProjectUtils {
         return CompatibleRange.LOCK_MAJOR;
     }
 
+    public static Map<String, byte[]> getAllGeneratedResources(Path generatedResourcesPath) {
+        Map<String, byte[]> resourcesMap = new HashMap<>();
+        if (Files.isDirectory(generatedResourcesPath)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+                    generatedResourcesPath, Files::isRegularFile)) {
+                for (Path entry : stream) {
+                    Path entryName = entry.getFileName();
+                    if (entryName == null) {
+                        continue;
+                    }
+                    String resourcePath = RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR + entryName.toString();
+                    resourcesMap.put(resourcePath, Files.readAllBytes(entry));
+                }
+            } catch (IOException e) {
+                throw new ProjectException("An error occurred while reading the cached resources from: " +
+                        generatedResourcesPath, e);
+            }
+        }
+
+        return resourcesMap;
+    }
+
+    public static String getConflictingResourcesMsg(String packageDesc, List<String> conflictingResourceFiles) {
+        StringBuilder errorMessage = new StringBuilder();
+        errorMessage.append("failed due to generated resources conflicting with the " +
+                "resources in the current package '").append(packageDesc).append("'. Conflicting resource files:");
+        if (conflictingResourceFiles != null && !conflictingResourceFiles.isEmpty()) {
+            for (String file : conflictingResourceFiles) {
+                errorMessage.append("\n").append(file);
+            }
+        }
+        return errorMessage.toString();
+    }
+
+    public static String getResourcesPath() {
+        return "'" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR +
+                DOT + WILD_CARD + "'";
+    }
     /**
      * Denote the compatibility range of a given tool version.
      */
@@ -1419,5 +1474,35 @@ public class ProjectUtils {
          * Exact version provided.
          */
         EXACT
+    }
+
+    // TODO: Remove this with https://github.com/ballerina-platform/ballerina-lang/issues/43212
+    //  once diagnostic support for project loading stage is added.
+    public static void addProjectLoadingDiagnostic(String diagnosticMessage) {
+        projectLoadingDiagnostic = diagnosticMessage;
+    }
+
+    public static String getProjectLoadingDiagnostic() {
+        return projectLoadingDiagnostic;
+    }
+
+    /**
+     * Checks if there are any services in the default module of the project.
+     *
+     * @param pkg package instance
+     * @return true if there are services in the default module, false otherwise
+     */
+    public static boolean containsDefaultModuleService(Package pkg) {
+        // Here, we are looking at the services only in the default module, since they are run during a bal run.
+        // However, we can extend this to look at other services
+        // (including within dependencies) that get engaged during run.
+        Module defaultModule = pkg.getDefaultModule();
+        for (DocumentId documentId: pkg.getDefaultModule().documentIds()) {
+                ModulePartNode rootNode = defaultModule.document(documentId).syntaxTree().rootNode();
+                if (rootNode.members().stream().anyMatch(member -> member.kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                    return true;
+                }
+            }
+        return false;
     }
 }

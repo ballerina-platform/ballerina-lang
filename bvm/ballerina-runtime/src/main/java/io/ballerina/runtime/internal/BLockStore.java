@@ -45,9 +45,7 @@ public class BLockStore {
     }
 
     public BLock getLockFromMap(String lockName) {
-        return globalLockMap.computeIfAbsent(lockName, (k) -> {
-            return new BLock();
-        });
+        return globalLockMap.computeIfAbsent(lockName, (k) -> new BLock());
     }
 
     public void panicIfInLock(Strand strand) {

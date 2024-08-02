@@ -62,6 +62,7 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
                 keyConstraintNode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTableTypeDescriptorNode(
                 this.tableKeywordToken,
@@ -88,6 +89,7 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableTypeDescriptorNode(this, position, parent);
     }

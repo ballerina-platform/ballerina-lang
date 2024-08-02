@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 9,
+    "character": 18
+  },
+  "source": "clone_value6.bal",
+  "description": "Clone a json value",
+  "expected": [
+    {
+      "title": "Clone the value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 23
+            },
+            "end": {
+              "line": 9,
+              "character": 23
+            }
+          },
+          "newText": ".clone()"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Clone as a readonly value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 23
+            },
+            "end": {
+              "line": 9,
+              "character": 23
+            }
+          },
+          "newText": ".cloneReadOnly()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

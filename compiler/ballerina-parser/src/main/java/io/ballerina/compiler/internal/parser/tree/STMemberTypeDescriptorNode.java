@@ -56,6 +56,7 @@ public class STMemberTypeDescriptorNode extends STNode {
                 typeDescriptor);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMemberTypeDescriptorNode(
                 this.annotations,
@@ -78,6 +79,7 @@ public class STMemberTypeDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MemberTypeDescriptorNode(this, position, parent);
     }

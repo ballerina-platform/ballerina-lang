@@ -74,6 +74,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                 if (project.isEmpty()) {
                     return metadata;
                 }
+                metadata.setOrgName(project.get().currentPackage().packageOrg().value());
                 metadata.setPath(project.get().sourceRoot().toString());
                 ProjectKind projectKind = project.get().kind();
                 if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
@@ -96,7 +97,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             JsonArray jsonPackages = new JsonArray();
             TextDocumentIdentifier[] documentIdentifiers = request.getDocumentIdentifiers();
             try {
-                Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
+                Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier ->
                     PathUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
                         Project project = null;
                         try {
@@ -106,8 +107,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                             String msg = "Operation 'ballerinaPackage/components' load project failed!";
                             this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null);
                         }
-                    });
-                });
+                    }));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
@@ -167,10 +167,8 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             if (module.moduleName().moduleNamePart() != null) {
                 moduleObject.setName(module.moduleName().moduleNamePart());
             }
-            module.documentIds().forEach(documentId -> {
-                new DocumentComponentTransformer(moduleObject)
-                        .getModuleObject(module.document(documentId).syntaxTree().rootNode());
-            });
+            module.documentIds().forEach(documentId -> new DocumentComponentTransformer(moduleObject)
+                    .getModuleObject(module.document(documentId).syntaxTree().rootNode()));
             packageObject.addModule(moduleObject);
         });
         return new Gson().toJsonTree(packageObject).getAsJsonObject();

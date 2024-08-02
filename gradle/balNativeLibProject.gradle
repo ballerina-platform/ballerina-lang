@@ -50,7 +50,7 @@ class CreateBalaTask extends JavaExec {
     def newParser = 'true'
 
     CreateBalaTask() {
-        setMain('org.ballerinalang.stdlib.utils.GenerateBala')
+        setMainClass('org.ballerinalang.stdlib.utils.GenerateBala')
         setEnableAssertions(true)
     }
 
@@ -83,7 +83,7 @@ class CreateBalaTask extends JavaExec {
 
 }
 
-task copyExternalMappingNextToBir(type: Copy) {
+tasks.register('copyExternalMappingNextToBir', Copy) {
     dependsOn compileJava
     from "$buildDir/classes/java/main/META-INF/this.map.json"
     into "$buildDir/generated-bir-jar"
@@ -96,7 +96,7 @@ jar {
     outputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
 }
 
-task createBala(type: CreateBalaTask) {
+tasks.register('createBala', CreateBalaTask) {
     dependsOn createBalHome
     dependsOn jar
     dependsOn configurations.balaImplementation
@@ -133,13 +133,13 @@ artifacts {
     balSource file("src/main/ballerina/")
 }
 
-task copySelfToTestBalHome(type: Copy) {
+tasks.register('copySelfToTestBalHome', Copy) {
     dependsOn createBala
     from "$buildDir/generated-bala"
     into "$buildDir/ballerina-home/test/lib"
 }
 
-task assembleArtifact(type: Zip) {
+tasks.register('assembleArtifact', Zip) {
     dependsOn createBala
     archiveName "$project.name-ballerina-binary-repo.zip"
     destinationDir file("$buildDir/bal-repos/")

@@ -112,7 +112,7 @@ public class ClientResourceAccessActionNodeContext
             } else {
                 List<Node> arguments = new ArrayList<>();
                 node.arguments().ifPresent(argList ->
-                        arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
+                        arguments.addAll(argList.arguments().stream().toList()));
                 if (isNotInNamedArgOnlyContext(context, arguments)) {
                     completionItems.addAll(this.actionKWCompletions(context));
                     completionItems.addAll(this.expressionCompletions(context));
@@ -423,7 +423,7 @@ public class ClientResourceAccessActionNodeContext
             return false;
         }
         return (functionTypeSymbol.params().isEmpty()
-                || functionTypeSymbol.params().get().size() == 0)
+                || functionTypeSymbol.params().get().isEmpty())
                 && functionTypeSymbol.restParam().isEmpty();
     }
 }

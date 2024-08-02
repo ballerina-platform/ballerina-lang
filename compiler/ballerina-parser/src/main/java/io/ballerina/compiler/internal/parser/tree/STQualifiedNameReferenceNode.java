@@ -62,6 +62,7 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
                 identifier);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQualifiedNameReferenceNode(
                 this.modulePrefix,
@@ -88,6 +89,7 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QualifiedNameReferenceNode(this, position, parent);
     }

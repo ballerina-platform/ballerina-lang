@@ -497,6 +497,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = false;
         data.env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
         data.returnTypes.push(new LinkedHashSet<>());
@@ -512,8 +514,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (funcNode.body != null) {
 
             DefaultValueState prevDefaultValueState = data.defaultValueState;
-            if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                    prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            if (inDefaultValue(prevDefaultValueState)) {
                 data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
             }
             analyzeNode(funcNode.body, data);
@@ -523,6 +524,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
         data.transactionalFuncCheckStack.pop();
+        data.failureHandled = failureHandled;
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -674,7 +676,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRetrySpec retrySpec, AnalyzerData data) {
         if (retrySpec.retryManagerType != null) {
             BSymbol retryManagerTypeSymbol = symTable.langErrorModuleSymbol.scope
-                    .lookup(names.fromString("RetryManager")).symbol;
+                    .lookup(Names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.getBType(), abstractRetryManagerType)) {
                 dlog.error(retrySpec.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
@@ -1357,7 +1359,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean compareVariables(Map<String, BVarSymbol> varsInPreviousMatchPattern,
                                      BLangMatchPattern matchPattern) {
         Map<String, BVarSymbol> varsInCurrentMatchPattern = matchPattern.declaredVars;
-        if (varsInPreviousMatchPattern.size() == 0) {
+        if (varsInPreviousMatchPattern.isEmpty()) {
             varsInPreviousMatchPattern.putAll(varsInCurrentMatchPattern);
             return true;
         }
@@ -1704,7 +1706,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         analyzeTypeNode(varNode.typeNode, data);
 
+        DefaultValueState prevDefaultValueState = data.defaultValueState;
+        if (varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+            data.defaultValueState = DefaultValueState.PARAMETER_DEFAULT;
+        }
         analyzeExpr(varNode.expr, data);
+        data.defaultValueState = prevDefaultValueState;
 
         if (Objects.isNull(varNode.symbol)) {
             return;
@@ -1908,7 +1915,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (varRef.cause != null) {
             varRefs.add(varRef.cause);
         }
-        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
+        varRefs.addAll(varRef.detail.stream().map(e -> e.expr).toList());
         if (varRef.restVar != null) {
             varRefs.add(varRef.restVar);
         }
@@ -2055,7 +2062,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
-                || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
+                || (!isWorkerFromFunction(data.env, Names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2211,7 +2218,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         Set<Flag> flagSet = funcNode.flagSet;
         // Analyze worker interactions inside workers
-        Name workerDerivedName = names.fromString("0" + otherWorker.name.value);
+        Name workerDerivedName = Names.fromString("0" + otherWorker.name.value);
         if (flagSet.contains(Flag.WORKER)) {
             // Interacting with default worker from a worker within a fork.
             if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {
@@ -2401,7 +2408,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     inclusiveTypeSpreadField = spreadOpField;
 
                     if (recordLiteralFields.size() > 1) {
-                        if (names.size() > 0) {
+                        if (!names.isEmpty()) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
                                             spreadOpExpr);
@@ -2907,7 +2914,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                                               .filter(bLangNode -> bLangNode.workerIdentifier.equals
                                                                       (flushWrkIdentifier))
                                                               .collect(Collectors.toList());
-            if (sendsToGivenWrkr.size() == 0) {
+            if (sendsToGivenWrkr.isEmpty()) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH_FOR_WORKER,
                                 workerFlushExpr.workerSymbol, currentWrkerAction.currentWorkerId());
                 return;
@@ -2915,7 +2922,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 sendStmts = sendsToGivenWrkr;
             }
         } else {
-            if (sendStmts.size() == 0) {
+            if (sendStmts.isEmpty()) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH,
                                 currentWrkerAction.currentWorkerId());
                 return;
@@ -3110,8 +3117,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
 
         DefaultValueState prevDefaultValueState = data.defaultValueState;
-        if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+        if (inDefaultValue(prevDefaultValueState)) {
             data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
         }
         analyzeExpr(bLangArrowFunction.body.expr, data);
@@ -3295,43 +3301,49 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failVisited = true;
         analyzeExpr(checkedExpr.expr, data);
 
+        DefaultValueState defaultValueState = data.defaultValueState;
+        if (defaultValueState == DefaultValueState.PARAMETER_DEFAULT) {
+            dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT);
+            return;
+        }
+
+        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+            dlog.error(checkedExpr.pos,
+                       DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+            return;
+        }
+
+        if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            BAttachedFunction initializerFunc =
+                    ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
+
+            if (initializerFunc == null) {
+                dlog.error(checkedExpr.pos,
+                        DiagnosticErrorCode
+                                .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
+                return;
+            }
+
+            BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
+            if (exprErrorTypes == symTable.semanticError) {
+                return;
+            }
+
+            BType initMethodReturnType = initializerFunc.type.retType;
+            if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
+                dlog.error(checkedExpr.pos, DiagnosticErrorCode
+                        .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
+                        initMethodReturnType, exprErrorTypes);
+            }
+            return;
+        }
+
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
         }
 
         BLangInvokableNode enclInvokable = data.env.enclInvokable;
-
-        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
-        if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
-            if (data.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
-                dlog.error(checkedExpr.pos,
-                           DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
-                return;
-            }
-
-            if (data.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
-                BAttachedFunction initializerFunc =
-                        ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
-
-                if (initializerFunc == null) {
-                    dlog.error(checkedExpr.pos,
-                            DiagnosticErrorCode
-                                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
-                    return;
-                }
-
-                BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
-                BType initMethodReturnType = initializerFunc.type.retType;
-                if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
-                    dlog.error(checkedExpr.pos, DiagnosticErrorCode
-                            .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
-                            initMethodReturnType, exprErrorTypes);
-                }
-                return;
-            }
-        }
-
         if (enclInvokable == null) {
             return;
         }
@@ -4388,8 +4400,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return null;
     }
 
+    private boolean inDefaultValue(DefaultValueState prevDefaultValueState) {
+        return prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER ||
+                prevDefaultValueState == DefaultValueState.PARAMETER_DEFAULT;
+    }
+
     private enum DefaultValueState {
         NOT_IN_DEFAULT_VALUE,
+        PARAMETER_DEFAULT,
         RECORD_FIELD_DEFAULT,
         OBJECT_FIELD_INITIALIZER,
         FUNCTION_IN_DEFAULT_VALUE

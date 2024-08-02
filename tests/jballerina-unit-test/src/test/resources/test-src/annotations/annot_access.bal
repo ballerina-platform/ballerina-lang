@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+
 type Annot record {
     string foo;
     int bar?;
@@ -359,6 +361,88 @@ type MedicalNeed record {
 
 };
 
+public type AnnotationRecord record {|
+    string summary?;
+    Examples examples?;
+|};
+
+public type Examples record {|
+    map<ExampleItem> response;
+|};
+
+public type ExampleItem record {
+    map<string> headers?;
+};
+
+const annotation AnnotationRecord annot on type;
+
+@annot {
+    examples: {
+        response: {}
+    }
+}
+type Employee record {|
+    int id;
+    string name;
+|};
+
+public type AnnotationRecord1 record {|
+    string summary?;
+    ExamplesReference examples?;
+|};
+
+type ExamplesReference Examples;
+
+const annotation AnnotationRecord1 annot1 on type;
+
+@annot1 {
+    examples: {
+        response: {}
+    }
+}
+type Student record {|
+    int id;
+    string name;
+|};
+
+const Examples EXAMPLES = {
+    response: {}
+};
+
+@annot {
+    examples: EXAMPLES
+}
+type Teacher record {|
+    int id;
+    string name;
+|};
+
+function testConstTypeAnnotAccess() {
+    Employee employee = {id: 1, name: "chirans"};
+    typedesc<any> t = typeof employee;
+    AnnotationRecord? annot = t.@annot;
+    assertTrue(annot is AnnotationRecord);
+    AnnotationRecord config = <AnnotationRecord> annot;
+    assertEquality({"response":{}}, config.examples);
+    assertTrue(config.examples is readonly);
+
+    Student student = {id: 2, name: "sachintha"};
+    typedesc<any> s = typeof student;
+    AnnotationRecord1? annot1 = s.@annot1;
+    assertTrue(annot1 is AnnotationRecord1);
+    AnnotationRecord1 config1 = <AnnotationRecord1> annot1;
+    assertEquality({"response":{}}, config1.examples);
+    assertTrue(config1.examples is readonly);
+
+    Teacher teacher = {id: 1, name: "James"};
+    typedesc<any> t1 = typeof teacher;
+    AnnotationRecord? annot2 = t1.@annot;
+    assertTrue(annot2 is AnnotationRecord);
+    AnnotationRecord config2 = <AnnotationRecord> annot2;
+    assertEquality({"response":{}}, config2.examples);
+    assertTrue(config2.examples is readonly);
+}
+
 function testListExprInConstAnnot() {
     EntityConfig? annot = MedicalNeed.@Entity;
     assertTrue(annot is EntityConfig);
@@ -366,6 +450,135 @@ function testListExprInConstAnnot() {
     EntityConfig config = <EntityConfig> annot;
     assertEquality(["key1", "key2"], config.key);
 }
+
+annotation record {| string name; |} ObjectAnnot on type;
+annotation MethodAnnot on function;
+
+@ObjectAnnot {
+    name: "ObjectTypeWithAnnots"
+}
+type ObjectTypeWithAnnots object {
+    @MethodAnnot
+    function getInt() returns int;
+};
+
+type ObjectTypeWithoutAnnots object {
+    function getInt() returns int;
+};
+
+function testObjectTypeAnnotations() {
+    record {|string name;|}? objectAnnot = ObjectTypeWithAnnots.@ObjectAnnot;
+    assertTrue(objectAnnot !is ());
+    record {|string name;|} objectAnnotValue = <record {|string name;|}> objectAnnot;
+    assertEquality("ObjectTypeWithAnnots", objectAnnotValue.name);
+
+    anydata methodAnnot = getMethodAnnotations(ObjectTypeWithAnnots, "getInt", "MethodAnnot");
+    assertTrue(methodAnnot);
+
+    record {|string name;|}? objectAnnot2 = ObjectTypeWithoutAnnots.@ObjectAnnot;
+    assertTrue(objectAnnot2 is ());
+
+    anydata methodAnnot2 = getMethodAnnotations(ObjectTypeWithoutAnnots, "getInt", "MethodAnnot");
+    assertTrue(methodAnnot2 is ());
+}
+
+annotation ServiceTypeAnnot on type, class;
+annotation Kind ServiceTypeMethodAnnot on function;
+
+@ServiceTypeAnnot
+public type S1 service object {
+
+    @ServiceTypeMethodAnnot {
+        kind: "resource"
+    }
+    resource function get res() returns string;
+
+    @ServiceTypeMethodAnnot {
+        kind: "remote"
+    }
+    remote function rem() returns string;
+
+    @ServiceTypeMethodAnnot {
+        kind: "normal"
+    }
+    function fn() returns int;
+
+    resource function get res2() returns string;
+};
+
+public type S2 service object {
+
+    resource function get res() returns string;
+
+    remote function rem() returns string;
+
+    function fn() returns int;
+
+    @ServiceTypeMethodAnnot {
+        kind: "remote 2"
+    }
+    remote function rem2() returns string;
+};
+
+type Kind record {|
+    string kind;
+|};
+
+function testServiceObjectTypeAnnotations() {
+    true? serviceObjectAnnot = S1.@ServiceTypeAnnot;
+    assertTrue(serviceObjectAnnot);
+
+    anydata methodAnnot = getResourceMethodAnnotations(S1, "get", ["res"], "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is Kind);
+    Kind kind = <Kind> methodAnnot;
+    assertEquality("resource", kind.kind);
+
+    methodAnnot = getRemoteMethodAnnotations(S1, "rem", "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is Kind);
+    kind = <Kind> methodAnnot;
+    assertEquality("remote", kind.kind);
+
+    methodAnnot = getMethodAnnotations(S1, "fn", "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is Kind);
+    kind = <Kind> methodAnnot;
+    assertEquality("normal", kind.kind);
+
+    methodAnnot = getResourceMethodAnnotations(S1, "get", ["res2"], "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is ());
+
+    serviceObjectAnnot = S2.@ServiceTypeAnnot;
+    assertTrue(serviceObjectAnnot is ());
+
+    methodAnnot = getResourceMethodAnnotations(S2, "get", ["res"], "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is ());
+
+    methodAnnot = getRemoteMethodAnnotations(S2, "rem", "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is ());
+
+    methodAnnot = getMethodAnnotations(S2, "fn", "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is ());
+
+    methodAnnot = getRemoteMethodAnnotations(S2, "rem2", "ServiceTypeMethodAnnot");
+    assertTrue(methodAnnot is Kind);
+    kind = <Kind> methodAnnot;
+    assertEquality("remote 2", kind.kind);
+}
+
+function getMethodAnnotations(typedesc<object {}> bTypedesc, string method, string annotName) returns anydata =
+    @java:Method {
+        'class: "org/ballerinalang/test/annotations/AnnotationRuntimeTest"
+    } external;
+
+function getRemoteMethodAnnotations(typedesc<service object {}> bTypedesc, string method, string annotName) returns anydata =
+    @java:Method {
+        'class: "org/ballerinalang/test/annotations/AnnotationRuntimeTest"
+    } external;
+
+function getResourceMethodAnnotations(typedesc<service object {}> bTypedesc, string method,
+                                      string[] path, string annotName) returns anydata =
+    @java:Method {
+        'class: "org/ballerinalang/test/annotations/AnnotationRuntimeTest"
+    } external;
 
 function assertTrue(anydata actual) {
     assertEquality(true, actual);

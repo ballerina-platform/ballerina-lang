@@ -1,0 +1,59 @@
+{
+  "range": {
+    "start": {
+      "line": 4,
+      "character": 23
+    },
+    "end": {
+      "line": 4,
+      "character": 26
+    }
+  },
+  "source": "extractToConfigurableInErrorConstructor.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string config = \"Whoops!\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 21
+            },
+            "end": {
+              "line": 4,
+              "character": 30
+            }
+          },
+          "newText": "config"
+        }
+      ],
+      "command": {
+        "title": "Rename configurable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConfigurableInErrorConstructor.bal",
+          {
+            "line": 5,
+            "character": 21
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

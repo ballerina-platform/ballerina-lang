@@ -56,6 +56,7 @@ public class STBreakStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBreakStatementNode(
                 this.breakToken,
@@ -78,6 +79,7 @@ public class STBreakStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BreakStatementNode(this, position, parent);
     }

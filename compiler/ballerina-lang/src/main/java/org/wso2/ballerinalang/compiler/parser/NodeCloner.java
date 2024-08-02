@@ -303,7 +303,7 @@ public class NodeCloner extends BLangNodeVisitor {
         }
         List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
-            T clone = (T) clone(node);
+            T clone = clone(node);
             cloneList.add(clone);
         }
         return cloneList;
@@ -954,6 +954,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.body = clone(source.body);
     }
 
+    @Override
     public void visit(BLangFail failNode) {
 
         BLangFail clone = new BLangFail();
@@ -1333,6 +1334,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.expr = clone(source.expr);
     }
 
+    @Override
     public void visit(BLangTableConstructorExpr source) {
 
         BLangTableConstructorExpr clone = new BLangTableConstructorExpr();

@@ -92,7 +92,6 @@ public class PackageResolution {
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
                 this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
-
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
@@ -100,8 +99,58 @@ public class PackageResolution {
         resolveDependencies(dependencyResolution);
     }
 
+    private PackageResolution(PackageResolution packageResolution, PackageContext rootPackageContext,
+                              CompilationOptions compilationOptions) {
+        this.rootPackageContext = rootPackageContext;
+        this.diagnosticList = new ArrayList<>();
+        this.compilationOptions = compilationOptions;
+        this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
+        ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
+        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
+                this.resolutionOptions.offline());
+        diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
+        this.dependencyGraph = cloneDependencyGraphNewRoot(packageResolution.dependencyGraph,
+                rootPackageContext.project().currentPackage());
+        this.dependencyGraphDump = packageResolution.dependencyGraphDump;
+        DependencyResolution dependencyResolution = new DependencyResolution(
+                projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
+        resolveDependencies(dependencyResolution);
+    }
+
+    private DependencyGraph<ResolvedPackageDependency> cloneDependencyGraphNewRoot
+            (DependencyGraph<ResolvedPackageDependency> depGraph, Package rootPackage) {
+        ResolvedPackageDependency oldRoot = depGraph.getRoot();
+        ResolvedPackageDependency newRoot = new ResolvedPackageDependency(rootPackage,
+                oldRoot.scope(), oldRoot.dependencyResolvedType());
+        DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
+                DependencyGraphBuilder.getBuilder(newRoot);
+        for (ResolvedPackageDependency depNode : depGraph.getNodes()) {
+            if (depNode == oldRoot) {
+                depGraphBuilder.add(newRoot);
+            } else {
+                depGraphBuilder.add(depNode);
+            }
+            List<ResolvedPackageDependency> directPkgDependencies =
+                    depGraph.getDirectDependencies(depNode)
+                            .stream()
+                            .map(directDepNode -> directDepNode == oldRoot ? newRoot : directDepNode)
+                            .collect(Collectors.toList());
+            depGraphBuilder.addDependencies(depNode, directPkgDependencies);
+        }
+        return depGraphBuilder.build();
+    }
+
     static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         return new PackageResolution(rootPackageContext, compilationOptions);
+    }
+
+    static PackageResolution from(PackageResolution packageResolution, PackageContext
+            packageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(packageResolution, packageContext, compilationOptions);
     }
 
     /**
@@ -385,7 +434,7 @@ public class PackageResolution {
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
-        if (dependencyGraph.findCycles().size() > 0) {
+        if (!dependencyGraph.findCycles().isEmpty()) {
             for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -405,7 +454,7 @@ public class PackageResolution {
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleDescriptor> sortedModuleDescriptors
                     = moduleDependencyGraph.toTopologicallySortedList();
-            if (moduleDependencyGraph.findCycles().size() > 0) {
+            if (!moduleDependencyGraph.findCycles().isEmpty()) {
                 for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),

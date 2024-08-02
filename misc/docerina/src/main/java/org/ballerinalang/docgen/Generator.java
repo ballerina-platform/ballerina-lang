@@ -116,12 +116,10 @@ public class Generator {
      * @param module  module constructs model to fill.
      * @param syntaxTree syntax tree of the document.
      * @param semanticModel semantic model
-     * @return whether the module has any public constructs.
      */
-    public static boolean setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
+    public static void setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
                                                   SemanticModel semanticModel) {
 
-        boolean hasPublicConstructs = false;
         if (syntaxTree.containsModulePart()) {
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             for (Node node : modulePartNode.members()) {
@@ -130,13 +128,12 @@ public class Generator {
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD) ||
                             isTypePramOrBuiltinSubtype(typeDefinition.metadata())) {
-                        hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
+                        addTypeDefinition(typeDefinition, module, semanticModel);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                     ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                        hasPublicConstructs = true;
                         BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
                         if (cls instanceof Client) {
                             module.clients.add((Client) cls);
@@ -148,41 +145,37 @@ public class Generator {
                     }
                 } else if (node.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                         containsToken(((FunctionDefinitionNode) node).qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.CONST_DECLARATION && ((ConstantDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((ConstantDeclarationNode) node).visibilityQualifier()
                         .get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ANNOTATION_DECLARATION && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    hasPublicConstructs = true;
                     module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
-                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
-                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
-                                .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+                    ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+                    DefaultableVariable defaultableVariable = getModuleVariable(variableDeclarationNode,
                             semanticModel, module);
-                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                    if (containsToken(variableDeclarationNode.qualifiers(),
                             SyntaxKind.CONFIGURABLE_KEYWORD)) {
                         module.configurables.add(defaultableVariable);
-                    } else {
+                    } else if (variableDeclarationNode.visibilityQualifier().isPresent() &&
+                            variableDeclarationNode.visibilityQualifier().get().kind()
+                                    .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         module.variables.add(defaultableVariable);
                     }
                 }
             }
         }
-        return hasPublicConstructs;
     }
 
-    public static boolean addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
+    public static void addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
             semanticModel) {
 
         String typeName = typeDefinition.typeName().text();
@@ -333,10 +326,7 @@ public class Generator {
         } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
             module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else {
-            return false;
         }
-        return true;
         // TODO: handle value type nodes
         // TODO: handle built in ref type
         // TODO: handle constrained types
@@ -369,7 +359,7 @@ public class Generator {
                 EnumMemberNode enumMemberNode = (EnumMemberNode) node;
                 String memberName = enumMemberNode.identifier().text();
                 String doc = getDocFromMetadata(enumMemberNode.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
                 }
                 List<String> descSections = getDescSectionsDocFromMetaDataList(enumDeclaration.metadata());
@@ -464,7 +454,7 @@ public class Generator {
                                            Module module) {
         List<Type> memberTypes = new ArrayList<>();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
-                Type.fromNode(type, semanticModel, module)).collect(Collectors.toList()));
+                Type.fromNode(type, semanticModel, module)).toList());
         BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
                 getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode),
                 memberTypes);
@@ -621,7 +611,7 @@ public class Generator {
                     String methodName = "";
                     String accessor = "";
                     String resourcePath = "";
-                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DECLARATION) {
                         accessor = methodNode.methodName().text();
                         resourcePath = methodNode.relativeResourcePath().stream().
                                 collect(StringBuilder::new, (firstString,
@@ -782,7 +772,7 @@ public class Generator {
                 RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
@@ -798,7 +788,7 @@ public class Generator {
                 RecordFieldNode recordField = (RecordFieldNode) node;
                 String name = recordField.fieldName().text();
                 String doc = getDocFromMetadata(recordField.metadata());
-                if (doc.equals("")) {
+                if (doc.isEmpty()) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
@@ -815,8 +805,8 @@ public class Generator {
                 if (!originType.isPublic) {
                     variables.addAll(originType.memberTypes.stream()
                             .map(type -> new DefaultableVariable(type.name, type.description, false,
-                                    type.elementType, "")).collect(Collectors.toList()));
-                } else if (originType.memberTypes.size() > 0) {
+                                    type.elementType, "")).toList());
+                } else if (!originType.memberTypes.isEmpty()) {
                     variables.add(new DefaultableVariable(originType));
                 }
             } else if (node instanceof ObjectFieldNode) {
@@ -825,7 +815,7 @@ public class Generator {
                         .equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     String name = objectField.fieldName().text();
                     String doc = getDocFromMetadata(objectField.metadata());
-                    if (doc.equals("")) {
+                    if (doc.isEmpty()) {
                         doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                     }
                     String defaultValue;

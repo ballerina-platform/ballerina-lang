@@ -48,7 +48,6 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
     /**
      * Retrieves JDI value representations of all the child variables, as a map of named child variables (i.e. error
      * variable entries, object fields, record fields).
-     * <p>
      */
     public Map<String, Value> getNamedChildVariables() {
         if (namedChildVariables == null) {

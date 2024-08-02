@@ -29,6 +29,7 @@ import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.cli.utils.ProjectWatcher;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -37,6 +38,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -66,6 +68,8 @@ public class RunCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
+    RunExecutableTask runExecutableTask;
+    Project project;
 
     private static final PathMatcher JAR_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.jar");
@@ -83,6 +87,8 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @CommandLine.Option(names = "--watch", description = "watch for file changes and automatically re-run the project")
+    private boolean watch;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -155,6 +161,7 @@ public class RunCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    @Override
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -199,8 +206,19 @@ public class RunCommand implements BLauncherCmd {
             sticky = false;
         }
 
+        if (this.watch) {
+            try {
+                ProjectWatcher projectWatcher = new ProjectWatcher(
+                        this, Paths.get(this.projectPath.toString()), outStream);
+                projectWatcher.watch();
+            } catch (IOException | InterruptedException e) {
+                throw createLauncherException("unable to run in the watch mode:" + e.getMessage());
+            }
+            return;
+        }
+
+
         // load project
-        Project project;
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
@@ -265,7 +283,7 @@ public class RunCommand implements BLauncherCmd {
                         isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CreateExecutableTask(outStream, null, target, true))
-                .addTask(new RunExecutableTask(args, outStream, errStream, target))
+                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
@@ -294,6 +312,16 @@ public class RunCommand implements BLauncherCmd {
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
+    public void unsetWatch() {
+        this.watch = false;
+    }
+
+    public void killProcess() {
+        if (runExecutableTask != null) {
+            runExecutableTask.killProcess();
+        }
+    }
+
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
@@ -317,5 +345,9 @@ public class RunCommand implements BLauncherCmd {
         }
 
         return buildOptionsBuilder.build();
+    }
+
+    public boolean containsService() {
+        return project == null || ProjectUtils.containsDefaultModuleService(project.currentPackage());
     }
 }

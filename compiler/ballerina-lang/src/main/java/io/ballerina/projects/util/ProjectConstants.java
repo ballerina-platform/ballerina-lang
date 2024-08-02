@@ -28,6 +28,7 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BALA_EXTENSION = ".bala";
     public static final String PLATFORM = "platform";
+    public static final String TOML_EXTENSION = ".toml";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
@@ -52,7 +53,6 @@ public class ProjectConstants {
     public static final String BUILD_FILE = "build";
     public static final String JAVA_CLASS_EXT = ".class";
 
-    public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
@@ -79,10 +79,7 @@ public class ProjectConstants {
     public static final String TOOL_DIR = "tool";
 
     public static final String BALA_DIR_NAME = "bala";
-    public static final String BALA_CACHE_DIR_NAME = "bala_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
-    public static final String JAR_CACHE_DIR_NAME = "jar_cache";
-    public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TESTS_CACHE_DIR_NAME = "tests_cache";
     public static final String TEST_DIR_NAME = "tests";
     public static final String USER_DIR_PROPERTY = "user.dir";
@@ -106,25 +103,23 @@ public class ProjectConstants {
 
     // Constants related to file system repo
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;
-    public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
     public static final String TEST_UBER_JAR_SUFFIX = "-testable";
-    public static final String FAT_JAR_ROOT_DIR = "/";
+    public static final String DIR_PATH_SEPARATOR = "/";
     public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
     public static final String EXCLUDED_CLASSES_FILE = "excludedClasses.txt";
 
-    public static final String TEST_SUITE = "test_suite";
     public static final String TEST_SUITE_JSON = "test_suit.json";
 
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
-    public static final String ASM_JAR = "asm-9.5.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.12.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.12.jar";
+    public static final String ASM_JAR = "asm-9.7.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.7.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.7.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
@@ -132,7 +127,6 @@ public class ProjectConstants {
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
-    public static final String MAVEN_REPOSITORY_CACHE_NAME = "maven";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
@@ -144,4 +138,5 @@ public class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
+    public static final String WILD_CARD = "*";
 }

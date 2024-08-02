@@ -62,6 +62,7 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
                 functionSignature);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionTypeDescriptorNode(
                 this.qualifierList,
@@ -88,6 +89,7 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionTypeDescriptorNode(this, position, parent);
     }

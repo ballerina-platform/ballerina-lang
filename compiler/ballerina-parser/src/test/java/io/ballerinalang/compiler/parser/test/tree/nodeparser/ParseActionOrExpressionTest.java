@@ -45,12 +45,13 @@ public class ParseActionOrExpressionTest {
 
     @Test
     public void testQueryAction() {
-        String queryAction = "from var a in b\n" +
-                "where (c > d)\n" +
-                "do {\n" +
-                "int x;\n" +
-                "int y = 4;\n" +
-                "}";
+        String queryAction = """
+                from var a in b
+                where (c > d)
+                do {
+                int x;
+                int y = 4;
+                }""";
         ExpressionNode actionNode = NodeParser.parseActionOrExpression(queryAction);
         Assert.assertEquals(actionNode.kind(), SyntaxKind.QUERY_ACTION);
         Assert.assertFalse(actionNode.hasDiagnostics());

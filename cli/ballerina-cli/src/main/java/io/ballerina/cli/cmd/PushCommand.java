@@ -509,13 +509,13 @@ public class PushCommand implements BLauncherCmd {
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
-                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
 
-                    errorMessage = errorMessage.replaceAll("error: ", "");
+                    errorMessage = errorMessage.replace("error: ", "");
 
                     // when unauthorized access token for organization is given
                     if (errorMessage.contains("subject claims missing in the user info repsonse")) {
