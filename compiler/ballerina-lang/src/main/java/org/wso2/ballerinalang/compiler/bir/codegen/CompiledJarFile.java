@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import java.util.Map;
-import java.util.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * A wrapper class for keeping code generated binary content and metadata of a program jar file.
@@ -27,27 +27,13 @@ import java.util.Optional;
  */
 public class CompiledJarFile {
 
-    private String mainClassName;
-    private Map<String, byte[]> jarEntries;
+    public JarEntries jarEntries;
 
-    public CompiledJarFile(Map<String, byte[]> jarEntries) {
-
-        this.jarEntries = jarEntries;
+    public CompiledJarFile(String mainClassName) {
+        this.jarEntries = new JarEntries(mainClassName);
     }
 
-    public CompiledJarFile(String mainClassName, Map<String, byte[]> jarEntries) {
-
-        this.mainClassName = mainClassName;
-        this.jarEntries = jarEntries;
-    }
-
-    public Map<String, byte[]> getJarEntries() {
-
-        return jarEntries;
-    }
-
-    public Optional<String> getMainClassName() {
-
-        return Optional.ofNullable(mainClassName);
+    public ByteArrayOutputStream toByteArrayStream() throws IOException {
+        return jarEntries.getByteArrayOutputStream();
     }
 }
