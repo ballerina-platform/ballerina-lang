@@ -94,6 +94,7 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
+import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
@@ -966,9 +967,9 @@ public class CommandUtil {
 
         Files.writeString(ballerinaToml, defaultManifest);
 
-        // Create README.md
-        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + ProjectConstants.README_MD_FILE_NAME);
-        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
+        // Create Package.md
+        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
+        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
