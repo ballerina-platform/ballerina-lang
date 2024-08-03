@@ -66,7 +66,7 @@ public class ProjectWatcher {
     private final ProjectKind projectKind;
     private final ScheduledExecutorService scheduledExecutorService;
     private final Map<Path, Long> debounceMap = new ConcurrentHashMap<>();
-    private static final long debounceTimeMillis = 500;
+    private static final long debounceTimeMillis = 250;
 
     public ProjectWatcher(RunCommand runCommand, Path projectPath, PrintStream outStream) throws IOException {
         this.fileWatcher = FileSystems.getDefault().newWatchService();
@@ -103,19 +103,20 @@ public class ProjectWatcher {
                     debounceMap.put(changedFilePath, currentTime);
                     scheduledExecutorService.schedule(() -> {
                         Long lastModifiedTime = debounceMap.get(changedFilePath);
-                        if (lastModifiedTime != null
-                                && (System.currentTimeMillis() - lastModifiedTime >= debounceTimeMillis)) {
-                            outStream.println("\nDetected file changes. Re-running the project...");
-                            thread[0].terminate();
-                            try {
-                                thread[0].join();
-                            } catch (InterruptedException e) {
-                                throw createLauncherException("unable to watch the project:" + e.getMessage());
-                            }
-                            thread[0] = new RunCommandExecutor(runCommand, outStream);
-                            thread[0].start();
-                            debounceMap.remove(changedFilePath);
+                        if (lastModifiedTime == null
+                                || (System.currentTimeMillis() - lastModifiedTime < debounceTimeMillis)) {
+                            return;
                         }
+                        outStream.println("\nDetected file changes. Re-running the project...");
+                        thread[0].terminate();
+                        try {
+                            thread[0].join();
+                        } catch (InterruptedException e) {
+                            throw createLauncherException("unable to watch the project:" + e.getMessage());
+                        }
+                        thread[0] = new RunCommandExecutor(runCommand, outStream);
+                        thread[0].start();
+                        debounceMap.remove(changedFilePath);
                     }, debounceTimeMillis, TimeUnit.MILLISECONDS);
                 }
                 if (kind == ENTRY_CREATE && Files.isDirectory(changedFilePath)) {
