@@ -211,8 +211,11 @@ public class RunCommand implements BLauncherCmd {
                 ProjectWatcher projectWatcher = new ProjectWatcher(
                         this, Paths.get(this.projectPath.toString()), outStream);
                 projectWatcher.watch();
-            } catch (IOException | InterruptedException e) {
-                throw createLauncherException("unable to run in the watch mode:" + e.getMessage());
+            } catch (IOException e) {
+                throw createLauncherException("unable to watch the project:" + e.getMessage());
+            } catch (ProjectException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
             }
             return;
         }
