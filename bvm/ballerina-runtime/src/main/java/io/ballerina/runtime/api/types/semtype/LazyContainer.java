@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 class ConcurrentLazyContainer<E> implements Supplier<E> {
 
     private Supplier<E> initializer;
-    private final AtomicReference<E> value = new AtomicReference<>();
+    private E value = null;
 
     ConcurrentLazyContainer(Supplier<E> initializer) {
         this.initializer = initializer;
@@ -32,13 +32,16 @@ class ConcurrentLazyContainer<E> implements Supplier<E> {
 
     @Override
     public E get() {
-        E result = value.get();
+        E result = value;
         if (result == null) {
-            result = initializer.get();
-            if (!value.compareAndSet(null, result)) {
-                result = value.get();
+            synchronized (this) {
+                result = value;
+                if (result == null) {
+                    result = initializer.get();
+                    value = result;
+                    initializer = null;
+                }
             }
-            initializer = null;
         }
         return result;
     }
