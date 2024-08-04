@@ -110,6 +110,15 @@ public final class Builder {
             new ConcurrentLazyContainer<>(() -> new MappingAtomicType(
                     EMPTY_STRING_ARR, EMPTY_TYPES_ARR, PredefinedTypeEnv.getInstance().cellSemTypeInner()));
 
+    private static final ConcurrentLazyContainer<SemType> XML_ELEMENT = new ConcurrentLazyContainer<>(() ->
+            XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_ELEMENT_RO | XmlUtils.XML_PRIMITIVE_ELEMENT_RW));
+    private static final ConcurrentLazyContainer<SemType> XML_COMMENT = new ConcurrentLazyContainer<>(() ->
+            XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_COMMENT_RO | XmlUtils.XML_PRIMITIVE_COMMENT_RW));
+    private static final ConcurrentLazyContainer<SemType> XML_TEXT = new ConcurrentLazyContainer<>(() ->
+            XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
+    private static final ConcurrentLazyContainer<SemType> XML_PI = new ConcurrentLazyContainer<>(() ->
+            XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW));
+
     private static final PredefinedTypeEnv PREDEFINED_TYPE_ENV = PredefinedTypeEnv.getInstance();
 
     private Builder() {
@@ -201,6 +210,7 @@ public final class Builder {
             default -> {
                 if (Integer.bitCount(bitset) == 1) {
                     int code = Integer.numberOfTrailingZeros(bitset);
+                    // FIXME: this should always be true
                     if (BasicTypeCache.isCached(code)) {
                         yield BasicTypeCache.cache[code];
                     }
@@ -272,6 +282,7 @@ public final class Builder {
         return new SubType[Integer.bitCount(some)];
     }
 
+    // TODO: factor this to a separate class
     public static Optional<SemType> shapeOf(Context cx, Object object) {
         if (object == null) {
             return Optional.of(nilType());
@@ -304,6 +315,7 @@ public final class Builder {
         return Optional.empty();
     }
 
+    // Combine these methods maybe introduce a marker interface
     private static Optional<SemType> typeOfXml(Context cx, XmlValue xmlValue) {
         TypeWithShape typeWithShape = (TypeWithShape) xmlValue.getType();
         return typeWithShape.shapeOf(cx, xmlValue);
@@ -347,6 +359,7 @@ public final class Builder {
     }
 
     private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
+        // FIXME: cache these when the semtype only has basic types
         CellAtomicType atomicCell = new CellAtomicType(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);
@@ -378,19 +391,19 @@ public final class Builder {
     }
 
     public static SemType xmlElementType() {
-        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_ELEMENT_RO | XmlUtils.XML_PRIMITIVE_ELEMENT_RW);
+        return XML_ELEMENT.get();
     }
 
     public static SemType xmlCommentType() {
-        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_COMMENT_RO | XmlUtils.XML_PRIMITIVE_COMMENT_RW);
+        return XML_COMMENT.get();
     }
 
     public static SemType xmlTextType() {
-        return XmlUtils.xmlSequence(XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
+        return XML_TEXT.get();
     }
 
     public static SemType xmlPIType() {
-        return XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW);
+        return XML_PI.get();
     }
 
     public static SemType anyDataType(Context context) {
@@ -401,8 +414,7 @@ public final class Builder {
         Env env = context.env;
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
-        // TODO: add table, xml
-        SemType accum = unionOf(SIMPLE_OR_STRING, listDef.getSemType(env), mapDef.getSemType(env));
+        SemType accum = unionOf(SIMPLE_OR_STRING, xmlType(), listDef.getSemType(env), mapDef.getSemType(env));
         listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
         mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
         context.anydataMemo = accum;
