@@ -327,8 +327,7 @@ public class PullCommand implements BLauncherCmd {
     }
 
     private boolean resolveDependencies(String orgName, String packageName, String version) {
-        outStream.println("Resolving dependencies\n");
-
+        CommandUtil.setPrintStream(errStream);
         try {
             BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
