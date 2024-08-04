@@ -213,7 +213,6 @@ final class PredefinedTypeEnv {
             createTypeAtomSupplierFromCellAtomicSupplier(cellAtomicNever, this::cellAtomIndex);
     private final Supplier<TypeAtom> atomCellObjectMember =
             createTypeAtomSupplierFromCellAtomicSupplier(cellAtomicObjectMember, this::cellAtomIndex);
-
     private final Supplier<TypeAtom> atomCellObjectMemberKind =
             createTypeAtomSupplierFromCellAtomicSupplier(cellAtomicObjectMemberKind, this::cellAtomIndex);
     private final Supplier<TypeAtom> atomCellObjectMemberRO =
@@ -232,8 +231,36 @@ final class PredefinedTypeEnv {
             createTypeAtomSupplierFromCellAtomicSupplier(listAtomicMappingRO, this::listAtomIndex);
     private final Supplier<TypeAtom> atomMappingObject =
             createTypeAtomSupplierFromCellAtomicSupplier(mappingAtomicObject, this::mappingAtomIndex);
-    private TypeAtom atomMappingObjectMember;
-    private TypeAtom atomMappingObjectMemberRO;
+
+    private final Supplier<TypeAtom> atomMappingObjectMember =
+            createTypeAtomSupplierFromCellAtomicSupplier(mappingAtomicObjectMember, this::mappingAtomIndex);
+    private final Supplier<TypeAtom> atomMappingObjectMemberRO =
+            createTypeAtomSupplierFromCellAtomicSupplier(mappingAtomicObjectMemberRO, this::mappingAtomIndex);
+
+    // NOTE: it is okay for these to be not thread safe
+    private final Supplier<SemType> cellSemTypeObjectMemberVisibility = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberVisibility()))));
+    private final Supplier<SemType> cellSemTypeValRo = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellValRO()))));
+    private final Supplier<SemType> cellSemTypeObjectMemberKind = new ConcurrentLazySupplier<>(
+            () -> Builder.basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberKind()))));
+    private final Supplier<SemType> cellSemTypeUndef = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellUndef.get()))));
+    private final Supplier<SemType> mappingSemTypeObjectMemberRO = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddAtom(atomMappingObjectMemberRO()))));
+    private final Supplier<SemType> cellSemTypeVal = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellVal()))));
+    private final Supplier<SemType> mappingSemTypeObjectMember = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddAtom(atomMappingObjectMember()))));
+    private final Supplier<SemType> cellSemTypeObjectMember = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMember()))));
+    private final Supplier<SemType> cellSemTypeObjectMemberRO = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberRO()))));
+    private final Supplier<SemType> cellSemTypeInner = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInner()))));
+
+    private final Supplier<SemType> cellSemTypeInnerRO = new ConcurrentLazySupplier<>(
+            () -> basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInnerRO()))));
 
     private void addInitializedCellAtom(CellAtomicType atom) {
         addInitializedAtom(initializedCellAtoms, atom);
@@ -357,12 +384,7 @@ final class PredefinedTypeEnv {
     }
 
     TypeAtom atomMappingObjectMemberRO() {
-        if (atomMappingObjectMemberRO == null) {
-            MappingAtomicType mappingAtomicObjectMemberRO = mappingAtomicObjectMemberRO();
-            atomMappingObjectMemberRO = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMemberRO),
-                    mappingAtomicObjectMemberRO);
-        }
-        return atomMappingObjectMemberRO;
+        return atomMappingObjectMemberRO.get();
     }
 
     CellAtomicType cellAtomicObjectMemberRO() {
@@ -394,12 +416,7 @@ final class PredefinedTypeEnv {
     }
 
     TypeAtom atomMappingObjectMember() {
-        if (atomMappingObjectMember == null) {
-            MappingAtomicType mappingAtomicObjectMember = mappingAtomicObjectMember();
-            atomMappingObjectMember = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMember),
-                    mappingAtomicObjectMember);
-        }
-        return atomMappingObjectMember;
+        return atomMappingObjectMember.get();
     }
 
     CellAtomicType cellAtomicObjectMember() {
@@ -455,55 +472,48 @@ final class PredefinedTypeEnv {
         return Integer.max(initializedRecListAtoms.size(), initializedRecMappingAtoms.size());
     }
 
-    // TODO: avoid creating these multiple times
     private SemType cellSemTypeObjectMemberKind() {
-        return Builder.basicSubType(
-                BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberKind()))
-        );
+        return cellSemTypeObjectMemberKind.get();
     }
 
     private SemType cellSemTypeValRO() {
-        return basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellValRO())));
+        return cellSemTypeValRo.get();
     }
 
     private SemType cellSemTypeObjectMemberVisibility() {
-        return basicSubType(
-                BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberVisibility()))
-        );
+        return cellSemTypeObjectMemberVisibility.get();
     }
 
     private SemType cellSemTypeUndef() {
-        return basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellUndef())));
+        return cellSemTypeUndef.get();
     }
 
     private SemType mappingSemTypeObjectMemberRO() {
-        return basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddAtom(atomMappingObjectMemberRO())));
+        return mappingSemTypeObjectMemberRO.get();
     }
 
     private SemType cellSemTypeVal() {
-        return basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellVal())));
+        return cellSemTypeVal.get();
     }
 
     private SemType mappingSemTypeObjectMember() {
-        return basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddAtom(atomMappingObjectMember())));
+        return mappingSemTypeObjectMember.get();
     }
 
     private SemType cellSemTypeObjectMember() {
-        return basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMember())));
+        return cellSemTypeObjectMember.get();
     }
 
     private SemType cellSemTypeObjectMemberRO() {
-        return basicSubType(BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellObjectMemberRO())));
+        return cellSemTypeObjectMemberRO.get();
     }
 
     SemType cellSemTypeInner() {
-        return basicSubType(BT_CELL,
-                BCellSubType.createDelegate(bddAtom(atomCellInner())));
+        return cellSemTypeInner.get();
     }
 
     private SemType cellSemTypeInnerRO() {
-        return basicSubType(
-                BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInnerRO())));
+        return cellSemTypeInnerRO.get();
     }
 
     private record InitializedTypeAtom<E extends AtomicType>(E atomicType, int index) {
