@@ -313,7 +313,7 @@ public class Types {
     public boolean isLaxFieldAccessAllowed(BType type) {
         type = Types.getImpliedType(type);
         Set<BType> visited = new HashSet<>();
-        return isLaxType(type, visited) == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT;
+        return isLaxType(type, visited) == 1 || isAssignable(type, symTable.xmlType);
     }
 
     // TODO : clean
@@ -5685,8 +5685,8 @@ public class Types {
         BErrorType lhsErrorType = (BErrorType) lhsType;
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
-        BErrorType errorType = createErrorType(detailType, lhsType.flags, env);
-        errorType.tsymbol.flags |= rhsType.flags;
+        long flags = lhsType.flags | rhsType.flags | Flags.PUBLIC;  // Anonymous (generated) types are marked as public.
+        BErrorType errorType = createErrorType(detailType, flags, env);
 
         errorType.typeIdSet = BTypeIdSet.getIntersection(lhsErrorType.typeIdSet, rhsErrorType.typeIdSet);
 

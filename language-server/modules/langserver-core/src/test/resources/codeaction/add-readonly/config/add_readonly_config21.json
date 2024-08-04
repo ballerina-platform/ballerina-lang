@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 21,
+    "character": 25
+  },
+  "source": "add_readonly5.bal",
+  "description": "Add readonly to class field type",
+  "expected": [
+    {
+      "title": "Add readonly to 'string[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 28
+            },
+            "end": {
+              "line": 11,
+              "character": 28
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

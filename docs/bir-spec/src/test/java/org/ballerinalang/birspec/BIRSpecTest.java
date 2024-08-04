@@ -17,7 +17,12 @@
  */
 package org.ballerinalang.birspec;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Test cases to verify BIR binary against the spec.
@@ -28,5 +33,15 @@ public class BIRSpecTest {
             dataProvider = "createTestSources", dataProviderClass = BIRTestUtils.class)
     public void validateBIRSpecTest(String testSource) {
         BIRTestUtils.validateBIRSpec(testSource);
+    }
+
+    @Test(description = "Test to verify BIR spec MD file generation")
+    public void testGenerateBirSpecMd() throws IOException {
+        try (StringWriter out = new StringWriter(); PrintWriter writer = new PrintWriter(out)) {
+            BIRSpecGenerator.generateBirSpecMd(writer);
+            writer.flush();
+            String birSpecMdContent = out.toString();
+            Assert.assertTrue(birSpecMdContent.contains("Ballerina Intermediate Representation (BIR) Specification"));
+        }
     }
 }

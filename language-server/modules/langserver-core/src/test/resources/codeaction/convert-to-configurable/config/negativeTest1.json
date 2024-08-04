@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 1,
+    "character": 15
+  },
+  "source": "convertToConfigurableNegative.bal",
+  "expected": [
+    {
+      "title": "Convert to configurable"
+    }
+  ]
+}

@@ -74,6 +74,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
     compilerPluginJar project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-data')
+    compilerPluginJar project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition')
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
@@ -114,28 +115,6 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperty("project.version", project.version)
     }
-
-    jacoco {
-        destinationFile = file("$buildDir/jacoco/all-test.exec")
-    }
-}
-
-tasks.register('jacocoMergeTest', JacocoReport) {
-    dependsOn ':ballerina-lang:build'
-    String langProjectBuildDir = project(":ballerina-lang").buildDir
-    getExecutionData().setFrom(files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec"))
-}
-
-jacocoTestReport {
-    afterEvaluate {
-        String langProjectDir = project(":ballerina-lang").projectDir
-        String langProjectBuildDir = project(":ballerina-lang").buildDir
-        getClassDirectories().setFrom(files("$langProjectBuildDir/classes/java/main/io/ballerina/projects") as FileCollection)
-        getSourceDirectories().setFrom(files("$langProjectDir/src/main/java") as FileCollection)
-        getExecutionData().setFrom(files("$buildDir/jacoco/all-test.exec") as FileCollection)
-    }
-
-    dependsOn(jacocoMergeTest)
 }
 
 ext.moduleName = 'io.ballerina.projects.test'
