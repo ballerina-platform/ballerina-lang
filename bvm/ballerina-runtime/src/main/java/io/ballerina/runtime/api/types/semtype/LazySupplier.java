@@ -18,16 +18,15 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-class ConcurrentLazyContainer<E> implements Supplier<E> {
+class ConcurrentLazySupplier<E> implements Supplier<E> {
 
     private Supplier<E> initializer;
     private E value = null;
 
-    ConcurrentLazyContainer(Supplier<E> initializer) {
+    ConcurrentLazySupplier(Supplier<E> initializer) {
         this.initializer = initializer;
     }
 
@@ -49,13 +48,13 @@ class ConcurrentLazyContainer<E> implements Supplier<E> {
     }
 }
 
-class ConcurrentLazyContainerWithCallback<E> implements Supplier<E> {
+class ConcurrentLazySupplierWithCallback<E> implements Supplier<E> {
 
     private E value = null;
     private Supplier<E> initializer;
     private Consumer<E> callback;
 
-    ConcurrentLazyContainerWithCallback(Supplier<E> initializer, Consumer<E> callback) {
+    ConcurrentLazySupplierWithCallback(Supplier<E> initializer, Consumer<E> callback) {
         this.initializer = initializer;
         this.callback = callback;
     }
