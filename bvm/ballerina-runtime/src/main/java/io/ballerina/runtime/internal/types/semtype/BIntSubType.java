@@ -65,6 +65,7 @@ public final class BIntSubType extends SubType {
     }
 
     public static BIntSubType createIntSubType(long min, long max) {
+        assert min < max : "Invalid range";
         Range range = new Range(min, max);
         Range[] ranges = {range};
         return new BIntSubType(new IntSubTypeData(ranges));
