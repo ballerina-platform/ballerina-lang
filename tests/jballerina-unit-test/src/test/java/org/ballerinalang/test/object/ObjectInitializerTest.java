@@ -81,7 +81,7 @@ public class ObjectInitializerTest {
     @Test(description = "Test negative object initializers scenarios")
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 8);
+        Assert.assertEquals(result.getErrorCount(), 12);
         int i = 0;
         validateError(result, i++, "redeclared symbol 'Foo.init'", 23, 14);
         validateError(result, i++,
@@ -96,8 +96,13 @@ public class ObjectInitializerTest {
         validateError(result, i++,
                 "invalid object constructor return type '(FooErr|BarErr)', expected a subtype of 'error?' " +
                         "containing '()'", 89, 29);
-        validateError(result, i, "object 'init' method call is allowed only within the type descriptor",
+        validateError(result, i++, "object 'init' method call is allowed only within the type descriptor",
                 106, 5);
+        validateError(result, i++, "unknown type 'User'", 110, 13);
+        validateError(result, i++, "unknown type 'User'", 111, 13);
+        validateError(result, i++, "unknown type 'User'", 115, 19);
+        validateError(result, i, "unknown type 'User'", 116, 19);
+
     }
 
     @Test(description = "Test error returning object initializer invocation")

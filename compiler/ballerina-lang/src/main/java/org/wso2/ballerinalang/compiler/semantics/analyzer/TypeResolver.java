@@ -624,7 +624,7 @@ public class TypeResolver {
         Location pos = td.pos;
         LocationData locationData = new LocationData(td.typeName.value, pos.lineRange().startLine().line(),
                 pos.lineRange().startLine().offset());
-        return unknownTypeRefs.add(locationData);
+        return dlog.isMute() || unknownTypeRefs.add(locationData);
     }
 
     public BType validateModuleLevelDef(String name, Name pkgAlias, Name typeName, BLangUserDefinedType td) {

@@ -105,3 +105,13 @@ function callInitFunction() {
     Too t = new;
     t.init(); // invalid
 }
+
+function initUndefinedClass() {
+    _ = new User();
+    _ = new User("val");
+}
+
+function initUndefinedClassWithCheck() {
+    _ = check new User();
+    _ = check new User(1, flag=false);
+}
