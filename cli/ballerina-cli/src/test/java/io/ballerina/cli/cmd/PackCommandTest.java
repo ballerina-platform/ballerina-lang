@@ -70,21 +70,6 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack a library package", dataProvider = "optimizeDependencyCompilation")
     public void testPackProject(Boolean optimizeDependencyCompilation) throws IOException {
-        Path projectPath = this.testResources.resolve(VALID_PROJECT);
-        System.setProperty(USER_DIR, projectPath.toString());
-
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parseArgs();
-        packCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("compile-bal-project.txt"));
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-    }
-
-    @Test(description = "Pack a library package")
-    public void testPackProject() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         System.setProperty(USER_DIR, projectPath.toString());
 
@@ -148,11 +133,10 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack an application package")
-    public void testPackApplicationPackage(Boolean optimizeDependencyCompilation) {
+    public void testPackApplicationPackage() {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty(USER_DIR, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
-                optimizeDependencyCompilation);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         try {
             packCommand.execute();
@@ -300,14 +284,12 @@ public class PackCommandTest extends BaseCommandTest {
                 projectPath.resolve("resources").resolve("expectedDependencies.toml"));
     }
 
-    @Test(description = "Pack a package without root package in Dependencies.toml",
-            dataProvider = "optimizeDependencyCompilation")
-    public void testPackageWithoutRootPackageInDependenciesToml(Boolean optimizeDependencyCompilation)
+    @Test(description = "Pack a package without root package in Dependencies.toml")
+    public void testPackageWithoutRootPackageInDependenciesToml()
             throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWoRootPkgInDepsToml");
         System.setProperty(USER_DIR, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
-                optimizeDependencyCompilation);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
