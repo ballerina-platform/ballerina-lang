@@ -77,29 +77,29 @@ final class PredefinedTypeEnv {
 
     // This is to avoid passing down env argument when doing cell type operations.
     // Please refer to the cellSubtypeDataEnsureProper() in cell.bal
-    private final Supplier<CellAtomicType> cellAtomicVal = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicVal = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
-    private final Supplier<CellAtomicType> cellAtomicNever = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicNever = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(Builder.neverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
 
     // Represent the typeAtom required to construct equivalent subtypes of map<any|error> and (any|error)[].
-    private final Supplier<CellAtomicType> cellAtomicInner = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicInner = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(Builder.inner(), CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
 
     // TypeAtoms related to (map<any|error>)[]. This is to avoid passing down env argument when doing
     // tableSubtypeComplement operation.
-    private final Supplier<CellAtomicType> cellAtomicInnerMapping = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicInnerMapping = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(union(Builder.mappingType(), Builder.undef()),
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
-    private final Supplier<ListAtomicType> listAtomicMapping = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<ListAtomicType> listAtomicMapping = new ConcurrentLazySupplierWithCallback<>(
             () -> new ListAtomicType(FixedLengthArray.empty(), basicSubType(
                     BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInnerMapping())))),
             this::addInitializedListAtom
@@ -108,70 +108,70 @@ final class PredefinedTypeEnv {
     // TypeAtoms related to readonly type. This is to avoid requiring context when referring to readonly type.
     // CELL_ATOMIC_INNER_MAPPING_RO & LIST_ATOMIC_MAPPING_RO are typeAtoms required to construct
     // readonly & (map<readonly>)[] which is then used for readonly table type when constructing VAL_READONLY
-    private final Supplier<CellAtomicType> cellAtomicInnerMappingRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicInnerMappingRO = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(union(Builder.mappingRO(), Builder.undef()),
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED),
             this::addInitializedCellAtom
     );
-    private final Supplier<ListAtomicType> listAtomicMappingRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<ListAtomicType> listAtomicMappingRO = new ConcurrentLazySupplierWithCallback<>(
             () -> new ListAtomicType(FixedLengthArray.empty(), basicSubType(
                     BT_CELL, BCellSubType.createDelegate(bddAtom(atomCellInnerMappingRO())))),
             this::addInitializedListAtom
     );
-    private final Supplier<CellAtomicType> cellAtomicInnerRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicInnerRO = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(Builder.innerReadOnly(), CellAtomicType.CellMutability.CELL_MUT_NONE),
             this::addInitializedCellAtom
     );
 
     // TypeAtoms related to [any|error, any|error]. This is to avoid passing down env argument when doing
     // streamSubtypeComplement operation.
-    private final Supplier<CellAtomicType> cellAtomicUndef = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<CellAtomicType> cellAtomicUndef = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(Builder.undef(), CellAtomicType.CellMutability.CELL_MUT_NONE),
             this::addInitializedCellAtom
     );
 
     private final Supplier<CellAtomicType> cellAtomicObjectMember =
-            new ConcurrentLazyContainerWithCallback<>(
+            new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
                             mappingSemTypeObjectMember(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED),
                     this::addInitializedCellAtom);
 
     private final Supplier<CellAtomicType> cellAtomicObjectMemberKind =
-            new ConcurrentLazyContainerWithCallback<>(
+            new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
                             union(stringConst("field"), stringConst("method")),
                             CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
 
     private final Supplier<CellAtomicType> cellAtomicObjectMemberRO =
-            new ConcurrentLazyContainerWithCallback<>(
+            new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
                             mappingSemTypeObjectMemberRO(), CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
     private final Supplier<CellAtomicType> cellAtomicObjectMemberVisibility =
-            new ConcurrentLazyContainerWithCallback<>(
+            new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
                             union(stringConst("public"), stringConst("private")),
                             CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
     private final Supplier<CellAtomicType> cellAtomicValRO =
-            new ConcurrentLazyContainerWithCallback<>(
+            new ConcurrentLazySupplierWithCallback<>(
                     () -> CellAtomicType.from(
                             Builder.readonlyType(), CellAtomicType.CellMutability.CELL_MUT_NONE),
                     this::addInitializedCellAtom);
-    private final Supplier<ListAtomicType> listAtomicRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<ListAtomicType> listAtomicRO = new ConcurrentLazySupplierWithCallback<>(
             () -> new ListAtomicType(FixedLengthArray.empty(), cellSemTypeInnerRO()),
             // FIXME: create a method to do this
             this.initializedRecListAtoms::add
     );
-    private final Supplier<MappingAtomicType> mappingAtomicObject = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<MappingAtomicType> mappingAtomicObject = new ConcurrentLazySupplierWithCallback<>(
             () -> new MappingAtomicType(
                     new String[]{"$qualifiers"}, new SemType[]{cellSemTypeVal()},
                     cellSemTypeObjectMember()
             ),
             this::addInitializedMapAtom
     );
-    private final Supplier<MappingAtomicType> mappingAtomicObjectMember = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<MappingAtomicType> mappingAtomicObjectMember = new ConcurrentLazySupplierWithCallback<>(
             () -> new MappingAtomicType(
                     new String[]{"kind", "value", "visibility"},
                     new SemType[]{cellSemTypeObjectMemberKind(), cellSemTypeVal(),
@@ -179,7 +179,7 @@ final class PredefinedTypeEnv {
                     cellSemTypeUndef()),
             this::addInitializedMapAtom
     );
-    private final Supplier<MappingAtomicType> mappingAtomicObjectMemberRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<MappingAtomicType> mappingAtomicObjectMemberRO = new ConcurrentLazySupplierWithCallback<>(
             () -> new MappingAtomicType(
                     new String[]{"kind", "value", "visibility"},
                     new SemType[]{cellSemTypeObjectMemberKind(), cellSemTypeValRO(),
@@ -187,7 +187,7 @@ final class PredefinedTypeEnv {
                     cellSemTypeUndef()),
             this::addInitializedMapAtom
     );
-    private final Supplier<MappingAtomicType> mappingAtomicObjectRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<MappingAtomicType> mappingAtomicObjectRO = new ConcurrentLazySupplierWithCallback<>(
             () -> new MappingAtomicType(
                     new String[]{"$qualifiers"}, new SemType[]{cellSemTypeVal()},
                     cellSemTypeObjectMemberRO()
@@ -195,7 +195,7 @@ final class PredefinedTypeEnv {
             // FIXME:
             initializedRecMappingAtoms::add
     );
-    private final Supplier<MappingAtomicType> mappingAtomicRO = new ConcurrentLazyContainerWithCallback<>(
+    private final Supplier<MappingAtomicType> mappingAtomicRO = new ConcurrentLazySupplierWithCallback<>(
             () -> new MappingAtomicType(new String[]{}, new SemType[]{}, cellSemTypeInnerRO()),
             // FIXME:
             initializedRecMappingAtoms::add
@@ -228,8 +228,10 @@ final class PredefinedTypeEnv {
             createTypeAtomSupplierFromCellAtomicSupplier(cellAtomicValRO, this::cellAtomIndex);
     private final Supplier<TypeAtom> atomListMapping =
             createTypeAtomSupplierFromCellAtomicSupplier(listAtomicMapping, this::listAtomIndex);
-    private TypeAtom atomListMappingRO;
-    private TypeAtom atomMappingObject;
+    private final Supplier<TypeAtom> atomListMappingRO =
+            createTypeAtomSupplierFromCellAtomicSupplier(listAtomicMappingRO, this::listAtomIndex);
+    private final Supplier<TypeAtom> atomMappingObject =
+            createTypeAtomSupplierFromCellAtomicSupplier(mappingAtomicObject, this::mappingAtomIndex);
     private TypeAtom atomMappingObjectMember;
     private TypeAtom atomMappingObjectMemberRO;
 
@@ -322,12 +324,8 @@ final class PredefinedTypeEnv {
         return listAtomicMappingRO.get();
     }
 
-    synchronized TypeAtom atomListMappingRO() {
-        if (atomListMappingRO == null) {
-            ListAtomicType listAtomicMappingRO = listAtomicMappingRO();
-            atomListMappingRO = createTypeAtom(listAtomIndex(listAtomicMappingRO), listAtomicMappingRO);
-        }
-        return atomListMappingRO;
+    TypeAtom atomListMappingRO() {
+        return atomListMappingRO.get();
     }
 
     CellAtomicType cellAtomicInnerRO() {
@@ -358,7 +356,7 @@ final class PredefinedTypeEnv {
         return mappingAtomicObjectMemberRO.get();
     }
 
-    synchronized TypeAtom atomMappingObjectMemberRO() {
+    TypeAtom atomMappingObjectMemberRO() {
         if (atomMappingObjectMemberRO == null) {
             MappingAtomicType mappingAtomicObjectMemberRO = mappingAtomicObjectMemberRO();
             atomMappingObjectMemberRO = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMemberRO),
@@ -395,7 +393,7 @@ final class PredefinedTypeEnv {
         return mappingAtomicObjectMember.get();
     }
 
-    synchronized TypeAtom atomMappingObjectMember() {
+    TypeAtom atomMappingObjectMember() {
         if (atomMappingObjectMember == null) {
             MappingAtomicType mappingAtomicObjectMember = mappingAtomicObjectMember();
             atomMappingObjectMember = createTypeAtom(mappingAtomIndex(mappingAtomicObjectMember),
@@ -416,19 +414,15 @@ final class PredefinedTypeEnv {
         return mappingAtomicObject.get();
     }
 
-    synchronized TypeAtom atomMappingObject() {
-        if (atomMappingObject == null) {
-            MappingAtomicType mappingAtomicObject = mappingAtomicObject();
-            atomMappingObject = createTypeAtom(mappingAtomIndex(mappingAtomicObject), mappingAtomicObject);
-        }
-        return atomMappingObject;
+    TypeAtom atomMappingObject() {
+        return atomMappingObject.get();
     }
 
     ListAtomicType listAtomicRO() {
         return listAtomicRO.get();
     }
 
-    synchronized MappingAtomicType mappingAtomicRO() {
+    MappingAtomicType mappingAtomicRO() {
         return mappingAtomicRO.get();
     }
 
@@ -518,7 +512,7 @@ final class PredefinedTypeEnv {
 
     private static <E extends AtomicType> Supplier<TypeAtom> createTypeAtomSupplierFromCellAtomicSupplier(
             Supplier<E> atomicTypeSupplier, IndexSupplier<E> indexSupplier) {
-        return new ConcurrentLazyContainer<>(() -> {
+        return new ConcurrentLazySupplier<>(() -> {
             E atomicType = atomicTypeSupplier.get();
             int index = indexSupplier.get(atomicType);
             return createTypeAtom(index, atomicType);

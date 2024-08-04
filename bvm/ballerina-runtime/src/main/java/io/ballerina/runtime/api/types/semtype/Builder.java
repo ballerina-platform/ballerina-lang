@@ -90,33 +90,33 @@ public final class Builder {
     private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
 
     public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
-    private static final ConcurrentLazyContainer<SemType> READONLY_TYPE = new ConcurrentLazyContainer<>(() -> unionOf(
+    private static final ConcurrentLazySupplier<SemType> READONLY_TYPE = new ConcurrentLazySupplier<>(() -> unionOf(
             SemType.from(VT_INHERENTLY_IMMUTABLE),
             basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
             basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO)),
             basicSubType(BT_XML, XmlUtils.XML_SUBTYPE_RO)
     ));
-    private static final ConcurrentLazyContainer<SemType> MAPPING_RO = new ConcurrentLazyContainer<>(() ->
+    private static final ConcurrentLazySupplier<SemType> MAPPING_RO = new ConcurrentLazySupplier<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
     );
-    private static final ConcurrentLazyContainer<SemType> INNER_RO =
-            new ConcurrentLazyContainer<>(() -> union(readonlyType(), inner()));
+    private static final ConcurrentLazySupplier<SemType> INNER_RO =
+            new ConcurrentLazySupplier<>(() -> union(readonlyType(), inner()));
 
-    private static final ConcurrentLazyContainer<ListAtomicType> LIST_ATOMIC_INNER =
-            new ConcurrentLazyContainer<>(() -> new ListAtomicType(
+    private static final ConcurrentLazySupplier<ListAtomicType> LIST_ATOMIC_INNER =
+            new ConcurrentLazySupplier<>(() -> new ListAtomicType(
                     FixedLengthArray.empty(), PredefinedTypeEnv.getInstance().cellSemTypeInner()));
-    private static final ConcurrentLazyContainer<MappingAtomicType> MAPPING_ATOMIC_INNER =
-            new ConcurrentLazyContainer<>(() -> new MappingAtomicType(
+    private static final ConcurrentLazySupplier<MappingAtomicType> MAPPING_ATOMIC_INNER =
+            new ConcurrentLazySupplier<>(() -> new MappingAtomicType(
                     EMPTY_STRING_ARR, EMPTY_TYPES_ARR, PredefinedTypeEnv.getInstance().cellSemTypeInner()));
 
-    private static final ConcurrentLazyContainer<SemType> XML_ELEMENT = new ConcurrentLazyContainer<>(() ->
+    private static final ConcurrentLazySupplier<SemType> XML_ELEMENT = new ConcurrentLazySupplier<>(() ->
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_ELEMENT_RO | XmlUtils.XML_PRIMITIVE_ELEMENT_RW));
-    private static final ConcurrentLazyContainer<SemType> XML_COMMENT = new ConcurrentLazyContainer<>(() ->
+    private static final ConcurrentLazySupplier<SemType> XML_COMMENT = new ConcurrentLazySupplier<>(() ->
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_COMMENT_RO | XmlUtils.XML_PRIMITIVE_COMMENT_RW));
-    private static final ConcurrentLazyContainer<SemType> XML_TEXT = new ConcurrentLazyContainer<>(() ->
+    private static final ConcurrentLazySupplier<SemType> XML_TEXT = new ConcurrentLazySupplier<>(() ->
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
-    private static final ConcurrentLazyContainer<SemType> XML_PI = new ConcurrentLazyContainer<>(() ->
+    private static final ConcurrentLazySupplier<SemType> XML_PI = new ConcurrentLazySupplier<>(() ->
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW));
 
     private static final PredefinedTypeEnv PREDEFINED_TYPE_ENV = PredefinedTypeEnv.getInstance();
@@ -210,7 +210,7 @@ public final class Builder {
             default -> {
                 if (Integer.bitCount(bitset) == 1) {
                     int code = Integer.numberOfTrailingZeros(bitset);
-                    // FIXME: this should always be true
+                    // TODO: what are the others?
                     if (BasicTypeCache.isCached(code)) {
                         yield BasicTypeCache.cache[code];
                     }
