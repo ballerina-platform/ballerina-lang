@@ -121,7 +121,8 @@ import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 public final class TypeChecker {
 
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final Map<Long, Context> contexts = new HashMap<>(10);
+    private final static ThreadLocal<Context> threadContext =
+            ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -153,15 +154,7 @@ public final class TypeChecker {
     static Context context() {
         // We are pinning each context to thread. This depends on the assumption physical thread is not going to
         // get switched while type checking. Also for the same reason we don't need to synchronize this method.
-        Thread currentThread = Thread.currentThread();
-        long threadID = currentThread.getId();
-        Context cx = contexts.get(threadID);
-        if (cx != null) {
-            return cx;
-        }
-        cx = Context.from(Env.getInstance());
-        contexts.put(threadID, cx);
-        return cx;
+        return threadContext.get();
     }
 
     public static long anyToInt(Object sourceVal) {
