@@ -562,7 +562,7 @@ public class PackageResolutionTests extends BaseTest {
             initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
         }
         Project project = TestUtils.loadProject(
-                Paths.get("projects_for_resolution_tests/ultimate_package_resolution/package_http"),
+                Path.of("projects_for_resolution_tests/ultimate_package_resolution/package_http"),
                 BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
