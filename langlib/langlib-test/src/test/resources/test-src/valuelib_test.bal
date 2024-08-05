@@ -4713,8 +4713,8 @@ function testEnsureTypeJsonToNestedRecordsWithErrors() {
     Factory|error val = trap clonedJsonVal.ensureType(Factory);
 
     error err = <error>val;
-    string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory': ";
-    string errorMsg = errorMsgPrefix + errorMsgContent;
+    string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory'";
+    string errorMsg = errorMsgPrefix;
     assert(<string>checkpanic err.detail()["message"], errorMsg);
     assert(err.message(), "{ballerina}TypeCastError");
 }
