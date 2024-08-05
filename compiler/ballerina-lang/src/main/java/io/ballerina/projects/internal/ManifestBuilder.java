@@ -51,7 +51,6 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
@@ -73,7 +72,6 @@ import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToSt
 import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -97,7 +95,6 @@ public class ManifestBuilder {
     Set<String> targetModuleSet = new HashSet<>();
 
     private static final String PACKAGE = "package";
-    private static final String MODULES = "modules";
     private static final String VERSION = "version";
     public static final String ORG = "org";
     public static final String NAME = "name";
@@ -114,7 +111,6 @@ public class ManifestBuilder {
     private static final String PATH = "path";
     private static final String TEMPLATE = "template";
     public static final String ICON = "icon";
-    public static final String README = "readme";
     public static final String GRAALVM_COMPATIBLE = "graalvmCompatible";
     public static final String DISTRIBUTION = "distribution";
     public static final String VISIBILITY = "visibility";
@@ -201,8 +197,6 @@ public class ManifestBuilder {
         String visibility = "";
         boolean template = false;
         String icon = "";
-        String readme = null;
-        Map<String, String> moduleReadmes = new HashMap<>();
 
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get(PACKAGE);
@@ -218,28 +212,9 @@ public class ManifestBuilder {
                 visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
                 icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
-                readme = getStringValueFromTomlTableNode(pkgNode, README, null);
 
                 // we ignore file types except png here, since file type error will be shown
                 validateIconPathForPng(icon, pkgNode);
-                
-                // validate the path for readme. Only MD format is allowed
-                validateFileForREADME(readme, pkgNode, packageDescriptor.name().toString());
-
-                TopLevelNode modulesTopLevelNode = ((TomlTableNode) topLevelPkgNode).entries().get(MODULES);
-                if (modulesTopLevelNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
-                    TomlTableNode modulesNode = (TomlTableNode) modulesTopLevelNode;
-                    for (String key : modulesNode.entries().keySet()) {
-                        TomlTableNode  tomlTableNode = (TomlTableNode) modulesNode.entries().get(key);
-                        for (String modKey : tomlTableNode.entries().keySet()) {
-                            String value = getStringValueFromTomlTableNode(
-                                    (TomlTableNode) tomlTableNode.entries().get(modKey), README);
-                            if (value != null) {
-                                moduleReadmes.put(key + DOT + modKey, value);
-                            }
-                        }
-                    }
-                }
             }
         }
 
@@ -262,7 +237,7 @@ public class ManifestBuilder {
         // Process local repo dependencies
         List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
-        // Process pre-build generator tools
+        // Process pre build generator tools
         List<PackageManifest.Tool> tools = getTools();
 
         // Compiler plugin descriptor
@@ -278,28 +253,7 @@ public class ManifestBuilder {
         }
         return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
                 localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
-                repository, ballerinaVersion, visibility, template, icon, readme, moduleReadmes, tools);
-    }
-
-    private void validateFileForREADME(String readme, TomlTableNode pkgNode, String pkgName) {
-        if (readme == null) {
-            return;
-        }
-        Path readmePath = Paths.get(readme);
-        if (!FilenameUtils.getExtension(readme).equals("md")) {
-            reportDiagnostic(pkgNode.entries().get(README),
-                    "invalid 'readme' under [package]: 'readme' can only have '.md' files",
-                    ProjectDiagnosticErrorCode.INVALID_FILE_FORMAT, DiagnosticSeverity.ERROR);
-        }
-        if (!readmePath.isAbsolute()) {
-            readmePath = this.projectPath.resolve(readmePath);
-        }
-
-        if (Files.notExists(readmePath)) {
-            reportDiagnostic(pkgNode.entries().get(README),
-                    "could not locate the readme file '" + readmePath + "'",
-                    ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
-            }
+                repository, ballerinaVersion, visibility, template, icon, tools);
     }
 
     private List<PackageManifest.Tool> getTools() {
@@ -485,7 +439,7 @@ public class ManifestBuilder {
                     if (!FileUtils.isValidPng(iconPath)) {
                         reportDiagnostic(pkgNode.entries().get("icon"),
                                 "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                ProjectDiagnosticErrorCode.INVALID_FILE_FORMAT, DiagnosticSeverity.ERROR);
+                                ProjectDiagnosticErrorCode.INVALID_ICON, DiagnosticSeverity.ERROR);
                     }
                 } catch (IOException e) {
                     // should not reach to this line
@@ -745,6 +699,8 @@ public class ManifestBuilder {
                 CompilerOptionName.REMOTE_MANAGEMENT.toString());
         Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
+        Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -760,7 +716,8 @@ public class ManifestBuilder {
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setRemoteManagement(remoteManagement)
-                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

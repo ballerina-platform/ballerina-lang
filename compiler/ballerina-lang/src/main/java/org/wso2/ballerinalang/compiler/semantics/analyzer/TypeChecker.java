@@ -3292,8 +3292,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                            SOURCE);
 
         if (restParam == null) {
-            bRecordType.sealed = true;
-            bRecordType.restFieldType = symTable.noType;
+            bRecordType.restFieldType = symTable.anyOrErrorType;
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
@@ -8666,6 +8665,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.jsonType;
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
                 return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
@@ -8760,7 +8762,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return false;
         }
 
-        if (type.tag == TypeTags.XML) {
+        if (types.isAssignable(bType, symTable.xmlType)) {
             return true;
         }
 

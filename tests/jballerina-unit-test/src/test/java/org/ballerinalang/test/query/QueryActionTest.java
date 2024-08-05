@@ -200,6 +200,11 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testIfStmtInsideDoClause");
     }
 
+    @Test
+    public void testRecordDestructureWithRecordLiteralInsideDoClause() {
+        BRunUtil.invoke(result, "testRecordDestructureWithRecordLiteralInsideDoClause");
+    }
+
     @Test(dataProvider = "dataToTestQueryActionWithVar")
     public void testQueryActionWithVar(String functionName) {
         BRunUtil.invoke(result, functionName);
