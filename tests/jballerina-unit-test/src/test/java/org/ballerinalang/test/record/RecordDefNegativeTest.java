@@ -134,6 +134,13 @@ public class RecordDefNegativeTest {
                 80, 13);
         BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
                 85, 13);
-        Assert.assertEquals(compileResult.getErrorCount(), i);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                97, 14);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression operator: no " +
+                "expression type is equivalent to error type", 97, 20);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                98, 16);
+        Assert.assertEquals(compileResult.getErrorCount(), i - 1);
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
     }
 }

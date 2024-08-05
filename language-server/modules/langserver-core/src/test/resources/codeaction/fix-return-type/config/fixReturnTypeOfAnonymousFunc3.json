@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 12,
+    "character": 28
+  },
+  "source": "fixReturnTypeOfAnonymousFunc.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string|error'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 78
+            },
+            "end": {
+              "line": 11,
+              "character": 84
+            }
+          },
+          "newText": "string|error"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

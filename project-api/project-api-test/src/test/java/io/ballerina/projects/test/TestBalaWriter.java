@@ -218,14 +218,14 @@ public class TestBalaWriter {
                 .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
         Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
+        // package resources
+        Assert.assertTrue(balaExportPath.resolve(Paths.get("resources", "main.json")).toFile().exists());
         // module sources
         // default module
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("utils.bal")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources", "main.json")).toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("modules").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("targets").toFile().exists());
@@ -235,8 +235,6 @@ public class TestBalaWriter {
         // storage module
         Path storageModuleSrcPath = balaExportPath.resolve("modules").resolve("winery.storage");
         Assert.assertTrue(storageModuleSrcPath.resolve("db.bal").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").resolve("db.json").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 

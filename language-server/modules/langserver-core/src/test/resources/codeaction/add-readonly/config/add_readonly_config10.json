@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 26,
+    "character": 17
+  },
+  "source": "add_readonly2.bal",
+  "description": "Add readonly to array type",
+  "expected": [
+    {
+      "title": "Add readonly to 'int[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 18
+            },
+            "end": {
+              "line": 2,
+              "character": 18
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

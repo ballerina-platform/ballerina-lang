@@ -34,6 +34,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -661,12 +662,32 @@ public class CodeActionUtil {
     }
 
     /**
+     * Given a node, tries to find the {@link ExplicitAnonymousFunctionExpressionNode}
+     * which is enclosing the given node.
+     *
+     * @param matchedNode Node which is enclosed within a function
+     * @return Optional function definition node
+     */
+    public static Optional<ExplicitAnonymousFunctionExpressionNode> getEnclosingAnonFuncExpr(Node matchedNode) {
+        if (matchedNode == null) {
+            return Optional.empty();
+        }
+        while (matchedNode.parent() != null) {
+            if (matchedNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
+                return Optional.of((ExplicitAnonymousFunctionExpressionNode) matchedNode);
+            }
+            matchedNode = matchedNode.parent();
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Given a node, tries to find the {@link FunctionDefinitionNode} which is enclosing the given node. Supports
      * {@link SyntaxKind#FUNCTION_DEFINITION}, {@link SyntaxKind#OBJECT_METHOD_DEFINITION} and
      * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
      *
      * @param matchedNode Node which is enclosed within a function
-     * @return Optional function defintion node
+     * @return Optional function definition node
      */
     public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
         if (matchedNode == null) {

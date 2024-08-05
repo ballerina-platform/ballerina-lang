@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 12,
+    "character": 28
+  },
+  "source": "fixReturnTypeOfAnonymousFuncNegative.bal",
+  "expected": [
+  ]
+}

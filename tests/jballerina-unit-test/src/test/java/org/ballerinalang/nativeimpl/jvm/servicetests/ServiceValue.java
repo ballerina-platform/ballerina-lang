@@ -163,7 +163,7 @@ public class ServiceValue {
         return null;
     }
 
-    private static String generateMethodName(BString methodName, ArrayValue path) {
+    public static String generateMethodName(BString methodName, ArrayValue path) {
         StringBuilder funcName = new StringBuilder();
         funcName.append("$").append(methodName.getValue());
         for (int i = 0; i < path.size(); i++) {

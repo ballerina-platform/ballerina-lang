@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 5,
+    "character": 27
+  },
+  "source": "add_readonly11.bal",
+  "description": "Add readonly to a class variable value",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<int>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 24
+            },
+            "end": {
+              "line": 3,
+              "character": 24
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

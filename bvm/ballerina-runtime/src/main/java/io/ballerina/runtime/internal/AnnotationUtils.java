@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
@@ -58,7 +59,13 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG && type.getTag() != TypeTags.SERVICE_TAG) {
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            Type impliedType = TypeUtils.getImpliedType(type);
+            if (isNonObjectType(impliedType.getTag())) {
+                return;
+            }
+            type = (BAnnotatableType) impliedType;
+        } else if (isNonObjectType(type.getTag())) {
             return;
         }
         BObjectType objectType = (BObjectType) type;
@@ -73,6 +80,10 @@ public class AnnotationUtils {
                 setMethodAnnotations(globalAnnotMap, annotationKey, (BMethodType) resourceMethod);
             }
         }
+    }
+
+    private static boolean isNonObjectType(int impliedTypeTag) {
+        return impliedTypeTag != TypeTags.OBJECT_TYPE_TAG && impliedTypeTag != TypeTags.SERVICE_TAG;
     }
 
     private static void setMethodAnnotations(MapValue<BString, Object> globalAnnotMap, BString annotationKey,

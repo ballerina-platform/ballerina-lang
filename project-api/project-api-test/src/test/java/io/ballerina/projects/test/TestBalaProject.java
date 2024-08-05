@@ -334,36 +334,19 @@ public class TestBalaProject {
     public void testLoadResourcesFromBala() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
         Project balaProject = TestUtils.loadProject(balaPath);
-        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
-            Module module = balaProject.currentPackage().module(moduleId);
-            if (module.moduleName().toString().equals("winery")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "main.json");
-            } else if (module.moduleName().toString().equals("winery.storage")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "db.json");
-            } else {
-                Assert.assertEquals(module.resourceIds().size(), 4);
-            }
-        }
+        // Ignores module level resources
+        Assert.assertEquals(balaProject.currentPackage().resourceIds().size(), 1);
     }
 
     @Test
     public void testLoadResourcesFromExtractedBala() {
         Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
         Project balaProject = TestUtils.loadProject(balaPath);
-        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
-            Module module = balaProject.currentPackage().module(moduleId);
-            if (module.moduleName().toString().equals("a")) {
-                Assert.assertEquals(module.resourceIds().size(), 1);
-                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
-                        "config/default.conf");
-            } else {
-                Assert.assertEquals(module.resourceIds().size(), 0);
-            }
-        }
+        Package pkg = balaProject.currentPackage();
+        Assert.assertEquals(pkg.resourceIds().size(), 1);
+        Assert.assertEquals(pkg.resource(
+                        pkg.resourceIds().stream().findFirst().orElseThrow()).name(),
+                "config/default.conf");
     }
 
     @Test(description = "tests calling targetDir for balaProjects")

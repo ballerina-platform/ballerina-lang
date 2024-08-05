@@ -1,0 +1,35 @@
+{
+  "range": {
+    "start": {
+      "line": 11,
+      "character": 31
+    },
+    "end": {
+      "line": 11,
+      "character": 45
+    }
+  },
+  "source": "convertToConfigurable.bal",
+  "expected": [
+    {
+      "title": "Convert to configurable",
+      "kind": "",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 0
+            },
+            "end": {
+              "line": 11,
+              "character": 0
+            }
+          },
+          "newText": "configurable "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

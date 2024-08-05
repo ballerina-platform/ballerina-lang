@@ -45,7 +45,7 @@ public class ProjectPaths {
     public static Path packageRoot(Path filepath) throws ProjectException {
         // check if the file exists
         if (!Files.exists(filepath)) {
-            throw new ProjectException("provided path does not exist:" + filepath);
+            throw new ProjectException("'" + filepath + "'" + " does not exist");
         }
 
         if (Files.isDirectory(filepath)) {
@@ -62,7 +62,7 @@ public class ProjectPaths {
 
         // check if the file is a regular file
         if (!Files.isRegularFile(filepath)) {
-            throw new ProjectException("provided path is not a regular file: " + filepath);
+            throw new ProjectException("'" + filepath + "'" + " is not a regular file");
         }
 
         // Check if the file is inside a Ballerina package directory
@@ -79,7 +79,7 @@ public class ProjectPaths {
             }
 
             if (!isBalFile(filepath)) {
-                throw new ProjectException("provided path is not a valid Ballerina source file: " + filepath);
+                throw new ProjectException("'" + filepath + "' is not a valid Ballerina source file");
             }
 
             // check if the file is a source file in the default module

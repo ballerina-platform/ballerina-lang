@@ -71,15 +71,6 @@ function testTupleDestructure() {
                 };
 }
 
-function testRecordDestructure() {
-    _ = from var {name, price} in [{name: "Saman", price: 11}]
-                group by name
-                do {
-                    int[] prices;
-                    {prices} = {prices: [price]}; // error
-                };
-}
-
 function testSeqVarInInvalidPositions2() {
     var input = [{name: "Saman", price1: 11}];
     var xx = from var item in input

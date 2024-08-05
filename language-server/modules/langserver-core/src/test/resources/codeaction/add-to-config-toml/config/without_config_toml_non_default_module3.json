@@ -1,0 +1,22 @@
+{
+  "position": {
+    "line": 0,
+    "character": 6
+  },
+  "source": "project1/modules/mod1/mod1.bal",
+  "expected": [
+    {
+      "title": "Add to Config.toml",
+      "kind": "",
+      "command": {
+        "title": "Add to Config.toml",
+        "command": "create.config.toml",
+        "arguments": [
+          "project1/Config.toml",
+          "xc = \"\"\n"
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

@@ -23,6 +23,7 @@ path = "../dummy-jars/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
+graavmCompatible = true
 
 [build-options]
 observabilityIncluded = false

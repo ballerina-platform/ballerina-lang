@@ -235,3 +235,19 @@ function testObjectConstructor() {
 }
 
 isolated function fn() returns int|error => 0;
+
+isolated function intFunc() returns int => 1;
+
+class Corge {
+    int i1 = check intFunc();
+    int i2 = check fn();
+};
+
+class Grault {
+    int i1 = check intFunc();
+    int i2 = check fn();
+
+    function init() returns MyError? {
+
+    }
+}

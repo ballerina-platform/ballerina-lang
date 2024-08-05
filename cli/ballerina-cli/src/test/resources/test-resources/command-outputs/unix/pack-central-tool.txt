@@ -1,5 +1,3 @@
-WARNING [sample_tool_template] The use of Package.md and Module.md is deprecated. Update the package to add a README.md file.
-
 Compiling source
 	testorg/sample_tool_template:1.0.0
 

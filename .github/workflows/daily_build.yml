@@ -9,7 +9,7 @@ jobs:
   ubuntu_build:
     name: Build with tests on Ubuntu
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 120
 
     steps:
       - name: Checkout Repository

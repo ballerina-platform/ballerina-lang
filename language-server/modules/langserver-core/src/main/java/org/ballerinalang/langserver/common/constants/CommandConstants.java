@@ -124,6 +124,8 @@ public class CommandConstants {
 
     public static final String MAKE_VARIABLE_IMMUTABLE = "Add %s to the variable";
 
+    public static final String ADD_READONLY = "Add readonly to '%s'";
+
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
     public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
@@ -206,4 +208,20 @@ public class CommandConstants {
     public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
 
     public static final String RENAME_COMMAND_TITLE_FOR_FUNCTION = "Rename function";
+
+    public static final String CLONE_VALUE = "Clone the value";
+
+    public static final String CLONE_READONLY_VALUE = "Clone as a readonly value";
+
+    public static final String EXTRACT_TO_CONFIGURABLE = "Extract to configurable";
+
+    public static final String RENAME_COMMAND_TITLE_FOR_CONFIGURABLE = "Rename configurable";
+
+    public static final String CONVERT_TO_CONFIGURABLE = "Convert to configurable";
+
+    public static final String ADD_TO_CONFIG_TOML = "Add to Config.toml";
+
+    public static final String ADD_ALL_TO_CONFIG_TOML = "Add all to Config.toml";
+
+    public static final String CREATE_CONFIG_TOML_COMMAND = "create.config.toml";
 }

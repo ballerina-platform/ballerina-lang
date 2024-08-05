@@ -45,6 +45,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -52,6 +53,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -754,6 +756,28 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
+    /**
+     * Checks if there are multiple diagnostics for the considered code action.
+     *
+     * @param context               The code action context
+     * @param node                  The non-terminal node around which the diagnostics are being checked
+     * @param currentDiagnostic     The current diagnostic being evaluated
+     * @param diagnostics           The diagnostics relevant to the code action
+     * @param prioritizedDiagnostic The prioritized diagnostic that won't being ignored.
+     * @return {@code true} if there are multiple diagnostics for the relevant code action.
+     */
+    public static boolean hasMultipleDiagnostics(CodeActionContext context, NonTerminalNode node,
+                                                 Diagnostic currentDiagnostic,
+                                                 Set<String> diagnostics,
+                                                 String prioritizedDiagnostic) {
+        List<Diagnostic> projectDiagnostics = context.diagnostics(context.filePath());
+        return projectDiagnostics.size() > 1 &&
+                projectDiagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
+                        diagnostics.contains(diagnostic.diagnosticInfo().code()) &&
+                        PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), node.lineRange())) &&
+                currentDiagnostic.diagnosticInfo().code().equals(prioritizedDiagnostic);
     }
 
     /**
