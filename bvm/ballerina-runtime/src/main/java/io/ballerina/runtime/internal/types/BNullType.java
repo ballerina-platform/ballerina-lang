@@ -20,13 +20,16 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BType implements NullType {
+public class BNullType extends BSemTypeWrapper implements NullType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -35,29 +38,49 @@ public class BNullType extends BType implements NullType {
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        super(typeName, pkg, null);
+        this(new BNullTypeImpl(typeName, pkg), Builder.nilType());
     }
 
-    public <V extends Object> V getZeroValue() {
-        return null;
+    BNullType(String typeName, Module pkg, SemType semType) {
+        this(new BNullTypeImpl(typeName, pkg), semType);
     }
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
+    private BNullType(BNullTypeImpl bNullType, SemType semType) {
+        super(bNullType, semType);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.NULL_TAG;
-    }
+    private static final class BNullTypeImpl extends BType implements NullType {
 
-    public boolean isNilable() {
-        return true;
-    }
+        private BNullTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, null);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.NULL_TAG;
+        }
+
+        public boolean isNilable() {
+            return true;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
+
+        @Override
+        SemType createSemType(Context cx) {
+            return Builder.nilType();
+        }
     }
 }
