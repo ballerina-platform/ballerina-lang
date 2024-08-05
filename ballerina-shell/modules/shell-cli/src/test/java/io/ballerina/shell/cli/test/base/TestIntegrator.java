@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -62,8 +61,8 @@ public class TestIntegrator extends Thread {
     @Override
     public void run() {
         try {
-            PrintStream testPrint = new PrintStream(outputStream, true, Charset.defaultCharset());
-            InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
+            PrintStream testPrint = new PrintStream(outputStream, true, StandardCharsets.UTF_8);
+            InputStreamReader inStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             BufferedReader testReader = new BufferedReader(inStreamReader);
 
             // The response here is not testable because it can change.
@@ -117,9 +116,8 @@ public class TestIntegrator extends Thread {
      * Send the data given to the specific stream.
      */
     private void sendRequest(PrintStream stream, String string) throws InterruptedException {
-        stream.append(string);
-        stream.println(System.lineSeparator());
-        stream.flush();
+        // This is a workaround since with double `System.lineSeparator()` the tests fail on windows.
+        stream.append(string).append("\n\n").flush();
     }
 
     /**
