@@ -774,6 +774,65 @@ function testNestedRecordVariableWithAnonymousType() {
     assertTrue(married);
 }
 
+type PersonWithContact record {|
+    string name;
+    record {|
+        "fax"|"mobile" 'type;
+        string number;
+    |}[2] contact;
+|};
+
+function testRecordTypedBindingPatternAgainstRecordLiteralInRecordDestructuring() {
+    record {|string state; int postalCode;|} {state, postalCode} = {state: "Alabama", postalCode: 35004};
+    assertEquality("Alabama", state);
+    assertEquality(35004, postalCode);
+
+    record {|string street; float...;|} {street, ...coordinates} = {street: "Highway 61", "lat": 37.30, "lon": -90.40};
+    assertEquality("Highway 61", street);
+    assertEquality({lat: 37.30, lon: -90.40}, coordinates);
+
+    record {|
+            string street;
+            float lat;
+            float lon;
+        |} {street: street1, ...otherdata} = {street: "Highway 61", "lat": 37.30, "lon": -90.40};
+    assertEquality("Highway 61", street1);
+    assertEquality({lat: 37.30, lon: -90.40}, otherdata);
+
+    record {string state;} {state: state2, ...other} = {state: "Colorado", "postalCode": 80001};
+    assertEquality("Colorado", state2);
+    assertEquality({postalCode: 80001}, other);
+
+    var {country, ...rest} = {country: "USA", postalCode: 80001};
+    assertEquality("USA", country);
+    assertEquality({postalCode: 80001}, rest);
+
+    Address {postalCode: postalCode1, street: street3} =
+                    {postalCode: 80001, street: {streetName: "Highway 61", city: "New York City"}};
+    assertEquality(80001, postalCode1);
+    assertEquality({streetName: "Highway 61", city: "New York City"}, street3);
+
+    Address {street: {city, ...otherStreetDetails}, ...otherAddressDetails} =
+                    {postalCode: 80001, street: {streetName: "Highway 61", city: "New York City"}};
+    assertEquality("New York City", city);
+    assertEquality({streetName: "Highway 61"}, otherStreetDetails);
+    assertEquality({postalCode: 80001}, otherAddressDetails);
+
+    PersonWithContact {name, contact} = {
+            name: "John",
+            contact: [{'type: "fax", number: "056895634"}, {'type: "mobile", number: "0458967234"}]
+        };
+    assertEquality("John", name);
+    assertEquality([{'type: "fax", number: "056895634"}, {'type: "mobile", number: "0458967234"}], contact);
+
+    record {|string name;table<Person> employees;|} {name: companyName, employees} = {
+            name: "Xavier",
+            employees: table [{name: "John", married: true}, {name: "Doe", married: false}]
+        };
+    assertEquality("Xavier", companyName);
+    assertEquality(table [{name: "John", married: true}, {name: "Doe", married: false}], employees);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -782,17 +841,10 @@ function assertTrue(boolean actual) {
     assertEquality(true, actual);
 }
 
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
+function assertEquality(anydata expected, any actual) {
+    if expected == actual {
         return;
     }
 
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
 }

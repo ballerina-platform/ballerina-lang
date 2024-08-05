@@ -117,6 +117,11 @@ OPTIONS
                - target value should be added as : "/home/ballerina/<resource-path>". <resource-path> should be the
                  relative path to the package.
 
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
+
 
 ARGUMENTS
        (-Ckey=value)...

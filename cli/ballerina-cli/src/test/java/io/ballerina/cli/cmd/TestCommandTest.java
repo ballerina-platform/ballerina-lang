@@ -98,13 +98,13 @@ public class TestCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test a valid ballerina file")
-    public void testTestBalFile() {
+    @Test(description = "Test a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
+    public void testTestBalFile(Boolean optimizeDependencyCompilation) {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file/sample_tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
-        TestCommand testCommand = new TestCommand(validBalFilePath, false);
+        TestCommand testCommand = new TestCommand(validBalFilePath, false, optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
@@ -139,7 +139,6 @@ public class TestCommandTest extends BaseCommandTest {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
@@ -153,7 +152,6 @@ public class TestCommandTest extends BaseCommandTest {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error/sample_tests.bal");
         TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs(balFilePath.toString());
         try {
             testCommand.execute();
@@ -167,7 +165,6 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
@@ -179,7 +176,6 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
     }
@@ -188,7 +184,6 @@ public class TestCommandTest extends BaseCommandTest {
     public void testTestBalProjectFromADifferentDirectory() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand buildCommand = new TestCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -247,11 +242,13 @@ public class TestCommandTest extends BaseCommandTest {
                 .toFile().exists());
     }
 
-    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format")
-    public void testUnsupportedCoverageFormat() throws IOException {
+    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testUnsupportedCoverageFormat(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
-                projectPath, printStream, printStream, false, false, true, "html");
+                projectPath, printStream, printStream, false, false, true, "html",
+                optimizeDependencyCompilation);
 
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
@@ -282,11 +279,11 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache/tests_cache/test_suit.json")));
     }
 
-    @Test(description = "Test a ballerina project with --test-report")
-    public void testTestWithReport() {
+    @Test(description = "Test a ballerina project with --test-report", dataProvider = "optimizeDependencyCompilation")
+    public void testTestWithReport(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
-                projectPath, printStream, printStream, false, true, false, null);
+                projectPath, printStream, printStream, false, true, false, null, optimizeDependencyCompilation);
         new CommandLine(testCommand).parseArgs();
         try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
                 TestUtils.class, Mockito.CALLS_REAL_METHODS)) {

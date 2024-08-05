@@ -87,6 +87,8 @@ public class TupleDestructureTest {
         Assert.assertEquals(returns.get(0).toString(), "true");
         Assert.assertEquals(returns.get(1).toString(), "string value");
         Assert.assertEquals(returns.get(2).toString(), "[25,12.5]");
+
+        BRunUtil.invoke(result, "tupleDestructureTest10");
     }
 
     @Test(description = "Test positive tuple destructure scenarios")

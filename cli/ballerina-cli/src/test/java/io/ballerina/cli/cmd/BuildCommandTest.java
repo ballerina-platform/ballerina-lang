@@ -92,13 +92,14 @@ public class BuildCommandTest extends BaseCommandTest {
         Files.copy(validProjectPath, this.testResources.resolve("validProject-no-permission"));
     }
 
-    @Test(description = "Build a valid ballerina file")
-    public void testBuildBalFile() throws IOException {
+    @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalFile(Boolean optimizeDependencyCompilation) throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
         System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(buildCommand).parseArgs(validBalFilePath.toString());
         buildCommand.execute();
@@ -113,7 +114,8 @@ public class BuildCommandTest extends BaseCommandTest {
         // copying the executable to a different location before deleting
         // to use for testCodeGeneratorForSingleFile test case
         Files.copy(this.testResources.resolve("valid-bal-file").resolve("hello_world.jar"),
-                this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar"));
+                this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar"),
+                StandardCopyOption.REPLACE_EXISTING);
 
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
@@ -225,11 +227,12 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Build bal file containing syntax error")
-    public void testBalFileWithSyntaxError() throws IOException {
+    @Test(description = "Build bal file containing syntax error", dataProvider = "optimizeDependencyCompilation")
+    public void testBalFileWithSyntaxError(Boolean optimizeDependencyCompilation) throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         try {
@@ -241,11 +244,12 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Build bal package containing syntax error")
-    public void testBalProjectWithSyntaxError() throws IOException {
+    @Test(description = "Build bal package containing syntax error", dataProvider = "optimizeDependencyCompilation")
+    public void testBalProjectWithSyntaxError(Boolean optimizeDependencyCompilation) throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         try {
@@ -257,12 +261,12 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-
-    @Test(description = "Build a valid ballerina project")
-    public void testBuildBalProject() throws IOException {
+    @Test(description = "Build a valid ballerina project", dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -361,11 +365,13 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
-    @Test(description = "Build a ballerina project with provided scope platform jars")
-    public void testBuildProjectWithProvidedJars() {
+    @Test(description = "Build a ballerina project with provided scope platform jars",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testBuildProjectWithProvidedJars(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("projectWithProvidedScope");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
@@ -389,12 +395,13 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("project-with-provided-warning.txt"));
     }
 
-    @Test(description = "Build a valid ballerina project with java imports")
-    public void testBuildJavaBalProject() throws IOException {
+    @Test(description = "Build a valid ballerina project with java imports",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testBuildJavaBalProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validJavaProject");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -407,11 +414,11 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
-    @Test(description = "Build a valid ballerina project")
-    public void testBuildBalProjectFromADifferentDirectory() throws IOException {
+    @Test(dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalProjectFromADifferentDirectory(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -423,12 +430,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
-    @Test(description = "Build a valid ballerina project")
-    public void testBuildProjectWithTests() throws IOException {
+    @Test(dataProvider = "optimizeDependencyCompilation")
+    public void testBuildProjectWithTests(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -440,12 +447,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
-    @Test(description = "Build a valid ballerina project")
-    public void testBuildMultiModuleProject() throws IOException {
+    @Test(dataProvider = "optimizeDependencyCompilation")
+    public void testBuildMultiModuleProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProject");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -469,7 +476,6 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -490,7 +496,6 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
@@ -521,7 +526,6 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
-        // non existing bal file
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
@@ -545,8 +549,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false);
-        // non existing bal file
+                projectPath, printStream, printStream, false, Boolean.TRUE);
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
@@ -652,12 +655,13 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-project-with-build-tools.txt"));
     }
 
-    @Test(description = "Build an empty package with tests only")
-    public void testBuildEmptyProjectWithTestsOnly() throws IOException {
+    @Test(description = "Build an empty package with tests only", dataProvider = "optimizeDependencyCompilation")
+    public void testBuildEmptyProjectWithTestsOnly(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -849,8 +853,8 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Build a ballerina project with the flag dump-graph")
-    public void testBuildBalProjectWithDumpGraphFlag() throws IOException {
+    @Test(dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalProjectWithDumpGraphFlag(Boolean optimizeDependencyCompilation) throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
@@ -860,7 +864,8 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs("--dump-graph");
         buildCommand.execute();
         String buildLog = readOutput(true).replace("\r", "").strip();
@@ -873,8 +878,8 @@ public class BuildCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
-    @Test(description = "Build a ballerina project with the flag dump-raw-graphs")
-    public void testBuildBalProjectWithDumpRawGraphsFlag() throws IOException {
+    @Test(dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalProjectWithDumpRawGraphsFlag(Boolean optimizeDependencyCompilation) throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
@@ -884,7 +889,8 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
         buildCommand.execute();
         String buildLog = readOutput(true).replace("\r", "").strip();
@@ -964,8 +970,9 @@ public class BuildCommandTest extends BaseCommandTest {
                 "second code gen duration is greater than the expected value");
     }
 
-    @Test(description = "Build a valid ballerina project with a custom maven repo")
-    public void testBuildBalProjectWithCustomMavenRepo() throws IOException {
+    @Test(description = "Build a valid ballerina project with a custom maven repo",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testBuildBalProjectWithCustomMavenRepo(Boolean optimizeDependencyCompilation) throws IOException {
         String username = System.getenv("publishUser");
         String password = System.getenv("publishPAT");
 
@@ -974,7 +981,8 @@ public class BuildCommandTest extends BaseCommandTest {
             String content = Files.readString(projectPath.resolve("Ballerina.toml"), Charset.defaultCharset())
                     .replace("{{username}}", username).replace("{{password}}", password);
             Files.writeString(projectPath.resolve("Ballerina.toml"), content, Charset.defaultCharset());
-            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                    optimizeDependencyCompilation);
             new CommandLine(buildCommand).parseArgs(projectPath.toString());
             buildCommand.execute();
             Assert.assertTrue(projectPath.resolve("target").resolve("platform-libs").resolve("org")
@@ -1004,11 +1012,13 @@ public class BuildCommandTest extends BaseCommandTest {
                 testDistCacheDirectory, projectEnvironmentBuilder);
     }
 
-    @Test(description = "Build a new ballerina project without sticky flag", groups = {"proj-with-deps-update-policy"})
-    public void testBuildNewBalProjectWithoutStickyFlag() throws IOException {
+    @Test(description = "Build a new ballerina project without sticky flag", groups = {"proj-with-deps-update-policy"},
+            dataProvider = "optimizeDependencyCompilation")
+    public void testBuildNewBalProjectWithoutStickyFlag(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -1027,11 +1037,13 @@ public class BuildCommandTest extends BaseCommandTest {
         deleteDirectory(projectPath.resolve("target"));
     }
 
-    @Test(description = "Build a new ballerina project with sticky flag", groups = {"proj-with-deps-update-policy"})
-    public void testBuildNewBalProjectWithStickyFlag() throws IOException {
+    @Test(description = "Build a new ballerina project with sticky flag", groups = {"proj-with-deps-update-policy"},
+            dataProvider = "optimizeDependencyCompilation")
+    public void testBuildNewBalProjectWithStickyFlag(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
         buildCommand.execute();
@@ -1051,12 +1063,14 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a project already built with an older distribution without sticky flag",
-            groups = {"proj-with-deps-update-policy"})
-    public void testBuildProjectPrecompiledWithOlderDistWithoutStickyFlag() throws IOException {
+            groups = {"proj-with-deps-update-policy"}, dataProvider = "optimizeDependencyCompilation")
+    public void testBuildProjectPrecompiledWithOlderDistWithoutStickyFlag(Boolean optimizeDependencyCompilation)
+            throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -1084,12 +1098,14 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a project already built with an older distribution with sticky flag",
-            groups = {"proj-with-deps-update-policy"})
-    public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag() throws IOException {
+            groups = {"proj-with-deps-update-policy"}, dataProvider = "optimizeDependencyCompilation")
+    public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag(Boolean optimizeDependencyCompilation)
+            throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
         buildCommand.execute();
@@ -1116,13 +1132,15 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a project already built with an U4 or older distribution without sticky flag",
-            groups = {"proj-with-deps-update-policy"})
-    public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag() throws IOException {
+            groups = {"proj-with-deps-update-policy"}, dataProvider = "optimizeDependencyCompilation")
+    public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag(Boolean optimizeDependencyCompilation)
+            throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         replaceDependenciesTomlContent(
                 projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();

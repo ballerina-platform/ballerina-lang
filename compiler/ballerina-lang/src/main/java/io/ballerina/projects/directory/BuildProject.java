@@ -253,7 +253,7 @@ public class BuildProject extends Project {
                 }
             }
         }
-        throw new ProjectException("provided path does not belong to the project");
+        throw new ProjectException("'" + file.toString() + "' does not belong to the current project");
     }
 
     private boolean isFilePathInProject(Path filepath) {

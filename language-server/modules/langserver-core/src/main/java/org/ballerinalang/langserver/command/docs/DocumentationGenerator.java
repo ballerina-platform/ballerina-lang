@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -335,14 +336,13 @@ public class DocumentationGenerator {
             });
         }
         signatureNode.parameters().forEach(param -> {
-            Optional<Token> paramName = Optional.empty();
-            if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
-                paramName = ((RequiredParameterNode) param).paramName();
-            } else if (param.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-                paramName = ((DefaultableParameterNode) param).paramName();
-            } else if (param.kind() == SyntaxKind.REST_PARAM) {
-                paramName = ((RestParameterNode) param).paramName();
-            }
+            Optional<Token> paramName = switch (param.kind()) {
+                case REQUIRED_PARAM -> ((RequiredParameterNode) param).paramName();
+                case DEFAULTABLE_PARAM -> ((DefaultableParameterNode) param).paramName();
+                case REST_PARAM -> ((RestParameterNode) param).paramName();
+                case INCLUDED_RECORD_PARAM -> ((IncludedRecordParameterNode) param).paramName();
+                default -> Optional.empty();
+            };
             paramName.ifPresent(token -> parameters.put(token.text(), "parameter description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "return value description" : null;

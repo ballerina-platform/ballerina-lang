@@ -25,7 +25,14 @@ package org.ballerinalang.central.client.exceptions;
  */
 public class PackageAlreadyExistsException extends CentralClientException {
 
-    public PackageAlreadyExistsException(String message) {
+    private final String version;
+
+    public PackageAlreadyExistsException(String message, String version) {
         super(message);
+        this.version = version;
+    }
+
+    public String version() {
+        return version;
     }
 }
