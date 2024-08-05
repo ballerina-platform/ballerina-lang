@@ -195,7 +195,25 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 sourcePath, actual.edits, testConfig)) {
                             misMatched = true;
                         }
-                        actual.command = actualCommand;
+                        if (actualCommand.get("command").getAsString().equals("ADD_DOC")) {
+                            JsonObject actualNodeRange = getNodeRange(actualArgs);
+                            JsonObject expNodeRange = getNodeRange(expArgs);
+                            assert actualNodeRange != null;
+                            if (!actualNodeRange.equals(expNodeRange)) {
+                                misMatched = true;
+                                JsonArray newArgs = getNodeRangeArgument(actualArgs);
+                                if (newArgs != null) {
+                                    JsonObject command = new JsonObject();
+                                    command.add("title", actualCommand.get("title"));
+                                    command.add("command", actualCommand.get("command"));
+                                    command.add("arguments", getNodeRangeArgument(actualArgs));
+                                    actual.command = command;
+                                }
+                            }
+                        }
+                        if (actual.command == null) {
+                            actual.command = actualCommand;
+                        }
                     }
                 }
 
@@ -228,6 +246,31 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                             Arrays.toString(mismatchedCodeActions.toArray()),
                             cursorStartStr, cursorEndStr, sourcePath, testConfig.description));
         }
+    }
+
+    private JsonArray getNodeRangeArgument(JsonArray arguments) {
+        for (JsonElement arg : arguments) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                JsonArray array = new JsonArray(1);
+                array.add(argObj);
+                return array;
+            }
+        }
+        return null;
+    }
+
+    private JsonObject getNodeRange(JsonArray args) {
+        if (args == null) {
+            return null;
+        }
+        for (JsonElement arg : args) {
+            JsonObject argObj = arg.getAsJsonObject();
+            if ("node.range".equals(argObj.get("key").getAsString())) {
+                return argObj.get("value").getAsJsonObject();
+            }
+        }
+        return null;
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {

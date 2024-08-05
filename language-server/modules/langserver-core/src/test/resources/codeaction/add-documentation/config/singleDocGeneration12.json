@@ -19,13 +19,14 @@
                 "character": 0
               },
               "end": {
-                "line": 91,
-                "character": 10
+                "line": 95,
+                "character": 1
               }
             }
           }
         ]
-      }
+      },
+      "resolvable": false
     },
     {
       "title": "Document all",
@@ -34,7 +35,8 @@
         "title": "Document all",
         "command": "ADD_ALL_DOC",
         "arguments": []
-      }
+      },
+      "resolvable": false
     }
   ]
 }
