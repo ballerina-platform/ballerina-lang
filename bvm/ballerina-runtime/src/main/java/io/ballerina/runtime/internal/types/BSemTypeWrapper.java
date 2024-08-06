@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 // TODO: make this a sealed class with clearly defined extensions
@@ -31,7 +32,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
  *
  * @since 2201.10.0
  */
-public non-sealed class BSemTypeWrapper extends SemType implements Type {
+public non-sealed class BSemTypeWrapper extends ImmutableSemType implements Type {
 
     private final BType bType;
     protected final String typeName; // Debugger uses this field to show the type name

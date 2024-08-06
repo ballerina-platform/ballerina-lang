@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
 /**
@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.semtype.SubType;
  *
  * @since 2201.10.0
  */
-public final class PureSemType extends SemType {
+public final class PureSemType extends ImmutableSemType {
 
     public PureSemType(int all, int some, SubType[] subTypeData) {
         super(all, some, subTypeData);
