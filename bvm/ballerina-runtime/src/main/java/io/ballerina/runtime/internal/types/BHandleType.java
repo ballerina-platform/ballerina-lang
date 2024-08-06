@@ -20,42 +20,65 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.HandleType;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
- * {@code BHandleType} represents a handle type in Ballerina.
- * A handle value is a reference to a storage managed externally by a Ballerina program.
+ * {@code BHandleType} represents a handle type in Ballerina. A handle value is a reference to a storage managed
+ * externally by a Ballerina program.
  *
  * @since 1.0.0
  */
-public class BHandleType extends BType implements HandleType {
+public final class BHandleType extends BSemTypeWrapper implements HandleType {
 
     /**
-     * Create a {@code BAnyType} which represents the any type.
+     * Create a {@code BHandleType} which represents the handle type.
      *
      * @param typeName string name of the type
      */
     public BHandleType(String typeName, Module pkg) {
-        super(typeName, pkg, RefValue.class);
+        super(BHandleTypeImpl.create(typeName, pkg), Builder.handleType());
     }
 
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return null;
-    }
+    private static final class BHandleTypeImpl extends BType implements HandleType {
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
-    }
+        private static final BHandleTypeImpl DEFAULT =
+                new BHandleTypeImpl(TypeConstants.HANDLE_TNAME, PredefinedTypes.EMPTY_MODULE);
 
-    @Override
-    public int getTag() {
-        return TypeTags.HANDLE_TAG;
-    }
+        private static BHandleTypeImpl create(String typeName, Module pkg) {
+            if (typeName.equals(TypeConstants.HANDLE_TNAME) && pkg == PredefinedTypes.EMPTY_MODULE) {
+                return DEFAULT;
+            }
+            return new BHandleTypeImpl(typeName, pkg);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        private BHandleTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, RefValue.class);
+        }
+
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.HANDLE_TAG;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
+
     }
 }
