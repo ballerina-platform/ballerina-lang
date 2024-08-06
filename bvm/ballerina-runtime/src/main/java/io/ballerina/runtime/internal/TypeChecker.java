@@ -74,11 +74,9 @@ import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -121,7 +119,7 @@ import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 public final class TypeChecker {
 
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private final static ThreadLocal<Context> threadContext =
+    private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
 
     public static Object checkCast(Object sourceVal, Type targetType) {

@@ -108,7 +108,7 @@ public non-sealed class BSemTypeWrapper extends SemType implements Type {
         return bType.isNative();
     }
 
-    // FIXME: use semtype
+    // TODO: use semtype
     @Override
     public boolean isAnydata() {
         return bType.isAnydata();
@@ -119,7 +119,7 @@ public non-sealed class BSemTypeWrapper extends SemType implements Type {
         return bType.isPureType();
     }
 
-    // FIXME: use semtype
+    // TODO: use semtype
     @Override
     public boolean isReadOnly() {
         return bType.isReadOnly();

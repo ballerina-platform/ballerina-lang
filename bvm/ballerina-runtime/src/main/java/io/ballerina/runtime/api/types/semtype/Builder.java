@@ -360,7 +360,6 @@ public final class Builder {
     }
 
     private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
-        // FIXME: cache these when the semtype only has basic types
         CellAtomicType atomicCell = new CellAtomicType(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);

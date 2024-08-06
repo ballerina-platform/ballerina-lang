@@ -21,11 +21,12 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.WeakHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 
@@ -36,30 +37,24 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
  */
 public abstract sealed class SemType implements BasicTypeBitSet permits BSemTypeWrapper, PureSemType {
 
+    private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
+    private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
+
     public final int all;
     public final int some;
-    // TODO: this is messing up allignment either fill it or may be get rid of this
-    private final boolean useCache;
     private final SubType[] subTypeData;
-    private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
-    // TODO: use a lazy supplier instead
-    private Integer hashCode;
-    private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
-    private final TypeCheckResultCache resultCache;
 
-    // TODO: this is for debug purposes get rid of this
-    private static volatile AtomicInteger nextId = new AtomicInteger(1);
-    private final Integer typeID = nextId.getAndIncrement();
+    private Integer hashCode;
+
+    private final TypeCheckResultCache resultCache;
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         this.all = all;
         this.some = some;
         this.subTypeData = subTypeData;
         if ((some & CACHEABLE_TYPE_MASK) != 0) {
-            useCache = true;
             this.resultCache = new TypeCheckResultCache();
         } else {
-            useCache = false;
             this.resultCache = TypeCheckResultCache.EMPTY;
         }
     }
@@ -126,6 +121,10 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
         return Objects.hash(all, some, Arrays.hashCode(subTypeData));
     }
 
+    private boolean shouldCache() {
+        return (some & CACHEABLE_TYPE_MASK) != 0;
+    }
+
     enum CachedResult {
         TRUE,
         FALSE,
@@ -133,41 +132,49 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     }
 
     CachedResult cachedSubTypeRelation(SemType other) {
-        if (!useCache) {
+        if (!shouldCache()) {
             return CachedResult.NOT_FOUND;
         }
-        int tid = other.typeID;
-        if (tid == typeID) {
+        if (this == other) {
             return CachedResult.TRUE;
         }
-        return resultCache.getCachedResult(tid);
+        return resultCache.getCachedResult(other);
     }
 
     void cacheSubTypeRelation(SemType other, boolean result) {
-        if (useCache) {
-            resultCache.cacheResult(other.typeID, result);
-
-            CachedResult cachedResult = cachedSubTypeRelation(other);
-            if (cachedResult != CachedResult.NOT_FOUND &&
-                    cachedResult != (result ? CachedResult.TRUE : CachedResult.FALSE)) {
-                throw new IllegalStateException("Inconsistent cache state");
-            }
+        if (shouldCache()) {
+            resultCache.cacheResult(other, result);
+            assert isValidCacheState(other, result) : "Invalid cache state";
         }
+    }
+
+    private boolean isValidCacheState(SemType other, boolean result) {
+        CachedResult cachedResult = cachedSubTypeRelation(other);
+        return cachedResult == CachedResult.NOT_FOUND ||
+                cachedResult == (result ? CachedResult.TRUE : CachedResult.FALSE);
+    }
+
+    public final SubType subTypeByCode(int code) {
+        if ((some() & (1 << code)) == 0) {
+            return null;
+        }
+        int someMask = (1 << code) - 1;
+        int some = some() & someMask;
+        return subTypeData()[Integer.bitCount(some)];
     }
 
     private static sealed class TypeCheckResultCache {
 
         private static final TypeCheckResultCache EMPTY = new EmptyTypeCheckResultCache();
-        private static final int CACHE_LIMIT = 100;
-        // See if we can use an identity hashmap on semtypes instead of tid
-        private Map<Long, Boolean> cache = new HashMap<>();
+        // make this an int
+        private final Map<TypeCheckCacheKey, Boolean> cache = new WeakHashMap<>();
 
-        protected void cacheResult(int tid, boolean result) {
-            cache.put((long) tid, result);
+        public void cacheResult(SemType semType, boolean result) {
+            cache.put(TypeCheckCacheKey.from(semType), result);
         }
 
-        protected CachedResult getCachedResult(int tid) {
-            Boolean cachedData = cache.get((long) tid);
+        public CachedResult getCachedResult(SemType semType) {
+            Boolean cachedData = cache.get(TypeCheckCacheKey.from(semType));
             if (cachedData == null) {
                 return CachedResult.NOT_FOUND;
             }
@@ -178,22 +185,38 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     private static final class EmptyTypeCheckResultCache extends TypeCheckResultCache {
 
         @Override
-        public void cacheResult(int tid, boolean result) {
+        public void cacheResult(SemType semType, boolean result) {
             throw new UnsupportedOperationException("Empty cache");
         }
 
         @Override
-        public CachedResult getCachedResult(int tid) {
+        public CachedResult getCachedResult(SemType semType) {
             throw new UnsupportedOperationException("Empty cache");
         }
     }
 
-    public final SubType subTypeByCode(int code) {
-        if ((some() & (1 << code)) == 0) {
-            return null;
+    private record TypeCheckCacheKey(Reference<SemType> semtype) {
+
+        static TypeCheckCacheKey from(SemType semType) {
+            return new TypeCheckCacheKey(new WeakReference<>(semType));
         }
-        int someMask = (1 << code) - 1;
-        int some = some() & someMask;
-        return subTypeData()[Integer.bitCount(some)];
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TypeCheckCacheKey other)) {
+                return false;
+            }
+            SemType thisSemType = semtype.get();
+            SemType otherSemType = other.semtype.get();
+            if (thisSemType == null || otherSemType == null) {
+                return false;
+            }
+            return thisSemType == otherSemType;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(semtype.get());
+        }
     }
 }
