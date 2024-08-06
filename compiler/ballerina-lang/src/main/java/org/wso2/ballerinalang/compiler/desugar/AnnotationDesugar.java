@@ -218,7 +218,7 @@ public class AnnotationDesugar {
             }
 
             SymbolEnv classEnv = SymbolEnv.createClassEnv(classDef, scope, env);
-            BLangLambdaFunction lambdaFunction = defineAnnotations(pos, classDef, pkgNode, classEnv, pkgID,
+            BLangLambdaFunction lambdaFunction = defineAnnotations(classDef, pkgNode, classEnv, pkgID,
                     owner);
             if (lambdaFunction != null) {
                 BType type = classDef.getBType();
@@ -377,7 +377,7 @@ public class AnnotationDesugar {
         return String.format("%d", Objects.hash(serviceName, moduleId, lineRange));
     }
 
-    private BLangLambdaFunction defineAnnotations(Location pos, BLangClassDefinition classDef, BLangPackage pkgNode,
+    private BLangLambdaFunction defineAnnotations(BLangClassDefinition classDef, BLangPackage pkgNode,
                                                   SymbolEnv env, PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
         BLangRecordLiteral mapLiteral = null;
