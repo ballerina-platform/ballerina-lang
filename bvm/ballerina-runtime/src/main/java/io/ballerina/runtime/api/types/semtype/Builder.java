@@ -75,7 +75,7 @@ public final class Builder {
     private static final SemType VAL = SemType.from(VT_MASK);
     private static final SemType OBJECT = from(BT_OBJECT);
 
-    private static final SemType INNER = basicTypeUnion(VAL.all | from(BasicTypeCode.BT_UNDEF).all);
+    private static final SemType INNER = basicTypeUnion(VAL.all() | from(BasicTypeCode.BT_UNDEF).all());
     private static final SemType ANY = basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
     private static final SemType SIMPLE_OR_STRING =
             basicTypeUnion((1 << BasicTypeCode.BT_NIL.code())
