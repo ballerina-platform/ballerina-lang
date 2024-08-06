@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+// TODO: make this a sealed class with clearly defined extensions
+
 /**
  * Decorator on {@code BTypes} allowing them to behave as {@code SemType}. All {@code Types} that needs to behave as
  * both a {@code BType} and a {@code SemType} should extend this class.
@@ -106,6 +108,7 @@ public non-sealed class BSemTypeWrapper extends SemType implements Type {
         return bType.isNative();
     }
 
+    // FIXME: use semtype
     @Override
     public boolean isAnydata() {
         return bType.isAnydata();
@@ -116,6 +119,7 @@ public non-sealed class BSemTypeWrapper extends SemType implements Type {
         return bType.isPureType();
     }
 
+    // FIXME: use semtype
     @Override
     public boolean isReadOnly() {
         return bType.isReadOnly();
