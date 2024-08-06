@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -11,12 +11,14 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
+
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_BOOLEAN;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;

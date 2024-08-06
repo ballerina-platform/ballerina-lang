@@ -77,7 +77,7 @@ public final class BasicTypeCode {
 
     // Helper bit fields (does not represent basic type tag)
     static final int VT_COUNT = CODE_OBJECT + 1;
-    static final int BASIC_TYPE_MASK = (1 << (CODE_STRING + 1)) - 1;
+    public static final int BASIC_TYPE_MASK = (1 << (CODE_STRING + 1)) - 1;
     static final int VT_MASK = (1 << VT_COUNT) - 1;
 
     static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
