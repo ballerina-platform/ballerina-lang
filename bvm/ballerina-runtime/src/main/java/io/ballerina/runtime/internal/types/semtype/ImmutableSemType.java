@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -11,15 +11,17 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
-import io.ballerina.runtime.internal.types.semtype.PureSemType;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -48,7 +50,7 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
 
     private final TypeCheckResultCache resultCache;
 
-    protected ImmutableSemType(int all, int some, SubType[] subTypeData) {
+    ImmutableSemType(int all, int some, SubType[] subTypeData) {
         this.all = all;
         this.some = some;
         this.subTypeData = subTypeData;
@@ -59,7 +61,7 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
         }
     }
 
-    protected ImmutableSemType(int all) {
+    ImmutableSemType(int all) {
         this(all, 0, EMPTY_SUBTYPE_DATA);
     }
 
