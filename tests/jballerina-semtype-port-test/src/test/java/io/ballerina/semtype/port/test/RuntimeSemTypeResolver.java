@@ -461,6 +461,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
                 yield Optional.of(Builder.decimalConst(new BigDecimal(repr)));
             }
             case STRING -> Optional.of(Builder.stringConst((String) value));
+            case HANDLE -> Optional.of(Builder.handleType());
             default -> Optional.empty();
         };
     }
@@ -572,6 +573,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case ANYDATA -> Builder.anyDataType((Context) cx.getInnerContext());
             case ERROR -> Builder.errorType();
             case XML -> Builder.xmlType();
+            case HANDLE -> Builder.handleType();
             default -> throw new IllegalStateException("Unknown type: " + td);
         };
     }

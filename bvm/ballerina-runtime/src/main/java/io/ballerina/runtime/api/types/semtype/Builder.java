@@ -51,6 +51,7 @@ import java.util.Optional;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_ERROR;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FUNCTION;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_HANDLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
@@ -404,6 +405,10 @@ public final class Builder {
 
     public static SemType xmlPIType() {
         return XML_PI.get();
+    }
+
+    public static SemType handleType() {
+        return from(BT_HANDLE);
     }
 
     public static SemType anyDataType(Context context) {
