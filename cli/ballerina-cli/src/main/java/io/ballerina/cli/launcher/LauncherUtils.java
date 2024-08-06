@@ -28,6 +28,8 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -85,14 +87,21 @@ public class LauncherUtils {
         if (cause instanceof BError) {
             message = ((BError) cause).getPrintableStackTrace();
         } else {
-            message = cause.toString();
+            StringWriter sw = new StringWriter();
+            cause.printStackTrace(new PrintWriter(sw));
+            message = sw.toString();
         }
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("error: " + errorPrefix + message);
         return launcherException;
     }
 
-    static void printLauncherException(BLauncherException e, PrintStream outStream) {
+
+    public static String prepareCompilerErrorMessage(String message) {
+        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
+    }
+
+    public static void printLauncherException(BLauncherException e, PrintStream outStream) {
         List<String> errorMessages = e.getMessages();
         errorMessages.forEach(outStream::println);
     }
@@ -121,12 +130,10 @@ public class LauncherUtils {
                 .sorted().toList();
 
         if (!toolNames.isEmpty()) {
-            toolNames.forEach(toolName -> {
-                balToolsManifest.getActiveTool(toolName).ifPresent(tool -> {
+            toolNames.forEach(toolName ->
+                balToolsManifest.getActiveTool(toolName).ifPresent(tool ->
                     activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
-                            .toUpperCase() + "] ");
-                });
-            });
+                            .toUpperCase() + "] ")));
             helpBuilder.append("\n\n   Tool Commands:");
             toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
                     activeToolsVsRepos.get(key)));

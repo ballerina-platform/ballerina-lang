@@ -34,6 +34,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -259,7 +260,7 @@ public class CodeActionUtil {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
+            typesMap.put(recordTypeSymbol, (!recordTypeSymbol.fieldDescriptors().isEmpty()) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
@@ -399,7 +400,7 @@ public class CodeActionUtil {
 
         List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
                 .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
 
@@ -519,7 +520,7 @@ public class CodeActionUtil {
                                 .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
                         memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
                                 .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL)
-                                .collect(Collectors.toList()));
+                                .toList());
                         memberTypes.addAll(errorSymbolsToAdd);
                         UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
                                 .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
@@ -661,12 +662,32 @@ public class CodeActionUtil {
     }
 
     /**
+     * Given a node, tries to find the {@link ExplicitAnonymousFunctionExpressionNode}
+     * which is enclosing the given node.
+     *
+     * @param matchedNode Node which is enclosed within a function
+     * @return Optional function definition node
+     */
+    public static Optional<ExplicitAnonymousFunctionExpressionNode> getEnclosingAnonFuncExpr(Node matchedNode) {
+        if (matchedNode == null) {
+            return Optional.empty();
+        }
+        while (matchedNode.parent() != null) {
+            if (matchedNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
+                return Optional.of((ExplicitAnonymousFunctionExpressionNode) matchedNode);
+            }
+            matchedNode = matchedNode.parent();
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Given a node, tries to find the {@link FunctionDefinitionNode} which is enclosing the given node. Supports
      * {@link SyntaxKind#FUNCTION_DEFINITION}, {@link SyntaxKind#OBJECT_METHOD_DEFINITION} and
      * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
      *
      * @param matchedNode Node which is enclosed within a function
-     * @return Optional function defintion node
+     * @return Optional function definition node
      */
     public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
         if (matchedNode == null) {
@@ -953,7 +974,7 @@ public class CodeActionUtil {
      * Returns if a new line should be appended to a new text edit at module level.
      *
      * @param enclosingNode Node at module level which is enclosing the cursor.
-     * @return @link{Boolean} W
+     * @return {@link Boolean} W
      */
     public static boolean addNewLineAtEnd(Node enclosingNode) {
         Iterator<Node> iterator = enclosingNode.parent().children().iterator();

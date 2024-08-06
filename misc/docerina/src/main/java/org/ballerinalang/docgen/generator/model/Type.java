@@ -78,7 +78,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents a Ballerina Type.
@@ -106,6 +105,8 @@ public class Type {
     public boolean isArrayType;
     @Expose
     public boolean isNullable;
+    @Expose
+    public boolean isOptional;
     @Expose
     public boolean isTuple;
     @Expose
@@ -278,7 +279,7 @@ public class Type {
                         Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
                                 semanticModel, module);
                 functionType.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
-                        .collect(Collectors.toList()));
+                        .toList());
                 if (functionSignature.returnTypeDesc().isPresent()) {
                     ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
                     functionType.returnType = Type.fromNode(returnType.type(), semanticModel, module);
@@ -328,7 +329,7 @@ public class Type {
         } else if (node instanceof TupleTypeDescriptorNode) {
             TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) node;
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
-                    Type.fromNode(memberType, semanticModel, module)).collect(Collectors.toList()));
+                    Type.fromNode(memberType, semanticModel, module)).toList());
             type.isTuple = true;
         } else if (node instanceof MemberTypeDescriptorNode) {
             MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;

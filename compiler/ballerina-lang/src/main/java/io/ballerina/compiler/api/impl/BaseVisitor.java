@@ -1050,6 +1050,7 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
     }
 
+    @Override
     public abstract void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation);
 
     @Override

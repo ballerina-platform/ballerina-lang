@@ -151,8 +151,8 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         List<Symbol> symbolList = model.visibleSymbols(srcFile, LinePosition.from(24, 5)).stream()
-                .filter(s -> s.getModule().get().id().equals(moduleID)).collect(Collectors.toList());
-        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).collect(Collectors.toList());
+                .filter(s -> s.getModule().get().id().equals(moduleID)).toList();
+        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).toList();
 
         List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
 

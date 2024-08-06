@@ -62,6 +62,7 @@ public class STListBindingPatternNode extends STBindingPatternNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STListBindingPatternNode(
                 this.openBracket,
@@ -88,6 +89,7 @@ public class STListBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListBindingPatternNode(this, position, parent);
     }

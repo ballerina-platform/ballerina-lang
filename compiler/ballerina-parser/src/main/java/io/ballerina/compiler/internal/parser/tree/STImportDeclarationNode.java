@@ -74,6 +74,7 @@ public class STImportDeclarationNode extends STNode {
                 semicolon);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImportDeclarationNode(
                 this.importKeyword,
@@ -108,6 +109,7 @@ public class STImportDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportDeclarationNode(this, position, parent);
     }

@@ -26,7 +26,6 @@ import org.ballerinalang.debugadapter.evaluation.parser.DebugParser;
 import org.ballerinalang.debugadapter.evaluation.validator.Validator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_IMPORT;
 import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_TOPLEVEL_DCLN;
@@ -62,7 +61,7 @@ public class TopLevelDeclarationValidator extends Validator {
         // module-level variable declaration during this validation phase.
         List<ModuleMemberDeclarationNode> members = memberNodes.stream()
                 .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL && !node.hasDiagnostics())
-                .collect(Collectors.toList());
-        failIf(members.size() > 0, UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
+                .toList();
+        failIf(!members.isEmpty(), UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
     }
 }

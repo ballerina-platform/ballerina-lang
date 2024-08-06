@@ -2197,7 +2197,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             this.types = Types.getInstance(context);
             this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
             this.names = Names.getInstance(context);
-            this.dlog = BLangDiagnosticLog.getInstance(context);;
+            this.dlog = BLangDiagnosticLog.getInstance(context);
         }
 
         public static ConstantTypeChecker.FillMembers getInstance(CompilerContext context) {

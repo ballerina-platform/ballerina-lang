@@ -45,13 +45,13 @@ dependencies {
     testImplementation 'org.awaitility:awaitility'
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task createBirCache {
+tasks.register('createBirCache') {
     dependsOn configurations.bir
 
     doLast {
@@ -88,9 +88,14 @@ ext.moduleName = 'ballerina.central.client'
 compileJava {
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

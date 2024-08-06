@@ -56,6 +56,7 @@ public class STReCharSetRangeNoDashWithReCharSetNode extends STNode {
                 reCharSet);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCharSetRangeNoDashWithReCharSetNode(
                 this.reCharSetRangeNoDash,
@@ -78,6 +79,7 @@ public class STReCharSetRangeNoDashWithReCharSetNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReCharSetRangeNoDashWithReCharSetNode(this, position, parent);
     }

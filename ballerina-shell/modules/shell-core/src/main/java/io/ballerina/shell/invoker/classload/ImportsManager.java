@@ -288,7 +288,7 @@ public class ImportsManager {
         if (nextStart != 0) {
             newText.append(text.substring(nextStart));
         }
-        return newText.length() > 0 ? newText.toString() : text;
+        return !newText.isEmpty() ? newText.toString() : text;
     }
 
     /**

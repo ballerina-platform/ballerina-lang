@@ -26,6 +26,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,7 +52,7 @@ public class SingleFileProject extends Project {
     }
 
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath,
-                                          BuildOptions buildOptions) {
+                                         BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
         SingleFileProject singleFileProject = new SingleFileProject(
                 environmentBuilder, filePath, buildOptions);
@@ -104,7 +105,7 @@ public class SingleFileProject extends Project {
     public DocumentId documentId(Path file) {
         if (!this.sourceRoot.toAbsolutePath().normalize().toString().equals(
                 file.toAbsolutePath().normalize().toString())) {
-            throw new ProjectException("provided path does not belong to the project");
+            throw new ProjectException("'" + file + "' does not belong to the current project");
         }
         return this.currentPackage().getDefaultModule().documentIds().iterator().next();
     }
@@ -124,5 +125,18 @@ public class SingleFileProject extends Project {
     @Override
     public Path targetDir() {
         return this.targetDir;
+    }
+
+    @Override
+    public Path generatedResourcesDir() {
+        Path generatedResourcesPath = this.targetDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (!Files.exists(generatedResourcesPath)) {
+            try {
+                Files.createDirectories(generatedResourcesPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return generatedResourcesPath;
     }
 }

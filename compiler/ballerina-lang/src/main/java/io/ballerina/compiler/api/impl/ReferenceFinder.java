@@ -632,7 +632,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         find((BLangNode) joinClause.variableDefinitionNode);
-        find((BLangOnClause) joinClause.onClause);
+        find(joinClause.onClause);
         find(joinClause.collection);
     }
 
@@ -813,7 +813,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         find(varRefExpr.expressions);
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override
@@ -822,7 +822,7 @@ public class ReferenceFinder extends BaseVisitor {
             find(recordRefField.getBindingPattern());
         }
 
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override
@@ -898,7 +898,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         find(typeInit.userDefinedType);
-        find(typeInit.argsExpr);
+        find(typeInit.initInvocation);
     }
 
     @Override

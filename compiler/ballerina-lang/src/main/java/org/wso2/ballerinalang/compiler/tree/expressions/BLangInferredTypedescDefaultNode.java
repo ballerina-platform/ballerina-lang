@@ -23,8 +23,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Represents the expression `<>`. This is only allowed to be used for default values of typedesc params in an external
- * function signature.
+ * Represents the expression &lt;&gt;. This is only allowed to be used for default values of
+ * typedesc params in an external function signature.
  *
  * @since 2.0.0
  */

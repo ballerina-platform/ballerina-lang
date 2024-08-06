@@ -42,7 +42,7 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;

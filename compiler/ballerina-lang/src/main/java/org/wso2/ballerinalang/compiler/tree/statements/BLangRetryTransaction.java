@@ -35,18 +35,22 @@ public class BLangRetryTransaction extends BLangStatement implements RetryTransa
     public BLangRetrySpec retrySpec;
     public BLangTransaction transaction;
 
+    @Override
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;
     }
 
+    @Override
     public void setRetrySpec(BLangRetrySpec retrySpec) {
         this.retrySpec = retrySpec;
     }
 
+    @Override
     public BLangTransaction getTransaction() {
         return transaction;
     }
 
+    @Override
     public void setTransaction(BLangTransaction transaction) {
         this.transaction = transaction;
     }

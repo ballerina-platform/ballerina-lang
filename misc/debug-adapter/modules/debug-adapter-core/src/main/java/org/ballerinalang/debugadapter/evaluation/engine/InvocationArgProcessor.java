@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CANNOT_INFER_PARAM_TYPE;
@@ -98,7 +97,7 @@ public abstract class InvocationArgProcessor {
             List<String> argNames = args.stream()
                     .filter(LocalVariable::isArgument)
                     .map(LocalVariable::name)
-                    .collect(Collectors.toList());
+                    .toList();
 
             for (int i = 0, argNamesSize = argNames.size(); i < argNamesSize; i++) {
                 String argName = argNames.get(i);

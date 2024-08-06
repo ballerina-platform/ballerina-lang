@@ -39,7 +39,10 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
-    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
+    implementation("org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}") {
+        exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+    }
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
@@ -89,23 +92,23 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task copyCompilerPluginJars(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
 }
 
-task copyProfilerResources(type: Copy) {
+tasks.register('copyProfilerResources', Copy) {
     from project(':jballerina-tools').file('resources/profiler')
     into "$buildDir/resources/profiler"
 }
 
-task createTestBre(type: Copy) {
+tasks.register('createTestBre', Copy) {
     from configurations.balRt
     from configurations.testRt
     from configurations.testCore
@@ -137,13 +140,18 @@ compileJava {
     dependsOn ':testerina:testerina-core:copyInteropImports'
     inputs.property("moduleName", moduleName)
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }
 
 
 tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
-tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')
+tasks.javadoc.dependsOn(':testerina:testerina-core:copyInteropImports')

@@ -65,6 +65,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TESTS_CACHE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
@@ -78,8 +79,8 @@ public class RunNativeImageTestTask implements Task {
     private static final String WIN_EXEC_EXT = "exe";
 
     private static class StreamGobbler extends Thread {
-        private InputStream inputStream;
-        private PrintStream printStream;
+        private final InputStream inputStream;
+        private final PrintStream printStream;
 
         public StreamGobbler(InputStream inputStream, PrintStream printStream) {
             this.inputStream = inputStream;
@@ -88,9 +89,10 @@ public class RunNativeImageTestTask implements Task {
 
         @Override
         public void run() {
-            Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8);
-            while (sc.hasNextLine()) {
-                printStream.println(sc.nextLine());
+            try (Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8)) {
+                while (sc.hasNextLine()) {
+                    printStream.println(sc.nextLine());
+                }
             }
         }
     }
@@ -100,9 +102,9 @@ public class RunNativeImageTestTask implements Task {
     private String disableGroupList;
     private boolean report;
     private boolean coverage;
-    private boolean isRerunTestExecution;
+    private final boolean isRerunTestExecution;
     private String singleExecTests;
-    private boolean listGroups;
+    private final boolean listGroups;
     private final boolean  isParallelExecution;
 
     TestReport testReport;
@@ -210,9 +212,9 @@ public class RunNativeImageTestTask implements Task {
         }
 
         // If the function mocking does not exist, combine all test suite map entries
-        if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
+        if (!isMockFunctionExist && !testSuiteMapEntries.isEmpty()) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
-            while (testSuiteMapEntries.size() > 0) {
+            while (!testSuiteMapEntries.isEmpty()) {
                 testSuiteMap.putAll(testSuiteMapEntries.remove(0));
             }
             testSuiteMapEntries.add(testSuiteMap);
@@ -282,7 +284,7 @@ public class RunNativeImageTestTask implements Task {
                     }
                 } catch (IOException e) {
                     TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("error occurred while running tests", e);
+                    throw createLauncherException("error occurred while running tests: ", e);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -354,9 +356,8 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
         if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            String[] splittedArray = currentPackage.project().sourceRoot().toString().
-                    replace(ProjectConstants.BLANG_SOURCE_EXT, "").split("/");
-            packageName = splittedArray[splittedArray.length - 1];
+            packageName = currentPackage.project().sourceRoot().getFileName().toString()
+                            .replace(ProjectConstants.BLANG_SOURCE_EXT, "");
             validateResourcesWithinJar(testSuiteMap, packageName);
         } else if (testSuiteMap.size() == 1) {
             packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();
@@ -367,6 +368,9 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:Name=" + NativeUtils.addQuotationMarkToString(packageName));
         nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
                 .addQuotationMarkToString(nativeTargetPath.toString())));
+
+        // Add resources
+        nativeArgs.add("-H:IncludeResources=" + getResourcesPath());
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
@@ -388,8 +392,7 @@ public class RunNativeImageTestTask implements Task {
         ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
-        StreamGobbler outputGobbler =
-                new StreamGobbler(process.getInputStream(), out);
+        StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
         outputGobbler.start();
 
         if (process.waitFor() == 0) {
@@ -417,8 +420,7 @@ public class RunNativeImageTestTask implements Task {
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();
-            outputGobbler =
-                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler = new StreamGobbler(process.getInputStream(), out);
             outputGobbler.start();
             int exitCode = process.waitFor();
             outputGobbler.join();

@@ -26,6 +26,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
@@ -33,7 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -118,7 +119,7 @@ public class LambdaGen {
     }
 
     public void generateLambdaClasses(AsyncDataCollector asyncDataCollector,
-                                      Map<String, byte[]> jarEntries) {
+                                      JarEntries jarEntries) {
         Map<String, LambdaClass> lambdaClasses = asyncDataCollector.getLambdaClasses();
         if (lambdaClasses.isEmpty()) {
             return;
@@ -182,7 +183,7 @@ public class LambdaGen {
             return;
         }
         if (lambdaDetails.functionWrapper != null) {
-            jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName;
+            jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName();
         } else {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
                     MODULE_FUNCTION_CALLS_CLASS_NAME);
@@ -227,7 +228,7 @@ public class LambdaGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value, ref.variableDcl.type));
         int objectArrayLength = paramTypes.size() - 1;
         mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -278,8 +279,8 @@ public class LambdaGen {
     private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
         List<BType> paramTypes;
         if (lambdaDetails.functionWrapper != null) {
-            paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func.type.paramTypes,
-                                              lambdaDetails.functionWrapper.func.argsCount);
+            paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func().type.paramTypes,
+                    lambdaDetails.functionWrapper.func().argsCount);
         } else {
             BInvokableType type = (BInvokableType) lambdaDetails.funcSymbol.type;
             if (type.restType == null) {
@@ -333,7 +334,7 @@ public class LambdaGen {
                 "(" + closureMapsDesc + "[L" + OBJECT + ";)L" + OBJECT + ";", null, null);
 
         mv.visitCode();
-         // generate diagnostic position when generating lambda method
+        // generate diagnostic position when generating lambda method
         JvmCodeGenUtil.generateDiagnosticPos(((BIRAbstractInstruction) ins).pos, mv);
         // load strand as first arg
         // strand and other args are in an object[] param. This param comes after closure maps.
@@ -371,8 +372,7 @@ public class LambdaGen {
 
         mv.visitInsn(DUP);
 
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS , IS_BLOCKED_ON_EXTERN_FIELD, "()Z",
-                           false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS , IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
         mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
         mv.visitInsn(DUP);
@@ -380,17 +380,14 @@ public class LambdaGen {
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , BLOCKED_ON_EXTERN_FIELD, "Z");
 
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD,
-                          GET_BERROR);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         Label panicLabel = new Label();
         mv.visitJumpInsn(IFNULL, panicLabel);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD,
-                          GET_BERROR);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         mv.visitVarInsn(ASTORE, closureMapsCount + 1);
         mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , PANIC_FIELD,
-                          GET_BERROR);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS , PANIC_FIELD, GET_BERROR);
         mv.visitVarInsn(ALOAD, closureMapsCount + 1);
         mv.visitInsn(ATHROW);
         mv.visitLabel(panicLabel);
@@ -411,7 +408,7 @@ public class LambdaGen {
             lambdaDetails = populateFpLambdaDetails((BIRNonTerminator.FPLoad) ins);
         } else {
             throw new BLangCompilerException("JVM lambda method generation is not supported for instruction " +
-                                                     ins);
+                    ins);
         }
         lambdaDetails.isExternFunction = isExternStaticFunctionCall(ins);
         populateLambdaReturnType(ins, lambdaDetails);
@@ -484,7 +481,7 @@ public class LambdaGen {
         String key = JvmCodeGenUtil.getPackageName(packageID) + methodName;
 
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
-        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func);
+        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func());
     }
 
     private void populateLambdaReturnType(BIRInstruction ins, LambdaDetails lambdaDetails) {
@@ -495,7 +492,7 @@ public class LambdaGen {
             lambdaDetails.returnType = ((BInvokableType) ((BIRNonTerminator.FPLoad) ins).type).retType;
         } else {
             throw new BLangCompilerException("JVM generation is not supported for async return type " +
-                                                     lambdaDetails.lhsType);
+                    lambdaDetails.lhsType);
         }
     }
 

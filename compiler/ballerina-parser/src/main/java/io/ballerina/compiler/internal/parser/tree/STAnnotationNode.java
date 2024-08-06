@@ -62,6 +62,7 @@ public class STAnnotationNode extends STNode {
                 annotValue);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAnnotationNode(
                 this.atToken,
@@ -88,6 +89,7 @@ public class STAnnotationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationNode(this, position, parent);
     }

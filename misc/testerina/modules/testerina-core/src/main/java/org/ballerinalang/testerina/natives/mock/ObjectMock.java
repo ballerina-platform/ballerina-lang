@@ -71,7 +71,7 @@ public class ObjectMock {
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
-                    objectValueType.getFields().size() == 0 &&
+                    objectValueType.getFields().isEmpty() &&
                     (objectValueType instanceof BClientType &&
                             ((BClientType) objectValueType).getResourceMethods().length == 0)) {
                 String detail = "mock object type '" + objectValueType.getName()
@@ -977,7 +977,9 @@ public class ObjectMock {
     private static BError validateField(Map.Entry<String, Field> mockField, Map<String, Field> fieldMap) {
         for (Map.Entry<String, Field> field : fieldMap.entrySet()) {
             if (field.getKey().equals(mockField.getKey())) {
-                if (TypeChecker.checkIsType(field.getValue().getFieldType(), mockField.getValue().getFieldType())) {
+                // Ignore type checking if the field is private
+                if (SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.PRIVATE) ||
+                        TypeChecker.checkIsType(field.getValue().getFieldType(), mockField.getValue().getFieldType())) {
                     return null;
                 } else {
                     String detail = "incompatible field type '" + mockField.getValue().getFieldType() + "' provided " +

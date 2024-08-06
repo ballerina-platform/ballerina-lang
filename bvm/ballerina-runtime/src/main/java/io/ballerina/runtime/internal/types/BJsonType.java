@@ -88,6 +88,7 @@ public class BJsonType extends BUnionType implements JsonType {
         return TypeTags.JSON_TAG;
     }
 
+    @Override
     public boolean isNilable() {
         return true;
     }

@@ -50,6 +50,7 @@ public class STAlternateReceiveNode extends STNode {
                 workers);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAlternateReceiveNode(
                 this.workers,
@@ -68,6 +69,7 @@ public class STAlternateReceiveNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AlternateReceiveNode(this, position, parent);
     }

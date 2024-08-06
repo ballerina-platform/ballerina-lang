@@ -54,6 +54,7 @@ public class BReadonlyType extends BBuiltInRefType {
         return visitor.visit(this, t);
     }
 
+    @Override
     public boolean isNullable() {
         return nullable;
     }
