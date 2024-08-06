@@ -38,14 +38,18 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
 
     public final int all;
     public final int some;
+    // TODO: this is messing up allignment either fill it or may be get rid of this
+    private final boolean useCache;
     private final SubType[] subTypeData;
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
+    // TODO: use a lazy supplier instead
     private Integer hashCode;
-    private static volatile AtomicInteger nextId = new AtomicInteger(1);
-    private final Integer typeID = nextId.getAndIncrement();
     private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
     private final TypeCheckResultCache resultCache;
-    private final boolean useCache;
+
+    // TODO: this is for debug purposes get rid of this
+    private static volatile AtomicInteger nextId = new AtomicInteger(1);
+    private final Integer typeID = nextId.getAndIncrement();
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         this.all = all;
