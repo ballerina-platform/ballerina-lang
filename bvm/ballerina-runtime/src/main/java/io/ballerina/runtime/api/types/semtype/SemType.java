@@ -40,12 +40,10 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
     private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
 
-    // FIXME: these should be accessed via the methods
     public final int all;
     public final int some;
     private final SubType[] subTypeData;
 
-    // FIXME: use a lazy supplier for this
     private Integer hashCode;
 
     private final TypeCheckResultCache resultCache;
