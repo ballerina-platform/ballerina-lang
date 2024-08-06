@@ -40,8 +40,8 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
     private static final int CACHEABLE_TYPE_MASK = (~BasicTypeCode.BASIC_TYPE_MASK) & ((1 << (CODE_UNDEF + 1)) - 1);
 
-    public final int all;
-    public final int some;
+    private final int all;
+    private final int some;
     private final SubType[] subTypeData;
 
     private Integer hashCode;
@@ -100,7 +100,8 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
         if (!(o instanceof SemType semType)) {
             return false;
         }
-        return all == semType.all && some == semType.some && Objects.deepEquals(subTypeData, semType.subTypeData);
+        return all() == semType.all() && some() == semType.some() &&
+                Objects.deepEquals(subTypeData, semType.subTypeData);
     }
 
     @Override
@@ -118,11 +119,11 @@ public abstract sealed class SemType implements BasicTypeBitSet permits BSemType
     }
 
     private int computeHashCode() {
-        return Objects.hash(all, some, Arrays.hashCode(subTypeData));
+        return Objects.hash(all(), some(), Arrays.hashCode(subTypeData));
     }
 
     private boolean shouldCache() {
-        return (some & CACHEABLE_TYPE_MASK) != 0;
+        return (some() & CACHEABLE_TYPE_MASK) != 0;
     }
 
     enum CachedResult {

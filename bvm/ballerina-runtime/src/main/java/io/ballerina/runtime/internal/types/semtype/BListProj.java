@@ -65,7 +65,7 @@ public final class BListProj {
     }
 
     public static SemType listProjInnerVal(Context cx, SemType t, SemType k) {
-        if (t.some == 0) {
+        if (t.some() == 0) {
             return t == Builder.listType() ? Builder.valType() : Builder.neverType();
         } else {
             SubTypeData keyData = Core.intSubtype(k);
