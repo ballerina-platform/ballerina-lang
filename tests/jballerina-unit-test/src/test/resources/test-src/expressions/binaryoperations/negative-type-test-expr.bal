@@ -1079,12 +1079,12 @@ public function testXMLNeverType() {
 
     xml e = xml ``;
     assertEquality(<any> e !is byte, true);
-    assertEquality(<any> e !is xml<'xml:Element>, true);
+    assertEquality(<any> e is xml<'xml:Element>, true);
     assertEquality(<any> e !is xml<'xml:Text>, false);
     assertEquality(<any> e !is xml, false);
     assertEquality(<any> e !is 'xml:Text, false);
     assertEquality(<any> e !is 'xml:Element, true);
-    assertEquality(<any> e !is xml<'xml:Element|'xml:Comment>, true);
+    assertEquality(<any> e is xml<'xml:Element|'xml:Comment>, true);
 }
 
 function testXMLTextType(){

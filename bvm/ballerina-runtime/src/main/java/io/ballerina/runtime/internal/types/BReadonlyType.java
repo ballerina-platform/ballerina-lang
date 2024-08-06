@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ReadonlyType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -55,5 +57,10 @@ public class BReadonlyType extends BType implements ReadonlyType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    SemType createSemType(Context cx) {
+        return BTypeConverter.fromReadonly(this);
     }
 }

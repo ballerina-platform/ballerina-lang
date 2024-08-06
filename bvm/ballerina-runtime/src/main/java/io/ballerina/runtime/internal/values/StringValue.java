@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BStringType;
 
 import java.util.Map;
 
@@ -33,15 +33,17 @@ public abstract class StringValue implements BString, SimpleValue {
 
     final String value;
     final boolean isNonBmp;
+    private final Type type;
 
     protected StringValue(String value, boolean isNonBmp) {
         this.value = value;
         this.isNonBmp = isNonBmp;
+        this.type = BStringType.singletonType(value);
     }
 
     @Override
     public Type getType() {
-        return PredefinedTypes.TYPE_STRING;
+        return type;
     }
 
     @Override
