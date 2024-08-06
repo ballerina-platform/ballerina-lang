@@ -59,10 +59,10 @@ public final class Core {
     }
 
     public static SemType diff(SemType t1, SemType t2) {
-        int all1 = t1.all;
-        int all2 = t2.all;
-        int some1 = t1.some;
-        int some2 = t2.some;
+        int all1 = t1.all();
+        int all2 = t2.all();
+        int some1 = t1.some();
+        int some2 = t2.some();
         if (some1 == 0) {
             if (some2 == 0) {
                 return Builder.basicTypeUnion(all1 & ~all2);
@@ -130,8 +130,8 @@ public final class Core {
     // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
     // If `t` is not a list, NEVER is returned
     public static SemType listMemberTypeInnerVal(Context cx, SemType t, SemType k) {
-        if (t.some == 0) {
-            return (t.all & listType().all) != 0 ? Builder.valType() : Builder.neverType();
+        if (t.some() == 0) {
+            return (t.all() & listType().all()) != 0 ? Builder.valType() : Builder.neverType();
         } else {
             SubTypeData keyData = intSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -194,10 +194,10 @@ public final class Core {
 
     public static SemType intersect(SemType t1, SemType t2) {
         assert t1 != null && t2 != null;
-        int all1 = t1.all;
-        int some1 = t1.some;
-        int all2 = t2.all;
-        int some2 = t2.some;
+        int all1 = t1.all();
+        int some1 = t1.some();
+        int all2 = t2.all();
+        int some2 = t2.some();
         if (some1 == 0) {
             if (some2 == 0) {
                 return SemType.from(all1 & all2);
@@ -257,10 +257,10 @@ public final class Core {
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
-        if (t.some == 0) {
-            return t.all == 0;
+        if (t.some() == 0) {
+            return t.all() == 0;
         }
-        if (t.all != 0) {
+        if (t.all() != 0) {
             return false;
         }
         for (SubType subType : t.subTypeData()) {
@@ -277,7 +277,7 @@ public final class Core {
     }
 
     public static boolean isNever(SemType t) {
-        return t.all == 0 && t.some == 0;
+        return t.all() == 0 && t.some() == 0;
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
@@ -293,7 +293,7 @@ public final class Core {
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {
         assert t1 != null && t2 != null;
-        int bits = t1.all | t1.some;
+        int bits = t1.all() | t1.some();
         return (bits & ~t2.all()) == 0;
     }
 
@@ -312,10 +312,10 @@ public final class Core {
     }
 
     public static SubTypeData subTypeData(SemType s, BasicTypeCode code) {
-        if ((s.all & (1 << code.code())) != 0) {
+        if ((s.all() & (1 << code.code())) != 0) {
             return AllOrNothing.ALL;
         }
-        if (s.some == 0) {
+        if (s.some() == 0) {
             return AllOrNothing.NOTHING;
         }
         SubType subType = s.subTypeByCode(code.code());
@@ -324,8 +324,8 @@ public final class Core {
     }
 
     public static boolean containsBasicType(SemType t1, SemType t2) {
-        int bits = t1.all | t1.some;
-        return (bits & t2.all) != 0;
+        int bits = t1.all() | t1.some();
+        return (bits & t2.all()) != 0;
     }
 
     public static boolean isSameType(Context cx, SemType t1, SemType t2) {
@@ -333,7 +333,7 @@ public final class Core {
     }
 
     public static SemType widenToBasicTypes(SemType t) {
-        int all = t.all | t.some;
+        int all = t.all() | t.some();
         if (cardinality(all) > 1) {
             throw new IllegalStateException("Cannot widen to basic type for a type with multiple basic types");
         }
@@ -345,10 +345,10 @@ public final class Core {
     }
 
     public static SemType widenToBasicTypeUnion(SemType t) {
-        if (t.some == 0) {
+        if (t.some() == 0) {
             return t;
         }
-        int all = t.all | t.some;
+        int all = t.all() | t.some();
         return Builder.basicTypeUnion(all);
     }
 
@@ -370,7 +370,7 @@ public final class Core {
 
     private static Optional<CellAtomicType> cellAtomicType(SemType t) {
         SemType cell = Builder.cell();
-        if (t.some == 0) {
+        if (t.some() == 0) {
             return cell.equals(t) ? Optional.of(Builder.cellAtomicVal()) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, cell)) {
