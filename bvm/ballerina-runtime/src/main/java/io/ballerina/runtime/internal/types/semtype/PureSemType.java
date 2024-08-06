@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 
 /**
