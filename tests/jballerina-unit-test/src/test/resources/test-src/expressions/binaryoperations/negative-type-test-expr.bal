@@ -482,50 +482,50 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-class Qux {
-    Qux? fn;
+class QuxNeg {
+    QuxNeg? fn;
 
-    public function init(Qux? fn = ()) {
+    public function init(QuxNeg? fn = ()) {
         self.fn = fn;
     }
 }
 
-class Quux {
-    Quux? fn = ();
+class QuuxNeg {
+    QuuxNeg? fn = ();
 }
 
-class Quuz {
-    Quuz? fn = ();
+class QuuzNeg {
+    QuuzNeg? fn = ();
     int i = 1;
 }
 
-class ABC {
-    Qux f;
+class ABCNeg {
+    QuxNeg f;
     string s;
 
-    function init(Qux f, string s) {
+    function init(QuxNeg f, string s) {
         self.f = f;
         self.s = s;
     }
 }
 
 function testObjectIsCheckWithCycles() {
-    Qux f1 = new;
-    Qux f2 = new (f1);
+    QuxNeg f1 = new;
+    QuxNeg f2 = new (f1);
 
-    any a1 = <any> f1;
-    assertFalse(a1 !is Quux);
-    assertTrue(a1 !is Quuz);
+    any a1 = <any>f1;
+    assertFalse(a1 !is QuuxNeg);
+    assertTrue(a1 !is QuuzNeg);
 
-    any a2 = <any> f2;
-    assertFalse(a2 !is Quux);
-    assertTrue(a2 !is Quuz);
+    any a2 = <any>f2;
+    assertFalse(a2 !is QuuxNeg);
+    assertTrue(a2 !is QuuzNeg);
 
-    ABC ob = new (f2, "ballerina");
+    ABCNeg ob = new (f2, "ballerina");
 
     any a3 = ob;
-    assertFalse(a3 !is object { Qux f; });
-    assertTrue(a3 !is object { Quuz f; });
+    assertFalse(a3 !is object {QuxNeg f;});
+    assertTrue(a3 !is object {QuuzNeg f;});
 }
 
 // ========================== Arrays ==========================

@@ -64,12 +64,12 @@ function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     assertEquality(c, r4);
 }
 
-type Employee record {|
-    Details details;
+type EmployeeFoo record {|
+    DetailsBar details;
     string department;
 |};
 
-type Details record {|
+type DetailsBar record {|
     string name;
     int id;
 |};
@@ -78,9 +78,9 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     int[] & readonly a = [1, 2];
     readonly r1 = a;
     assertTrue(r1 is int[] & readonly);
-    assertEquality(<int[]> [1, 2], r1);
+    assertEquality(<int[]>[1, 2], r1);
 
-    Employee & readonly emp = {
+    EmployeeFoo & readonly emp = {
         details: {
             name: "Emma",
             id: 1234
@@ -88,60 +88,60 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
         department: "finance"
     };
 
-    [Employee, Employee] & readonly b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
+    [EmployeeFoo, EmployeeFoo] & readonly b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
     readonly r2 = b;
-    assertTrue(r2 is [Employee, Employee] & readonly);
-    assertTrue(r2 is Employee[2] & readonly);
+    assertTrue(r2 is [EmployeeFoo, EmployeeFoo] & readonly);
+    assertTrue(r2 is EmployeeFoo[2] & readonly);
 
-    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> checkpanic r2;
+    [EmployeeFoo, EmployeeFoo] & readonly empTup = <[EmployeeFoo, EmployeeFoo] & readonly>checkpanic r2;
 
     assertEquality(emp, empTup[0]);
     record {} rec = empTup[0];
-    assertTrue(rec is Employee & readonly);
+    assertTrue(rec is EmployeeFoo & readonly);
     assertTrue(rec.isReadOnly());
 
     rec = empTup[1];
-    assertTrue(rec is Employee & readonly);
+    assertTrue(rec is EmployeeFoo & readonly);
     assertTrue(rec.isReadOnly());
     assertEquality("IT", rec["department"]);
-    assertTrue(rec["details"] is Details & readonly);
+    assertTrue(rec["details"] is DetailsBar & readonly);
     assertTrue(rec["details"].isReadOnly());
 
-    Details & readonly details = {
+    DetailsBar & readonly details = {
         name: "Jo",
         id: 9876
     };
-    [Details[], Employee...] & readonly detEmpTup = [
-                                                        [{name: "May", id: 1234}, details],
-                                                        {details, department: "finance"}
-                                                    ];
+    [DetailsBar[], EmployeeFoo...] & readonly detEmpTup = [
+        [{name: "May", id: 1234}, details],
+        {details, department: "finance"}
+    ];
     readonly r3 = detEmpTup;
-    assertTrue(r3 is [Details[], Employee...] & readonly);
-    assertTrue(r3 is [[Details, Details], Employee] & readonly);
+    assertTrue(r3 is [DetailsBar[], EmployeeFoo...] & readonly);
+    assertTrue(r3 is [[DetailsBar, DetailsBar], EmployeeFoo] & readonly);
 
-    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> checkpanic r3;
+    [[DetailsBar, DetailsBar], EmployeeFoo] & readonly vals = <[[DetailsBar, DetailsBar], EmployeeFoo] & readonly>checkpanic r3;
     assertTrue(vals[0].isReadOnly());
 
-    Details d1 = vals[0][0];
-    assertEquality(<Details> {name: "May", id: 1234}, d1);
+    DetailsBar d1 = vals[0][0];
+    assertEquality(<DetailsBar>{name: "May", id: 1234}, d1);
     assertTrue(d1.isReadOnly());
 
-    Details d2 = vals[0][1];
+    DetailsBar d2 = vals[0][1];
     assertEquality(details, d2);
     assertTrue(d2.isReadOnly());
 
-    Employee e = vals[1];
-    assertEquality(<Employee> {details, department: "finance"}, e);
+    EmployeeFoo e = vals[1];
+    assertEquality(<EmployeeFoo>{details, department: "finance"}, e);
     assertTrue(e.isReadOnly());
     assertTrue(e.details.isReadOnly());
 
     (int[] & readonly)|string[] arr = [1, 2];
-    assertEquality(<int[]> [1, 2], arr);
+    assertEquality(<int[]>[1, 2], arr);
     assertTrue(arr is int[] & readonly);
     assertTrue(arr.isReadOnly());
 
     arr = ["hello"];
-    assertEquality(<string[]> ["hello"], arr);
+    assertEquality(<string[]>["hello"], arr);
     assertTrue(arr is string[]);
     assertFalse(arr is string[] & readonly);
     assertFalse(arr.isReadOnly());
@@ -157,9 +157,9 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     };
     readonly r1 = a;
     assertTrue(r1 is map<boolean> & readonly);
-    assertEquality(<map<boolean>> {a: true, bool: false, c: false}, r1);
+    assertEquality(<map<boolean>>{a: true, bool: false, c: false}, r1);
 
-    Employee & readonly emp = {
+    EmployeeFoo & readonly emp = {
         details: {
             name: "Emma",
             id: 1234
@@ -168,20 +168,20 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     };
 
     readonly r2 = emp;
-    assertTrue(r2 is Employee & readonly);
+    assertTrue(r2 is EmployeeFoo & readonly);
 
     assertEquality(emp, r2);
     any|error val = r2;
     assertFalse(val is error);
-    Employee rec = <Employee> checkpanic val;
-    assertTrue(rec is Employee & readonly);
+    EmployeeFoo rec = <EmployeeFoo>checkpanic val;
+    assertTrue(rec is EmployeeFoo & readonly);
     assertTrue(rec.isReadOnly());
 
-    Details det = rec.details;
-    assertTrue(det is Details & readonly);
+    DetailsBar det = rec.details;
+    assertTrue(det is DetailsBar & readonly);
     assertTrue(det.isReadOnly());
 
-    Student & readonly st = {
+    StudentFoo & readonly st = {
         details: {
             name: "Jo",
             id: 4567
@@ -190,25 +190,25 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
         "science": ["P", 65]
     };
     readonly r3 = st;
-    assertTrue(r3 is Student & readonly);
+    assertTrue(r3 is StudentFoo & readonly);
 
     val = r3;
     assertFalse(val is error);
-    Student stVal = <Student> checkpanic val;
+    StudentFoo stVal = <StudentFoo>checkpanic val;
     assertTrue(stVal.isReadOnly());
     assertTrue(stVal.details.isReadOnly());
-    assertEquality(<Details> {name: "Jo", id: 4567}, stVal.details);
+    assertEquality(<DetailsBar>{name: "Jo", id: 4567}, stVal.details);
 
-    assertTrue(stVal["math"] is [RESULT, int] & readonly);
+    assertTrue(stVal["math"] is [RESULTFoo, int] & readonly);
     assertTrue(stVal["math"].isReadOnly());
-    assertEquality(<[RESULT, int]> ["P", 75], stVal["math"]);
+    assertEquality(<[RESULTFoo, int]>["P", 75], stVal["math"]);
 
-    assertTrue(stVal["science"] is [RESULT, int] & readonly);
+    assertTrue(stVal["science"] is [RESULTFoo, int] & readonly);
     assertTrue(stVal["science"].isReadOnly());
-    assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
+    assertEquality(<[RESULTFoo, int]>["P", 65], stVal["science"]);
 }
 
-type Identifier record {|
+type IdentifierFoo record {|
     readonly string name;
     int id;
 |};
@@ -222,41 +222,41 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     readonly r1 = a;
     assertTrue(r1 is table<map<string>> & readonly);
 
-    table<map<string>> tbString = <table<map<string>>> <any> checkpanic r1;
+    table<map<string>> tbString = <table<map<string>>><any>checkpanic r1;
     assertEquality(2, tbString.length());
 
     map<string>[] mapArr = tbString.toArray();
-    assertTrue( mapArr[0] is map<string> & readonly);
-    assertEquality(<map<string>> {x: "x", y: "y"}, mapArr[0]);
-    assertTrue( mapArr[1] is map<string> & readonly);
-    assertEquality(<map<string>> {z: "z"}, mapArr[1]);
+    assertTrue(mapArr[0] is map<string> & readonly);
+    assertEquality(<map<string>>{x: "x", y: "y"}, mapArr[0]);
+    assertTrue(mapArr[1] is map<string> & readonly);
+    assertEquality(<map<string>>{z: "z"}, mapArr[1]);
 
-    table<Identifier> key(name) & readonly b = table [
+    table<IdentifierFoo> key(name) & readonly b = table [
         {name: "Jo", id: 4567},
         {name: "Emma", id: 1234},
         {name: "Amy", id: 678}
     ];
     readonly r2 = b;
-    assertTrue(r2 is table<Identifier> key(name) & readonly);
-    assertTrue(r2 is table<Identifier> & readonly);
+    assertTrue(r2 is table<IdentifierFoo> key(name) & readonly);
+    assertTrue(r2 is table<IdentifierFoo> & readonly);
 
-    table<Identifier> tbDetails = <table<Identifier>> <any> checkpanic r2;
+    table<IdentifierFoo> tbDetails = <table<IdentifierFoo>><any>checkpanic r2;
     assertEquality(3, tbDetails.length());
 
-    Identifier[] detailsArr = tbDetails.toArray();
-    assertTrue(detailsArr[0] is Identifier & readonly);
-    assertEquality(<Identifier> {name: "Jo", id: 4567}, detailsArr[0]);
-    assertTrue(detailsArr[1] is Identifier & readonly);
-    assertEquality(<Identifier> {name: "Emma", id: 1234}, detailsArr[1]);
-    assertTrue(detailsArr[2] is Identifier & readonly);
-    assertEquality(<Identifier> {name: "Amy", id: 678}, detailsArr[2]);
+    IdentifierFoo[] detailsArr = tbDetails.toArray();
+    assertTrue(detailsArr[0] is IdentifierFoo & readonly);
+    assertEquality(<IdentifierFoo>{name: "Jo", id: 4567}, detailsArr[0]);
+    assertTrue(detailsArr[1] is IdentifierFoo & readonly);
+    assertEquality(<IdentifierFoo>{name: "Emma", id: 1234}, detailsArr[1]);
+    assertTrue(detailsArr[2] is IdentifierFoo & readonly);
+    assertEquality(<IdentifierFoo>{name: "Amy", id: 678}, detailsArr[2]);
 }
 
-type RESULT "P"|"F";
+type RESULTFoo "P"|"F";
 
-type Student record {|
-    Details details;
-    [RESULT, int]...;
+type StudentFoo record {|
+    DetailsBar details;
+    [RESULTFoo, int]...;
 |};
 
 type recursiveTuple [int, string|xml, recursiveTuple...];
@@ -296,7 +296,7 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     assertFalse(k is readonly);
     assertTrue(l is readonly);
 
-    Employee m = {
+    EmployeeFoo m = {
         details: {
             name: "Maryam",
             id: 9876
@@ -317,7 +317,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an1 is readonly);
     assertFalse(a1.isReadOnly());
 
-    Employee emp = {
+    EmployeeFoo emp = {
         details: {
             name: "Emma",
             id: 1234
@@ -325,54 +325,54 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
         department: "finance"
     };
 
-    [Employee, Employee] b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
+    [EmployeeFoo, EmployeeFoo] b = [emp, {details: {name: "Jo", id: 5678}, department: "IT"}];
     anydata a2 = b;
     any an2 = b;
-    assertFalse(an2 is [Employee, Employee] & readonly);
+    assertFalse(an2 is [EmployeeFoo, EmployeeFoo] & readonly);
     assertFalse(an2 is readonly);
     assertFalse(a2.isReadOnly());
 
-    [Employee, Employee] empTup = <[Employee, Employee]> a2;
+    [EmployeeFoo, EmployeeFoo] empTup = <[EmployeeFoo, EmployeeFoo]>a2;
 
     assertEquality(emp, empTup[0]);
     record {} rec = empTup[0];
-    assertTrue(rec is Employee);
-    assertFalse(rec is Employee & readonly);
+    assertTrue(rec is EmployeeFoo);
+    assertFalse(rec is EmployeeFoo & readonly);
     assertFalse(rec.isReadOnly());
 
     rec = empTup[1];
-    assertTrue(rec is Employee);
-    assertFalse(rec is Employee & readonly);
+    assertTrue(rec is EmployeeFoo);
+    assertFalse(rec is EmployeeFoo & readonly);
     assertFalse(rec.isReadOnly());
-    assertTrue(rec["details"] is Details);
-    assertFalse(rec["details"] is Details & readonly);
+    assertTrue(rec["details"] is DetailsBar);
+    assertFalse(rec["details"] is DetailsBar & readonly);
     assertFalse(rec["details"].isReadOnly());
 
-    Details & readonly details = {
+    DetailsBar & readonly details = {
         name: "Jo",
         id: 9876
     };
-    [Details[], Employee...] detEmpTup = [
-                                            [{name: "May", id: 1234}, details],
-                                            {details, department: "finance"}
-                                         ];
+    [DetailsBar[], EmployeeFoo...] detEmpTup = [
+        [{name: "May", id: 1234}, details],
+        {details, department: "finance"}
+    ];
     anydata a3 = detEmpTup;
-    assertTrue(a3 is [Details[], Employee...]);
-    assertFalse(a3 is [Details[], Employee...] & readonly);
-    assertFalse(a3 is [[Details, Details], Employee] & readonly);
+    assertTrue(a3 is [DetailsBar[], EmployeeFoo...]);
+    assertFalse(a3 is [DetailsBar[], EmployeeFoo...] & readonly);
+    assertFalse(a3 is [[DetailsBar, DetailsBar], EmployeeFoo] & readonly);
 
-    [Details[], Employee...] vals = <[Details[], Employee...]> a3;
+    [DetailsBar[], EmployeeFoo...] vals = <[DetailsBar[], EmployeeFoo...]>a3;
     assertFalse(vals[0].isReadOnly());
 
-    Details d1 = vals[0][0];
+    DetailsBar d1 = vals[0][0];
     assertFalse(d1.isReadOnly());
 
-    Details d2 = vals[0][1];
+    DetailsBar d2 = vals[0][1];
     assertEquality(details, d2);
     assertTrue(d2.isReadOnly());
 
-    Employee e = vals[1];
-    assertEquality(<Employee> {details, department: "finance"}, e);
+    EmployeeFoo e = vals[1];
+    assertEquality(<EmployeeFoo>{details, department: "finance"}, e);
     assertFalse(e.isReadOnly());
     assertTrue(e.details.isReadOnly());
 
@@ -396,8 +396,8 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an5 is readonly);
     assertFalse(a5.isReadOnly());
 
-    json[] jsonVal = <json[]> an5;
-    map<json> a8 = <map<json>> jsonVal[1];
+    json[] jsonVal = <json[]>an5;
+    map<json> a8 = <map<json>>jsonVal[1];
     any an8 = a8;
     assertFalse(a8 is map<json> & readonly);
     assertFalse(an8 is readonly);
@@ -421,15 +421,15 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
 
-    table<Identifier> key(name) j = table [
+    table<IdentifierFoo> key(name) j = table [
         {name: "Jo", id: 4567},
         {name: "Emma", id: 1234},
         {name: "Amy", id: 678}
     ];
     anydata a9 = j;
     any an9 = j;
-    assertTrue(an9 is table<Identifier>);
-    assertFalse(an9 is table<Identifier> & readonly);
+    assertTrue(an9 is table<IdentifierFoo>);
+    assertFalse(an9 is table<IdentifierFoo> & readonly);
     assertFalse(an9 is readonly);
     assertFalse(a9.isReadOnly());
 

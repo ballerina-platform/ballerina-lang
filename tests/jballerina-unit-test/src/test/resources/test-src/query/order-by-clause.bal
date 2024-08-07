@@ -22,13 +22,13 @@ type Student record {|
    boolean isUndergrad;
 |};
 
-type Person record {|
+type PersonPos record {|
     string firstName;
     string lastName;
     int age;
 |};
 
-type Customer record {|
+type CustomerPos record {|
     readonly int id;
     readonly string name;
     int noOfItems;
@@ -57,25 +57,25 @@ type PaymentInfo record {|
     string modeOfPayment;
 |};
 
-type CustomerTable table<Customer> key(id, name);
+type CustomerTable table<CustomerPos> key(id, name);
 
 type CustomerValue record {|
-  Customer value;
+    CustomerPos value;
 |};
 
 type PersonValue record {|
-    Person value;
+    PersonPos value;
 |};
 
-function getCustomer(record {| Customer value; |}? returnedVal) returns Customer? {
+function getCustomer(record {|CustomerPos value;|}? returnedVal) returns CustomerPos? {
     if (returnedVal is CustomerValue) {
-       return returnedVal.value;
+        return returnedVal.value;
     } else {
-       return ();
+        return ();
     }
 }
 
-function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal)
+function getPersonValue((record {|PersonPos value;|}|error?)|(record {|PersonPos value;|}?) returnedVal)
 returns PersonValue? {
     var result = returnedVal;
     if (result is PersonValue) {
@@ -96,13 +96,13 @@ function testQueryExprWithOrderByClause() returns boolean {
     Student[] studentList = [s1, s2, s3, s4];
 
     Student[] opStudentList = from var student in studentList
-       order by student.fname descending, student.impact
-       select student;
+        order by student.fname descending, student.impact
+        select student;
 
-    testPassed = testPassed &&  opStudentList[0] ==  studentList[3];
-    testPassed = testPassed &&  opStudentList[1] ==  studentList[0];
-    testPassed = testPassed &&  opStudentList[2] ==  studentList[1];
-    testPassed = testPassed &&  opStudentList[3] ==  studentList[2];
+    testPassed = testPassed && opStudentList[0] == studentList[3];
+    testPassed = testPassed && opStudentList[1] == studentList[0];
+    testPassed = testPassed && opStudentList[2] == studentList[1];
+    testPassed = testPassed && opStudentList[3] == studentList[2];
 
     return testPassed;
 }
@@ -118,71 +118,71 @@ function testQueryExprWithOrderByClause2() returns boolean {
     Student[] studentList = [s1, s2, s3, s4];
 
     Student[] opStudentList = from var student in studentList
-       order by student.isUndergrad ascending, student.fee
-       select student;
+        order by student.isUndergrad ascending, student.fee
+        select student;
 
-    testPassed = testPassed &&  opStudentList[0] ==  studentList[1];
-    testPassed = testPassed &&  opStudentList[1] ==  studentList[2];
-    testPassed = testPassed &&  opStudentList[2] ==  studentList[0];
-    testPassed = testPassed &&  opStudentList[3] ==  studentList[3];
+    testPassed = testPassed && opStudentList[0] == studentList[1];
+    testPassed = testPassed && opStudentList[1] == studentList[2];
+    testPassed = testPassed && opStudentList[2] == studentList[0];
+    testPassed = testPassed && opStudentList[3] == studentList[3];
 
     return testPassed;
 }
 
-function testQueryExprWithOrderByClause3() returns Customer[] {
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
-    Customer c2 = {id: 5, name: "James", noOfItems: 5};
-    Customer c3 = {id: 7, name: "James", noOfItems: 25};
-    Customer c4 = {id: 0, name: "James", noOfItems: 25};
+function testQueryExprWithOrderByClause3() returns CustomerPos[] {
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 12};
+    CustomerPos c2 = {id: 5, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 7, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 0, name: "James", noOfItems: 25};
 
-    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
 
-    Customer[] customerList = [c1, c2, c3, c4];
-    Person[] personList = [p1, p2];
+    CustomerPos[] customerList = [c1, c2, c3, c4];
+    PersonPos[] personList = [p1, p2];
 
-    Customer[] opCustomerList = from var customer in customerList
-           from var person in personList
-           let string customerName = "Johns"
-           where person.lastName == "James"
-           order by customer.id descending
-           select {
-               id: customer.id,
-               name: customerName,
-               noOfItems: customer.noOfItems
-           };
+    CustomerPos[] opCustomerList = from var customer in customerList
+        from var person in personList
+        let string customerName = "Johns"
+        where person.lastName == "James"
+        order by customer.id descending
+        select {
+            id: customer.id,
+            name: customerName,
+            noOfItems: customer.noOfItems
+        };
 
-    return  opCustomerList;
+    return opCustomerList;
 }
 
 function testQueryExprWithOrderByClauseReturnTable() returns boolean {
     boolean testPassed = true;
 
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
-    Customer c2 = {id: 2, name: "James", noOfItems: 5};
-    Customer c3 = {id: 3, name: "James", noOfItems: 25};
-    Customer c4 = {id: 4, name: "James", noOfItems: 25};
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 12};
+    CustomerPos c2 = {id: 2, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 3, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 4, name: "James", noOfItems: 25};
 
-    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
 
-    Customer[] customerList = [c1, c2, c3, c4];
-    Person[] personList = [p1, p2];
+    CustomerPos[] customerList = [c1, c2, c3, c4];
+    PersonPos[] personList = [p1, p2];
 
     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
-         from var person in personList
-         where person.firstName == "Frank"
-         order by customer.noOfItems descending, customer.id
-         limit 3
-         select {
-             id: customer.id,
-             name: customer.name,
-             noOfItems: customer.noOfItems
-         };
+        from var person in personList
+        where person.firstName == "Frank"
+        order by customer.noOfItems descending, customer.id
+        limit 3
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
 
     if (customerTable is CustomerTable) {
         var itr = customerTable.iterator();
-        Customer? customer = getCustomer(itr.next());
+        CustomerPos? customer = getCustomer(itr.next());
         testPassed = testPassed && customer == customerList[2];
         customer = getCustomer(itr.next());
         testPassed = testPassed && customer == customerList[3];
@@ -198,19 +198,19 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
 function testQueryExprWithOrderByClauseReturnStream() returns boolean {
     boolean testPassed = true;
 
-    Person p1 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p2 = {firstName: "John", lastName: "David", age: 33};
-    Person p3 = {firstName: "John", lastName: "Fonseka", age: 28};
-    Person p4 = {firstName: "John", lastName: "Fonseka", age: 30};
-    Person p5 = {firstName: "John", lastName: "Fonseka", age: 20};
+    PersonPos p1 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonPos p2 = {firstName: "John", lastName: "David", age: 33};
+    PersonPos p3 = {firstName: "John", lastName: "Fonseka", age: 28};
+    PersonPos p4 = {firstName: "John", lastName: "Fonseka", age: 30};
+    PersonPos p5 = {firstName: "John", lastName: "Fonseka", age: 20};
 
-    Customer c1 = {id: 1, name: "John", noOfItems: 25};
-    Customer c2 = {id: 2, name: "Frank", noOfItems: 20};
+    CustomerPos c1 = {id: 1, name: "John", noOfItems: 25};
+    CustomerPos c2 = {id: 2, name: "Frank", noOfItems: 20};
 
-    Person[] personList = [p1, p2, p3, p4, p5];
-    Customer[] customerList = [c1, c2];
+    PersonPos[] personList = [p1, p2, p3, p4, p5];
+    CustomerPos[] customerList = [c1, c2];
 
-    stream<Person> outputPersonStream = stream from var person in personList.toStream()
+    stream<PersonPos> outputPersonStream = stream from var person in personList.toStream()
         from var customer in customerList
         let string newLastName = "Turin"
         let string newFirstName = "Johnas"
@@ -223,7 +223,7 @@ function testQueryExprWithOrderByClauseReturnStream() returns boolean {
             age: person.age
         };
 
-    record {| Person value; |}? person = getPersonValue(outputPersonStream.next());
+    record {|PersonPos value;|}? person = getPersonValue(outputPersonStream.next());
     testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
     person?.value?.age == 30;
 
@@ -246,26 +246,26 @@ function testQueryExprWithOrderByClauseReturnStream() returns boolean {
 }
 
 function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
-    Customer c2 = {id: 2, name: "James", noOfItems: 5};
-    Customer c3 = {id: 3, name: "James", noOfItems: 25};
-    Customer c4 = {id: 4, name: "James", noOfItems: 25};
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 12};
+    CustomerPos c2 = {id: 2, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 3, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 4, name: "James", noOfItems: 25};
 
-    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
 
-    Customer[] customerList = [c1, c2, c3, c4];
-    Person[] personList = [p1, p2];
+    CustomerPos[] customerList = [c1, c2, c3, c4];
+    PersonPos[] personList = [p1, p2];
 
     CustomerProfile[] customerProfileList = from var customer in customerList
-         join var person in personList
-         on customer.name equals person.lastName
-         order by customer.noOfItems
-         select {
-             name: person.firstName,
-             age : person.age,
-             noOfItems: customer.noOfItems
-         };
+        join var person in personList
+        on customer.name equals person.lastName
+        order by customer.noOfItems
+        select {
+            name: person.firstName,
+            age: person.age,
+            noOfItems: customer.noOfItems
+        };
 
     return customerProfileList;
 }
@@ -273,14 +273,30 @@ function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
 function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction() returns boolean {
     boolean testPassed = true;
 
-    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
+    Employee e1 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Main Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e2 = {
+        name: "James",
+        address: {unitNo: 222, street: "Main Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e3 = {
+        name: "James",
+        address: {unitNo: 222, street: "Cross Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e4 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
 
     Employee[] empList = [e1, e2, e3, e4];
 
@@ -288,10 +304,10 @@ function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction() retur
         order by emp.address.unitNo descending, emp.address.street.toLowerAscii()
         select emp;
 
-    testPassed = testPassed &&  opEmpList[0] ==  empList[2];
-    testPassed = testPassed &&  opEmpList[1] ==  empList[1];
-    testPassed = testPassed &&  opEmpList[2] ==  empList[3];
-    testPassed = testPassed &&  opEmpList[3] ==  empList[0];
+    testPassed = testPassed && opEmpList[0] == empList[2];
+    testPassed = testPassed && opEmpList[1] == empList[1];
+    testPassed = testPassed && opEmpList[2] == empList[3];
+    testPassed = testPassed && opEmpList[3] == empList[0];
 
     return testPassed;
 }
@@ -299,16 +315,36 @@ function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction() retur
 function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction2() returns boolean {
     boolean testPassed = true;
 
-    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:11, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:111, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1111, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e5 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1111, two:2, three:3},
-    noOfShifts: [3, 2, 3]};
+    Employee e1 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Main Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e2 = {
+        name: "James",
+        address: {unitNo: 222, street: "Main Street"},
+        tokens: {one: 11, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e3 = {
+        name: "James",
+        address: {unitNo: 222, street: "Cross Street"},
+        tokens: {one: 111, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e4 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 1111, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e5 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 1111, two: 2, three: 3},
+        noOfShifts: [3, 2, 3]
+    };
 
     Employee[] empList = [e1, e2, e3, e4, e5];
 
@@ -316,36 +352,36 @@ function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction2() retu
         order by emp.name, emp.tokens["one"] descending, emp.noOfShifts[0] descending
         select emp;
 
-    testPassed = testPassed &&  opEmpList[0] ==  empList[4];
-    testPassed = testPassed &&  opEmpList[1] ==  empList[3];
-    testPassed = testPassed &&  opEmpList[2] ==  empList[0];
-    testPassed = testPassed &&  opEmpList[3] ==  empList[2];
-    testPassed = testPassed &&  opEmpList[4] ==  empList[1];
+    testPassed = testPassed && opEmpList[0] == empList[4];
+    testPassed = testPassed && opEmpList[1] == empList[3];
+    testPassed = testPassed && opEmpList[2] == empList[0];
+    testPassed = testPassed && opEmpList[3] == empList[2];
+    testPassed = testPassed && opEmpList[4] == empList[1];
 
     return testPassed;
 }
 
 function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() returns CustomerProfile[] {
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
-    Customer c2 = {id: 2, name: "James", noOfItems: 5};
-    Customer c3 = {id: 3, name: "James", noOfItems: 25};
-    Customer c4 = {id: 4, name: "James", noOfItems: 25};
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 12};
+    CustomerPos c2 = {id: 2, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 3, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 4, name: "James", noOfItems: 25};
 
-    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
 
-    Customer[] customerList = [c1, c2, c3, c4];
-    Person[] personList = [p1, p2];
+    CustomerPos[] customerList = [c1, c2, c3, c4];
+    PersonPos[] personList = [p1, p2];
 
     CustomerProfile[] customerProfileList = from var customer in customerList
-         join var person in personList
-         on customer.name equals person.lastName
-         order by incrementCount(0), customer.noOfItems descending
-         select {
-             name: person.firstName,
-             age : person.age,
-             noOfItems: customer.noOfItems
-         };
+        join var person in personList
+        on customer.name equals person.lastName
+        order by incrementCount(0), customer.noOfItems descending
+        select {
+            name: person.firstName,
+            age: person.age,
+            noOfItems: customer.noOfItems
+        };
 
     return customerProfileList;
 }
@@ -353,20 +389,56 @@ function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() retu
 function testQueryExprWithOrderByClauseHavingNaNNilValues() returns boolean {
     boolean testPassed = true;
 
-    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:11, two:(), three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:11, two:(0.0/0.0),
-    three:3}, noOfShifts: [1, 2, 3]};
-    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:3},
-    noOfShifts: [1, 2, 3]};
-    Employee e5 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:()},
-    noOfShifts: [1, 2, 3]};
-    Employee e6 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4,
-    three:(0.0/0.0)}, noOfShifts: [1, 2, 3]};
-    Employee e7 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:55},
-    noOfShifts: [1, 2, 3]};
+    Employee e1 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Main Street"},
+        tokens: {one: 1, two: 2, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e2 = {
+        name: "James",
+        address: {unitNo: 222, street: "Main Street"},
+        tokens: {one: 11, two: (), three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e3 = {
+        name: "James",
+        address: {unitNo: 222, street: "Cross Street"},
+        tokens: {
+            one: 11,
+            two: (0.0 / 0.0),
+            three: 3
+        },
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e4 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 11, two: 4, three: 3},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e5 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 11, two: 4, three: ()},
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e6 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {
+            one: 11,
+            two: 4,
+            three: (0.0 / 0.0)
+        },
+        noOfShifts: [1, 2, 3]
+    };
+    Employee e7 = {
+        name: "Frank",
+        address: {unitNo: 111, street: "Cross Street"},
+        tokens: {one: 11, two: 4, three: 55},
+        noOfShifts: [1, 2, 3]
+    };
 
     Employee[] empList = [e1, e2, e3, e4, e5, e6, e7];
 
@@ -374,30 +446,30 @@ function testQueryExprWithOrderByClauseHavingNaNNilValues() returns boolean {
         order by emp.tokens["two"] descending, emp.tokens["three"] ascending
         select emp;
 
-    testPassed = testPassed &&  opEmpList[0] ==  empList[3];
-    testPassed = testPassed &&  opEmpList[1] ==  empList[6];
-    testPassed = testPassed &&  opEmpList[2] ==  empList[5];
-    testPassed = testPassed &&  opEmpList[3] ==  empList[4];
-    testPassed = testPassed &&  opEmpList[4] ==  empList[0];
-    testPassed = testPassed &&  opEmpList[5] ==  empList[2];
-    testPassed = testPassed &&  opEmpList[6] ==  empList[1];
+    testPassed = testPassed && opEmpList[0] == empList[3];
+    testPassed = testPassed && opEmpList[1] == empList[6];
+    testPassed = testPassed && opEmpList[2] == empList[5];
+    testPassed = testPassed && opEmpList[3] == empList[4];
+    testPassed = testPassed && opEmpList[4] == empList[0];
+    testPassed = testPassed && opEmpList[5] == empList[2];
+    testPassed = testPassed && opEmpList[6] == empList[1];
 
     return testPassed;
 }
 
 function testQueryExprWithOrderByClauseReturnString() returns string {
-    Person p1 = {firstName: "Amy", lastName: "Melina", age: 34};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
-    Person p3 = {firstName: "Melina", lastName: "Kodel", age: 72};
-    Person p4 = {firstName: "Terrence", lastName: "Lewis", age: 19};
-    Person p5 = {firstName: "Meghan", lastName: "Markle", age: 55};
+    PersonPos p1 = {firstName: "Amy", lastName: "Melina", age: 34};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p3 = {firstName: "Melina", lastName: "Kodel", age: 72};
+    PersonPos p4 = {firstName: "Terrence", lastName: "Lewis", age: 19};
+    PersonPos p5 = {firstName: "Meghan", lastName: "Markle", age: 55};
 
-    Person[] personList = [p1, p2, p3, p4, p5];
+    PersonPos[] personList = [p1, p2, p3, p4, p5];
 
     string outputNameString = from var person in personList
-         order by person.age descending
-         limit 3
-         select person.firstName+" "+person.lastName+",";
+        order by person.age descending
+        limit 3
+        select person.firstName + " " + person.lastName + ",";
 
     return outputNameString;
 }
@@ -419,53 +491,58 @@ function testQueryExprWithOrderByClauseReturnXML() returns xml {
                   </bookStore>`;
 
     xml authors = from var book in bookStore/<book>/<author>
-                  order by book.toString()
-                  limit 2
-                  select book;
+        order by book.toString()
+        limit 2
+        select book;
 
-    return  authors;
+    return authors;
 }
 
 function testQueryExprWithOrderByClauseAndInnerQueries() returns CustomerProfile[] {
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 62};
-    Customer c2 = {id: 5, name: "James", noOfItems: 5};
-    Customer c3 = {id: 9, name: "James", noOfItems: 25};
-    Customer c4 = {id: 0, name: "James", noOfItems: 25};
-    Customer c5 = {id: 2, name: "James", noOfItems: 30};
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 62};
+    CustomerPos c2 = {id: 5, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 9, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 0, name: "James", noOfItems: 25};
+    CustomerPos c5 = {id: 2, name: "James", noOfItems: 30};
 
-    Person p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
-    Person p3 = {firstName: "Zeth", lastName: "James", age: 50};
+    PersonPos p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p3 = {firstName: "Zeth", lastName: "James", age: 50};
 
-    Customer[] customerList = [c1, c2, c3, c4, c5];
-    Person[] personList = [p1, p2, p3];
+    CustomerPos[] customerList = [c1, c2, c3, c4, c5];
+    PersonPos[] personList = [p1, p2, p3];
 
     CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
-                                                                    order by c.id descending limit 4 select c)
-         join var person in (from var p in personList order by p.firstName descending limit 2 select p)
-         on customer.name equals person.lastName
-         order by incrementCount(0), customer.noOfItems descending
-         limit 3
-         select {
-             name: person.firstName,
-             age : person.age,
-             noOfItems: customer.noOfItems
-         };
+            order by c.id descending
+            limit 4
+            select c)
+        join var person in (from var p in personList
+            order by p.firstName descending
+            limit 2
+            select p)
+        on customer.name equals person.lastName
+        order by incrementCount(0), customer.noOfItems descending
+        limit 3
+        select {
+            name: person.firstName,
+            age: person.age,
+            noOfItems: customer.noOfItems
+        };
 
     return customerProfileList;
 }
 
 function testQueryExprWithOrderByClauseAndInnerQueries2() returns CustomerProfile[] {
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 62};
-    Customer c2 = {id: 5, name: "James", noOfItems: 5};
-    Customer c3 = {id: 9, name: "James", noOfItems: 25};
-    Customer c4 = {id: 0, name: "James", noOfItems: 25};
-    Customer c5 = {id: 2, name: "James", noOfItems: 30};
-    Customer c6 = {id: 3, name: "Melina", noOfItems: 20};
+    CustomerPos c1 = {id: 1, name: "Melina", noOfItems: 62};
+    CustomerPos c2 = {id: 5, name: "James", noOfItems: 5};
+    CustomerPos c3 = {id: 9, name: "James", noOfItems: 25};
+    CustomerPos c4 = {id: 0, name: "James", noOfItems: 25};
+    CustomerPos c5 = {id: 2, name: "James", noOfItems: 30};
+    CustomerPos c6 = {id: 3, name: "Melina", noOfItems: 20};
 
-    Person p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
-    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
-    Person p3 = {firstName: "Zeth", lastName: "James", age: 50};
+    PersonPos p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
+    PersonPos p2 = {firstName: "Frank", lastName: "James", age: 30};
+    PersonPos p3 = {firstName: "Zeth", lastName: "James", age: 50};
 
     PaymentInfo i1 = {custId: 1, modeOfPayment: "cash"};
     PaymentInfo i2 = {custId: 9, modeOfPayment: "debit card"};
@@ -476,8 +553,8 @@ function testQueryExprWithOrderByClauseAndInnerQueries2() returns CustomerProfil
     PaymentInfo i7 = {custId: 2, modeOfPayment: "cash"};
     PaymentInfo i8 = {custId: 3, modeOfPayment: "cash"};
 
-    Customer[] customerList = [c1, c2, c3, c4, c5, c6];
-    Person[] personList = [p1, p2, p3];
+    CustomerPos[] customerList = [c1, c2, c3, c4, c5, c6];
+    PersonPos[] personList = [p1, p2, p3];
     PaymentInfo[] paymentList = [i1, i2, i3, i4, i5, i6, i7, i8];
 
     CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
