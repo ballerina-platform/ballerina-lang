@@ -225,7 +225,6 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
         return this.cachedImpliedType;
     }
 
-    // TODO: do better
     @Override
     public SemType createSemType() {
         return Builder.wrapAsPureBType(this);
@@ -233,18 +232,14 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
 
     protected SemType getSemType() {
         SemType semType = cachedSemType;
-        if (semType == null) {
-            synchronized (this) {
-                semType = cachedSemType;
-                if (semType == null) {
-                    semType = createSemType();
-                    if (isReadOnly()) {
-                        semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
-                    }
-                    cachedSemType = semType;
-                }
-            }
+        if (semType != null) {
+            return semType;
         }
+        semType = createSemType();
+        if (isReadOnly()) {
+            semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
+        }
+        cachedSemType = semType;
         return semType;
     }
 
@@ -283,7 +278,7 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
     }
 
     @Override
-    public synchronized void resetSemType() {
+    public void resetSemType() {
         cachedSemType = null;
         mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
     }
