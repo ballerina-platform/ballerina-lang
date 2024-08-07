@@ -417,8 +417,7 @@ public class Utils {
      * @return converted list of strings
      */
     static List<String> getAsList(String arrayString) {
-        return new Gson().fromJson(arrayString, new TypeToken<List<String>>() {
-        }.getType());
+        return new Gson().fromJson(arrayString, new TypeToken<>() { });
     }
 
     /**

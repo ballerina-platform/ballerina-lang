@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,8 +49,7 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaExampleService implements ExtendedLanguageServerService {
     private static final String BBE_DEF_JSON = "index.json";
     private static final String EXAMPLES_DIR = "examples";
-    private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() {
-    }.getType();
+    private static final TypeToken<List<BallerinaExampleCategory>> EXAMPLE_CATEGORY_TYPE = new TypeToken<>() { };
     private  LSClientLogger clientLogger;
 
     @Override
