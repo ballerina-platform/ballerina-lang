@@ -71,10 +71,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
-        if (!(params.getSettings() instanceof JsonObject)) {
+        if (!(params.getSettings() instanceof JsonObject settings)) {
             return;
         }
-        JsonObject settings = (JsonObject) params.getSettings();
         if (settings.get("ballerina") != null) {
             configHolder.updateConfig(settings.get("ballerina"));
         } else {

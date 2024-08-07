@@ -225,10 +225,10 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Array.
      */
     public static boolean isJSONArray(Object json) {
-        if (!(json instanceof BRefValue)) {
+        if (!(json instanceof BRefValue refValue)) {
             return false;
         }
-        return TypeUtils.getImpliedType(((BRefValue) json).getType()).getTag() == TypeTags.ARRAY_TAG;
+        return TypeUtils.getImpliedType(refValue.getType()).getTag() == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -238,11 +238,11 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Object.
      */
     public static boolean isJSONObject(Object json) {
-        if (!(json instanceof BRefValue)) {
+        if (!(json instanceof BRefValue refValue)) {
             return false;
         }
 
-        Type type = TypeUtils.getImpliedType(((BRefValue) json).getType());
+        Type type = TypeUtils.getImpliedType(refValue.getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -507,13 +507,12 @@ public class JsonInternalUtils {
      *         of the JSON array. Otherwise the method will throw a {@link BError}.
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
-        if (!(json instanceof ArrayValue)) {
+        if (!(json instanceof ArrayValue jsonArray)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
         Type targetElementType = TypeUtils.getImpliedType(targetArrayType.getElementType());
-        ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonArrayToBIntArray(jsonArray);
@@ -567,12 +566,12 @@ public class JsonInternalUtils {
      * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
      */
     private static long jsonNodeToInt(Object json) {
-        if (!(json instanceof Long)) {
+        if (!(json instanceof Long l)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
-        return (Long) json;
+        return l;
     }
 
     /**
@@ -582,12 +581,12 @@ public class JsonInternalUtils {
      * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
      */
     private static double jsonNodeToFloat(Object json) {
-        if (json instanceof Integer) {
-            return ((Integer) json).longValue();
-        } else if (json instanceof Double) {
-            return (Double) json;
-        } else if (json instanceof DecimalValue) {
-            return ((DecimalValue) json).floatValue();
+        if (json instanceof Integer i) {
+            return i.longValue();
+        } else if (json instanceof Double d) {
+            return d;
+        } else if (json instanceof DecimalValue decimalValue) {
+            return decimalValue.floatValue();
         } else {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_FLOAT, getTypeName(json));
@@ -602,14 +601,14 @@ public class JsonInternalUtils {
      */
     private static DecimalValue jsonNodeToDecimal(Object json) {
         BigDecimal decimal;
-        if (json instanceof Integer) {
-            decimal = new BigDecimal(((Integer) json).longValue());
-        } else if (json instanceof Double) {
-            decimal = BigDecimal.valueOf((Double) json);
-        } else if (json instanceof BigDecimal) {
-            decimal = (BigDecimal) json;
-        } else if (json instanceof DecimalValue) {
-            return (DecimalValue) json;
+        if (json instanceof Integer i) {
+            decimal = new BigDecimal(i.longValue());
+        } else if (json instanceof Double d) {
+            decimal = BigDecimal.valueOf(d);
+        } else if (json instanceof BigDecimal bigDecimal) {
+            decimal = bigDecimal;
+        } else if (json instanceof DecimalValue decimalValue) {
+            return decimalValue;
         } else {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
@@ -625,11 +624,11 @@ public class JsonInternalUtils {
      * @return Boolean value of the JSON, if its a boolean node. Error, otherwise.
      */
     private static boolean jsonNodeToBoolean(Object json) {
-        if (!(json instanceof Boolean)) {
+        if (!(json instanceof Boolean b)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
         }
-        return (Boolean) json;
+        return b;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
@@ -832,11 +831,10 @@ public class JsonInternalUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof ObjectPair)) {
+            if (!(obj instanceof ObjectPair other)) {
                 return false;
             }
 
-            ObjectPair other = (ObjectPair) obj;
             return this.lhsObject == other.lhsObject && this.rhsObject == other.rhsObject;
         }
     }

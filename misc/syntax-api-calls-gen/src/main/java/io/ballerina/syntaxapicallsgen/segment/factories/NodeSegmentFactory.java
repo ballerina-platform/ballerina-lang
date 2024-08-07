@@ -67,10 +67,10 @@ public class NodeSegmentFactory {
     public Segment createNodeSegment(Node node) {
         if (node == null) {
             return SegmentFactory.createNullSegment();
-        } else if (node instanceof Token) {
-            return tokenSegmentFactory.createTokenSegment((Token) node);
-        } else if (node instanceof NonTerminalNode) {
-            return nonTerminalSegmentFactory.createNonTerminalSegment((NonTerminalNode) node);
+        } else if (node instanceof Token token) {
+            return tokenSegmentFactory.createTokenSegment(token);
+        } else if (node instanceof NonTerminalNode nonTerminalNode) {
+            return nonTerminalSegmentFactory.createNonTerminalSegment(nonTerminalNode);
         } else {
             throw new SyntaxApiCallsGenException("Expected non terminal or token. " +
                     "Found unexpected node type for: " + node);

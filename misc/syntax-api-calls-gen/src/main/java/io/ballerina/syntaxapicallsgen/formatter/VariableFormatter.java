@@ -51,9 +51,9 @@ public class VariableFormatter extends SegmentFormatter {
 
     @Override
     public String format(Segment segment) {
-        if (segment instanceof NodeFactorySegment) {
+        if (segment instanceof NodeFactorySegment nodeFactorySegment) {
             variableCount = new HashMap<>();
-            return MINUTIAE_LIST_DEF + processNode((NodeFactorySegment) segment);
+            return MINUTIAE_LIST_DEF + processNode(nodeFactorySegment);
         }
         throw new SyntaxApiCallsGenException("Expected a valid node segment but fount parsed segment of " + segment);
     }
@@ -130,8 +130,7 @@ public class VariableFormatter extends SegmentFormatter {
         StringBuilder stringBuilder = new StringBuilder();
         NodeFactorySegment factorySegment = segment.createCopy();
         for (Segment child : segment) {
-            if (child instanceof NodeFactorySegment) {
-                NodeFactorySegment childFactoryCall = (NodeFactorySegment) child;
+            if (child instanceof NodeFactorySegment childFactoryCall) {
                 NamedContent namedContent = processNode(childFactoryCall);
                 stringBuilder.append(namedContent.content);
                 factorySegment.addParameter(SegmentFactory.createCodeSegment(namedContent.name));

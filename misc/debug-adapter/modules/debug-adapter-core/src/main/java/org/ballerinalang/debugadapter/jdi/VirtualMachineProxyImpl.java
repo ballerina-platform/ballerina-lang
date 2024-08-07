@@ -592,15 +592,15 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
 
     public ObjectReferenceProxyImpl getObjectReferenceProxy(ObjectReference objectReference) {
         if (objectReference != null) {
-            if (objectReference instanceof ThreadReference) {
-                return getThreadReferenceProxy((ThreadReference) objectReference);
-            } else if (objectReference instanceof ThreadGroupReference) {
-                return getThreadGroupReferenceProxy((ThreadGroupReference) objectReference);
+            if (objectReference instanceof ThreadReference threadReference) {
+                return getThreadReferenceProxy(threadReference);
+            } else if (objectReference instanceof ThreadGroupReference threadGroupReference) {
+                return getThreadGroupReferenceProxy(threadGroupReference);
             } else {
                 ObjectReferenceProxyImpl proxy = myObjectReferenceProxies.get(objectReference);
                 if (proxy == null) {
-                    if (objectReference instanceof StringReference) {
-                        proxy = new StringReferenceProxyImpl(this, (StringReference) objectReference);
+                    if (objectReference instanceof StringReference stringReference) {
+                        proxy = new StringReferenceProxyImpl(this, stringReference);
                     } else {
                         proxy = new ObjectReferenceProxyImpl(this, objectReference);
                     }

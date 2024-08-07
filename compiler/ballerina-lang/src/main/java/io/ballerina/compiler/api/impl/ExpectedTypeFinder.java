@@ -227,9 +227,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField) {
-            BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral =
-                    (BLangRecordLiteral.BLangRecordVarNameField) bLangNode;
+        if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral) {
             if (bLangNodeRecLiteral.symbol != null && node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 BLangExpression bLangExpression = bLangNodeRecLiteral.impConversionExpr;
                 if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
@@ -306,11 +304,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangBinaryExpr)) {
+        if (!(bLangNode instanceof BLangBinaryExpr bLangBinaryExpr)) {
             return Optional.empty();
         }
 
-        BLangBinaryExpr bLangBinaryExpr = (BLangBinaryExpr) bLangNode;
         BLangExpression rhs = bLangBinaryExpr.rhsExpr;
         BLangExpression lhs = bLangBinaryExpr.lhsExpr;
         BType rhsExpType = rhs.expectedType;
@@ -367,12 +364,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangSimpleVarRef && ((BLangSimpleVarRef) bLangNode).symbol != null) {
-            return getTypeFromBType(((BLangSimpleVarRef) bLangNode).symbol.getType());
+        if (bLangNode instanceof BLangSimpleVarRef simpleVarRef && ((BLangSimpleVarRef) bLangNode).symbol != null) {
+            return getTypeFromBType(simpleVarRef.symbol.getType());
         }
 
-        if (bLangNode instanceof BLangUserDefinedType && ((BLangUserDefinedType) bLangNode).symbol != null) {
-            return getTypeFromBType(((BLangUserDefinedType) bLangNode).symbol.getType());
+        if (bLangNode instanceof BLangUserDefinedType userDefinedType && userDefinedType.symbol != null) {
+            return getTypeFromBType(userDefinedType.symbol.getType());
         }
 
         return Optional.empty();
@@ -393,14 +390,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ImplicitAnonymousFunctionExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangArrowFunction)) {
+        if (!(bLangNode instanceof BLangArrowFunction arrowFunction)) {
             return Optional.empty();
         }
 
         if (!node.rightDoubleArrow().isMissing() &&
                 node.rightDoubleArrow().lineRange().endLine().offset() <= linePosition.offset()) {
             // Cursor is at the expression node.
-            BType funcType = ((BLangArrowFunction) bLangNode).funcType;
+            BType funcType = arrowFunction.funcType;
             if (funcType == null) {
                 return Optional.empty();
             }
@@ -516,16 +513,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Token closeParen = parenthesizedArgList.get().closeParenToken();
         // Check if the line position is within the parameter context.
         if (isWithinParenthesis(openParen, closeParen)) {
-            if (!(bLangNode instanceof BLangTypeInit)) {
+            if (!(bLangNode instanceof BLangTypeInit bLangTypeInit)) {
                 return getExpectedType(bLangNode);
             }
 
-            BLangTypeInit bLangTypeInit = (BLangTypeInit) bLangNode;
-            if (!(bLangTypeInit.initInvocation instanceof BLangInvocation)) {
+            if (!(bLangTypeInit.initInvocation instanceof BLangInvocation initInvocation)) {
                 return getExpectedType(bLangNode);
             }
 
-            BLangInvocation initInvocation = (BLangInvocation) bLangTypeInit.initInvocation;
             if (initInvocation.symbol == null) {
                 throw new IllegalStateException();
             }
@@ -564,8 +559,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (isPosWithinRange(linePosition, node.condition().lineRange()) &&
-                bLangNode instanceof BLangIf) {
-            return getExpectedType(((BLangIf) bLangNode).expr);
+                bLangNode instanceof BLangIf bLangIf) {
+            return getExpectedType(bLangIf.expr);
         }
 
         return Optional.empty();
@@ -579,8 +574,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (isPosWithinRange(linePosition, node.condition().lineRange())
-                && bLangNode instanceof BLangWhile) {
-            return getExpectedType(((BLangWhile) bLangNode).expr);
+                && bLangNode instanceof BLangWhile bLangWhile) {
+            return getExpectedType(bLangWhile.expr);
         }
 
         return Optional.empty();
@@ -699,11 +694,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(WaitActionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangWaitExpr)) {
+        if (!(bLangNode instanceof BLangWaitExpr waitExpr)) {
             return Optional.empty();
         }
 
-        BLangWaitExpr waitExpr = (BLangWaitExpr) bLangNode;
         for (BLangExpression bLangExpression : waitExpr.exprList) {
             if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                 return getExpectedType(bLangExpression);
@@ -750,22 +744,21 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(TableConstructorExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangTableConstructorExpr)) {
+        if (!(bLangNode instanceof BLangTableConstructorExpr bLangTableConstructorExpr)) {
             return Optional.empty();
         }
 
-        BLangTableConstructorExpr bLangTableConstructorExpr = (BLangTableConstructorExpr) bLangNode;
         if (node.keySpecifier().isPresent() &&
                 isWithinParenthesis(node.keySpecifier().get().openParenToken(),
                         node.keySpecifier().get().closeParenToken())) {
             BType expectedType = bLangTableConstructorExpr.expectedType;
-            if (expectedType instanceof BTableType) {
+            if (expectedType instanceof BTableType tableType) {
                 return Optional.of(typesFactory.getTypeDescriptor(Objects.
-                        requireNonNullElse(((BTableType) expectedType).constraint, expectedType)));
+                        requireNonNullElse(tableType.constraint, expectedType)));
             }
 
-            if (expectedType instanceof BTypeReferenceType) {
-                BType referredType = ((BTypeReferenceType) expectedType).referredType;
+            if (expectedType instanceof BTypeReferenceType referenceType) {
+                BType referredType = referenceType.referredType;
                 return Optional.of(typesFactory.getTypeDescriptor(Objects.
                         requireNonNullElse(((BTableType) referredType).constraint, expectedType)));
             }
@@ -797,11 +790,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(SelectClauseNode node) {
         BLangNode bLangNode = nodeFinder.lookup(bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangSelectClause)) {
+        if (!(bLangNode instanceof BLangSelectClause selectClause)) {
             return Optional.empty();
         }
 
-        BType expectedType = ((BLangExpression) ((BLangSelectClause) bLangNode).getExpression()).expectedType;
+        BType expectedType = ((BLangExpression) selectClause.getExpression()).expectedType;
         return getTypeFromBType(expectedType);
 
     }
@@ -876,10 +869,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<ParenthesizedArgList> arguments = clientResourceAccessActionNode.arguments();
         if (arguments.isPresent() && isWithinParenthesis(arguments.get().openParenToken(),
                 arguments.get().closeParenToken())) {
-            if (!(bLangNode instanceof BLangInvocation)) {
+            if (!(bLangNode instanceof BLangInvocation bLangInvocation)) {
                 return getExpectedType(bLangNode);
             }
-            BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
             if (bLangInvocation.symbol == null) {
                 return Optional.empty();
             }
@@ -956,8 +948,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 bType = ((BLangRecordLiteral) node).expectedType;
                 break;
             case SIMPLE_VARIABLE_REF:
-                if (node instanceof BLangRecordLiteral) {
-                    BLangExpression bLangExpression = ((BLangRecordLiteral) node).impConversionExpr;
+                if (node instanceof BLangRecordLiteral recordLiteral) {
+                    BLangExpression bLangExpression = recordLiteral.impConversionExpr;
                     if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
                         bType = bLangExpression.getBType();
                         break;

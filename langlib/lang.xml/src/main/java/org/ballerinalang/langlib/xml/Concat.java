@@ -39,7 +39,7 @@ public class Concat {
         BXml lastItem = null;
         for (int i = 0; i < arrayValue.length; i++) {
             Object refValue = arrayValue[i];
-            if (refValue instanceof BString) {
+            if (refValue instanceof BString bString) {
                 if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
@@ -48,11 +48,11 @@ public class Concat {
                     lastItem = xmlText;
                     continue;
                 }
-                BXml xmlText = XmlFactory.createXMLText((BString) refValue);
+                BXml xmlText = XmlFactory.createXMLText(bString);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
-            } else if (refValue instanceof BXmlSequence) {
-                backingArray.addAll(((BXmlSequence) refValue).getChildrenList());
+            } else if (refValue instanceof BXmlSequence bXmlSequence) {
+                backingArray.addAll(bXmlSequence.getChildrenList());
                 lastItem = (BXml) refValue;
             } else {
                 backingArray.add((BXml) refValue);

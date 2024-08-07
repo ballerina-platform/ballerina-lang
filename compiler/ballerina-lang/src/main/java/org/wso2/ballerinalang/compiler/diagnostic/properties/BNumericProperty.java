@@ -53,8 +53,7 @@ public class BNumericProperty implements DiagnosticProperty<Number> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BNumericProperty) {
-            BNumericProperty that = (BNumericProperty) obj;
+        if (obj instanceof BNumericProperty that) {
             return this.kind.equals(that.kind) && this.value.equals(that.value);
         }
         return false;

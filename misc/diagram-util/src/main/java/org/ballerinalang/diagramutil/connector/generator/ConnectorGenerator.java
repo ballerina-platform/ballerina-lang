@@ -195,14 +195,13 @@ public class ConnectorGenerator {
                                                         ClassDefinitionNode classDefinition) {
         List<Function> functions = new ArrayList<>();
         for (Node member : classDefinition.members()) {
-            if (!(member instanceof FunctionDefinitionNode)) {
+            if (!(member instanceof FunctionDefinitionNode functionDefinition)) {
                 continue;
             }
-            NodeList<Token> qualifierList = ((FunctionDefinitionNode) member).qualifierList();
+            NodeList<Token> qualifierList = functionDefinition.qualifierList();
             if ((Generator.containsToken(qualifierList, SyntaxKind.PUBLIC_KEYWORD) ||
                     Generator.containsToken(qualifierList, SyntaxKind.REMOTE_KEYWORD) ||
                     Generator.containsToken(qualifierList, SyntaxKind.RESOURCE_KEYWORD))) {
-                FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
 
                 String functionName = functionDefinition.functionName().text();
                 Map<String, String> funcAnnotation =

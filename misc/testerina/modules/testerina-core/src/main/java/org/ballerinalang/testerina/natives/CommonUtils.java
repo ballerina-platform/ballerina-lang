@@ -62,11 +62,11 @@ public class CommonUtils {
             return true;
         }
 
-        if (!(type instanceof UnionType)) {
+        if (!(type instanceof UnionType unionType)) {
             return false;
         }
 
-        for (Type memberType : ((UnionType) type).getMemberTypes()) {
+        for (Type memberType : unionType.getMemberTypes()) {
             if (!isSubTypeOfReadOnly(memberType)) {
                 return false;
             }

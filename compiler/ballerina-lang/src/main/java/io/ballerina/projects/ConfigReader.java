@@ -196,8 +196,7 @@ public class ConfigReader {
             // Filter configurable variables
             if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags,
                     Flags.CONFIGURABLE)) {
-                if (symbol instanceof BVarSymbol) {
-                    BVarSymbol varSymbol = (BVarSymbol) symbol;
+                if (symbol instanceof BVarSymbol varSymbol) {
                     if ((validConfigs != null && validConfigs.contains(varSymbol)) || validConfigs == null) {
                         // Get description
                         String description = getDescriptionValue(varSymbol, module);
@@ -241,8 +240,9 @@ public class ConfigReader {
                     symbol = symbol.type.tsymbol;
                 }
                 if (symbol != null && symbol.tag == SymTag.VARIABLE
-                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) && symbol instanceof BVarSymbol) {
-                    configVars.add((BVarSymbol) symbol);
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) &&
+                        symbol instanceof BVarSymbol bVarSymbol) {
+                    configVars.add(bVarSymbol);
                 }
             }
         }

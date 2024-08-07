@@ -156,8 +156,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SocketStreamConnectionProvider) {
-            SocketStreamConnectionProvider other = (SocketStreamConnectionProvider) obj;
+        if (obj instanceof SocketStreamConnectionProvider other) {
             return port == other.port && address.equals(other.address) && super.equals(obj);
         }
         return false;

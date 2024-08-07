@@ -142,9 +142,7 @@ public class IgnoreUnusedVariableCodeAction implements DiagnosticBasedCodeAction
             Range editRange = PositionUtil.toRange(bindingPatternNode.lineRange());
             textEdit = new TextEdit(editRange, "_");
         } else if (bindingPatternNode.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
-            if (bindingPatternNode instanceof FieldBindingPatternVarnameNode) {
-                FieldBindingPatternVarnameNode fieldBindingPattern =
-                        (FieldBindingPatternVarnameNode) bindingPatternNode;
+            if (bindingPatternNode instanceof FieldBindingPatternVarnameNode fieldBindingPattern) {
                 Position position = PositionUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
                 Range editRange = new Range(position, position);
                 textEdit = new TextEdit(editRange, ": _");

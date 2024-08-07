@@ -61,8 +61,7 @@ public class BallerinaConstantValue implements ConstantValue {
             return false;
         }
 
-        if (o instanceof BallerinaConstantValue) {
-            BallerinaConstantValue that = (BallerinaConstantValue) o;
+        if (o instanceof BallerinaConstantValue that) {
 
             if (this.valueType != that.valueType) {
                 return false;

@@ -1583,9 +1583,8 @@ class NodeFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof AnnotatableNode) {
-            List<AnnotationAttachmentNode> nodes =
-                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+        if (node instanceof AnnotatableNode annotatableNode) {
+            List<? extends AnnotationAttachmentNode> nodes = annotatableNode.getAnnotationAttachments();
 
             for (AnnotationAttachmentNode annotAttachment : nodes) {
                 if (PositionUtil.isRangeWithinNode(this.range, annotAttachment.getPosition())) {

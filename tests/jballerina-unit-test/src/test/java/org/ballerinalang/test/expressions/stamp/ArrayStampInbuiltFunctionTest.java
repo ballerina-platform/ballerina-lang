@@ -250,11 +250,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -264,11 +264,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -278,11 +278,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test
@@ -292,11 +292,11 @@ public class ArrayStampInbuiltFunctionTest {
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
-        Assert.assertEquals(((BArray) results).getElementType().getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BArray) results).getInt(0), 1);
-        Assert.assertEquals(((BArray) results).getInt(1), 2);
-        Assert.assertEquals(((BArray) results).getInt(2), 3);
-        Assert.assertEquals(((BArray) results).getInt(3), 4);
+        Assert.assertEquals(valueArray.getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(valueArray.getInt(0), 1);
+        Assert.assertEquals(valueArray.getInt(1), 2);
+        Assert.assertEquals(valueArray.getInt(2), 3);
+        Assert.assertEquals(valueArray.getInt(3), 4);
     }
 
     @Test

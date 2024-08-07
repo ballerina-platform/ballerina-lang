@@ -1963,8 +1963,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 frameAccessExpr.expr = types.addConversionExprIfRequired(frameAccessExpr.expr,
                         types.getSafeType(frameAccessExpr.expr.getBType(), true, false));
 
-                if (symbol instanceof BVarSymbol) {
-                    ((BVarSymbol) symbol).originalSymbol = null;
+                if (symbol instanceof BVarSymbol varSymbol) {
+                    varSymbol.originalSymbol = null;
                     if (withinLambdaOrArrowFunc || withinQuery) {
                         if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is

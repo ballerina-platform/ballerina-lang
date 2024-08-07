@@ -99,11 +99,10 @@ public class BXmlType extends BType implements XmlType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(this == obj && obj instanceof BXmlType)) {
+        if (!(this == obj && obj instanceof BXmlType other)) {
             return false;
         }
 
-        BXmlType other = (BXmlType) obj;
         if (constraint == other.constraint) {
             return true;
         }

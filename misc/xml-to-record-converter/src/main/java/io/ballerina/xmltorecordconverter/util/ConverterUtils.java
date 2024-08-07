@@ -99,10 +99,10 @@ public class ConverterUtils {
         List<TypeDescriptorNode> extractedTypeNames = new ArrayList<>();
         for (TypeDescriptorNode typeDescNode : typeDescNodes) {
             TypeDescriptorNode extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
-            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode) {
+            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode unionTypeDescriptorNode) {
                 List<TypeDescriptorNode> childTypeDescNodes =
-                        List.of(((UnionTypeDescriptorNode) extractedTypeDescNode).leftTypeDesc(),
-                                ((UnionTypeDescriptorNode) extractedTypeDescNode).rightTypeDesc());
+                        List.of(unionTypeDescriptorNode.leftTypeDesc(),
+                                unionTypeDescriptorNode.rightTypeDesc());
                 addIfNotExist(extractedTypeNames, extractTypeDescriptorNodes(childTypeDescNodes));
             } else {
                 addIfNotExist(extractedTypeNames, List.of(extractedTypeDescNode));
@@ -170,22 +170,22 @@ public class ConverterUtils {
      */
     public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
         int totalDimensions = arrayNode.dimensions().size();
-        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
+        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+            totalDimensions += getNumberOfDimensions(arrayTypeDescriptorNode);
         }
         return totalDimensions;
     }
 
     private static TypeDescriptorNode extractArrayTypeDescNode(ArrayTypeDescriptorNode arrayTypeDescNode) {
-        if (arrayTypeDescNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            return extractArrayTypeDescNode((ArrayTypeDescriptorNode) arrayTypeDescNode.memberTypeDesc());
+        if (arrayTypeDescNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+            return extractArrayTypeDescNode(arrayTypeDescriptorNode);
         }
         return arrayTypeDescNode.memberTypeDesc();
     }
 
     private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
-        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
-            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
+        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+            return extractParenthesisedTypeDescNode(parenthesisedTypeDescriptorNode.typedesc());
         }
         return typeDescNode;
     }

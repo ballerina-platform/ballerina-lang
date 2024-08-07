@@ -1112,8 +1112,7 @@ public class TypeParamAnalyzer {
 
     private BAttachedFunction duplicateAttachFunc(BAttachedFunction expFunc, BInvokableType matchType,
                                                   BInvokableSymbol invokableSymbol) {
-        if (expFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) expFunc;
+        if (expFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction newResourceFunc = new BResourceFunction(resourceFunction.funcName, invokableSymbol,
                     matchType, resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
                     expFunc.pos);

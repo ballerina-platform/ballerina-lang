@@ -460,9 +460,9 @@ public class TestProcessor {
                         if (VALUE_FIELD_NAME.equals(getFieldName(specificField))) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
-                                    valueExpr instanceof ListConstructorExpressionNode) {
+                                    valueExpr instanceof ListConstructorExpressionNode listConstructorExprNode) {
                                 List<String> groupList = new ArrayList<>();
-                                ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
+                                listConstructorExprNode.expressions().forEach(
                                         expression -> groupList.add(getStringValue(expression)));
                                 if (isBeforeGroups) {
                                     suite.addBeforeGroupsFunction(functionName, groupList);
@@ -512,9 +512,9 @@ public class TestProcessor {
                             }
                             if (GROUP_ANNOTATION_NAME.equals(fieldName)) {
                                 if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
-                                        valueExpr instanceof ListConstructorExpressionNode) {
+                                        valueExpr instanceof ListConstructorExpressionNode listConstructorExprNode) {
                                     List<String> groupList = new ArrayList<>();
-                                    ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
+                                    listConstructorExprNode.expressions().forEach(
                                             expression -> groupList.add(getStringValue(expression)));
                                     test.setGroups(groupList);
                                     suite.addTestToGroups(test);
@@ -552,9 +552,9 @@ public class TestProcessor {
                             }
                             if (DEPENDS_ON_FUNCTIONS.equals(fieldName)) {
                                 if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
-                                        valueExpr instanceof ListConstructorExpressionNode) {
+                                        valueExpr instanceof ListConstructorExpressionNode listConstructorExprNode) {
                                     List<String> dependsOnFunctions = new ArrayList<>();
-                                    ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
+                                    listConstructorExprNode.expressions().forEach(
                                             expression -> dependsOnFunctions.add(getStringValue(expression)));
                                     for (String function : dependsOnFunctions) {
                                         test.addDependsOnTestFunction(function);

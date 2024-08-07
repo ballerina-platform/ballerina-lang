@@ -906,8 +906,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 valueArray = new ArrayValueImpl(values, arrayType);
                 IntStream.range(0, this.size).forEach(i -> {
                     Object value = this.refValues[i];
-                    if (value instanceof BRefValue) {
-                        values[i] = ((BRefValue) value).copy(refs);
+                    if (value instanceof BRefValue refValue) {
+                        values[i] = refValue.copy(refs);
                     } else {
                         values[i] = value;
                     }
@@ -1076,8 +1076,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
-                if (value instanceof BRefValue) {
-                    ((BRefValue) value).freezeDirect();
+                if (value instanceof BRefValue refValue) {
+                    refValue.freezeDirect();
                 }
             }
         }

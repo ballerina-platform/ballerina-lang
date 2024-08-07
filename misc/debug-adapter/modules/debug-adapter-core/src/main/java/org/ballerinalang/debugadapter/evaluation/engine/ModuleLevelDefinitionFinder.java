@@ -102,20 +102,20 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
         }
 
         // Ignores entry points (main function definitions).
-        if (node instanceof FunctionDefinitionNode && ((FunctionDefinitionNode) node).functionName().toSourceCode()
-                .equals(MAIN_FUNCTION_NAME)) {
+        if (node instanceof FunctionDefinitionNode functionDefinitionNode &&
+                functionDefinitionNode.functionName().toSourceCode().equals(MAIN_FUNCTION_NAME)) {
             return;
         }
 
         // Ignores external function definitions.
-        if (node instanceof FunctionDefinitionNode && ((FunctionDefinitionNode) node).functionBody().kind() ==
-                SyntaxKind.EXTERNAL_FUNCTION_BODY) {
+        if (node instanceof FunctionDefinitionNode functionDefinitionNode &&
+                functionDefinitionNode.functionBody().kind() == SyntaxKind.EXTERNAL_FUNCTION_BODY) {
             return;
         }
 
         // Ignores type definitions with @builtinSubtype annotations (specific to Ballerina library sources).
-        if (node instanceof TypeDefinitionNode && ((TypeDefinitionNode) node).metadata().isPresent()
-                && ((TypeDefinitionNode) node).metadata().get().annotations().stream().anyMatch(annotationNode ->
+        if (node instanceof TypeDefinitionNode typeDefinitionNode && typeDefinitionNode.metadata().isPresent()
+                && typeDefinitionNode.metadata().get().annotations().stream().anyMatch(annotationNode ->
                 annotationNode.annotReference().toSourceCode().trim().equalsIgnoreCase(ANNOTATION_BUILTINSUBTYPE))) {
             return;
         }

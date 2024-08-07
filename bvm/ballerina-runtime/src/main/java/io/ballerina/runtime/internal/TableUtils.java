@@ -57,7 +57,7 @@ public class TableUtils {
             return 0L;
         }
 
-        if (obj instanceof BRefValue) {
+        if (obj instanceof BRefValue refValue) {
 
             Node node = new Node(obj, parent);
 
@@ -66,7 +66,6 @@ public class TableUtils {
                         .getErrorDetails(ErrorCodes.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
-            BRefValue refValue = (BRefValue) obj;
             Type refType = TypeUtils.getImpliedType(refValue.getType());
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
@@ -100,8 +99,8 @@ public class TableUtils {
             } else {
                 return (long) obj.hashCode();
             }
-        } else if (obj instanceof Long) {
-            return (long) obj;
+        } else if (obj instanceof Long l) {
+            return l;
         } else {
             return (long) obj.hashCode();
         }

@@ -70,7 +70,7 @@ public class BFutureType extends BType implements FutureType {
     @Override
     public boolean equals(Object obj) {
 
-        if (!(obj instanceof BFutureType)) {
+        if (!(obj instanceof BFutureType other)) {
             return false;
         }
 
@@ -78,7 +78,6 @@ public class BFutureType extends BType implements FutureType {
             return false;
         }
 
-        BFutureType other = (BFutureType) obj;
         if (constraint == other.constraint) {
             return true;
         }

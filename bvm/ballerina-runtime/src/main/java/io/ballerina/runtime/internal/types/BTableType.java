@@ -114,11 +114,10 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+        if (!super.equals(obj) || !(obj instanceof BTableType other)) {
             return false;
         }
 
-        BTableType other = (BTableType) obj;
         if (constraint == other.constraint && keyType == other.keyType) {
             return true;
         }

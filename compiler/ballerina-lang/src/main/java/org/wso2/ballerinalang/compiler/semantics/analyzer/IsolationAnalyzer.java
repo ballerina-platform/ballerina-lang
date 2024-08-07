@@ -3158,11 +3158,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangNode parent = expression.parent;
 
         NodeKind parentExprKind = parent.getKind();
-        if (!(parent instanceof BLangExpression)) {
+        if (!(parent instanceof BLangExpression parentExpression)) {
             return !isIsolatedExpression(expression);
         }
-
-        BLangExpression parentExpression = (BLangExpression) parent;
 
         if (parentExprKind != NodeKind.INVOCATION) {
             if (!isSelfReference(expression) && isIsolatedExpression(expression)) {
@@ -3374,7 +3372,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, long symTag, SymbolEnv currentEnv) {
         BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
         if (symbol != symTable.notFoundSymbol &&
-                (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
+                (!(symbol instanceof BVarSymbol bVarSymbol) || bVarSymbol.originalSymbol == null)) {
             return false;
         }
 
@@ -3403,11 +3401,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private BSymbol getOriginalSymbol(BSymbol symbol) {
-        if (!(symbol instanceof  BVarSymbol)) {
+        if (!(symbol instanceof BVarSymbol varSymbol)) {
             return symbol;
         }
-
-        BVarSymbol varSymbol = (BVarSymbol) symbol;
 
         BVarSymbol originalSymbol = varSymbol.originalSymbol;
         return originalSymbol == null ? varSymbol : getOriginalSymbol(originalSymbol);
@@ -3493,11 +3489,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (!(owner instanceof BClassSymbol)) {
+        if (!(owner instanceof BClassSymbol ownerClassSymbol)) {
             return false;
         }
 
-        BClassSymbol ownerClassSymbol = (BClassSymbol) owner;
         return ownerClassSymbol.isServiceDecl || Symbols.isFlagOn(ownerClassSymbol.flags, Flags.OBJECT_CTOR);
     }
 

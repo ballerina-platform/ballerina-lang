@@ -54,8 +54,8 @@ public class ExternalMethodGen {
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                                   JvmConstantsGen jvmConstantsGen, String moduleClassName,
                                                   AsyncDataCollector lambdaGenMetadata, Types types) {
-        if (birFunc instanceof JFieldBIRFunction) {
-            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID, jvmPackageGen, jvmTypeGen,
+        if (birFunc instanceof JFieldBIRFunction jFieldBIRFunction) {
+            genJFieldForInteropField(jFieldBIRFunction, cw, birModule.packageID, jvmPackageGen, jvmTypeGen,
                     jvmCastGen, jvmConstantsGen, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
@@ -73,8 +73,8 @@ public class ExternalMethodGen {
             while (count < funcSize) {
                 BIRFunction birFunc = functions.get(count);
                 count = count + 1;
-                if (birFunc instanceof JMethodBIRFunction) {
-                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
+                if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
+                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();

@@ -77,8 +77,8 @@ public class StringTemplateEvaluator extends Evaluator {
             }
             Value result = EvaluationUtils.concatBStrings(context, templateMemberValues.toArray(new Value[0]));
             // Converts the result into a BString, if the result is a java string reference.
-            if (result instanceof StringReference) {
-                result = EvaluationUtils.getAsBString(context, (StringReference) result);
+            if (result instanceof StringReference stringReference) {
+                result = EvaluationUtils.getAsBString(context, stringReference);
             }
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {

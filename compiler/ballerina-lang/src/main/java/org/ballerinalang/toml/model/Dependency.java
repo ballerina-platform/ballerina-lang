@@ -76,10 +76,9 @@ public class Dependency {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Dependency)) {
+        if (!(o instanceof Dependency that)) {
             return false;
         }
-        Dependency that = (Dependency) o;
         return this.toString().equals(that.toString());
     }
     

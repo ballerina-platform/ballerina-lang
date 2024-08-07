@@ -28,6 +28,6 @@ import io.ballerina.runtime.api.values.BRefValue;
 public class IsReadOnly {
 
     public static boolean isReadOnly(Object value) {
-        return !(value instanceof BRefValue) || ((BRefValue) value).isFrozen();
+        return !(value instanceof BRefValue bRefValue) || bRefValue.isFrozen();
     }
 }

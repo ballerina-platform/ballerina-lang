@@ -144,8 +144,8 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
     private BResourceFunction getBResourceFunction(List<BAttachedFunction> methods, BInvokableSymbol internalSymbol) {
         for (BAttachedFunction method : methods) {
-            if (internalSymbol == method.symbol && method instanceof BResourceFunction) {
-                return (BResourceFunction) method;
+            if (internalSymbol == method.symbol && method instanceof BResourceFunction bResourceFunction) {
+                return bResourceFunction;
             }
         }
 

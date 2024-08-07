@@ -920,21 +920,21 @@ public class JvmTerminatorGen {
                 }
 
                 Object strandAnnot = ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue.value;
-                if (strandAnnot instanceof Map) {
-                    Map<String, BIRNode.ConstValue> recordValue = (Map<String, BIRNode.ConstValue>) strandAnnot;
+                if (strandAnnot instanceof Map<?, ?> recordValue) {
                     if (recordValue.containsKey(STRAND_THREAD)) {
-                        if (STRAND_VALUE_ANY.equals(recordValue.get(STRAND_THREAD).value)) {
+                        if (STRAND_VALUE_ANY.equals(((BIRNode.ConstValue) recordValue.get(STRAND_THREAD)).value)) {
                             concurrent = true;
                         }
                     }
 
                     if (recordValue.containsKey(STRAND_NAME)) {
-                        strandName = recordValue.get(STRAND_NAME).value.toString();
+                        strandName = ((BIRNode.ConstValue) recordValue.get(STRAND_NAME)).value.toString();
 
                     }
 
                     if (recordValue.containsKey(STRAND_POLICY_NAME)) {
-                        if (!DEFAULT_STRAND_DISPATCHER.equals(recordValue.get(STRAND_POLICY_NAME).value)) {
+                        if (!DEFAULT_STRAND_DISPATCHER.equals(
+                                ((BIRNode.ConstValue) recordValue.get(STRAND_POLICY_NAME)).value)) {
                             throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
                                     "supported by jBallerina runtime.");
                         }

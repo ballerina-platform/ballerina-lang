@@ -639,8 +639,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         expectedType);
                 return symTable.semanticError;
             }
-            if (literalValue instanceof Double) {
-                literalExpr.value = ((Double) literalValue).doubleValue();
+            if (literalValue instanceof Double doubleValue) {
+                literalExpr.value = doubleValue.doubleValue();
             } else {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             }
@@ -1033,7 +1033,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
         // The literalValue will be a string if it is not within the bounds of what is supported by Java Long,
         // indicating that it is an overflown Ballerina int
-        if (!(literalValue instanceof Long)) {
+        if (!(literalValue instanceof Long longValue)) {
             data.resultType = symTable.semanticError;
             return symTable.semanticError;
         }
@@ -1041,37 +1041,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INT:
                 return symTable.intType;
             case TypeTags.BYTE:
-                if (types.isByteLiteralValue((Long) literalValue)) {
+                if (types.isByteLiteralValue(longValue)) {
                     return symTable.byteType;
                 }
                 break;
             case TypeTags.SIGNED32_INT:
-                if (types.isSigned32LiteralValue((Long) literalValue)) {
+                if (types.isSigned32LiteralValue(longValue)) {
                     return symTable.signed32IntType;
                 }
                 break;
             case TypeTags.SIGNED16_INT:
-                if (types.isSigned16LiteralValue((Long) literalValue)) {
+                if (types.isSigned16LiteralValue(longValue)) {
                     return symTable.signed16IntType;
                 }
                 break;
             case TypeTags.SIGNED8_INT:
-                if (types.isSigned8LiteralValue((Long) literalValue)) {
+                if (types.isSigned8LiteralValue(longValue)) {
                     return symTable.signed8IntType;
                 }
                 break;
             case TypeTags.UNSIGNED32_INT:
-                if (types.isUnsigned32LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned32LiteralValue(longValue)) {
                     return symTable.unsigned32IntType;
                 }
                 break;
             case TypeTags.UNSIGNED16_INT:
-                if (types.isUnsigned16LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned16LiteralValue(longValue)) {
                     return symTable.unsigned16IntType;
                 }
                 break;
             case TypeTags.UNSIGNED8_INT:
-                if (types.isUnsigned8LiteralValue((Long) literalValue)) {
+                if (types.isUnsigned8LiteralValue(longValue)) {
                     return symTable.unsigned8IntType;
                 }
                 break;
@@ -3536,9 +3536,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
-        if (containerExpression instanceof BLangValueExpression) {
-            ((BLangValueExpression) containerExpression).isLValue = fieldAccessExpr.isLValue;
-            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+        if (containerExpression instanceof BLangValueExpression valueExpression) {
+            valueExpression.isLValue = fieldAccessExpr.isLValue;
+            valueExpression.isCompoundAssignmentLValue =
                     fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
@@ -3671,9 +3671,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        if (containerExpression instanceof BLangValueExpression) {
-            ((BLangValueExpression) containerExpression).isLValue = indexBasedAccessExpr.isLValue;
-            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+        if (containerExpression instanceof BLangValueExpression valueExpression) {
+            valueExpression.isLValue = indexBasedAccessExpr.isLValue;
+            valueExpression.isCompoundAssignmentLValue =
                     indexBasedAccessExpr.isCompoundAssignmentLValue;
         }
 

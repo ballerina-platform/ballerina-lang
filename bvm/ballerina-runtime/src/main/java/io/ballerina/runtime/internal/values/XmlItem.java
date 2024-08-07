@@ -509,8 +509,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
         MapValue<BString, BString> attributesMap = xmlItem.getAttributesMap();
         MapValue<BString, BString> copy = (MapValue<BString, BString>) this.getAttributesMap().copy(refs);
-        if (attributesMap instanceof MapValueImpl) {
-            MapValueImpl<BString, BString> map = (MapValueImpl<BString, BString>) attributesMap;
+        if (attributesMap instanceof MapValueImpl<BString, BString> map) {
             map.putAll((Map<BString, BString>) copy);
         } else {
             for (Map.Entry<BString, BString> entry : copy.entrySet()) {

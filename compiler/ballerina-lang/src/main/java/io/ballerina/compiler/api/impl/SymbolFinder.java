@@ -1830,10 +1830,9 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof AnnotatableNode) {
+        if (node instanceof AnnotatableNode annotatableNode) {
 
-            List<AnnotationAttachmentNode> nodes =
-                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+            List<? extends AnnotationAttachmentNode> nodes = annotatableNode.getAnnotationAttachments();
 
             for (AnnotationAttachmentNode annotAttachment : nodes) {
                 if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
@@ -1842,8 +1841,8 @@ class SymbolFinder extends BaseVisitor {
             }
         }
 
-        if (node instanceof DocumentableNode) {
-            BLangMarkdownDocumentation markdown = ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+        if (node instanceof DocumentableNode documentableNode) {
+            BLangMarkdownDocumentation markdown = documentableNode.getMarkdownDocumentationAttachment();
             if (markdown != null) {
                 LinkedList<BLangMarkdownParameterDocumentation> parameters = markdown.getParameters();
                 for (BLangMarkdownParameterDocumentation parameter : parameters) {

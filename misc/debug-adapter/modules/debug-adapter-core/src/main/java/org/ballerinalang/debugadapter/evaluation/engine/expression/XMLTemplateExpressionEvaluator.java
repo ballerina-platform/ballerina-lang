@@ -68,8 +68,7 @@ public class XMLTemplateExpressionEvaluator extends Evaluator {
             Value result = strToXmlMethod.invokeSafely();
             BVariable xmlVar = VariableFactory.getVariable(context, result);
 
-            if (xmlVar instanceof BXmlSequence) {
-                BXmlSequence xmlSequence = (BXmlSequence) xmlVar;
+            if (xmlVar instanceof BXmlSequence xmlSequence) {
                 if (xmlSequence.getChildrenCount() == 0) {
                     // If the element count is 0, returns an empty XML item.
                     RuntimeStaticMethod createXmlMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,

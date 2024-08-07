@@ -39,8 +39,8 @@ public class TomlConfigValue implements ConfigValue {
 
     @Override
     public Object getValue() {
-        if (value instanceof TomlNode) {
-            return valueCreator.createValue((TomlNode) value, type);
+        if (value instanceof TomlNode tomlNode) {
+            return valueCreator.createValue(tomlNode, type);
         }
         return value;
     }

@@ -176,12 +176,12 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
-            if (!(valueLiteral instanceof BLangLiteral)) {
+            if (!(valueLiteral instanceof BLangLiteral bLangLiteral)) {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
             writeTypeCpIndex(valueLiteral.getBType());
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
+            writeValue(bLangLiteral.value, valueLiteral.getBType());
         }
     }
 
@@ -363,9 +363,9 @@ public class BIRTypeWriter implements TypeVisitor {
         writeMembers(bUnionType.getMemberTypes());
         writeMembers(bUnionType.getOriginalMemberTypes());
 
-        if (tsymbol instanceof BEnumSymbol) {
+        if (tsymbol instanceof BEnumSymbol enumSymbol) {
             buff.writeBoolean(true);
-            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+            writeEnumSymbolInfo(enumSymbol);
         } else {
             buff.writeBoolean(false);
         }

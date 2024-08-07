@@ -69,10 +69,9 @@ public class CodeLensConfig {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof Enabled)) {
+            if (!(obj instanceof Enabled cc)) {
                 return false;
             }
-            Enabled cc = (Enabled) obj;
             return cc.enabled == enabled;
         }
 

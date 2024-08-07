@@ -80,11 +80,11 @@ public class GeneratorUtils {
                 (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownDocumentationLineNode) {
-                    doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                            getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
-                } else if (docLine instanceof MarkdownCodeBlockNode) {
-                    doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
+                if (docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    doc.append(!markdownDocLine.documentElements().isEmpty() ?
+                            getDocLineString(markdownDocLine.documentElements()) : "\n");
+                } else if (docLine instanceof MarkdownCodeBlockNode markdownCodeBlock) {
+                    doc.append(getDocCodeBlockString(markdownCodeBlock));
                 } else {
                     break;
                 }
@@ -139,17 +139,16 @@ public class GeneratorUtils {
         if (docLines != null) {
             boolean lookForMoreLines = false;
             for (Node docLine : docLines.documentationLines()) {
-                if (docLine instanceof MarkdownParameterDocumentationLineNode) {
-                    if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
-                            .equals(parameterName)) {
+                if (docLine instanceof MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+                    if (markdownParameterDocumentationLineNode.parameterName().text().equals(parameterName)) {
                         parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
                                 .documentElements()));
                         lookForMoreLines = true;
                     } else {
                         lookForMoreLines = false;
                     }
-                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    parameterDoc.append(getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()));
+                } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
+                    parameterDoc.append(getDocLineString(markdownDocLine.documentElements()));
                 }
             }
         }
@@ -173,8 +172,8 @@ public class GeneratorUtils {
                                     if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
                                         ExpressionNode valueNode =
                                                 ((SpecificFieldNode) fieldNode).valueExpr().get();
-                                        if (valueNode instanceof BasicLiteralNode) {
-                                            String fieldValue = ((BasicLiteralNode) valueNode).literalToken().text();
+                                        if (valueNode instanceof BasicLiteralNode basicLiteralNode) {
+                                            String fieldValue = basicLiteralNode.literalToken().text();
                                             if (fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
                                                 fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
                                             }

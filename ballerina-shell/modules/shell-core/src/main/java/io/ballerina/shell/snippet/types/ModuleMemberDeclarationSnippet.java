@@ -51,27 +51,26 @@ public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMember
      * If the module declaration has no name, this will return null.
      */
     public Identifier name() {
-        if (rootNode instanceof ClassDefinitionNode) {
-            String className = ((ClassDefinitionNode) rootNode).className().text();
+        if (rootNode instanceof ClassDefinitionNode classDefinitionNode) {
+            String className = classDefinitionNode.className().text();
             return new Identifier(className);
-        } else if (rootNode instanceof ConstantDeclarationNode) {
-            String constName = ((ConstantDeclarationNode) rootNode).variableName().text();
+        } else if (rootNode instanceof ConstantDeclarationNode constantDeclarationNode) {
+            String constName = constantDeclarationNode.variableName().text();
             return new Identifier(constName);
-        } else if (rootNode instanceof EnumDeclarationNode) {
-            String enumName = ((EnumDeclarationNode) rootNode).identifier().text();
+        } else if (rootNode instanceof EnumDeclarationNode enumDeclarationNode) {
+            String enumName = enumDeclarationNode.identifier().text();
             return new Identifier(enumName);
-        } else if (rootNode instanceof FunctionDefinitionNode) {
-            String funcName = ((FunctionDefinitionNode) rootNode).functionName().text();
+        } else if (rootNode instanceof FunctionDefinitionNode functionDefinitionNode) {
+            String funcName = functionDefinitionNode.functionName().text();
             return new Identifier(funcName);
-        } else if (rootNode instanceof ListenerDeclarationNode) {
-            String listenerName = ((ListenerDeclarationNode) rootNode).variableName().text();
+        } else if (rootNode instanceof ListenerDeclarationNode listenerDeclarationNode) {
+            String listenerName = listenerDeclarationNode.variableName().text();
             return new Identifier(listenerName);
-        } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode) {
-            ModuleXMLNamespaceDeclarationNode namespaceNode = (ModuleXMLNamespaceDeclarationNode) rootNode;
+        } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode namespaceNode) {
             return namespaceNode.namespacePrefix().map(Token::text).map(Identifier::new)
                     .orElseGet(this::createAnonModuleName);
-        } else if (rootNode instanceof TypeDefinitionNode) {
-            String typeName = ((TypeDefinitionNode) rootNode).typeName().text();
+        } else if (rootNode instanceof TypeDefinitionNode typeDefinitionNode) {
+            String typeName = typeDefinitionNode.typeName().text();
             return new Identifier(typeName);
         } else {
             return createAnonModuleName();

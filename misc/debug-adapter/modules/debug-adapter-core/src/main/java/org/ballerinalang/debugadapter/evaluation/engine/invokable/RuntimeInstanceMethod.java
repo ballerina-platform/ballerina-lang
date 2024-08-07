@@ -46,11 +46,11 @@ public class RuntimeInstanceMethod extends RuntimeMethod {
     @Override
     protected Value invoke() throws EvaluationException {
         try {
-            if (!(objectValueRef instanceof ObjectReference)) {
+            if (!(objectValueRef instanceof ObjectReference objectReference)) {
                 throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
             List<Value> argValueList = getMethodArgs(this);
-            return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
+            return objectReference.invokeMethod(context.getOwningThread().getThreadReference(),
                     methodRef, argValueList, 0);
         } catch (ClassNotLoadedException e) {
             throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());

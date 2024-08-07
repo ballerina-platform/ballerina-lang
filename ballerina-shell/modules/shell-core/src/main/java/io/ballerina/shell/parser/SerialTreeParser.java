@@ -120,8 +120,8 @@ public class SerialTreeParser extends TrialTreeParser {
      * Whether the declaration is allowed to be parsed.
      */
     private boolean isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) {
-        if (declarationNode instanceof FunctionDefinitionNode) {
-            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
+        if (declarationNode instanceof FunctionDefinitionNode functionDefinitionNode) {
+            String functionName = functionDefinitionNode.functionName().text();
             if (ParserConstants.isFunctionNameRestricted(functionName)) {
                 addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
                         "Discarded '" + functionName + "' function without loading.");

@@ -96,8 +96,7 @@ public class BTypeIdSet implements TypeIdSet {
                 return true;
             }
 
-            if (obj instanceof BTypeId) {
-                BTypeId that = (BTypeId) obj;
+            if (obj instanceof BTypeId that) {
                 return this.name.equals(that.name) && this.pkg.equals(that.pkg);
             }
             return false;

@@ -470,10 +470,10 @@ public class VariableUtils {
      */
     public static Value getChildVarByName(BVariable variable, String childVarName) throws DebugVariableException,
             EvaluationException {
-        if (variable instanceof IndexedCompoundVariable) {
-            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
-        } else if (variable instanceof NamedCompoundVariable) {
-            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
+        if (variable instanceof IndexedCompoundVariable indexedCompoundVariable) {
+            return indexedCompoundVariable.getChildByName(childVarName);
+        } else if (variable instanceof NamedCompoundVariable namedCompoundVariable) {
+            return namedCompoundVariable.getChildByName(childVarName);
         } else {
             throw createEvaluationException("Field access is not allowed for Ballerina simple types.");
         }

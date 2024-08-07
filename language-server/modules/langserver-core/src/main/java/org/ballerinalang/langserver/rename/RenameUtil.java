@@ -268,8 +268,8 @@ public class RenameUtil {
         }
 
         FieldBindingPatternNode fieldBindingPatternNode = (FieldBindingPatternNode) node.parent();
-        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode) {
-            return Optional.of((FieldBindingPatternVarnameNode) fieldBindingPatternNode);
+        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+            return Optional.of(fieldBindingPatternVarnameNode);
         }
         return Optional.empty();
     }
