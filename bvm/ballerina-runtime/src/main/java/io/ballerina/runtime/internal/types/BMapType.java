@@ -185,7 +185,7 @@ public class BMapType extends BType implements MapType, TypeWithShape {
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -204,7 +204,7 @@ public class BMapType extends BType implements MapType, TypeWithShape {
     }
 
     @Override
-    public synchronized void resetSemType() {
+    public void resetSemType() {
         defn = null;
         super.resetSemType();
     }
