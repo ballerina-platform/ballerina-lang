@@ -14,7 +14,7 @@ SYNOPSIS
                    [--license] <license-file-path> [--with-tests]
                    [--client-methods] <resource|remote> [--without-data-binding]
                    [--status-code-binding] [--mock] [--with-service-contract]
-                   [--single-file]
+                   [--single-file] [--use-sanitized-oas]
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -105,7 +105,11 @@ OPTIONS
         --single-file
             This option can be used to generate the Ballerina service or client
             with related types and utility functions in a single file.
-
+            
+        --use-sanitized-oas
+           This is an experimental feature. This option enables service/client code 
+           generation by modifying the given OAS to follow the Ballerina language 
+           best practices.
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
            $ bal openapi -i hello.yaml --mode service
