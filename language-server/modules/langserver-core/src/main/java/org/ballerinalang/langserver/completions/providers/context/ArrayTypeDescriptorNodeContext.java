@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ArrayTypeDescriptorNode} context.
@@ -65,7 +64,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
         } else {
             List<Symbol> constants = visibleSymbols.stream()
                     .filter(constantFilter())
-                    .collect(Collectors.toList());
+                    .toList();
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getCompletionItemList(constants, context));
         }

@@ -59,7 +59,7 @@ public class Manifest {
                     dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
                     return dependency;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private DependencyMetadata convertObjectToDependencyMetadata(Object obj) {

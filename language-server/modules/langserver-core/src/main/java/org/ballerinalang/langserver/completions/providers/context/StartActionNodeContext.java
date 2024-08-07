@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
@@ -90,7 +89,7 @@ public class StartActionNodeContext extends AbstractCompletionProvider<StartActi
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == FUNCTION))
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         return completionItems;
     }

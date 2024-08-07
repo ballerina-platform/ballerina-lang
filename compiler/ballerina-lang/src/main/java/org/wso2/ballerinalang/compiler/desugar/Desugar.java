@@ -1840,7 +1840,7 @@ public class Desugar extends BLangNodeVisitor {
 
             List<String> keysToRemove = parentRecordVariable.variableList.stream()
                     .map(var -> var.getKey().getValue())
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
                     keysToRemove, restParamType, parentBlockStmt);
@@ -1947,7 +1947,7 @@ public class Desugar extends BLangNodeVisitor {
                     pos, detailTempVarDef.var.symbol);
             List<String> keysToRemove = parentErrorVariable.detail.stream()
                     .map(detail -> detail.key.getValue())
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
                                                                     parentErrorVariable.restDetail.getBType(),
@@ -2119,7 +2119,7 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
-                .collect(Collectors.toList());
+                .toList();
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
         function.symbol = functionSymbol;
@@ -2349,7 +2349,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                Location location) {
         List<String> fieldNamesToRemove = recordVariable.variableList.stream()
                 .map(var -> var.getKey().getValue())
-                .collect(Collectors.toList());
+                .toList();
         return createFuncToFilterOutRestParam(fieldNamesToRemove, location);
     }
 
@@ -2405,7 +2405,7 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
-                .collect(Collectors.toList());
+                .toList();
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
                                                  getRestType(functionSymbol), symTable.booleanType, null);
@@ -2899,7 +2899,7 @@ public class Desugar extends BLangNodeVisitor {
 
             List<String> keysToRemove = parentRecordVarRef.recordRefFields.stream()
                     .map(field -> field.variableName.value)
-                    .collect(Collectors.toList());
+                    .toList();
 
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
                     keysToRemove, restParamType, parentBlockStmt);
@@ -8134,13 +8134,13 @@ public class Desugar extends BLangNodeVisitor {
             varNode.symbol.kind = SymbolKind.FUNCTION;
             varNode.symbol.owner = invokableEnv.scope.owner;
             enclScope.define(varNode.symbol.name, varNode.symbol);
-        }).map(varNode -> varNode.symbol).collect(Collectors.toList());
+        }).map(varNode -> varNode.symbol).toList();
 
         funcSymbol.params = paramSymbols;
         funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.getBType();
         // Create function type.
-        List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
+        List<BType> paramTypes = new ArrayList<>(paramSymbols.stream().map(paramSym -> paramSym.type).toList());
         funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
                           funcSymbol.type.tsymbol));
 
@@ -8443,7 +8443,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
-                .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
+                .stream().map(send -> send.workerIdentifier).distinct().toList();
         result = workerFlushExpr;
     }
 
@@ -8825,7 +8825,7 @@ public class Desugar extends BLangNodeVisitor {
         return nameBXMLNSSymbolMap.keySet().stream()
                 .map(key -> this.stmtsToBePropagatedToQuery.get(key))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

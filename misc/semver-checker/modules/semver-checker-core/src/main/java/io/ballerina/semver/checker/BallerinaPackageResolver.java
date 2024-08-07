@@ -101,7 +101,7 @@ class BallerinaPackageResolver {
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));
             }
             List<SemanticVersion> availableVersions = publishedVersions.stream().map(SemanticVersion::from)
-                    .collect(Collectors.toList());
+                    .toList();
 
             Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, localVersion);
             if (compatibleVersion.isEmpty()) {

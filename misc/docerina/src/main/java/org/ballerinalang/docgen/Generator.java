@@ -95,7 +95,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Generates the Page bClasses for bal packages.
@@ -572,13 +572,11 @@ public class Generator {
         }
 
         // Get functions that are not overridden
-        List<Function> functions = includedFunctions.stream().filter(includedFunction ->
+        List<Function> functions = Stream.concat(includedFunctions.stream().filter(includedFunction ->
                 classFunctions
                         .stream()
-                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .collect(Collectors.toList());
-
-        functions.addAll(classFunctions);
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name))),
+                classFunctions.stream()).toList();
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
@@ -690,13 +688,10 @@ public class Generator {
         }
 
         // Get functions that are not overridden
-        List<Function> functions = includedFunctions.stream().filter(includedFunction ->
-                objectFunctions
-                        .stream()
-                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
-                .collect(Collectors.toList());
-
-        functions.addAll(objectFunctions);
+        List<Function> functions = Stream.concat(
+                includedFunctions.stream().filter(includedFunction -> objectFunctions.stream()
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name))),
+                objectFunctions.stream()).toList();
 
         return new BObjectType(objectName, description, descriptionSections, isDeprecated, fields, functions);
     }
@@ -706,7 +701,7 @@ public class Generator {
         for (FunctionType functionType : functionTypes) {
             List<DefaultableVariable> parameters = new ArrayList<>(functionType.paramTypes.stream()
                     .map(type -> new DefaultableVariable(type.name, type.description, false,
-                            type.elementType, "")).collect(Collectors.toList()));
+                            type.elementType, "")).toList());
 
             List<Variable> returnParameters = new ArrayList<>();
             if (functionType.returnType != null) {

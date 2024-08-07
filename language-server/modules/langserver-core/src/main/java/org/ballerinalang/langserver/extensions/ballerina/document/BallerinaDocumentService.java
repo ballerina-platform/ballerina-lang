@@ -66,7 +66,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
@@ -432,7 +431,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .filter(entry -> fileUri.equals(entry.getKey()))
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
                 this.clientLogger.logError(DocumentContext.DC_DIAGNOSTICS, msg, e, params.getDocumentIdentifier(),

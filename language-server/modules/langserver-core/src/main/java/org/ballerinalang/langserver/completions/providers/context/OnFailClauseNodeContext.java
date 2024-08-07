@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link OnFailClauseNode} context.
@@ -69,7 +68,7 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
                 List<Symbol> errEntries = visibleSymbols.stream()
                         .filter(errorPredicate)
-                        .collect(Collectors.toList());
+                        .toList();
                 completionItems.addAll(this.getCompletionItemList(errEntries, context));
 
                 // Add 'var' completion item

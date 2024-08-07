@@ -30,6 +30,8 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -189,7 +191,9 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
                 buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
             }
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            StringWriter errors = new StringWriter();
+            e.printStackTrace(new PrintWriter(errors));
+            Assert.fail(errors.toString());
         }
         return buildProject;
     }

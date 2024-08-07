@@ -180,7 +180,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                         .thenComparing(
                                 o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
                         .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     protected static void buildEditText(StringBuilder editText, ImportDeclarationNode importNode) {

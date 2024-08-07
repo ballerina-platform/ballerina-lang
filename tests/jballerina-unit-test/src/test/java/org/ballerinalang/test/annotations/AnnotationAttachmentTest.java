@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Class to test annotation attachments.
@@ -459,7 +458,7 @@ public class AnnotationAttachmentTest {
                         .get().getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
         validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A", 1);
     }
 
@@ -628,7 +627,7 @@ public class AnnotationAttachmentTest {
                 getServiceClassForServiceDecl(name).getAnnotationAttachments()
                         .stream()
                         .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+                        .toList();
     }
 
     private ClassDefinition getServiceClassForServiceDecl(String name) {

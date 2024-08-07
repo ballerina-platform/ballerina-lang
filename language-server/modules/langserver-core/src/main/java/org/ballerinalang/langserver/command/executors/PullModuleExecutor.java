@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Command executor for pulling a package from central.
@@ -139,7 +138,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                                     .map(PullModuleCodeAction::getMissingModuleNameFromDiagnostic)
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .collect(Collectors.toList())
+                                    .toList()
                             );
                     if (missingModules.isEmpty()) {
                         throw new UserErrorException("Failed to pull modules!");

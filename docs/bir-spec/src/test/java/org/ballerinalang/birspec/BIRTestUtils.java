@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility methods to help with testing BIR model.
@@ -83,7 +82,7 @@ class BIRTestUtils {
                 .filter(file -> Files.isRegularFile(file))
                 .map(file -> file.toAbsolutePath().normalize().toString())
                 .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static void validateBIRSpec(String testSource) {

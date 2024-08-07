@@ -42,7 +42,6 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
@@ -88,7 +87,7 @@ public class ClassSymbolTest {
         assertEquals(initMethod.getName().get(), "init");
         assertEquals(initMethod.typeDescriptor().params().get().stream()
                              .map(p -> p.getName().get())
-                             .collect(Collectors.toList()), fieldNames);
+                             .toList(), fieldNames);
     }
 
     @Test

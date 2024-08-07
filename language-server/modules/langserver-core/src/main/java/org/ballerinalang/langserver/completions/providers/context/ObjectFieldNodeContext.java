@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ObjectFieldNode} context.
@@ -88,7 +87,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         // Specifically add the class fields as the completion items
         List<Symbol> classFields = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD)
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(classFields, ctx));
         
         Optional<TypeSymbol> contextType = ctx.getContextType();

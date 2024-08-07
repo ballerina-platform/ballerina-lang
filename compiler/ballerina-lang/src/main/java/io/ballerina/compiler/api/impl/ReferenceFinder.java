@@ -213,7 +213,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -265,10 +264,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.typeDefinitions);
         find(pkgNode.classDefinitions.stream()
                      .filter(c -> !isGeneratedClassDefForService(c))
-                     .collect(Collectors.toList()));
+                     .toList());
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
-                     .collect(Collectors.toList()));
+                     .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
             find(pkgNode.getTestablePkg());

@@ -2711,7 +2711,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 Set<BType> bTypes = types.expandAndGetMemberTypesRecursive(unionType);
                 List<BType> possibleTypes = bTypes.stream()
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (possibleTypes.isEmpty()) {
                     dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordType);
@@ -2762,7 +2762,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordVarType = (BRecordType) symTable.recordType;
 
         List<String> mappedFields = recordVar.variableList.stream().map(varKeyValue -> varKeyValue.getKey().value)
-                .collect(Collectors.toList());
+                .toList();
         LinkedHashMap<String, BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar.pos, possibleTypes,
                 mappedFields, recordSymbol, env);
 
@@ -2991,7 +2991,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (recordVar.restParam != null) {
             BType restType = getRestParamType(recordVarType);
             List<String> varList = recordVar.variableList.stream().map(t -> t.getKey().value)
-                    .collect(Collectors.toList());
+                    .toList();
             BRecordType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env,
                     recordVarType, varList, restType);
             defineMemberNode(recordVar.restParam, env, restConstraint);
@@ -4606,9 +4606,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         symResolver.validateInferTypedescParams(invokableNode.pos, invokableNode.getParameters(), retType);
 
         // Create function type
-        List<BType> paramTypes = paramSymbols.stream()
+        List<BType> paramTypes = new ArrayList<>(paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
-                .collect(Collectors.toList());
+                .toList());
 
         BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                                     invokableSymbol.flags,
@@ -4867,7 +4867,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     p.symbol.kind = SymbolKind.PATH_PARAMETER;
                     return p.symbol;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         BVarSymbol restPathParamSym = null;
         if (resourceFunction.restPathParam != null) {
@@ -5158,7 +5158,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 var.flagSet = field.symbol.getFlags();
                 return var;
             });
-        }).collect(Collectors.toList());
+        }).toList();
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 

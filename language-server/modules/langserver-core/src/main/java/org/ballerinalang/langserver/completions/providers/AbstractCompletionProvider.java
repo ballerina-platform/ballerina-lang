@@ -381,7 +381,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
-                        .collect(Collectors.toList());
+                        .toList();
                 String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
                         : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
@@ -545,7 +545,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
                 .sorted(Comparator.comparing(symbol -> symbol.getName().get()))
-                .collect(Collectors.toList());
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);

@@ -61,7 +61,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -601,9 +600,8 @@ public class NativeUtils {
             dependencies.addAll(testSuiteEntry.getValue().getTestExecutionDependencies());
 
         }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                .collect(Collectors.toList());
+        dependencies = dependencies.stream().distinct()
+                .map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x))).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.forEach(classPath::add);

@@ -341,7 +341,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return Optional.of(argsSymbolsForExtractFunction.stream()
                 // getLocation() is present for each symbol
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     /**
@@ -550,7 +550,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .filter(symbol -> !PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(),
                         matchedLineRange))
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList,

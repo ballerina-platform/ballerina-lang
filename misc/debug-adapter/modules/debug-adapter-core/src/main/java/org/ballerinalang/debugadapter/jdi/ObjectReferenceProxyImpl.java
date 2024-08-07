@@ -28,7 +28,6 @@ import com.sun.jdi.Value;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Proxy implementation for JDI object reference.
@@ -109,7 +108,7 @@ public class ObjectReferenceProxyImpl extends JdiProxy {
      */
     public List<ThreadReferenceProxyImpl> waitingThreads() throws IncompatibleThreadStateException {
         return getObjectReference().waitingThreads().stream().map(getVirtualMachineProxy()::getThreadReferenceProxy)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ThreadReferenceProxyImpl owningThread() throws IncompatibleThreadStateException {

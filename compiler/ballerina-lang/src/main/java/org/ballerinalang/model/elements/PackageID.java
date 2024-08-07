@@ -166,7 +166,7 @@ public class PackageID {
         if (name == Names.DEFAULT_PACKAGE) {
             return Lists.of(Names.DEFAULT_PACKAGE);
         }
-        return Arrays.stream(name.value.split("\\.")).map(Name::new).collect(Collectors.toList());
+        return Arrays.stream(name.value.split("\\.")).map(Name::new).toList();
     }
 
     /**

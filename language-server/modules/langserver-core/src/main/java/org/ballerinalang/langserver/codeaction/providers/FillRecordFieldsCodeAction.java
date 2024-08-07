@@ -50,7 +50,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Code Action to autofill record fields.
@@ -135,7 +134,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.SPECIFIC_FIELD
                         && ((SpecificFieldNode) field).fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((IdentifierToken) ((SpecificFieldNode) field).fieldName()).text())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static Optional<MappingConstructorExpressionNode> getMappingConstructorNode(Node node) {

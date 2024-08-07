@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link SyncSendActionNode} context.
@@ -47,7 +46,7 @@ public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSe
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
-                .collect(Collectors.toList());
+                .toList();
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));

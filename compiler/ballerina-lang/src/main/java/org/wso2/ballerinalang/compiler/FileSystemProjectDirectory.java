@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.repository.CompilerOutputEntry.Kind;
@@ -94,7 +93,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                         .filter(ProjectDirs::containsSourceFiles)
                         .map(ProjectDirs::getLastComp)
                         .map(Path::toString)
-                        .collect(Collectors.toList());
+                        .toList();
             }
         } catch (SecurityException | AccessDeniedException e) {
             throw new BLangCompilerException("permission denied: " + projectDirPath.toString());

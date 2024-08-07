@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Reads repository dot files and build test package repository instances.
@@ -94,7 +93,7 @@ public class PackageRepositoryBuilder {
         }
 
         try {
-            return buildLocalRepo(Files.list(localRepoDirPath).collect(Collectors.toList()));
+            return buildLocalRepo(Files.list(localRepoDirPath).toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -220,7 +219,7 @@ public class PackageRepositoryBuilder {
             return marker.entrySet().stream()
                     .filter(entry -> entry.getValue() == Boolean.FALSE)
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 }

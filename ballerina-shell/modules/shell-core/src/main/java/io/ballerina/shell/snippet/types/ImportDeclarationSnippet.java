@@ -25,7 +25,6 @@ import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Snippet that represent a import statement.
@@ -59,7 +58,7 @@ public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationN
      */
     public QuotedImport getImportedModule() {
         List<String> moduleNames = rootNode.moduleName().stream().map(IdentifierToken::text)
-                .collect(Collectors.toList());
+                .toList();
         if (rootNode.orgName().isPresent()) {
             String orgName = rootNode.orgName().get().orgName().text();
             return new QuotedImport(orgName, moduleNames);

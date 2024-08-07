@@ -49,6 +49,6 @@ public interface PackageSource extends PackageEntity {
      * 
      * @return the package source entries iterator
      */
-    List<CompilerInput> getPackageSourceEntries();
+    List<? extends CompilerInput> getPackageSourceEntries();
     
 }

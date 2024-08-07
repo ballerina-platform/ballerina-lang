@@ -114,7 +114,6 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.buildFormattingOptions;
 
@@ -345,7 +344,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 return LangExtensionDelegator.instance().codeActions(params, context, this.serverContext).stream()
                         .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Action", e);
             } catch (CancellationException ignore) {

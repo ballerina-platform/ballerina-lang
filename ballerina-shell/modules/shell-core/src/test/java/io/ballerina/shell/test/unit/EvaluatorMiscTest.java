@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Misc functionality testing of evaluator.
@@ -169,6 +168,6 @@ public class EvaluatorMiscTest {
         return evaluator.availableVariables().stream().filter(s -> !s.equals("Variable declarations")
                                                                 && !s.equals("Final variable declarations")
                                                                 && !s.equals("Constant Variable Declarations"))
-                                                                .collect(Collectors.toList());
+                                                                .toList();
     }
 }

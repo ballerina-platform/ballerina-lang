@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.debugadapter.completion.context;
 
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -61,7 +62,7 @@ public class RemoteMethodCallActionNodeContext {
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = getClientActions(expressionType.get());
+            List<MethodSymbol> clientActions = getClientActions(expressionType.get());
             completionItems.addAll(getCompletionItemList(clientActions, context));
         } else if (CommonUtil.isInMethodCallParameterContext(context, node)) {
             /*

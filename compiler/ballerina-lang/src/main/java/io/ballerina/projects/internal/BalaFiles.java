@@ -204,7 +204,7 @@ public class BalaFiles {
                     .filter(Files::isDirectory)
                     .map(modulePath -> modulePath.getFileName().toString())
                     .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath))
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to read modules from directory: " + modulesDirPath, e);
         }
@@ -653,7 +653,7 @@ public class BalaFiles {
     private static List<ModuleDescriptor> createModDescriptorList(List<ModuleDependency> modDepEntries) {
         return modDepEntries.stream()
                 .map(BalaFiles::getModuleDescriptorFromDependencyEntry)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static DependencyGraphJson readDependencyGraphJson(Path dependencyGraphJsonPath) {

@@ -59,7 +59,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
@@ -120,14 +119,13 @@ public class ClientResourceAccessActionNodeContext
                 completionItems.addAll(this.getNamedArgExpressionCompletionItems(context, node));
             }
         } else {
-            List<Symbol> clientActions = this.getClientActions(expressionType.get());
+            List<MethodSymbol> clientActions = this.getClientActions(expressionType.get());
             List<ResourceMethodSymbol> resourceMethodSymbols = clientActions.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.RESOURCE_METHOD)
-                    .map(symbol -> (ResourceMethodSymbol) symbol).collect(Collectors.toList());
+                    .map(symbol -> (ResourceMethodSymbol) symbol).toList();
             List<MethodSymbol> remoteMethods = clientActions.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.METHOD
-                            && ((MethodSymbol) symbol).qualifiers().contains(Qualifier.REMOTE))
-                    .map(symbol -> (MethodSymbol) symbol).collect(Collectors.toList());
+                            && symbol.qualifiers().contains(Qualifier.REMOTE)).toList();
 
             if (node.slashToken().isMissing()) {
                 completionItems.addAll(this.getCompletionItemList(remoteMethods, context));

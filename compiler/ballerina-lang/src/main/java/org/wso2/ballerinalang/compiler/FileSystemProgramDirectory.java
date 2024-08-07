@@ -44,7 +44,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -83,7 +82,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
                 fileNames = stream.map(ProjectDirs::getLastComp)
                         .filter(ProjectDirs::isSourceFile)
                         .map(Path::toString)
-                        .collect(Collectors.toList());
+                        .toList();
             }
             return fileNames;
         } catch (SecurityException | AccessDeniedException e) {

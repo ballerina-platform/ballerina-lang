@@ -49,7 +49,6 @@ import org.testng.internal.collections.Pair;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -325,10 +324,10 @@ public class ServiceSemanticAPITest {
         return symbols.stream()
                 .filter(s -> s.getModule().isPresent() &&
                         !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }
