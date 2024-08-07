@@ -38,6 +38,8 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+//import java.util.Map;
+//import java.util.Set;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 
@@ -109,9 +111,38 @@ public class GraphCommand implements BLauncherCmd {
                 .addTask(new CreateDependencyGraphTask(outStream, errStream))
                 .build();
         taskExecutor.executeTasks(this.project);
-
+//        reformatGraph();
         exitIfRequired();
     }
+
+//    private void reformatGraph() {
+//        CreateDependencyGraphTask graphTask = new CreateDependencyGraphTask(outStream, errStream);
+//        DependencyGraph<String> dependencyGraph = graphTask.getDependencyGraph();
+//
+//        Map<String, Set<String>> graph = dependencyGraph.getGraph();
+//
+//        printGraph(graph, null, "", new HashSet<>());
+//    }
+//
+//    private void printGraph(Map<String, Set<String>> graph, String node, String prefix, Set<String> visited) {
+//        if (node == null) {
+//            for (String root : graph.keySet()) {
+//                if (visited.contains(root)) continue;
+//                outStream.println(root);
+//                visited.add(root);
+//                printGraph(graph, root, "", visited);
+//            }
+//        } else {
+//            Set<String> dependencies = graph.get(node);
+//            if (dependencies == null || dependencies.isEmpty()) return;
+//            for (String dep : dependencies) {
+//                outStream.println(prefix + "|-- " + dep);
+//                printGraph(graph, dep, prefix + "|   ", visited);
+//            }
+//        }
+//    }
+
+
 
     private void printHelpCommandInfo() {
         String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(GRAPH_COMMAND);
