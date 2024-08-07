@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -42,7 +41,7 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-public class BFunctionType extends BAnnotatableType implements FunctionType, PartialSemTypeSupplier {
+public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public Type restType;
     public Type retType;
@@ -241,10 +240,10 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (isFunctionTop()) {
             SemType topType = getTopType();
-            return Core.union(topType, BTypeConverter.wrapAsPureBType(this));
+            return Core.union(topType, Builder.wrapAsPureBType(this));
         }
         if (defn != null) {
             return defn.getSemType(env);
@@ -254,13 +253,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
         SemType[] params = new SemType[parameters.length];
         boolean hasBType = false;
         for (int i = 0; i < parameters.length; i++) {
-            var result = getSemType(cx, parameters[i].type);
+            var result = getSemType(parameters[i].type);
             hasBType = hasBType || result.hasBTypePart;
             params[i] = result.pureSemTypePart;
         }
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
-            var result = getSemType(cx, arrayType.getElementType());
+            var result = getSemType(arrayType.getElementType());
             hasBType = hasBType || result.hasBTypePart;
             rest = result.pureSemTypePart;
         } else {
@@ -269,7 +268,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
 
         SemType returnType;
         if (retType != null) {
-            var result = getSemType(cx, retType);
+            var result = getSemType(retType);
             hasBType = hasBType || result.hasBTypePart;
             returnType = result.pureSemTypePart;
         } else {
@@ -280,8 +279,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
         SemType result = fd.define(env, paramType, returnType, getQualifiers());
         if (hasBType) {
-            cx.markProvisionTypeReset();
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
             return Core.union(result, bTypePart);
         }
         return result;
@@ -305,8 +303,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
     }
 
     // TODO: consider moving this to builder
-    private static SemTypeResult getSemType(Context cx, Type type) {
-        SemType semType = Builder.from(cx, type);
+    private SemTypeResult getSemType(Type type) {
+        SemType semType = mutableSemTypeDependencyManager.getSemType(type, this);
         if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
             return new SemTypeResult(true, Core.intersect(semType, Core.SEMTYPE_TOP));
         }
@@ -318,8 +316,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType, Par
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
+    public synchronized void resetSemType() {
         defn = null;
+        super.resetSemType();
     }
 }

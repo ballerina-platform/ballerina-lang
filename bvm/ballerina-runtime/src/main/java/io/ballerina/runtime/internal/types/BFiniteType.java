@@ -21,13 +21,16 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -203,7 +206,21 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
-    SemType createSemType(Context cx) {
-        return BTypeConverter.fromFiniteType(cx, this);
+    public SemType createSemType() {
+        Set<Object> bTypeValueSpace = new HashSet<>();
+        SemType result = Builder.neverType();
+        for (Object each : this.valueSpace) {
+            Optional<SemType> semType = Builder.shapeOf(TypeChecker.context(), each);
+            if (semType.isPresent()) {
+                result = Core.union(result, semType.get());
+            } else {
+                bTypeValueSpace.add(each);
+            }
+        }
+        if (bTypeValueSpace.isEmpty()) {
+            return result;
+        }
+        BFiniteType newFiniteType = this.cloneWithValueSpace(bTypeValueSpace);
+        return Core.union(result, Builder.wrapAsPureBType(newFiniteType));
     }
 }

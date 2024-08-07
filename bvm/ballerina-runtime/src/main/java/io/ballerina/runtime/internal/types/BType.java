@@ -23,9 +23,11 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.MutableSemType;
+import io.ballerina.runtime.api.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
@@ -42,7 +44,7 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
+public abstract class BType implements Type, SubTypeData, MutableSemType {
 
     private static final SemType READONLY_WITH_B_TYPE = Core.union(Builder.readonlyType(), Core.B_TYPE_TOP);
     protected String typeName;
@@ -52,6 +54,8 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
+    protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
+            MutableSemTypeDependencyManager.getInstance();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -240,25 +244,19 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
         return this.cachedImpliedType;
     }
 
-    // If any child class allow mutation that will affect the SemType, it must call this method.
-    // TODO: update this comment to mention what context does
-    public void resetSemTypeCache() {
-        cachedSemType = null;
-    }
-
-    // If any child class partially implement SemType it must override this method.
-    SemType createSemType(Context cx) {
-        return BTypeConverter.wrapAsPureBType(this);
-    }
-
+    // TODO: do better
     @Override
-    public final SemType get(Context cx) {
+    public SemType createSemType() {
+        return Builder.wrapAsPureBType(this);
+    }
+
+    protected SemType getSemType() {
         SemType semType = cachedSemType;
         if (semType == null) {
             synchronized (this) {
                 semType = cachedSemType;
                 if (semType == null) {
-                    semType = createSemType(cx);
+                    semType = createSemType();
                     if (isReadOnly()) {
                         semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
                     }
@@ -267,5 +265,45 @@ public abstract class BType implements Type, SubTypeData, BSemTypeSupplier {
             }
         }
         return semType;
+    }
+
+    @Override
+    public int all() {
+        getSemType();
+        return cachedSemType.all();
+    }
+
+    @Override
+    public int some() {
+        getSemType();
+        return cachedSemType.some();
+    }
+
+    @Override
+    public SubType[] subTypeData() {
+        getSemType();
+        return cachedSemType.subTypeData();
+    }
+
+    @Override
+    public CachedResult cachedSubTypeRelation(SemType other) {
+        return CachedResult.NOT_FOUND;
+    }
+
+    @Override
+    public void cacheSubTypeRelation(SemType other, boolean result) {
+
+    }
+
+    @Override
+    public SubType subTypeByCode(int code) {
+        getSemType();
+        return cachedSemType.subTypeByCode(code);
+    }
+
+    @Override
+    public synchronized void resetSemType() {
+        cachedSemType = null;
+        mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
     }
 }

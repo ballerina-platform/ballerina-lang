@@ -36,10 +36,13 @@ import io.ballerina.runtime.api.types.semtype.CellAtomicType;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.MutableSemType;
+import io.ballerina.runtime.api.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -69,7 +72,7 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
  *
  * @since 0.995.0
  */
-public class BObjectType extends BStructureType implements ObjectType, PartialSemTypeSupplier, TypeWithShape {
+public class BObjectType extends BStructureType implements ObjectType, TypeWithShape {
 
     private MethodType[] methodTypes;
     private MethodType initMethod;
@@ -82,7 +85,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
 
     private String cachedToString;
     private boolean resolving;
-    private ObjectDefinition od;
+    private ObjectDefinition defn;
     private final Env env = Env.getInstance();
     // TODO: better name
     private SemType softSemTypeCache;
@@ -273,12 +276,12 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
         return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
-                .reduce(semTypeInner(cx), Core::intersect);
+                .reduce(semTypeInner(), Core::intersect);
     }
 
     private static boolean skipField(Set<String> seen, String name) {
@@ -288,14 +291,15 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
         return !seen.add(name);
     }
 
-    private SemType semTypeInner(Context cx) {
+    private SemType semTypeInner() {
         if (softSemTypeCache != null) {
             return softSemTypeCache;
         }
-        if (od != null) {
-            return od.getSemType(env);
+        if (defn != null) {
+            return defn.getSemType(env);
         }
-        od = new ObjectDefinition();
+        ObjectDefinition od = new ObjectDefinition();
+        defn = od;
         ObjectQualifiers qualifiers = getObjectQualifiers();
         List<Member> members = new ArrayList<>();
         boolean hasBTypes = false;
@@ -308,7 +312,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
             Field field = entry.getValue();
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            SemType ty = Builder.from(cx, field.getFieldType());
+            SemType ty = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
             SemType pureBTypePart = Core.intersect(ty, Core.B_TYPE_TOP);
             if (!Core.isNever(pureBTypePart)) {
                 hasBTypes = true;
@@ -317,7 +321,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
             members.add(new Member(name, ty, Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
-        for (MethodData method : allMethods(cx)) {
+        for (MethodData method : allMethods()) {
             String name = method.name();
             if (skipField(seen, name)) {
                 continue;
@@ -334,8 +338,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
         }
         SemType semTypePart = od.define(env, qualifiers, members);
         if (hasBTypes || members.isEmpty()) {
-            cx.markProvisionTypeReset();
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
             softSemTypeCache = Core.union(semTypePart, bTypePart);
             return softSemTypeCache;
         }
@@ -396,7 +399,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
             members.add(new Member(name, ty, Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
-        for (MethodData method : allMethods(cx)) {
+        for (MethodData method : allMethods()) {
             String name = method.name();
             if (skipField(seen, name)) {
                 continue;
@@ -413,7 +416,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
         }
         SemType semTypePart = od.define(env, qualifiers, members);
         if (hasBTypes) {
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
             return Core.union(semTypePart, bTypePart);
         }
         return semTypePart;
@@ -430,23 +433,26 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
-        od = null;
+    public synchronized void resetSemType() {
+        defn = null;
+        super.resetSemType();
     }
 
-    protected Collection<MethodData> allMethods(Context cx) {
-        return Arrays.stream(methodTypes).map(method -> MethodData.fromMethod(cx, method)).toList();
+    protected Collection<MethodData> allMethods() {
+        return Arrays.stream(methodTypes)
+                .map(method -> MethodData.fromMethod(mutableSemTypeDependencyManager, this, method)).toList();
     }
 
     protected record MethodData(String name, long flags, SemType semType) {
 
-        static MethodData fromMethod(Context cx, MethodType method) {
+        static MethodData fromMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
+                                     MethodType method) {
             return new MethodData(method.getName(), method.getFlags(),
-                    Builder.from(cx, method.getType()));
+                    dependencyManager.getSemType(method.getType(), parent));
         }
 
-        static MethodData fromResourceMethod(Context cx, BResourceMethodType method) {
+        static MethodData fromResourceMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
+                                             BResourceMethodType method) {
             StringBuilder sb = new StringBuilder();
             sb.append(method.getAccessor());
             for (var each : method.getResourcePath()) {
@@ -462,7 +468,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
                 if (part == null) {
                     paramTypes.add(Builder.anyType());
                 } else {
-                    SemType semType = Builder.from(cx, part);
+                    SemType semType = dependencyManager.getSemType(part, parent);
                     if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
                         hasBTypes = true;
                         paramTypes.add(Core.intersect(semType, Core.SEMTYPE_TOP));
@@ -472,7 +478,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
                 }
             }
             for (Parameter paramType : innerFn.getParameters()) {
-                SemType semType = Builder.from(cx, paramType.type);
+                SemType semType = dependencyManager.getSemType(paramType.type, parent);
                 if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
                     hasBTypes = true;
                     paramTypes.add(Core.intersect(semType, Core.SEMTYPE_TOP));
@@ -483,7 +489,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
             SemType rest;
             Type restType = innerFn.getRestType();
             if (restType instanceof BArrayType arrayType) {
-                rest = Builder.from(cx, arrayType.getElementType());
+                rest = dependencyManager.getSemType(arrayType.getElementType(), parent);
                 if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
                     hasBTypes = true;
                     rest = Core.intersect(rest, Core.SEMTYPE_TOP);
@@ -494,7 +500,7 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
 
             SemType returnType;
             if (innerFn.getReturnType() != null) {
-                returnType = Builder.from(cx, innerFn.getReturnType());
+                returnType = dependencyManager.getSemType(innerFn.getReturnType(), parent);
                 if (!Core.isNever(Core.intersect(returnType, Core.B_TYPE_TOP))) {
                     hasBTypes = true;
                     returnType = Core.intersect(returnType, Core.SEMTYPE_TOP);
@@ -503,13 +509,13 @@ public class BObjectType extends BStructureType implements ObjectType, PartialSe
                 returnType = Builder.nilType();
             }
             ListDefinition paramListDefinition = new ListDefinition();
-            Env env = cx.env;
+            Env env = TypeChecker.context().env;
             SemType paramType = paramListDefinition.defineListTypeWrapped(env, paramTypes.toArray(SemType[]::new),
                     paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
             FunctionDefinition fd = new FunctionDefinition();
             SemType semType = fd.define(env, paramType, returnType, innerFn.getQualifiers());
             if (hasBTypes) {
-                semType = Core.union(semType, BTypeConverter.wrapAsPureBType((BType) innerFn));
+                semType = Core.union(semType, Builder.wrapAsPureBType((BType) innerFn));
             }
             return new MethodData(methodName, method.getFlags(), semType);
         }
