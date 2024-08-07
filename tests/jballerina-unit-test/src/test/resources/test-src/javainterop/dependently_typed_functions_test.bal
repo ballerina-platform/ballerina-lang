@@ -326,6 +326,12 @@ function getArray(typedesc<anydata> td) returns td[] = @java:Method {
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
+function getArrayInferred(typedesc<anydata> td = <>) returns td[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getArray",
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+} external;
+
 function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) returns td1 = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getInvalidValue",
@@ -971,6 +977,11 @@ function testDependentlyTypedResourceMethods() {
     
     int|error c = cl2->/games/football();
     assert(0, checkpanic c);
+}
+
+function testDependentlyTypedFunctionWithTypeReferenceType() returns error? {
+    IntArray arr = check getArrayInferred();
+    assert(<int[]>[10, 20, 30], arr);
 }
 
 // Util functions
