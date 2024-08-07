@@ -24,7 +24,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * This class tests invoking a main function in a bal file via the Ballerina Run Command and the data binding
@@ -49,8 +50,8 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
 
     private void executeTest(String[] args, String expected) throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        String output = bMainInstance.runMainAndReadStdOut("run", args, Paths
-                .get("src", "test", "resources", "run", "file").toString());
+        String output = bMainInstance.runMainAndReadStdOut("run", args,
+                Path.of("src/test/resources/run/file").toString());
         Assert.assertTrue(output.endsWith(expected));
     }
 }

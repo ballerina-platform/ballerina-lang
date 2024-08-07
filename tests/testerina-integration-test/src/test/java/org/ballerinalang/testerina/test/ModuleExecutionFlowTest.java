@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -57,7 +57,7 @@ public class ModuleExecutionFlowTest extends BaseTestCase {
     @AfterMethod
     public void copyExec() {
         try {
-            FileUtils.copyBallerinaExec(Paths.get(projectPath), String.valueOf(System.currentTimeMillis()));
+            FileUtils.copyBallerinaExec(Path.of(projectPath), String.valueOf(System.currentTimeMillis()));
         } catch (IOException e) {
             // ignore exception
         }

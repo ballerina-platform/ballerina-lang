@@ -41,7 +41,6 @@ import org.testng.annotations.Test;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,10 +52,10 @@ import java.util.List;
  * @since 2.0.0
  */
 public class HierarchicalPackageNameTests {
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/hierarchical_pkg_names").toAbsolutePath();
     private static final PrintStream out = System.out;
-    Path customUserHome = Paths.get("build", "userHome");
+    Path customUserHome = Path.of("build", "userHome");
 
     @BeforeTest
     public void setup() {

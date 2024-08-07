@@ -27,7 +27,6 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
@@ -56,9 +55,9 @@ public class FileAppenderPlugin extends CompilerPlugin {
                     throw new UnsupportedOperationException();
                 }
                 if (compilationAnalysisContext.currentPackage().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
-                    logFilePath = Paths.get("build/logs/diagnostics.log").toAbsolutePath();
+                    logFilePath = Path.of("build/logs/diagnostics.log").toAbsolutePath();
                 } else {
-                    logFilePath = Paths.get("build/logs/single-file/diagnostics.log").toAbsolutePath();
+                    logFilePath = Path.of("build/logs/single-file/diagnostics.log").toAbsolutePath();
                 }
                 StringBuilder logs = new StringBuilder();
                 compilationAnalysisContext.compilation().diagnosticResult().diagnostics().forEach(

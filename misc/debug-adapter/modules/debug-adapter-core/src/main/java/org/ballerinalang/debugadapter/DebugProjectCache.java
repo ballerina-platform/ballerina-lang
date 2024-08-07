@@ -24,7 +24,6 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,7 +75,7 @@ public class DebugProjectCache {
      * @param filePath file path of the open/active editor instance in the plugin side.
      */
     private static Project loadProject(String filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
+        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Path.of(filePath));
         ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
         Path projectRoot = projectKindAndProjectRootPair.getValue();
         BuildOptions options = BuildOptions.builder().setOffline(true).build();

@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This class tests invoking main function in a bal for jvm target via bal build Command and run it the jar for
@@ -47,7 +46,7 @@ public class JarRunFunctionPositiveTestCase extends JBallerinaBaseTest {
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         tempProjectDir = Files.createTempDirectory("temp-jar-func-test");
-        jarPath = Paths.get(tempProjectDir.toString(), JAR_NAME).toString();
+        jarPath = Path.of(tempProjectDir.toString(), JAR_NAME).toString();
         String[] clientArgs = {
                 "-o", jarPath,
                 (new File("src/test/resources/run/jar/test_main_for_jvm_target.bal")).getAbsolutePath()

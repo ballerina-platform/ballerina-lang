@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
 
     @Test(description = "Test building a bal file without the siddhiruntime flag")
     public void testBuildingWithoutSiddhiRuntime() throws Exception {
-        String[] clientArgs = {Paths.get("sourcePkg", "main.bal").toString()};
+        String[] clientArgs = {Path.of("sourcePkg", "main.bal").toString()};
         String errOutput = balClient.runMainAndReadStdOut("build", clientArgs, new HashMap<>(),
                                                   tempProjectDirectory.toString(), true);
         Assert.assertEquals(errOutput, "error: .::main.bal:22:16: undefined symbol 'e1'\n" +
@@ -109,7 +108,7 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
     @Test(description = "Test building a bal file with the siddhiruntime flag",
             dependsOnMethods = "testBuildingWithoutSiddhiRuntime")
     public void testBuildingWithSiddhiRuntime() throws Exception {
-        String[] clientArgs = {"--siddhiruntime", Paths.get("sourcePkg", "main.bal").toString()};
+        String[] clientArgs = {"--siddhiruntime", Path.of("sourcePkg", "main.bal").toString()};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");

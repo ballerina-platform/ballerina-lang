@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -59,9 +58,9 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
-        FileUtils.copyFolder(Paths.get("build").resolve("compiler-plugin-jars"),
+        FileUtils.copyFolder(Path.of("build/compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
-        repoBalaPath = Paths.get(balServer.getServerHome()).resolve("repo");
+        repoBalaPath = Path.of(balServer.getServerHome(), "repo");
     }
 
     @DataProvider(name = "provideCoverageData")

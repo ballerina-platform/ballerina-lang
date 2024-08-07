@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,7 +40,7 @@ import java.util.List;
  */
 public class VersionConflictResolutionTests {
     private static final Gson gson = new Gson();
-    private static final Path testSourcesDirectory = Paths.get(
+    private static final Path testSourcesDirectory = Path.of(
             "src/test/resources/project_api/version_conflicts").toAbsolutePath().normalize();
 
     private static final PackageDescriptor rootPkgDesc = PackageDescriptor.from(PackageOrg.from("samjs"),

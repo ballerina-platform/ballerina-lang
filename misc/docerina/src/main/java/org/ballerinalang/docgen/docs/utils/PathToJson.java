@@ -28,7 +28,6 @@ import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Used to convert Path objects to JSON.
@@ -39,7 +38,7 @@ public class PathToJson implements JsonDeserializer<Path>, JsonSerializer<Path> 
     @Override
     public Path deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext)
             throws JsonParseException {
-        return Paths.get(jsonElement.getAsString());
+        return Path.of(jsonElement.getAsString());
     }
 
     @Override

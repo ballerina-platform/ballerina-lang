@@ -19,7 +19,7 @@ package org.ballerinalang.repository.fs;
 
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * This represents a local file system based {@link org.ballerinalang.repository.PackageRepository}.
@@ -29,10 +29,10 @@ import java.nio.file.Paths;
 public class LocalFSPackageRepository extends GeneralFSPackageRepository {
 
     public LocalFSPackageRepository(String basePath) {
-        super(Paths.get(basePath));
+        super(Path.of(basePath));
     }
 
     public LocalFSPackageRepository(String basePath, String orgName) {
-        super(Paths.get(basePath), new Name(orgName));
+        super(Path.of(basePath), new Name(orgName));
     }
 }

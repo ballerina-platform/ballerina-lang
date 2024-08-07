@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -123,7 +122,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
         Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
                 descriptor.version().value().toString());
         if (balaPath != null && Files.exists(balaPath)) {
-            Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
+            Path deprecateMsgMetaFile = Path.of(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
             if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
                 FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());
             }

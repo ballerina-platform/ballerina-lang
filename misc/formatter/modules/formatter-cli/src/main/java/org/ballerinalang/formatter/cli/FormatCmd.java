@@ -19,7 +19,6 @@ import io.ballerina.cli.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
@@ -50,7 +49,7 @@ public class FormatCmd implements BLauncherCmd {
     @Override
     public void execute() {
         // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        Path sourceRootPath = Path.of(System.getProperty(USER_DIR));
         FormatUtil.execute(argList, helpFlag, moduleName, fileName, dryRun, sourceRootPath);
     }
 

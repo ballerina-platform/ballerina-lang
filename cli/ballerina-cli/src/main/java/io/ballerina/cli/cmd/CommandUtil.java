@@ -65,7 +65,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -380,7 +379,7 @@ public class CommandUtil {
             String destinationDirName = moduleDirName.split(templatePkgName + ProjectConstants.DOT, 2)[1];
             Path includePathRelativeToModuleRoot = modulesDirPath.resolve(moduleRootPath)
                     .relativize(absoluteIncludePath);
-            return Paths.get(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
+            return Path.of(ProjectConstants.MODULES_ROOT).resolve(destinationDirName)
                     .resolve(includePathRelativeToModuleRoot);
         }
         return includePath;
@@ -512,8 +511,8 @@ public class CommandUtil {
             JsonObject dependenciesObj = (JsonObject) dependencies;
             if (null == dependenciesObj.get("scope")) {
                 String libPath = dependenciesObj.get("path").getAsString();
-                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
-                Path libRelPath = Paths.get("libs", libName.toString());
+                Path libName = Optional.of(Path.of(libPath).getFileName()).get();
+                Path libRelPath = Path.of("libs", libName.toString());
                 Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
             }
 
@@ -907,7 +906,7 @@ public class CommandUtil {
             final String[] array = uri.toString().split("!");
             return jarFs.getPath(array[1]);
         } else {
-            return Paths.get(uri);
+            return Path.of(uri);
         }
     }
 

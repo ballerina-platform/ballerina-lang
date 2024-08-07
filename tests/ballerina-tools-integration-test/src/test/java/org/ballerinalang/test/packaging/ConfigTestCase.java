@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -47,7 +46,7 @@ public class ConfigTestCase extends BaseTest {
         envVariables = TestUtils.getEnvVariables();
 
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-config-test-project-");
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/project")).getAbsolutePath()).toFile(),
+        FileUtils.copyDirectory(Path.of((new File("src/test/resources/project")).getAbsolutePath()).toFile(),
                                 tempProjectDirectory.toFile());
         Files.createDirectories(tempProjectDirectory.resolve(".ballerina"));
     }
@@ -110,7 +109,7 @@ public class ConfigTestCase extends BaseTest {
 
     @Test(description = "Test running a ballerina file with the default config from the same directory")
     public void testRunWithInvalidDefaultConfig() throws Exception {
-        Path sourcePath = Paths.get(balSourcePkgPath, "invalid");
+        Path sourcePath = Path.of(balSourcePkgPath, "invalid");
         String[] clientArgs = {"read_from_config.bal"};
         LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at ballerina.conf:4",
                 LogLeecher.LeecherType.ERROR);
@@ -120,7 +119,7 @@ public class ConfigTestCase extends BaseTest {
 
     @Test(description = "Test running a ballerina file by specifying an invalid config file path")
     public void testRunWithInvalidConfig() throws Exception {
-        Path sourcePath = Paths.get(balSourcePkgPath, "invalid");
+        Path sourcePath = Path.of(balSourcePkgPath, "invalid");
         String confPath = (new File("src/test/resources/config/invalid/test.conf")).getAbsolutePath();
         String[] clientArgs = {"read_from_config.bal", "--b7a.config.file="+ confPath"};
         LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at test.conf:5",

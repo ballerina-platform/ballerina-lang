@@ -21,7 +21,7 @@ package io.ballerina.shell.cli.handlers.help;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,7 +54,7 @@ public class BbeHelpProvider {
     private static String readFileAsString(String file) throws HelpProviderException {
         String content;
         try {
-            content = Files.readString(Paths.get(file));
+            content = Files.readString(Path.of(file));
         } catch (IOException e) {
             throw new HelpProviderException("Error occurred while executing the command");
         }

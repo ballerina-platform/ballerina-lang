@@ -23,7 +23,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Contains negative cases to test compiler plugin loading and running.
@@ -58,7 +57,7 @@ public class CompilerPluginNegativeTests {
     private static final String EXCEPTION_MESSAGE_41 = "The compiler extension in package " +
             "'samjs:package_compiler_plugin_41:1.1.0' failed to complete. The value cannot be less than zero";
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests/negative_cases").toAbsolutePath();
 
     @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp = EXCEPTION_MESSAGE_1)

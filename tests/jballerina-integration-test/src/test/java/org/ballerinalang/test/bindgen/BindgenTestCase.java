@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
@@ -48,7 +47,7 @@ public class BindgenTestCase extends BaseTest {
     public void setUp() throws IOException, BallerinaTestException {
         tempProjectsDir = Files.createTempDirectory("bal-test-integration-bindgen-");
         // copy TestProject to a temp
-        Path testProject = Paths.get("src", "test", "resources", "bindgen")
+        Path testProject = Path.of("src", "test", "resources", "bindgen")
                 .toAbsolutePath();
         copyFolder(testProject, tempProjectsDir);
         balClient = new BMainInstance(balServer);

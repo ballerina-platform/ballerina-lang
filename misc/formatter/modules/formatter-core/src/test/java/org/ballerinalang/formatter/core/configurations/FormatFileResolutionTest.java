@@ -33,7 +33,7 @@ import java.nio.file.Path;
  */
 public class FormatFileResolutionTest {
 
-    private final Path resDir = Path.of("src", "test", "resources", "configurations", "resolution");
+    private final Path resDir = Path.of("src/test/resources/configurations/resolution");
     private final String validRemoteUrl =
             "https://gist.githubusercontent.com/ballerina-bot/ae54cc7303e9d474d730d732c1594c61/raw" +
                     "/8dc3204aec3f158105a811a6a67488bef45ff742/format.toml";
@@ -113,7 +113,7 @@ public class FormatFileResolutionTest {
     @AfterClass
     public void tearDown() {
         ProjectUtils.deleteDirectory(validRemote.resolve("target"));
-        ProjectUtils.deleteDirectory(withTarget.resolve("target").resolve("format"));
+        ProjectUtils.deleteDirectory(withTarget.resolve("target/format"));
     }
 
 }

@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -130,7 +129,7 @@ public class SemTypeTest {
     }
 
     private Path resolvePath(String filepath) {
-        return Paths.get("src/test/resources").resolve(filepath);
+        return Path.of("src/test/resources").resolve(filepath);
     }
 
     private String relation(String subType, String superType) {

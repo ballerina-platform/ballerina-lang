@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
  * Tests for JsonToRecordConverter.
  */
 public class JsonToRecordConverterTests {
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     private static final String JsonToRecordService = "jsonToRecord/convert";
 
     private final Path basicSchemaJson = RES_DIR.resolve("json")

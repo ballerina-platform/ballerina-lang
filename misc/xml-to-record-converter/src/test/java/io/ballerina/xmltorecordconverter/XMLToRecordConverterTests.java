@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -35,7 +34,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class XMLToRecordConverterTests {
 
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     private static final String XML_DIR = "xml";
     private static final String BAL_DIR = "ballerina";
 

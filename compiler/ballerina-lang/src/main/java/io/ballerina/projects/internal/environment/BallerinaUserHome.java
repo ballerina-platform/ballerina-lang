@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,7 +85,7 @@ public final class BallerinaUserHome {
             throw new ProjectException("unable to get user home directory");
         }
 
-        Path homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+        Path homeRepoPath = Path.of(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
         return from(environment, homeRepoPath);
     }
 

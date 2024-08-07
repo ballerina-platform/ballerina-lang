@@ -35,7 +35,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -97,7 +96,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
                     .map(Path::toString).orElse(ANNON);
-            Path entryPath = Paths.get(PLATFORM)
+            Path entryPath = Path.of(PLATFORM)
                     .resolve(target)
                     .resolve(fileName);
             // create a zip entry for each file
@@ -159,7 +158,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     // null check is added for spot bug with the toml validation filename cannot be null
                     String fileName = Optional.ofNullable(libPath.getFileName())
                             .map(Path::toString).orElse(ANNON);
-                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
+                    Path entryPath = Path.of("compiler-plugin").resolve("libs").resolve(fileName);
                     // create a zip entry for each file
                     putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
                     compilerPluginLibPaths.add(entryPath.toString());
@@ -176,7 +175,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
             try {
-                putZipEntry(balaOutputStream, Paths.get(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
+                putZipEntry(balaOutputStream, Path.of(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
                         new ByteArrayInputStream(
                                 gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
             } catch (IOException e) {
@@ -209,7 +208,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 // null check is added for spot bug with the toml validation filename cannot be null
                 String fileName = Optional.ofNullable(libPath.getFileName())
                         .map(Path::toString).orElse(ANNON);
-                Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
+                Path entryPath = Path.of(TOOL).resolve(LIBS).resolve(fileName);
                 // create a zip entry for each file
                 putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
                 balToolLibPaths.add(entryPath.toString());
@@ -222,7 +221,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
         try {
-            putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
+            putZipEntry(balaOutputStream, Path.of(TOOL, BAL_TOOL_JSON),
                     new ByteArrayInputStream(
                             gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {

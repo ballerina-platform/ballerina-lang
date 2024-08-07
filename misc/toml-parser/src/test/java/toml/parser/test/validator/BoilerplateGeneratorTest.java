@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Contains test cases to to boilerplate toml generation functionality.
@@ -37,28 +36,28 @@ import java.nio.file.Paths;
 public class BoilerplateGeneratorTest {
     @Test
     public void testC2cSchema() throws IOException {
-        Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "c2c-schema.json");
+        Path schemaPath = Path.of("src", "test", "resources", "validator", "boilerplate", "c2c-schema.json");
         Schema rootSchema = Schema.from(schemaPath);
         BoilerplateGenerator generator = new BoilerplateGenerator(rootSchema);
         StringBuilder actual = new StringBuilder();
         for (DocumentMemberDeclarationNode s : generator.getNodes().values()) {
             actual.append(s.toSourceCode());
         }
-        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "c2c-schema.toml");
+        Path expectedToml = Path.of("src", "test", "resources", "validator", "boilerplate", "c2c-schema.toml");
         String expected = Files.readString(expectedToml);
         Assert.assertEquals(actual.toString(), expected);
     }
 
     @Test
     public void testBasicSchema() throws IOException {
-        Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "basic-schema.json");
+        Path schemaPath = Path.of("src", "test", "resources", "validator", "boilerplate", "basic-schema.json");
         Schema rootSchema = Schema.from(schemaPath);
         BoilerplateGenerator generator = new BoilerplateGenerator(rootSchema);
         StringBuilder actual = new StringBuilder();
         for (DocumentMemberDeclarationNode s : generator.getNodes().values()) {
             actual.append(s.toSourceCode());
         }
-        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "basic-schema.toml");
+        Path expectedToml = Path.of("src", "test", "resources", "validator", "boilerplate", "basic-schema.toml");
         String expected = Files.readString(expectedToml);
         Assert.assertEquals(actual.toString(), expected);
     }

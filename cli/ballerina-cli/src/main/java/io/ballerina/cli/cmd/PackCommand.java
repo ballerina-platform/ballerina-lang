@@ -23,7 +23,6 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +97,7 @@ public class PackCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     public PackCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;

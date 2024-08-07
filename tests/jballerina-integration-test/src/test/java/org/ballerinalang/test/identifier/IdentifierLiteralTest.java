@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -37,20 +36,20 @@ import java.util.HashMap;
  */
 public class IdentifierLiteralTest  extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "identifier")
+    private static final String testFileLocation = Path.of("src", "test", "resources", "identifier")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "testProject").toString(),
+        bMainInstance.compilePackageAndPushToLocal(Path.of(testFileLocation, "testProject").toString(),
                 "a_b-foo-any-0.1.0");
     }
 
     @Test(description = "Test clashes in module names contain '.' and '_'")
     public void testModuleIdentifierClash() throws BallerinaTestException {
-        Path projectPath = Paths.get(testFileLocation, "ModuleNameClashProject")
+        Path projectPath = Path.of(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
         bMainInstance.runMain("test", new String[0], new HashMap<>(), new String[0],

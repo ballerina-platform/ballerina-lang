@@ -39,7 +39,6 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +97,7 @@ public class ProfileCommand implements BLauncherCmd {
     private static final String PROFILE_CMD = "bal profile [--debug <port>] [<ballerina-file | package-path>]\n ";
 
     public ProfileCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.err;
         this.errStream = System.err;
     }
@@ -154,7 +153,7 @@ public class ProfileCommand implements BLauncherCmd {
         String[] args = new String[0];
         if (!argList.isEmpty()) {
             if (!argList.get(0).equals("--")) { // project path provided
-                this.projectPath = Paths.get(argList.get(0));
+                this.projectPath = Path.of(argList.get(0));
                 if (argList.size() > 2 && argList.get(1).equals("--")) { // args to main provided
                     args = argList.subList(2, argList.size()).toArray(new String[0]);
                 }

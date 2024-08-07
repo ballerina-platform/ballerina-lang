@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -84,10 +83,10 @@ public class RepoUtils {
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Path.of(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
+            homeRepoPath = Path.of(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -166,7 +165,7 @@ public class RepoUtils {
     }
 
     public static Path getLibDir() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
+        return Path.of(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }
 
     /**
@@ -188,7 +187,7 @@ public class RepoUtils {
             return null;
         }
 
-        return Paths.get(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
+        return Path.of(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
     }
 
     private static boolean getBooleanProp(String key) {

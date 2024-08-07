@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test the formatting of raw template expressions.
@@ -42,6 +42,6 @@ public class RawTemplateExpressionsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("expressions", "raw-template").toString();
+        return Path.of("expressions", "raw-template").toString();
     }
 }

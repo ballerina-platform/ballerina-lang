@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +37,7 @@ import java.util.Set;
  */
 public class TomlValidateTest {
 
-    private final Path basePath = Paths.get("src", "test", "resources", "validator", "basic");
+    private final Path basePath = Path.of("src", "test", "resources", "validator", "basic");
 
     @Test
     public void testClean() throws IOException {

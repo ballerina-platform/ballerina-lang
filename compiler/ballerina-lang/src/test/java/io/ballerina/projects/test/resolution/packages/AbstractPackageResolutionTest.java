@@ -28,7 +28,6 @@ import io.ballerina.projects.test.resolution.packages.internal.TestCaseFilePaths
 import org.testng.Assert;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.StringJoiner;
 
@@ -41,7 +40,7 @@ import java.util.StringJoiner;
  */
 public abstract class AbstractPackageResolutionTest {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources",
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources",
             "package-resolution");
 
     public void runTestCase(String testSuiteDirName, String testCaseDirName, boolean sticky) {

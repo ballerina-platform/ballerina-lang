@@ -24,7 +24,6 @@ import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Parent test class for all debug integration test cases.
@@ -47,8 +46,8 @@ public abstract class BaseTestCase {
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
-        Path projectResourcePath = Paths.get("src", "test", "resources", "project-based-tests").toAbsolutePath();
-        Path singleFileResourcePath = Paths.get("src", "test", "resources", "single-file-tests").toAbsolutePath();
+        Path projectResourcePath = Path.of("src", "test", "resources", "project-based-tests").toAbsolutePath();
+        Path singleFileResourcePath = Path.of("src", "test", "resources", "single-file-tests").toAbsolutePath();
         DebugTestRunner.initialize(projectResourcePath, singleFileResourcePath);
     }
 

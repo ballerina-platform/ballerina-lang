@@ -23,7 +23,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * This class tests the deprecated syntax APIs.
@@ -52,6 +52,6 @@ public class DeprecatedSyntaxAPITest extends AbstractSyntaxTreeAPITest {
 
     @Override
     protected SyntaxTree parseFile(String sourceFileName) {
-        return super.parseFile(Paths.get("deprecated-syntax-api-test").resolve(sourceFileName));
+        return super.parseFile(Path.of("deprecated-syntax-api-test", sourceFileName));
     }
 }

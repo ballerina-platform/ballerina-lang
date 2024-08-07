@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -57,7 +56,7 @@ public class FormattingTest {
         DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
-        textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
+        textDocumentIdentifier1.setUri(Path.of(inputFilePath.toString()).toUri().toString());
 
         FormattingOptions formattingOptions = new FormattingOptions();
         formattingOptions.setInsertSpaces(true);
@@ -89,7 +88,7 @@ public class FormattingTest {
         DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
-        textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
+        textDocumentIdentifier1.setUri(Path.of(inputFilePath.toString()).toUri().toString());
 
         FormattingOptions formattingOptions = new FormattingOptions();
 

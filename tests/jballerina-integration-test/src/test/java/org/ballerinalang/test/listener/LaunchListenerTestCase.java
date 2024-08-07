@@ -26,7 +26,6 @@ import org.ballerinalang.test.util.BFileUtil;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test cases to verify launch listener init and shutdown failures.
@@ -61,18 +60,18 @@ public class LaunchListenerTestCase extends BaseTest {
 
     private void verify(String jarName, String balFileName, String serverResponse) throws BallerinaTestException {
 
-        Path launchListenerJarFilePath = Paths.get("build", "launch-listener", "libs", jarName);
+        Path launchListenerJarFilePath = Path.of("build", "launch-listener", "libs", jarName);
 
         assert launchListenerJarFilePath.toFile().exists();
 
         BalServer balServer = new BalServer();
         BMainInstance balClient = new BMainInstance(balServer);
 
-        Path serverBreLib = Paths.get(balServer.getServerHome(), "bre", "lib", jarName);
+        Path serverBreLib = Path.of(balServer.getServerHome(), "bre", "lib", jarName);
         BFileUtil.copy(launchListenerJarFilePath, serverBreLib);
 
-        Path balFilepath = Paths.get("src", "test", "resources", "listener");
-        String balFile = Paths.get(balFilepath.toString(), balFileName).toFile().getAbsolutePath();
+        Path balFilepath = Path.of("src", "test", "resources", "listener");
+        String balFile = Path.of(balFilepath.toString(), balFileName).toFile().getAbsolutePath();
 
         LogLeecher clientLeecher = new LogLeecher(serverResponse, LogLeecher.LeecherType.ERROR);
 

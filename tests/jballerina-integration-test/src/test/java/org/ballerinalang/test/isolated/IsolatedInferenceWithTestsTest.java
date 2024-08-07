@@ -26,7 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /**
  * Tests isolated inference when the module contains tests.
@@ -36,8 +37,7 @@ import java.nio.file.Paths;
 public class IsolatedInferenceWithTestsTest extends BaseTest {
 
     private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "isolated-inference-projects")
-                    .toAbsolutePath().toString();
+            Path.of("src/test/resources/isolated-inference-projects").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
     @BeforeClass
@@ -65,7 +65,7 @@ public class IsolatedInferenceWithTestsTest extends BaseTest {
         LogLeecher failedLeecher = new LogLeecher("0 failing");
         bMainInstance.runMain("test", new String[0], null, null,
                               new LogLeecher[]{passedLeecher, failedLeecher},
-                              Paths.get(testFileLocation, pkg).toString());
+                              Path.of(testFileLocation, pkg).toString());
         passedLeecher.waitForText(5000);
         failedLeecher.waitForText(5000);
     }

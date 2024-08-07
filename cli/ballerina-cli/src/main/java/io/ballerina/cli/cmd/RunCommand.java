@@ -47,7 +47,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,7 +142,7 @@ public class RunCommand implements BLauncherCmd {
                     \s""";
 
     public RunCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.err;
         this.errStream = System.err;
     }
@@ -191,7 +190,7 @@ public class RunCommand implements BLauncherCmd {
         String[] args = new String[0];
         if (!argList.isEmpty()) {
             if (!argList.get(0).equals("--")) { // project path provided
-                this.projectPath = Paths.get(argList.get(0));
+                this.projectPath = Path.of(argList.get(0));
                 if (RunCommand.JAR_EXTENSION_MATCHER.matches(this.projectPath)) {
                     CommandUtil.printError(this.errStream, "unsupported option(s) provided for jar execution",
                             runCmd, true);
@@ -221,7 +220,7 @@ public class RunCommand implements BLauncherCmd {
         if (this.watch) {
             try {
                 ProjectWatcher projectWatcher = new ProjectWatcher(
-                        this, Paths.get(this.projectPath.toString()), outStream);
+                        this, Path.of(this.projectPath.toString()), outStream);
                 projectWatcher.watch();
             } catch (IOException e) {
                 throw createLauncherException("unable to watch the project:" + e.getMessage());

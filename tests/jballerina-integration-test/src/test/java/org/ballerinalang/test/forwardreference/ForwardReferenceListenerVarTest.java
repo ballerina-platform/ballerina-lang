@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Integration test for forward referencing listener in a http service.
@@ -43,7 +43,7 @@ public class ForwardReferenceListenerVarTest extends BaseTest {
     @BeforeClass
     private void setup() throws Exception {
         serverInstance = new BServerInstance(balServer);
-        String balFile = Paths.get("src", "test", "resources", "forwardreference", "forward_ref_service.bal")
+        String balFile = Path.of("src/test/resources/forwardreference/forward_ref_service.bal")
                 .toAbsolutePath().toString();
         serverInstance.startServer(balFile, new int[SERVICE_PORT]);
     }

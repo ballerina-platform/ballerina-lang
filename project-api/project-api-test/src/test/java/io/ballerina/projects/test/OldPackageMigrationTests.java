@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -53,7 +52,7 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 public class OldPackageMigrationTests extends BaseTest {
 
     private static final Path RESOURCE_DIRECTORY =
-            Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+            Path.of("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static Path tempResourceDir;
 
     @BeforeClass

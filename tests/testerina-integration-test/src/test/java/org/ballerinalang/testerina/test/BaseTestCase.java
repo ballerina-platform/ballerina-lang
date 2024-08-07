@@ -26,7 +26,6 @@ import org.testng.annotations.BeforeSuite;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -49,13 +48,11 @@ public class BaseTestCase {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
 
         // copy TestProjects to a temp
-        Path originalSingleFileTestsDir = Paths.get("src", "test", "resources", "single-file-tests")
-                .toAbsolutePath();
+        Path originalSingleFileTestsDir = Path.of("src/test/resources/single-file-tests").toAbsolutePath();
         singleFileTestsPath = tempProjectDirectory.resolve("single-file-tests");
         FileUtils.copyFolder(originalSingleFileTestsDir, singleFileTestsPath);
 
-        Path originalProjTestsDir = Paths.get("src", "test", "resources", "project-based-tests")
-                .toAbsolutePath();
+        Path originalProjTestsDir = Path.of("src/test/resources/project-based-tests").toAbsolutePath();
         projectBasedTestsPath = tempProjectDirectory.resolve("project-based-tests");
         FileUtils.copyFolder(originalProjTestsDir, projectBasedTestsPath);
     }

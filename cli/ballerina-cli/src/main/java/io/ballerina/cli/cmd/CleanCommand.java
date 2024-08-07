@@ -29,7 +29,6 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 
@@ -57,7 +56,7 @@ public class CleanCommand implements BLauncherCmd {
     }
 
     public CleanCommand() {
-        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.exitWhenFinish = true;
     }
