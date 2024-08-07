@@ -593,7 +593,6 @@ public class ManifestBuilder {
     }
 
     private PackageManifest.Platform getGraalvmCompatibilityPlatform(TopLevelNode graalvmCompatibleNode) {
-        PackageManifest.Platform platform = null;
         if (graalvmCompatibleNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = ((TomlKeyValueNode) graalvmCompatibleNode);
             if (keyValueNode.value().kind() == TomlType.BOOLEAN) {
@@ -602,7 +601,7 @@ public class ManifestBuilder {
                         graalvmCompatible);
             }
         }
-        return platform;
+        return null;
     }
 
     private List<PackageManifest.Dependency> getLocalRepoDependencies() {

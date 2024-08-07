@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlValue;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -98,17 +99,22 @@ public class BXmlType extends BType implements XmlType {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(this == obj && obj instanceof BXmlType)) {
-            return false;
-        }
-
-        BXmlType other = (BXmlType) obj;
-        if (constraint == other.constraint) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
+        if (!(o instanceof BXmlType bXmlType)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return readonly == bXmlType.readonly && Objects.equals(constraint, bXmlType.constraint);
+    }
 
-        return this.readonly == other.readonly && constraint.equals(other.constraint);
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint, readonly);
     }
 
     @Override

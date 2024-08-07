@@ -135,27 +135,25 @@ public class TransactionResourceManager {
      */
     private void setLogProperties() {
         final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
-        if (projectRoot != null) {
-            String logDir = getTransactionLogDirectory();
-            Path logDirPath = Paths.get(logDir);
-            Path transactionLogDirectory;
-            if (!logDirPath.isAbsolute()) {
-                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-                transactionLogDirectory = Paths.get(logDir);
-            } else {
-                transactionLogDirectory = logDirPath;
-            }
-            if (!Files.exists(transactionLogDirectory)) {
-                try {
-                    Files.createDirectory(transactionLogDirectory);
-                } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory in " + logDir);
-                }
-            }
-            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
-            System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
-            System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
+        String logDir = getTransactionLogDirectory();
+        Path logDirPath = Paths.get(logDir);
+        Path transactionLogDirectory;
+        if (!logDirPath.isAbsolute()) {
+            logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+            transactionLogDirectory = Paths.get(logDir);
+        } else {
+            transactionLogDirectory = logDirPath;
         }
+        if (!Files.exists(transactionLogDirectory)) {
+            try {
+                Files.createDirectory(transactionLogDirectory);
+            } catch (IOException e) {
+                stderr.println("error: failed to create transaction log directory in " + logDir);
+            }
+        }
+        System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
+        System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
+        System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
     }
 
     /**

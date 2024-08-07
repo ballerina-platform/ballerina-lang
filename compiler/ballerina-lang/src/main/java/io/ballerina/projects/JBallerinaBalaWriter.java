@@ -142,28 +142,25 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
             }
 
-            if (!compilerPluginDependencies.isEmpty()) {
-
-                // Iterate through compiler plugin dependencies and add them to bala
-                // organization would be
-                // -- Bala Root
-                //   - compiler-plugin/
-                //     - libs
-                //       - java-library1.jar
-                //       - java-library2.jar
+            // Iterate through compiler plugin dependencies and add them to bala
+            // organization would be
+            // -- Bala Root
+            //   - compiler-plugin/
+            //     - libs
+            //       - java-library1.jar
+            //       - java-library2.jar
 
 
-                // Iterate jars and create directories for each target
-                for (String compilerPluginLib : compilerPluginDependencies) {
-                    Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
-                    // null check is added for spot bug with the toml validation filename cannot be null
-                    String fileName = Optional.ofNullable(libPath.getFileName())
-                            .map(Path::toString).orElse(ANNON);
-                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
-                    // create a zip entry for each file
-                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
-                    compilerPluginLibPaths.add(entryPath.toString());
-                }
+            // Iterate jars and create directories for each target
+            for (String compilerPluginLib : compilerPluginDependencies) {
+                Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
+                // null check is added for spot bug with the toml validation filename cannot be null
+                String fileName = Optional.ofNullable(libPath.getFileName())
+                        .map(Path::toString).orElse(ANNON);
+                Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
+                // create a zip entry for each file
+                putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                compilerPluginLibPaths.add(entryPath.toString());
             }
 
             CompilerPluginJson compilerPluginJson = new CompilerPluginJson(

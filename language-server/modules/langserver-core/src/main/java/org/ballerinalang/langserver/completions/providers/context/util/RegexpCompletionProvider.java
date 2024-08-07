@@ -160,14 +160,14 @@ public class RegexpCompletionProvider {
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock(",", snippet + ",", snippet + ",",
                             ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
         if (isReQuantifier(nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
@@ -175,7 +175,7 @@ public class RegexpCompletionProvider {
                 && nodeAtCursor.textRange().endOffset() == ctx.getCursorPositionInTree()) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 
@@ -211,7 +211,7 @@ public class RegexpCompletionProvider {
                     Snippet.DEF_SQUARE_BRACKET.get()));
             completionItems.add(new SnippetCompletionItem(ctx,
                     RegexpCompletionProvider.RegexSnippet.DEF_ASSERTION_START.get()));
-            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
             return completionItems;
         }
 

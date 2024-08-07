@@ -218,10 +218,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public EmitResult emit(OutputType outputType, Path filePath) {
-        Path generatedArtifact = null;
+        Path generatedArtifact;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), null);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -377,9 +377,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
-        if (compiledJarFile == null) {
-            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
-        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
