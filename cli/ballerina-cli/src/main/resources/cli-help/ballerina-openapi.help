@@ -13,7 +13,8 @@ SYNOPSIS
                    [--operations <operation-names>] [-n | --nullable]
                    [--license] <license-file-path> [--with-tests]
                    [--client-methods] <resource|remote> [--without-data-binding]
-                   [--status-code-binding]
+                   [--status-code-binding] [--mock] [--with-service-contract]
+                   [--single-file]
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -92,6 +93,18 @@ OPTIONS
         --status-code-binding
             This option can be used in the client generation to generate the
             client methods with status code response binding.
+
+        --mock
+            This option can be used in the client generation to generate a mock
+            client for the given OpenAPI contract.
+
+        --with-service-contract
+            This option can be used to generate the service contract type for the
+            given OpenAPI contract.
+
+        --single-file
+            This option can be used to generate the Ballerina service or client
+            with related types and utility functions in a single file.
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
