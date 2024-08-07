@@ -29,7 +29,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CellAtomicType;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -63,7 +63,7 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType implements RecordType, PartialSemTypeSupplier, TypeWithShape {
+public class BRecordType extends BStructureType implements RecordType, TypeWithShape {
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -238,18 +238,19 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
-        defn = new MappingDefinition();
+        MappingDefinition md = new MappingDefinition();
+        defn = md;
         Field[] fields = getFields().values().toArray(Field[]::new);
         MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
         boolean hasBTypePart = false;
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-            SemType fieldType = Builder.from(cx, field.getFieldType());
+            SemType fieldType = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
             if (!isOptional && Core.isNever(fieldType)) {
                 return neverType();
             } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
@@ -263,26 +264,26 @@ public class BRecordType extends BStructureType implements RecordType, PartialSe
             mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
                     isReadonly, isOptional);
         }
-        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
-                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
+        CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
+        SemType rest =
+                restFieldType != null ? mutableSemTypeDependencyManager.getSemType(restFieldType, this) : neverType();
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
         }
         if (hasBTypePart) {
-            cx.markProvisionTypeReset();
-            SemType semTypePart = defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType semTypePart = md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
+            resetSemType();
             return Core.union(semTypePart, bTypePart);
         }
-        return defn.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+        return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
+    public synchronized void resetSemType() {
         defn = null;
+        super.resetSemType();
     }
 
     @Override

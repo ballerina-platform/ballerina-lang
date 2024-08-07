@@ -25,7 +25,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -169,7 +170,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         }
         this.memberTypes = readonly ? getReadOnlyTypes(members) : Arrays.asList(members);
         setFlagsBasedOnMembers();
-        resetSemTypeCache();
+        resetSemType();
     }
 
     public void setOriginalMemberTypes(Type[] originalMemberTypes) {
@@ -185,6 +186,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void setMemberTypes(List<Type> members, List<Type> originalMembers) {
+        resetSemType();
         if (members == null) {
             return;
         }
@@ -196,7 +198,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.memberTypes = readonly ? getReadOnlyTypes(members, new HashSet<>(members.size())) : members;
         this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
-
         setOriginalMemberTypes(originalMembers);
     }
 
@@ -545,7 +546,20 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     @Override
-    SemType createSemType(Context cx) {
-        return BTypeConverter.fromUnionType(cx, this);
+    public SemType createSemType() {
+        SemType result = Builder.neverType();
+        boolean hasBType = false;
+        for (Type each : memberTypes) {
+            SemType eachSemType = mutableSemTypeDependencyManager.getSemType(each, this);
+            if (Core.containsBasicType(eachSemType, Builder.bType())) {
+                hasBType = true;
+                eachSemType = Core.intersect(eachSemType, Core.SEMTYPE_TOP);
+            }
+            result = Core.union(result, eachSemType);
+        }
+        if (hasBType) {
+            return Core.union(result, Builder.wrapAsPureBType(this));
+        }
+        return result;
     }
 }

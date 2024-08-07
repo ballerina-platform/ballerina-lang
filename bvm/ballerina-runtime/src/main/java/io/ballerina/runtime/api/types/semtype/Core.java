@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
@@ -54,6 +55,13 @@ public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
     public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
+    private static final SemType implementedTypes =
+            unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
+                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), listType(),
+                    Builder.mappingType(), Builder.functionType(), Builder.objectType(), Builder.errorType(),
+                    Builder.xmlType(), Builder.handleType());
+    public static final SemType ANY_SEMTYPE_PART = intersect(implementedTypes, Builder.anyType());
+    public static final SemType READONLY_SEMTYPE_PART = intersect(implementedTypes, Builder.readonlyType());
 
     private Core() {
     }
@@ -265,6 +273,9 @@ public final class Core {
         }
         for (SubType subType : t.subTypeData()) {
             assert subType != null : "subtype array must not be sparse";
+            if (subType instanceof BSubType) {
+                continue;
+            }
             if (!subType.isEmpty(cx)) {
                 return false;
             }
@@ -410,5 +421,13 @@ public final class Core {
             default -> throw new IllegalArgumentException("Unexpected type code: " + typeCode);
         };
         return SemType.from(0, 1 << typeCode.code(), new SubType[]{subType});
+    }
+
+    private static SemType unionOf(SemType... semTypes) {
+        SemType result = Builder.neverType();
+        for (SemType semType : semTypes) {
+            result = union(result, semType);
+        }
+        return result;
     }
 }

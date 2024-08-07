@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -41,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 0.995.0
  */
-public class BErrorType extends BAnnotatableType implements ErrorType, PartialSemTypeSupplier, TypeWithShape {
+public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithShape {
 
     public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
@@ -127,14 +128,14 @@ public class BErrorType extends BAnnotatableType implements ErrorType, PartialSe
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         boolean hasBType = false;
         SemType err;
         if (detailType == null || isTopType()) {
             err = Builder.errorType();
             hasBType = true;
         } else {
-            SemType detailType = Builder.from(cx, getDetailType());
+            SemType detailType = mutableSemTypeDependencyManager.getSemType(getDetailType(), this);
             if (!Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP))) {
                 hasBType = true;
                 detailType = Core.intersect(detailType, Core.SEMTYPE_TOP);
@@ -143,12 +144,12 @@ public class BErrorType extends BAnnotatableType implements ErrorType, PartialSe
         }
 
         if (distinctIdSupplier == null) {
-            distinctIdSupplier = new DistinctIdSupplier(cx.env, getTypeIdSet());
+            distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
         }
         SemType pureSemType =
                 distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
         if (hasBType) {
-            return Core.union(pureSemType, BTypeConverter.wrapAsPureBType(this));
+            return Core.union(pureSemType, Builder.wrapAsPureBType(this));
         }
         return pureSemType;
     }
@@ -172,7 +173,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, PartialSe
                         .reduce(err, Core::intersect))
                 .map(semType -> {
                     if (hasBType) {
-                        return Core.union(semType, BTypeConverter.wrapAsPureBType(this));
+                        return Core.union(semType, Builder.wrapAsPureBType(this));
                     } else {
                         return semType;
                     }

@@ -25,7 +25,8 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -104,7 +105,7 @@ public class BAnyType extends BType implements AnyType {
     }
 
     @Override
-    SemType createSemType(Context cx) {
-        return BTypeConverter.fromAnyType(this);
+    public SemType createSemType() {
+        return Core.union(Core.ANY_SEMTYPE_PART, Builder.wrapAsPureBType(this));
     }
 }

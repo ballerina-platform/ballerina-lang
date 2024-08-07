@@ -155,18 +155,18 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
     }
 
-    // TODO: this class must also be a semtype class
     @Override
-    SemType createSemType(Context cx) {
+    public SemType createSemType() {
         SemType semType;
         if (constraint == null) {
             semType = pickTopType();
         } else {
             SemType contraintSemtype;
             if (constraint instanceof ParameterizedType parameterizedType) {
-                contraintSemtype = Builder.from(cx, parameterizedType.getParamValueType());
+                contraintSemtype =
+                        mutableSemTypeDependencyManager.getSemType(parameterizedType.getParamValueType(), this);
             } else {
-                contraintSemtype = Builder.from(cx, constraint);
+                contraintSemtype = mutableSemTypeDependencyManager.getSemType(constraint, this);
             }
             assert !Core.containsBasicType(contraintSemtype, Core.B_TYPE_TOP) : "XML is a pure semtype";
             semType = XmlUtils.xmlSequence(contraintSemtype);
@@ -194,7 +194,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     public Optional<SemType> shapeOf(Context cx, Object object) {
         XmlValue xmlValue = (XmlValue) object;
         if (!isReadOnly(xmlValue)) {
-            return Optional.of(get(cx));
+            return Optional.of(getSemType());
         }
         return readonlyShapeOf(object);
     }
