@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
@@ -81,7 +80,7 @@ public class BNullType extends BSemTypeWrapper implements NullType {
         }
 
         @Override
-        SemType createSemType(Context cx) {
+        public SemType createSemType() {
             return Builder.nilType();
         }
     }

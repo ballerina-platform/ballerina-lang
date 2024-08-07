@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
@@ -132,20 +133,12 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
+    // FIXME: remove this method
     public static SemType from(Context cx, Type type) {
         if (type instanceof SemType semType) {
             return semType;
-        } else if (type instanceof BType bType) {
-            return fromBType(cx, bType);
         }
         throw new IllegalArgumentException("Unsupported type: " + type);
-    }
-
-    private static SemType fromBType(Context cx, BType innerType) {
-        int staringSize = cx.addProvisionalType(innerType);
-        SemType result = innerType.get(cx);
-        cx.emptyProvisionalTypes(staringSize);
-        return result;
     }
 
     public static SemType neverType() {
@@ -459,6 +452,10 @@ public final class Builder {
 
     public static MappingAtomicType mappingAtomicInner() {
         return MAPPING_ATOMIC_INNER.get();
+    }
+
+    public static SemType wrapAsPureBType(BType bType) {
+        return basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(bType));
     }
 
     private static final class IntTypeCache {

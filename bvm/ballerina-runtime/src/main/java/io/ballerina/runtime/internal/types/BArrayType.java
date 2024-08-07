@@ -51,7 +51,7 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType implements ArrayType, PartialSemTypeSupplier, TypeWithShape {
+public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -103,7 +103,7 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
         defn = null;
-        resetSemTypeCache();
+        resetSemType();
     }
 
     private void setFlagsBasedOnElementType() {
@@ -223,26 +223,27 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
-        defn = new ListDefinition();
-        SemType elementType = Builder.from(cx, getElementType());
+        ListDefinition ld = new ListDefinition();
+        defn = ld;
+        SemType elementType = mutableSemTypeDependencyManager.getSemType(getElementType(), this);
         SemType pureBTypePart = Core.intersect(elementType, Core.B_TYPE_TOP);
         if (!Core.isNever(pureBTypePart)) {
-            cx.markProvisionTypeReset();
             SemType pureSemTypePart = Core.intersect(elementType, Core.SEMTYPE_TOP);
-            SemType semTypePart = getSemTypePart(pureSemTypePart);
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType semTypePart = getSemTypePart(ld, isReadOnly(), size, pureSemTypePart);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
+            resetSemType();
             return Core.union(semTypePart, bTypePart);
         }
 
-        return getSemTypePart(elementType);
+        return getSemTypePart(ld, isReadOnly(), size, elementType);
     }
 
-    private SemType getSemTypePart(SemType elementType) {
-        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+    private SemType getSemTypePart(ListDefinition defn, boolean isReadOnly, int size, SemType elementType) {
+        CellAtomicType.CellMutability mut = isReadOnly ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         if (size == -1) {
             return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
@@ -253,15 +254,15 @@ public class BArrayType extends BType implements ArrayType, PartialSemTypeSuppli
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
+    public synchronized void resetSemType() {
         defn = null;
+        super.resetSemType();
     }
 
     @Override
     public Optional<SemType> shapeOf(Context cx, Object object) {
         if (!isReadOnly()) {
-            return Optional.of(get(cx));
+            return Optional.of(getSemType());
         }
         BArray value = (BArray) object;
         SemType cachedShape = value.shapeOf();

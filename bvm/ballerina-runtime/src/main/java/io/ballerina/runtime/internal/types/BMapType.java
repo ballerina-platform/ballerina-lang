@@ -52,7 +52,7 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType implements MapType, PartialSemTypeSupplier, TypeWithShape {
+public class BMapType extends BType implements MapType, TypeWithShape {
 
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
@@ -184,33 +184,34 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
-        defn = new MappingDefinition();
-        SemType restType = Builder.from(cx, getConstrainedType());
+        MappingDefinition md = new MappingDefinition();
+        defn = md;
+        SemType restType = mutableSemTypeDependencyManager.getSemType(getConstrainedType(), this);
         SemType pureBTypePart = Core.intersect(restType, Core.B_TYPE_TOP);
         if (!Core.isNever(pureBTypePart)) {
-            cx.markProvisionTypeReset();
             SemType pureSemTypePart = Core.intersect(restType, Core.SEMTYPE_TOP);
-            SemType semTypePart = getSemTypePart(pureSemTypePart);
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType semTypePart = getSemTypePart(md, pureSemTypePart);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
+            resetSemType();
             return Core.union(semTypePart, bTypePart);
         }
-        return getSemTypePart(restType);
+        return getSemTypePart(md, restType);
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
+    public synchronized void resetSemType() {
         defn = null;
+        super.resetSemType();
     }
 
     @Override
     public Optional<SemType> shapeOf(Context cx, Object object) {
         if (!isReadOnly()) {
-            return Optional.of(get(cx));
+            return Optional.of(getSemType());
         }
         BMap value = (BMap) object;
         SemType cachedShape = value.shapeOf();
@@ -239,7 +240,7 @@ public class BMapType extends BType implements MapType, PartialSemTypeSupplier, 
         return Optional.of(semType);
     }
 
-    private SemType getSemTypePart(SemType restType) {
+    private SemType getSemTypePart(MappingDefinition defn, SemType restType) {
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         return defn.defineMappingTypeWrapped(env, EMPTY_FIELD_ARR, restType, mut);

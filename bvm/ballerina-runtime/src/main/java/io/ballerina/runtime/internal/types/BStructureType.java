@@ -72,7 +72,7 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
     @Override
     public void setFields(Map<String, Field> fields) {
         this.fields = fields;
-        resetSemTypeCache();
+        resetSemType();
     }
 
     @Override

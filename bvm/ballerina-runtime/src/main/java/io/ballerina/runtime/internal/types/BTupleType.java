@@ -49,7 +49,7 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType, PartialSemTypeSupplier, TypeWithShape {
+public class BTupleType extends BAnnotatableType implements TupleType, TypeWithShape {
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
@@ -168,6 +168,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
     }
 
     public void setMemberTypes(List<Type> members, Type restType) {
+        resetSemType();
         if (members == null) {
             return;
         }
@@ -182,7 +183,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
         }
         checkAllMembers();
         defn = null;
-        resetSemTypeCache();
     }
 
     @Override
@@ -317,15 +317,16 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
     }
 
     @Override
-    synchronized SemType createSemType(Context cx) {
+    public synchronized SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
-        defn = new ListDefinition();
+        ListDefinition ld = new ListDefinition();
+        defn = ld;
         SemType[] memberTypes = new SemType[tupleTypes.size()];
         boolean hasBTypePart = false;
         for (int i = 0; i < tupleTypes.size(); i++) {
-            SemType memberType = Builder.from(cx, tupleTypes.get(i));
+            SemType memberType = mutableSemTypeDependencyManager.getSemType(tupleTypes.get(i), this);
             if (Core.isNever(memberType)) {
                 return neverType();
             } else if (!Core.isNever(Core.intersect(memberType, Core.B_TYPE_TOP))) {
@@ -336,30 +337,30 @@ public class BTupleType extends BAnnotatableType implements TupleType, PartialSe
         }
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType rest = restType != null ? Builder.from(cx, restType) : neverType();
+        SemType rest = restType != null ? mutableSemTypeDependencyManager.getSemType(restType, this) : neverType();
         if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
             hasBTypePart = true;
             rest = Core.intersect(rest, Core.SEMTYPE_TOP);
         }
         if (hasBTypePart) {
-            cx.markProvisionTypeReset();
-            SemType semTypePart = defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
-            SemType bTypePart = BTypeConverter.wrapAsPureBType(this);
+            SemType semTypePart = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
+            resetSemType();
             return Core.union(semTypePart, bTypePart);
         }
-        return defn.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+        return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }
 
     @Override
-    public void resetSemTypeCache() {
-        super.resetSemTypeCache();
+    public synchronized void resetSemType() {
         defn = null;
+        super.resetSemType();
     }
 
     @Override
     public Optional<SemType> shapeOf(Context cx, Object object) {
         if (!isReadOnly()) {
-            return Optional.of(get(cx));
+            return Optional.of(getSemType());
         }
         BArray value = (BArray) object;
         SemType cachedShape = value.shapeOf();
