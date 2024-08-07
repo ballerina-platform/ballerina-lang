@@ -88,34 +88,21 @@ public class BType implements ValueType {
 
     @Override
     public TypeKind getKind() {
-        switch (tag) {
-            case INT:
-                return TypeKind.INT;
-            case BYTE:
-                return TypeKind.BYTE;
-            case FLOAT:
-                return TypeKind.FLOAT;
-            case DECIMAL:
-                return TypeKind.DECIMAL;
-            case STRING:
-                return TypeKind.STRING;
-            case BOOLEAN:
-                return TypeKind.BOOLEAN;
-            case TYPEDESC:
-                return TypeKind.TYPEDESC;
-            case NIL:
-                return TypeKind.NIL;
-            case NEVER:
-                return TypeKind.NEVER;
-            case ERROR:
-                return TypeKind.ERROR;
-            case READONLY:
-                return TypeKind.READONLY;
-            case PARAMETERIZED_TYPE:
-                return TypeKind.PARAMETERIZED;
-            default:
-                return TypeKind.OTHER;
-        }
+        return switch (tag) {
+            case INT -> TypeKind.INT;
+            case BYTE -> TypeKind.BYTE;
+            case FLOAT -> TypeKind.FLOAT;
+            case DECIMAL -> TypeKind.DECIMAL;
+            case STRING -> TypeKind.STRING;
+            case BOOLEAN -> TypeKind.BOOLEAN;
+            case TYPEDESC -> TypeKind.TYPEDESC;
+            case NIL -> TypeKind.NIL;
+            case NEVER -> TypeKind.NEVER;
+            case ERROR -> TypeKind.ERROR;
+            case READONLY -> TypeKind.READONLY;
+            case PARAMETERIZED_TYPE -> TypeKind.PARAMETERIZED;
+            default -> TypeKind.OTHER;
+        };
     }
 
     @Override

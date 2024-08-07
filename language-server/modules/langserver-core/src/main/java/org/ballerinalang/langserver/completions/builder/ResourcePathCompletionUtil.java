@@ -204,21 +204,19 @@ public class ResourcePathCompletionUtil {
         if (exprType.subtypeOf(paramType)) {
             return true;
         }
-        switch (paramType.typeKind()) {
-            case UNION:
+        return switch (paramType.typeKind()) {
+            case UNION -> {
                 for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
                     if (checkSubtype(childSymbol, exprType, exprValue)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            case SINGLETON:
-                return paramType.subtypeOf(exprType) && exprValue.equals(paramType.signature());
-            case TYPE_REFERENCE:
-                return paramType.subtypeOf(exprType);
-            default:
-                return false;
-        }
+                yield false;
+            }
+            case SINGLETON -> paramType.subtypeOf(exprType) && exprValue.equals(paramType.signature());
+            case TYPE_REFERENCE -> paramType.subtypeOf(exprType);
+            default -> false;
+        };
     }
 
 
@@ -272,20 +270,18 @@ public class ResourcePathCompletionUtil {
         if (stringType.subtypeOf(paramType)) {
             return true;
         }
-        switch (paramType.typeKind()) {
-            case UNION:
+        return switch (paramType.typeKind()) {
+            case UNION -> {
                 for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
                     if (isStringSubtype(childSymbol, stringType)) {
-                        return true;
+                        yield true;
                     }
                 }
-                return false;
-            case SINGLETON:
-            case TYPE_REFERENCE:
-                return paramType.subtypeOf(stringType);
-            default:
-                return false;
-        }
+                yield false;
+            }
+            case SINGLETON, TYPE_REFERENCE -> paramType.subtypeOf(stringType);
+            default -> false;
+        };
     }
 
     private static class ResourceAccessPathPart {

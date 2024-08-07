@@ -306,16 +306,12 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static Object acceptIntUnionReturn(int flag) {
-        switch (flag) {
-            case 1:
-                return 25;
-            case 2:
-                return StringUtils.fromString("sample value return");
-            case 3:
-                return 54.88;
-            default:
-                return true;
-        }
+        return switch (flag) {
+            case 1 -> 25;
+            case 2 -> StringUtils.fromString("sample value return");
+            case 3 -> 54.88;
+            default -> true;
+        };
     }
 
     public static io.ballerina.runtime.api.values.BObject
@@ -345,16 +341,12 @@ public class RefTypeWithBValueAPITests {
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
-        switch (flag) {
-            case 1:
-                return 25;
-            case 2:
-                return "sample value return";
-            case 3:
-                return 54.88;
-            default:
-                return true;
-        }
+        return switch (flag) {
+            case 1 -> 25;
+            case 2 -> "sample value return";
+            case 3 -> 54.88;
+            default -> true;
+        };
     }
 
     public static io.ballerina.runtime.api.values.BMap

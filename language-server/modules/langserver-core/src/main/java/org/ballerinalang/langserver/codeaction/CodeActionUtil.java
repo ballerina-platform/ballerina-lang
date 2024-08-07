@@ -309,18 +309,15 @@ public class CodeActionUtil {
             getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
                     .forEach(entry -> {
                         ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
-                        String signature;
-                        switch (newArrType.memberTypeDescriptor().typeKind()) {
-                            case FUNCTION:
-                            case UNION:
+                        String signature = switch (newArrType.memberTypeDescriptor().typeKind()) {
+                            case FUNCTION, UNION -> {
                                 String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
                                         newArrType.memberTypeDescriptor().signature(), context);
-                                signature = "(" + typeName + ")[]";
-                                break;
-                            default:
-                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
-                                        newArrType.signature(), context);
-                        }
+                                yield "(" + typeName + ")[]";
+                            }
+                            default -> FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                    newArrType.signature(), context);
+                        };
                         typesMap.put(newArrType, signature);
                     });
         } else {
@@ -338,24 +335,18 @@ public class CodeActionUtil {
      */
     public static boolean isJsonMemberType(TypeSymbol typeSymbol) {
         // type json = () | boolean | int | float | decimal | string | json[] | map<json>;
-        switch (typeSymbol.typeKind()) {
-            case NIL:
-            case BOOLEAN:
-            case INT:
-            case FLOAT:
-            case DECIMAL:
-            case STRING:
-            case JSON:
-                return true;
-            case ARRAY:
-                ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
-                return isJsonMemberType(arrayTypeSymbol.memberTypeDescriptor());
-            case MAP:
-                MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typeSymbol;
-                return isJsonMemberType(mapTypeSymbol.typeParam());
-            default:
-                return false;
-        }
+        return switch (typeSymbol.typeKind()) {
+            case NIL,
+                 BOOLEAN,
+                 INT,
+                 FLOAT,
+                 DECIMAL,
+                 STRING,
+                 JSON -> true;
+            case ARRAY -> isJsonMemberType(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
+            case MAP -> isJsonMemberType(((MapTypeSymbol) typeSymbol).typeParam());
+            default -> false;
+        };
     }
 
     /**

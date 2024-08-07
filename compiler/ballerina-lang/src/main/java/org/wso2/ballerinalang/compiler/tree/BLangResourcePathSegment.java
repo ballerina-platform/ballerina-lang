@@ -54,14 +54,11 @@ public class BLangResourcePathSegment extends BLangNode {
 
     @Override
     public String toString() {
-        switch (this.kind) {
-            case RESOURCE_PATH_PARAM_SEGMENT:
-                return "[" + type + "]";
-            case RESOURCE_PATH_REST_PARAM_SEGMENT:
-                return "[" + type + "...]";
-            default:
-                return name.value;
-        }
+        return switch (this.kind) {
+            case RESOURCE_PATH_PARAM_SEGMENT -> "[" + type + "]";
+            case RESOURCE_PATH_REST_PARAM_SEGMENT -> "[" + type + "...]";
+            default -> name.value;
+        };
     }
 
     @Override

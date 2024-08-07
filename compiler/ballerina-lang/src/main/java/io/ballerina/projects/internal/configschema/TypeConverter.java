@@ -301,17 +301,12 @@ public class TypeConverter {
         } else if (TypeTags.isStringTypeTag(type.tag)) {
             return "string";
         } else {
-            switch (type.tag) {
-                case FLOAT:
-                case DECIMAL:
-                    return "number";
-                case BOOLEAN:
-                    return "boolean";
-                case BYTE:
-                    return "integer";
-                default:
-                    return "";
-            }
+            return switch (type.tag) {
+                case FLOAT, DECIMAL -> "number";
+                case BOOLEAN -> "boolean";
+                case BYTE -> "integer";
+                default -> "";
+            };
         }
     }
 

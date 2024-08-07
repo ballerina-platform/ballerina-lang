@@ -251,115 +251,42 @@ public class ServiceComparatorTest {
 
     @DataProvider(name = "serviceTestDataProvider")
     public Object[] serviceTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testServiceAnnotation":
-                filePath = SERVICE_ANNOTATION_TESTCASE;
-                break;
-            case "testServiceDocumentation":
-                filePath = SERVICE_DOCUMENTATION_TESTCASE;
-                break;
-            case "testServiceAttachPoint":
-                filePath = SERVICE_ATTACH_POINT_TESTCASE;
-                break;
-            case "testServiceListenerExpressionList":
-                filePath = SERVICE_LISTENER_TESTCASE;
-                break;
-            case "testServiceQualifier":
-                filePath = SERVICE_ISOLATED_QUALIFIER_TESTCASE;
-                break;
-            case "testAdvanceServiceDeclaration":
-                filePath = ADVANCE_SERVICE_TESTCASE;
-                break;
-
-            case "testServiceMemberObjectFieldAnnotation":
-                filePath = OBJECT_FIELD_ANNOTATION_TESTCASE;
-                break;
-            case "testServiceMemberObjectFieldDocumentation":
-                filePath = OBJECT_FIELD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testServiceMemberObjectFieldIdentifier":
-                filePath = OBJECT_FIELD_IDENTIFIER_TESTCASE;
-                break;
-            case "testServiceMemberObjectFieldQualifier":
-                filePath = OBJECT_FIELD_QUALIFIER_TESTCASE;
-                break;
-            case "testServiceMemberObjectFieldType":
-                filePath = OBJECT_FIELD_TYPE_TESTCASE;
-                break;
-            case "testServiceMemberObjectFieldValue":
-                filePath = OBJECT_FIELD_VALUE_TESTCASE;
-                break;
-
-            case "testServiceMethodDocumentation":
-                filePath = METHOD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testServiceMethodBody":
-                filePath = METHOD_BODY_TESTCASE;
-                break;
-            case "testServiceMethodIdentifier":
-                filePath = METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testServiceMethodParameter":
-                filePath = METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testServiceMethodQualifier":
-                filePath = METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testServiceMethodReturn":
-                filePath = METHOD_RETURN_TESTCASE;
-                break;
-            case "testServiceMethodAnnotation":
-                filePath = METHOD_ANNOTATION_TESTCASE;
-                break;
-
-            case "testRemoteServiceMethodDocumentation":
-                filePath = REMOTE_METHOD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testRemoteServiceMethodBody":
-                filePath = REMOTE_METHOD_BODY_TESTCASE;
-                break;
-            case "testRemoteServiceMethodIdentifier":
-                filePath = REMOTE_METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testRemoteServiceMethodParameter":
-                filePath = REMOTE_METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testRemoteServiceMethodQualifier":
-                filePath = REMOTE_METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testRemoteServiceMethodReturn":
-                filePath = REMOTE_METHOD_RETURN_TESTCASE;
-                break;
-            case "testRemoteServiceMethodAnnotation":
-                filePath = REMOTE_METHOD_ANNOTATION_TESTCASE;
-                break;
-
-            case "testResourceServiceMethodDocumentation":
-                filePath = RESOURCE_METHOD_DOC_TESTCASE;
-                break;
-            case "testResourceServiceMethodBody":
-                filePath = RESOURCE_METHOD_BODY_TESTCASE;
-                break;
-            case "testResourceServiceMethodIdentifier":
-                filePath = RESOURCE_METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testResourceServiceMethodParameter":
-                filePath = RESOURCE_METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testResourceServiceMethodQualifier":
-                filePath = RESOURCE_METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testResourceServiceMethodReturn":
-                filePath = RESOURCE_METHOD_RETURN_TESTCASE;
-                break;
-            case "testResourceServiceMethodAnnotation":
-                filePath = RESOURCE_METHOD_ANNOTATION_TESTCASE;
-                break;
-
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testServiceAnnotation" -> SERVICE_ANNOTATION_TESTCASE;
+            case "testServiceDocumentation" -> SERVICE_DOCUMENTATION_TESTCASE;
+            case "testServiceAttachPoint" -> SERVICE_ATTACH_POINT_TESTCASE;
+            case "testServiceListenerExpressionList" -> SERVICE_LISTENER_TESTCASE;
+            case "testServiceQualifier" -> SERVICE_ISOLATED_QUALIFIER_TESTCASE;
+            case "testAdvanceServiceDeclaration" -> ADVANCE_SERVICE_TESTCASE;
+            case "testServiceMemberObjectFieldAnnotation" -> OBJECT_FIELD_ANNOTATION_TESTCASE;
+            case "testServiceMemberObjectFieldDocumentation" -> OBJECT_FIELD_DOCUMENTATION_TESTCASE;
+            case "testServiceMemberObjectFieldIdentifier" -> OBJECT_FIELD_IDENTIFIER_TESTCASE;
+            case "testServiceMemberObjectFieldQualifier" -> OBJECT_FIELD_QUALIFIER_TESTCASE;
+            case "testServiceMemberObjectFieldType" -> OBJECT_FIELD_TYPE_TESTCASE;
+            case "testServiceMemberObjectFieldValue" -> OBJECT_FIELD_VALUE_TESTCASE;
+            case "testServiceMethodDocumentation" -> METHOD_DOCUMENTATION_TESTCASE;
+            case "testServiceMethodBody" -> METHOD_BODY_TESTCASE;
+            case "testServiceMethodIdentifier" -> METHOD_IDENTIFIER_TESTCASE;
+            case "testServiceMethodParameter" -> METHOD_PARAMETER_TESTCASE;
+            case "testServiceMethodQualifier" -> METHOD_QUALIFIER_TESTCASE;
+            case "testServiceMethodReturn" -> METHOD_RETURN_TESTCASE;
+            case "testServiceMethodAnnotation" -> METHOD_ANNOTATION_TESTCASE;
+            case "testRemoteServiceMethodDocumentation" -> REMOTE_METHOD_DOCUMENTATION_TESTCASE;
+            case "testRemoteServiceMethodBody" -> REMOTE_METHOD_BODY_TESTCASE;
+            case "testRemoteServiceMethodIdentifier" -> REMOTE_METHOD_IDENTIFIER_TESTCASE;
+            case "testRemoteServiceMethodParameter" -> REMOTE_METHOD_PARAMETER_TESTCASE;
+            case "testRemoteServiceMethodQualifier" -> REMOTE_METHOD_QUALIFIER_TESTCASE;
+            case "testRemoteServiceMethodReturn" -> REMOTE_METHOD_RETURN_TESTCASE;
+            case "testRemoteServiceMethodAnnotation" -> REMOTE_METHOD_ANNOTATION_TESTCASE;
+            case "testResourceServiceMethodDocumentation" -> RESOURCE_METHOD_DOC_TESTCASE;
+            case "testResourceServiceMethodBody" -> RESOURCE_METHOD_BODY_TESTCASE;
+            case "testResourceServiceMethodIdentifier" -> RESOURCE_METHOD_IDENTIFIER_TESTCASE;
+            case "testResourceServiceMethodParameter" -> RESOURCE_METHOD_PARAMETER_TESTCASE;
+            case "testResourceServiceMethodQualifier" -> RESOURCE_METHOD_QUALIFIER_TESTCASE;
+            case "testResourceServiceMethodReturn" -> RESOURCE_METHOD_RETURN_TESTCASE;
+            case "testResourceServiceMethodAnnotation" -> RESOURCE_METHOD_ANNOTATION_TESTCASE;
+            default -> null;
+        };
 
         if (filePath == null) {
             throw new SemverTestException("Failed to load dataset for method: " + method.getName());

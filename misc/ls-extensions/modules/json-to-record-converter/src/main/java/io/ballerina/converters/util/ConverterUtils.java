@@ -34,41 +34,24 @@ public class ConverterUtils {
      * @return {@link String} Ballerina type
      */
     public static String convertOpenAPITypeToBallerina(String type) {
-        String convertedType;
 
         //In the case where type is not specified return anydata by default
         if (type == null || type.isEmpty()) {
             return "anydata";
         }
 
-        switch (type) {
-            case Constants.INTEGER:
-                convertedType = "int";
-                break;
-            case Constants.STRING:
-                convertedType = "string";
-                break;
-            case Constants.BOOLEAN:
-                convertedType = "boolean";
-                break;
-            case Constants.ARRAY:
-                convertedType = "[]";
-                break;
-            case Constants.OBJECT:
-                convertedType = "record";
-                break;
-            case Constants.DECIMAL:
-            case Constants.NUMBER:
-            case Constants.DOUBLE:
-                convertedType = "decimal";
-                break;
-            case Constants.FLOAT:
-                convertedType = "float";
-                break;
-            default:
-                convertedType = "anydata";
-        }
-        return convertedType;
+        return switch (type) {
+            case Constants.INTEGER -> "int";
+            case Constants.STRING -> "string";
+            case Constants.BOOLEAN -> "boolean";
+            case Constants.ARRAY -> "[]";
+            case Constants.OBJECT -> "record";
+            case Constants.DECIMAL,
+                 Constants.NUMBER,
+                 Constants.DOUBLE -> "decimal";
+            case Constants.FLOAT -> "float";
+            default -> "anydata";
+        };
     }
 
     /**

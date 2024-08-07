@@ -50,16 +50,12 @@ public interface XMLNavigationAccess extends  VariableReferenceNode {
         }
 
         public static NavAccessType fromInt(int number) {
-            switch (number) {
-                case 0:
-                    return CHILD_ELEMS;
-                case 1:
-                    return CHILDREN;
-                case 2:
-                    return DESCENDANTS;
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return switch (number) {
+                case 0 -> CHILD_ELEMS;
+                case 1 -> CHILDREN;
+                case 2 -> DESCENDANTS;
+                default -> throw new IllegalArgumentException();
+            };
         }
 
     }

@@ -60,12 +60,10 @@ public class STMissingToken extends STToken {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        switch (kind) {
-            case IDENTIFIER_LITERAL:
-                return new IdentifierToken(this, position, parent);
-            default:
-                return new Token(this, position, parent);
-        }
+        return switch (kind) {
+            case IDENTIFIER_LITERAL -> new IdentifierToken(this, position, parent);
+            default -> new Token(this, position, parent);
+        };
     }
 
     @Override

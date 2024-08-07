@@ -285,20 +285,12 @@ public class SymbolAtCursorTest {
         assertEquals(symbol.get().kind(), symbolKind);
         assertEquals(symbol.get().getName().get(), name);
 
-        TypeSymbol type;
-        switch (symbolKind) {
-            case RECORD_FIELD:
-                type = ((RecordFieldSymbol) symbol.get()).typeDescriptor();
-                break;
-            case OBJECT_FIELD:
-                type = ((ObjectFieldSymbol) symbol.get()).typeDescriptor();
-                break;
-            case VARIABLE:
-                type = ((VariableSymbol) symbol.get()).typeDescriptor();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected symbol kind: " + symbolKind);
-        }
+        TypeSymbol type = switch (symbolKind) {
+            case RECORD_FIELD -> ((RecordFieldSymbol) symbol.get()).typeDescriptor();
+            case OBJECT_FIELD -> ((ObjectFieldSymbol) symbol.get()).typeDescriptor();
+            case VARIABLE -> ((VariableSymbol) symbol.get()).typeDescriptor();
+            default -> throw new IllegalStateException("Unexpected symbol kind: " + symbolKind);
+        };
 
         assertEquals(type.typeKind(), TYPE_REFERENCE);
     }

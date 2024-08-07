@@ -84,36 +84,17 @@ public class ConstantComparatorTest {
 
     @DataProvider(name = "constantTestDataProvider")
     public Object[] functionTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testConstantAnnotation":
-                filePath = CONSTANT_ANNOTATION_TESTCASE;
-                break;
-            case "testConstantDocumentation":
-                filePath = CONSTANT_DOCUMENTATION_TESTCASE;
-                break;
-            case "testConstantExpression":
-                filePath = CONSTANT_EXPRESSION_TESTCASE;
-                break;
-            case "testConstantIdentifier":
-                filePath = CONSTANT_IDENTIFIER_TESTCASE;
-                break;
-            case "testConstantQualifier":
-                filePath = CONSTANT_QUALIFIER_TESTCASE;
-                break;
-            case "testConstantTypeDescriptor":
-                filePath = CONSTANT_TYPE_DESCRIPTOR_TESTCASE;
-                break;
-            case "testAdvanceConstant":
-                filePath = ADVANCE_CONSTANT_TESTCASE;
-                break;
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testConstantAnnotation" -> CONSTANT_ANNOTATION_TESTCASE;
+            case "testConstantDocumentation" -> CONSTANT_DOCUMENTATION_TESTCASE;
+            case "testConstantExpression" -> CONSTANT_EXPRESSION_TESTCASE;
+            case "testConstantIdentifier" -> CONSTANT_IDENTIFIER_TESTCASE;
+            case "testConstantQualifier" -> CONSTANT_QUALIFIER_TESTCASE;
+            case "testConstantTypeDescriptor" -> CONSTANT_TYPE_DESCRIPTOR_TESTCASE;
+            case "testAdvanceConstant" -> ADVANCE_CONSTANT_TESTCASE;
+            default -> throw new SemverTestException("Failed to load dataset for method: " + method.getName());
+        };
 
-        if (filePath == null) {
-            throw new SemverTestException("Failed to load dataset for method: " + method.getName());
-        }
         try (FileReader reader = new FileReader(filePath)) {
             Object testCaseObject = JsonParser.parseReader(reader);
             JsonArray fileData = (JsonArray) testCaseObject;

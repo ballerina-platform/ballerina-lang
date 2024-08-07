@@ -91,39 +91,29 @@ public class TypeTags {
     public static boolean isIntegerTypeTag(int tag) {
 
         // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
-        switch (tag) {
-            case INT_TAG:
-            case SIGNED32_INT_TAG:
-            case SIGNED16_INT_TAG:
-            case SIGNED8_INT_TAG:
-            case UNSIGNED32_INT_TAG:
-            case UNSIGNED16_INT_TAG:
-            case UNSIGNED8_INT_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case INT_TAG,
+                 SIGNED32_INT_TAG,
+                 SIGNED16_INT_TAG,
+                 SIGNED8_INT_TAG,
+                 UNSIGNED32_INT_TAG,
+                 UNSIGNED16_INT_TAG,
+                 UNSIGNED8_INT_TAG -> true;
+            default -> false;
+        };
     }
 
     public static boolean isXMLTypeTag(int tag) {
-
-        switch (tag) {
-            case XML_TAG:
-            case XML_ELEMENT_TAG:
-            case XML_COMMENT_TAG:
-            case XML_PI_TAG:
-            case XML_TEXT_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case XML_TAG, XML_ELEMENT_TAG, XML_COMMENT_TAG, XML_PI_TAG, XML_TEXT_TAG -> true;
+            default -> false;
+        };
     }
 
     public static boolean isStringTypeTag(int tag) {
-
-        switch (tag) {
-            case STRING_TAG:
-            case CHAR_STRING_TAG:
-                return true;
-        }
-        return false;
+        return switch (tag) {
+            case STRING_TAG, CHAR_STRING_TAG -> true;
+            default -> false;
+        };
     }
 }

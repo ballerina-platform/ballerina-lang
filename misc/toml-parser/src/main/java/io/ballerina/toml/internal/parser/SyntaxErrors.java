@@ -89,52 +89,36 @@ public class SyntaxErrors {
     }
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
-        switch (currentCtx) {
-            case STRING_BODY:
-                return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case ASSIGN_OP:
-                return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case ARRAY_VALUE_LIST_END:
-            case TABLE_END:
-            case ARRAY_TABLE_FIRST_END:
-            case ARRAY_TABLE_SECOND_END:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
-            case COMMA:
-                return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
-            case ARRAY_VALUE_LIST_START:
-            case TABLE_START:
-            case ARRAY_TABLE_FIRST_START:
-            case ARRAY_TABLE_SECOND_START:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
-            case INLINE_TABLE_END:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case INLINE_TABLE_START:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
-            case DOT:
-                return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
-            case STRING_END:
-            case STRING_START:
-                return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
-            case MULTILINE_STRING_START:
-            case MULTILINE_STRING_END:
-                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_DOUBLE_QUOTE_TOKEN;
-            case LITERAL_STRING_END:
-            case LITERAL_STRING_START:
-                return DiagnosticErrorCode.ERROR_MISSING_SINGLE_QUOTE_TOKEN;
-            case MULTILINE_LITERAL_STRING_START:
-            case MULTILINE_LITERAL_STRING_END:
-                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_SINGLE_QUOTE_TOKEN;
-            case DECIMAL_INTEGER_LITERAL:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case BOOLEAN_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_VALUE;
-            case NEWLINE:
-                return DiagnosticErrorCode.ERROR_MISSING_NEW_LINE;
-            case IDENTIFIER_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
-            default:
-                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
-        }
+        return switch (currentCtx) {
+            case STRING_BODY -> DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
+            case ASSIGN_OP -> DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
+            case ARRAY_VALUE_LIST_END,
+                 TABLE_END,
+                 ARRAY_TABLE_FIRST_END,
+                 ARRAY_TABLE_SECOND_END -> DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case COMMA -> DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
+            case ARRAY_VALUE_LIST_START,
+                 TABLE_START,
+                 ARRAY_TABLE_FIRST_START,
+                 ARRAY_TABLE_SECOND_START -> DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
+            case INLINE_TABLE_END -> DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case INLINE_TABLE_START -> DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case DOT -> DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
+            case STRING_END,
+                 STRING_START -> DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
+            case MULTILINE_STRING_START,
+                 MULTILINE_STRING_END -> DiagnosticErrorCode.ERROR_MISSING_TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case LITERAL_STRING_END,
+                 LITERAL_STRING_START -> DiagnosticErrorCode.ERROR_MISSING_SINGLE_QUOTE_TOKEN;
+            case MULTILINE_LITERAL_STRING_START,
+                 MULTILINE_LITERAL_STRING_END -> DiagnosticErrorCode.ERROR_MISSING_TRIPLE_SINGLE_QUOTE_TOKEN;
+            case DECIMAL_INTEGER_LITERAL,
+                 DECIMAL_FLOATING_POINT_LITERAL,
+                 BOOLEAN_LITERAL -> DiagnosticErrorCode.ERROR_MISSING_VALUE;
+            case NEWLINE -> DiagnosticErrorCode.ERROR_MISSING_NEW_LINE;
+            case IDENTIFIER_LITERAL -> DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
+            default -> DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
+        };
     }
 
     /**

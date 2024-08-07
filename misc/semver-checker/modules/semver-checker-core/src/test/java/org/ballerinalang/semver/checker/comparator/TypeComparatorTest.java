@@ -408,165 +408,57 @@ public class TypeComparatorTest {
 
     @DataProvider(name = "typeDefinitionTestDataProvider")
     public Object[] typeDefinitionTestDataProvider(Method method) throws SemverTestException {
-        String filePath;
-        switch (method.getName()) {
-            case "testTypeAnnotation":
-                filePath = TYPE_ANNOTATION_TESTCASE;
-                break;
-            case "testTypeDocumentation":
-                filePath = TYPE_DOCUMENTATION_TESTCASE;
-                break;
-            case "testTypeIdentifier":
-                filePath = TYPE_IDENTIFIER_TESTCASE;
-                break;
-            case "testTypeQualifier":
-                filePath = TYPE_QUALIFIER_TESTCASE;
-                break;
-            case "testAdvanceType":
-                filePath = ADVANCE_TESTCASE;
-                break;
-
-            case "testSimpleTypeBoolean":
-                filePath = SIMPLE_BOOLEAN_TESTCASE;
-                break;
-            case "testSimpleTypeFloat":
-                filePath = SIMPLE_FLOAT_TESTCASE;
-                break;
-            case "testSimpleTypeInt":
-                filePath = SIMPLE_INT_TESTCASE;
-                break;
-            case "testSimpleTypeNil":
-                filePath = SIMPLE_NIL_TESTCASE;
-                break;
-
-            case "testSequenceTypeString":
-                filePath = SEQUENCE_STRING_TESTCASE;
-                break;
-            case "testSequenceTypeXml":
-                filePath = SEQUENCE_XML_TESTCASE;
-                break;
-
-            case "testStructuredTypeList":
-                filePath = STRUCTURED_LIST_TESTCASE;
-                break;
-            case "testStructuredTypeMap":
-                filePath = STRUCTURED_MAP_TESTCASE;
-                break;
-            case "testStructuredTypeTable":
-                filePath = STRUCTURED_TABLE_TESTCASE;
-                break;
-
-            case "testBehaviouralTypeError":
-                filePath = BEHAVIOURAL_ERROR_TESTCASE;
-                break;
-            case "testBehaviouralTypeFuture":
-                filePath = BEHAVIOURAL_FUTURE_TESTCASE;
-                break;
-            case "testBehaviouralTypeHandle":
-                filePath = BEHAVIOURAL_HANDLE_TESTCASE;
-                break;
-            case "testBehaviouralTypeStream":
-                filePath = BEHAVIOURAL_STREAM_TESTCASE;
-                break;
-            case "testBehaviouralTypeTypeDesc":
-                filePath = BEHAVIOURAL_TYPE_DESC_TESTCASE;
-                break;
-
-            case "testBehaviouralTypeFunctionParameter":
-                filePath = BEHAVIOURAL_FUNCTION_PARAMETER_TESTCASE;
-                break;
-            case "testBehaviouralTypeFunctionQualifier":
-                filePath = BEHAVIOURAL_FUNCTION_QUALIFIER_TESTCASE;
-                break;
-            case "testBehaviouralTypeFunctionReturn":
-                filePath = BEHAVIOURAL_FUNCTION_RETURN_TESTCASE;
-                break;
-
-            case "testBehaviouralTypeObjectMethodAnnotation":
-                filePath = BEHAVIOURAL_OBJ_METHOD_ANNOTATION_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodDocumentation":
-                filePath = BEHAVIOURAL_OBJ_METHOD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodBody":
-                filePath = BEHAVIOURAL_OBJ_METHOD_BODY_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodIdentifier":
-                filePath = BEHAVIOURAL_OBJ_METHOD_IDENTIFIER_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodParameter":
-                filePath = BEHAVIOURAL_OBJ_METHOD_PARAMETER_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodQualifier":
-                filePath = BEHAVIOURAL_OBJ_METHOD_QUALIFIER_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectMethodReturn":
-                filePath = BEHAVIOURAL_OBJ_METHOD_RETURN_TESTCASE;
-                break;
-
-            case "testBehaviouralTypeObjectFieldAnnotation":
-                filePath = BEHAVIOURAL_OBJ_FIELD_ANNOTATION_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectFieldDocumentation":
-                filePath = BEHAVIOURAL_OBJ_FIELD_DOCUMENTATION_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectFieldIdentifier":
-                filePath = BEHAVIOURAL_OBJ_FIELD_IDENTIFIER_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectFieldQualifier":
-                filePath = BEHAVIOURAL_OBJ_FIELD_QUALIFIER_TESTCASE;
-                break;
-            case "testBehaviouralTypeObjectFieldType":
-                filePath = BEHAVIOURAL_OBJ_FIELD_TESTCASE;
-                break;
-
-            case "testBehaviouralTypeObjectQualifier":
-                filePath = BEHAVIOURAL_OBJ_QUALIFIER_TESTCASE;
-                break;
-
-            case "testOtherTypeAnyData":
-                filePath = OTHER_ANY_DATA_TESTCASE;
-                break;
-            case "testOtherTypeAnyType":
-                filePath = OTHER_ANY_TESTCASE;
-                break;
-            case "testOtherTypeByte":
-                filePath = OTHER_BYTE_TESTCASE;
-                break;
-            case "testOtherTypeDistinct":
-                filePath = OTHER_DISTINCT_TESTCASE;
-                break;
-            case "testOtherTypeIntersection":
-                filePath = OTHER_INTERSECTION_TESTCASE;
-                break;
-            case "testOtherTypeJsonType":
-                filePath = OTHER_JSON_TESTCASE;
-                break;
-            case "testOtherTypeNeverType":
-                filePath = OTHER_NEVER_TESTCASE;
-                break;
-            case "testOtherTypeOptional":
-                filePath = OTHER_OPTIONAL_TESTCASE;
-                break;
-            case "testOtherTypeReadOnly":
-                filePath = OTHER_READ_ONLY_TESTCASE;
-                break;
-            case "testOtherTypeRecord":
-                filePath = OTHER_RECORD_TESTCASE;
-                break;
-            case "testOtherTypeSingleton":
-                filePath = OTHER_SINGLETON_TESTCASE;
-                break;
-            case "testOtherTypeTypeReference":
-                filePath = OTHER_TYPE_REFERENCE_TESTCASE;
-                break;
-            case "testOtherTypeUnion":
-                filePath = OTHER_UNION_TESTCASE;
-                break;
-
-            default:
-                filePath = null;
-        }
+        String filePath = switch (method.getName()) {
+            case "testTypeAnnotation" -> TYPE_ANNOTATION_TESTCASE;
+            case "testTypeDocumentation" -> TYPE_DOCUMENTATION_TESTCASE;
+            case "testTypeIdentifier" -> TYPE_IDENTIFIER_TESTCASE;
+            case "testTypeQualifier" -> TYPE_QUALIFIER_TESTCASE;
+            case "testAdvanceType" -> ADVANCE_TESTCASE;
+            case "testSimpleTypeBoolean" -> SIMPLE_BOOLEAN_TESTCASE;
+            case "testSimpleTypeFloat" -> SIMPLE_FLOAT_TESTCASE;
+            case "testSimpleTypeInt" -> SIMPLE_INT_TESTCASE;
+            case "testSimpleTypeNil" -> SIMPLE_NIL_TESTCASE;
+            case "testSequenceTypeString" -> SEQUENCE_STRING_TESTCASE;
+            case "testSequenceTypeXml" -> SEQUENCE_XML_TESTCASE;
+            case "testStructuredTypeList" -> STRUCTURED_LIST_TESTCASE;
+            case "testStructuredTypeMap" -> STRUCTURED_MAP_TESTCASE;
+            case "testStructuredTypeTable" -> STRUCTURED_TABLE_TESTCASE;
+            case "testBehaviouralTypeError" -> BEHAVIOURAL_ERROR_TESTCASE;
+            case "testBehaviouralTypeFuture" -> BEHAVIOURAL_FUTURE_TESTCASE;
+            case "testBehaviouralTypeHandle" -> BEHAVIOURAL_HANDLE_TESTCASE;
+            case "testBehaviouralTypeStream" -> BEHAVIOURAL_STREAM_TESTCASE;
+            case "testBehaviouralTypeTypeDesc" -> BEHAVIOURAL_TYPE_DESC_TESTCASE;
+            case "testBehaviouralTypeFunctionParameter" -> BEHAVIOURAL_FUNCTION_PARAMETER_TESTCASE;
+            case "testBehaviouralTypeFunctionQualifier" -> BEHAVIOURAL_FUNCTION_QUALIFIER_TESTCASE;
+            case "testBehaviouralTypeFunctionReturn" -> BEHAVIOURAL_FUNCTION_RETURN_TESTCASE;
+            case "testBehaviouralTypeObjectMethodAnnotation" -> BEHAVIOURAL_OBJ_METHOD_ANNOTATION_TESTCASE;
+            case "testBehaviouralTypeObjectMethodDocumentation" -> BEHAVIOURAL_OBJ_METHOD_DOCUMENTATION_TESTCASE;
+            case "testBehaviouralTypeObjectMethodBody" -> BEHAVIOURAL_OBJ_METHOD_BODY_TESTCASE;
+            case "testBehaviouralTypeObjectMethodIdentifier" -> BEHAVIOURAL_OBJ_METHOD_IDENTIFIER_TESTCASE;
+            case "testBehaviouralTypeObjectMethodParameter" -> BEHAVIOURAL_OBJ_METHOD_PARAMETER_TESTCASE;
+            case "testBehaviouralTypeObjectMethodQualifier" -> BEHAVIOURAL_OBJ_METHOD_QUALIFIER_TESTCASE;
+            case "testBehaviouralTypeObjectMethodReturn" -> BEHAVIOURAL_OBJ_METHOD_RETURN_TESTCASE;
+            case "testBehaviouralTypeObjectFieldAnnotation" -> BEHAVIOURAL_OBJ_FIELD_ANNOTATION_TESTCASE;
+            case "testBehaviouralTypeObjectFieldDocumentation" -> BEHAVIOURAL_OBJ_FIELD_DOCUMENTATION_TESTCASE;
+            case "testBehaviouralTypeObjectFieldIdentifier" -> BEHAVIOURAL_OBJ_FIELD_IDENTIFIER_TESTCASE;
+            case "testBehaviouralTypeObjectFieldQualifier" -> BEHAVIOURAL_OBJ_FIELD_QUALIFIER_TESTCASE;
+            case "testBehaviouralTypeObjectFieldType" -> BEHAVIOURAL_OBJ_FIELD_TESTCASE;
+            case "testBehaviouralTypeObjectQualifier" -> BEHAVIOURAL_OBJ_QUALIFIER_TESTCASE;
+            case "testOtherTypeAnyData" -> OTHER_ANY_DATA_TESTCASE;
+            case "testOtherTypeAnyType" -> OTHER_ANY_TESTCASE;
+            case "testOtherTypeByte" -> OTHER_BYTE_TESTCASE;
+            case "testOtherTypeDistinct" -> OTHER_DISTINCT_TESTCASE;
+            case "testOtherTypeIntersection" -> OTHER_INTERSECTION_TESTCASE;
+            case "testOtherTypeJsonType" -> OTHER_JSON_TESTCASE;
+            case "testOtherTypeNeverType" -> OTHER_NEVER_TESTCASE;
+            case "testOtherTypeOptional" -> OTHER_OPTIONAL_TESTCASE;
+            case "testOtherTypeReadOnly" -> OTHER_READ_ONLY_TESTCASE;
+            case "testOtherTypeRecord" -> OTHER_RECORD_TESTCASE;
+            case "testOtherTypeSingleton" -> OTHER_SINGLETON_TESTCASE;
+            case "testOtherTypeTypeReference" -> OTHER_TYPE_REFERENCE_TESTCASE;
+            case "testOtherTypeUnion" -> OTHER_UNION_TESTCASE;
+            default -> null;
+        };
 
         if (filePath == null) {
             throw new SemverTestException("Failed to load dataset for method: " + method.getName());

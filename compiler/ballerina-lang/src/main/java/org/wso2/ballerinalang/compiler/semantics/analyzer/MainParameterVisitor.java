@@ -80,15 +80,10 @@ public class MainParameterVisitor {
     }
 
     public boolean isOperandType(BType type) {
-        switch (Types.getImpliedType(type).tag) {
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BYTE:
-                return true;
-            case TypeTags.BOOLEAN:
-                return option;
-            default:
-                return TypeTags.isIntegerTypeTag(type.tag) || TypeTags.isStringTypeTag(type.tag);
-        }
+        return switch (Types.getImpliedType(type).tag) {
+            case TypeTags.FLOAT, TypeTags.DECIMAL, TypeTags.BYTE -> true;
+            case TypeTags.BOOLEAN -> option;
+            default -> TypeTags.isIntegerTypeTag(type.tag) || TypeTags.isStringTypeTag(type.tag);
+        };
     }
 }

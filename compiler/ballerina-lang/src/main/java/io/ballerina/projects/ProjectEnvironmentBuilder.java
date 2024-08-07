@@ -59,18 +59,12 @@ public class ProjectEnvironmentBuilder {
         if (compilationCacheFactory != null) {
             compilationCache = compilationCacheFactory.createCompilationCache(project);
         } else {
-            switch (project.kind()) {
-                case BUILD_PROJECT:
-                    compilationCache = BuildProjectCompilationCache.from(project);
-                    break;
-                case SINGLE_FILE_PROJECT:
-                    compilationCache = TempDirCompilationCache.from(project);
-                    break;
-                case BALA_PROJECT:
-                    throw new IllegalStateException("BALAProject should always be created with a CompilationCache");
-                default:
-                    throw new UnsupportedOperationException("Unsupported ProjectKind: " + project.kind());
-            }
+            compilationCache = switch (project.kind()) {
+                case BUILD_PROJECT -> BuildProjectCompilationCache.from(project);
+                case SINGLE_FILE_PROJECT -> TempDirCompilationCache.from(project);
+                case BALA_PROJECT ->
+                        throw new IllegalStateException("BALAProject should always be created with a CompilationCache");
+            };
         }
         services.put(CompilationCache.class, compilationCache);
         return new DefaultProjectEnvironment(project, environment, services);

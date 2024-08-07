@@ -116,40 +116,31 @@ public class BinaryExpressionEvaluator extends Evaluator {
         BVariable rVar = VariableFactory.getVariable(context, rValue);
         SyntaxKind operatorType = syntaxNode.operator().kind();
 
-        switch (operatorType) {
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case ASTERISK_TOKEN:
-            case SLASH_TOKEN:
-            case PERCENT_TOKEN:
-                return performArithmeticOperation(lVar, rVar, operatorType);
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case LT_EQUAL_TOKEN:
-            case GT_EQUAL_TOKEN:
-                return compare(lVar, rVar, operatorType);
-            case BITWISE_AND_TOKEN:
-            case PIPE_TOKEN:
-            case BITWISE_XOR_TOKEN:
-                return performBitwiseOperation(lVar, rVar, operatorType);
-            case DOUBLE_LT_TOKEN:
-            case DOUBLE_GT_TOKEN:
-            case TRIPPLE_GT_TOKEN:
-                return performShiftOperation(lVar, rVar, operatorType);
-            case LOGICAL_AND_TOKEN:
-            case LOGICAL_OR_TOKEN:
-                return performLogicalOperation(lVar, rVar, operatorType);
-            case ELVIS_TOKEN:
-                return conditionalReturn(lVar, rVar);
-            case DOUBLE_EQUAL_TOKEN:
-            case NOT_EQUAL_TOKEN:
-                return checkValueEquality(lVar, rVar, operatorType);
-            case TRIPPLE_EQUAL_TOKEN:
-            case NOT_DOUBLE_EQUAL_TOKEN:
-                return checkReferenceEquality(lVar, rVar, operatorType);
-            default:
-                throw createUnsupportedOperationException(lVar, rVar, operatorType);
-        }
+        return switch (operatorType) {
+            case PLUS_TOKEN,
+                 MINUS_TOKEN,
+                 ASTERISK_TOKEN,
+                 SLASH_TOKEN,
+                 PERCENT_TOKEN -> performArithmeticOperation(lVar, rVar, operatorType);
+            case LT_TOKEN,
+                 GT_TOKEN,
+                 LT_EQUAL_TOKEN,
+                 GT_EQUAL_TOKEN -> compare(lVar, rVar, operatorType);
+            case BITWISE_AND_TOKEN,
+                 PIPE_TOKEN,
+                 BITWISE_XOR_TOKEN -> performBitwiseOperation(lVar, rVar, operatorType);
+            case DOUBLE_LT_TOKEN,
+                 DOUBLE_GT_TOKEN,
+                 TRIPPLE_GT_TOKEN -> performShiftOperation(lVar, rVar, operatorType);
+            case LOGICAL_AND_TOKEN,
+                 LOGICAL_OR_TOKEN -> performLogicalOperation(lVar, rVar, operatorType);
+            case ELVIS_TOKEN -> conditionalReturn(lVar, rVar);
+            case DOUBLE_EQUAL_TOKEN,
+                 NOT_EQUAL_TOKEN -> checkValueEquality(lVar, rVar, operatorType);
+            case TRIPPLE_EQUAL_TOKEN,
+                 NOT_DOUBLE_EQUAL_TOKEN -> checkReferenceEquality(lVar, rVar, operatorType);
+            default -> throw createUnsupportedOperationException(lVar, rVar, operatorType);
+        };
     }
 
     /**
@@ -178,26 +169,14 @@ public class BinaryExpressionEvaluator extends Evaluator {
             argList.add(getValueAsObject(context, lVar));
             argList.add(getValueAsObject(context, rVar));
 
-            GeneratedStaticMethod genMethod;
-            switch (operator) {
-                case PLUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_ADD_METHOD);
-                    break;
-                case MINUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_SUB_METHOD);
-                    break;
-                case ASTERISK_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MUL_METHOD);
-                    break;
-                case SLASH_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_DIV_METHOD);
-                    break;
-                case PERCENT_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MOD_METHOD);
-                    break;
-                default:
-                    throw createUnsupportedOperationException(lVar, rVar, operator);
-            }
+            GeneratedStaticMethod genMethod = switch (operator) {
+                case PLUS_TOKEN -> getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_ADD_METHOD);
+                case MINUS_TOKEN -> getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_SUB_METHOD);
+                case ASTERISK_TOKEN -> getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MUL_METHOD);
+                case SLASH_TOKEN -> getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_DIV_METHOD);
+                case PERCENT_TOKEN -> getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MOD_METHOD);
+                default -> throw createUnsupportedOperationException(lVar, rVar, operator);
+            };
             genMethod.setArgValues(argList);
             Value result = genMethod.invokeSafely();
             return new BExpressionValue(context, result);
@@ -214,23 +193,13 @@ public class BinaryExpressionEvaluator extends Evaluator {
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
 
-        GeneratedStaticMethod genMethod;
-        switch (operator) {
-            case LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_METHOD);
-                break;
-            case LT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
-                break;
-            case GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_METHOD);
-                break;
-            case GT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
-                break;
-            default:
-                throw createUnsupportedOperationException(lVar, rVar, operator);
-        }
+        GeneratedStaticMethod genMethod = switch (operator) {
+            case LT_TOKEN -> getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_METHOD);
+            case LT_EQUAL_TOKEN -> getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
+            case GT_TOKEN -> getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_METHOD);
+            case GT_EQUAL_TOKEN -> getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
+            default -> throw createUnsupportedOperationException(lVar, rVar, operator);
+        };
         genMethod.setArgValues(argList);
         Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
@@ -242,20 +211,12 @@ public class BinaryExpressionEvaluator extends Evaluator {
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
 
-        GeneratedStaticMethod genMethod;
-        switch (operator) {
-            case BITWISE_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
-                break;
-            case PIPE_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
-                break;
-            case BITWISE_XOR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
-                break;
-            default:
-                throw createUnsupportedOperationException(lVar, rVar, operator);
-        }
+        GeneratedStaticMethod genMethod = switch (operator) {
+            case BITWISE_AND_TOKEN -> getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
+            case PIPE_TOKEN -> getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
+            case BITWISE_XOR_TOKEN -> getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
+            default -> throw createUnsupportedOperationException(lVar, rVar, operator);
+        };
         genMethod.setArgValues(argList);
         Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
@@ -267,20 +228,13 @@ public class BinaryExpressionEvaluator extends Evaluator {
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
 
-        GeneratedStaticMethod genMethod;
-        switch (operator) {
-            case DOUBLE_LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
-                break;
-            case DOUBLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
-                break;
-            case TRIPPLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
-                break;
-            default:
-                throw createUnsupportedOperationException(lVar, rVar, operator);
-        }
+        GeneratedStaticMethod genMethod = switch (operator) {
+            case DOUBLE_LT_TOKEN -> getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
+            case DOUBLE_GT_TOKEN -> getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
+            case TRIPPLE_GT_TOKEN ->
+                    getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
+            default -> throw createUnsupportedOperationException(lVar, rVar, operator);
+        };
         genMethod.setArgValues(argList);
         Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
@@ -292,17 +246,11 @@ public class BinaryExpressionEvaluator extends Evaluator {
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
 
-        GeneratedStaticMethod genMethod;
-        switch (operator) {
-            case LOGICAL_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
-                break;
-            case LOGICAL_OR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
-                break;
-            default:
-                throw createUnsupportedOperationException(lVar, rVar, operator);
-        }
+        GeneratedStaticMethod genMethod = switch (operator) {
+            case LOGICAL_AND_TOKEN -> getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
+            case LOGICAL_OR_TOKEN -> getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
+            default -> throw createUnsupportedOperationException(lVar, rVar, operator);
+        };
         genMethod.setArgValues(argList);
         Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);

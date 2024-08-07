@@ -94,18 +94,13 @@ public class ConvertToReadonlyCloneCodeAction implements DiagnosticBasedCodeActi
     }
 
     private String getNewText(NonTerminalNode currentNode) {
-        String prefix;
-        switch (currentNode.kind()) {
-            case LET_EXPRESSION:
-            case CONDITIONAL_EXPRESSION:
-            case CHECK_EXPRESSION:
-            case XML_STEP_EXPRESSION:
-                prefix = "(" + currentNode.toSourceCode().trim() + ")";
-                break;
-            default:
-                prefix = currentNode.toSourceCode().trim();
-                break;
-        }
+        String prefix = switch (currentNode.kind()) {
+            case LET_EXPRESSION,
+                 CONDITIONAL_EXPRESSION,
+                 CHECK_EXPRESSION,
+                 XML_STEP_EXPRESSION -> "(" + currentNode.toSourceCode().trim() + ")";
+            default -> currentNode.toSourceCode().trim();
+        };
 
         return prefix + "." + CLONE_READONLY_PREFIX + "()";
     }

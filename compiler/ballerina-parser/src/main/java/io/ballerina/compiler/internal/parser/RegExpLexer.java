@@ -101,56 +101,49 @@ public class RegExpLexer extends AbstractLexer {
 
         // ReSequence has zero or more ReTerm.
         this.reader.advance();
-        switch (nextChar) {
-            case LexerTerminals.BITWISE_XOR:
-                return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
-            case LexerTerminals.DOLLAR:
+        return switch (nextChar) {
+            case LexerTerminals.BITWISE_XOR -> getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
+            case LexerTerminals.DOLLAR -> {
                 if (this.mode != ParserMode.RE_CHAR_CLASS && peek() == LexerTerminals.OPEN_BRACE) {
                     // Start interpolation mode.
                     startMode(ParserMode.INTERPOLATION);
                     this.reader.advance();
-                    return getRegExpSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                    yield getRegExpSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                return getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
-            case LexerTerminals.DOT:
-                return getRegExpSyntaxToken(SyntaxKind.DOT_TOKEN);
-            case LexerTerminals.ASTERISK:
-                return getRegExpSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
-            case LexerTerminals.PLUS:
-                return getRegExpSyntaxToken(SyntaxKind.PLUS_TOKEN);
-            case LexerTerminals.QUESTION_MARK:
-                return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
-            case LexerTerminals.BACKSLASH:
-                return processReEscape();
+                yield getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
+                // Start interpolation mode.
+            }
+            case LexerTerminals.DOT -> getRegExpSyntaxToken(SyntaxKind.DOT_TOKEN);
+            case LexerTerminals.ASTERISK -> getRegExpSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
+            case LexerTerminals.PLUS -> getRegExpSyntaxToken(SyntaxKind.PLUS_TOKEN);
+            case LexerTerminals.QUESTION_MARK -> getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+            case LexerTerminals.BACKSLASH -> processReEscape();
             // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
-            case LexerTerminals.OPEN_BRACKET:
+            case LexerTerminals.OPEN_BRACKET -> {
                 if (this.mode != ParserMode.RE_QUOTE_ESCAPE) {
                     startMode(ParserMode.RE_CHAR_CLASS);
                 }
-
-                return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-            case LexerTerminals.CLOSE_BRACKET:
+                yield getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+            }
+            case LexerTerminals.CLOSE_BRACKET -> {
                 if (this.mode == ParserMode.RE_CHAR_CLASS) {
                     endMode();
                 }
-                return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-            case LexerTerminals.OPEN_BRACE:
-                return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
-            case LexerTerminals.CLOSE_BRACE:
-                return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                yield getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+            }
+            case LexerTerminals.OPEN_BRACE -> getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
+            case LexerTerminals.CLOSE_BRACE -> getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
             // Start parsing capturing group ([? ReFlagsOnOff :] ReDisjunction).
-            case LexerTerminals.OPEN_PARANTHESIS:
-                return getRegExpSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
-            case LexerTerminals.CLOSE_PARANTHESIS:
-                return getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-            case LexerTerminals.COMMA:
-                return getRegExpSyntaxToken(SyntaxKind.COMMA_TOKEN);
-            default:
+            case LexerTerminals.OPEN_PARANTHESIS -> getRegExpSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            case LexerTerminals.CLOSE_PARANTHESIS -> getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            case LexerTerminals.COMMA -> getRegExpSyntaxToken(SyntaxKind.COMMA_TOKEN);
+            default -> {
                 if (isDigit(nextChar)) {
-                    return getRegExpText(SyntaxKind.DIGIT);
+                    yield getRegExpText(SyntaxKind.DIGIT);
                 }
-                return getRegExpText(SyntaxKind.RE_LITERAL_CHAR);
-        }
+                yield getRegExpText(SyntaxKind.RE_LITERAL_CHAR);
+            }
+        };
     }
 
     private STToken processReEscape() {
@@ -482,17 +475,10 @@ public class RegExpLexer extends AbstractLexer {
      * @return <code>true</code>, if the character is ReSimpleCharClassCode. <code>false</code> otherwise.
      */
     protected static boolean isReSimpleCharClassCode(int c) {
-        switch (c) {
-            case 'd':
-            case 'D':
-            case 's':
-            case 'S':
-            case 'w':
-            case 'W':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case 'd', 'D', 's', 'S', 'w', 'W' -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -506,14 +492,10 @@ public class RegExpLexer extends AbstractLexer {
      * @return <code>true</code>, if the character is ReCharSetLiteralChar. <code>false</code> otherwise.
      */
     protected static boolean isReCharSetLiteralChar(int c) {
-        switch (c) {
-            case '\\':
-            case ']':
-            case '-':
-                return false;
-            default:
-                return true;
-        }
+        return switch (c) {
+            case '\\', ']', '-' -> false;
+            default -> true;
+        };
     }
 
     /**
@@ -531,14 +513,9 @@ public class RegExpLexer extends AbstractLexer {
      * @return <code>true</code>, if the character is ReFlag. <code>false</code> otherwise.
      */
     protected static boolean isReFlag(int c) {
-        switch (c) {
-            case 'm':
-            case 's':
-            case 'i':
-            case 'x':
-                return true;
-            default:
-                return false;
-        }
+        return switch (c) {
+            case 'm', 's', 'i', 'x' -> true;
+            default -> false;
+        };
     }
 }

@@ -41,14 +41,11 @@ class HybridNodes {
      */
     static HybridNode nextNode(HybridNode prevNode, HybridNode.Kind kind) {
         HybridNode.State state = prevNode.state().cloneState();
-        switch (kind) {
-            case TOKEN:
-                return nextToken(state);
-            case SUBTREE:
-                return nextSubtree(state);
-            default:
-                throw new UnsupportedOperationException("Unsupported HybridNode.Kind: " + kind);
-        }
+        return switch (kind) {
+            case TOKEN -> nextToken(state);
+            case SUBTREE -> nextSubtree(state);
+            default -> throw new UnsupportedOperationException("Unsupported HybridNode.Kind: " + kind);
+        };
     }
 
     private static HybridNode nextSubtree(HybridNode.State state) {

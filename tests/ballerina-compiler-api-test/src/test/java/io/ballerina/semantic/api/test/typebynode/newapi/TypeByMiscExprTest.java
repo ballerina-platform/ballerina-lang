@@ -66,26 +66,12 @@ public class TypeByMiscExprTest extends TypeByNodeTest {
 
             @Override
             public void visit(BinaryExpressionNode binaryExpressionNode) {
-                TypeDescKind typeKind;
-                switch (OperatorKind.valueFrom(binaryExpressionNode.operator().text())) {
-                    case SUB:
-                    case MUL:
-                    case ADD:
-                    case DIV:
-                        typeKind = INT;
-                        break;
-                    case GREATER_EQUAL:
-                    case NOT_EQUAL:
-                    case EQUAL:
-                    case AND:
-                        typeKind = BOOLEAN;
-                        break;
-                    case CLOSED_RANGE:
-                        typeKind = OBJECT;
-                        break;
-                    default:
-                        throw new IllegalStateException();
-                }
+                TypeDescKind typeKind = switch (OperatorKind.valueFrom(binaryExpressionNode.operator().text())) {
+                    case SUB, MUL, ADD, DIV -> INT;
+                    case GREATER_EQUAL, NOT_EQUAL, EQUAL, AND -> BOOLEAN;
+                    case CLOSED_RANGE -> OBJECT;
+                    default -> throw new IllegalStateException();
+                };
 
                 assertType(binaryExpressionNode, model, typeKind);
                 binaryExpressionNode.rhsExpr().accept(this);

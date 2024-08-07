@@ -131,18 +131,12 @@ public class DefaultValueGenerationUtil {
      * @see #getDefaultValueForType(TypeSymbol)
      */
     public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
-        String defaultValue;
         TypeDescKind typeKind = typeSymbol.typeKind();
-        switch (typeKind) {
-            case SINGLETON:
-                defaultValue = typeSymbol.signature();
-                break;
-            case TYPE_REFERENCE:
-                defaultValue = getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
-                break;
-            default:
-                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
-        }
+        String defaultValue = switch (typeKind) {
+            case SINGLETON -> typeSymbol.signature();
+            case TYPE_REFERENCE -> getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
+            default -> getDefaultValueForTypeDescKind(typeKind).orElse(null);
+        };
         return Optional.ofNullable(defaultValue);
     }
 
