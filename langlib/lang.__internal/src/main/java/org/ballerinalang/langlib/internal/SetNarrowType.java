@@ -35,7 +35,10 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
-public class SetNarrowType {
+public final class SetNarrowType {
+
+    private SetNarrowType() {
+    }
 
     public static BMap setNarrowType(BTypedesc td, BMap value) {
         RecordType recordType = (RecordType) TypeUtils.getImpliedType(value.getType());

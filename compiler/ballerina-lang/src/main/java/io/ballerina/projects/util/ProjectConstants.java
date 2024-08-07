@@ -21,7 +21,7 @@ package io.ballerina.projects.util;
  *
  * @since 2.0.0
  */
-public class ProjectConstants {
+public final class ProjectConstants {
 
     private ProjectConstants() {}
 

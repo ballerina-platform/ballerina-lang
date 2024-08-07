@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.table.utils;
  *
  * @since 2201.9.0
  */
-public class Constants {
+public final class Constants {
 
     public static final String TABLE_VERSION = "0.4.0";
 

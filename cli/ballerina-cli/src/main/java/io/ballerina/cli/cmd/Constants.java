@@ -22,7 +22,8 @@ package io.ballerina.cli.cmd;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
+
     public static final String BUILD_COMMAND = "build";
     public static final String RUN_COMMAND = "run";
     public static final String DOC_COMMAND = "doc";
@@ -61,4 +62,7 @@ public class Constants {
     public static final String DEBUG_OPTION = "--debug";
     public static final String VERSION_SHORT_OPTION = "-v";
     public static final String HELP_SHORT_OPTION = "-h";
+
+    private Constants() {
+    }
 }

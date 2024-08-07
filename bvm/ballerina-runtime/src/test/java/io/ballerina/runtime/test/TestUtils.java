@@ -31,7 +31,10 @@ import java.nio.file.Paths;
  * Utils class for runtime unit tests.
  * @since 2.0.0
  */
-public class TestUtils {
+public final class TestUtils {
+
+    private TestUtils() {
+    }
 
     public static Path getConfigPath(String configFileName) {
         return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", configFileName);

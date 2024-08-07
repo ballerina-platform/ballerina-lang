@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 2201.7.2
  */
-public class DiagnosticUtils {
+public final class DiagnosticUtils {
 
     private DiagnosticUtils() {}
 

@@ -38,7 +38,11 @@ import static io.ballerina.shell.cli.PropertiesLoader.APP_NAME;
  *
  * @since 2.0.0
  */
-public class ReplShellApplication {
+public final class ReplShellApplication {
+
+    private ReplShellApplication() {
+    }
+
     /**
      * Executes the repl shell.
      *

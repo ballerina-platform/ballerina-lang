@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Atan {
+public final class Atan {
+
+    private Atan() {
+    }
 
     public static double atan(double x) {
         return Math.atan(x);

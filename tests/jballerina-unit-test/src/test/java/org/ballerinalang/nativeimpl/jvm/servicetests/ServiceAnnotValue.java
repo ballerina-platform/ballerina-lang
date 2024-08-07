@@ -31,11 +31,15 @@ import java.util.HashMap;
  *
  * @since 2.0.0
  */
-public class ServiceAnnotValue {
+public final class ServiceAnnotValue {
+
     static HashMap<Integer, MapValue> serviceAnnotMap = new HashMap();
     private static BObject listener;
     private static boolean started;
     private static int serviceCount = 0;
+
+    private ServiceAnnotValue() {
+    }
 
     public static Object attach(BObject servObj, Object name) {
         // get service annotation and add it to the hash map

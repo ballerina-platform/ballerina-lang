@@ -31,7 +31,8 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
+
     private Utils() {
     }
 

@@ -38,7 +38,7 @@ import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getC
  *
  * @since 2201.1.0
  */
-public class CompletionGenerator {
+public final class CompletionGenerator {
 
     private CompletionGenerator() {
     }

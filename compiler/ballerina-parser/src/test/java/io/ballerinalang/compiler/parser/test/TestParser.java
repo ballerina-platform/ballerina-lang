@@ -30,9 +30,12 @@ import java.nio.file.Paths;
 /**
  * Test the parser.
  */
-public class TestParser {
+public final class TestParser {
 
     private static final PrintStream OUT = System.out;
+
+    private TestParser() {
+    }
 
     public static void main(String[] args) throws IOException {
         String path = TestParser.class.getClassLoader().getResource("test_parser.bal").getPath();

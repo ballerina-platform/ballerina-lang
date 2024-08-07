@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BString;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class ToCodePointInt {
+public final class ToCodePointInt {
+
+    private ToCodePointInt() {
+    }
 
     public static long toCodePointInt(BString ch) {
         return ch.getCodePoint(0);

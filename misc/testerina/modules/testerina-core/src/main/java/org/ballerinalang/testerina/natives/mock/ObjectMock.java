@@ -54,7 +54,7 @@ import static io.ballerina.runtime.internal.TypeChecker.getType;
 /**
  * Class that contains inter-op function related to mocking.
  */
-public class ObjectMock {
+public final class ObjectMock {
 
     private ObjectMock() {
     }

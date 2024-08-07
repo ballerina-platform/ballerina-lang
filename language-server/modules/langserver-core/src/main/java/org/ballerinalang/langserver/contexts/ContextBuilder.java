@@ -54,7 +54,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ContextBuilder {
+public final class ContextBuilder {
 
     private ContextBuilder() {
     }

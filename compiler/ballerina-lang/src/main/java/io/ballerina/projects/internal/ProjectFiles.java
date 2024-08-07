@@ -53,7 +53,8 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
  *
  * @since 2.0.0
  */
-public class ProjectFiles {
+public final class ProjectFiles {
+
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
     public static final PathMatcher BALA_EXTENSION_MATCHER =

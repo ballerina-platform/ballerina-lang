@@ -20,7 +20,8 @@ package org.ballerinalang.langserver.common.utils;
  * 
  * @since 2.0.0
  */
-public class CommonKeys {
+public final class CommonKeys {
+
     private CommonKeys() {
     }
 

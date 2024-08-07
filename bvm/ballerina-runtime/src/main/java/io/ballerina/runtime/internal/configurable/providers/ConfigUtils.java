@@ -40,7 +40,7 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE
 /*
  * Util class that contain methods that are common for env vars, cli configuration.
  */
-public class ConfigUtils {
+public final class ConfigUtils {
 
     private ConfigUtils() {
     }

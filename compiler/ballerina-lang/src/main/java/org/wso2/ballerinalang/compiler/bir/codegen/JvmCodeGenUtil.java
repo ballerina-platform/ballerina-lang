@@ -153,7 +153,8 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 /**
  * The common functions used in CodeGen.
  */
-public class JvmCodeGenUtil {
+public final class JvmCodeGenUtil {
+
     public static final Unifier UNIFIER = new Unifier();
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
@@ -559,10 +560,10 @@ public class JvmCodeGenUtil {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                   int yieldLocationVarIndex, Location terminatorPos,
-                                                   String fullyQualifiedFuncName, String yieldStatus,
-                                                   int yieldStatusVarIndex) {
+    static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                         int yieldLocationVarIndex, Location terminatorPos,
+                                         String fullyQualifiedFuncName, String yieldStatus,
+                                         int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 

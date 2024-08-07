@@ -28,7 +28,10 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
  *
  * @since 2201.9.0
  */
-public class CommonUtils {
+public final class CommonUtils {
+
+    private CommonUtils() {
+    }
 
     /**
      * Get the current time in milliseconds.

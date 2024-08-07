@@ -30,7 +30,7 @@ import java.nio.file.Path;
  *
  * @since 2201.1.1
  */
-public class TestUtils {
+public final class TestUtils {
 
     /**
      * Loads GetResultsTestCases from a given file path.

@@ -44,7 +44,8 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FieldCompletionItemBuilder {
+public final class FieldCompletionItemBuilder {
+
     private FieldCompletionItemBuilder() {
     }
 

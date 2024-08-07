@@ -30,12 +30,16 @@ import io.ballerina.syntaxapicallsgen.segment.Segment;
  *
  * @since 2.0.0
  */
-public class MinutiaeSegmentFactory {
+public final class MinutiaeSegmentFactory {
+
     private static final String CREATE_EMPTY_MINUTIAE_LIST_METHOD_NAME = "createEmptyMinutiaeList";
     private static final String CREATE_MINUTIAE_LIST_METHOD_NAME = "createMinutiaeList";
     private static final String CREATE_COMMENT_METHOD_NAME = "createCommentMinutiae";
     private static final String CREATE_WHITESPACE_METHOD_NAME = "createWhitespaceMinutiae";
     private static final String CREATE_EOL_METHOD_NAME = "createEndOfLineMinutiae";
+
+    private MinutiaeSegmentFactory() {
+    }
 
     /**
      * Converts a {@link MinutiaeList} to a {@link Segment}.

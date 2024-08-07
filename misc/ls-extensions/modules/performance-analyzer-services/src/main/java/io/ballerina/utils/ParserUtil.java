@@ -37,7 +37,7 @@ import java.util.Locale;
 /**
  * utils class for ActionInvocationParser.
  */
-public class ParserUtil {
+public final class ParserUtil {
 
     public static final String TEST_DIR = "tests";
     public static final String MAIN_FUNC_NAME = "main";
@@ -45,6 +45,9 @@ public class ParserUtil {
 
     public static final String CLIENT_URL_ATTR_NAME = "url";
     public static final String ACTION_PATH_ATTR_NAME = "path";
+
+    private ParserUtil() {
+    }
 
     public static boolean isSourceUnit(BLangCompilationUnit compilationUnit) {
 

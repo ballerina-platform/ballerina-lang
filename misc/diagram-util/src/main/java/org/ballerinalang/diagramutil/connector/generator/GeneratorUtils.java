@@ -55,7 +55,10 @@ import java.util.Optional;
 /**
  * Common utils used in project api generators.
  */
-public class GeneratorUtils {
+public final class GeneratorUtils {
+
+    private GeneratorUtils() {
+    }
 
     public static String getDocCodeBlockString(MarkdownCodeBlockNode markdownCodeBlockNode) {
         StringBuilder doc = new StringBuilder();

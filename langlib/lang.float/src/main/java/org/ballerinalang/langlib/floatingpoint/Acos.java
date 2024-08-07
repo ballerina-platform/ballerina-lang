@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Acos {
+public final class Acos {
+
+    private Acos() {
+    }
 
     public static double acos(double x) {
         return Math.acos(x);

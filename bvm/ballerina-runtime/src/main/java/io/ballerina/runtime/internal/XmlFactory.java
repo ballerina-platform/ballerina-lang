@@ -63,7 +63,7 @@ import static io.ballerina.runtime.internal.values.XmlItem.createXMLItemWithDefa
  * 
  * @since 0.995.0
  */
-public class XmlFactory {
+public final class XmlFactory {
 
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
     public static final String PARSE_ERROR = "failed to parse xml";
@@ -506,7 +506,7 @@ public class XmlFactory {
      *
      * @since 1.2
      */
-    public static class XMLTextUnescape {
+    public static final class XMLTextUnescape {
 
         private XMLTextUnescape() {}
 

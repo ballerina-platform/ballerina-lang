@@ -20,9 +20,13 @@ package org.ballerinalang.langserver.util;
 /**
  * Test utils for running performance tests.
  */
-public class PerformanceTestUtils {
+public final class PerformanceTestUtils {
 
     private static final String RES_TIME_THRESHOLD_SYSTEM_PROPERTY = "responseTimeThreshold";
+
+    private PerformanceTestUtils() {
+    }
+
     /**
      * Get response time threshold for Completion Performance Test.
      */

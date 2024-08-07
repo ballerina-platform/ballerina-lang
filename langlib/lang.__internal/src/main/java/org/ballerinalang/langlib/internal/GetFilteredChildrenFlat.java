@@ -34,7 +34,10 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class GetFilteredChildrenFlat {
+public final class GetFilteredChildrenFlat {
+
+    private GetFilteredChildrenFlat() {
+    }
 
     public static BXml getFilteredChildrenFlat(BXml xmlVal, long index, BString[] elemNames) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {

@@ -57,7 +57,7 @@ import static org.ballerinalang.langserver.common.utils.ModuleUtil.getPackageNam
  *
  * @since 2.0.0
  */
-public class AnnotationUtil {
+public final class AnnotationUtil {
 
     private AnnotationUtil() {
     }

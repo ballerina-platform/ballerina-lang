@@ -43,7 +43,7 @@ import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVer
  *
  * @since 2201.2.0
  */
-public class DiffUtils {
+public final class DiffUtils {
 
     // Attributes defined for the JSON representation of diffs.
     public static final String DIFF_ATTR_KIND = "kind";
@@ -52,6 +52,9 @@ public class DiffUtils {
     public static final String DIFF_ATTR_VERSION_IMPACT = "versionImpact";
     public static final String DIFF_ATTR_CHILDREN = "childDiffs";
     private static final String UNKNOWN = "unknown";
+
+    private DiffUtils() {
+    }
 
     /**
      * Returns the summary of changes in string format based on the current version, last published version and the set

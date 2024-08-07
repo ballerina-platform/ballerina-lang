@@ -38,7 +38,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsClosedArra
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class Pop {
+public final class Pop {
 
     private static final String FUNCTION_SIGNATURE = "pop()";
 

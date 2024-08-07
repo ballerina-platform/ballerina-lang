@@ -37,7 +37,10 @@ import java.util.regex.Pattern;
  *
  * @since 2201.3.0
  */
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() {
+    }
 
     public static void writeContent(BString targetPath, BString content) throws Exception {
 

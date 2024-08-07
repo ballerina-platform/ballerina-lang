@@ -52,7 +52,7 @@ import static org.ballerinalang.debugadapter.variable.BVariableType.MAP;
  *
  * @since 2.0.0
  */
-public class LangLibUtils {
+public final class LangLibUtils {
 
     public static final String LANG_LIB_ORG = "ballerina";
     public static final String LANG_LIB_PACKAGE_PREFIX = "lang.";

@@ -35,10 +35,13 @@ import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "forEach");
+
+    private ForEach() {
+    }
 
     public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         int size = m.size();

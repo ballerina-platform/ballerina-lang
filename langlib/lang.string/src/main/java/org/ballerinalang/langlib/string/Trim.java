@@ -35,7 +35,10 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
-public class Trim {
+public final class Trim {
+
+    private Trim() {
+    }
 
     public static BString trim(BString str) {
         if (str == null) {

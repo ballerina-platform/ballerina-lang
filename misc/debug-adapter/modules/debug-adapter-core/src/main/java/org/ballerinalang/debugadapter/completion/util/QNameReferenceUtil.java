@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.0
  */
-public class QNameReferenceUtil {
+public final class QNameReferenceUtil {
 
     private QNameReferenceUtil() {
     }

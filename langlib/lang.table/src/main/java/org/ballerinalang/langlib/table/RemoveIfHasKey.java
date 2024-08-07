@@ -31,7 +31,10 @@ import io.ballerina.runtime.api.values.BTable;
 //        returnType = {@ReturnType(type = TypeKind.ANY)},
 //        isPublic = true
 //)
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
+
+    private RemoveIfHasKey() {
+    }
 
     public static Object removeIfHasKey(BTable tbl, Object key) {
         return tbl.remove(key);

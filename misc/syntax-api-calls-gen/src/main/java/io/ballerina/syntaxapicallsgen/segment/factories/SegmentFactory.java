@@ -29,8 +29,12 @@ import io.ballerina.syntaxapicallsgen.segment.SyntaxKindSegment;
  *
  * @since 2.0.0
  */
-public class SegmentFactory {
+public final class SegmentFactory {
+
     private static final String NULL_LITERAL = "null";
+
+    private SegmentFactory() {
+    }
 
     /**
      * Creates a factory method to create given node type.

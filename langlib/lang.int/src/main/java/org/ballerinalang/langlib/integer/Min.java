@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.integer;
 //        returnType = {@ReturnType(type = TypeKind.INT)},
 //        isPublic = true
 //)
-public class Min {
+public final class Min {
+
+    private Min() {
+    }
 
     public static long min(long n, long[] ns) {
         long min = n;

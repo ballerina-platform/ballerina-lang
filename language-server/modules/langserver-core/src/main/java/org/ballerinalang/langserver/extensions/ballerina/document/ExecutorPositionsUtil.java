@@ -46,20 +46,20 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ExecutorPositionsUtil {
+public final class ExecutorPositionsUtil {
 
-    protected static final String FILE_PATH = "filePath";
-    protected static final String KIND = "kind";
-    protected static final String FUNC_MAIN = "main";
-    protected static final String MODULES = "modules";
-    protected static final String GENERATED_MODULES = "generated";
-    protected static final String NAME = "name";
-    protected static final String RANGE = "range";
-    protected static final String SOURCE = "source";
-    protected static final String TEST = "test";
-    protected static final String TEST_CONFIG = "test:Config";
+    static final String FILE_PATH = "filePath";
+    static final String KIND = "kind";
+    static final String FUNC_MAIN = "main";
+    static final String MODULES = "modules";
+    static final String GENERATED_MODULES = "generated";
+    static final String NAME = "name";
+    static final String RANGE = "range";
+    static final String SOURCE = "source";
+    static final String TEST = "test";
+    static final String TEST_CONFIG = "test:Config";
 
-    protected static final Gson GSON = new Gson();
+    static final Gson GSON = new Gson();
 
     private ExecutorPositionsUtil() {
     }

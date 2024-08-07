@@ -54,10 +54,13 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
  *
  * @since 2.0.0
  */
-public class CompletionUtil {
+public final class CompletionUtil {
 
     private static final String PARENTHESIS = "()";
     private static final List<String> triggerCharacters = Arrays.asList(".", ">");
+
+    private CompletionUtil() {
+    }
 
     /**
      * Get the updated bal file content which includes debug console expression.

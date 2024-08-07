@@ -26,7 +26,10 @@ import java.nio.charset.StandardCharsets;
  *
  * @since 0.94
  */
-public class BCompileUtil {
+public final class BCompileUtil {
+
+    private BCompileUtil() {
+    }
 
     public static String readFileAsString(String path) throws IOException {
         StringBuilder sb = new StringBuilder();

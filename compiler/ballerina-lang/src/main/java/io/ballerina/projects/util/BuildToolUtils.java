@@ -56,7 +56,8 @@ import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
  *
  * @since 2201.9.0
  */
-public class BuildToolUtils {
+public final class BuildToolUtils {
+
     private BuildToolUtils() {}
 
     /**

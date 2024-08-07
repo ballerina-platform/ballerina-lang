@@ -96,7 +96,8 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
  *
  * @since 2201.8.0
  */
-public class BalToolsUtil {
+public final class BalToolsUtil {
+
     private static final String TOOL = "tool";
     private static final String LIBS = "libs";
 
@@ -121,6 +122,9 @@ public class BalToolsUtil {
     private static final Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);
+
+    private BalToolsUtil() {
+    }
 
     public static boolean isNonBuiltInToolCommand(String commandName) {
         return isToolCommand(commandName) && !builtInToolCommands.contains(commandName);

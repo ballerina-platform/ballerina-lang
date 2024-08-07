@@ -46,7 +46,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class DotGraphUtils {
+public final class DotGraphUtils {
 
     private DotGraphUtils() {
     }

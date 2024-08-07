@@ -29,8 +29,11 @@ import io.ballerina.runtime.api.values.BError;
 //        functionName = "cause",
 //        args = {@Argument(name = "value", type = TypeKind.ERROR)},
 //        returnType = {@ReturnType(type = TypeKind.UNION)})
-public class Cause {
+public final class Cause {
 
+
+    private Cause() {
+    }
 
     @Deprecated
     public static Object cause(BError value) {

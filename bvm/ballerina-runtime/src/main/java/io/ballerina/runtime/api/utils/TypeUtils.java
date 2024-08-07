@@ -50,7 +50,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
  *
  * @since 2.0.0
  */
-public class TypeUtils {
+public final class TypeUtils {
 
     private TypeUtils() {
     }

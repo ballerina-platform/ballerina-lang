@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class IsInfinite {
+public final class IsInfinite {
+
+    private IsInfinite() {
+    }
 
     public static boolean isInfinite(double x) {
         return Double.isInfinite(x);

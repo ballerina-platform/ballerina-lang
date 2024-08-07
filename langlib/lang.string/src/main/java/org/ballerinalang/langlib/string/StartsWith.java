@@ -30,7 +30,10 @@ import io.ballerina.runtime.api.values.BString;
 //        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
 //        isPublic = true
 //)
-public class StartsWith {
+public final class StartsWith {
+
+    private StartsWith() {
+    }
 
     public static boolean startsWith(BString str, BString substr) {
         return str.getValue().startsWith(substr.getValue());

@@ -29,7 +29,10 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 1.2.0
  */
-public class Construct {
+public final class Construct {
+
+    private Construct() {
+    }
 
     public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
         return ValueCreator.createStreamValue(TypeCreator.createStreamType(constraintTd.getDescribingType(),

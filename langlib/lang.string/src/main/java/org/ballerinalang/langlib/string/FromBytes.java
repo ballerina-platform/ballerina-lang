@@ -42,7 +42,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.FAILED_TO_DECODE
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class FromBytes {
+public final class FromBytes {
 
     private FromBytes() {
     }

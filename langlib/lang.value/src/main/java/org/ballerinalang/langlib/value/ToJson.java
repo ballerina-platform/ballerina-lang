@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.utils.JsonUtils;
  *
  * @since 2.0
  */
-public class ToJson {
+public final class ToJson {
 
     private ToJson() {
     }

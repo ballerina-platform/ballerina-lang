@@ -32,8 +32,12 @@ import java.util.Scanner;
  *
  * @since 2.0.0
  */
-public class FileReaderUtils {
+public final class FileReaderUtils {
+
     private static final String SPECIAL_DELIMITER = "\\A";
+
+    private FileReaderUtils() {
+    }
 
     /**
      * Reads a file path content from the resources directory.

@@ -30,7 +30,10 @@ import java.util.Objects;
  *
  * @since 2201.9.0
  */
-public class WorkerChannels {
+public final class WorkerChannels {
+
+    private WorkerChannels() {
+    }
 
     /**
      * Auto-closes the specified worker channels if they exist; otherwise, closes them upon creation.

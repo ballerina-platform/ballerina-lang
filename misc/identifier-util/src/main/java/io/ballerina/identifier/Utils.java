@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);

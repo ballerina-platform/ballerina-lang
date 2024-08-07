@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class GetFilterFunc {
+public final class GetFilterFunc {
+
+    private GetFilterFunc() {
+    }
 
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;

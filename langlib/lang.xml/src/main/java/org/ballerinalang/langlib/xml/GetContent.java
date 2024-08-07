@@ -31,7 +31,10 @@ import io.ballerina.runtime.internal.values.XmlSequence;
  *
  * @since 0.90
  */
-public class GetContent {
+public final class GetContent {
+
+    private GetContent() {
+    }
 
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;

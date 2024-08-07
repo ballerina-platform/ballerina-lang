@@ -40,10 +40,13 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 //        returnType = {@ReturnType(type = TypeKind.UNION)},
 //        isPublic = true
 //)
-public class FromString {
+public final class FromString {
 
     private static final BString ERROR_REASON = getModulePrefixedReason(BOOLEAN_LANG_LIB,
                                                                         BOOLEAN_PARSING_ERROR_IDENTIFIER);
+
+    private FromString() {
+    }
 
     public static Object fromString(BString str) {
         String s = str.getValue();

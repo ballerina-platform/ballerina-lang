@@ -133,7 +133,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  *
  * @since 1.2.0
  */
-public class JvmSignatures {
+public final class JvmSignatures {
 
     public static final String INIT_ERROR_WITH_TYPE =
             "(L" + TYPE + ";L" + B_STRING_VALUE + ";L" + BERROR + ";L" + OBJECT + ";)V";

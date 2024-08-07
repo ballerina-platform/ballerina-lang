@@ -27,7 +27,8 @@ import io.ballerina.tools.text.TextRange;
  *
  * @since 1.3.0
  */
-public class STModificationUtil {
+public final class STModificationUtil {
+
     private STModificationUtil() {
     }
 

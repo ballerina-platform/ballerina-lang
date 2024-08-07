@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class SemanticTokensUtils {
+public final class SemanticTokensUtils {
 
     private SemanticTokensUtils() {
     }

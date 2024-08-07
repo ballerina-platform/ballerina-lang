@@ -67,11 +67,15 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
 /**
  * Main class to init the test suit.
  */
-public class BTestMain {
+public final class BTestMain {
+
     private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
     static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
+
+    private BTestMain() {
+    }
 
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;

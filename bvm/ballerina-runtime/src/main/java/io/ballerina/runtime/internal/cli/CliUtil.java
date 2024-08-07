@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Contains the util functions for CLI parsing.
  */
-public class CliUtil {
+public final class CliUtil {
 
     private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s' for parameter '%s', expected %s value";
 

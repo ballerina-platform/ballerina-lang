@@ -35,7 +35,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
  *
  * @since 0.990.0
  */
-public class ErrorReasons {
+public final class ErrorReasons {
 
     private ErrorReasons() {}
 

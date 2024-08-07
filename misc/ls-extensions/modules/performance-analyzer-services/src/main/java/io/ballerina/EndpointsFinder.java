@@ -53,7 +53,10 @@ import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
  *
  * @since 2.0.0
  */
-public class EndpointsFinder {
+public final class EndpointsFinder {
+
+    private EndpointsFinder() {
+    }
 
     /**
      * Get endpoints and action invocations in a given range of a file.

@@ -42,10 +42,14 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.ITERATOR_MUTABIL
  *
  * @since 1.3.0
  */
-public class Next {
+public final class Next {
 
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
+
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
         BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");

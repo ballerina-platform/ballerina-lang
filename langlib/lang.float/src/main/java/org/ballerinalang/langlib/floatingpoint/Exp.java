@@ -29,7 +29,10 @@ package org.ballerinalang.langlib.floatingpoint;
 //        returnType = {@ReturnType(type = TypeKind.FLOAT)},
 //        isPublic = true
 //)
-public class Exp {
+public final class Exp {
+
+    private Exp() {
+    }
 
     public static double exp(double x) {
         return Math.exp(x);

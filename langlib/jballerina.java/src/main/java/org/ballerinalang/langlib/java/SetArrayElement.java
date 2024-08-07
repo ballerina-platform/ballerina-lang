@@ -26,7 +26,10 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  *
  * @since 1.0.0
  */
-public class SetArrayElement {
+public final class SetArrayElement {
+
+    private SetArrayElement() {
+    }
 
     public static void setArrayElement(Strand strand, BHandle bHandle, long index, BHandle value) {
         Object[] arr = (Object[]) bHandle.getValue();

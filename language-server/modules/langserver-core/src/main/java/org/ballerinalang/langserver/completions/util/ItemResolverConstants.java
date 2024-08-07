@@ -21,7 +21,7 @@ package org.ballerinalang.langserver.completions.util;
 /**
  * Constants for Item Resolver.
  */
-public class ItemResolverConstants {
+public final class ItemResolverConstants {
 
     // Start of Basic Constructs
     public static final String RETURN = "return";
@@ -167,4 +167,7 @@ public class ItemResolverConstants {
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
     public static final String OUTER_KEYWORD = "outer";
+
+    private ItemResolverConstants() {
+    }
 }

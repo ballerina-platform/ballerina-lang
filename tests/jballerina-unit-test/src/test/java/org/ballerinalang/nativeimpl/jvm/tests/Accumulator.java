@@ -35,7 +35,10 @@ import org.testng.Assert;
  *
  * @since 1.0.0
  */
-public class Accumulator {
+public final class Accumulator {
+
+    private Accumulator() {
+    }
 
     public static void accumulate(Environment env, ObjectValue intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();

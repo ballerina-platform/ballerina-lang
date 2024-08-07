@@ -56,7 +56,7 @@ import java.util.Optional;
 /**
  * Generate connector metadata using project syntax tree and semantic model.
  */
-public class ConnectorGenerator {
+public final class ConnectorGenerator {
 
     private ConnectorGenerator() {
     }

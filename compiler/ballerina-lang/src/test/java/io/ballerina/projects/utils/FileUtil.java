@@ -23,7 +23,10 @@ import java.nio.file.Path;
 /**
  * Utilities required for test cases.
  */
-public class FileUtil {
+public final class FileUtil {
+
+    private FileUtil() {
+    }
 
     public static boolean deleteDirectory(Path directoryPath) {
         File directory = new File(String.valueOf(directoryPath));

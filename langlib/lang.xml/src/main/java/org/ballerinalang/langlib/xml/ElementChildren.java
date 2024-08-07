@@ -39,7 +39,10 @@ import java.util.List;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class ElementChildren {
+public final class ElementChildren {
+
+    private ElementChildren() {
+    }
 
     public static BXml elementChildren(BXml xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;

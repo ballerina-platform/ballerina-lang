@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @since 1.2
  */
-public class EqualsIgnoreCaseAscii {
+public final class EqualsIgnoreCaseAscii {
 
     private EqualsIgnoreCaseAscii() {
     }

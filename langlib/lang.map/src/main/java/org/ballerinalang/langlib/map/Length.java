@@ -30,7 +30,10 @@ import io.ballerina.runtime.api.values.BMap;
 //        args = {@Argument(name = "m", type = TypeKind.MAP)},
 //        isPublic = true
 //)
-public class Length {
+public final class Length {
+
+    private Length() {
+    }
 
     public static long length(BMap<?, ?> m) {
         return m.size();

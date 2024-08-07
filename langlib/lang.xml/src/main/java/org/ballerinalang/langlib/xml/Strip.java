@@ -36,9 +36,12 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
-public class Strip {
+public final class Strip {
 
     private static final String OPERATION = "strip xml";
+
+    private Strip() {
+    }
 
     public static BXml strip(BXml xml) {
         try {

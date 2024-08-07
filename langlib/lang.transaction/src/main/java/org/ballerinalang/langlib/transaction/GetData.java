@@ -25,7 +25,10 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
  *
  * @since 2.0.0-preview1
  */
-public class GetData {
+public final class GetData {
+
+    private GetData() {
+    }
 
     public static Object getData() {
 

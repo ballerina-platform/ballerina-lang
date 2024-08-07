@@ -24,7 +24,8 @@ package io.ballerina.semtype;
  *
  * @since 2.0.0
  */
-public class UniformTypeCode {
+public final class UniformTypeCode {
+
     // Inherently immutable
     public static final int UT_NIL = 0x00;
     public static final int UT_BOOLEAN = 0x01;
@@ -65,4 +66,7 @@ public class UniformTypeCode {
     static final int UT_READONLY = (1 << UT_COUNT_RO) - 1;
 
     static final int UT_RW_MASK = UT_MASK ^ ~UT_READONLY;
+
+    private UniformTypeCode() {
+    }
 }

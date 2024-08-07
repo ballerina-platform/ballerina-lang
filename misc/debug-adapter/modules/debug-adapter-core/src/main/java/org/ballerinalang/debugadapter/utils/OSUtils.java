@@ -21,13 +21,16 @@ import java.util.Locale;
 /**
  * Operating system utils.
  */
-public class OSUtils {
+public final class OSUtils {
 
     public static final String WINDOWS = "windows";
     public static final String UNIX = "unix";
     public static final String MAC = "mac";
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
+    private OSUtils() {
+    }
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.

@@ -43,7 +43,7 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  *
  * @since 2201.3.0
  */
-public class RegExpFactory {
+public final class RegExpFactory {
 
     private RegExpFactory() {
     }

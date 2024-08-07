@@ -25,7 +25,7 @@ import io.ballerina.identifier.Utils;
  *
  * @since 2.0.0
  */
-public class IdentifierUtils {
+public final class IdentifierUtils {
 
     private IdentifierUtils() {
     }

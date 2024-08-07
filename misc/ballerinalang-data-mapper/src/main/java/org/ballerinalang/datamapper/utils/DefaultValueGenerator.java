@@ -23,7 +23,11 @@ import java.io.Serializable;
 /**
  * Return default value for TypeDescKind.
  */
-public class DefaultValueGenerator {
+public final class DefaultValueGenerator {
+
+    private DefaultValueGenerator() {
+    }
+
     public static Serializable generateDefaultValues(String type) {
         switch (type) {
             case "int":

@@ -35,7 +35,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.getCreatedStran
  *
  * @since 2201.2.0
  */
-public class StrandDump {
+public final class StrandDump {
 
     public static String getStrandDump() {
         Map<Integer, Strand> availableStrands = Scheduler.getCurrentStrands();

@@ -35,7 +35,7 @@ import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_C
  *
  * @since 1.0.0
  */
-public class CloneUtils {
+public final class CloneUtils {
 
     static final String NEWLINE_WITH_TABS = "\n\t\t";
     static final String TWO_SPACES = "  ";

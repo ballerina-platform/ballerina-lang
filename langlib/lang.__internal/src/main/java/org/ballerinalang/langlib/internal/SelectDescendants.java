@@ -31,9 +31,12 @@ import java.util.List;
  * 
  * @since 0.92
  */
-public class SelectDescendants {
+public final class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
+
+    private SelectDescendants() {
+    }
 
     public static BXml selectDescendants(BXml xml, BString[] qnames) {
         try {

@@ -47,11 +47,14 @@ import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION
  *
  * @since 1.0
  */
-public class TransactionUtils {
+public final class TransactionUtils {
 
     private static final StrandMetadata TRX_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                           TRANSACTION_PACKAGE_NAME,
                                                                           TRANSACTION_PACKAGE_VERSION, "onAbort");
+
+    private TransactionUtils() {
+    }
 
     public static void notifyTransactionAbort(Strand strand, String globalTransactionId, String transactionBlockId) {
         executeFunction(strand.scheduler, TransactionUtils.class.getClassLoader(), TRANSACTION_PACKAGE_FQN,

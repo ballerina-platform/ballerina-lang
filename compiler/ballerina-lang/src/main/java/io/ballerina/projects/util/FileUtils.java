@@ -59,10 +59,13 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  *
  * @since 2.0.0
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
     private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
+
+    private FileUtils() {
+    }
 
     /**
      * Get the name of the without the extension.

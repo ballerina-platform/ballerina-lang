@@ -25,7 +25,7 @@ import io.ballerina.projects.Project;
  *
  * @since 2.0.0
  */
-public class DependencyUtils {
+public final class DependencyUtils {
 
     private DependencyUtils() {
 

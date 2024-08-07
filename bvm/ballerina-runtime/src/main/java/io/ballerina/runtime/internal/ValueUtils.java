@@ -53,7 +53,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class ValueUtils {
+public final class ValueUtils {
 
     private static final PrintStream errStream = System.err;
 

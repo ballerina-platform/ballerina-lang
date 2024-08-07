@@ -42,7 +42,7 @@ import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
  *
  * @since 2201.7.2
  */
-public class ConverterUtils {
+public final class ConverterUtils {
 
     private ConverterUtils() {}
 

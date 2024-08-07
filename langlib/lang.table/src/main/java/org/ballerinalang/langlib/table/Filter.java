@@ -45,10 +45,13 @@ import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 //        returnType = {@ReturnType(type = TypeKind.TABLE)},
 //        isPublic = true
 //)
-public class Filter {
+public final class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "filter");
+
+    private Filter() {
+    }
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());

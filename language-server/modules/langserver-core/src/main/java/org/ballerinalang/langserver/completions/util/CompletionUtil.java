@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 /**
  * Common utility methods for the completion operation.
  */
-public class CompletionUtil {
+public final class CompletionUtil {
 
     private CompletionUtil() {
     }

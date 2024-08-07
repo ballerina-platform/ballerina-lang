@@ -66,7 +66,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.3.0
  */
-public class ReadOnlyUtils {
+public final class ReadOnlyUtils {
 
     /**
      * Method to handle an update to a value, that is invalid due to the value being immutable.

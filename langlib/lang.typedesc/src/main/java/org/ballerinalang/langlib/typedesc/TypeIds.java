@@ -44,7 +44,8 @@ import java.util.HashMap;
  *
  * @since 2.0.0
  */
-public class TypeIds {
+public final class TypeIds {
+
     private static final String PACKAGE_NAME = "lang.typedesc";
     private static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
     private static final String PACKAGE_VERSION = "0";
@@ -58,6 +59,9 @@ public class TypeIds {
 
     private static final ArrayType typeIdArrayType =
             new BArrayType(createTypeId(createModuleId(BALLERINA_TYPEDESC_PKG_ID), "empty").getType());
+
+    private TypeIds() {
+    }
 
     public static Object typeIds(BTypedesc t, boolean primaryOnly) {
         Type describingType = t.getDescribingType();

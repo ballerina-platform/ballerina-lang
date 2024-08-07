@@ -39,7 +39,10 @@ import io.ballerina.runtime.internal.values.MapValue;
  *
  * @since 0.995.0
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+
+    private AnnotationUtils() {
+    }
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.

@@ -34,7 +34,10 @@ import java.util.Map;
  *
  * @since 1.2.0
  */
-public class IteratorUtils {
+public final class IteratorUtils {
+
+    private IteratorUtils() {
+    }
 
     /**
      * Returns the pure type and anydata type flags if they are available, otherwise 0. This is only used to check if

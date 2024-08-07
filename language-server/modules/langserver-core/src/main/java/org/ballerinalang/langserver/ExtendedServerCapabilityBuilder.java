@@ -28,7 +28,8 @@ import java.util.ServiceLoader;
  *
  * @since 2.0.0
  */
-public class ExtendedServerCapabilityBuilder {
+public final class ExtendedServerCapabilityBuilder {
+
     private static List<BallerinaServerCapabilitySetter<? extends BallerinaServerCapability>> capabilitySetters;
 
     private ExtendedServerCapabilityBuilder() {

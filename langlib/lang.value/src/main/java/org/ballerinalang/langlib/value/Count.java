@@ -22,7 +22,11 @@ package org.ballerinalang.langlib.value;
  *
  * @since 2201.6.0
  */
-public class Count {
+public final class Count {
+
+    private Count() {
+    }
+
     public static long count(Object[] values) {
         return values.length;
     }

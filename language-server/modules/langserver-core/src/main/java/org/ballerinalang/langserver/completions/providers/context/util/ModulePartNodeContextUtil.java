@@ -55,7 +55,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  *
  * @since 2.0.0
  */
-public class ModulePartNodeContextUtil {
+public final class ModulePartNodeContextUtil {
 
     private ModulePartNodeContextUtil() {
     }

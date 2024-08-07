@@ -26,7 +26,10 @@ import java.util.stream.Collectors;
 /**
  * @since 0.94
  */
-public class NodeUtils {
+public final class NodeUtils {
+
+    private NodeUtils() {
+    }
 
     /**
      * Return the {@code Name} from the give package name components.

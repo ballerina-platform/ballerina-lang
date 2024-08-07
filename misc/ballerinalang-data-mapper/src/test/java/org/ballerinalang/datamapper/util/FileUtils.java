@@ -30,13 +30,16 @@ import java.nio.file.Paths;
 /**
  * File utils for reading the file content.
  */
-public class FileUtils {
+public final class FileUtils {
 
     private static final JsonParser JSON_PARSER = new JsonParser();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+
+    private FileUtils() {
+    }
 
     /**
      * Get the file content.

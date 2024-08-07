@@ -56,7 +56,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class TypeCreator {
+public final class TypeCreator {
 
     /**
      * Creates a new array type with given element type.

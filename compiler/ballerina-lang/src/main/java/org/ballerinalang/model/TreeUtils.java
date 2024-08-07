@@ -25,8 +25,8 @@ import java.util.Map;
 /**
  * This contains model tree related utility functions. 
  */
-public class TreeUtils {
-    
+public final class TreeUtils {
+
     private static Map<String, TypeKind> stringTypeKindMap = new HashMap<>();
     
     static {
@@ -53,6 +53,9 @@ public class TreeUtils {
         stringTypeKindMap.put("service", TypeKind.SERVICE);
         stringTypeKindMap.put("handle", TypeKind.HANDLE);
         stringTypeKindMap.put("readonly", TypeKind.READONLY);
+    }
+
+    private TreeUtils() {
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

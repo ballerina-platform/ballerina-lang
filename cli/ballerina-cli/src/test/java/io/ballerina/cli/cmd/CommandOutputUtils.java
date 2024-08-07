@@ -38,7 +38,7 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
  *
  * @since 2.0.0
  */
-public class CommandOutputUtils {
+public final class CommandOutputUtils {
 
     private static final Path commandOutputsDir = Paths
             .get("src", "test", "resources", "test-resources", "command-outputs");

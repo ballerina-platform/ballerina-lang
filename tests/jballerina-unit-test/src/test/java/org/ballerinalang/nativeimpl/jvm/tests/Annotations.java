@@ -25,7 +25,10 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 2.0.0
  */
-public class Annotations {
+public final class Annotations {
+
+    private Annotations() {
+    }
 
     public static BString externalFunction(boolean b) {
         if (b) {

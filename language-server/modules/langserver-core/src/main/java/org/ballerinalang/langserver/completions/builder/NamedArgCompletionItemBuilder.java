@@ -28,7 +28,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
  *
  * @since 2.0.0
  */
-public class NamedArgCompletionItemBuilder {
+public final class NamedArgCompletionItemBuilder {
 
     private NamedArgCompletionItemBuilder() {
 

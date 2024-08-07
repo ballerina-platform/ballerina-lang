@@ -29,7 +29,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 2.0
  */
-public class CreateRecordValue {
+public final class CreateRecordValue {
 
     public static Object createRecordFromMap(BMap<?, ?> value, BTypedesc t) {
         Type describingType = t.getDescribingType();

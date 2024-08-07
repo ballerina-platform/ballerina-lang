@@ -78,7 +78,7 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
             new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},

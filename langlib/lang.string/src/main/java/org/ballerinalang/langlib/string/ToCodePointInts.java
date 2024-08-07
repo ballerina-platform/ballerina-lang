@@ -33,7 +33,10 @@ import io.ballerina.runtime.api.values.BString;
 //        returnType = {@ReturnType(type = TypeKind.ARRAY)},
 //        isPublic = true
 //)
-public class ToCodePointInts {
+public final class ToCodePointInts {
+
+    private ToCodePointInts() {
+    }
 
     public static BArray toCodePointInts(BString str) {
         long[] ints = str.getValue().codePoints().asLongStream().toArray();

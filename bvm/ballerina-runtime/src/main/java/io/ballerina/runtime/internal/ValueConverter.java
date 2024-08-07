@@ -72,7 +72,7 @@ import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
  *
  * @since 2201.5.0
  */
-public class ValueConverter {
+public final class ValueConverter {
 
     private ValueConverter() {}
 

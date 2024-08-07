@@ -96,7 +96,10 @@ public class TestCaseFilePaths {
      *
      * @since 2.0.0
      */
-    public static class TestCaseFilePathsBuilder {
+    public static final class TestCaseFilePathsBuilder {
+
+        private TestCaseFilePathsBuilder() {
+        }
 
         public static TestCaseFilePaths build(Path testSuitePath, Path testCasePath) {
             Path appPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.APP_FILE_NAME));

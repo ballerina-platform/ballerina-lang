@@ -23,8 +23,12 @@ import java.util.Locale;
  * This class can be used to handle different path possibilities in the toml for native-libs and dependencies.
  *
  */
-public class PathUtils {
+public final class PathUtils {
+
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
+    private PathUtils() {
+    }
 
     public static String getPath(String path) {
         if (path != null) {
