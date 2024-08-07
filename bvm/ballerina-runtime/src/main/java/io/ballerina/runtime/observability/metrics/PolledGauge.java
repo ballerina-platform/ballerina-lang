@@ -51,8 +51,8 @@ public interface PolledGauge extends Metric {
         // Expecting at least 10 tags
         private final Set<Tag> tags = new HashSet<>(10);
         private String description;
-        private T obj;
-        private ToDoubleFunction<T> valueFunction;
+        private final T obj;
+        private final ToDoubleFunction<T> valueFunction;
 
         private Builder(String name, T obj, ToDoubleFunction<T> valueFunction) {
             this.name = name;

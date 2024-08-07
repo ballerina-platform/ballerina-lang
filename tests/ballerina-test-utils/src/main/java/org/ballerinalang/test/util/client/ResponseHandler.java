@@ -32,7 +32,7 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private CountDownLatch latch;
     private CountDownLatch waitForConnectionClosureLatch;
-    private LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
+    private final LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
     private String channelEventMsg;
 
     @Override

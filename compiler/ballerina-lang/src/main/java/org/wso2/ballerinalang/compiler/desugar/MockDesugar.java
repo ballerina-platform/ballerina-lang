@@ -77,7 +77,7 @@ public class MockDesugar {
     private BLangFunction originalFunction;
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
-    private String testPackageSymbol = "ballerina/test";
+    private final String testPackageSymbol = "ballerina/test";
 
     public static final String MOCK_FUNCTION = "$MOCK_";
 

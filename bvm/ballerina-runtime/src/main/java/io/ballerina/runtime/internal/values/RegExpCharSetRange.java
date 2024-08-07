@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BLink;
  */
 public class RegExpCharSetRange extends RegExpCommonValue {
     private String lhsCharSetAtom;
-    private String dash;
+    private final String dash;
     private String rhsCharSetAom;
 
     public RegExpCharSetRange(String lhsCharSetAtom, String dash, String rhsCharSetAom) {

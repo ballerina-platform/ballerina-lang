@@ -34,7 +34,7 @@ import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
  */
 @CommandLine.Command(name = SHELL_COMMAND, description = "Run Ballerina interactive REPL")
 public class ShellCommand implements BLauncherCmd {
-    private PrintStream errStream;
+    private final PrintStream errStream;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;

@@ -43,11 +43,11 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
  * Resolve a bala using the path given in the Ballerina.toml.
  */
 public class PathBalaRepo implements Repo<Path> {
-    private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
+    private static final Pattern SEM_VER_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     
     private final Manifest manifest;
-    private Map<PackageID, Manifest> dependencyManifests;
-    private ZipConverter zipConverter;
+    private final Map<PackageID, Manifest> dependencyManifests;
+    private final ZipConverter zipConverter;
     
     public PathBalaRepo(Manifest manifest, Map<PackageID, Manifest> dependencyManifests) {
         this.manifest = manifest;
@@ -92,7 +92,7 @@ public class PathBalaRepo implements Repo<Path> {
         
         // update version of the dependency from the current(root) project
         if (moduleID.version.value.isEmpty() && null != dep.getMetadata().getVersion()) {
-            Matcher semverMatcher = semVerPattern.matcher(dep.getMetadata().getVersion());
+            Matcher semverMatcher = SEM_VER_PATTERN.matcher(dep.getMetadata().getVersion());
             if (semverMatcher.matches()) {
                 moduleID.version = new Name(dep.getMetadata().getVersion());
             }

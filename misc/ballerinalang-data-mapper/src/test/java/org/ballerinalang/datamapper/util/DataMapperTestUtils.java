@@ -44,11 +44,11 @@ import java.util.stream.Collectors;
  */
 public class DataMapperTestUtils {
 
-    private static JsonParser parser = new JsonParser();
-    private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
-            .getFile()).toPath();
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
+    private static final JsonParser PARSER = new JsonParser();
+    private static final Path SOURCES_PATH = new File(DataMapperTestUtils.class.getClassLoader()
+            .getResource("codeaction").getFile()).toPath();
+    private static final LanguageServerContext SERVER_CONTEXT = new LanguageServerContextImpl();
+    private static final WorkspaceManager WORKSPACE_MANAGER = new BallerinaWorkspaceManager(SERVER_CONTEXT);
 
 
     /**
@@ -58,7 +58,7 @@ public class DataMapperTestUtils {
      * @return {@link JsonObject}   Response as Jason Object
      */
     private static JsonObject getResponseJson(String response) {
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
+        JsonObject responseJson = PARSER.parse(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }
@@ -76,12 +76,12 @@ public class DataMapperTestUtils {
             throws IOException, WorkspaceDocumentException {
 
         // Read expected results
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        Path sourcePath = SOURCES_PATH.resolve("source").resolve(source);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
-                = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
+                = TestUtil.compileAndGetDiagnostics(sourcePath, WORKSPACE_MANAGER, SERVER_CONTEXT);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());

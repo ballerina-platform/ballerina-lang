@@ -43,11 +43,11 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class URIConverter implements Converter<URI> {
 
-    private HomeBalaRepo homeBalaRepo;
+    private final HomeBalaRepo homeBalaRepo;
     protected URI base;
     protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
-    private PrintStream errStream = System.err;
+    private final PrintStream errStream = System.err;
 
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
         this.base = URI.create(base.toString() + "/modules/");

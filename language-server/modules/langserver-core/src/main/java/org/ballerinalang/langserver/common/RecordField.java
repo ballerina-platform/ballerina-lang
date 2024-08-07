@@ -57,8 +57,8 @@ public class RecordField {
      * @since 2201.8.0
      */
     public static class RecordFieldIdentifier {
-        private String name;
-        private TypeSymbol typeSymbol;
+        private final String name;
+        private final TypeSymbol typeSymbol;
 
         public RecordFieldIdentifier(String name, TypeSymbol typeSymbol) {
             this.name = name;

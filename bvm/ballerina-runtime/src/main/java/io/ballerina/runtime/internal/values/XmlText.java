@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class XmlText extends XmlNonElementItem {
 
-    private String data;
+    private final String data;
 
     public XmlText(String data) {
         // data is the content of xml comment or text node

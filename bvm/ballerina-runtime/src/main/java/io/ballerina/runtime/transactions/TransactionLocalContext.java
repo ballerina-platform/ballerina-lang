@@ -33,22 +33,22 @@ import java.util.Stack;
  */
 public class TransactionLocalContext {
 
-    private String globalTransactionId;
-    private String url;
-    private String protocol;
+    private final String globalTransactionId;
+    private final String url;
+    private final String protocol;
 
     private int transactionLevel;
-    private Map<String, Integer> allowedTransactionRetryCounts;
-    private Map<String, Integer> currentTransactionRetryCounts;
+    private final Map<String, Integer> allowedTransactionRetryCounts;
+    private final Map<String, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
-    private Stack<String> transactionBlockIdStack;
-    private Stack<TransactionFailure> transactionFailure;
-    private static final TransactionResourceManager transactionResourceManager =
+    private final Stack<String> transactionBlockIdStack;
+    private final Stack<TransactionFailure> transactionFailure;
+    private static final TransactionResourceManager TRANSACTION_RESOURCE_MANAGER =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
     private Object rollbackOnlyError;
     private Object transactionData;
-    private BArray transactionId;
+    private final BArray transactionId;
     private boolean isTransactional;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
@@ -71,7 +71,7 @@ public class TransactionLocalContext {
         if (infoRecord == null) {
             return;
         }
-        transactionResourceManager.transactionInfoMap.put(transactionIdBytes, infoRecord);
+        TRANSACTION_RESOURCE_MANAGER.transactionInfoMap.put(transactionIdBytes, infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
@@ -159,8 +159,8 @@ public class TransactionLocalContext {
 
     public void notifyAbortAndClearTransaction(String transactionBlockId) {
         transactionContextStore.clear();
-        transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId, true);
-        transactionResourceManager.notifyAbort(globalTransactionId, transactionBlockId);
+        TRANSACTION_RESOURCE_MANAGER.endXATransaction(globalTransactionId, transactionBlockId, true);
+        TRANSACTION_RESOURCE_MANAGER.notifyAbort(globalTransactionId, transactionBlockId);
     }
 
     public void setRollbackOnlyError(Object error) {
@@ -180,12 +180,12 @@ public class TransactionLocalContext {
     }
 
     public void removeTransactionInfo() {
-        transactionResourceManager.transactionInfoMap.remove(ByteBuffer.wrap(transactionId.getBytes()));
+        TRANSACTION_RESOURCE_MANAGER.transactionInfoMap.remove(ByteBuffer.wrap(transactionId.getBytes()));
     }
 
     public void notifyLocalParticipantFailure() {
         String blockId = transactionBlockIdStack.peek();
-        transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, blockId);
+        TRANSACTION_RESOURCE_MANAGER.notifyLocalParticipantFailure(globalTransactionId, blockId);
     }
 
     public void notifyLocalRemoteParticipantFailure() {
@@ -235,7 +235,7 @@ public class TransactionLocalContext {
     }
 
     public Object getInfoRecord() {
-        return transactionResourceManager.getTransactionRecord(transactionId);
+        return TRANSACTION_RESOURCE_MANAGER.getTransactionRecord(transactionId);
     }
 
     public boolean isTransactional() {

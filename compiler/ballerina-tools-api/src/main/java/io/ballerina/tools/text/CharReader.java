@@ -26,9 +26,9 @@ import java.util.Arrays;
  */
 public class CharReader {
 
-    private char[] charBuffer;
+    private final char[] charBuffer;
     private int offset = 0;
-    private int charBufferLength;
+    private final int charBufferLength;
 
     private int lexemeStartPos;
 

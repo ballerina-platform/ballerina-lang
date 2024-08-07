@@ -25,10 +25,10 @@ import io.ballerinalang.compiler.internal.treegen.model.OccurrenceKind;
  * @since 1.3.0
  */
 public class SyntaxNodeAttribute {
-    private String name;
-    private String type;
-    private String occurrences;
-    private boolean isOptional;
+    private final String name;
+    private final String type;
+    private final String occurrences;
+    private final boolean isOptional;
 
     public SyntaxNodeAttribute(String name, String type, String occurrences, boolean isOptional) {
         this.name = name;

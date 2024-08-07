@@ -54,7 +54,7 @@ import java.util.Optional;
  */
 public class Toml {
 
-    private TomlTableNode rootNode;
+    private final TomlTableNode rootNode;
 
     /**
      * Creates new Root TOML Node from AST.

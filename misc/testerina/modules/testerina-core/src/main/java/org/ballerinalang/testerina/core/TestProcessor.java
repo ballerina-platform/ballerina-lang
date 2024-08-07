@@ -89,7 +89,7 @@ public class TestProcessor {
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
     private static final String MODULE_DELIMITER = "§";
 
-    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private final TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     private JarResolver jarResolver;
 

@@ -364,8 +364,8 @@ public class SymbolBIRTest {
     }
 
     static class SymbolInfo {
-        private String name;
-        private SymbolKind kind;
+        private final String name;
+        private final SymbolKind kind;
 
         SymbolInfo(String name, SymbolKind kind) {
             this.name = name;

@@ -97,7 +97,7 @@ import java.util.Optional;
 public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
-    private FunctionCallExpressionNode functionCallExpr;
+    private final FunctionCallExpressionNode functionCallExpr;
     private TypeSymbol returnTypeSymbol;
     private boolean resultFound = false;
 

@@ -33,8 +33,8 @@ import java.nio.charset.StandardCharsets;
 public class InputReader {
 
     private static final int BUFFER_SIZE = 10;
-    private CharacterBuffer charsAhead = new CharacterBuffer(BUFFER_SIZE);
-    private Reader reader;
+    private final CharacterBuffer charsAhead = new CharacterBuffer(BUFFER_SIZE);
+    private final Reader reader;
     private int currentChar;
 
     InputReader(InputStream inputStream) {

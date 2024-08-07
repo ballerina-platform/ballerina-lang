@@ -37,8 +37,8 @@ public class TestSuite {
     private String version;
     private String packageName;
     private String moduleName;
-    private String packageId;
-    private String testPackageId;
+    private final String packageId;
+    private final String testPackageId;
     private String executeFilePath;
 
     private String initFunctionName;
@@ -52,14 +52,14 @@ public class TestSuite {
     private String sourceRootPath;
     private String sourceFileName;
 
-    private Map<String, String> testUtilityFunctions = new HashMap<>();
-    private List<String> beforeSuiteFunctionNames = new ArrayList<>();
-    private Map<String, AtomicBoolean> afterSuiteFunctionNames = new TreeMap<>();
-    private List<String> beforeEachFunctionNames = new ArrayList<>();
-    private List<String> afterEachFunctionNames = new ArrayList<>();
+    private final Map<String, String> testUtilityFunctions = new HashMap<>();
+    private final List<String> beforeSuiteFunctionNames = new ArrayList<>();
+    private final Map<String, AtomicBoolean> afterSuiteFunctionNames = new TreeMap<>();
+    private final List<String> beforeEachFunctionNames = new ArrayList<>();
+    private final List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
-    private Map<String, TestGroup> groups = new TreeMap<>();
-    private List<String> testExecutionDependencies = new ArrayList<>();
+    private final Map<String, TestGroup> groups = new TreeMap<>();
+    private final List<String> testExecutionDependencies = new ArrayList<>();
 
     private boolean isReportRequired;
     private boolean isSingleDDTExecution;

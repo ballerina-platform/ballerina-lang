@@ -28,8 +28,8 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class LanguageServerContextImpl implements LanguageServerContext {
-    private Map<LanguageServerContext.Key<?>, Object> props = new HashMap<>();
-    private Map<Class<?>, Object> objects = new HashMap<>();
+    private final Map<LanguageServerContext.Key<?>, Object> props = new HashMap<>();
+    private final Map<Class<?>, Object> objects = new HashMap<>();
 
     public LanguageServerContextImpl() {
     }

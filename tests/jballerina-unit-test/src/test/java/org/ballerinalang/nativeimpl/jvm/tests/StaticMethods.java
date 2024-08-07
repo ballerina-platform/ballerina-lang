@@ -81,12 +81,12 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class StaticMethods {
 
-    private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);
-    private static final BArrayType jsonArrayType = new BArrayType(PredefinedTypes.TYPE_JSON);
-    private static final BTupleType tupleType = new BTupleType(
+    private static final BArrayType INT_ARRAY_TYPE = new BArrayType(PredefinedTypes.TYPE_INT);
+    private static final BArrayType JSON_ARRAY_TYPE = new BArrayType(PredefinedTypes.TYPE_JSON);
+    private static final BTupleType TUPLE_TYPE = new BTupleType(
             Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
                           PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
-    private static Module errorModule = new Module("testorg", "distinct_error.errors", "1");
+    private static final Module ERROR_MODULE = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
     }
@@ -132,7 +132,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
-        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(INT_ARRAY_TYPE);
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -286,7 +286,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(INT_ARRAY_TYPE);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -330,7 +330,7 @@ public class StaticMethods {
         } else if (flag == 1) {
             BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
             errorDetails.put(StringUtils.fromString("detail"), "detail error message");
-            return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("error msg"),
+            return ErrorCreator.createError(ERROR_MODULE, errorName.getValue(), StringUtils.fromString("error msg"),
                     null, errorDetails);
         } else {
             return ErrorCreator.createError(StringUtils.fromString("Invalid data given"));
@@ -437,7 +437,7 @@ public class StaticMethods {
 
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                     long d, String e) {
-        TupleValueImpl tuple = (TupleValueImpl) ValueCreator.createTupleValue(tupleType);
+        TupleValueImpl tuple = (TupleValueImpl) ValueCreator.createTupleValue(TUPLE_TYPE);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);
@@ -464,7 +464,7 @@ public class StaticMethods {
     }
 
     public static ArrayValue getJsonArray() {
-        ArrayValue array = (ArrayValue) ValueCreator.createArrayValue(jsonArrayType);
+        ArrayValue array = (ArrayValue) ValueCreator.createArrayValue(JSON_ARRAY_TYPE);
         array.add(0, (Object) StringUtils.fromString("John"));
         return array;
     }

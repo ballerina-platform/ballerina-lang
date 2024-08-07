@@ -27,7 +27,7 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
  */
 public class SettingsToml {
 
-    private TomlDocumentContext settingsTomlContext;
+    private final TomlDocumentContext settingsTomlContext;
 
     private SettingsToml(TomlDocumentContext tomlDocumentContext) {
         this.settingsTomlContext = tomlDocumentContext;

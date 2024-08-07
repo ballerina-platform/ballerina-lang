@@ -36,20 +36,20 @@ public class TesterinaRegistry {
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
-    private Map<String, String> mockFunctionSourceMap = new HashMap<>();
+    private final Map<String, String> mockFunctionSourceMap = new HashMap<>();
 
     // This is use to keep track of packages that are already inited.
-    private List<String> initializedPackages = new ArrayList<>();
+    private final List<String> initializedPackages = new ArrayList<>();
     /**
      * This is required to stop the annotation processor from processing annotations upon the compilation of the
      * service skeleton. This flag will make sure that @{@link TestProcessor}'s methods will skip the
      * annotation processing once the test suites are compiled.
      */
     private boolean testSuitesCompiled;
-    private static TesterinaRegistry instance = new TesterinaRegistry();
+    private static final TesterinaRegistry INSTANCE = new TesterinaRegistry();
 
     public static TesterinaRegistry getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public Map<String, TestSuite> getTestSuites() {

@@ -143,14 +143,14 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
-    private LinkedList<Object> compositeStack = new LinkedList<>();
+    private final LinkedList<Object> compositeStack = new LinkedList<>();
 
     private static final int SERVICE_TYPE_TAG = 54;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+    private final Map<String, BVarSymbol> globalVarMap = new HashMap<>();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -1133,7 +1133,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        private DataInputStream inputStream;
+        private final DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;

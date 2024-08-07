@@ -184,19 +184,19 @@ public class HttpClientRequest {
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
-                defaultResponseBuilder);
+                DEFAULT_RESPONSE_BUILDER);
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers, boolean throwError) throws IOException {
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
-                defaultResponseBuilder, throwError);
+                DEFAULT_RESPONSE_BUILDER, throwError);
     }
 
     private static HttpResponse executeRequestAndPreserveNewline(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
-                                                preserveNewLineResponseBuilder);
+                PRESERVE_NEW_LINE_RESPONSE_BUILDER);
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
@@ -269,7 +269,7 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder, false);
+        return buildResponse(conn, DEFAULT_RESPONSE_BUILDER, false);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
@@ -313,7 +313,7 @@ public class HttpClientRequest {
         return httpResponse;
     }
 
-    private static CheckedFunction<BufferedReader, String> defaultResponseBuilder = ((bufferedReader) -> {
+    private static final CheckedFunction<BufferedReader, String> DEFAULT_RESPONSE_BUILDER = ((bufferedReader) -> {
         String line;
         StringBuilder sb = new StringBuilder();
         while ((line = bufferedReader.readLine()) != null) {
@@ -322,15 +322,16 @@ public class HttpClientRequest {
         return sb.toString();
     });
 
-    private static CheckedFunction<BufferedReader, String> preserveNewLineResponseBuilder = ((bufferedReader) -> {
-        String line;
-        StringBuilder sb = new StringBuilder();
-        while ((line = bufferedReader.readLine()) != null) {
-            sb.append(line);
-            sb.append(System.lineSeparator());
-        }
-        return sb.toString();
-    });
+    private static final CheckedFunction<BufferedReader, String> PRESERVE_NEW_LINE_RESPONSE_BUILDER =
+            ((bufferedReader) -> {
+                String line;
+                StringBuilder sb = new StringBuilder();
+                while ((line = bufferedReader.readLine()) != null) {
+                    sb.append(line);
+                    sb.append(System.lineSeparator());
+                }
+                return sb.toString();
+            });
 
     /**
      * This is a custom functional interface which allows defining a method that throws an IOException.

@@ -29,7 +29,7 @@ import java.util.ResourceBundle;
  * @since 2.0.0
  */
 public class DiagnosticMessageHelper {
-    private static ResourceBundle messages = ResourceBundle.getBundle(
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle(
             "syntax_diagnostic_message", Locale.getDefault());
 
     private DiagnosticMessageHelper() {
@@ -37,7 +37,7 @@ public class DiagnosticMessageHelper {
 
     public static String getDiagnosticMessage(DiagnosticCode diagnosticCode, Object... args) {
         String msgKey = diagnosticCode.messageKey();
-        String msg = messages.getString(msgKey);
+        String msg = MESSAGES.getString(msgKey);
         return MessageFormat.format(msg, args);
     }
 }

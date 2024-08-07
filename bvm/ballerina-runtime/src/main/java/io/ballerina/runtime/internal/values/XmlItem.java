@@ -71,9 +71,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
     private QName name;
     private XmlSequence children;
-    private AttributeMapValueImpl attributes;
+    private final AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
-    private List<WeakReference<XmlItem>> probableParents;
+    private final List<WeakReference<XmlItem>> probableParents;
 
     public XmlItem(QName name, XmlSequence children, boolean readonly) {
         this.name = name;

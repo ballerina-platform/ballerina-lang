@@ -29,9 +29,9 @@ import java.util.ArrayDeque;
  */
 public class BLock {
 
-    private ArrayDeque<Strand> current;
+    private final ArrayDeque<Strand> current;
 
-    private ArrayDeque<Strand> waitingForLock;
+    private final ArrayDeque<Strand> waitingForLock;
 
     public BLock() {
         this.current = new ArrayDeque<>();

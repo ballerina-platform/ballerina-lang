@@ -40,17 +40,17 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  */
 public class ProjectDirs {
 
-    private static PathMatcher sourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher SOURCE_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:*" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher TEST_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/**" + BLANG_SOURCE_EXT);
 
-    private static PathMatcher testResourceFileMatcher = FileSystems.getDefault().getPathMatcher(
+    private static final PathMatcher TEST_RESOURCE_FILE_MATCHER = FileSystems.getDefault().getPathMatcher(
             "glob:../src/*/tests/resources/**" + BLANG_SOURCE_EXT);
 
     public static boolean isSourceFile(Path path) {
-        return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && sourceFileMatcher.matches(path);
+        return !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) && SOURCE_FILE_MATCHER.matches(path);
     }
 
     public static Path getLastComp(Path path) {
@@ -123,7 +123,7 @@ public class ProjectDirs {
         Path pkgPath = sourceRoot.resolve(pkg);
         Path relativizePath = pkgPath.relativize(sourcePath);
         // Bal files should be inside tests directory but not in test resources
-        return testFileMatcher.matches(relativizePath) && !testResourceFileMatcher.matches(relativizePath);
+        return TEST_FILE_MATCHER.matches(relativizePath) && !TEST_RESOURCE_FILE_MATCHER.matches(relativizePath);
     }
 
     /**

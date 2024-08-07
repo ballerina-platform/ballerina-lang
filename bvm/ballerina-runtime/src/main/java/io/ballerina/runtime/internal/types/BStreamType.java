@@ -35,8 +35,8 @@ import java.util.Objects;
  */
 public class BStreamType extends BType implements StreamType {
 
-    private Type constraint;
-    private Type completionType;
+    private final Type constraint;
+    private final Type completionType;
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.

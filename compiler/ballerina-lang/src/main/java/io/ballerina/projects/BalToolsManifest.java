@@ -108,7 +108,7 @@ public class BalToolsManifest {
         private final String name;
         private final String version;
         private Boolean active;
-        private String repository;
+        private final String repository;
 
         public Tool(String id, String org, String name, String version, Boolean active, String repository) {
             this.id = id;

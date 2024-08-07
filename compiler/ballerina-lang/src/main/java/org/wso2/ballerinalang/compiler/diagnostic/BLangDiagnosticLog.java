@@ -64,9 +64,9 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("compiler", Locale.getDefault());
 
     private int errorCount = 0;
-    private PackageCache packageCache;
-    private TypesFactory typesFactory;
-    private SymbolFactory symbolFactory;
+    private final PackageCache packageCache;
+    private final TypesFactory typesFactory;
+    private final SymbolFactory symbolFactory;
     private PackageID currentPackageId;
     private boolean isMute = false;
 

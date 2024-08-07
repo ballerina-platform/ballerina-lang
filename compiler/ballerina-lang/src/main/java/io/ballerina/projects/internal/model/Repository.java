@@ -22,10 +22,10 @@ package io.ballerina.projects.internal.model;
  * @since 2201.8.0
  */
 public class Repository {
-    private String id;
-    private String url;
-    private String username;
-    private String password;
+    private final String id;
+    private final String url;
+    private final String username;
+    private final String password;
 
     private Repository(String id, String url, String username, String password) {
         this.id = id;

@@ -77,7 +77,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class LangLibFunctionTest {
 
-    private static List<String> valueLangLib = List.of("clone", "cloneReadOnly", "cloneWithType",
+    private static final List<String> VALUE_LANG_LIB = List.of("clone", "cloneReadOnly", "cloneWithType",
             "isReadOnly", "toString", "toBalString", "toJson", "toJsonString",
             "fromJsonString", "fromJsonFloatString", "fromJsonDecimalString",
             "fromJsonWithType", "fromJsonStringWithType", "mergeJson");

@@ -28,7 +28,7 @@ public class BLangTestablePackage extends BLangPackage {
     public BLangPackage parent;
     // Semantic Data
     //Map to maintain all the mock functions
-    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+    private final Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
     private final Map<String, Boolean> isLegacyMockingMap = new HashMap<>();
     public Map<String, String> getMockFunctionNamesMap() {

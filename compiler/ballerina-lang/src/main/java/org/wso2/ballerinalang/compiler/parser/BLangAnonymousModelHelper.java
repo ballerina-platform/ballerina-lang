@@ -36,18 +36,18 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
  */
 public class BLangAnonymousModelHelper {
 
-    private Map<PackageID, Integer> anonTypeCount;
-    private Map<PackageID, Integer> anonServiceCount;
-    private Map<PackageID, Integer> anonFunctionCount;
-    private Map<PackageID, Integer> anonForkCount;
-    private Map<PackageID, Integer> distinctTypeIdCount;
-    private Map<PackageID, Integer> rawTemplateTypeCount;
-    private Map<PackageID, Integer> tupleVarCount;
-    private Map<PackageID, Integer> recordVarCount;
-    private Map<PackageID, Integer> errorVarCount;
-    private Map<PackageID, Integer> intersectionRecordCount;
-    private Map<PackageID, Integer> intersectionErrorCount;
-    private Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
+    private final Map<PackageID, Integer> anonTypeCount;
+    private final Map<PackageID, Integer> anonServiceCount;
+    private final Map<PackageID, Integer> anonFunctionCount;
+    private final Map<PackageID, Integer> anonForkCount;
+    private final Map<PackageID, Integer> distinctTypeIdCount;
+    private final Map<PackageID, Integer> rawTemplateTypeCount;
+    private final Map<PackageID, Integer> tupleVarCount;
+    private final Map<PackageID, Integer> recordVarCount;
+    private final Map<PackageID, Integer> errorVarCount;
+    private final Map<PackageID, Integer> intersectionRecordCount;
+    private final Map<PackageID, Integer> intersectionErrorCount;
+    private final Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
 
     public static final String ANON_PREFIX = "$anon";
     private static final String ANON_TYPE = ANON_PREFIX + "Type$";

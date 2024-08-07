@@ -35,7 +35,7 @@ import java.util.Locale;
  */
 public class ManifestProcessorTest {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-    private String validProjectBlock = """
+    private final String validProjectBlock = """
             [project]
             org-name = "foo"
             version = "1.0.0"

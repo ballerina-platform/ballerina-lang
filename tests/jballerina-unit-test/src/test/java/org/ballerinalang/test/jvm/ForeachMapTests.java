@@ -37,7 +37,7 @@ import java.util.Map;
 public class ForeachMapTests {
 
     private CompileResult program;
-    private Map<String, String> values = new LinkedHashMap<>();
+    private final Map<String, String> values = new LinkedHashMap<>();
 
     @BeforeClass
     public void setup() {

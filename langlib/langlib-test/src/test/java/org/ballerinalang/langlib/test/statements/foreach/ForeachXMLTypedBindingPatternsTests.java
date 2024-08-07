@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 public class ForeachXMLTypedBindingPatternsTests {
 
     private CompileResult program;
-    private String expectedXml1 = """
+    private final String expectedXml1 = """
             0:<p:person xmlns:p="foo" xmlns:q="bar">
                     <p:name>bob</p:name>
                     <p:address>
@@ -42,7 +42,7 @@ public class ForeachXMLTypedBindingPatternsTests {
                     </p:address>
                     <q:ID>1131313</q:ID>
                 </p:person>\s""";
-    private String expectedXml2 = """
+    private final String expectedXml2 = """
             0:<p:name xmlns:p="foo">bob</p:name> \
             1:<p:address xmlns:p="foo">
                         <p:city>NY</p:city>

@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
  * @since 1.0.0
  */
 public class ClassWithDefaultConstructor extends AbstractClass {
-    private int a;
+    private final int a;
 
     public ClassWithDefaultConstructor() {
         a = 11;

@@ -37,7 +37,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
  */
 public class RemoteRepo extends NonSysRepo<URI> {
 
-    private Path systemBirRepoPath;
+    private final Path systemBirRepoPath;
 
     public RemoteRepo(Converter<URI> converter, Path ballerinaHome) {
         super(converter);

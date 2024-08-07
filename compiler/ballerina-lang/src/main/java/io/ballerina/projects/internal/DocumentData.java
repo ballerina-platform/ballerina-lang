@@ -25,7 +25,7 @@ package io.ballerina.projects.internal;
 public class DocumentData {
     //TODO: Remove this class and use DocumentConfig for creating a document
     private final String name;
-    private String content;
+    private final String content;
 
     private DocumentData(String name, String content) {
         this.name = name;
