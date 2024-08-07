@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.TypeWithShape;
@@ -308,6 +309,8 @@ public final class Builder {
             return typeOfObject(cx, objectValue);
         } else if (object instanceof XmlValue xmlValue) {
             return typeOfXml(cx, xmlValue);
+        } else if (object instanceof BRegexpValue regexpValue) {
+            return regexpValue.shapeOf();
         }
         return Optional.empty();
     }
