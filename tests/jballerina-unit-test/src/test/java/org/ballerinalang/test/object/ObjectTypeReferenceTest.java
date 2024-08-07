@@ -347,6 +347,8 @@ public class ObjectTypeReferenceTest {
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public remote " +
+                "function execute(string, int)', found 'public function execute(string, int)'", 114, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
@@ -390,5 +392,10 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testInclusionWithDifferentParamNames() {
         BRunUtil.invoke(compileResult, "testInclusionWithDifferentParamNames");
+    }
+
+    @Test
+    public void testInclusionWithRemoteMethods() {
+        BRunUtil.invoke(compileResult, "testInclusionWithRemoteMethods");
     }
 }
