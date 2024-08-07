@@ -5249,7 +5249,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
 
-        return types.isAssignable(attachedFuncSym.type, referencedFuncSym.type);
+        return Symbols.isRemote(attachedFuncSym) == Symbols.isRemote(referencedFuncSym) &&
+                types.isAssignable(attachedFuncSym.type, referencedFuncSym.type);
     }
 
     private boolean hasSameVisibilityModifier(long flags1, long flags2) {
@@ -5261,14 +5262,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         StringBuilder signatureBuilder = new StringBuilder();
         StringJoiner paramListBuilder = new StringJoiner(", ", "(", ")");
 
-        String visibilityModifier = "";
         if (Symbols.isPublic(funcSymbol)) {
-            visibilityModifier = "public ";
+            signatureBuilder.append("public ");
         } else if (Symbols.isPrivate(funcSymbol)) {
-            visibilityModifier = "private ";
+            signatureBuilder.append("private ");
         }
 
-        signatureBuilder.append(visibilityModifier).append("function ")
+        if (Symbols.isRemote(funcSymbol)) {
+            signatureBuilder.append("remote ");
+        }
+
+        signatureBuilder.append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
         funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString()));
