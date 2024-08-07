@@ -149,7 +149,7 @@ public class TypeChecker {
         throw createTypeCastError(sourceVal, targetType, errors);
     }
 
-    static Context context() {
+    public static Context context() {
         // We are pinning each context to thread. This depends on the assumption physical thread is not going to
         // get switched while type checking. Also for the same reason we don't need to synchronize this method.
         return threadContext.get();
