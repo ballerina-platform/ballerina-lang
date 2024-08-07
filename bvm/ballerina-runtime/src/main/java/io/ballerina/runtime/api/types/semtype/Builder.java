@@ -57,6 +57,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_HANDLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_REGEXP;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
@@ -85,6 +86,7 @@ public final class Builder {
                     | (1 << BasicTypeCode.BT_INT.code())
                     | (1 << BasicTypeCode.BT_FLOAT.code())
                     | (1 << BasicTypeCode.BT_DECIMAL.code())
+                    | (1 << BT_REGEXP.code())
                     | (1 << BasicTypeCode.BT_STRING.code()));
 
     private static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
@@ -406,6 +408,10 @@ public final class Builder {
 
     public static SemType futureType() {
         return from(BT_FUTURE);
+    }
+
+    public static SemType regexType() {
+        return from(BT_REGEXP);
     }
 
     public static SemType anyDataType(Context context) {

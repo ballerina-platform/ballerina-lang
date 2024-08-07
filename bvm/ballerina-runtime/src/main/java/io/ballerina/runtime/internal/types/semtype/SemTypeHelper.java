@@ -34,6 +34,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_NIL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_REGEXP;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STREAM;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_STRING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TABLE;
@@ -66,6 +67,7 @@ final class SemTypeHelper {
         appendBitSetRepr(sb, bits, CODE_ERROR, "ERROR");
         appendBitSetRepr(sb, bits, CODE_TYPEDESC, "TYPE_DESC");
         appendBitSetRepr(sb, bits, CODE_HANDLE, "HANDLE");
+        appendBitSetRepr(sb, bits, CODE_REGEXP, "REGEXP");
         appendBitSetRepr(sb, bits, CODE_FUNCTION, "FUNCTION");
         appendBitSetRepr(sb, bits, CODE_FUTURE, "FUTURE");
         appendBitSetRepr(sb, bits, CODE_STREAM, "STREAM");
