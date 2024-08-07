@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -53,9 +54,9 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
         }
         StringJoiner sj = new StringJoiner(",", "resource function " + accessor + " " + rp.toString() +
                 "(", ") returns (" + type.retType + ")");
-        for (int i = 0; i < parameters.length; i++) {
-            Type type = parameters[i].type;
-            sj.add(type.getName() + " " + parameters[i].name);
+        for (Parameter parameter : parameters) {
+            Type type = parameter.type;
+            sj.add(type.getName() + " " + parameter.name);
         }
         return sj.toString();
     }

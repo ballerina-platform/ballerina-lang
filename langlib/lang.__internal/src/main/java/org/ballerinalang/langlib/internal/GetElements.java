@@ -76,9 +76,8 @@ public class GetElements {
 
     public static void destructureFilters(BString[] elemNames,
                                           ArrayList<String> nsList, ArrayList<String> localNameList) {
-        int filterCount = elemNames.length;
-        for (int i = 0; i < filterCount; i++) {
-            String fullName = elemNames[i].getValue();
+        for (BString elemName : elemNames) {
+            String fullName = elemName.getValue();
             int lastIndexOf = fullName.lastIndexOf('}');
             if (lastIndexOf < 0) {
                 nsList.add(EMPTY);

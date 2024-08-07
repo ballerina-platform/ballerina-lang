@@ -39,8 +39,8 @@ public class SelectDescendants {
         try {
             List<String> qnameList = new ArrayList<>();
             int size = qnames.length;
-            for (int i = 0; i < size; i++) {
-                String strQname = qnames[i].getValue();
+            for (BString qname : qnames) {
+                String strQname = qname.getValue();
                 // remove empty namespace in expanded form i.e `{}local => local`
                 if (strQname.lastIndexOf('}') == 1) {
                     strQname = strQname.substring(2);

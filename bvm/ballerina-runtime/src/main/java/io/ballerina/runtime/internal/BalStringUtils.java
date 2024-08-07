@@ -152,8 +152,7 @@ public class BalStringUtils {
         }
         CycleUtils.Node node = new CycleUtils.Node(eleMap, parent);
         Set<Type> typeSet = new HashSet<>();
-        for (int i = 0; i < list.size(); i++) {
-            String e = list.get(i);
+        for (String e : list) {
             int colonIndex = e.indexOf(':');
             int quotesCount = 0;
             for (int j = 0; j < e.length(); j++) {
