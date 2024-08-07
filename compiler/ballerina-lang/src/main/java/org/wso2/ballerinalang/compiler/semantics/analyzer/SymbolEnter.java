@@ -5262,14 +5262,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         StringBuilder signatureBuilder = new StringBuilder();
         StringJoiner paramListBuilder = new StringJoiner(", ", "(", ")");
 
-        if (Symbols.isPublic(funcSymbol)) {
+        if (Symbols.isRemote(funcSymbol)) {
+            signatureBuilder.append("remote ");
+        } else if (Symbols.isPublic(funcSymbol)) {
             signatureBuilder.append("public ");
         } else if (Symbols.isPrivate(funcSymbol)) {
             signatureBuilder.append("private ");
-        }
-
-        if (Symbols.isRemote(funcSymbol)) {
-            signatureBuilder.append("remote ");
         }
 
         signatureBuilder.append("function ")

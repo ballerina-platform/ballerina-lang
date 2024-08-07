@@ -347,8 +347,14 @@ public class ObjectTypeReferenceTest {
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
                 "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
-        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public remote " +
-                "function execute(string, int)', found 'public function execute(string, int)'", 114, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'remote " +
+                "function execute(string, int)', found 'public function execute(string, int)'", 115, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public function pause" +
+                "(string, int)', found 'remote function pause(string, int)'", 118, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'remote " +
+                "function execute(string, int)', found 'public function execute(string, int)'", 125, 5);
+        BAssertUtil.validateError(result, index++, "mismatched function signatures: expected 'public function pause" +
+                "(string, int)', found 'remote function pause(string, int)'", 127, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

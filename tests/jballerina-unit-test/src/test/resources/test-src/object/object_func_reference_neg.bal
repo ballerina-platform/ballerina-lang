@@ -106,11 +106,23 @@ readonly class InvalidReadOnlyClassWithMissingImpls {
 
 public type FooObj client object {
     isolated remote function execute(string aVar, int bVar);
+    public function pause(string aVar, int bVar);
 };
 
-client class BazClass {
+client class BarClass {
     *FooObj;
 
     public isolated function execute(string aVar, int bVar) {
     }
+
+    remote function pause(string aVar, int bVar) {
+    }
 }
+
+type BazObj client object {
+    *FooObj;
+
+    public isolated function execute(string aVar, int bVar);
+
+    remote function pause(string aVar, int bVar);
+};

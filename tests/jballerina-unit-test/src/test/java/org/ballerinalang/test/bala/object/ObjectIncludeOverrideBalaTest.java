@@ -104,11 +104,11 @@ public class ObjectIncludeOverrideBalaTest {
                 "a referenced type across modules cannot have non-public fields or methods", 42, 6);
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee5': " +
                 "a referenced type across modules cannot have non-public fields or methods", 48, 6);
-        validateError(negativeRes, index++, "mismatched function signatures: expected 'public remote function " +
-                "execute(string, int)', found 'public remote function execute(int, int)'", 58, 5);
-        validateError(negativeRes, index++, "mismatched function signatures: expected 'public remote function " +
-                "execute(string, int)', found 'public remote function execute(string, int, int)'", 65, 5);
-        validateError(negativeRes, index++, "mismatched function signatures: expected 'public remote function " +
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
+                "execute(string, int)', found 'remote function execute(int, int)'", 58, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
+                "execute(string, int)', found 'remote function execute(string, int, int)'", 65, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'remote function " +
                 "execute(string, int)', found 'public function execute(string, int)'", 72, 5);
         assertEquals(negativeRes.getErrorCount(), index);
     }
