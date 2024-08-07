@@ -40,8 +40,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
@@ -56,7 +55,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -65,7 +63,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
@@ -398,54 +398,38 @@ public class DebuggerRuntime {
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
-
             // Derives the namespace of the generated classes.
             String[] mainClassNameParts = mainClass.split("\\.");
             String packageOrg = mainClassNameParts[0];
             String packageName = mainClassNameParts[1];
             String packageVersion = mainClassNameParts[2];
             String packageNameSpace = String.join(".", packageOrg, packageName, packageVersion);
+            BalRuntime runtime = new BalRuntime(new Module(packageOrg, packageName, packageVersion), classLoader);
+            runtime.init();
+            runtime.start();
+            final CompletableFuture<Object> future = new CompletableFuture<>();
+            final CountDownLatch latch = new CountDownLatch(1);
+            runtime.invokeMethodAsync(functionName, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    future.complete(result);
+                    latch.countDown();
+                }
 
-            // Initialize a new scheduler
-            Scheduler scheduler = new Scheduler(1, false);
-            // Initialize configurations
-            ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
-            invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
-                    CONFIGURE_INIT_METHOD_NAME, new Class[]{Map.class, String[].class, Path[].class, String.class},
-                    new Object[]{new HashMap<>(), new String[]{}, configurationDetails.paths,
-                            configurationDetails.configContent});
-            // Initialize the module
-            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
-                    MODULE_INIT_METHOD_NAME, new Object[1]);
-            // Start the module
-            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
-                    MODULE_START_METHOD_NAME, new Object[1]);
-            // Run the actual method
-            return invokeFunction(classLoader, scheduler, mainClass, functionName, functionArgs.toArray());
+                @Override
+                public void notifyFailure(BError error) {
+                    future.completeExceptionally(ErrorCreator.createError(StringUtils.fromString(error.getMessage())));
+                    latch.countDown();
+                }
+            }, functionArgs.toArray());
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException("Error while waiting for function result", e);
+            }
         } catch (Exception e) {
             return e.getMessage();
         }
     }
 
-    /**
-     * Invokes a method that is in the given class.
-     * This is directly invoked without scheduling.
-     * The method must be a static method accepting the given parameters.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @param argTypes    Types of arguments.
-     * @param args        Arguments to provide.
-     * @return The result of the invocation.
-     */
-    protected static Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                                 Class<?>[] argTypes, Object[] args) throws Exception {
-        Class<?> clazz = classLoader.loadClass(className);
-        Method method = clazz.getDeclaredMethod(methodName, argTypes);
-        return method.invoke(null, args);
-    }
-
-    private DebuggerRuntime() {
-    }
 }

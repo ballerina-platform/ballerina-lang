@@ -29,17 +29,19 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
-import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.utils.StringUtils;
@@ -53,14 +55,13 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 /**
@@ -80,11 +81,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected static final String MODULE_RUN_METHOD_NAME = "__run";
 
     protected static final String MODULE_STATEMENT_METHOD_NAME = "__stmt";
-    private static final String MODULE_INIT_CLASS_NAME = "$_init";
-    private static final String CONFIGURE_INIT_CLASS_NAME = "$configurationMapper";
-    private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
-    private static final String MODULE_START_METHOD_NAME = "$moduleStart";
-    private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
     /* Constants related to temp files */
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
@@ -350,7 +346,11 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
-        executeProject(jBallerinaBackend);
+        Package currentPackage = project.currentPackage();
+        io.ballerina.runtime.api.Module module = new io.ballerina.runtime.api.Module(
+                currentPackage.packageOrg().value(), currentPackage.packageName().value(),
+                currentPackage.packageVersion().toString());
+        executeProject(jBallerinaBackend, module);
     }
 
     /**
@@ -361,43 +361,24 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param jBallerinaBackend Backed to use.
      * @throws InvokerException If execution failed.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module) throws InvokerException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
 
         PrintStream errorStream = getErrorStream();
-        try {
-            // Main method class name is file name without extension
-            String fileName = bufferFile.getName();
-            String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
+        // Main method class name is file name without extension
+        String fileName = bufferFile.getName();
 
-            JarResolver jarResolver = jBallerinaBackend.jarResolver();
-            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-            // First run configure initialization
-            // TODO: (#28662) After configurables can be supported, change this to that file location
-            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{Map.class, String[].class, Path[].class, String.class},
-                    new Object[]{new HashMap<>(), new String[]{}, new Path[]{}, null});
-            // Initialize the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-            // Start the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
-            // Then call run method
-            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
-            if (failErrorMessage != null) {
-                errorStream.println("fail: " + failErrorMessage);
-            }
-        } catch (InvokerPanicException panicError) {
-            List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
-                    .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
-                                        element.toString().contains(MODULE_RUN_METHOD_NAME)))
-                    .toList()
-                    .stream().map(element -> "at " + element.getMethodName() + "()").toList();
-            errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
-            stacktrace.forEach(errorStream::println);
-            addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
-            throw panicError;
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+        BalRuntime runtime = new BalRuntime(module, classLoader);
+        runtime.init();
+        runtime.start();
+        // Then call run method
+        Object failErrorMessage = invokeScheduledMethod(runtime, MODULE_RUN_METHOD_NAME);
+        if (failErrorMessage != null) {
+            errorStream.println("fail: " + failErrorMessage);
         }
     }
 
@@ -407,45 +388,30 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * Invokes a method that is in the given class.
      * The method must be a static method accepting only one parameter, a {@link Strand}.
      *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
      * @param methodName  Method name to invoke.
      * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
      */
-    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
-            throws InvokerException {
+    protected Object invokeScheduledMethod(BalRuntime runtime, String methodName) {
+        addDebugDiagnostic(String.format("Running %s on schedule", methodName));
+        final CompletableFuture<Object> future = new CompletableFuture<>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        runtime.invokeMethodAsync(methodName, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                future.complete(result);
+                latch.countDown();
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                future.completeExceptionally(ErrorCreator.createError(io.ballerina.runtime.api.utils.StringUtils.fromString(error.getMessage())));
+                latch.countDown();
+            }
+        }, new Object[1]);
         try {
-            addDebugDiagnostic(String.format("Running %s.%s on schedule", className, methodName));
-
-            // Get class and method references
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, Strand.class);
-            Function<Object[], Object> methodInvocation = createInvokerCallback(method);
-
-            // Schedule and run the function and return if result is valid
-            BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_ERROR, null, null);
-            scheduler.start();
-
-            Object result = out.getResult();
-            Throwable panic = out.getPanic();
-
-            if (panic != null) {
-                // Unexpected runtime error
-                throw new InvokerPanicException(panic);
-            }
-            if (result instanceof Throwable) {
-                // Function returned error (panic)
-                throw new InvokerPanicException((Throwable) result);
-            }
-            return result;
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error while waiting for function result", e);
         }
     }
 
