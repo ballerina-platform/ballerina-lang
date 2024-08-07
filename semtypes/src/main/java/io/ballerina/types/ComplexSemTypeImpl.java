@@ -30,8 +30,8 @@ record ComplexSemTypeImpl(int all, int some, ProperSubtypeData[] subtypeDataList
 
     @Override
     public String toString() {
-        return "ComplexSemType{all=" + all() + ", some=" + some() + ", subtypeDataList=" +
-                Arrays.toString(subtypeDataList()) + '}';
+        return "ComplexSemType{all=" + all + PredefinedType.toString(all) + ", some=" + some() +
+                PredefinedType.toString(some) + ", subtypeDataList=" + Arrays.toString(subtypeDataList()) + '}';
     }
 
     @Override

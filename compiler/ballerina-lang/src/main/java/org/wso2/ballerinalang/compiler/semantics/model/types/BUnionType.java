@@ -340,7 +340,7 @@ public class BUnionType extends BType implements UnionType {
             } else if (member instanceof BTableType) {
                 BTableType tableType = (BTableType) member;
                 if (getImpliedType(tableType.constraint) == unionType) {
-                    BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
+                    BTableType newTableType = new BTableType(env, tableType.tag, this, tableType.tsymbol,
                             tableType.getFlags());
                     this.add(newTableType);
                     continue;
@@ -348,7 +348,7 @@ public class BUnionType extends BType implements UnionType {
                     BMapType mapType = (BMapType) tableType.constraint;
                     if (getImpliedType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(env, mapType.tag, this, mapType.tsymbol, mapType.getFlags());
-                        BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
+                        BTableType newTableType = new BTableType(env, tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.getFlags());
                         this.add(newTableType);
                         continue;
@@ -493,12 +493,12 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public void populateMemberSemTypesAndNonSemTypes() {
+    public void populateMemberSemTypesAndNonSemTypes(boolean ignoreTypeIds) {
         LinkedHashSet<BType> memberNonSemTypes = new LinkedHashSet<>();
         LinkedHashSet<SemType> memberSemTypes = new LinkedHashSet<>();
 
         for (BType memberType : this.memberTypes) {
-            populateMemberSemTypesAndNonSemTypes(memberType, memberSemTypes, memberNonSemTypes);
+            populateMemberSemTypesAndNonSemTypes(memberType, memberSemTypes, memberNonSemTypes, ignoreTypeIds);
         }
 
         this.memberNonSemTypes = memberNonSemTypes;
@@ -507,7 +507,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     private void populateMemberSemTypesAndNonSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
-                                                      LinkedHashSet<BType> memberNonSemTypes) {
+                                                      LinkedHashSet<BType> memberNonSemTypes, boolean ignoreTypeIds) {
         memberType = getReferredType(memberType);
         if (memberType == null) { // TODO: handle cyclic types via BIR
             return;
@@ -515,13 +515,13 @@ public class BUnionType extends BType implements UnionType {
 
         if (memberType.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) memberType;
-            bUnionType.populateMemberSemTypesAndNonSemTypes();
+            bUnionType.populateMemberSemTypesAndNonSemTypes(ignoreTypeIds);
             memberSemTypes.addAll(bUnionType.memberSemTypes);
             memberNonSemTypes.addAll(bUnionType.memberNonSemTypes);
             return;
         }
 
-        SemType s = SemTypeHelper.semTypeComponent(memberType);
+        SemType s = SemTypeHelper.semTypeComponent(memberType, ignoreTypeIds);
         if (!Core.isNever(s)) {
             memberSemTypes.add(s);
         }
@@ -531,10 +531,15 @@ public class BUnionType extends BType implements UnionType {
         }
     }
 
+    public SemType semTypeIgnoringTypeIds() {
+        populateMemberSemTypesAndNonSemTypes(true);
+        return computeResultantUnion(memberSemTypes);
+    }
+
     @Override
     public SemType semType() {
         if (this.semType == null) {
-            populateMemberSemTypesAndNonSemTypes();
+            populateMemberSemTypesAndNonSemTypes(false);
             this.semType = computeResultantUnion(memberSemTypes);
         }
         return this.semType;

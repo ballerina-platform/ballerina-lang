@@ -34,7 +34,9 @@ import io.ballerina.types.definition.ObjectDefinition;
 import io.ballerina.types.definition.ObjectQualifiers;
 import io.ballerina.types.definition.StreamDefinition;
 import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.TableSubtype;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -644,12 +646,20 @@ public class SemTypeResolver {
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangTableTypeNode td) {
-        if (td.tableKeySpecifier != null || td.tableKeyTypeConstraint != null) {
-            throw new UnsupportedOperationException("table key constraint not supported yet");
+        SemType tableConstraint = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
+
+        if (td.tableKeySpecifier != null) {
+            List<IdentifierNode> fieldNameIdentifierList = td.tableKeySpecifier.fieldNameIdentifierList;
+            String[] fieldNames = fieldNameIdentifierList.stream().map(IdentifierNode::getValue).toArray(String[]::new);
+            return TableSubtype.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
         }
 
-        SemType memberType = resolveTypeDesc(cx, mod, defn, depth, td.constraint);
-        return SemTypes.tableContaining(cx.env, memberType);
+        if (td.tableKeyTypeConstraint != null) {
+            SemType keyConstraint = resolveTypeDesc(cx, mod, defn, depth, td.tableKeyTypeConstraint.keyType);
+            return TableSubtype.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);
+        }
+
+        return TableSubtype.tableContaining(cx.env, tableConstraint);
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,

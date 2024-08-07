@@ -301,7 +301,7 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BTableType(TypeTags.TABLE, null, immutableTableTSymbol,
+                    originalType, new BTableType(symTable.typeEnv(), TypeTags.TABLE, null, immutableTableTSymbol,
                             type.getFlags() | Flags.READONLY), symTable));
         }
 

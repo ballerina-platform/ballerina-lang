@@ -341,7 +341,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTableType newTableType = new BTableType(TypeTags.TABLE, newConstraint, null);
+        BTableType newTableType = new BTableType(originalType.env, TypeTags.TABLE, newConstraint, null);
         newTableType.keyTypeConstraint = newKeyTypeConstraint;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;

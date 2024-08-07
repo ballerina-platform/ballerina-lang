@@ -31,6 +31,7 @@ import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -104,17 +105,20 @@ public final class SemTypeHelper {
     }
 
     public static SemType semTypeComponent(BType t) {
+        return semTypeComponent(t, false);
+    }
+
+    public static SemType semTypeComponent(BType t, boolean ignoreObjectTypeIds) {
         if (t == null) { // TODO: may be able to fix after tackling bir recursion issue
             return PredefinedType.NEVER;
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
-            return semTypeComponent(((BTypeReferenceType) t).referredType);
+            return semTypeComponent(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
         }
 
         switch (t.tag) {
             case TypeTags.INTERSECTION:
-            case TypeTags.UNION:
             case TypeTags.ANYDATA:
             case TypeTags.JSON:
             case TypeTags.ANY:
@@ -123,12 +127,22 @@ public final class SemTypeHelper {
             case TypeTags.TUPLE:
             case TypeTags.MAP:
             case TypeTags.RECORD:
-            case TypeTags.OBJECT:
             case TypeTags.INVOKABLE:
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:
             case TypeTags.STREAM:
             case TypeTags.ERROR:
+            case TypeTags.TABLE:
+                return t.semType();
+            case TypeTags.UNION:
+                if (ignoreObjectTypeIds) {
+                    return ((BUnionType) t).semTypeIgnoringTypeIds();
+                }
+                return t.semType();
+            case TypeTags.OBJECT:
+                if (ignoreObjectTypeIds) {
+                    return ((BObjectType) t).semTypeIgnoringTypeIds();
+                }
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {
@@ -162,17 +176,17 @@ public final class SemTypeHelper {
             return includesNonSemTypes(((BTypeReferenceType) t).referredType);
         }
 
-        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON) {
+        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON || t.tag == TypeTags.ANYDATA) {
             return false;
         }
 
-        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.READONLY) {
+        if (t.tag == TypeTags.ANY || t.tag == TypeTags.READONLY) {
             return true;
         }
 
         if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
             BUnionType unionType = (BUnionType) t;
-            unionType.populateMemberSemTypesAndNonSemTypes();
+            unionType.populateMemberSemTypesAndNonSemTypes(false);
             return !unionType.memberNonSemTypes.isEmpty();
         }
 

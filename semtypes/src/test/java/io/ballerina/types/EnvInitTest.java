@@ -57,7 +57,7 @@ public class EnvInitTest {
         Map<AtomicType, Reference<TypeAtom>> atomTable = (Map) atomTableField.get(env);
 
         // Check that the atomTable contains the expected entries
-        Assert.assertEquals(atomTable.size(), 15);
+        Assert.assertEquals(atomTable.size(), 19);
 
         CellAtomicType cellAtomicVal = CellAtomicType.from(
                 PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_LIMITED

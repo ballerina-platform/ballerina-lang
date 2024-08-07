@@ -75,4 +75,13 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
     public Atom.Kind atomKind() {
         return Atom.Kind.MAPPING_ATOM;
     }
+
+    @Override
+    public String toString() {
+        return "MappingAtomicType{" +
+                "names=" + Arrays.toString(names) +
+                ", types=" + Arrays.toString(types) +
+                ", rest=" + rest +
+                '}';
+    }
 }

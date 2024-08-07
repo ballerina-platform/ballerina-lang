@@ -81,6 +81,12 @@ public class BErrorType extends BType implements ErrorType {
         return ERROR +  detailType + CLOSE_ERROR;
     }
 
+    public void setDistinctId() {
+        if (Symbols.isFlagOn(this.getFlags(), Flags.DISTINCT)) {
+            distinctId = env.distinctAtomCountGetAndIncrement();
+        }
+    }
+
     @Override
     public SemType semType() {
         SemType err;

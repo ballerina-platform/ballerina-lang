@@ -28,6 +28,8 @@ import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_MAPPING;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_MAPPING_RO;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_RO;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_LIST_SUBTYPE_MAPPING;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_LIST_SUBTYPE_MAPPING_RO;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER_KIND;
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_OBJECT_MEMBER_RO;
@@ -40,6 +42,8 @@ import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.INNER_READONLY;
 import static io.ballerina.types.PredefinedType.MAPPING;
+import static io.ballerina.types.PredefinedType.MAPPING_ARRAY;
+import static io.ballerina.types.PredefinedType.MAPPING_ARRAY_RO;
 import static io.ballerina.types.PredefinedType.MAPPING_RO;
 import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER;
 import static io.ballerina.types.PredefinedType.MAPPING_SEMTYPE_OBJECT_MEMBER_RO;
@@ -95,11 +99,18 @@ public final class PredefinedTypeEnv {
     private CellAtomicType cellAtomicInnerMappingRO;
     private ListAtomicType listAtomicMappingRO;
     private CellAtomicType cellAtomicInnerRO;
+    private ListAtomicType listAtomicThreeElementRO;
+    private CellAtomicType cellAtomicMappingArrayRO;
 
     // TypeAtoms related to [any|error, any|error]. This is to avoid passing down env argument when doing
     // streamSubtypeComplement operation.
     private CellAtomicType cellAtomicUndef;
     private ListAtomicType listAtomicTwoElement;
+
+    // TypeAtoms related to [(map<any|error>)[], any|error, any|error]. This is to avoid passing down env argument
+    // when doing tableSubtypeComplement operation.
+    private CellAtomicType cellAtomicMappingArray;
+    private ListAtomicType listAtomicThreeElement;
 
     private CellAtomicType cellAtomicObjectMember;
     private CellAtomicType cellAtomicObjectMemberKind;
@@ -130,6 +141,10 @@ public final class PredefinedTypeEnv {
     private TypeAtom atomMappingObject;
     private TypeAtom atomMappingObjectMember;
     private TypeAtom atomMappingObjectMemberRO;
+    private TypeAtom atomCellMappingArray;
+    private TypeAtom atomCellMappingArrayRO;
+    private TypeAtom atomListThreeElement;
+    private TypeAtom atomListThreeElementRO;
 
     private void addInitializedCellAtom(CellAtomicType atom) {
         addInitializedAtom(initializedCellAtoms, atom);
@@ -515,6 +530,76 @@ public final class PredefinedTypeEnv {
             initializedRecMappingAtoms.add(mappingAtomicObjectRO);
         }
         return mappingAtomicObjectRO;
+    }
+
+    synchronized CellAtomicType cellAtomicMappingArray() {
+        if (cellAtomicMappingArray == null) {
+            cellAtomicMappingArray = CellAtomicType.from(MAPPING_ARRAY, CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+            addInitializedCellAtom(cellAtomicMappingArray);
+        }
+        return cellAtomicMappingArray;
+    }
+
+    synchronized TypeAtom atomCellMappingArray() {
+        if (atomCellMappingArray == null) {
+            CellAtomicType cellAtomicMappingArray = cellAtomicMappingArray();
+            atomCellMappingArray = createTypeAtom(cellAtomIndex(cellAtomicMappingArray), cellAtomicMappingArray);
+        }
+        return atomCellMappingArray;
+    }
+
+    synchronized CellAtomicType cellAtomicMappingArrayRO() {
+        if (cellAtomicMappingArrayRO == null) {
+            cellAtomicMappingArrayRO = CellAtomicType.from(MAPPING_ARRAY_RO,
+                    CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+            addInitializedCellAtom(cellAtomicMappingArrayRO);
+        }
+        return cellAtomicMappingArrayRO;
+    }
+
+    synchronized TypeAtom atomCellMappingArrayRO() {
+        if (atomCellMappingArrayRO == null) {
+            CellAtomicType cellAtomicMappingArrayRO = cellAtomicMappingArrayRO();
+            atomCellMappingArrayRO = createTypeAtom(cellAtomIndex(cellAtomicMappingArrayRO), cellAtomicMappingArrayRO);
+        }
+        return atomCellMappingArrayRO;
+    }
+
+    synchronized ListAtomicType listAtomicThreeElement() {
+        if (listAtomicThreeElement == null) {
+            listAtomicThreeElement =
+                    ListAtomicType.from(FixedLengthArray.from(List.of(CELL_SEMTYPE_LIST_SUBTYPE_MAPPING,
+                                    CELL_SEMTYPE_VAL), 3),
+                            CELL_SEMTYPE_UNDEF);
+            addInitializedListAtom(listAtomicThreeElement);
+        }
+        return listAtomicThreeElement;
+    }
+
+    synchronized TypeAtom atomListThreeElement() {
+        if (atomListThreeElement == null) {
+            ListAtomicType listAtomicThreeElement = listAtomicThreeElement();
+            atomListThreeElement = createTypeAtom(listAtomIndex(listAtomicThreeElement), listAtomicThreeElement);
+        }
+        return atomListThreeElement;
+    }
+
+    synchronized ListAtomicType listAtomicThreeElementRO() {
+        if (listAtomicThreeElementRO == null) {
+            listAtomicThreeElementRO =
+                    ListAtomicType.from(FixedLengthArray.from(List.of(CELL_SEMTYPE_LIST_SUBTYPE_MAPPING_RO,
+                            CELL_SEMTYPE_VAL), 3), CELL_SEMTYPE_UNDEF);
+            addInitializedListAtom(listAtomicThreeElementRO);
+        }
+        return listAtomicThreeElementRO;
+    }
+
+    synchronized TypeAtom atomListThreeElementRO() {
+        if (atomListThreeElementRO == null) {
+            ListAtomicType listAtomicThreeElementRO = listAtomicThreeElementRO();
+            atomListThreeElementRO = createTypeAtom(listAtomIndex(listAtomicThreeElementRO), listAtomicThreeElementRO);
+        }
+        return atomListThreeElementRO;
     }
 
     // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.

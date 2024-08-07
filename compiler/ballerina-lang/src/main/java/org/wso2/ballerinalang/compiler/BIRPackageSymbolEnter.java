@@ -1402,7 +1402,8 @@ public class BIRPackageSymbolEnter {
                     bStreamType.setFlags(flags);
                     return bStreamType;
                 case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);
+                    BTableType bTableType = new BTableType(symTable.typeEnv(), TypeTags.TABLE, null,
+                            symTable.tableType.tsymbol, flags);
                     bTableType.constraint = readTypeFromCp();
 
                     boolean hasFieldNameList = inputStream.readByte() == 1;

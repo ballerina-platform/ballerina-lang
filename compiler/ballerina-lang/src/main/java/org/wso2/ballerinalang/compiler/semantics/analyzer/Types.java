@@ -204,9 +204,12 @@ public class Types {
     }
 
     public Types(CompilerContext context) {
+        this(context, new Env());
+    }
+
+    public Types(CompilerContext context, Env typeEnv) {
         context.put(TYPES_KEY, this);
 
-        Env typeEnv = new Env();
         this.semTypeCtx = Context.from(typeEnv);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -874,8 +877,8 @@ public class Types {
                     SemTypeHelper.bTypeComponent(target), unresolvedTypes);
         }
 
-        SemType semSource = SemTypeHelper.semTypeComponent(source);
-        SemType semTarget = SemTypeHelper.semTypeComponent(target);
+        SemType semSource = SemTypeHelper.semTypeComponent(source, this.ignoreObjectTypeIds);
+        SemType semTarget = SemTypeHelper.semTypeComponent(target, this.ignoreObjectTypeIds);
         return SemTypes.isSubtype(semTypeCtx, semSource, semTarget) &&
                 isAssignableInternal(SemTypeHelper.bTypeComponent(source),
                         SemTypeHelper.bTypeComponent(target), unresolvedTypes);
@@ -3765,7 +3768,7 @@ public class Types {
         if (s.tag == TypeTags.TABLE) {
             BTableType tableType = (BTableType) s;
             if (tableType.constraint == source) {
-                return new BTableType(tableType.tag, target, tableType.tsymbol,
+                return new BTableType(symTable.typeEnv(), tableType.tag, target, tableType.tsymbol,
                         tableType.getFlags());
             } else if (tableType.constraint instanceof BMapType) {
                 return updateSelfReferencedWithNewType(source, tableType.constraint, target);
@@ -5379,11 +5382,18 @@ public class Types {
         BErrorType lhsErrorType = (BErrorType) lhsType;
         BErrorType rhsErrorType = (BErrorType) rhsType;
 
-        BErrorType errorType = createErrorType(detailType, lhsType.getFlags(), env);
-        errorType.tsymbol.flags |= rhsType.getFlags();
+        BErrorType errorType = createErrorType(detailType, lhsType.getFlags() | rhsType.getFlags(), env);
+
+        // This is to propagate same distinctId to effective type
+        lhsErrorType.setDistinctId();
+        rhsErrorType.setDistinctId();
+        if (lhsErrorType.distinctId != -1) {
+            errorType.distinctId = lhsErrorType.distinctId;
+        } else if (rhsErrorType.distinctId != -1) {
+            errorType.distinctId = rhsErrorType.distinctId;
+        }
 
         errorType.typeIdSet = BTypeIdSet.getIntersection(lhsErrorType.typeIdSet, rhsErrorType.typeIdSet);
-
         return errorType;
     }
 

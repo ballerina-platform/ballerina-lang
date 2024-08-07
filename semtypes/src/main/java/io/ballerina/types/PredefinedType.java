@@ -106,8 +106,9 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES =
-            union(OBJECT, union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE, union(REGEXP, union(FUTURE,
-                    union(ERROR, union(STREAM, union(TYPEDESC, union(LIST, MAPPING)))))))))));
+            union(CELL, union(UNDEF, union(OBJECT, union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
+                    union(REGEXP, union(FUTURE, union(ERROR, union(STREAM, union(TYPEDESC, union(TABLE,
+                            union(LIST, MAPPING))))))))))))));
     public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
@@ -203,16 +204,27 @@ public final class PredefinedType {
 
     public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
 
+    public static final ComplexSemType MAPPING_ARRAY_RO = basicSubtype(BT_LIST, LIST_SUBTYPE_MAPPING_RO);
+    public static final TypeAtom ATOM_CELL_MAPPING_ARRAY_RO = predefinedTypeEnv.atomCellMappingArrayRO();
+    public static final CellSemType CELL_SEMTYPE_LIST_SUBTYPE_MAPPING_RO = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_MAPPING_ARRAY_RO)
+    );
+
+    static final TypeAtom ATOM_LIST_THREE_ELEMENT_RO = predefinedTypeEnv.atomListThreeElementRO();
+    // represents [(readonly & map<any|error>)[], any|error, any|error]
+    public static final BddNode LIST_SUBTYPE_THREE_ELEMENT_RO = bddAtom(ATOM_LIST_THREE_ELEMENT_RO);
+
     public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
-            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_MAPPING_RO),
+            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_THREE_ELEMENT_RO),
             BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
             BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
     );
     public static final SemType IMPLEMENTED_VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
+            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_THREE_ELEMENT_RO),
             BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
             BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
     );
@@ -240,6 +252,15 @@ public final class PredefinedType {
     static final TypeAtom ATOM_LIST_TWO_ELEMENT = predefinedTypeEnv.atomListTwoElement();
     // represents [any|error, any|error]
     public static final BddNode LIST_SUBTYPE_TWO_ELEMENT = bddAtom(ATOM_LIST_TWO_ELEMENT);
+
+    public static final ComplexSemType MAPPING_ARRAY = basicSubtype(BT_LIST, LIST_SUBTYPE_MAPPING);
+    public static final TypeAtom ATOM_CELL_MAPPING_ARRAY = predefinedTypeEnv.atomCellMappingArray();
+    public static final CellSemType CELL_SEMTYPE_LIST_SUBTYPE_MAPPING = (CellSemType) basicSubtype(
+            BT_CELL, bddAtom(ATOM_CELL_MAPPING_ARRAY)
+    );
+    static final TypeAtom ATOM_LIST_THREE_ELEMENT = predefinedTypeEnv.atomListThreeElement();
+    // represents [(map<any|error>)[], any|error, any|error]
+    public static final BddNode LIST_SUBTYPE_THREE_ELEMENT = bddAtom(ATOM_LIST_THREE_ELEMENT);
 
     public static final MappingAtomicType MAPPING_ATOMIC_RO = predefinedTypeEnv.mappingAtomicRO();
     public static final MappingAtomicType MAPPING_ATOMIC_OBJECT_RO = predefinedTypeEnv.getMappingAtomicObjectRO();
@@ -269,8 +290,7 @@ public final class PredefinedType {
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
-    static String toString(BasicTypeBitSet bt) {
-        int bitset = bt.bitset;
+    static String toString(int bitset) {
         StringJoiner sj = new StringJoiner("|", Integer.toBinaryString(bitset) + "[", "]");
 
         addIfBitSet(sj, bitset, NEVER.bitset, "never");
