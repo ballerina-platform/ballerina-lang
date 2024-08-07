@@ -20,11 +20,18 @@ package org.ballerinalang.docgen.docs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -41,13 +48,18 @@ import org.ballerinalang.docgen.generator.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -59,8 +71,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -74,10 +91,18 @@ public class BallerinaDocGenerator {
     private static final String API_DOCS_JS = "api-docs.js";
     private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
     private static final String CENTRAL_STDLIB_SEARCH_JSON = "stdlib-search.json";
-    private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
-    private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
+    private static final String BALLERINA_DOC_UI_ZIP_FILE_NAME = "ballerina-doc-ui.zip";
+    private static final String CONTENT_TYPE = "application/json";
+    private static final String DOCS_FOLDER_NAME = "docs";
+    private static final String ICON_NAME = "icon.png";
+    private static final String JSON_KEY_HASH_VALUE = "hashValue";
+    private static final String JSON_KEY_FILE_URL = "fileURL";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
-    public static final String PROPERTIES_FILE = "/META-INF/properties";
+    private static final String SHA256_ALGORITHM = "SHA-256";
+    private static final String SHA256_HASH_FILE_NAME = "ballerina-doc-ui-hash.sha256";
+    private static final String PROPERTIES_FILE = "/META-INF/properties";
+    private static final String CENTRAL_REGISTRY_PATH = "/registry";
+    private static final String CENTRAL_DOC_UI_PATH = "/docs/doc-ui";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -195,6 +220,22 @@ public class BallerinaDocGenerator {
         moduleLib.modules = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageVersion().toString());
         writeAPIDocs(moduleLib, Path.of(output), false, excludeUI);
+        copyIcon(project, Path.of(output), moduleLib);
+    }
+
+    public static void copyIcon(Project project, Path output, ModuleLibrary moduleLib) {
+        String sourceLocation = project.currentPackage().manifest().icon();
+        if (!sourceLocation.isEmpty()) {
+            output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
+                    .resolve(moduleLib.modules.get(0).version).resolve(ICON_NAME);
+            Path iconPath = Paths.get(sourceLocation);
+            try {
+                byte[] iconByteArray = Files.readAllBytes(iconPath);
+                Files.write(output, iconByteArray);
+            } catch (IOException e) {
+                log.error("Failed to copy icon to the API docs.", e);
+            }
+        }
     }
 
     private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
@@ -226,23 +267,113 @@ public class BallerinaDocGenerator {
     }
 
     private static void copyDocerinaUI(Path output) {
-        File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
-        File dest;
-        if (source.exists()) {
-            dest = output.toFile();
-            try {
-                FileUtils.copyDirectory(source, dest);
-            } catch (IOException e) {
-                log.error("Failed to copy the doc ui.", e);
+        String source = RepoUtils.getRemoteRepoURL();
+        source = source.replace(CENTRAL_REGISTRY_PATH, CENTRAL_DOC_UI_PATH);
+        Path docsDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(DOCS_FOLDER_NAME);
+        Path sha256FilePath = docsDirPath.resolve(SHA256_HASH_FILE_NAME);
+        Path zipFilePath = docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .get()
+                .url(source)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() != HTTP_OK || response.body() == null ||
+                    !Objects.equals(response.header("content-type"), CONTENT_TYPE)) {
+                throw new IOException("Response failed with status code: " + response.code());
             }
-        } else {
-            dest = output.resolve("index.html").toFile();
-            try {
-                FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
-                        .getResourceAsStream("/doc-ui/index.html"), dest);
-            } catch (IOException e) {
-                log.error("Failed to copy the doc ui.", e);
+            ResponseBody responseBody = response.body();
+            JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
+            String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
+            String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
+            if (!Files.exists(sha256FilePath) || !Files.exists(zipFilePath)) {
+                if (!docsDirPath.toFile().exists()) {
+                    Files.createDirectories(docsDirPath);
+                }
+                writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
+            } else {
+                String hashValueInCache = Files.readString(sha256FilePath).trim();
+                if (!sha256HashValue.equals(hashValueInCache)) {
+                    writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
+                }
             }
+            copyDocUIToProjectDir(output, zipFilePath);
+        } catch (IOException e) {
+            if (Files.exists(zipFilePath)) {
+                String warning = """
+                        WARNING: Unable to fetch the latest UI from the central.
+                        This document is built using an existing version of the UI.
+                        """;
+                out.println(warning);
+                copyDocUIToProjectDir(output, zipFilePath);
+            } else {
+                File sourceDir = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
+                if (sourceDir.exists()) {
+                    try {
+                        FileUtils.copyDirectory(sourceDir, output.toFile());
+                    } catch (IOException ex) {
+                        log.error("Failed to copy the API doc UI", ex);
+                    }
+                } else {
+                    try {
+                        FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
+                                .getResourceAsStream("/doc-ui/index.html"), output.resolve("index.html").toFile());
+                    } catch (IOException ex) {
+                        log.error("Failed to copy the API doc UI", ex);
+                    }
+                }
+            }
+        } finally {
+            client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
+        }
+    }
+
+    private static void writeFileInCache(String fileURL, String hashValue, Path zipFilePath, Path hashFilePath)
+            throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().get().url(fileURL).build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() == HTTP_OK && response.body() != null) {
+                ResponseBody responseBody = response.body();
+                byte[] contentInBytes = responseBody.bytes();
+                byte[] hash = BallerinaDocUtils.getHash(contentInBytes, SHA256_ALGORITHM);
+                String checksum = BallerinaDocUtils.bytesToHex(hash);
+                if (checksum.equals(hashValue)) {
+                    Files.write(zipFilePath, contentInBytes);
+                    Files.write(hashFilePath, hashValue.getBytes());
+                } else {
+                    throw new IOException("Failed to fetch API docs UI. UI Components may have been corrupted.");
+                }
+            } else {
+                throw new IOException("Failed to fetch API docs UI. Request failed.");
+            }
+        }
+    }
+
+    private static void copyDocUIToProjectDir(Path output, Path zipFilePath) {
+        try (InputStream inputStream = new FileInputStream(zipFilePath.toFile())) {
+            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                Path docUIFilePath = output.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(docUIFilePath);
+                } else {
+                    try (OutputStream outputStream = new BufferedOutputStream
+                            (new FileOutputStream(docUIFilePath.toFile()))) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = zipInputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+                    } catch (IOException e) {
+                        log.error("Unable to write to the file" , e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("Error occurred when unzipping file", e);
         }
     }
 

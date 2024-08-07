@@ -388,3 +388,18 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+
+function testOnFailWithCheckAndReturnType(function s = function() {
+            do {
+                function _ = function() returns error? {
+                    string _ = check getVal("");
+                };
+            } on fail {
+            }
+        }) returns string|error {
+    return "";
+}
+
+function getVal(string s) returns string|error {
+    return "";
+}

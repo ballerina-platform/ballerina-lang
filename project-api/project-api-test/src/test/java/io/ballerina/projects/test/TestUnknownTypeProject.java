@@ -333,7 +333,8 @@ public class TestUnknownTypeProject {
             project = TestUtils.loadProject(projectPath);
             Assert.fail("project loading with a non-bal file is expected to fail");
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina source file"));
+            Assert.assertEquals(e.getMessage(), "'" + projectPath.toAbsolutePath() +
+                    "' is not a valid Ballerina source file");
         }
     }
 

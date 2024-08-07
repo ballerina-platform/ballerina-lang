@@ -177,6 +177,11 @@ public class AddOperationTest {
         };
     }
 
+    @Test
+    public void testXmlStringAddition() {
+        BRunUtil.invoke(result, "testXmlStringAddition");
+    }
+
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         int i = 0;
@@ -269,7 +274,27 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 164, 12);
         BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 165, 14);
         BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 166, 12);
-
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml' and 'int'", 178, 13);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml:Text' and 'int'", 181, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'xml:Text' and '(string|int)'",
+                184, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text)>'", 187,
+                26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment|xml:ProcessingInstruction)>', found 'xml'",
+                190, 64);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<(xml:Element|xml:Text)>'", 193, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment)>', found 'xml<" +
+                        "(xml:Element|xml:Comment|xml:Text)>'",
+                197, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<never>', found 'xml<(never|xml:Text)>'", 200, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'xml<(xml:Element|xml:Comment)>', found 'xml<(xml:Element|xml:Text)>'",
+                204, 38);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

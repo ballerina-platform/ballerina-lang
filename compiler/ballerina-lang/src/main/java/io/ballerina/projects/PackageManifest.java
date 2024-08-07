@@ -337,6 +337,7 @@ public class PackageManifest {
      * @since 2.0.0
      */
     public static class Platform {
+        public static final String GRAALVM_COMPATIBLE = "graalvmCompatible";
         // We could eventually add more things to the platform
         private final List<Map<String, Object>> dependencies;
         private final List<Map<String, Object>> repositories;
@@ -370,7 +371,20 @@ public class PackageManifest {
         }
 
         public Boolean graalvmCompatible() {
-            return graalvmCompatible;
+                return graalvmCompatible;
+        }
+
+        public Boolean isPlatfromDepsGraalvmCompatible() {
+            Boolean overallGraalvmCompatibility = true;
+            for (Map<String, Object> dependency : dependencies) {
+                Boolean dependencyGraalvmCompatibility = (Boolean) dependency.get(GRAALVM_COMPATIBLE);
+                if (dependencyGraalvmCompatibility == null) {
+                    overallGraalvmCompatibility = null;
+                } else if (!dependencyGraalvmCompatibility) {
+                    return false;
+                }
+            }
+            return overallGraalvmCompatibility;
         }
     }
 

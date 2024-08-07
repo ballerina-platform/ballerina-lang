@@ -78,6 +78,11 @@ public class NullBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return null;
+    }
+
+    @Override
     public PlatformLibrary runtimeLibrary() {
         return null;
     }

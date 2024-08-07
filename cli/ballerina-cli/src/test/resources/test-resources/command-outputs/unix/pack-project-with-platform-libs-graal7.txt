@@ -1,0 +1,16 @@
+Compiling source
+	sameera/myproject:0.1.0
+
+Creating bala
+
+************************************************************
+* WARNING: Package is not compatible with GraalVM.         *
+************************************************************
+
+The package 'myproject' has been marked with its GraalVM compatibility property set to false. This setting suggests potential compatibility issues with GraalVM.
+
+To ensure this package can function seamlessly with GraalVM, it's recommended to either modify the package dependencies or consider GraalVM-compatible alternatives.
+
+************************************************************
+
+	target/bala/sameera-myproject-java17-0.1.0.bala

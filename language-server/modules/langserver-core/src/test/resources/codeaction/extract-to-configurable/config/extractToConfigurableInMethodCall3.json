@@ -1,0 +1,100 @@
+{
+  "range": {
+    "start": {
+      "line": 10,
+      "character": 26
+    },
+    "end": {
+      "line": 10,
+      "character": 56
+    }
+  },
+  "source": "extractToConfigurableInMethodCall.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string arg1 = \"arg1\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 23
+            },
+            "end": {
+              "line": 10,
+              "character": 29
+            }
+          },
+          "newText": "arg1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string arg2 = \"arg2\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 38
+            },
+            "end": {
+              "line": 10,
+              "character": 44
+            }
+          },
+          "newText": "arg2"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable string arg3 = \"arg3\";\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 53
+            },
+            "end": {
+              "line": 10,
+              "character": 59
+            }
+          },
+          "newText": "arg3"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

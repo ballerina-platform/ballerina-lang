@@ -424,6 +424,11 @@
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
+        <Method name="getBooleanValueFromPlatformEntry"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.internal.plugins.CompilerPlugins"/>
         <Method name="getUri"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>

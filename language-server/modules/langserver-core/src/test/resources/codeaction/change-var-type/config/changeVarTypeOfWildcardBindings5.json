@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 11,
+    "character": 62
+  },
+  "source": "changeVarTypeOfWildcardBindings.bal",
+  "expected": [
+    {
+      "title": "Change variable '_' type to 'string[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 7
+            }
+          },
+          "newText": "string[]"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

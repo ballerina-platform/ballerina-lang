@@ -44,7 +44,7 @@ public class CustomSystemClassLoader extends ClassLoader {
     }
 
     private void populateExcludedClasses() {
-        try (InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
+        try (InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.DIR_PATH_SEPARATOR +
                 ProjectConstants.EXCLUDED_CLASSES_FILE)) {
             if (is == null) {
                 throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE);

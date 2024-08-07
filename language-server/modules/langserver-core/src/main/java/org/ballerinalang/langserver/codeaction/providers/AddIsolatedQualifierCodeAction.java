@@ -87,8 +87,8 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         }
 
         // Check if there are multiple diagnostics of the considered category
-        List<Diagnostic> diagnostics = context.diagnostics(context.filePath());
-        if (diagnostics.size() > 1 && hasMultipleDiagnostics(nonTerminalNode, diagnostic, diagnostics)) {
+        if (CommonUtil.hasMultipleDiagnostics(context, nonTerminalNode, diagnostic, DIAGNOSTIC_CODES,
+                DIAGNOSTIC_CODE_3961)) {
             return Collections.emptyList();
         }
 
@@ -168,14 +168,6 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, expressionName);
         return Collections.singletonList(
                 CodeActionUtil.createCodeAction(commandTitle, List.of(textEdit), filePath, CodeActionKind.QuickFix));
-    }
-
-    private static boolean hasMultipleDiagnostics(NonTerminalNode node, Diagnostic currentDiagnostic,
-                                                  List<Diagnostic> diagnostics) {
-        return diagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
-                DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
-                PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), node.lineRange())) &&
-                currentDiagnostic.diagnosticInfo().code().equals(DIAGNOSTIC_CODE_3961);
     }
 
     @Override

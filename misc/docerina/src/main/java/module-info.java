@@ -8,4 +8,5 @@ module io.ballerina.docerina {
     requires org.slf4j;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
+    requires okhttp3;
 }

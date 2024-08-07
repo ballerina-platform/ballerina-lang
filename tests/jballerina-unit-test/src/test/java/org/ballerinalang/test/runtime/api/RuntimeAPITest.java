@@ -98,38 +98,7 @@ public class RuntimeAPITest {
 
     @Test
     public void testRuntimeManagementAPI() {
-        AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        final Scheduler scheduler = new Scheduler(false);
-        Thread thread1 = new Thread(() -> {
-            try {
-                CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
-                Thread.sleep(5000);
-                BRunUtil.runOnSchedule(strandResult, "main", scheduler);
-            } catch (Throwable e) {
-                exceptionRef.set(e);
-            }
-        });
-        Thread thread2 = new Thread(() -> {
-            try {
-                Thread.sleep(5000);
-            } catch (Throwable e) {
-                exceptionRef.set(e);
-            } finally {
-                scheduler.poison();
-            }
-        });
-
-        try {
-            thread1.start();
-            thread2.start();
-            thread1.join();
-            thread2.join();
-            Throwable storedException = exceptionRef.get();
-            if (storedException != null) {
-                throw new AssertionError("Test failed due to an exception in a thread", storedException);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Error while invoking function 'main'", e);
-        }
+        CompileResult strandResult = BCompileUtil.compileWithoutInitInvocation("test-src/runtime/api/runtime_mgt");
+        BRunUtil.runMain(strandResult);
     }
 }

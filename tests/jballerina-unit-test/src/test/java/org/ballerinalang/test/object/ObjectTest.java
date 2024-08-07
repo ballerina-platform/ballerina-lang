@@ -907,8 +907,18 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 226, 51);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 233, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 234, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 3);
-        Assert.assertEquals(result.getWarnCount(), 3);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 242, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 242, 20);
+        BAssertUtil.validateError(result, i++, "cannot use 'check' in an object field initializer of an object with " +
+                "no 'init' method", 243, 14);
+        BAssertUtil.validateWarning(result, i++, "invalid usage of the 'check' expression operator: no expression " +
+                "type is equivalent to error type", 247, 20);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 248, 14);
+        Assert.assertEquals(result.getErrorCount(), i - 5);
+        Assert.assertEquals(result.getWarnCount(), 5);
     }
 
     @Test(dataProvider = "checkInObjectFieldInitializerTests")

@@ -80,12 +80,12 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
                 "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 140, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 140, 64);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 144, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 144, 64);

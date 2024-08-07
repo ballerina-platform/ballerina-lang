@@ -30,7 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public abstract class AbstractIntegrationTest {
         PrintStream origOut = System.out;
         try {
             ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-            PrintStream interceptedOutStream = new PrintStream(stdOut, true, Charset.defaultCharset());
+            PrintStream interceptedOutStream = new PrintStream(stdOut, true, StandardCharsets.UTF_8);
             System.setOut(interceptedOutStream);
 
             TestIntegrator testIntegrator = new TestIntegrator(testIn, testOut, stdOut, testCases);

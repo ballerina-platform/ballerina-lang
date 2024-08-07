@@ -135,12 +135,13 @@ public class PackageResolutionTests extends BaseTest {
                 "Unexpected number of dependencies");
     }
 
-    @Test(description = "tests resolution with one direct dependency")
-    public void testProjectWithOneDependency() throws IOException {
+    @Test(description = "tests resolution with one direct dependency", dataProvider = "optimizeDependencyCompilation")
+    public void testProjectWithOneDependency(boolean optimizeDependencyCompilation) throws IOException {
         // package_b --> package_c
         Path projectDirPath = tempResourceDir.resolve("package_b");
         replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
-        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath,
+                BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics
@@ -153,8 +154,8 @@ public class PackageResolutionTests extends BaseTest {
                 "Unexpected number of dependencies");
     }
 
-    @Test(description = "tests resolution with invalid build file")
-    public void testProjectWithInvalidBuildFile() throws IOException {
+    @Test(description = "tests resolution with invalid build file", dataProvider = "optimizeDependencyCompilation")
+    public void testProjectWithInvalidBuildFile(boolean optimizeDependencyCompilation) throws IOException {
         // Package path
         Path projectDirPath = tempResourceDir.resolve("package_n");
 
@@ -164,7 +165,8 @@ public class PackageResolutionTests extends BaseTest {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         buildOptionsBuilder.targetDir(String.valueOf(projectDirPath.resolve(ProjectConstants.TARGET_DIR_NAME)));
-        BuildOptions buildOptions = buildOptionsBuilder.build();
+        BuildOptions buildOptions = buildOptionsBuilder.setOptimizeDependencyCompilation(
+                optimizeDependencyCompilation).build();
 
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
 
@@ -192,7 +194,6 @@ public class PackageResolutionTests extends BaseTest {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
-
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
@@ -364,18 +365,15 @@ public class PackageResolutionTests extends BaseTest {
                 "projectB");
         FileUtils.deleteDirectory(projectBCachePath.toFile());
 
-
         // Step 1 : Build ProjectB1 and Cache
         CompileResult depCompileResult = BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB1");
         if (depCompileResult.getErrorCount() > 0) {
             Assert.fail("Package B contains compilations error");
         }
 
-
         // Step 2 : Build ProjectA with ProjectB as an import
         Path projectA = tempResourceDir.resolve("projectA");
         Project loadProjectA = TestUtils.loadBuildProject(projectA);
-
 
         // Step 3 : Get compilation of ProjectA and verify dependencies
         PackageCompilation compilation = loadProjectA.currentPackage().getCompilation();
@@ -386,7 +384,6 @@ public class PackageResolutionTests extends BaseTest {
                 Assert.assertEquals(manifest.version().toString(), "1.0.0");
             }
         }
-
 
         // Step 4 : Modify projectA to be blank
 
@@ -406,7 +403,6 @@ public class PackageResolutionTests extends BaseTest {
         Document document = defaultModuleProjectA.document(mainDocumentId.get());
         document.modify().withContent(newMainProjectAContent).apply();
 
-
         // Step 5 : Compile ProjectA and verify dependency
         compilation = loadProjectA.currentPackage().getCompilation();
         dependencyGraph = compilation.getResolution().dependencyGraph();
@@ -417,10 +413,8 @@ public class PackageResolutionTests extends BaseTest {
             }
         }
 
-
         // Step 6 : Clear ProjectB cache
         FileUtils.deleteDirectory(projectBCachePath.toFile());
-
 
         // Step 7 : Compile ProjectB2 and cache
         depCompileResult = BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB2");
@@ -430,7 +424,6 @@ public class PackageResolutionTests extends BaseTest {
 
         // Step 8 : Clear ProjectB cache
         FileUtils.deleteDirectory(projectBCachePath.toFile());
-
 
         // Step 9 : Modify ProjectA again with the old content
 
@@ -455,7 +448,6 @@ public class PackageResolutionTests extends BaseTest {
         // - Step 9.2 : Modify the content
         document = defaultModuleProjectA.document(mainDocumentId.get());
         document.modify().withContent(oldMainProjectAContent).apply();
-
 
         // Step 10 : Compile ProjectA and verify dependency
         compilation = loadProjectA.currentPackage().getCompilation();
@@ -516,11 +508,13 @@ public class PackageResolutionTests extends BaseTest {
         buildProject.currentPackage().getResolution();
     }
 
-    @Test(description = "Test dependencies should not be stored in bala archive")
-    public void testProjectWithTransitiveTestDependencies() throws IOException {
+    @Test(description = "Test dependencies should not be stored in bala archive",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testProjectWithTransitiveTestDependencies(boolean optimizeDependencyCompilation) throws IOException {
         // package_with_test_dependency --> package_c
         Path projectDirPath = tempResourceDir.resolve("package_with_test_dependency");
-        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath,
+                BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Dependency graph should contain two entries here
@@ -550,9 +544,8 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(depGraphOfBala.getNodes().size(), 1);
     }
 
-    // TODO: enable after https://github.com/ballerina-platform/ballerina-lang/pull/31972 is merged
-    @Test(description = "Ultimate test case")
-    public void testProjectWithManyDependencies() {
+    @Test(description = "Ultimate test case", dataProvider = "optimizeDependencyCompilation")
+    public void testProjectWithManyDependencies(boolean optimizeDependencyCompilation) {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
         BCompileUtil.compileAndCacheBala(
@@ -566,12 +559,12 @@ public class PackageResolutionTests extends BaseTest {
 
         OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
         long initialOpenCount = 0;
-        if (os instanceof UnixOperatingSystemMXBean) {
-            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+        if (os instanceof UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
             initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
         }
-        Project project = BCompileUtil.loadProject(
-                "projects_for_resolution_tests/ultimate_package_resolution/package_http");
+        Project project = TestUtils.loadProject(
+                Paths.get("projects_for_resolution_tests/ultimate_package_resolution/package_http"),
+                BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
@@ -580,8 +573,7 @@ public class PackageResolutionTests extends BaseTest {
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
-        if (os instanceof UnixOperatingSystemMXBean) {
-            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+        if (os instanceof UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
             Assert.assertEquals(initialOpenCount, unixOperatingSystemMXBean.getOpenFileDescriptorCount());
         }
 
@@ -624,9 +616,9 @@ public class PackageResolutionTests extends BaseTest {
         List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
         Assert.assertEquals(nodeInGraph.size(), 2);
     }
-    // For this to be enabled, #31026 should be fixed.
-    @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
-    public void testResolveDependencyFromCustomRepo() {
+
+    @Test (description = "Resolve a dependency from the local repo", dataProvider = "optimizeDependencyCompilation")
+    public void testResolveDependencyFromCustomRepo(boolean optimizeDependencyCompilation) {
         Path projectDirPath = tempResourceDir.resolve("package_b");
         String dependencyContent = """
                 [[dependency]]
@@ -638,7 +630,9 @@ public class PackageResolutionTests extends BaseTest {
         // 1) load the build project
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
+        BuildOptions buildOptions = BuildOptions.builder()
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation).build();
+        BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath, buildOptions);
 
         // 2) set local repository to dependency
         project.currentPackage().dependenciesToml().orElseThrow().modify().withContent(dependencyContent).apply();

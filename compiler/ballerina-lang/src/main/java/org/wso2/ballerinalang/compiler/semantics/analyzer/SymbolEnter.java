@@ -5249,25 +5249,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
 
-        if (!types.isAssignable(attachedFuncSym.type, referencedFuncSym.type)) {
-            return false;
-        }
-
-        List<BVarSymbol> params = referencedFuncSym.params;
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol referencedFuncParam = params.get(i);
-            BVarSymbol attachedFuncParam = attachedFuncSym.params.get(i);
-            if (!referencedFuncParam.name.value.equals(attachedFuncParam.name.value) ||
-                    !hasSameVisibilityModifier(referencedFuncParam.flags, attachedFuncParam.flags)) {
-                return false;
-            }
-        }
-
-        if (referencedFuncSym.restParam != null && attachedFuncSym.restParam != null) {
-            return referencedFuncSym.restParam.name.value.equals(attachedFuncSym.restParam.name.value);
-        }
-
-        return referencedFuncSym.restParam == null && attachedFuncSym.restParam == null;
+        return types.isAssignable(attachedFuncSym.type, referencedFuncSym.type);
     }
 
     private boolean hasSameVisibilityModifier(long flags1, long flags2) {
@@ -5289,12 +5271,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
-        funcSymbol.params.forEach(param -> paramListBuilder.add(
-                (Symbols.isPublic(param) ? "public " : "") + param.type.toString() + " " + param.name.value));
+        funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString()));
 
         if (funcSymbol.restParam != null) {
-            paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +
-                                         funcSymbol.restParam.name.value);
+            paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "...");
         }
 
         signatureBuilder.append(paramListBuilder.toString());
