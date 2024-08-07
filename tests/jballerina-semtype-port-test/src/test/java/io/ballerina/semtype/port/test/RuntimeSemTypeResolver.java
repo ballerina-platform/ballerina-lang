@@ -495,6 +495,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             return Builder.charType();
         } else if (td.pkgAlias.value.equals("xml")) {
             return resolveXmlSubType(name);
+        } else if (td.pkgAlias.value.equals("regexp") && name.equals("RegExp")) {
+            return Builder.regexType();
         }
 
         BLangNode moduleLevelDef = mod.get(name);

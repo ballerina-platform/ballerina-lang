@@ -61,7 +61,7 @@ public final class Core {
             unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
                     Builder.floatType(), Builder.decimalType(), Builder.stringType(), listType(),
                     Builder.mappingType(), Builder.functionType(), Builder.objectType(), Builder.errorType(),
-                    Builder.xmlType(), Builder.handleType(), Builder.futureType());
+                    Builder.xmlType(), Builder.handleType(), Builder.futureType(), Builder.regexType());
     public static final SemType ANY_SEMTYPE_PART = intersect(implementedTypes, Builder.anyType());
     public static final SemType READONLY_SEMTYPE_PART = intersect(implementedTypes, Builder.readonlyType());
 

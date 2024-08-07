@@ -35,16 +35,17 @@ public final class BasicTypeCode {
     public static final int CODE_TYPEDESC = 0x07;
     public static final int CODE_HANDLE = 0x08;
     public static final int CODE_FUNCTION = 0x09;
-    public static final int CODE_FUTURE = 0x0A;
-    public static final int CODE_STREAM = 0x0B;
-    public static final int CODE_LIST = 0x0C;
-    public static final int CODE_MAPPING = 0x0D;
-    public static final int CODE_TABLE = 0x0E;
-    public static final int CODE_XML = 0x0F;
-    public static final int CODE_OBJECT = 0x10;
-    public static final int CODE_CELL = 0x11;
-    public static final int CODE_UNDEF = 0x12;
-    public static final int CODE_B_TYPE = 0x13;
+    public static final int CODE_REGEXP = 0x0A;
+    public static final int CODE_FUTURE = 0x0B;
+    public static final int CODE_STREAM = 0x0C;
+    public static final int CODE_LIST = 0x0D;
+    public static final int CODE_MAPPING = 0x0E;
+    public static final int CODE_TABLE = 0x0F;
+    public static final int CODE_XML = 0x10;
+    public static final int CODE_OBJECT = 0x11;
+    public static final int CODE_CELL = 0x12;
+    public static final int CODE_UNDEF = 0x13;
+    public static final int CODE_B_TYPE = 0x14;
 
     // TODO: see if we can turn this class to an enum with a value
     // Inherently immutable
@@ -58,6 +59,7 @@ public final class BasicTypeCode {
     public static final BasicTypeCode BT_TYPEDESC = from(CODE_TYPEDESC);
     public static final BasicTypeCode BT_HANDLE = from(CODE_HANDLE);
     public static final BasicTypeCode BT_FUNCTION = from(CODE_FUNCTION);
+    public static final BasicTypeCode BT_REGEXP = from(CODE_REGEXP);
 
     // Inherently mutable
     public static final BasicTypeCode BT_FUTURE = from(CODE_FUTURE);
@@ -80,7 +82,7 @@ public final class BasicTypeCode {
     public static final int BASIC_TYPE_MASK = (1 << (CODE_STRING + 1)) - 1;
     static final int VT_MASK = (1 << VT_COUNT) - 1;
 
-    static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
+    static final int VT_COUNT_INHERENTLY_IMMUTABLE = CODE_FUTURE;
     public static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
 
     private int code;

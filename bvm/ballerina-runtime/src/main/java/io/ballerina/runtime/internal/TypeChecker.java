@@ -125,6 +125,7 @@ public final class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
+        // TODO: we don't need to do this like this see checkIsType(Object, Type)
         Type sourceType = getImpliedType(getType(sourceVal));
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;

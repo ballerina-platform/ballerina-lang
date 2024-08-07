@@ -232,6 +232,7 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
         result = Core.intersect(result, Core.SEMTYPE_TOP);
         for (int i = 1; i < constituentTypes.size(); i++) {
             SemType memberType = mutableSemTypeDependencyManager.getSemType(constituentTypes.get(i), this);
+            memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
             result = Core.intersect(result, memberType);
         }
         if (hasBType) {
