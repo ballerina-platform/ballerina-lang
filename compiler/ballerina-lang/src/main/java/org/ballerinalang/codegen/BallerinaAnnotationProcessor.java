@@ -262,7 +262,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private class NativeFunctionCodeDef implements NativeElementCodeDef {
+    private static class NativeFunctionCodeDef implements NativeElementCodeDef {
 
         public String org;
 
@@ -298,7 +298,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private class NativeActionCodeDef extends NativeFunctionCodeDef {
+    private static class NativeActionCodeDef extends NativeFunctionCodeDef {
         
         public String connectorName;
         
