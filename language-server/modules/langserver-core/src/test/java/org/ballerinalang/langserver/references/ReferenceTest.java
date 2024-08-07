@@ -46,7 +46,6 @@ public class ReferenceTest {
     private Path configRoot;
     private Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -69,7 +68,7 @@ public class ReferenceTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonArray("result");
         this.alterExpectedUri(expected);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);

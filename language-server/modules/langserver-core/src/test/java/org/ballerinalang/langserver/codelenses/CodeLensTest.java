@@ -45,7 +45,6 @@ import java.util.List;
 public class CodeLensTest {
     private final Path functionsBalPath = FileUtils.RES_DIR.resolve("codelens").resolve("functions.bal");
     private Endpoint serviceEndpoint;
-    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final Logger log = LoggerFactory.getLogger(CodeLensTest.class);
     private static final Gson GSON = new Gson();
 
@@ -65,9 +64,9 @@ public class CodeLensTest {
         String expected = getExpectedValue(expectedConfigName);
 
         List<CodeLens> expectedItemList = getFlattenItemList(
-                JSON_PARSER.parse(expected).getAsJsonObject().getAsJsonArray("result"));
+                JsonParser.parseString(expected).getAsJsonObject().getAsJsonArray("result"));
         List<CodeLens> responseItemList = getFlattenItemList(
-                JSON_PARSER.parse(response).getAsJsonObject().getAsJsonArray("result"));
+                JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("result"));
 
         boolean isSubList = getStringListForEvaluation(responseItemList).containsAll(
                 getStringListForEvaluation(expectedItemList));
