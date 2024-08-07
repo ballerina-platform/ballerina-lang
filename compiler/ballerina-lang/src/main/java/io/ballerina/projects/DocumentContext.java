@@ -196,6 +196,8 @@ class DocumentContext {
         if (this.compilationUnit != null) {
             this.compilationUnit.topLevelNodes.clear();
         }
+        this.syntaxTree = null;
+        this.moduleLoadRequests = null;
         this.content = null;
     }
 }
