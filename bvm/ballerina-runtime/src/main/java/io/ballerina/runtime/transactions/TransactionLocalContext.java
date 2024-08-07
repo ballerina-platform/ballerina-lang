@@ -22,9 +22,10 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * {@code TransactionLocalContext} stores the transaction related information.
@@ -41,8 +42,8 @@ public class TransactionLocalContext {
     private Map<String, Integer> allowedTransactionRetryCounts;
     private Map<String, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
-    private Stack<String> transactionBlockIdStack;
-    private Stack<TransactionFailure> transactionFailure;
+    private Deque<String> transactionBlockIdStack;
+    private Deque<TransactionFailure> transactionFailure;
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
@@ -59,8 +60,8 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        this.transactionBlockIdStack = new Stack<>();
-        this.transactionFailure = new Stack<>();
+        this.transactionBlockIdStack = new ArrayDeque<>();
+        this.transactionFailure = new ArrayDeque<>();
         this.rollbackOnlyError = null;
         this.isTransactional = true;
         this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());
@@ -104,7 +105,7 @@ public class TransactionLocalContext {
     }
 
     public boolean hasTransactionBlock() {
-        return !transactionBlockIdStack.empty();
+        return !transactionBlockIdStack.isEmpty();
     }
 
     public String getURL() {
@@ -211,7 +212,7 @@ public class TransactionLocalContext {
     }
 
     public TransactionFailure getAndClearFailure() {
-        if (transactionFailure.empty()) {
+        if (transactionFailure.isEmpty()) {
             return null;
         }
         TransactionFailure failure = transactionFailure.pop();
@@ -220,7 +221,7 @@ public class TransactionLocalContext {
     }
 
     public TransactionFailure getFailure() {
-        if (transactionFailure.empty()) {
+        if (transactionFailure.isEmpty()) {
             return null;
         }
         return transactionFailure.peek();

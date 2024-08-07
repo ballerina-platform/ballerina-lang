@@ -28,10 +28,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -59,7 +60,7 @@ class BIRGenEnv {
     BIRBasicBlock enclOnFailEndBB;
     BIRBasicBlock enclInnerOnFailEndBB;
 
-    Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
+    Deque<List<BIRBasicBlock>> trapBlocks = new ArrayDeque<>();
 
     Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
 
@@ -67,7 +68,7 @@ class BIRGenEnv {
     // for example when we are to return from somewhere, we need to unlock all the
     // values in this list, but if we are to do break or continue, we need to pop
     // list and unlock variables in that
-    Stack<BIRLockDetailsHolder> unlockVars = new Stack<>();
+    Deque<BIRLockDetailsHolder> unlockVars = new ArrayDeque<>();
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.

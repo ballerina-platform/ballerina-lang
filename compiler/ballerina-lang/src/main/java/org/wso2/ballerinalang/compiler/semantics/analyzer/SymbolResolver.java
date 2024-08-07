@@ -121,8 +121,10 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2512,11 +2514,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver) {
-        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new Stack<>());
+        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new ArrayDeque<>());
     }
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver,
-                                                   Stack<String> anonTypeNameSuffixes) {
+                                                   Deque<String> anonTypeNameSuffixes) {
         BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
 
         if (annotationSymbol == null) {

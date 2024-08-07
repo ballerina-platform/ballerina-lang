@@ -112,7 +112,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -123,7 +125,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -160,14 +161,14 @@ public class TypeResolver {
     private HashMap<BIntersectionType, BLangIntersectionTypeNode> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private ArrayList<BLangConstant> resolvingConstants = new ArrayList<>();
-    private Stack<String> resolvingModuleDefs;
+    private Deque<String> resolvingModuleDefs;
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private Map<String, BLangNode> modTable = new LinkedHashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<>();
     private HashSet<LocationData> unknownTypeRefs;
     private SymbolEnv pkgEnv;
     private int currentDepth;
-    private Stack<BType> resolvingTypes;
+    private Deque<BType> resolvingTypes;
     public HashSet<BStructureType> resolvingStructureTypes = new HashSet<>();
 
     public TypeResolver(CompilerContext context) {
@@ -225,8 +226,8 @@ public class TypeResolver {
         }
 
         for (BLangNode def : moduleDefs) {
-            resolvingTypes = new Stack<>();
-            resolvingModuleDefs = new Stack<>();
+            resolvingTypes = new ArrayDeque<>();
+            resolvingModuleDefs = new ArrayDeque<>();
             switch (def.getKind()) {
                 case CLASS_DEFN -> {
                     intersectionTypeList = new HashMap<>();
@@ -610,12 +611,14 @@ public class TypeResolver {
         // Eg - A -> B -> C -> B // Last B is what we are currently checking
         //
         // In such case, we create a new list with relevant type names.
-        int i = resolvingModuleDefs.indexOf(currentDefnName);
-        List<String> dependencyList = new ArrayList<>(resolvingModuleDefs.size() - i);
-        for (; i < resolvingModuleDefs.size(); i++) {
-            dependencyList.add(resolvingModuleDefs.get(i));
-        }
+        List<String> dependencyList = new ArrayList<>();
         dependencyList.add(currentDefnName);
+        for (String resolvingModuleDef : resolvingModuleDefs) {
+            dependencyList.add(0, resolvingModuleDef);
+            if (resolvingModuleDef.equals(currentDefnName)) {
+                break;
+            }
+        }
 
         dlog.error(pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
     }

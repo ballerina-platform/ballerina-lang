@@ -187,8 +187,10 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -199,7 +201,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -357,24 +358,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
-        return checkExpr(expr, env, symTable.noType, new Stack<>());
+        return checkExpr(expr, env, symTable.noType, new ArrayDeque<>());
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                            Types.CommonAnalyzerData commonAnalyzerData) {
         return checkExpr(expr, env, symTable.noType, prevEnvs, commonAnalyzerData);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs) {
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Deque<SymbolEnv> prevEnvs) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
         data.prevEnvs = prevEnvs;
-        data.commonAnalyzerData.queryFinalClauses = new Stack<>();
-        data.commonAnalyzerData.queryEnvs = new Stack<>();
+        data.commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
+        data.commonAnalyzerData.queryEnvs = new ArrayDeque<>();
         return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs,
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Deque<SymbolEnv> prevEnvs,
                            Types.CommonAnalyzerData commonAnalyzerData) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
@@ -6520,7 +6521,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             errorTypes.add(exprType);
         }
 
-        if (operatorKind == OperatorKind.CHECK && !data.commonAnalyzerData.errorTypes.empty()) {
+        if (operatorKind == OperatorKind.CHECK && !data.commonAnalyzerData.errorTypes.isEmpty()) {
             data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(checkedExpr.expr.getBType()));
         }
 
@@ -9882,7 +9883,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public static class AnalyzerData {
         public SymbolEnv env;
         boolean isTypeChecked;
-        Stack<SymbolEnv> prevEnvs;
+        Deque<SymbolEnv> prevEnvs;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
         DiagnosticCode diagCode;
         BType expType;
