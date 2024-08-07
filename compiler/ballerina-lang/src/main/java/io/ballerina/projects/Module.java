@@ -146,7 +146,7 @@ public class Module {
         return this.moduleMd;
     }
 
-    private static class DocumentIterable implements Iterable {
+    private static class DocumentIterable implements Iterable<Document> {
         private final Collection<Document> documentList;
 
         public DocumentIterable(Collection<Document> documentList) {
@@ -159,7 +159,7 @@ public class Module {
         }
 
         @Override
-        public Spliterator spliterator() {
+        public Spliterator<Document> spliterator() {
             return this.documentList.spliterator();
         }
     }

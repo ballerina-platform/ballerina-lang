@@ -106,7 +106,7 @@ public class ValueTypeCastExprTest {
         Object returns = BRunUtil.invoke(result, "stringToFloat", args);
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
-        String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
+        String errorMsg = ((BMap<?, ?>) error.getDetails()).get(StringUtils.fromString("message")).toString();
         Assert.assertEquals(errorMsg, "'string' value '2222.333f' cannot be converted to 'float'");
     }
 

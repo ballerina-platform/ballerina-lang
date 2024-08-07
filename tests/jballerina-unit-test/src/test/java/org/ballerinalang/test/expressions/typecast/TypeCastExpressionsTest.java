@@ -207,16 +207,16 @@ public class TypeCastExpressionsTest {
     public void testUntaintedWithoutType() {
         Object returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
         Assert.assertTrue(returns instanceof BMap);
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("id")).toString(), "1100");
     }
 
     @Test
     public void testUntaintedWithoutType2() {
         Object returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
         Assert.assertTrue(returns instanceof BMap);
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("id")).toString(), "1100");
     }
 
     @DataProvider

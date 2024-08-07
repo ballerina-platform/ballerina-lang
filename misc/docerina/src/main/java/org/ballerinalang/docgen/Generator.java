@@ -791,7 +791,7 @@ public class Generator {
                           isDeprecated(optionalMetadataNode), isClosed, fields);
     }
 
-    public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
+    public static List<DefaultableVariable> getDefaultableVariableList(NodeList<?> nodeList,
                                                                        Optional<MetadataNode> optionalMetadataNode,
                                                                        SemanticModel semanticModel, Module module) {
         List<DefaultableVariable> variables = new ArrayList<>();

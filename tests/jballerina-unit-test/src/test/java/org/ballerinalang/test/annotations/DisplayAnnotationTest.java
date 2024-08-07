@@ -65,8 +65,8 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnFunction() {
-        BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
-        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
+        BLangFunction fooFunction = (BLangFunction) ((List<?>) ((BLangPackage) result.getAST()).functions).get(0);
+        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List<?>) fooFunction.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
                 " {iconPath: <string?> fooIconPath.icon,label: Foo function}");
     }
@@ -127,7 +127,7 @@ public class DisplayAnnotationTest {
     @Test
     public void testDisplayAnnotOnExternalFunctionBody() {
         BLangExternalFunctionBody body = (BLangExternalFunctionBody) result.getAST().getFunctions().get(3).getBody();
-        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) body.annAttachments).get(0);
+        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List<?>) body.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
                 " {label: external,id: <anydata> hash}");
     }

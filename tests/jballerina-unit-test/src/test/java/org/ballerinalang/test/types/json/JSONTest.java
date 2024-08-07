@@ -156,7 +156,7 @@ public class JSONTest {
         Object returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
-                (((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))).toString();
+                (((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))).toString();
         Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 

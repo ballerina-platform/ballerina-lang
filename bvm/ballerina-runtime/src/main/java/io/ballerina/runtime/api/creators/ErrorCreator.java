@@ -79,7 +79,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(message, detailMap);
     }
 
@@ -127,7 +127,7 @@ public class ErrorCreator {
         } else {
             initialValues = new MappingInitialValueEntry[0];
         }
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return createError(type, message, null, detailMap);
     }
 

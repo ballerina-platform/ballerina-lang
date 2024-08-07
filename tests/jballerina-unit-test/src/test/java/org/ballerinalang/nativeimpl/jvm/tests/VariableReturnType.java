@@ -97,11 +97,11 @@ public class VariableReturnType {
         return value;
     }
 
-    public static TableValue getTable(TableValue value, BTypedesc td) {
+    public static TableValue<?, ?> getTable(TableValue<?, ?> value, BTypedesc td) {
         return value;
     }
 
-    public static BFunctionPointer getFunction(BFunctionPointer fp, BTypedesc param, BTypedesc ret) {
+    public static BFunctionPointer<?, ?> getFunction(BFunctionPointer<?, ?> fp, BTypedesc param, BTypedesc ret) {
         return fp;
     }
 
@@ -132,20 +132,20 @@ public class VariableReturnType {
         return getValue(td.getDescribingType());
     }
 
-    public static MapValue query(BString query, BTypedesc typedesc) {
+    public static MapValue<BString, Object> query(BString query, BTypedesc typedesc) {
         Type type = typedesc.getDescribingType();
-        MapValue map;
+        MapValue<BString, Object> map;
 
         if (type.getTag() == INT_TAG) {
-            map = new MapValueImpl(new BMapType(type));
+            map = new MapValueImpl<>(new BMapType(type));
             map.put(new BmpStringValue("one"), 10);
             map.put(new BmpStringValue("two"), 20);
         } else if (type.getTag() == STRING_TAG) {
-            map = new MapValueImpl(new BMapType(type));
+            map = new MapValueImpl<>(new BMapType(type));
             map.put(NAME, new BmpStringValue("Pubudu"));
             map.put(CITY, new BmpStringValue("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(PredefinedTypes.TYPE_ANY));
+            map = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_ANY));
         }
 
         return map;
@@ -191,9 +191,9 @@ public class VariableReturnType {
         return arr;
     }
 
-    public static MapValue getRecord(BTypedesc td) {
+    public static MapValue<BString, Object> getRecord(BTypedesc td) {
         BRecordType recType = (BRecordType) td.getDescribingType();
-        MapValueImpl person = new MapValueImpl(recType);
+        MapValueImpl<BString, Object> person = new MapValueImpl<>(recType);
 
         if (recType.getName().equals("Person")) {
             person.put(NAME, JOHN_DOE);
@@ -222,7 +222,7 @@ public class VariableReturnType {
             }
         }
 
-        MapValueImpl rec = new MapValueImpl(type2);
+        MapValueImpl<BString, Object> rec = new MapValueImpl<>(type2);
         if (type2.getName().equals("Person")) {
             rec.put(NAME, JOHN_DOE);
             rec.put(AGE, 20);
@@ -274,7 +274,7 @@ public class VariableReturnType {
                 return 32;
             case RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) type;
-                MapValueImpl person = new MapValueImpl(recType);
+                MapValueImpl<BString, Object> person = new MapValueImpl<>(recType);
 
                 if (recType.getName().equals("Person")) {
                     person.put(NAME, JOHN_DOE);
@@ -357,8 +357,8 @@ public class VariableReturnType {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(annotationName)) {
             Object annotValue = annotations.get(annotationName);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
-            Long maxValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
+            Long maxValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("maxValue"));
             if (minValue == min && maxValue == max) {
                 return value;
             }
@@ -393,7 +393,7 @@ public class VariableReturnType {
         return true;
     }
 
-    public static Object clientPost(BObject client, BTypedesc targetType, MapValue options) {
+    public static Object clientPost(BObject client, BTypedesc targetType, MapValue<?, ?> options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));
@@ -408,7 +408,7 @@ public class VariableReturnType {
         return mediaType.length() + header.length();
     }
 
-    public static Object calculate(BObject client, long i, BTypedesc targetType, MapValue options) {
+    public static Object calculate(BObject client, long i, BTypedesc targetType, MapValue<?, ?> options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));
@@ -516,7 +516,7 @@ public class VariableReturnType {
         return !((boolean) val);
     }
 
-    public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
+    public static BFunctionPointer<?, ?> getFunctionWithAnyFunctionParamType(BFunctionPointer<?, ?> x, BTypedesc td) {
         Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return x;
     }

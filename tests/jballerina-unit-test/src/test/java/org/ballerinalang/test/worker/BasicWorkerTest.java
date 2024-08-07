@@ -18,6 +18,7 @@ package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -87,7 +88,7 @@ public class BasicWorkerTest {
     @Test
     public void workerSameThreadSchedulingTest() {
         Object vals = BRunUtil.invoke(result, "workerSameThreadTest", new Object[0]);
-        BMap result = (BMap) vals;
+        BMap<BString, Object> result = (BMap<BString, Object>) vals;
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w1")));
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w2")));
     }

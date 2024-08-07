@@ -278,7 +278,7 @@ public class WorkerTest {
         Object returns = BRunUtil.invoke(result, "testComplexType");
 
         Assert.assertEquals(getType(returns).getName(), "Rec");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test
@@ -296,7 +296,7 @@ public class WorkerTest {
         Object returns = BRunUtil.invoke(result, "waitInReturn");
 
         Assert.assertTrue(returns instanceof BMap);
-        BMap mapResult = (BMap) returns;
+        BMap<?, ?> mapResult = (BMap<?, ?>) returns;
         Assert.assertEquals(mapResult.get(StringUtils.fromString("w1")).toString(), "w1");
         Assert.assertEquals(mapResult.get(StringUtils.fromString("w2")).toString(), "w2");
     }

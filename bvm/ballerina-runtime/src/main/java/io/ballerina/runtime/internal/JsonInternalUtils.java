@@ -467,7 +467,7 @@ public class JsonInternalUtils {
                                                 StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(TypeConstants.DETAIL_CAUSE,
                                                                           elementMergeNullableError);
-            MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL,
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL,
                                                                         initialValues);
             return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
@@ -546,7 +546,7 @@ public class JsonInternalUtils {
      * @param table {@link BTable} to be converted
      * @return JSON representation of the provided table
      */
-    public static Object toJSON(BTable table) {
+    public static Object toJSON(BTable<?, ?> table) {
         TableJsonDataSource jsonDataSource = new TableJsonDataSource(table);
         return jsonDataSource.build();
     }

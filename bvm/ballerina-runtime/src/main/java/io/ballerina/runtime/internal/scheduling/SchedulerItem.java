@@ -29,19 +29,19 @@ import java.util.function.Function;
  * @since 0.995.0
  */
 class SchedulerItem {
-    private Function function;
+    private Function<Object[], ?> function;
     private Object[] params;
     final FutureValue future;
     boolean parked;
 
-    public SchedulerItem(Function function, Object[] params, FutureValue future) {
+    public SchedulerItem(Function<Object[], ?> function, Object[] params, FutureValue future) {
         this.future = future;
         this.function = function;
         this.params = params;
     }
 
     @Deprecated
-    public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
+    public SchedulerItem(Consumer<Object[]> consumer, Object[] params, FutureValue future) {
         this.future = future;
         this.function = val -> {
             consumer.accept(val);

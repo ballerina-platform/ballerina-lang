@@ -468,8 +468,8 @@ public class TypeConverter {
             targetFieldTypes.put(field.getKey(), field.getValue().getFieldType());
         }
 
-        MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
-        for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
+        MapValueImpl<?, ?> sourceMapValueImpl = (MapValueImpl<?, ?>) sourceValue;
+        for (var targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
 
@@ -487,8 +487,7 @@ public class TypeConverter {
             }
         }
 
-        for (Object object : sourceMapValueImpl.entrySet()) {
-            Map.Entry valueEntry = (Map.Entry) object;
+        for (Map.Entry<?, ?> valueEntry : sourceMapValueImpl.entrySet()) {
             String fieldName = valueEntry.getKey().toString();
             String fieldNameLong = getLongFieldName(varName, fieldName);
             int initialErrorCount = errors.size();
@@ -619,8 +618,7 @@ public class TypeConverter {
         }
 
         boolean returnVal = true;
-        for (Object object : ((MapValueImpl) sourceValue).entrySet()) {
-            Map.Entry valueEntry = (Map.Entry) object;
+        for (Map.Entry<?, ?> valueEntry : ((MapValueImpl<?, ?>) sourceValue).entrySet()) {
             String fieldNameLong = getLongFieldName(varName, valueEntry.getKey().toString());
             int initialErrorCount = errors.size();
             if (getConvertibleType(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong,

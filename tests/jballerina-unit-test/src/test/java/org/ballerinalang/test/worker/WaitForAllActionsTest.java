@@ -55,7 +55,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f3", "hello foo");
         expectedMap.put("f4", "true");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f3", "150");
         expectedMap.put("str2", "hello xyz");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f3", "150");
         expectedMap.put("f5", "hello bar");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f4", "hello foo");
         expectedMap.put("f2", "22");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("id", "66");
         expectedMap.put("name", "hello foo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("idField", "150");
         expectedMap.put("stringField", "hello foo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("id", "8");
         expectedMap.put("name", "hello moo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f1", "20");
         expectedMap.put("f5", "hello foo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f1", "30");
         expectedMap.put("f5", "hello xyz");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f1", "30");
         expectedMap.put("field", "hello bar");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -175,7 +175,7 @@ public class WaitForAllActionsTest {
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "86");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test(expectedExceptions = {BLangTestException.class},
@@ -207,9 +207,9 @@ public class WaitForAllActionsTest {
     public void waitTest17() {
         Object returns = BRunUtil.invoke(result, "waitTest17");
 
-        Assert.assertEquals(((BMap) returns).values().size(), 2);
-        BMap val1 = (BMap) ((BMap) returns).get(StringUtils.fromString("f1"));
-        BMap val2 = (BMap) ((BMap) returns).get(StringUtils.fromString("f2"));
+        Assert.assertEquals(((BMap<?, ?>) returns).values().size(), 2);
+        BMap<?, ?> val1 = (BMap<?, ?>) ((BMap<?, ?>) returns).get(StringUtils.fromString("f1"));
+        BMap<?, ?> val2 = (BMap<?, ?>) ((BMap<?, ?>) returns).get(StringUtils.fromString("f2"));
         Assert.assertEquals(val1.get(StringUtils.fromString("f1")), 7L);
         Assert.assertEquals(val1.get(StringUtils.fromString("f2")), 150L);
         Assert.assertEquals(val2.get(StringUtils.fromString("name")).toString(), "hello foo");
@@ -224,7 +224,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("f5", "hello foo");
         expectedMap.put("f1", "7");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -235,7 +235,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("w1", "30");
         expectedMap.put("w2", "16");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -246,7 +246,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("w2", "hello world");
         expectedMap.put("w3", "15");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("id", "7");
         expectedMap.put("name", "hello foo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -269,7 +269,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("name", "hello foo");
         expectedMap.put("status", "hello bar");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -281,7 +281,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("name", "hello foo");
         expectedMap.put("status", "20");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("name", "hello foo");
         expectedMap.put("status", "hello bar");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -303,7 +303,7 @@ public class WaitForAllActionsTest {
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "7");
         expectedMap.put("name", "hello foo");
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     @Test
@@ -315,10 +315,10 @@ public class WaitForAllActionsTest {
         expectedMap.put("name", "hello world");
         expectedMap.put("status", "hello moo");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap(((BMap) returns))));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap(((BMap<?, ?>) returns))));
     }
 
-    private Map<String, String> getResultMap(BMap returns) {
+    private Map<String, String> getResultMap(BMap<?, ?> returns) {
         Map<String, String> resultMap = new HashMap<>();
         for (Object key : returns.getKeys()) {
             resultMap.put(key.toString(), returns.get(key).toString());
@@ -335,7 +335,7 @@ public class WaitForAllActionsTest {
         expectedMap.put("name", "hello mello");
         expectedMap.put("greet", "hello sunshine");
 
-        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap) returns)));
+        Assert.assertTrue(mapsAreEqual(expectedMap, getResultMap((BMap<?, ?>) returns)));
     }
 
     /**

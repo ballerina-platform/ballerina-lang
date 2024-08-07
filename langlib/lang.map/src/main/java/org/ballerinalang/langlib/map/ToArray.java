@@ -62,7 +62,7 @@ public class ToArray {
                 throw createOpNotSupportedError(mapType, "toArray()");
         }
 
-        Collection values = m.values();
+        Collection<?> values = m.values();
         int size = values.size();
         int i = 0;
         switch (TypeUtils.getImpliedType(arrElemType).getTag()) {

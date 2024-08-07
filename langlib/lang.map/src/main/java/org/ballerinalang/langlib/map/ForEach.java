@@ -40,7 +40,7 @@ public class ForEach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "forEach");
 
-    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object[], Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();

@@ -38,6 +38,6 @@ public interface BString {
 
     BString substring(int beginIndex, int endIndex);
 
-    BIterator<Object> getIterator();
+    BIterator<String> getIterator();
 
 }

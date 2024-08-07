@@ -178,7 +178,7 @@ public abstract class Runtime {
 
     public abstract void deregisterListener(BObject listener);
 
-    public abstract void registerStopHandler(BFunctionPointer<?, ?> stopHandler);
+    public abstract void registerStopHandler(BFunctionPointer<Object[], Object> stopHandler);
 
     /**
      * Invoke a Ballerina function pointer asynchronously.

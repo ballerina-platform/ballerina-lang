@@ -131,7 +131,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
 
         if (value.value() instanceof HashMap) {
             StringJoiner joiner = new StringJoiner(", ", "{", "}");
-            Map map = (Map) value.value();
+            Map<?, ?> map = (Map<?, ?>) value.value();
 
             map.forEach((k, v) -> {
                 StringBuilder builder = new StringBuilder();

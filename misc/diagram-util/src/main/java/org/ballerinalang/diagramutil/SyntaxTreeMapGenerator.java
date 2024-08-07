@@ -603,8 +603,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                    }
 //                }
             } else if (prop instanceof Optional &&
-                    ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
-                ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
+                    ((Optional<?>) prop).isPresent() && ((Optional<?>) prop).get() instanceof ModuleSymbol) {
+                ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional<?>) prop).get()).id();
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
                 moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());

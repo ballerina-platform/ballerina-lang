@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BMap;
 //        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
 public class Detail {
 
-    public static BMap detail(BError value) {
-        return (BMap) value.getDetails();
+    public static BMap<?, ?> detail(BError value) {
+        return (BMap<?, ?>) value.getDetails();
     }
 }

@@ -252,8 +252,8 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
-        BMap teacher1 = (BMap) returnValues.get(0);
-        BMap teacher2 = (BMap) returnValues.get(1);
+        BMap<?, ?> teacher1 = (BMap<?, ?>) returnValues.get(0);
+        BMap<?, ?> teacher2 = (BMap<?, ?>) returnValues.get(1);
 
         Assert.assertTrue(teacher1.get(StringUtils.fromString("classStudents")) instanceof BArray);
         Assert.assertTrue(teacher1.get(StringUtils.fromString("experience")) instanceof BMap);
@@ -298,8 +298,8 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
-        BMap person1 = (BMap) returnValues.get(0);
-        BMap person2 = (BMap) returnValues.get(1);
+        BMap<?, ?> person1 = (BMap<?, ?>) returnValues.get(0);
+        BMap<?, ?> person2 = (BMap<?, ?>) returnValues.get(1);
 
         Assert.assertEquals(person1.toString(), "{\"firstName\":\"Alex\",\"lastName\":\"George\"," +
                 "\"deptAccess\":\"XYZ\",\"address\":{\"city\":\"New York\",\"country\":\"America\"}}");
@@ -312,7 +312,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryExprWithStreamMapAndFilter");
         Assert.assertNotNull(returnValues);
 
-        BMap subscription = (BMap) returnValues.get(0);
+        BMap<?, ?> subscription = (BMap<?, ?>) returnValues.get(0);
 
         Assert.assertEquals(subscription.toString(),
                 "{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"score\":90.6,\"" +
@@ -332,8 +332,8 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryWithRecordVarInLetClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
-        BMap person1 = (BMap) returnValues.get(0);
-        BMap person2 = (BMap) returnValues.get(1);
+        BMap<?, ?> person1 = (BMap<?, ?>) returnValues.get(0);
+        BMap<?, ?> person2 = (BMap<?, ?>) returnValues.get(1);
 
         Assert.assertEquals(person1.toString(), "{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\"," +
                 "\"deptAccess\":\"XYZ\",\"address\":{\"city\":\"Colombo\",\"country\":\"SL\"}}");

@@ -131,7 +131,7 @@ public class StaticMethods {
     }
 
     // This scenario is for map value to be passed to interop and return array value.
-    public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
+    public static ArrayValue getArrayValueFromMap(BString key, MapValue<?, ?> mapValue) {
         ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
@@ -140,7 +140,7 @@ public class StaticMethods {
     }
 
     public static BMap<BString, Object> acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
-                                                                   ErrorValue d, Object e, Object f, MapValue g) {
+                                                                   ErrorValue d, Object e, Object f, MapValue<?, ?> g) {
         BMap<BString, Object> mapValue = ValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), a);
         mapValue.put(StringUtils.fromString("b"), b);
@@ -205,7 +205,7 @@ public class StaticMethods {
         return ((Long) p.get(StringUtils.fromString("age"))).intValue();
     }
 
-    public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
+    public static MapValue<BString, Object> acceptRecordAndRecordReturn(MapValue<BString, Object> e, BString newVal) {
         e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
@@ -284,7 +284,7 @@ public class StaticMethods {
         }
     }
 
-    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
+    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue<?, ?> mapValue)
             throws JavaInteropTestCheckedException {
         ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
@@ -297,7 +297,7 @@ public class StaticMethods {
                                                                                               ArrayValue b, Object c,
                                                                                               ErrorValue d, Object e,
                                                                                               Object f,
-                                                                                              MapValue g)
+                                                                                              MapValue<?, ?> g)
             throws JavaInteropTestCheckedException {
         BMap<BString, Object> mapValue = ValueCreator.createMapValue();
         mapValue.put(StringUtils.fromString("a"), a);
@@ -361,21 +361,21 @@ public class StaticMethods {
         return p;
     }
 
-    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
+    public static MapValue<BString, Object> acceptRecordAndRecordReturnWhichThrowsCheckedException(
             MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
         e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
-    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
+    public static BMap<BString, Object> getMapOrError(BString swaggerFilePath, MapValue<?, ?> apiDef)
             throws JavaInteropTestCheckedException {
         BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(
                 "", "."), "ResourceDefinition").getType()));
-        BMap apiDefinitions = ValueCreator.createRecordValue(new Module("",
+        BMap<BString, Object> apiDefinitions = ValueCreator.createRecordValue(new Module("",
                                                                         "."), "ApiDefinition");
-        BMap resource = ValueCreator.createRecordValue(new Module("",
+        BMap<BString, Object> resource = ValueCreator.createRecordValue(new Module("",
                                                                   "."), "ResourceDefinition");
         resource.put(StringUtils.fromString("path"), finalBasePath);
         resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
@@ -515,7 +515,7 @@ public class StaticMethods {
             entries[index++] = new ListInitialValueEntry.ExpressionEntry(stringEntry.getValue());
         }
 
-        return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
+        return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList<>(2) {{
             add(PredefinedTypes.TYPE_INT);
             add(PredefinedTypes.TYPE_STRING);
         }}), length, true), entries);
@@ -529,7 +529,7 @@ public class StaticMethods {
         return obj;
     }
 
-    public static boolean echoImmutableRecordField(MapValue value, BString key) {
+    public static boolean echoImmutableRecordField(MapValue<?, ?> value, BString key) {
         return value.getBooleanValue(key);
     }
 
@@ -613,7 +613,7 @@ public class StaticMethods {
                 return value;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                return ((MapValue) value).get(StringUtils.fromString("first"));
+                return ((MapValue<?, ?>) value).get(StringUtils.fromString("first"));
         }
         return StringUtils.fromString("other");
     }
@@ -645,7 +645,7 @@ public class StaticMethods {
         return e;
     }
 
-    public static FPValue getFunctionPointerAsReadOnly(FPValue func) {
+    public static FPValue<?, ?> getFunctionPointerAsReadOnly(FPValue<?, ?> func) {
         return func;
     }
 
@@ -669,11 +669,11 @@ public class StaticMethods {
         return list;
     }
 
-    public static MapValue getMappingAsReadOnly(MapValue mp) {
+    public static MapValue<?, ?> getMappingAsReadOnly(MapValue<?, ?> mp) {
         return mp;
     }
 
-    public static TableValue getTableAsReadOnly(TableValue tb) {
+    public static TableValue<?, ?> getTableAsReadOnly(TableValue<?, ?> tb) {
         return tb;
     }
 

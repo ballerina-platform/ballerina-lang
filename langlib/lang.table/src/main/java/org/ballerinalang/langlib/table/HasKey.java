@@ -35,7 +35,7 @@ import io.ballerina.runtime.api.values.BTable;
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(BTable tbl, Object key) {
+    public static boolean hasKey(BTable<?, ?> tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

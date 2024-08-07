@@ -139,7 +139,7 @@ public class BindgenUtils {
         }
     }
 
-    public static Set<String> addImportedPackage(Class type, Set<String> importedPackages) {
+    public static Set<String> addImportedPackage(Class<?> type, Set<String> importedPackages) {
         if (type.isArray()) {
             type = type.getComponentType();
         }
@@ -149,7 +149,7 @@ public class BindgenUtils {
         return importedPackages;
     }
 
-    public static boolean isPublicConstructor(Constructor constructor) {
+    public static boolean isPublicConstructor(Constructor<?> constructor) {
         int modifiers = constructor.getModifiers();
         return Modifier.isPublic(modifiers);
     }
@@ -164,7 +164,7 @@ public class BindgenUtils {
         return Modifier.isPublic(modifiers);
     }
 
-    public static boolean isPublicClass(Class javaClass) {
+    public static boolean isPublicClass(Class<?> javaClass) {
         int modifiers = javaClass.getModifiers();
         return Modifier.isPublic(modifiers);
     }
@@ -381,7 +381,7 @@ public class BindgenUtils {
         BindgenUtils.outStream = outStream;
     }
 
-    public static String getAlias(Class className, Map<String, String> aliases) {
+    public static String getAlias(Class<?> className, Map<String, String> aliases) {
         if (!aliases.containsKey(className.getName())) {
             int i = 2;
             boolean notAdded = true;

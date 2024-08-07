@@ -85,7 +85,7 @@ public class LangLibMapTest {
         Object returns = BRunUtil.invoke(compileResult, "testEntries");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 3);
         assertEquals(map.get(StringUtils.fromString("lk")).toString(), "[\"lk\",\"Sri Lanka\"]");
@@ -100,7 +100,7 @@ public class LangLibMapTest {
         assertEquals(result.get(0).toString(), "United Kingdom");
         assertEquals(getType(result.get(1)).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) result.get(1);
+        BMap<?, ?> map = (BMap<?, ?>) result.get(1);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("lk")).toString(), "Sri Lanka");
         assertEquals(map.get(StringUtils.fromString("us")).toString(), "USA");
@@ -118,7 +118,7 @@ public class LangLibMapTest {
         Object returns = BRunUtil.invoke(compileResult, "testRemoveAll");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
         assertEquals(returns.toString(), "{}");
-        assertEquals(((BMap) returns).size(), 0);
+        assertEquals(((BMap<?, ?>) returns).size(), 0);
     }
 
     @Test(dataProvider = "mapKeyProvider")
@@ -147,7 +147,7 @@ public class LangLibMapTest {
         Object returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(map.size(), 3);
         assertEquals(map.get(StringUtils.fromString("1")), 5.5d);
@@ -166,7 +166,7 @@ public class LangLibMapTest {
         Object returns = BRunUtil.invoke(compileResult, "testFilter");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns;
+        BMap<?, ?> map = (BMap<?, ?>) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("1")), ValueCreator.createDecimalValue("12.34"));
@@ -186,8 +186,8 @@ public class LangLibMapTest {
         assertTrue(arr.get(0) instanceof Long);
         assertTrue(arr.get(1) instanceof BMap);
         assertEquals(arr.get(0), 118L);
-        assertEquals(((BMap) arr.get(1)).get(StringUtils.fromString("b")), 36L);
-        assertEquals(((BMap) arr.get(1)).get(StringUtils.fromString("c")), 78L);
+        assertEquals(((BMap<?, ?>) arr.get(1)).get(StringUtils.fromString("b")), 36L);
+        assertEquals(((BMap<?, ?>) arr.get(1)).get(StringUtils.fromString("c")), 78L);
     }
 
     @DataProvider(name = "mapKeyProvider")

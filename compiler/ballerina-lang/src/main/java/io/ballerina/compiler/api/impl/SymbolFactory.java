@@ -640,7 +640,7 @@ public class SymbolFactory {
         }
 
         if (constantValue.value instanceof HashMap) {
-            Map constValueMap = (Map) constantValue.value;
+            Map<?, ?> constValueMap = (Map<?, ?>) constantValue.value;
             Map<String, BallerinaConstantValue> constSymbolMap = new LinkedHashMap<>();
             constValueMap.forEach((key, value) -> {
                 BallerinaConstantValue newConstValue;

@@ -179,7 +179,7 @@ public class OpenRecordTest {
     public void testAdditionOfARestField() {
         Object returns = BRunUtil.invoke(compileResult, "testAdditionOfARestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("mname")) instanceof BString);
         Assert.assertEquals(person.get(StringUtils.fromString("mname")).toString(), "Bar");
 
@@ -204,7 +204,7 @@ public class OpenRecordTest {
     public void testStringRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testStringRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("lname")) instanceof BString);
         Assert.assertEquals(person.get(StringUtils.fromString("lname")).toString(), "Bar");
 
@@ -227,7 +227,7 @@ public class OpenRecordTest {
     public void testIntRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testIntRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("year")) instanceof Long);
         Assert.assertEquals((person.get(StringUtils.fromString("year"))), 3L);
 
@@ -246,7 +246,7 @@ public class OpenRecordTest {
     public void testFloatRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testFloatRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("height")) instanceof Double);
         Assert.assertEquals((person.get(StringUtils.fromString("height"))), 5.9D);
 
@@ -265,7 +265,7 @@ public class OpenRecordTest {
     public void testBooleanRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testBooleanRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("isEmployed")) instanceof Boolean);
         Assert.assertTrue((Boolean) person.get(StringUtils.fromString("isEmployed")));
 
@@ -284,7 +284,7 @@ public class OpenRecordTest {
     public void testMapRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testMapRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("misc")) instanceof BMap);
         Assert.assertEquals(person.get(StringUtils.fromString("misc")).toString(),
                 "{\"lname\":\"Bar\",\"height\":5.9,\"isEmployed\":true}");
@@ -297,7 +297,7 @@ public class OpenRecordTest {
     public void testMapRestFieldRHSIndexAccess() {
         BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
-        Assert.assertEquals(((BMap) returns.get(0)).size(), 0);
+        Assert.assertEquals(((BMap<?, ?>) returns.get(0)).size(), 0);
         Assert.assertNull(returns.get(1));
     }
 
@@ -305,7 +305,7 @@ public class OpenRecordTest {
     public void testUnionRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testUnionRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("lname")) instanceof BString);
         Assert.assertTrue(person.get(StringUtils.fromString("height")) instanceof Double);
         Assert.assertTrue(person.get(StringUtils.fromString("isEmployed")) instanceof Boolean);
@@ -326,7 +326,7 @@ public class OpenRecordTest {
     public void testNilRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testNilRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
 
         Assert.assertEquals(person.toString(), "{\"name\":\"Foo\",\"age\":25,\"lname\":null}");
@@ -336,7 +336,7 @@ public class OpenRecordTest {
     public void testRecordRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testRecordRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("dpt")) instanceof BMap);
         Assert.assertEquals(person.get(StringUtils.fromString("dpt")).toString(), "{\"dptName\":\"Engineering\"," +
                 "\"employees\":[]}");
@@ -356,7 +356,7 @@ public class OpenRecordTest {
     public void testObjectRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testObjectRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("pet")) instanceof BObject);
         Assert.assertEquals(person.get(StringUtils.fromString("pet")).toString(), "{kind:Cat, name:Miaw}");
 
@@ -377,7 +377,7 @@ public class OpenRecordTest {
     public void testTupleRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testTupleRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         BArray miscInfo = (BArray) person.get(StringUtils.fromString("misc"));
         Assert.assertTrue(person.get(StringUtils.fromString("misc")) instanceof BArray);
 
@@ -406,7 +406,7 @@ public class OpenRecordTest {
     public void testAnyRestField() {
         Object returns = BRunUtil.invoke(compileResult, "testAnyRestField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         BArray pets = (BArray) person.get(StringUtils.fromString("pets"));
         Assert.assertEquals(getType(pets).toString(), "Animal?[]");
         Assert.assertEquals(person.toString(),
@@ -434,7 +434,7 @@ public class OpenRecordTest {
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
-        BMap manager = (BMap) returns;
+        BMap<?, ?> manager = (BMap<?, ?>) returns;
         Assert.assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         Assert.assertEquals((manager.get(StringUtils.fromString("age"))), 25L);
         Assert.assertEquals(manager.get(StringUtils.fromString("adr")).toString(), "{\"city\":\"Colombo\"," +
@@ -467,7 +467,7 @@ public class OpenRecordTest {
     @Test
     public void testLangFuncOnRecord() {
         Object returns = BRunUtil.invoke(compileResult, "testLangFuncOnRecord");
-        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("toJson")), 44L);
+        Assert.assertEquals(((BMap<?, ?>) returns).get(StringUtils.fromString("toJson")), 44L);
     }
 
     @Test

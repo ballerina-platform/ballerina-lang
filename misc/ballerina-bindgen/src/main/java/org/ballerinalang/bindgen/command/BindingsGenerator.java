@@ -285,7 +285,7 @@ public class BindingsGenerator {
         for (String c : classList) {
             try {
                 if (classLoader != null) {
-                    Class classInstance = classLoader.loadClass(c);
+                    Class<?> classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance, env);
                         Path filePath;

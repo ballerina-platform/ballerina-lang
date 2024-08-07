@@ -93,7 +93,7 @@ public class IdentifierLiteralPackageTest {
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 1);
         Assert.assertTrue(returns.get(0) instanceof BMap);
-        BMap bmap = (BMap) returns.get(0);
+        BMap<?, ?> bmap = (BMap<?, ?>) returns.get(0);
         Assert.assertEquals(bmap.get(StringUtils.fromString("name")).toString(), "Waruna");
     }
 

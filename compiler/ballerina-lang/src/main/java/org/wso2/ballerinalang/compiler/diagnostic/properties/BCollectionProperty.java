@@ -28,7 +28,7 @@ import java.util.Collection;
  *
  * @since Swan Lake
  */
-public class BCollectionProperty implements DiagnosticProperty {
+public class BCollectionProperty implements DiagnosticProperty<Collection<DiagnosticProperty<?>>> {
     private final DiagnosticPropertyKind kind;
     private final Collection<DiagnosticProperty<?>> values;
 

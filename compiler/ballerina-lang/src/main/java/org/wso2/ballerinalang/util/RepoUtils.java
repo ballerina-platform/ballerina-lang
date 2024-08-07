@@ -301,9 +301,9 @@ public class RepoUtils {
      */
     public static Manifest getManifestFromBala(Path balaPath) {
         try (JarFile jar = new JarFile(balaPath.toString())) {
-            java.util.Enumeration enumEntries = jar.entries();
+            java.util.Enumeration<JarEntry> enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
-                JarEntry file = (JarEntry) enumEntries.nextElement();
+                JarEntry file = enumEntries.nextElement();
                 if (file.getName().contains(ProjectDirConstants.MANIFEST_FILE_NAME)) {
                     if (file.isDirectory()) { // if its a directory, ignore
                         continue;

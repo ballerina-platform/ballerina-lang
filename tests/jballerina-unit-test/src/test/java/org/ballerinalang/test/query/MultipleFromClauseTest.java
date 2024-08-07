@@ -326,10 +326,10 @@ public class MultipleFromClauseTest {
 
         Assert.assertEquals(returnValues.size(), 4, "Expected events are not received");
 
-        BMap section1 = (BMap) returnValues.get(0);
-        BMap section2 = (BMap) returnValues.get(1);
-        BMap section3 = (BMap) returnValues.get(2);
-        BMap section4 = (BMap) returnValues.get(3);
+        BMap<?, ?> section1 = (BMap<?, ?>) returnValues.get(0);
+        BMap<?, ?> section2 = (BMap<?, ?>) returnValues.get(1);
+        BMap<?, ?> section3 = (BMap<?, ?>) returnValues.get(2);
+        BMap<?, ?> section4 = (BMap<?, ?>) returnValues.get(3);
 
         Assert.assertTrue(section1.get(StringUtils.fromString("grades")) instanceof BMap);
         Assert.assertEquals(section1.get(StringUtils.fromString("grades")).toString(),
@@ -366,10 +366,10 @@ public class MultipleFromClauseTest {
 
         Assert.assertEquals(returnValues.size(), 4, "Expected events are not received");
 
-        BMap person1 = (BMap) returnValues.get(0);
-        BMap person2 = (BMap) returnValues.get(1);
-        BMap person3 = (BMap) returnValues.get(2);
-        BMap person4 = (BMap) returnValues.get(3);
+        BMap<?, ?> person1 = (BMap<?, ?>) returnValues.get(0);
+        BMap<?, ?> person2 = (BMap<?, ?>) returnValues.get(1);
+        BMap<?, ?> person3 = (BMap<?, ?>) returnValues.get(2);
+        BMap<?, ?> person4 = (BMap<?, ?>) returnValues.get(3);
 
         Assert.assertTrue(person1.get(StringUtils.fromString("address")) instanceof BMap);
         Assert.assertEquals(person1.toString(), "{\"firstName\":\"Alex\",\"lastName\":\"George\"," +

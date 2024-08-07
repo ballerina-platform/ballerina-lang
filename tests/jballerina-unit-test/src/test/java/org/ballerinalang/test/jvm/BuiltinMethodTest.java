@@ -45,7 +45,7 @@ public class BuiltinMethodTest {
     public void testClone() {
         Object result = BRunUtil.invoke(compileResult, "testClone");
         Assert.assertTrue(result instanceof BMap);
-        BMap bMap = (BMap) result;
+        BMap<?, ?> bMap = (BMap<?, ?>) result;
         Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");
     }
 
@@ -53,7 +53,7 @@ public class BuiltinMethodTest {
     public void testCloneAny() {
         Object result = BRunUtil.invoke(compileResult, "testCloneAny");
         Assert.assertTrue(result instanceof BMap);
-        BMap bMap = (BMap) result;
+        BMap<?, ?> bMap = (BMap<?, ?>) result;
         Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");
     }
 

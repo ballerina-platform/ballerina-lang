@@ -51,9 +51,9 @@ public class XmlPi extends XmlNonElementItem {
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<XmlPi> getIterator() {
         XmlPi that = this;
-        return new IteratorValue() {
+        return new IteratorValue<>() {
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -61,7 +61,7 @@ public class XmlPi extends XmlNonElementItem {
             }
 
             @Override
-            public Object next() {
+            public XmlPi next() {
                 if (!read) {
                     this.read = true;
                     return that;

@@ -103,7 +103,7 @@ public class RepoTest {
     @Test
     public void testSystemOrgIsReserved() {
         PackageID pkg = newPackageID("ballerina", "any.pkg", "10.2.3");
-        Repo subject = new NonSysRepo<String>(null) {
+        Repo<String> subject = new NonSysRepo<>(null) {
             @Override
             public Patten calculateNonSysPkg(PackageID pkg) {
                 Assert.fail("Tried to calculate path for system packages");

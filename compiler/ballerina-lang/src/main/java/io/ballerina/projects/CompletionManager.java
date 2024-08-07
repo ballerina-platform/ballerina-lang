@@ -54,7 +54,7 @@ public class CompletionManager {
     private CompletionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
         completionProviders = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContextIml -> {
-            for (CompletionProvider<Node> completionProvider : compilerPluginContextIml.completionProviders()) {
+            for (var completionProvider : compilerPluginContextIml.completionProviders()) {
                 for (Class<?> attachmentPoint : completionProvider.getSupportedNodes()) {
                     List<CompletionProviderDescriptor> completionProviderList =
                             completionProviders.computeIfAbsent(attachmentPoint, k -> new ArrayList<>());
@@ -122,8 +122,9 @@ public class CompletionManager {
                 })
                 .forEach(descriptor -> {
                     try {
-                        result.addCompletionItems(descriptor.completionProvider()
-                                .getCompletions(context, serviceDeclarationNode));
+                        result.addCompletionItems(
+                                descriptor.completionProvider().getCompletions(context, serviceDeclarationNode)
+                        );
                     } catch (Throwable t) {
                         String name;
                         if (descriptor.compilerPluginInfo.kind() == CompilerPluginKind.PACKAGE_PROVIDED) {
@@ -198,19 +199,21 @@ public class CompletionManager {
 
     /**
      * Descriptor for a completion provider.
+     *
+     * @param <T> generic syntax tree node.
      */
-    static class CompletionProviderDescriptor {
+    static class CompletionProviderDescriptor<T extends Node> {
 
-        private final CompletionProvider<Node> completionProvider;
+        private final CompletionProvider<T> completionProvider;
         private final CompilerPluginInfo compilerPluginInfo;
 
-        public CompletionProviderDescriptor(CompletionProvider completionProvider,
+        public CompletionProviderDescriptor(CompletionProvider<T> completionProvider,
                                             CompilerPluginInfo compilerPluginInfo) {
             this.completionProvider = completionProvider;
             this.compilerPluginInfo = compilerPluginInfo;
         }
 
-        public CompletionProvider<Node> completionProvider() {
+        public CompletionProvider<T> completionProvider() {
             return completionProvider;
         }
 

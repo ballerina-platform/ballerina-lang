@@ -45,7 +45,7 @@ public class CommonUtils {
      * @param func The function pointer
      * @return Whether the parameters are concurrency safe
      */
-    public static Object isFunctionParamConcurrencySafe(BFunctionPointer func) {
+    public static Object isFunctionParamConcurrencySafe(BFunctionPointer<?, ?> func) {
         FunctionType functionType = (FunctionType) func.getType();
         Parameter[] functionParameters = functionType.getParameters();
         for (Parameter functionParameter : functionParameters) {
