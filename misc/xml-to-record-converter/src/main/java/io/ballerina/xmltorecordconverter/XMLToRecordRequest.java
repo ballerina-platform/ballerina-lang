@@ -31,15 +31,20 @@ public class XMLToRecordRequest {
     private final boolean forceFormatRecordFields;
     private final String textFieldName;
     private final boolean withNameSpace;
+    private final boolean withoutAttributes;
+    private final boolean withoutAttributeAnnot;
 
     public XMLToRecordRequest(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                               boolean forceFormatRecordFields, String textFieldName, boolean withNameSpace) {
+                              boolean forceFormatRecordFields, String textFieldName, boolean withNameSpace,
+                              boolean withoutAttributes, boolean withoutAttributeAnnot) {
         this.xmlValue = xmlValue;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
         this.forceFormatRecordFields = forceFormatRecordFields;
         this.textFieldName = textFieldName;
         this.withNameSpace = withNameSpace;
+        this.withoutAttributes = withoutAttributes;
+        this.withoutAttributeAnnot = withoutAttributeAnnot;
     }
 
     public String getXmlValue() {
@@ -64,5 +69,13 @@ public class XMLToRecordRequest {
 
     public boolean getIsWithNameSpace() {
         return withNameSpace;
+    }
+
+    public boolean getWithoutAttributes() {
+        return withoutAttributes;
+    }
+
+    public boolean getWithoutAttributeAnnot() {
+        return withoutAttributeAnnot;
     }
 }
