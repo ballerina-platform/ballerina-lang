@@ -45,6 +45,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -109,16 +110,19 @@ public class BuildLangLib {
             Files.createDirectories(balaPath);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
-            Path balaFilePath = Files.list(balaPath).findAny().orElseThrow();
+            Path balaFilePath;
+            try (Stream<Path> paths = Files.list(balaPath)) {
+                balaFilePath = paths.findAny().orElseThrow();
+            }
             ProjectUtils.extractBala(balaFilePath, balaPath);
             Files.delete(balaFilePath);
 
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
-            try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
-                Files.walk(pkgTargetPath)
-                        .filter(path -> !Files.isDirectory(path))
+            try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zipFilePath));
+                 Stream<Path> paths = Files.walk(pkgTargetPath)) {
+                paths.filter(path -> !Files.isDirectory(path))
                         .forEach(path -> {
                             ZipEntry zipEntry = new ZipEntry(pkgTargetPath.relativize(path).toString());
                             try {

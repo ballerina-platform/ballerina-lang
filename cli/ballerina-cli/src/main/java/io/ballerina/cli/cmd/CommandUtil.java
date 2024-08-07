@@ -872,21 +872,22 @@ public class CommandUtil {
     public static List<String> getTemplates() {
         try {
             Path templateDir = getTemplatePath();
-            Stream<Path> walk = Files.walk(templateDir, 1);
+            try (Stream<Path> walk = Files.walk(templateDir, 1)) {
 
-            List<String> templates = walk.filter(Files::isDirectory)
+                List<String> templates = walk.filter(Files::isDirectory)
                     .filter(directory -> !templateDir.equals(directory))
                     .map(directory -> directory.getFileName())
                     .filter(Objects::nonNull)
                     .map(Path::toString)
                     .collect(Collectors.toList());
 
-            if (null != jarFs) {
-                return templates.stream().map(t -> t
-                        .replace(jarFs.getSeparator(), ""))
+                if (null != jarFs) {
+                    return templates.stream().map(t -> t
+                            .replace(jarFs.getSeparator(), ""))
                         .collect(Collectors.toList());
-            } else {
-                return templates;
+                } else {
+                    return templates;
+                }
             }
 
         } catch (IOException | URISyntaxException e) {
@@ -1084,8 +1085,10 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        Stream<Path> paths = Files.list(templateDir);
-        List<Path> templateFilePathList = paths.toList();
+        List<Path> templateFilePathList;
+        try (Stream<Path> paths = Files.list(templateDir)) {
+            templateFilePathList = paths.toList();
+        }
         StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(Path::toString);

@@ -326,14 +326,9 @@ public class BTestMain {
     private static byte[] replaceMethodBody(Method method, Method mockMethod, String instrumentDir, boolean coverage) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
-        try {
-            InputStream ins;
-            if (coverage) {
-                String instrumentedClassPath = instrumentDir + "/" + clazz.getName().replace(".", "/") + ".class";
-                ins = new FileInputStream(instrumentedClassPath);
-            } else {
-                ins = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
-            }
+        try (InputStream ins = coverage ? new FileInputStream(
+            instrumentDir + "/" + clazz.getName().replace(".", "/") + ".class") :
+                clazz.getResourceAsStream(clazz.getSimpleName() + ".class")) {
             cr = new ClassReader(requireNonNull(ins));
         } catch (IOException e) {
             throw new BallerinaTestException("failed to get the class reader object for the class "

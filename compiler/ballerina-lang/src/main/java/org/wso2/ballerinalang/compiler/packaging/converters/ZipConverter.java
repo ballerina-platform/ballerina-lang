@@ -84,6 +84,7 @@ public class ZipConverter extends PathConverter {
         return Paths.get(pathToZip);
     }
 
+    @SuppressWarnings("resource")
     private static void initFS(URI uri) {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
@@ -188,13 +189,15 @@ public class ZipConverter extends PathConverter {
         if (dirPath == null) {
             return;
         }
-        Files.walk(dirPath).sorted(Comparator.reverseOrder()).forEach(path -> {
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                //
-            }
-        });
+        try (Stream<Path> paths = Files.walk(dirPath)) {
+            paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    //
+                }
+            });
+        }
     }
 
     /**

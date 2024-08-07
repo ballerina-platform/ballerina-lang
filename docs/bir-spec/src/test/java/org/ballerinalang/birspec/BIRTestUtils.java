@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods to help with testing BIR model.
@@ -79,11 +80,12 @@ class BIRTestUtils {
     }
 
     private static List<String> findBallerinaSourceFiles(Path testSourcesPath) throws IOException {
-        return Files.walk(testSourcesPath)
-                .filter(file -> Files.isRegularFile(file))
-                .map(file -> file.toAbsolutePath().normalize().toString())
-                .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
-                .collect(Collectors.toList());
+        try (Stream<Path> paths = Files.walk(testSourcesPath)) {
+            return paths.filter(file -> Files.isRegularFile(file))
+                    .map(file -> file.toAbsolutePath().normalize().toString())
+                    .filter(file -> file.endsWith(".bal") && !file.contains("negative") && !file.contains("subtype"))
+                    .collect(Collectors.toList());
+        }
     }
 
     static void validateBIRSpec(String testSource) {

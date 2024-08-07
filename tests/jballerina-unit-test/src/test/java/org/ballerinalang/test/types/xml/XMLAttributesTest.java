@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -267,21 +268,15 @@ public class XMLAttributesTest {
     }
 
     @Test
-    public void testPrintAttribMap() {
+    public void testPrintAttribMap() throws IOException {
         PrintStream original = System.out;
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
-                    "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
-                    "Invalid attribute map printed");
+                "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
+                "Invalid attribute map printed");
         } finally {
-            try {
-                outContent.close();
-            } catch (Throwable t) {
-                // ignore
-            }
             System.setOut(original);
         }
     }

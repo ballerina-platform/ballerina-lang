@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * The abstract class that is extended by all formatting test classes.
@@ -190,9 +191,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))
-                    .filter(path -> {
+        try (Stream<Path> assertPaths =
+                     Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))) {
+            return assertPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());
@@ -209,10 +210,9 @@ public abstract class FormatterTest {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.buildDirectory.resolve("resources").resolve("test")
-                    .resolve(this.getTestResourceDir()))
-                    .filter(path -> {
+        try (Stream<Path> testPaths = Files.walk(this.buildDirectory.resolve("resources").resolve("test")
+                                .resolve(this.getTestResourceDir()))) {
+            return testPaths.filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
                                 && !skippedTests.contains(file.getName());

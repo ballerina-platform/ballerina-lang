@@ -1707,17 +1707,18 @@ public class TestBuildProject extends BaseTest {
         Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
 
-        JarFile execJar = new JarFile(execPath.toString());
-        String resourceName = RESOURCE_DIR_NAME + "/asmaj-project-info.properties";
-        String depResourceName = RESOURCE_DIR_NAME + "/project-info.properties";
+        try (JarFile execJar = new JarFile(execPath.toString())) {
+            String resourceName = RESOURCE_DIR_NAME + "/asmaj-project-info.properties";
+            String depResourceName = RESOURCE_DIR_NAME + "/project-info.properties";
 
-        Assert.assertNotNull(execJar.getJarEntry(resourceName));
-        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(resourceName))) {
-            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("asmaj"));
-        }
-        Assert.assertNotNull(execJar.getJarEntry(depResourceName));
-        try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(depResourceName))) {
-            Assert.assertTrue(new String(inputStream.readAllBytes()).contains("samjs"));
+            Assert.assertNotNull(execJar.getJarEntry(resourceName));
+            try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(resourceName))) {
+                Assert.assertTrue(new String(inputStream.readAllBytes()).contains("asmaj"));
+            }
+            Assert.assertNotNull(execJar.getJarEntry(depResourceName));
+            try (InputStream inputStream = execJar.getInputStream(execJar.getJarEntry(depResourceName))) {
+                Assert.assertTrue(new String(inputStream.readAllBytes()).contains("samjs"));
+            }
         }
     }
 
@@ -1746,59 +1747,63 @@ public class TestBuildProject extends BaseTest {
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
 
         // 4. Verify the existence of resources in thin jar, testable jar and executable jar
-        JarFile execJar = new JarFile(execPath.toString());
+        try (JarFile execJar = new JarFile(execPath.toString())) {
 
-        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
-            Module module = buildProject.currentPackage().module(moduleId);
-            Path moduleJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+            for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+                Module module = buildProject.currentPackage().module(moduleId);
+                Path moduleJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
                     .resolve(module.descriptor().org().toString())
                     .resolve(module.descriptor().packageName().toString())
                     .resolve(module.descriptor().version().toString()).resolve("java17")
                     .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
-                            + module.descriptor().version().toString() + ".jar");
-            JarFile jar = new JarFile(moduleJarPath.toString());
-            for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
-                Assert.assertNotNull(jar.getJarEntry(name));
-                Assert.assertNotNull(execJar.getJarEntry(name));
-            }
-
-            Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
-                    .resolve(module.descriptor().org().toString())
-                    .resolve(module.descriptor().packageName().toString())
-                    .resolve(module.descriptor().version().toString()).resolve("java17")
-                    .resolve(module.descriptor().org().toString() + "-" + module.descriptor().name().toString() + "-"
-                            + module.descriptor().version().toString() + "-testable.jar");
-            if (Files.exists(testableJarPath)) {
-                JarFile testableJar = new JarFile(testableJarPath.toString());
-                for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
-                    Assert.assertNotNull(testableJar.getJarEntry(name));
-                }
-                for (String name : getTestResources(buildProject.currentPackage().module(moduleId))) {
-                    Assert.assertNotNull(testableJar.getJarEntry(name));
+                        + module.descriptor().version().toString() + ".jar");
+                try (JarFile jar = new JarFile(moduleJarPath.toString())) {
+                    for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                        Assert.assertNotNull(jar.getJarEntry(name));
+                        Assert.assertNotNull(execJar.getJarEntry(name));
+                    }
                 }
 
+                Path testableJarPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                        .resolve(module.descriptor().org().toString())
+                        .resolve(module.descriptor().packageName().toString())
+                        .resolve(module.descriptor().version().toString()).resolve("java17")
+                        .resolve(module.descriptor().org().toString() + "-"
+                                + module.descriptor().name().toString() + "-"
+                                + module.descriptor().version().toString() + "-testable.jar");
+                if (Files.exists(testableJarPath)) {
+                    try (JarFile testableJar = new JarFile(testableJarPath.toString())) {
+                        for (String name : getResources(buildProject.currentPackage().module(moduleId))) {
+                            Assert.assertNotNull(testableJar.getJarEntry(name));
+                        }
+                        for (String name : getTestResources(buildProject.currentPackage().module(moduleId))) {
+                            Assert.assertNotNull(testableJar.getJarEntry(name));
+                        }
+                    }
+                }
             }
-        }
 
-        // Assert resources of dependencies
-        for (ResolvedPackageDependency resolvedPackageDependency :
+
+            // Assert resources of dependencies
+            for (ResolvedPackageDependency resolvedPackageDependency :
                 buildProject.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
-            Package depPackage = resolvedPackageDependency.packageInstance();
-            for (ModuleId moduleId : depPackage.moduleIds()) {
-                for (String name : getResources(depPackage.module(moduleId))) {
-                    Assert.assertNotNull(execJar.getJarEntry(name));
+                Package depPackage = resolvedPackageDependency.packageInstance();
+                for (ModuleId moduleId : depPackage.moduleIds()) {
+                    for (String name : getResources(depPackage.module(moduleId))) {
+                        Assert.assertNotNull(execJar.getJarEntry(name));
+                    }
                 }
+
             }
-
         }
-
         Path balaPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
-        JarFile bala = new JarFile(balaPath.resolve("sameera-myproject-any-0.1.0.bala").toString());
+        try (JarFile bala = new JarFile(balaPath.resolve("sameera-myproject-any-0.1.0.bala").toString())) {
 
-        for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
-            for (String name : getResourcesInBala(buildProject.currentPackage().module(moduleId))) {
-                Assert.assertNotNull(bala.getJarEntry(name));
+            for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
+                for (String name : getResourcesInBala(buildProject.currentPackage().module(moduleId))) {
+                    Assert.assertNotNull(bala.getJarEntry(name));
+                }
             }
         }
     }

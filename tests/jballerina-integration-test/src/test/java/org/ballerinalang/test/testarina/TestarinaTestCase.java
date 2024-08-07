@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
@@ -71,7 +72,9 @@ public class TestarinaTestCase extends BaseTest {
 
 
     public void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        try (Stream<Path> paths = Files.walk(src)) {
+            paths.forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        }
     }
 
     private void copy(Path source, Path dest) {
