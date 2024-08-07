@@ -21,11 +21,16 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -55,6 +60,18 @@ public class BFiniteType extends BType implements FiniteType {
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+    }
+
+    BFiniteType cloneWithValueSpace(Set<Object> valueSpace) {
+        BFiniteType newFiniteType = new BFiniteType(typeName, originalName, valueSpace, typeFlags);
+        newFiniteType.valueSpace = valueSpace;
+        newFiniteType.typeFlags = typeFlags;
+        newFiniteType.originalName = originalName;
+
+        newFiniteType.typeName = typeName;
+        newFiniteType.pkg = pkg;
+
+        return newFiniteType;
     }
 
     @Override
@@ -187,5 +204,24 @@ public class BFiniteType extends BType implements FiniteType {
         }
         BFiniteType that = (BFiniteType) o;
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+    }
+
+    @Override
+    public SemType createSemType() {
+        Set<Object> bTypeValueSpace = new HashSet<>();
+        SemType result = Builder.neverType();
+        for (Object each : this.valueSpace) {
+            Optional<SemType> semType = Builder.shapeOf(TypeChecker.context(), each);
+            if (semType.isPresent()) {
+                result = Core.union(result, semType.get());
+            } else {
+                bTypeValueSpace.add(each);
+            }
+        }
+        if (bTypeValueSpace.isEmpty()) {
+            return result;
+        }
+        BFiniteType newFiniteType = this.cloneWithValueSpace(bTypeValueSpace);
+        return Core.union(result, Builder.wrapAsPureBType(newFiniteType));
     }
 }

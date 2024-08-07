@@ -24,6 +24,10 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +41,7 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType implements IntersectionType {
+public class BIntersectionType extends BType implements IntersectionType, TypeWithShape {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";
@@ -214,5 +218,34 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public SemType createSemType() {
+        Type effectiveType = getEffectiveType();
+        if (constituentTypes.isEmpty()) {
+            return Builder.neverType();
+        }
+        SemType result = mutableSemTypeDependencyManager.getSemType(constituentTypes.get(0), this);
+        boolean hasBType = Core.containsBasicType(mutableSemTypeDependencyManager.getSemType(effectiveType, this),
+                Builder.bType());
+        result = Core.intersect(result, Core.SEMTYPE_TOP);
+        for (int i = 1; i < constituentTypes.size(); i++) {
+            SemType memberType = mutableSemTypeDependencyManager.getSemType(constituentTypes.get(i), this);
+            result = Core.intersect(result, memberType);
+        }
+        if (hasBType) {
+            return Core.union(result, Builder.wrapAsPureBType((BType) effectiveType));
+        }
+        return result;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, object);
+        }
+        return Optional.empty();
     }
 }
