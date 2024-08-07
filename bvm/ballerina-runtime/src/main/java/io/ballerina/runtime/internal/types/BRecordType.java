@@ -238,7 +238,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }
@@ -281,7 +281,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public synchronized void resetSemType() {
+    public void resetSemType() {
         defn = null;
         super.resetSemType();
     }

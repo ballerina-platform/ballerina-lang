@@ -486,6 +486,7 @@ public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
             case NEVER -> PredefinedType.NEVER;
             case XML -> PredefinedType.XML;
             case JSON -> Core.createJson((Context) cx.getInnerContext());
+            case FUTURE -> PredefinedType.FUTURE;
             default -> throw new UnsupportedOperationException("Built-in ref type not implemented: " + td.typeKind);
         };
     }
