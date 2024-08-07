@@ -281,7 +281,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized SemType createSemType() {
+    public SemType createSemType() {
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
@@ -438,7 +438,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized void resetSemType() {
+    public void resetSemType() {
         defn = null;
         super.resetSemType();
     }
