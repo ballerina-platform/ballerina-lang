@@ -232,40 +232,40 @@ function testReadOnlyFieldWithDefaultValue() {
     assertEquality("cannot update 'readonly' field 'id' in record of type 'Identifier'", err.detail()["message"]);
 }
 
-type Foo record {|
+type FooH record {|
     string name;
     int id;
     float...;
 |};
 
-type Bar record {|
+type BarH record {|
     readonly string name;
     readonly int id;
 |};
 
-type EmptyClosedRecord record {|
+type EmptyClosedRecordH record {|
 |};
 
 function testTypeReadOnlyFlagForAllReadOnlyFields() {
-    Bar st = {
+    BarH st = {
         name: "Maryam",
         id: 1234
     };
 
-    Foo & readonly pr = st;
-    assertTrue(pr is Bar);
-    assertTrue(pr is Bar & readonly);
+    FooH & readonly pr = st;
+    assertTrue(pr is BarH);
+    assertTrue(pr is BarH & readonly);
     assertEquality("Maryam", pr.name);
     assertEquality(1234, pr.id);
 
     readonly rd = st;
-    assertTrue(rd is Bar);
-    assertTrue(rd is Bar & readonly);
+    assertTrue(rd is BarH);
+    assertTrue(rd is BarH & readonly);
 
-    EmptyClosedRecord ecr = {};
+    EmptyClosedRecordH ecr = {};
     readonly rd2 = ecr;
-    assertTrue(rd2 is EmptyClosedRecord);
-    assertTrue(rd2 is EmptyClosedRecord & readonly);
+    assertTrue(rd2 is EmptyClosedRecordH);
+    assertTrue(rd2 is EmptyClosedRecordH & readonly);
     assertTrue(rd2 is record {} & readonly);
 }
 
@@ -275,19 +275,19 @@ record {|
 
 function testTypeReadOnlyFlagForAllReadOnlyFieldsInAnonymousRecord() {
     readonly rd = modAnonRecord;
-    assertTrue(<any|error> rd is record { int x; });
-    assertTrue(rd is record { int x; } & readonly);
-    record { int x; } rec = <record { int x; } & readonly> checkpanic rd;
+    assertTrue(<any|error>rd is record {int x;});
+    assertTrue(rd is record {int x;} & readonly);
+    record {int x;} rec = <record {int x;} & readonly>checkpanic rd;
     assertEquality(2, rec.x);
 
     record {|
         readonly int x = 1;
-        readonly Bar y;
+        readonly BarH y;
     |} localAnonRecord = {y: {name: "Amy", id: 1001}};
     readonly rd2 = localAnonRecord;
-    assertTrue(<any|error> rd2 is record {| int x; Bar y; |});
-    assertTrue(rd2 is record { int x; Bar y; } & readonly);
-    var rec2 = <record { int x; Bar y; } & readonly> checkpanic rd2;
+    assertTrue(<any|error>rd2 is record {|int x; BarH y;|});
+    assertTrue(rd2 is record {int x; BarH y;} & readonly);
+    var rec2 = <record {int x; BarH y;} & readonly>checkpanic rd2;
     assertEquality(1, rec2.x);
     assertEquality("Amy", rec2.y.name);
     assertEquality(1001, rec2.y.id);
