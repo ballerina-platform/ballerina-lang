@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.types.semtype.Definition;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
 import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
+import io.ballerina.runtime.internal.types.semtype.FutureUtils;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.types.semtype.Member;
@@ -337,10 +338,17 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         BLangBuiltInRefTypeNode refTypeNode = (BLangBuiltInRefTypeNode) td.getType();
         return switch (refTypeNode.typeKind) {
             case MAP -> resolveMapTypeDesc(cx, mod, defn, depth, td);
+            case FUTURE -> resolveFutureTypeDesc(cx, mod, defn, depth, td);
             case XML -> resolveXmlTypeDesc(cx, mod, defn, depth, td);
             default -> throw new UnsupportedOperationException(
                     "Constrained type not implemented: " + refTypeNode.typeKind);
         };
+    }
+
+    private SemType resolveFutureTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
+                                          BLangTypeDefinition defn, int depth, BLangConstrainedType td) {
+        SemType constraint = resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint);
+        return FutureUtils.futureContaining((Env) cx.getInnerEnv(), constraint);
     }
 
     private SemType resolveXmlTypeDesc(TypeTestContext<SemType> cx, Map<String, BLangNode> mod,
@@ -555,6 +563,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
         return switch (td.typeKind) {
             case NEVER -> Builder.neverType();
             case XML -> Builder.xmlType();
+            case FUTURE -> Builder.futureType();
             default -> throw new UnsupportedOperationException("Built-in ref type not implemented: " + td.typeKind);
         };
     }
