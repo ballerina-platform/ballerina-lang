@@ -22,16 +22,23 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.FutureUtils;
+
+import java.util.Optional;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
  *
  * @since 0.995.0
  */
-public class BFutureType extends BType implements FutureType {
+public class BFutureType extends BType implements FutureType, TypeWithShape {
 
-    private Type constraint;
+    private final Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -41,6 +48,7 @@ public class BFutureType extends BType implements FutureType {
      */
     public BFutureType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+        constraint = null;
     }
 
     public BFutureType(Type constraint) {
@@ -92,5 +100,25 @@ public class BFutureType extends BType implements FutureType {
 
     private String getConstraintString() {
         return constraint != null ? "<" + constraint + ">" : "";
+    }
+
+    @Override
+    public SemType createSemType() {
+        if (constraint == null) {
+            return Builder.futureType();
+        }
+        SemType constraintSemType = mutableSemTypeDependencyManager.getSemType(constraint, this);
+        Context cx = TypeChecker.context();
+        if (Core.containsBasicType(constraintSemType, Builder.bType())) {
+            constraintSemType = Core.intersect(constraintSemType, Core.SEMTYPE_TOP);
+            SemType pureSemType = FutureUtils.futureContaining(cx.env, constraintSemType);
+            return Core.union(pureSemType, Builder.wrapAsPureBType(this));
+        }
+        return FutureUtils.futureContaining(cx.env, constraintSemType);
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        throw new UnsupportedOperationException();
     }
 }

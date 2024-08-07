@@ -19,6 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
+import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
@@ -35,6 +36,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_INT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_STRING;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_FUTURE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
@@ -59,7 +61,7 @@ public final class Core {
             unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
                     Builder.floatType(), Builder.decimalType(), Builder.stringType(), listType(),
                     Builder.mappingType(), Builder.functionType(), Builder.objectType(), Builder.errorType(),
-                    Builder.xmlType(), Builder.handleType());
+                    Builder.xmlType(), Builder.handleType(), Builder.futureType());
     public static final SemType ANY_SEMTYPE_PART = intersect(implementedTypes, Builder.anyType());
     public static final SemType READONLY_SEMTYPE_PART = intersect(implementedTypes, Builder.readonlyType());
 
@@ -418,6 +420,7 @@ public final class Core {
         }
         SubType subType = switch (typeCode.code()) {
             case CODE_OBJECT -> BObjectSubType.createDelegate(bdd);
+            case CODE_FUTURE -> BFutureSubType.createDelegate(bdd);
             default -> throw new IllegalArgumentException("Unexpected type code: " + typeCode);
         };
         return SemType.from(0, 1 << typeCode.code(), new SubType[]{subType});
