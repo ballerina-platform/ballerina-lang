@@ -516,50 +516,50 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-class Qux {
-    Qux? fn;
+class QuxFoo {
+    QuxFoo? fn;
 
-    public function init(Qux? fn = ()) {
+    public function init(QuxFoo? fn = ()) {
         self.fn = fn;
     }
 }
 
-class Quux {
-    Quux? fn = ();
+class QuuxFoo {
+    QuuxFoo? fn = ();
 }
 
-class Quuz {
-    Quuz? fn = ();
+class QuuzFoo {
+    QuuzFoo? fn = ();
     int i = 1;
 }
 
-class ABC {
-    Qux f;
+class ABCFoo {
+    QuxFoo f;
     string s;
 
-    function init(Qux f, string s) {
+    function init(QuxFoo f, string s) {
         self.f = f;
         self.s = s;
     }
 }
 
 function testObjectIsCheckWithCycles() {
-    Qux f1 = new;
-    Qux f2 = new (f1);
+    QuxFoo f1 = new;
+    QuxFoo f2 = new (f1);
 
-    any a1 = <any> f1;
-    test:assertTrue(a1 is Quux);
-    test:assertFalse(a1 is Quuz);
+    any a1 = <any>f1;
+    test:assertTrue(a1 is QuuxFoo);
+    test:assertFalse(a1 is QuuzFoo);
 
-    any a2 = <any> f2;
-    test:assertTrue(a2 is Quux);
-    test:assertFalse(a2 is Quuz);
+    any a2 = <any>f2;
+    test:assertTrue(a2 is QuuxFoo);
+    test:assertFalse(a2 is QuuzFoo);
 
-    ABC ob = new (f2, "ballerina");
+    ABCFoo ob = new (f2, "ballerina");
 
     any a3 = ob;
-    test:assertTrue(a3 is object { Qux f; });
-    test:assertFalse(a3 is object { Quuz f; });
+    test:assertTrue(a3 is object {QuxFoo f;});
+    test:assertFalse(a3 is object {QuuzFoo f;});
 }
 
 service class ServiceClassA {
