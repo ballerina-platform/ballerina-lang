@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.documentation;
 
+import io.ballerina.projects.Project;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
@@ -46,7 +47,7 @@ public class TypeModelTest {
     @BeforeClass
     public void setup() throws IOException {
         String sourceRoot = "test-src" + File.separator + "documentation" + File.separator + "type_models_project";
-        io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
+        Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());

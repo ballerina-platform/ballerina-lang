@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Completion provider for {@link io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode} context.
+ * Completion provider for {@link ImplicitAnonymousFunctionExpressionNode} context.
  *
  * @since 2201.1.1
  */

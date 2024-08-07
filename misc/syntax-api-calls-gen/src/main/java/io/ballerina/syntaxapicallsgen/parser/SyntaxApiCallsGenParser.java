@@ -74,8 +74,7 @@ public abstract class SyntaxApiCallsGenParser {
      * @param diagnostic   Diagnostic to show.
      * @return The string with position highlighted.
      */
-    public static String highlightDiagnostic(TextDocument textDocument,
-                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    public static String highlightDiagnostic(TextDocument textDocument, Diagnostic diagnostic) {
         // Get the source code
         String space = " ";
         String sourceLine = textDocument.line(diagnostic.location().lineRange().startLine().line()).text();

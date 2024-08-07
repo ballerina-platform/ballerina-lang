@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * An abstract implementation of {@link io.ballerina.shell.snippet.Snippet}.
+ * An abstract implementation of {@link Snippet}.
  *
  * @param <T> Type of the child root node
  * @since 2.0.0

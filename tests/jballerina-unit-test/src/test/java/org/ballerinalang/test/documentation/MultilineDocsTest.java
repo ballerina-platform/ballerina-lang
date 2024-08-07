@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.documentation;
 
+import io.ballerina.projects.Project;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -67,7 +68,7 @@ public class MultilineDocsTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "multi_line_docs_project";
-        io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
+        Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());

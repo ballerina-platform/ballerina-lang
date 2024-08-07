@@ -112,29 +112,23 @@ public class ClosedRecordTypeInclusionTest {
         BMap foo2 = (BMap) returns;
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
-        assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rj"))).getTag(), TypeTags.MAP_TAG);
         assertEquals(foo2.get(StringUtils.fromString("rj")).toString(),
                 "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rx"))).getTag(),
-                TypeTags.XML_ELEMENT_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(foo2.get(StringUtils.fromString("rx")).toString(), "<book>Count of Monte Cristo</book>");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("rp"))).get(StringUtils.fromString("name")).toString(),
                 "John Doe");
-        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("ra"))).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(foo2.get(StringUtils.fromString("ra")).toString(), "{\"city\":\"Colombo\",\"country\":\"Sri " +
                 "Lanka\"}");
         assertEquals(getType(foo2.get(StringUtils.fromString("crx"))).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(foo2.get(StringUtils.fromString("crx")).toString(), "<book>Count of Monte Cristo</book>");
-        assertEquals(getType(foo2.get(StringUtils.fromString("crj"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("crj"))).getTag(), TypeTags.MAP_TAG);
         assertEquals(foo2.get(StringUtils.fromString("crj")).toString(),
                 "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
-        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(),
-                io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG);
+        assertEquals(getType(foo2.get(StringUtils.fromString("rp"))).getTag(), TypeTags.OBJECT_TYPE_TAG);
         assertEquals(((BObject) foo2.get(StringUtils.fromString("crp"))).get(StringUtils.fromString("name")).toString(),
                 "Jane Doe");
         assertEquals(getType(foo2.get(StringUtils.fromString("cra"))).getTag(), TypeTags.RECORD_TYPE_TAG);

@@ -277,7 +277,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
-        Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
+        Optional<CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
                 .currentPackage().compilerPluginToml();
 
         if (compilerPluginToml.isPresent()) {

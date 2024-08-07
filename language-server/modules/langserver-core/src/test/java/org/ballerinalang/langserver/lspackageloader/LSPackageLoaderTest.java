@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Tests {@link org.ballerinalang.langserver.LSPackageLoader}.
+ * Tests {@link LSPackageLoader}.
  *
  * @since 2201.2.1
  */

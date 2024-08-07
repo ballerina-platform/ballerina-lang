@@ -225,8 +225,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
 
         List<String> args = new ArrayList<>();
         int argIndex = 1;
-        List<io.ballerina.compiler.api.symbols.SymbolKind> argumentKindList = Arrays.
-                asList(io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE, SymbolKind.CONSTANT);
+        List<SymbolKind> argumentKindList = Arrays.asList(SymbolKind.VARIABLE, SymbolKind.CONSTANT);
 
         for (FunctionArgumentNode fnArgNode : fnCallExprNode.get().arguments()) {
             Optional<TypeSymbol> type = semanticModel.typeOf(fnArgNode);

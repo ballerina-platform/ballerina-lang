@@ -17,8 +17,10 @@ package org.ballerinalang.langserver.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
+import org.ballerinalang.langserver.launchers.stdio.Main;
 import picocli.CommandLine;
 
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -48,9 +50,9 @@ public class LangServerStartCmd implements BLauncherCmd {
 
             // Start Language Server
             LogManager.getLogManager().reset();
-            Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
-            globalLogger.setLevel(java.util.logging.Level.OFF);
-            org.ballerinalang.langserver.launchers.stdio.Main.startServer(System.in, System.out);
+            Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+            globalLogger.setLevel(Level.OFF);
+            Main.startServer(System.in, System.out);
         } catch (Throwable e) {
             throw LauncherUtils.createLauncherException("Could not start language server");
         }

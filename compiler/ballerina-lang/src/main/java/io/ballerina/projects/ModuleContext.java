@@ -31,6 +31,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -367,8 +368,7 @@ class ModuleContext {
             moduleContext.bootstrap.loadLangLib(compilerContext, moduleCompilationId);
         }
 
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
@@ -505,8 +505,7 @@ class ModuleContext {
     }
 
     static void loadPackageSymbolInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();

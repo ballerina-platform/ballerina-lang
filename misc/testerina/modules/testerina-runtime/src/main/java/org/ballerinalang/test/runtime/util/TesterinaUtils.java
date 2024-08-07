@@ -325,8 +325,7 @@ public class TesterinaUtils {
         }
     }
 
-    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
-            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+    public static List<Test> getSingleExecutionTestsOld(List<Test> currentTests, List<String> functions) {
         return Collections.emptyList();
     }
 
