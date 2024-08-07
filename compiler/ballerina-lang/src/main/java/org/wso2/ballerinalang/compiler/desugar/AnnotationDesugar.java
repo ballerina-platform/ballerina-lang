@@ -472,7 +472,7 @@ public class AnnotationDesugar {
                     || typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
                 lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
             } else {
-                lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
+                lambdaFunction = defineAnnotations(getAnnotationList(typeDef), pkgNode, env, pkgID, owner, false);
             }
 
             if (lambdaFunction != null) {
@@ -559,11 +559,6 @@ public class AnnotationDesugar {
 
             }
         }
-    }
-
-    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, Location location,
-                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
-        return defineAnnotations(getAnnotationList(node), pkgNode, env, pkgID, owner, false);
     }
 
     private List<BLangAnnotationAttachment> getAnnotationList(AnnotatableNode node) {
@@ -869,7 +864,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: true, ... }
-                addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
+                addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else if (Types.getImpliedType(attachedType).tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
@@ -880,7 +875,7 @@ public class AnnotationDesugar {
                 // };
                 // // Adds
                 // { ..., v1: { value: 1 }, ... }
-                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
+                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else {
                 // annotation FooRecord[] v1 on type; OR annotation map<anydata>[] v1 on type;
                 // @v1 {
@@ -931,8 +926,7 @@ public class AnnotationDesugar {
         return annotationMap;
     }
 
-    private void addTrueAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral,
-                              boolean isLocalObjectCtor) {
+    private void addTrueAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `true` explicitly or implicitly (by omission).
         // add { ..., v1: true, ... }
         BLangExpression expression = ASTBuilderUtil.wrapToConversionExpr(symTable.trueType,
@@ -943,8 +937,7 @@ public class AnnotationDesugar {
         addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), expression, attachment.pos);
     }
 
-    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral,
-                                boolean isLocalObjectCtor) {
+    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `map<any|error>` or `record{any|error...;}`.
         // create: add { ..., v1: { value: 1 } ... } or { ..., v1: C1 ... } where C1 is a constant reference
         addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), attachment.expr, attachment.pos);
