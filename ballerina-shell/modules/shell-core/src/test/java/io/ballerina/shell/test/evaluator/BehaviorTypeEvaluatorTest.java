@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -30,7 +29,7 @@ public class BehaviorTypeEvaluatorTest extends AbstractEvaluatorTest {
     private static final String STREAM_EVALUATOR_TESTCASE = "testcases/evaluator/streams.streams.json";
 
     @Test
-    public void testEvaluateSteams() throws BallerinaShellException {
+    public void testEvaluateSteams() {
         testEvaluate(STREAM_EVALUATOR_TESTCASE);
     }
 }

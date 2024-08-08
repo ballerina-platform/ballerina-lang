@@ -40,7 +40,7 @@ public class TestExecutionWithInitFailuresTest {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("test-execution-with-init-failure").toString();
     }

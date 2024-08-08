@@ -36,9 +36,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -92,11 +90,7 @@ public class MavenPackageRepository extends AbstractPackageRepository {
         }
 
         Settings settings;
-        try {
-            settings = RepoUtils.readSettings();
-        } catch (SettingsTomlException e) {
-            settings = Settings.from();
-        }
+        settings = RepoUtils.readSettings();
         Proxy proxy = settings.getProxy();
         mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 

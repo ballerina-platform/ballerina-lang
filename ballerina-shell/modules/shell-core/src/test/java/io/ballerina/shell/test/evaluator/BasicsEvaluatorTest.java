@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.shell.exceptions.BallerinaShellException;
 import org.testng.annotations.Test;
 
 /**
@@ -38,48 +37,48 @@ public class BasicsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String BASICS_ERRORS_TESTCASE = "testcases/evaluator/basics.errors.json";
 
     @Test
-    public void testBasicsModules() throws BallerinaShellException {
+    public void testBasicsModules() {
         // TODO: Improve after custom classpath support
         testEvaluate(BASICS_MODULES_TESTCASE);
     }
 
     @Test
-    public void testBasicsVariables() throws BallerinaShellException {
+    public void testBasicsVariables() {
         testEvaluate(BASICS_VARIABLES_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsVar() throws BallerinaShellException {
+    public void testEvaluateBasicsVar() {
         testEvaluate(BASICS_VAR_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsFunctions() throws BallerinaShellException {
+    public void testEvaluateBasicsFunctions() {
         testEvaluate(BASICS_FUNCTIONS_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsReqParams() throws BallerinaShellException {
+    public void testEvaluateBasicsReqParams() {
         testEvaluate(BASICS_REQ_PARAMS_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsDefParams() throws BallerinaShellException {
+    public void testEvaluateBasicsDefParams() {
         testEvaluate(BASICS_DEF_PARAMS_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsRestParams() throws BallerinaShellException {
+    public void testEvaluateBasicsRestParams() {
         testEvaluate(BASICS_REST_PARAMS_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsQuoted() throws BallerinaShellException {
+    public void testEvaluateBasicsQuoted() {
         testEvaluate(BASICS_QUOTED_TESTCASE);
     }
 
     @Test
-    public void testEvaluateBasicsErrors() throws BallerinaShellException {
+    public void testEvaluateBasicsErrors() {
         testEvaluate(BASICS_ERRORS_TESTCASE);
     }
 }

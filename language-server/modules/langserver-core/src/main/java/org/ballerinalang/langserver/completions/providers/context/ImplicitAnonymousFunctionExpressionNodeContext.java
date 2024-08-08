@@ -19,7 +19,6 @@ import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.Collections;
@@ -40,8 +39,7 @@ public class ImplicitAnonymousFunctionExpressionNodeContext
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
-                                                 ImplicitAnonymousFunctionExpressionNode node)
-            throws LSCompletionException {
+                                                 ImplicitAnonymousFunctionExpressionNode node) {
         if (withinExpression(node, context)) {
             List<LSCompletionItem> completionItems = this.initializerContextCompletions(context, node.expression());
             this.sort(context, node, completionItems);

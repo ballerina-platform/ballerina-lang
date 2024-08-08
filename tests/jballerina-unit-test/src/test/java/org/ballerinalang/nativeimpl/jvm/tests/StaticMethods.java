@@ -79,6 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @since 1.0.0
  */
+@SuppressWarnings({"all"})
 public class StaticMethods {
 
     private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);
@@ -367,8 +368,7 @@ public class StaticMethods {
         return e;
     }
 
-    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
-            throws JavaInteropTestCheckedException {
+    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef) throws JavaInteropTestCheckedException {
         BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(

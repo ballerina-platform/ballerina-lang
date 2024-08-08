@@ -79,7 +79,7 @@ public class BMainInstance implements BMain {
     }
 
 
-    public BMainInstance(BalServer balServer) throws BallerinaTestException {
+    public BMainInstance(BalServer balServer) {
         this.balServer = balServer;
         initialize();
     }

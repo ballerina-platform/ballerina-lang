@@ -36,7 +36,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     private BMainInstance balClient;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
     }
 

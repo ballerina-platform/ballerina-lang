@@ -21,7 +21,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -147,7 +146,7 @@ public class PullCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pull a package from custom remote repository")
-    public void testPullCustom() throws SettingsTomlException, IOException {
+    public void testPullCustom() {
 
         Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
                 "repositories", "repo-push-pull");
@@ -169,7 +168,7 @@ public class PullCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pull a package from custom remote repository(not exist in Settings.toml)")
-    public void testPullNonExistingCustom() throws SettingsTomlException, IOException {
+    public void testPullNonExistingCustom() throws IOException {
 
         Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
                 "repositories", "repo-push-pull");
@@ -191,7 +190,7 @@ public class PullCommandTest extends BaseCommandTest {
                 "Only repositories mentioned in the Settings.toml are supported.\n"));
     }
 
-    private static Settings readMockSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+    private static Settings readMockSettings(Path settingsFilePath, String repoPath) {
         try {
             String settingString = Files.readString(settingsFilePath);
             settingString = settingString.replaceAll("REPO_PATH", repoPath);

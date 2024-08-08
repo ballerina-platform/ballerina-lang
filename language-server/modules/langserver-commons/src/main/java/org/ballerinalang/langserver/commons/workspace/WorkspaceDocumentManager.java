@@ -54,9 +54,8 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @param content  Content of the file
-     * @throws WorkspaceDocumentException when file cannot be opened.
      */
-    void openFile(Path filePath, String content) throws WorkspaceDocumentException;
+    void openFile(Path filePath, String content);
 
     /**
      * Updates given file in document manager with new content.
@@ -73,10 +72,8 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath       Path of the file
      * @param updatedContent New content of the file
-     * @throws WorkspaceDocumentException when file cannot be updated.
      */
-    void updateFile(Path filePath, List<TextDocumentContentChangeEvent> updatedContent)
-            throws WorkspaceDocumentException;
+    void updateFile(Path filePath, List<TextDocumentContentChangeEvent> updatedContent);
 
     /**
      * Updates code lenses of a given file in document manager with new code lenses sent to client.
@@ -93,9 +90,8 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @param codeLens New code lenses of the file
-     * @throws WorkspaceDocumentException when file cannot be updated.
      */
-    void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
+    void setCodeLenses(Path filePath, List<CodeLens> codeLens);
 
     /**
      * Returns the code lenses of the file.
@@ -110,28 +106,25 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @return LSDocument of the file
-     * @throws WorkspaceDocumentException when the LSDocument is not available
      */
-    LSDocumentIdentifier getLSDocument(Path filePath) throws WorkspaceDocumentException;
+    LSDocumentIdentifier getLSDocument(Path filePath);
 
     /**
      * Close the given file in document manager.
      *
      * @param filePath Path of the file
-     * @throws WorkspaceDocumentException when file cannot be closed.
      */
-    void closeFile(Path filePath) throws WorkspaceDocumentException;
+    void closeFile(Path filePath);
 
     /**
      * Returns the content of the file.
      *
      * @param filePath Path of the file
      * @return Content of the file
-     * @throws WorkspaceDocumentException when file cannot be read.
      * @deprecated Use #getTree(Path filePath) instead
      */
     @Deprecated
-    String getFileContent(Path filePath) throws WorkspaceDocumentException;
+    String getFileContent(Path filePath);
 
     /**
      * Acquire a file lock.
@@ -168,16 +161,14 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @return SyntaxTree
-     * @throws WorkspaceDocumentException when document read failed
      */
-    SyntaxTree getTree(Path filePath) throws WorkspaceDocumentException;
+    SyntaxTree getTree(Path filePath);
 
     /**
      * Set the new tree.
      *
      * @param filePath Path of the file
      * @param newTree  new tree
-     * @throws WorkspaceDocumentException when file is not open
      */
-    void setTree(Path filePath, SyntaxTree newTree) throws WorkspaceDocumentException;
+    void setTree(Path filePath, SyntaxTree newTree);
 }
