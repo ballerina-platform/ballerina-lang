@@ -4130,10 +4130,6 @@ public class Types {
      * @return a boolean
      */
     boolean isXmlSubType(BType type) {
-        if (SemTypeHelper.includesNonSemTypes(type)) {
-            return false;
-        }
-
         SemType t = SemTypeHelper.semTypeComponent(type);
         return SemTypes.isSubtypeSimple(t, PredefinedType.XML);
     }
@@ -4145,10 +4141,6 @@ public class Types {
      * @return a boolean
      */
     boolean isStringSubtype(BType type) {
-        if (SemTypeHelper.includesNonSemTypes(type)) {
-            return false;
-        }
-
         SemType t = SemTypeHelper.semTypeComponent(type);
         return SemTypes.isSubtypeSimple(t, PredefinedType.STRING);
     }
@@ -4160,10 +4152,6 @@ public class Types {
      * @return a boolean
      */
     boolean validNumericTypeExists(BType type) {
-        if (SemTypeHelper.includesNonSemTypes(type)) {
-            return false;
-        }
-
         SemType t = SemTypeHelper.semTypeComponent(type);
         SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
         BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);

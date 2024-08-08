@@ -84,19 +84,6 @@ public final class PredefinedType {
     public static final BasicTypeBitSet ANY =
             basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));
 
-    private static final int IMPLEMENTED_INHERENTLY_IMMUTABLE =
-            (1 << BasicTypeCode.BT_NIL.code)
-                    | (1 << BasicTypeCode.BT_BOOLEAN.code)
-                    | (1 << BasicTypeCode.BT_INT.code)
-                    | (1 << BasicTypeCode.BT_FLOAT.code)
-                    | (1 << BasicTypeCode.BT_DECIMAL.code)
-                    | (1 << BasicTypeCode.BT_STRING.code)
-                    | (1 << BasicTypeCode.BT_FUNCTION.code)
-                    | (1 << BasicTypeCode.BT_HANDLE.code)
-                    | (1 << BasicTypeCode.BT_REGEXP.code)
-                    | (1 << BasicTypeCode.BT_TYPEDESC.code)
-                    | (1 << BasicTypeCode.BT_ERROR.code);
-
     public static final BasicTypeBitSet SIMPLE_OR_STRING =
             basicTypeUnion((1 << BasicTypeCode.BT_NIL.code)
                     | (1 << BasicTypeCode.BT_BOOLEAN.code)
@@ -104,12 +91,6 @@ public final class PredefinedType {
                     | (1 << BasicTypeCode.BT_FLOAT.code)
                     | (1 << BasicTypeCode.BT_DECIMAL.code)
                     | (1 << BasicTypeCode.BT_STRING.code));
-
-    public static final SemType IMPLEMENTED_TYPES =
-            union(CELL, union(UNDEF, union(OBJECT, union(FUNCTION, union(SIMPLE_OR_STRING, union(XML, union(HANDLE,
-                    union(REGEXP, union(FUTURE, union(ERROR, union(STREAM, union(TYPEDESC, union(TABLE,
-                            union(LIST, MAPPING))))))))))))));
-    public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final BasicTypeBitSet NUMBER =
             basicTypeUnion((1 << BasicTypeCode.BT_INT.code)
@@ -215,13 +196,6 @@ public final class PredefinedType {
     public static final BddNode LIST_SUBTYPE_THREE_ELEMENT_RO = bddAtom(ATOM_LIST_THREE_ELEMENT_RO);
 
     public static final SemType VAL_READONLY = createComplexSemType(VT_INHERENTLY_IMMUTABLE,
-            BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
-            BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
-            BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_THREE_ELEMENT_RO),
-            BasicSubtype.from(BT_XML, XML_SUBTYPE_RO),
-            BasicSubtype.from(BT_OBJECT, MAPPING_SUBTYPE_OBJECT_RO)
-    );
-    public static final SemType IMPLEMENTED_VAL_READONLY = createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE,
             BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_MAPPING, BDD_SUBTYPE_RO),
             BasicSubtype.from(BT_TABLE, LIST_SUBTYPE_THREE_ELEMENT_RO),

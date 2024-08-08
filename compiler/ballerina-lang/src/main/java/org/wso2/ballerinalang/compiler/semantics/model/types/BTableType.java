@@ -111,7 +111,7 @@ public class BTableType extends BType implements TableType {
     public SemType semType() {
         boolean readonly = Symbols.isFlagOn(this.getFlags(), Flags.READONLY);
         SemType s = semTypeInner();
-        return readonly ? SemTypes.intersect(PredefinedType.IMPLEMENTED_VAL_READONLY, s) : s;
+        return readonly ? SemTypes.intersect(PredefinedType.VAL_READONLY, s) : s;
     }
 
     private SemType semTypeInner() {

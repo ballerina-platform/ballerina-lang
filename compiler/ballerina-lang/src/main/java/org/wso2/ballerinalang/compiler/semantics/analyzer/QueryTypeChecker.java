@@ -868,7 +868,8 @@ public class QueryTypeChecker extends TypeChecker {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(collectEnv, name);
             BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
-                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+                    new BSequenceType(symTable.typeEnv(), originalSymbol.getType()), originalSymbol.owner,
+                    originalSymbol.pos);
             collectEnv.scope.define(name, sequenceSymbol);
         }
     }
@@ -946,7 +947,8 @@ public class QueryTypeChecker extends TypeChecker {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
             BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
-                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+                    new BSequenceType(symTable.typeEnv(), originalSymbol.getType()), originalSymbol.owner,
+                    originalSymbol.pos);
             groupByEnv.scope.define(name, sequenceSymbol);
         }
     }

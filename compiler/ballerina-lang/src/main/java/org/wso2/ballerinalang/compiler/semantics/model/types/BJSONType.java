@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Context;
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,6 +29,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashSet;
+
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * @since 0.94
@@ -88,10 +92,10 @@ public class BJSONType extends BUnionType {
 
     @Override
     public SemType semType() {
-        // Ideally this shouldn't be needed but somehow in jBallerina code base, there was an edge case where members
-        // got changed without going via any of the exposed methods in BUnionType. This is a temporary fix to handle
-        // that edge case. In the future when we switch to the semtype resolver this should no longer be a problem.
-        semType = null;
-        return super.semType();
+        SemType s = Core.createJson(Context.from(env));
+        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
+            return Core.intersect(s, VAL_READONLY);
+        }
+        return s;
     }
 }

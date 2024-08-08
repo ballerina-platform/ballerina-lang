@@ -106,7 +106,7 @@ public final class ObjectDefinition implements Definition {
         SemType fieldMemberType = fieldDefn.defineMappingTypeWrapped(
                 env,
                 List.of(
-                        new Field("value", immutable ? PredefinedType.IMPLEMENTED_VAL_READONLY : PredefinedType.VAL,
+                        new Field("value", immutable ? PredefinedType.VAL_READONLY : PredefinedType.VAL,
                                 immutable, false),
                         Member.Kind.Field.field(),
                         Member.Visibility.ALL

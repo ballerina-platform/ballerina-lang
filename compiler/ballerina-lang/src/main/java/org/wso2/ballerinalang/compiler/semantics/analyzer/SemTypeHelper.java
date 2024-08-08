@@ -133,6 +133,7 @@ public final class SemTypeHelper {
             case TypeTags.STREAM:
             case TypeTags.ERROR:
             case TypeTags.TABLE:
+            case TypeTags.SEQUENCE:
                 return t.semType();
             case TypeTags.UNION:
                 if (ignoreObjectTypeIds) {
@@ -169,28 +170,6 @@ public final class SemTypeHelper {
         }
 
         return t;
-    }
-
-    public static boolean includesNonSemTypes(BType t) {
-        if (t.tag == TypeTags.TYPEREFDESC) {
-            return includesNonSemTypes(((BTypeReferenceType) t).referredType);
-        }
-
-        if (isFullSemType(t.tag) || t.tag == TypeTags.JSON || t.tag == TypeTags.ANYDATA) {
-            return false;
-        }
-
-        if (t.tag == TypeTags.ANY || t.tag == TypeTags.READONLY) {
-            return true;
-        }
-
-        if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
-            BUnionType unionType = (BUnionType) t;
-            unionType.populateMemberSemTypesAndNonSemTypes(false);
-            return !unionType.memberNonSemTypes.isEmpty();
-        }
-
-        return true;
     }
 
     public static boolean isSimpleOrString(TypeKind kind) {

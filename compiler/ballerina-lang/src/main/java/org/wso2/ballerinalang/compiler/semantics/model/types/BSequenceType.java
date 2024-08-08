@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -26,13 +28,20 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BSequenceType extends BType {
     public BType elementType;
-    public BSequenceType(BType elementType) {
+    public final Env env;
+
+    public BSequenceType(Env env, BType elementType) {
         super(TypeTags.SEQUENCE, null);
         this.elementType = elementType;
+        this.env = env;
     }
 
     @Override
     public String toString() {
         return "seq " + elementType;
+    }
+
+    public SemType semType() {
+        return new BArrayType(env, elementType).semType();
     }
 }
