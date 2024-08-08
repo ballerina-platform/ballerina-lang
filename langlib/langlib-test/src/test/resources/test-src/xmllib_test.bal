@@ -646,7 +646,7 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:Text value; |}?;
     } iter3 = seq3.iterator();
 
-    assertEquals((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+    assertEquals((iter3.next()).toString(), "{\"value\":`bit of text1 bit of text2`}");
 
     xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
     xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
@@ -721,24 +721,25 @@ function getDescendantsSimpleElement() {
     xml:Element e2 = xml `<TITLE>Empire Burlesque</TITLE>`;
     xml:Text e3 = <xml:Text>xml `Empire Burlesque`;
     xml:Element e4 = xml `<ARTIST>Bob Dylan</ARTIST>`;
-    xml:Text e5 = <xml:Text>xml `Bob Dylan`;
+    xml:Text e5 = <xml:Text>xml `Bob Dylan
+                           `;
     xml:Element e6 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
     xml:Element e7 = xml `<TITLE>Hide your heart</TITLE>`;
     xml:Text e8 = <xml:Text>xml `Hide your heart`;
     xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
     xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
 
-    assertEquals(descendantSeq.length(), 11);
+    assertEquals(descendantSeq.length(), 10);
     assertEquals(descendantSeq[0], e1);
     assertEquals(descendantSeq[1], e2);
     assertEquals(descendantSeq[2], e3);
     assertEquals(descendantSeq[3], e4);
     assertEquals(descendantSeq[4], e5);
-    assertEquals(descendantSeq[6], e6);
-    assertEquals(descendantSeq[7], e7);
-    assertEquals(descendantSeq[8], e8);
-    assertEquals(descendantSeq[9], e9);
-    assertEquals(descendantSeq[10], e10);
+    assertEquals(descendantSeq[5], e6);
+    assertEquals(descendantSeq[6], e7);
+    assertEquals(descendantSeq[7], e8);
+    assertEquals(descendantSeq[8], e9);
+    assertEquals(descendantSeq[9], e10);
 }
 
 function getDescendantsWithNS() {

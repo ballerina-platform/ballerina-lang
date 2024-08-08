@@ -127,8 +127,8 @@ public class XmlText extends XmlNonElementItem {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (o instanceof XmlText rhsXMLText) {
-            return this.getTextValue().equals(rhsXMLText.getTextValue());
+        if ((o instanceof XmlText) || isXmlSequenceWithSingletonTextValue(o)) {
+            return this.getTextValue().equals(((XmlValue) o).getTextValue());
         }
         return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence) &&
                 ((XmlSequence) o).getChildrenList().isEmpty();
@@ -142,5 +142,11 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    private boolean isXmlSequenceWithSingletonTextValue(Object o) {
+        return ((o instanceof XmlSequence)
+                && ((XmlSequence) o).isSingleton()
+                && ((XmlSequence) o).getItem(0).getNodeType() == XmlNodeType.TEXT);
     }
 }

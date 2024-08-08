@@ -262,6 +262,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testXMLSequenceWithOneTextElement() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextElement");
+    }
+
+    @Test
     public void testToStringForTable() {
         BRunUtil.invoke(compileResult, "testToStringMethodForTable");
     }
