@@ -12,6 +12,10 @@ plugins {
 apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
     group = project.group
     version = project.version
 
@@ -144,4 +148,3 @@ sonarqube {
 }
 
 copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
-createCodeCoverageReport.dependsOn copyBallerinaClassFiles
