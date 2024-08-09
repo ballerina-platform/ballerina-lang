@@ -135,7 +135,7 @@ public class BRecordType extends BStructureType implements RecordType {
         }
         for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
             recordValue.put(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+                    field.getValue().call());
         }
         return (V) recordValue;
     }

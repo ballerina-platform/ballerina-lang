@@ -45,4 +45,11 @@
       * @return true if future is completed
       */
      boolean isDone();
+
+     /**
+      * Returns whether the future is completed with panic.
+      *
+      * @return true if future is completed with panic otherwise false
+      */
+     boolean isPanic();
  }

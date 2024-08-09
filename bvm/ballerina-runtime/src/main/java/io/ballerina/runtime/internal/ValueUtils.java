@@ -132,9 +132,8 @@ public class ValueUtils {
 
     private static BMap<BString, Object> populateRecordDefaultValues(BMap<BString, Object> recordValue, Map<String,
             BFunctionPointer> defaultValues) {
-        Strand strand = Scheduler.getStrand();
         for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
-            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(strand));
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call());
         }
         return recordValue;
     }

@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.util;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -30,6 +31,8 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.WorkerUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -147,6 +150,29 @@ public class RuntimeUtils {
         } else {
             logBadSad(throwable);
         }
+    }
+
+    public void handleError(Throwable r) {
+
+    }
+
+    public void handleError2() {
+
+    }
+
+    public static void handleWorkerPanic(Strand strand, String[] sendWorkerChannelKeys, Throwable throwable) {
+        BError error;
+        if (throwable instanceof BError bError) {
+            error = bError;
+        } else {
+            error = ErrorCreator.createError(throwable);
+        }
+        WorkerUtils.completedChannelsWithPanic(strand, sendWorkerChannelKeys, error);
+    }
+
+    public static void handleWorkerReturn(Strand strand, String workerName, String[] sendWorkerChannelKeys,
+                                          String[] receiveWorkerChannels) {
+        WorkerUtils.removeCompletedChannels(strand, workerName, sendWorkerChannelKeys, receiveWorkerChannels);
     }
 
     private static void printToConsole(ErrorValue throwable) {

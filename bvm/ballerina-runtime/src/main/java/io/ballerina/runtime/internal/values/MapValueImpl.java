@@ -345,7 +345,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         for (Map.Entry<String, BFunctionPointer> entry : defaultValues.entrySet()) {
             String key = entry.getKey();
             BFunctionPointer value = entry.getValue();
-            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{Scheduler.getStrand()}));
+            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{}));
         }
     }
 

@@ -116,7 +116,10 @@
          try {
              return completableFuture.get();
          } catch (ExecutionException | InterruptedException e) {
-             return ErrorCreator.createError(e);
+             if (e.getCause() instanceof BError) {
+                 throw ErrorCreator.createError(e.getCause());
+             }
+             throw ErrorCreator.createError(e);
          }
      }
 
@@ -134,4 +137,8 @@
          return stringValue(null);
      }
 
+     @Override
+     public boolean isPanic() {
+         return completableFuture.isCompletedExceptionally();
+     }
  }

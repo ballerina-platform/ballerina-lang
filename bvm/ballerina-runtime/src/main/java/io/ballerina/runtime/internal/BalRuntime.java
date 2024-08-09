@@ -31,8 +31,8 @@ import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
-import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -65,7 +65,7 @@ public class BalRuntime extends Runtime {
     public void init() {
         try {
             invokeConfigInit();
-            callModuleInit();
+            scheduler.startIsolatedWorker("$moduleInit", rootModule, "$moduleInit", null, null);
         } catch (ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString(String.format("module '%s' does not exist",
                     rootModule)));
@@ -116,6 +116,12 @@ public class BalRuntime extends Runtime {
     }
 
     @Override
+    public BFuture startIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
+                                       Map<String, Object> properties, Object... args) {
+        return scheduler.startIsolatedWorker(fp, strandName, metadata, properties, args);
+    }
+
+    @Override
     public BFuture startNonIsolatedWorker(Module module, String functionName, String strandName,
                                           StrandMetadata metadata,
                                           Map<String, Object> properties, Object... args) {
@@ -127,6 +133,12 @@ public class BalRuntime extends Runtime {
                                           StrandMetadata metadata, Map<String, Object> properties, Object... args) {
         validateArgs(object, methodName);
         return scheduler.startNonIsolatedWorker(object, methodName, strandName, metadata, properties, args);
+    }
+
+    @Override
+    public BFuture startNonIsolatedWorker(FPValue fp, String strandName, StrandMetadata metadata,
+                                          Map<String, Object> properties, Object... args) {
+        return scheduler.startNonIsolatedWorker(fp, strandName, metadata, properties, args);
     }
 
     @Override
@@ -184,13 +196,5 @@ public class BalRuntime extends Runtime {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
         }
         return className;
-    }
-
-    private void callModuleInit() {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(rootModule.getOrg(),
-                rootModule.getName(), rootModule.getMajorVersion(), rootModule.isTestPkg()));
-        FutureValue future = scheduler.createFuture(null, false, null, null, "$moduleInit", null);
-        Scheduler.setDaemonStrand(future.strand);
-        valueCreator.call(future.strand, "$moduleInit");
     }
 }

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -121,11 +123,12 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        BString errMessage = Objects.requireNonNullElse(message, StringUtils.fromString(""));
         if (isEmptyDetail()) {
-            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
+            return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent)
                     + getCauseToString(linkParent) + ")";
         }
-        return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+        return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
@@ -445,8 +448,8 @@ public class ErrorValue extends BError implements RefValue {
             // the stack frames which have compiler added method names
             return Optional.empty();
         }
-        return Optional.of(
-                new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
+        return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
+                stackFrame.getLineNumber()));
     }
 
     private String cleanupClassName(String className) {

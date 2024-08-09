@@ -189,10 +189,9 @@ public class ErrorUtils {
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
     }
 
-    public static BError createNoMessageError(String chnlName) {
-        String[] splitWorkers = chnlName.split(":")[0].split("->");
+    public static BError createNoMessageError(String workerName) {
         return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessage", ErrorReasons.NO_MESSAGE_ERROR,
                 null, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
-                        StringUtils.fromString(splitWorkers[0]), StringUtils.fromString(splitWorkers[1])));
+                        StringUtils.fromString(workerName), StringUtils.fromString(workerName)));
     }
 }
