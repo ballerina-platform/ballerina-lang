@@ -1,0 +1,13 @@
+Compiling source
+	INSERT_PROJECT_NAME
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
+ERROR [INSERT_PROJECT_NAME:(17:1,17:1)] missing semicolon token
+error: compilation contains errors
+
+Detected file changes. Re-running the project...
+Compiling source
+	INSERT_PROJECT_NAME
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
+
+Running executable
+
