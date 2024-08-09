@@ -199,10 +199,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     protected void handleFrozenTableValue() {
-        synchronized (this) {
-            if (this.tableType.isReadOnly()) {
-                ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
-            }
+        if (this.tableType.isReadOnly()) {
+            ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
         }
     }
 
