@@ -138,7 +138,7 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
-    // FIXME: remove this method
+    // TODO: remove this method
     public static SemType from(Context cx, Type type) {
         if (type instanceof SemType semType) {
             return semType;

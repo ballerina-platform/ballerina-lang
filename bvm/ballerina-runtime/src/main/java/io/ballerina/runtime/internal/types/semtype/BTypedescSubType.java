@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.types.semtype.Bdd;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SubType;
-import io.ballerina.runtime.internal.types.BType;
 
 import java.util.Objects;
 

@@ -59,13 +59,6 @@ public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
     public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
-    private static final SemType implementedTypes =
-            unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
-                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), listType(),
-                    Builder.mappingType(), Builder.functionType(), Builder.objectType(), Builder.errorType(),
-                    Builder.xmlType(), Builder.handleType(), Builder.futureType(), Builder.regexType());
-    public static final SemType ANY_SEMTYPE_PART = intersect(implementedTypes, Builder.anyType());
-    public static final SemType READONLY_SEMTYPE_PART = intersect(implementedTypes, Builder.readonlyType());
 
     private Core() {
     }
