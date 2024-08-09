@@ -59,6 +59,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_OBJECT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_REGEXP;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
@@ -137,7 +138,7 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
-    // FIXME: remove this method
+    // TODO: remove this method
     public static SemType from(Context cx, Type type) {
         if (type instanceof SemType semType) {
             return semType;
@@ -416,6 +417,11 @@ public final class Builder {
     public static SemType regexType() {
         return from(BT_REGEXP);
     }
+
+    public static SemType typeDescType() {
+        return from(BT_TYPEDESC);
+    }
+
 
     public static SemType anyDataType(Context context) {
         SemType memo = context.anydataMemo;
