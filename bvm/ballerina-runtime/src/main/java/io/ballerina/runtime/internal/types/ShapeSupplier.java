@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,26 +14,18 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- */
-
-package io.ballerina.runtime.internal.types.semtype;
-
-import io.ballerina.runtime.api.types.semtype.SubType;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * Represent types that conform only to {@code SemType} APIs.
  *
- * @since 2201.10.0
  */
-public final class PureSemType extends ImmutableSemType {
 
-    public PureSemType(int all, int some, SubType[] subTypeData) {
-        super(all, some, subTypeData);
-    }
+package io.ballerina.runtime.internal.types;
 
-    public PureSemType(int all) {
-        super(all);
-    }
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+
+import java.util.Optional;
+
+@FunctionalInterface
+public interface ShapeSupplier {
+
+    Optional<SemType> get(Context cx, Object object);
 }

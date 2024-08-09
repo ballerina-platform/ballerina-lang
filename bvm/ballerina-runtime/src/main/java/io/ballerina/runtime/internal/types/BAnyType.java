@@ -110,6 +110,6 @@ public class BAnyType extends BType implements AnyType {
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.readonlyType());
         }
-        return Core.union(semType, Builder.wrapAsPureBType(this));
+        return semType;
     }
 }

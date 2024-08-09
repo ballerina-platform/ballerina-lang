@@ -191,12 +191,17 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         XmlValue xmlValue = (XmlValue) object;
         if (!isReadOnly(xmlValue)) {
             return Optional.of(getSemType());
         }
         return readonlyShapeOf(object);
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.readonlyType()));
     }
 
     private Optional<SemType> readonlyShapeOf(Object object) {

@@ -39,7 +39,7 @@ public final class FixedLengthArray {
         this.fixedLength = fixedLength;
     }
 
-    static FixedLengthArray from(SemType[] initial, int fixedLength) {
+    public static FixedLengthArray from(SemType[] initial, int fixedLength) {
         return new FixedLengthArray(initial, fixedLength);
     }
 

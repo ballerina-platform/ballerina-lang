@@ -37,7 +37,7 @@ final class DistinctIdSupplier implements Supplier<Collection<Integer>> {
     private final Env env;
     private final TypeIdSet typeIdSet;
 
-    DistinctIdSupplier(Env env, BTypeIdSet typeIdSet) {
+    DistinctIdSupplier(Env env, TypeIdSet typeIdSet) {
         this.env = env;
         this.typeIdSet = typeIdSet;
     }

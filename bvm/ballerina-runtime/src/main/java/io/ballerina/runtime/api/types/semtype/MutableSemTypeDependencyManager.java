@@ -50,6 +50,7 @@ public final class MutableSemTypeDependencyManager {
     }
 
     public synchronized SemType getSemType(Type target, MutableSemType self) {
+        assert target != null;
         if (target instanceof MutableSemType mutableTarget) {
             List<MutableSemType> dependencies =
                     this.dependencies.computeIfAbsent(mutableTarget, (ignored) -> new ArrayList<>());

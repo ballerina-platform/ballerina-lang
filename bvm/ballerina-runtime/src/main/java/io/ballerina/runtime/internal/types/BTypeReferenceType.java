@@ -136,10 +136,19 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.shapeOf(cx, object);
+            return typeWithShape.shapeOf(cx, shapeSupplier, object);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.readonlyShapeOf(cx, shapeSupplierFn, object);
         }
         return Optional.empty();
     }

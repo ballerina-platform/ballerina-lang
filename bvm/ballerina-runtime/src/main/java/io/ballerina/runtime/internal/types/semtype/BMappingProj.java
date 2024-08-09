@@ -49,7 +49,7 @@ public final class BMappingProj {
     // This computes the spec operation called "member type of K in T",
     // for when T is a subtype of mapping, and K is either `string` or a singleton string.
     // This is what Castagna calls projection.
-    static SemType mappingMemberTypeInner(Context cx, SemType t, SemType k) {
+    public static SemType mappingMemberTypeInner(Context cx, SemType t, SemType k) {
         if (t.some() == 0) {
             return (t.all() & Builder.mappingType().all()) != 0 ? Builder.valType() : Builder.undef();
         } else {

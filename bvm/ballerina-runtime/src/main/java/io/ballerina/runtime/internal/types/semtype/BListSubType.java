@@ -101,7 +101,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
                 (context, bdd) -> bddEvery(context, bdd, null, null, BListSubType::listFormulaIsEmpty), inner);
     }
 
-    private static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
+    static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
         FixedLengthArray members;
         SemType rest;
         if (pos == null) {
@@ -432,7 +432,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubTypeData data() {
-        throw new IllegalStateException("unimplemented");
+        return inner();
     }
 
     @Override

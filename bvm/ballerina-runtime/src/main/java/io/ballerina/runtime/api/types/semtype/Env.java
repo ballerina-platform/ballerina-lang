@@ -138,6 +138,14 @@ public final class Env {
         }
     }
 
+    public ListAtomicType listAtomType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return getRecListAtomType(recAtom);
+        } else {
+            return (ListAtomicType) ((TypeAtom) atom).atomicType();
+        }
+    }
+
     public RecAtom recMappingAtom() {
         recMapLock.writeLock().lock();
         try {

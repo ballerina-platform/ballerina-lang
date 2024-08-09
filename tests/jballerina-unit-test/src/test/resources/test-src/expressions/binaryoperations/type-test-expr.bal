@@ -100,21 +100,21 @@ function testTypeCheckInTernary() returns string {
 
 // ========================== Records ==========================
 
-type A1 record {
+type A1TN record {
     int x = 0;
 };
 
-type B1 record {
+type B1TN record {
     int x = 0;
     string y = "";
 };
 
 function testSimpleRecordTypes_1() returns string {
-    A1 a1 = {};
+    A1TN a1 = {};
     any a = a1;
-     if (a is A1) {
+     if (a is A1TN) {
         return "a is A1";
-    } else if (a is B1) {
+    } else if (a is B1TN) {
         return "a is B1";
     }
 
@@ -122,49 +122,49 @@ function testSimpleRecordTypes_1() returns string {
 }
 
 function testSimpleRecordTypes_2() returns [boolean, boolean] {
-    B1 b = {};
+    B1TN b = {};
     any a = b;
-    return [a is A1, a is B1];
+    return [a is A1TN, a is B1TN];
 }
 
-type A2 record {
+type A2TN record {
     int x = 0;
 };
 
-type B2 record {
+type B2TN record {
     int x = 0;
 };
 
 function testSimpleRecordTypes_3() returns [boolean, boolean] {
-    B2 b = {};
+    B2TN b = {};
     any a = b;
-    return [a is A2, a is B2];
+    return [a is A2TN, a is B2TN];
 }
 
-type Human record {
+type HumanTN record {
     string name;
     (function (int, string) returns string) | () foo = ();
 };
 
-type Man record {
+type ManTN record {
     string name;
     (function (int, string) returns string) | () foo = ();
     int age = 0;
 };
 
 function testRecordsWithFunctionType_1() returns [string, string] {
-    Human m = {name:"Piyal"};
+    HumanTN m = {name:"Piyal"};
     any a = m;
     string s1;
     string s2;
     
-    if (a is Man) {
+    if (a is ManTN) {
         s1 = "Man: " + m.name;
     } else {
         s1 = "a is not a man";
     }
 
-    if (a is Human) {
+    if (a is HumanTN) {
         s2 = "Human: " + m.name;
     } else {
         s2 = "a is not a human";
@@ -174,18 +174,18 @@ function testRecordsWithFunctionType_1() returns [string, string] {
 }
 
 function testRecordsWithFunctionType_2() returns [string, string] {
-    Man m = {name:"Piyal"};
+    ManTN m = {name:"Piyal"};
     any a = m;
     string s1;
     string s2;
     
-    if (a is Man) {
+    if (a is ManTN) {
         s1 = "Man: " + m.name;
     } else {
         s1 = "a is not a man";
     }
 
-    if (a is Human) {
+    if (a is HumanTN) {
         s2 = "Human: " + m.name;
     } else {
         s2 = "a is not a human";
@@ -194,39 +194,39 @@ function testRecordsWithFunctionType_2() returns [string, string] {
     return [s1, s2];
 }
 
-type X record {
+type XTTE record {
     int p = 0;
     string q = "";
-    A1 r = {};
+    A1TN r = {};
 };
 
-type Y record {
+type YTTE record {
     int p = 0;
     string q = "";
-    B1 r = {};   // Assignable to A1. Hence Y is assignable to X.
+    B1TN r = {};   // Assignable to A1. Hence Y is assignable to X.
 };
 
 function testNestedRecordTypes() returns [boolean, boolean] {
-    Y y = {};
+    YTTE y = {};
     any x = y;
-    return [x is X, x is Y];
+    return [x is XTTE, x is YTTE];
 }
 
-type A3 record {
+type A3TN record {
     int x = 0;
 };
 
-type B3 record {|
+type B3TN record {|
     int x = 0;
 |};
 
 function testSealedRecordTypes() returns [boolean, boolean] {
-    A3 a3 = {};
+    A3TN a3 = {};
     any a = a3;
-    return [a is A3, a is B3];
+    return [a is A3TN, a is B3TN];
 }
 
-type Country record {|
+type CountryTN record {|
     readonly string code?;
     string name?;
     record {|
@@ -236,7 +236,7 @@ type Country record {|
     |} continent?;
 |};
 
-type MyCountry record {|
+type MyCountryTN record {|
     readonly string code?;
     record {|
         string code?;
@@ -245,9 +245,9 @@ type MyCountry record {|
 |};
 
 function testRecordsWithOptionalFields() {
-    MyCountry x = {};
-    Country y = x;
-    test:assertTrue(x is Country);
+    MyCountryTN x = {};
+    CountryTN y = x;
+    test:assertTrue(x is CountryTN);
 }
 
 // ========================== Objects ==========================
@@ -409,18 +409,18 @@ function testObjectWithUnorderedFields() returns [string, string, string, string
     return [s1, s2, s3, s4];
 }
 
-public type A4 object {
+public type A4TN object {
     public int p;
     public string q;
 };
 
-public type B4 object {
+public type B4TN object {
     public float r;
-    *A4;
+    *A4TN;
 };
 
-public class C4 {
-    *B4;
+public class C4TN {
+    *B4TN;
     public boolean s;
 
     public function init(int p, string q, float r, boolean s) {
@@ -432,16 +432,16 @@ public class C4 {
 }
 
 function testPublicObjectEquivalency() returns [string, string, string] {
-    any x = new C4(5, "foo", 6.7, true);
+    any x = new C4TN(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is A4) {
+    if(x is A4TN) {
         s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
-    if (x is B4) {
+    if (x is B4TN) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -452,18 +452,18 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type A5 object {
+type A5TN object {
     int p;
     string q;
 };
 
-type B5 object {
+type B5TN object {
     float r;
-    *A5;
+    *A5TN;
 };
 
 class C5 {
-    *B5;
+    *B5TN;
     boolean s;
 
     public function init(int p, string q, float r, boolean s) {
@@ -480,11 +480,11 @@ function testPrivateObjectEquivalency() returns [string, string, string] {
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is A5) {
+    if(x is A5TN) {
         s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
-    if (x is B5) {
+    if (x is B5TN) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -496,12 +496,12 @@ function testPrivateObjectEquivalency() returns [string, string, string] {
 }
 
 function testAnonymousObjectEquivalency() returns [string, string, string] {
-    any x = new C4(5, "foo", 6.7, true);
+    any x = new C4TN(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is object { public float r; *A4; }) {
+    if(x is object { public float r; *A4TN; }) {
         s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -625,11 +625,11 @@ function testSimpleArrays() returns [boolean, boolean, boolean, boolean, boolean
 }
 
 function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
-    X[] a = [{}, {}];
-    X[][] b = [[{}, {}], [{}, {}]];
+    XTTE[] a = [{}, {}];
+    XTTE[][] b = [[{}, {}], [{}, {}]];
     any c = a;
     any d = b;
-    return [c is X[], d is X[][], c is Y[], d is Y[][]];
+    return [c is XTTE[], d is XTTE[][], c is YTTE[], d is YTTE[][]];
 }
 
 public function testUnionType() {
@@ -742,20 +742,20 @@ function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean
 }
 
 function testTupleWithAssignableTypes_1() returns [boolean, boolean, boolean, boolean] {
-    [X, Y] p = [{}, {}];
+    [XTTE, YTTE] p = [{}, {}];
     any q = p;
-    boolean b0 = q is [X, X];
-    boolean b1 = q is [X, Y];
-    boolean b2 = q is [Y, X];
-    boolean b3 = q is [Y, Y];
+    boolean b0 = q is [XTTE, XTTE];
+    boolean b1 = q is [XTTE, YTTE];
+    boolean b2 = q is [YTTE, XTTE];
+    boolean b3 = q is [YTTE, YTTE];
     return [b0, b1, b2, b3];
 }
 
 function testTupleWithAssignableTypes_2() returns boolean {
-    [Y, Y] p = [{}, {}];
-    [X, Y] q = p;
-    boolean b1 = q is [Y, Y];
-    return q is [Y, Y];
+    [YTTE, YTTE] p = [{}, {}];
+    [XTTE, YTTE] q = p;
+    boolean b1 = q is [YTTE, YTTE];
+    return q is [YTTE, YTTE];
 }
 
 public function testRestType() {
@@ -852,35 +852,35 @@ function testJsonArrays() returns [boolean, boolean, boolean] {
 
 // ========================== Finite type ==========================
 
-type State "on"|"off";
+type StateTN "on"|"off";
 
 function testFiniteType() returns [boolean, boolean, boolean] {
-    State a = "on";
+    StateTN a = "on";
     any b = a;
     any c = "off";
     any d = "hello";
 
-    return [b is State, c is State, d is State];
+    return [b is StateTN, c is StateTN, d is StateTN];
 }
 
 function testFiniteTypeInTuple() returns [boolean, boolean, boolean, boolean] {
-    [State, string] x = ["on", "off"];
+    [StateTN, string] x = ["on", "off"];
     any y = x;
     
-    boolean b0 = y is [State, State];
-    boolean b1 = y is [State, string];
-    boolean b2 = y is [string, State];
+    boolean b0 = y is [StateTN, StateTN];
+    boolean b1 = y is [StateTN, string];
+    boolean b2 = y is [string, StateTN];
     boolean b3 = y is [string, string];
 
     return [b0, b1, b2, b3];
 }
 
-function testFiniteTypeInTuplePoisoning() returns [State, State] {
-    [State, string] x = ["on", "off"];
+function testFiniteTypeInTuplePoisoning() returns [StateTN, StateTN] {
+    [StateTN, string] x = ["on", "off"];
     any y = x;
-    [State, State] z = ["on", "on"];
+    [StateTN, StateTN] z = ["on", "on"];
     
-    if (y is [State, State]) {
+    if (y is [StateTN, StateTN]) {
         z = y;
     }
 
@@ -892,11 +892,11 @@ public const APPLE = "apple";
 public const ORANGE = "orange";
 public const GRAPE = "grape";
 
-type Fruit APPLE | ORANGE | GRAPE;
+type FruitTN APPLE | ORANGE | GRAPE;
 
 function testFiniteType_1() returns string {
     any a = APPLE;
-    if (a is Fruit) {
+    if (a is FruitTN) {
         return "a is a fruit";
     }
 
@@ -1001,13 +1001,13 @@ function testIntersectingUnionFalse() returns [boolean, boolean] {
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";
     float f = 2.0;
-    return [s is Fruit, f is IntTwo];
+    return [s is FruitTN, f is IntTwo];
 }
 
 function testValueTypeAsFiniteTypeFalse() returns [boolean, boolean] {
     string s = "mango";
     float f = 12.0;
-    return [s is Fruit, f is IntTwo];
+    return [s is FruitTN, f is IntTwo];
 }
 
 const ERR_REASON = "error reason";

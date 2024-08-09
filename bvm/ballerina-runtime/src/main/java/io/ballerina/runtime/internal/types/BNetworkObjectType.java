@@ -87,10 +87,12 @@ public class BNetworkObjectType extends BObjectType implements NetworkObjectType
     @Override
     protected Collection<MethodData> allMethods() {
         Stream<MethodData> methodStream = Arrays.stream(getMethods())
+                .filter(methodType -> !(SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.REMOTE) ||
+                        SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.RESOURCE)))
                 .map(method -> MethodData.fromMethod(mutableSemTypeDependencyManager, this, method));
         Stream<MethodData> remoteMethodStream =
                 Arrays.stream(getRemoteMethods())
-                        .map(method -> MethodData.fromMethod(mutableSemTypeDependencyManager, this, method));
+                        .map(method -> MethodData.fromRemoteMethod(mutableSemTypeDependencyManager, this, method));
         Stream<MethodData> resoucrMethodStream =
                 Arrays.stream(getResourceMethods())
                         .map(method -> MethodData.fromResourceMethod(mutableSemTypeDependencyManager, this,

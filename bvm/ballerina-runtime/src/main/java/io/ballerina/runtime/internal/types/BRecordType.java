@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -246,17 +247,14 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         defn = md;
         Field[] fields = getFields().values().toArray(Field[]::new);
         MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
-        boolean hasBTypePart = false;
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
             SemType fieldType = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
             if (!isOptional && Core.isNever(fieldType)) {
                 return neverType();
-            } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
-                hasBTypePart = true;
-                fieldType = Core.intersect(fieldType, Core.SEMTYPE_TOP);
             }
+            assert !Core.containsBasicType(fieldType, Builder.bType()) : "Unexpected BType in record field";
             boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
             if (Core.isNever(fieldType)) {
                 isReadonly = true;
@@ -267,16 +265,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
         SemType rest =
                 restFieldType != null ? mutableSemTypeDependencyManager.getSemType(restFieldType, this) : neverType();
-        if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
-            hasBTypePart = true;
-            rest = Core.intersect(rest, Core.SEMTYPE_TOP);
-        }
-        if (hasBTypePart) {
-            SemType semTypePart = md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
-            SemType bTypePart = Builder.wrapAsPureBType(this);
-            resetSemType();
-            return Core.union(semTypePart, bTypePart);
-        }
+        assert !Core.containsBasicType(rest, Builder.bType()) : "Unexpected BType in record rest field";
         return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
     }
 
@@ -287,16 +276,35 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
-        BMap value = (BMap) object;
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        BMap<?, ?> value = (BMap<?, ?>) object;
         SemType cachedSemType = value.shapeOf();
         if (cachedSemType != null) {
             return Optional.of(cachedSemType);
         }
+        SemType semTypePart = shapeOfInner(cx, shapeSupplier, value, isReadOnly());
+        value.cacheShape(semTypePart);
+        return Optional.of(semTypePart);
+    }
+
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value, boolean readonly) {
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
-        Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        Map.Entry<?,?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
+        MappingDefinition md;
+        if (readonly) {
+            Optional<Definition> readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+            if (readonlyShapeDefinition.isPresent()) {
+                md = (MappingDefinition) readonlyShapeDefinition.get();
+                return md.getSemType(env);
+            } else {
+                md = new MappingDefinition();
+                value.setReadonlyShapeDefinition(md);
+            }
+        } else {
+            md = new MappingDefinition();
+        }
         for (int i = 0; i < nFields; i++) {
             String fieldName = entries[i].getKey().toString();
             Object fieldValue = entries[i].getValue();
@@ -304,53 +312,51 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             boolean readonlyField = fieldIsReadonly(fieldName);
             boolean optionalField = fieldIsOptional(fieldName);
             Optional<SemType> fieldType;
-            if (isReadOnly() || readonlyField) {
+            if (readonly || readonlyField) {
                 optionalField = false;
-                fieldType = Builder.shapeOf(cx, fieldValue);
+                fieldType = shapeSupplier.get(cx, fieldValue);
             } else {
                 SemType fieldSemType = Builder.from(cx, fieldType(fieldName));
-                if (!Core.isNever(Core.intersect(fieldSemType, Core.B_TYPE_TOP))) {
-                    return Optional.empty();
-                }
+                assert !Core.containsBasicType(fieldSemType, Builder.bType());
                 fieldType = Optional.of(fieldSemType);
             }
-            if (fieldType.isEmpty()) {
-                return Optional.empty();
-            }
+            assert fieldType.isPresent();
             fields.add(new MappingDefinition.Field(fieldName, fieldType.get(), readonlyField,
                     optionalField));
         }
-        for (var field : getFields().values()) {
-            String name = field.getFieldName();
-            if (handledFields.contains(name)) {
-                continue;
+        if (!readonly) {
+            for (var field : getFields().values()) {
+                String name = field.getFieldName();
+                if (handledFields.contains(name)) {
+                    continue;
+                }
+                boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+                boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+                SemType fieldType = Builder.from(cx, field.getFieldType());
+                if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
+                    fieldType = Builder.undef();
+                }
+                assert !Core.containsBasicType(fieldType, Builder.bType());
+                fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
+                        isReadonly, isOptional));
             }
-            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
-            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            SemType fieldType = Builder.from(cx, field.getFieldType());
-            if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
-                fieldType = Builder.undef();
-            }
-            if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
-                return Optional.of(neverType());
-            }
-            fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
-                    isReadonly, isOptional));
         }
-        MappingDefinition md = new MappingDefinition();
         SemType semTypePart;
         MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
-        if (isReadOnly()) {
+        if (readonly) {
             semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, neverType(), CELL_MUT_NONE);
         } else {
             SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
-            if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
-                return Optional.empty();
-            }
+            assert !Core.containsBasicType(rest, Builder.bType());
             semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
         }
-        value.cacheShape(semTypePart);
-        return Optional.of(semTypePart);
+        value.resetReadonlyShapeDefinition();
+        return semTypePart;
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (BMap<?, ?>) object, true));
     }
 
     private Type fieldType(String fieldName) {

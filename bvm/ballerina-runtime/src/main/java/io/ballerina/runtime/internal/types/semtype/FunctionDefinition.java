@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.BddNode;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.FunctionAtomicType;
 import io.ballerina.runtime.api.types.semtype.RecAtom;

@@ -272,6 +272,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     @Override
     public TypeIdSet getTypeIdSet() {
+        if (typeIdSet == null) {
+            return new BTypeIdSet();
+        }
         return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
     }
 
@@ -302,7 +305,6 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         defn = od;
         ObjectQualifiers qualifiers = getObjectQualifiers();
         List<Member> members = new ArrayList<>();
-        boolean hasBTypes = false;
         Set<String> seen = new HashSet<>(fields.size() + methodTypes.length);
         for (Entry<String, Field> entry : fields.entrySet()) {
             String name = entry.getKey();
@@ -313,11 +315,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
             SemType ty = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
-            SemType pureBTypePart = Core.intersect(ty, Core.B_TYPE_TOP);
-            if (!Core.isNever(pureBTypePart)) {
-                hasBTypes = true;
-                ty = Core.intersect(ty, Core.SEMTYPE_TOP);
-            }
+            assert !Core.containsBasicType(ty, Builder.bType()) : "object member can't have BTypes";
             members.add(new Member(name, ty, Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
@@ -328,21 +326,11 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             }
             boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
             SemType semType = method.semType();
-            SemType pureBTypePart = Core.intersect(semType, Core.B_TYPE_TOP);
-            if (!Core.isNever(pureBTypePart)) {
-                hasBTypes = true;
-                semType = Core.intersect(semType, Core.SEMTYPE_TOP);
-            }
+            assert !Core.containsBasicType(semType, Builder.bType()) : "object method can't have BTypes";
             members.add(new Member(name, semType, Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
-        SemType semTypePart = od.define(env, qualifiers, members);
-        if (hasBTypes || members.isEmpty()) {
-            SemType bTypePart = Builder.wrapAsPureBType(this);
-            softSemTypeCache = Core.union(semTypePart, bTypePart);
-            return softSemTypeCache;
-        }
-        return semTypePart;
+        return od.define(env, qualifiers, members);
     }
 
     private ObjectQualifiers getObjectQualifiers() {
@@ -360,7 +348,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public synchronized Optional<SemType> shapeOf(Context cx, Object object) {
+    public synchronized Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
         SemType cachedShape = abstractObjectValue.shapeOf();
         if (cachedShape != null) {
@@ -369,18 +357,22 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
         }
-        SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(
-                valueShape(cx, abstractObjectValue), Core::intersect);
+        SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
+                .reduce(valueShape(cx, shapeSupplier, abstractObjectValue), Core::intersect);
         abstractObjectValue.cacheShape(shape);
         return Optional.of(shape);
     }
 
-    private SemType valueShape(Context cx, AbstractObjectValue object) {
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        return Optional.of(valueShape(cx, shapeSupplierFn, (AbstractObjectValue) object));
+    }
+
+    private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, AbstractObjectValue object) {
         ObjectDefinition od = new ObjectDefinition();
         List<Member> members = new ArrayList<>();
         Set<String> seen = new HashSet<>(fields.size() + methodTypes.length);
         ObjectQualifiers qualifiers = getObjectQualifiers();
-        boolean hasBTypes = false;
         for (Entry<String, Field> entry : fields.entrySet()) {
             String name = entry.getKey();
             if (skipField(seen, name)) {
@@ -390,12 +382,8 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) |
                     SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL);
-            SemType ty = fieldShape(cx, field, object, isImmutable);
-            SemType pureBTypePart = Core.intersect(ty, Core.B_TYPE_TOP);
-            if (!Core.isNever(pureBTypePart)) {
-                hasBTypes = true;
-                ty = Core.intersect(ty, Core.SEMTYPE_TOP);
-            }
+            SemType ty = fieldShape(cx, shapeSupplier, field, object, isImmutable);
+            assert !Core.containsBasicType(ty, Builder.bType()) : "field can't have BType";
             members.add(new Member(name, ty, Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
@@ -406,28 +394,20 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             }
             boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
             SemType semType = method.semType();
-            SemType pureBTypePart = Core.intersect(semType, Core.B_TYPE_TOP);
-            if (!Core.isNever(pureBTypePart)) {
-                hasBTypes = true;
-                semType = Core.intersect(semType, Core.SEMTYPE_TOP);
-            }
+            assert !Core.containsBasicType(semType, Builder.bType()) : "method can't have BType";
             members.add(new Member(name, semType, Member.Kind.Method,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
         }
-        SemType semTypePart = od.define(env, qualifiers, members);
-        if (hasBTypes) {
-            SemType bTypePart = Builder.wrapAsPureBType(this);
-            return Core.union(semTypePart, bTypePart);
-        }
-        return semTypePart;
+        return od.define(env, qualifiers, members);
     }
 
-    private static SemType fieldShape(Context cx, Field field, AbstractObjectValue objectValue, boolean isImmutable) {
+    private static SemType fieldShape(Context cx, ShapeSupplier shapeSupplier, Field field,
+                                      AbstractObjectValue objectValue, boolean isImmutable) {
         if (!isImmutable) {
             return Builder.from(cx, field.getFieldType());
         }
         BString fieldName = StringUtils.fromString(field.getFieldName());
-        Optional<SemType> shape = Builder.shapeOf(cx, objectValue.get(fieldName));
+        Optional<SemType> shape = shapeSupplier.get(cx, objectValue.get(fieldName));
         assert !shape.isEmpty();
         return shape.get();
     }
@@ -451,6 +431,14 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                     dependencyManager.getSemType(method.getType(), parent));
         }
 
+        static MethodData fromRemoteMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
+                                           MethodType method) {
+            // Remote methods need to be distinct with remote methods only there can be instance methods with the same
+            // name
+            return new MethodData("@remote_" + method.getName(), method.getFlags(),
+                    dependencyManager.getSemType(method.getType(), parent));
+        }
+
         static MethodData fromResourceMethod(MutableSemTypeDependencyManager dependencyManager, MutableSemType parent,
                                              BResourceMethodType method) {
             StringBuilder sb = new StringBuilder();
@@ -463,37 +451,26 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             Type[] pathSegmentTypes = method.pathSegmentTypes;
             FunctionType innerFn = method.getType();
             List<SemType> paramTypes = new ArrayList<>();
-            boolean hasBTypes = false;
             for (Type part : pathSegmentTypes) {
                 if (part == null) {
                     paramTypes.add(Builder.anyType());
                 } else {
                     SemType semType = dependencyManager.getSemType(part, parent);
-                    if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
-                        hasBTypes = true;
-                        paramTypes.add(Core.intersect(semType, Core.SEMTYPE_TOP));
-                    } else {
-                        paramTypes.add(semType);
-                    }
+                    assert !Core.containsBasicType(semType, Builder.bType()) :
+                            "resource method path segment can't have BType";
+                    paramTypes.add(semType);
                 }
             }
             for (Parameter paramType : innerFn.getParameters()) {
                 SemType semType = dependencyManager.getSemType(paramType.type, parent);
-                if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
-                    hasBTypes = true;
-                    paramTypes.add(Core.intersect(semType, Core.SEMTYPE_TOP));
-                } else {
-                    paramTypes.add(semType);
-                }
+                assert !Core.containsBasicType(semType, Builder.bType()) : "resource method params can't have BType";
+                paramTypes.add(semType);
             }
             SemType rest;
             Type restType = innerFn.getRestType();
             if (restType instanceof BArrayType arrayType) {
                 rest = dependencyManager.getSemType(arrayType.getElementType(), parent);
-                if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
-                    hasBTypes = true;
-                    rest = Core.intersect(rest, Core.SEMTYPE_TOP);
-                }
+                assert !Core.containsBasicType(rest, Builder.bType()) : "resource method rest can't have BType";
             } else {
                 rest = Builder.neverType();
             }
@@ -501,10 +478,8 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             SemType returnType;
             if (innerFn.getReturnType() != null) {
                 returnType = dependencyManager.getSemType(innerFn.getReturnType(), parent);
-                if (!Core.isNever(Core.intersect(returnType, Core.B_TYPE_TOP))) {
-                    hasBTypes = true;
-                    returnType = Core.intersect(returnType, Core.SEMTYPE_TOP);
-                }
+                assert !Core.containsBasicType(returnType, Builder.bType()) :
+                        "resource method retType can't have BType";
             } else {
                 returnType = Builder.nilType();
             }
@@ -514,9 +489,6 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                     paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
             FunctionDefinition fd = new FunctionDefinition();
             SemType semType = fd.define(env, paramType, returnType, innerFn.getQualifiers());
-            if (hasBTypes) {
-                semType = Core.union(semType, Builder.wrapAsPureBType((BType) innerFn));
-            }
             return new MethodData(methodName, method.getFlags(), semType);
         }
     }

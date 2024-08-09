@@ -24,7 +24,9 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.PatternMatchableValue;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
@@ -33,12 +35,11 @@ import io.ballerina.runtime.internal.types.semtype.BFloatSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
-import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
-import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -62,7 +63,6 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_REGEXP;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_B_TYPE;
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -93,17 +93,6 @@ public final class Builder {
 
     private static final SemType[] EMPTY_TYPES_ARR = new SemType[0];
 
-    private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
-    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
-
-    public static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
-    private static final ConcurrentLazySupplier<SemType> READONLY_TYPE = new ConcurrentLazySupplier<>(() -> unionOf(
-            SemType.from(VT_INHERENTLY_IMMUTABLE),
-            basicSubType(BT_LIST, BListSubType.createDelegate(bddSubtypeRo())),
-            basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo())),
-            basicSubType(BT_OBJECT, BObjectSubType.createDelegate(MAPPING_SUBTYPE_OBJECT_RO)),
-            basicSubType(BT_XML, XmlUtils.XML_SUBTYPE_RO)
-    ));
     private static final ConcurrentLazySupplier<SemType> MAPPING_RO = new ConcurrentLazySupplier<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
     );
@@ -127,6 +116,9 @@ public final class Builder {
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW));
 
     private static final PredefinedTypeEnv PREDEFINED_TYPE_ENV = PredefinedTypeEnv.getInstance();
+    private static final BddNode LIST_SUBTYPE_THREE_ELEMENT = bddAtom(PREDEFINED_TYPE_ENV.atomListThreeElement());
+    private static final BddNode LIST_SUBTYPE_THREE_ELEMENT_RO = bddAtom(PREDEFINED_TYPE_ENV.atomListThreeElementRO());
+    private static final BddNode LIST_SUBTYPE_TWO_ELEMENT = bddAtom(PREDEFINED_TYPE_ENV.atomListTwoElement());
 
     private Builder() {
     }
@@ -199,7 +191,7 @@ public final class Builder {
     }
 
     public static SemType readonlyType() {
-        return READONLY_TYPE.get();
+        return PREDEFINED_TYPE_ENV.readonlyType();
     }
 
     static SemType basicTypeUnion(int bitset) {
@@ -281,6 +273,32 @@ public final class Builder {
         return new SubType[Integer.bitCount(some)];
     }
 
+    public static Optional<SemType> readonlyShapeOf(Context cx, Object object) {
+        if (object == null) {
+            return Optional.of(nilType());
+        } else if (object instanceof DecimalValue decimalValue) {
+            return Optional.of(decimalConst(decimalValue.value()));
+        } else if (object instanceof Double doubleValue) {
+            return Optional.of(floatConst(doubleValue));
+        } else if (object instanceof Number intValue) {
+            long value =
+                    intValue instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : intValue.longValue();
+            return Optional.of(intConst(value));
+        } else if (object instanceof Boolean booleanValue) {
+            return Optional.of(booleanConst(booleanValue));
+        } else if (object instanceof BString stringValue) {
+            return Optional.of(stringConst(stringValue.getValue()));
+        } else if (object instanceof BValue bValue) {
+            Type type = bValue.getType();
+            if (type instanceof TypeWithShape typeWithShape) {
+                return typeWithShape.readonlyShapeOf(cx, Builder::readonlyShapeOf, object);
+            } else {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
     // TODO: factor this to a separate class
     public static Optional<SemType> shapeOf(Context cx, Object object) {
         if (object == null) {
@@ -312,34 +330,41 @@ public final class Builder {
             return typeOfXml(cx, xmlValue);
         } else if (object instanceof BRegexpValue regexpValue) {
             return regexpValue.shapeOf();
+        } else if (object instanceof BTable table) {
+            return typeOfTable(cx, table);
         }
         return Optional.empty();
+    }
+
+    private static Optional<SemType> typeOfTable(Context cx, BTable table) {
+        TypeWithShape typeWithShape = (TypeWithShape) table.getType();
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, table);
     }
 
     // Combine these methods maybe introduce a marker interface
     private static Optional<SemType> typeOfXml(Context cx, XmlValue xmlValue) {
         TypeWithShape typeWithShape = (TypeWithShape) xmlValue.getType();
-        return typeWithShape.shapeOf(cx, xmlValue);
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, xmlValue);
     }
 
     private static Optional<SemType> typeOfError(Context cx, BError errorValue) {
         TypeWithShape typeWithShape = (TypeWithShape) errorValue.getType();
-        return typeWithShape.shapeOf(cx, errorValue);
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, errorValue);
     }
 
     private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
         TypeWithShape typeWithShape = (TypeWithShape) mapValue.getType();
-        return typeWithShape.shapeOf(cx, mapValue);
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, mapValue);
     }
 
     private static Optional<SemType> typeOfObject(Context cx, AbstractObjectValue objectValue) {
         TypeWithShape typeWithShape = (TypeWithShape) objectValue.getType();
-        return typeWithShape.shapeOf(cx, objectValue);
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, objectValue);
     }
 
     private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
         TypeWithShape typeWithShape = (TypeWithShape) arrayValue.getType();
-        return typeWithShape.shapeOf(cx, arrayValue);
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, arrayValue);
     }
 
     public static SemType roCellContaining(Env env, SemType ty) {
@@ -422,6 +447,9 @@ public final class Builder {
         return from(BT_TYPEDESC);
     }
 
+    public static SemType streamType() {
+        return from(BasicTypeCode.BT_STREAM);
+    }
 
     public static SemType anyDataType(Context context) {
         SemType memo = context.anydataMemo;
@@ -431,7 +459,8 @@ public final class Builder {
         Env env = context.env;
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
-        SemType accum = unionOf(SIMPLE_OR_STRING, xmlType(), listDef.getSemType(env), mapDef.getSemType(env));
+        SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
+        SemType accum = unionOf(SIMPLE_OR_STRING, xmlType(), listDef.getSemType(env), mapDef.getSemType(env), tableTy);
         listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
         mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
         context.anydataMemo = accum;
@@ -474,8 +503,16 @@ public final class Builder {
         return MAPPING_ATOMIC_INNER.get();
     }
 
-    public static SemType wrapAsPureBType(BType bType) {
-        return basicSubType(BasicTypeCode.BT_B_TYPE, BSubType.wrap(bType));
+    public static BddNode listSubtypeThreeElement() {
+        return LIST_SUBTYPE_THREE_ELEMENT;
+    }
+
+    public static BddNode listSubtypeThreeElementRO() {
+        return LIST_SUBTYPE_THREE_ELEMENT_RO;
+    }
+
+    public static BddNode listSubtypeTwoElement() {
+        return LIST_SUBTYPE_TWO_ELEMENT;
     }
 
     private static final class IntTypeCache {

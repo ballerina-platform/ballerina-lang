@@ -64,6 +64,6 @@ public class BReadonlyType extends BType implements ReadonlyType {
     // TODO: this must be immutable semtype as well
     @Override
     public SemType createSemType() {
-        return Core.union(Builder.readonlyType(), Builder.wrapAsPureBType(this));
+        return Builder.readonlyType();
     }
 }
