@@ -18,14 +18,14 @@
 
 package io.ballerina.runtime.internal;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- *
  * Class that keep Ballerina locks based on lock name.
+ *
  * @since 1.2.0
  */
 public class BLockStore {
@@ -33,16 +33,35 @@ public class BLockStore {
     /**
      * The map of locks inferred.
      */
-    private  final Map<String, ReentrantLock> globalLockMap;
+    private final Map<String, ReentrantLock> globalLockMap;
 
     private final ReentrantReadWriteLock storeLock;
 
     public BLockStore() {
-        this.globalLockMap = new ConcurrentHashMap<>();
+        this.globalLockMap = new HashMap<>();
         this.storeLock = new ReentrantReadWriteLock();
     }
 
-    public ReentrantLock addLockToMap(String lockName) {
+    @SuppressWarnings("unused")
+   /*
+   This is code generated method used to set and get Ballerina lock
+    */
+    public ReentrantLock getLockFromMap(String lockName) {
+        ReentrantLock lock;
+        try {
+            storeLock.readLock().lock();
+            lock = globalLockMap.get(lockName);
+        } finally {
+            storeLock.readLock().unlock();
+        }
+
+        if (lock != null) {
+            return lock;
+        }
+        return addLockToMap(lockName);
+    }
+
+    private ReentrantLock addLockToMap(String lockName) {
         try {
             storeLock.writeLock().lock();
             ReentrantLock lock = new ReentrantLock();
@@ -50,19 +69,6 @@ public class BLockStore {
             return lock;
         } finally {
             storeLock.writeLock().unlock();
-        }
-    }
-
-    public ReentrantLock getLockFromMap(String lockName) {
-        try {
-            storeLock.readLock().lock();
-            ReentrantLock lock = globalLockMap.get(lockName);
-            if (lock != null) {
-                return lock;
-            }
-            return addLockToMap(lockName);
-        } finally {
-            storeLock.readLock().unlock();
         }
     }
 }
