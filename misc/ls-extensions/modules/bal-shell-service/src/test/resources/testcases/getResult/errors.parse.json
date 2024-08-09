@@ -48,7 +48,7 @@
     "source": "main()",
     "result": {
       "errors":["Parsing the node from the statement failed."],
-      "diagnostics":["Function name \u0027main\u0027 not allowed in Ballerina Shell.\n"],
+      "diagnostics":["Function name main not allowed in Ballerina Shell.\n"],
       "metaInfo":{"definedVars":[],"moduleDclns":[]},
       "consoleOut":""
     }
