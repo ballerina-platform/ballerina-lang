@@ -821,7 +821,7 @@ public class StaticMethods {
         return StringUtils.fromString("Hello World!");
     }
 
-    public static long getIntWithBalEnv(Environment env) {
+    public static Object getIntWithBalEnv(Environment env) {
         env.markAsync();
         return 7;
     }

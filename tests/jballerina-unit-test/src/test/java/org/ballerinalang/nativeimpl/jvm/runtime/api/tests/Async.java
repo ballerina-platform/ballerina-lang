@@ -41,35 +41,32 @@ public class Async {
     }
 
     public static long getFieldValWithRequiredArg(Environment env, BObject obj, long num) {
-        return startIsolatedWorker(env, obj, "getFieldValWithRequiredArg", num, true);
+        return startIsolatedWorker(env, obj, "getFieldValWithRequiredArg", num);
 
     }
 
     public static long getFieldValWithOptionalArgDefaultVal(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg",
-                StringUtils.fromString("any value here"), false);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg", StringUtils.fromString("any value here"));
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgs", 0, false, 0, false, 0, false);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgs", 0, 0, 0);
     }
 
     public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, false, 0, false, 0,
-                false);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, 0, 0);
     }
 
     public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg", fieldName, true);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithOptionalArg", fieldName);
     }
 
     public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialChars", 0, false, 0, false, 0, false);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialChars", 0, 0, 0);
     }
 
     public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
-        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, false, 0, false, 0,
-                false);
+        return startNonIsolatedWorker(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, 0, 0);
     }
 
     public static long getA(Environment env, BObject obj) {

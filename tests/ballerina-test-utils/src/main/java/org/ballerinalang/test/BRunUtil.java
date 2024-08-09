@@ -23,8 +23,10 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -34,6 +36,7 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
@@ -164,7 +167,6 @@ public class BRunUtil {
     private static Object invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                  Object[] args, Class<?>[] paramTypes) {
         assert args.length == paramTypes.length;
-        Object[] jvmArgs = populateJvmArgumentArrays(args);
         PackageManifest packageManifest = compileResult.packageManifest();
         String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -199,19 +201,14 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(new Module(packageManifest.org().toString(),
                     packageManifest.name().toString(),
                     packageManifest.version().toString()));
-            FPValue fp = new FPValue(func, PredefinedTypes.TYPE_ANY, functionName, true);
-            return scheduler.startIsolatedWorkerOnDaemonThread(fp, null, PredefinedTypes.TYPE_ANY,
-                    functionName, null, args);
+            final FutureValue future = scheduler.startIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, functionName,
+                    null, args);
+            return future.getResult();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+        } catch (BError e) {
+            throw new BLangTestException(e.getMessage(), e);
         }
-    }
-
-    private static Object[] populateJvmArgumentArrays(Object[] args) {
-        Object[] jvmArgs = new Object[args.length + 1];
-        System.arraycopy(args, 0, jvmArgs, 1, args.length);
-        jvmArgs[0] = new Strand();
-        return jvmArgs;
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
@@ -330,7 +327,7 @@ public class BRunUtil {
         actualArgs.addAll(Arrays.asList(args));
 
         try {
-            final Runtime runtime = Runtime.getRuntime();
+            final java.lang.Runtime runtime = java.lang.Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
             String consoleError = getConsoleOutput(process.getErrorStream());
             String consoleInput = getConsoleOutput(process.getInputStream());
@@ -358,13 +355,14 @@ public class BRunUtil {
         String configClassName = JarResolver.getQualifiedClassName(org, module, version, CONFIGURATION_CLASS_NAME);
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
+        final Scheduler scheduler = new Scheduler(new Module(org, module, version));
         ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         callConfigInit(compileResult.getClassLoader().loadClass(configClassName),
-                new Class[]{Map.class, String[].class, Path[].class, String.class},
+                new Class<?>[]{Map.class, String[].class, Path[].class, String.class},
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        call(initClazz, "$moduleInit");
-        call(initClazz, "$moduleStart");
+        runOnSchedule(initClazz, "$moduleInit", scheduler);
+        runOnSchedule(initClazz, "$moduleStart", scheduler);
     }
 
     private static void callConfigInit(Class<?> initClazz, Class<?>[] paramTypes, Object[] args) {
@@ -381,6 +379,46 @@ public class BRunUtil {
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler) {
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), scheduler);
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
+        String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
+        try {
+            Function<Object[], Object> func = getFunction(initClazz, funcName);
+            final FutureValue future = scheduler.startIsolatedWorker(func, null, PredefinedTypes.TYPE_ANY, funcName,
+                    null,new Object[1]);
+           final Object result = future.getResult();
+            if (result instanceof Throwable throwable) {
+                if (throwable instanceof ErrorValue errorValue) {
+                    throw new BLangTestException("error: " + errorValue.getPrintableError());
+                }
+                throw new BLangTestException("error: " + Arrays.toString(throwable.getStackTrace()));
+            }
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        }
+    }
+
+    private static Function<Object[], Object> getFunction(Class<?> initClazz, String funcName) throws NoSuchMethodException {
+        final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+        return objects -> {
+            try {
+                return method.invoke(null, objects[0]);
+            } catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+                if (targetException instanceof RuntimeException) {
+                    throw (RuntimeException) targetException;
+                } else {
+                    throw new RuntimeException(targetException);
+                }
+            } catch (IllegalAccessException e) {
+                throw new BLangTestException("Method has private access", e);
+            }
+        };
     }
 
     public static void call(CompileResult compileResult, String functionName) {

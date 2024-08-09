@@ -472,7 +472,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static int useFunctionPointer(io.ballerina.runtime.api.values.BFunctionPointer fp) {
-        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
+        return ((Long) fp.call(new Object[]{3, 4})).intValue();
     }
 
     public static io.ballerina.runtime.api.values.BFunctionPointer getFunctionPointer(Object fp) {
