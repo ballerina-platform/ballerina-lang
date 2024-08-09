@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
+import io.ballerina.runtime.api.types.semtype.Definition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,6 +62,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -102,6 +104,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
     private SemType shape;
+    private Definition readonlyAttachedDefinition;
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -609,6 +612,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public IteratorValue<Object> getIterator() {
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
+    }
+
+    @Override
+    public Optional<Definition> getReadonlyShapeDefinition() {
+        return Optional.ofNullable(readonlyAttachedDefinition);
+    }
+
+    @Override
+    public void setReadonlyShapeDefinition(Definition definition) {
+        readonlyAttachedDefinition = definition;
+    }
+
+    @Override
+    public void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition = null;
     }
 
     /**

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
@@ -58,6 +60,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 public abstract class AbstractArrayValue implements ArrayValue {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
+    private Definition readonlyAttachedDefinition;
 
     /**
      * The maximum size of arrays to allocate.
@@ -312,5 +315,20 @@ public abstract class AbstractArrayValue implements ArrayValue {
         public boolean hasNext() {
             return cursor < length;
         }
+    }
+
+    @Override
+    public Optional<Definition> getReadonlyShapeDefinition() {
+        return Optional.ofNullable(readonlyAttachedDefinition);
+    }
+
+    @Override
+    public void setReadonlyShapeDefinition(Definition definition) {
+        readonlyAttachedDefinition = definition;
+    }
+
+    @Override
+    public void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition = null;
     }
 }

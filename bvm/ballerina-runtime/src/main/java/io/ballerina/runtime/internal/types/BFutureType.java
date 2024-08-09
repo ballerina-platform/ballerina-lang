@@ -109,16 +109,17 @@ public class BFutureType extends BType implements FutureType, TypeWithShape {
         }
         SemType constraintSemType = mutableSemTypeDependencyManager.getSemType(constraint, this);
         Context cx = TypeChecker.context();
-        if (Core.containsBasicType(constraintSemType, Builder.bType())) {
-            constraintSemType = Core.intersect(constraintSemType, Core.SEMTYPE_TOP);
-            SemType pureSemType = FutureUtils.futureContaining(cx.env, constraintSemType);
-            return Core.union(pureSemType, Builder.wrapAsPureBType(this));
-        }
+        assert !Core.containsBasicType(constraintSemType, Builder.bType()) : "constraint shouldn't have BTypes";
         return FutureUtils.futureContaining(cx.env, constraintSemType);
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         throw new UnsupportedOperationException();
     }
 }

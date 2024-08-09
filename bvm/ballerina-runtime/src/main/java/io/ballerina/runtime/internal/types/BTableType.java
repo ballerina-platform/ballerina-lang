@@ -22,10 +22,18 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,7 +41,7 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class BTableType extends BType implements TableType {
+public class BTableType extends BType implements TableType, TypeWithShape {
 
     private final Type constraint;
     private Type keyType;
@@ -161,5 +169,59 @@ public class BTableType extends BType implements TableType {
     @Override
     public boolean isAnydata() {
         return this.constraint.isAnydata();
+    }
+
+    @Override
+    public SemType createSemType() {
+        SemType constraintType = mutableSemTypeDependencyManager.getSemType(constraint, this);
+        assert !Core.containsBasicType(constraintType, Builder.bType()) : "Table constraint cannot be a BType";
+        return createSemTypeWithConstraint(constraintType);
+    }
+
+    private SemType createSemTypeWithConstraint(SemType constraintType) {
+        SemType semType;
+        Context cx = TypeChecker.context();
+        if (fieldNames.length > 0) {
+            semType = TableUtils.tableContainingKeySpecifier(cx, constraintType, fieldNames);
+        } else if (keyType != null) {
+            SemType keyConstraint = mutableSemTypeDependencyManager.getSemType(keyType, this);
+            assert !Core.containsBasicType(keyConstraint, Builder.bType()) : "Table key cannot be a BType";
+            semType = TableUtils.tableContainingKeyConstraint(cx, constraintType, keyConstraint);
+        } else {
+            semType = TableUtils.tableContaining(cx.env, constraintType);
+        }
+
+        if (isReadOnly()) {
+            semType = Core.intersect(semType, Builder.readonlyType());
+        }
+        return semType;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!isReadOnly()) {
+            return Optional.of(getSemType());
+        }
+        BTable<?, ?> table = (BTable<?, ?>) object;
+        SemType cachedShape = table.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+        SemType semtype = valueShape(cx, shapeSupplier, table);
+        return Optional.of(semtype);
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        return Optional.of(valueShape(cx, shapeSupplierFn, (BTable<?, ?>) object));
+    }
+
+    private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
+        SemType constraintType = Builder.neverType();
+        for (var value : table.values()) {
+            SemType valueShape = shapeSupplier.get(cx, value).orElse(Builder.from(cx, constraint));
+            constraintType = Core.union(constraintType, valueShape);
+        }
+        return createSemTypeWithConstraint(constraintType);
     }
 }

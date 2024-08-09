@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ import io.ballerina.runtime.api.types.Type;
  * 
  * @since 1.1.0
  */
-public interface BArray extends BRefValue, BCollection {
+public interface BArray extends BRefValue, BCollection, PatternMatchableValue,  RecursiveValue {
 
     /**
      * Get value in the given array index.
@@ -236,4 +237,9 @@ public interface BArray extends BRefValue, BCollection {
     void setLength(long i);
 
     long getLength();
+
+    @Override
+    default TypeWithShape getTypeWithShape() {
+        return (TypeWithShape) getType();
+    }
 }

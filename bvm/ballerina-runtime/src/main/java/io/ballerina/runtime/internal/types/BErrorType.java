@@ -129,16 +129,13 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
 
     @Override
     public synchronized SemType createSemType() {
-        boolean hasBType = false;
         SemType err;
         if (detailType == null || isTopType()) {
             err = Builder.errorType();
-            hasBType = true;
         } else {
             SemType detailType = mutableSemTypeDependencyManager.getSemType(getDetailType(), this);
             if (!Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP))) {
-                hasBType = true;
-                detailType = Core.intersect(detailType, Core.SEMTYPE_TOP);
+                throw new IllegalStateException("Error types can't have BTypes");
             }
             err = ErrorUtils.errorDetail(detailType);
         }
@@ -146,12 +143,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         if (distinctIdSupplier == null) {
             distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
         }
-        SemType pureSemType =
-                distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
-        if (hasBType) {
-            return Core.union(pureSemType, Builder.wrapAsPureBType(this));
-        }
-        return pureSemType;
+        return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
     }
 
     private boolean isTopType() {
@@ -159,24 +151,29 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
-        if (!(details instanceof BMap errorDetails)) {
+        if (!(details instanceof BMap<?, ?> errorDetails)) {
             return Optional.empty();
         }
-        SemType detailType = Builder.from(cx, errorDetails.getType());
-        boolean hasBType = !Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP));
-        return BMapType.readonlyShape(cx, errorDetails)
+        if (distinctIdSupplier == null) {
+            distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
+        }
+        // Should we actually pass the readonly shape supplier here?
+        return BMapType.readonlyShape(cx, shapeSupplier, errorDetails)
                 .map(ErrorUtils::errorDetail)
                 .map(err -> distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct)
-                        .reduce(err, Core::intersect))
-                .map(semType -> {
-                    if (hasBType) {
-                        return Core.union(semType, Builder.wrapAsPureBType(this));
-                    } else {
-                        return semType;
-                    }
-                });
+                        .reduce(err, Core::intersect));
+    }
+
+    @Override
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        BError errorValue = (BError) object;
+        Object details = errorValue.getDetails();
+        if (!(details instanceof BMap<?, ?> errorDetails)) {
+            return Optional.empty();
+        }
+        return BMapType.readonlyShape(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);
     }
 }

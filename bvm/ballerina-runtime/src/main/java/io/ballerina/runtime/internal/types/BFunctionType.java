@@ -240,8 +240,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public synchronized SemType createSemType() {
         if (isFunctionTop()) {
-            SemType topType = getTopType();
-            return Core.union(topType, Builder.wrapAsPureBType(this));
+            return getTopType();
         }
         if (defn != null) {
             return defn.getSemType(env);
@@ -251,36 +250,25 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         SemType[] params = new SemType[parameters.length];
         boolean hasBType = false;
         for (int i = 0; i < parameters.length; i++) {
-            var result = getSemType(parameters[i].type);
-            hasBType = hasBType || result.hasBTypePart;
-            params[i] = result.pureSemTypePart;
+            params[i] = getSemType(parameters[i].type);
         }
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
-            var result = getSemType(arrayType.getElementType());
-            hasBType = hasBType || result.hasBTypePart;
-            rest = result.pureSemTypePart;
+            rest = getSemType(arrayType.getElementType());
         } else {
             rest = Builder.neverType();
         }
 
         SemType returnType;
         if (retType != null) {
-            var result = getSemType(retType);
-            hasBType = hasBType || result.hasBTypePart;
-            returnType = result.pureSemTypePart;
+            returnType = getSemType(retType);
         } else {
             returnType = Builder.nilType();
         }
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
-        SemType result = fd.define(env, paramType, returnType, getQualifiers());
-        if (hasBType) {
-            SemType bTypePart = Builder.wrapAsPureBType(this);
-            return Core.union(result, bTypePart);
-        }
-        return result;
+        return fd.define(env, paramType, returnType, getQualifiers());
     }
 
     private SemType getTopType() {
@@ -301,12 +289,10 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     }
 
     // TODO: consider moving this to builder
-    private SemTypeResult getSemType(Type type) {
+    private SemType getSemType(Type type) {
         SemType semType = mutableSemTypeDependencyManager.getSemType(type, this);
-        if (!Core.isNever(Core.intersect(semType, Core.B_TYPE_TOP))) {
-            return new SemTypeResult(true, Core.intersect(semType, Core.SEMTYPE_TOP));
-        }
-        return new SemTypeResult(false, semType);
+        assert !Core.containsBasicType(semType, Builder.bType()) : "function type part with BType";
+        return semType;
     }
 
     private boolean isFunctionTop() {

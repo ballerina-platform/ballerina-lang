@@ -16,24 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.internal.types.semtype;
+package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.SubType;
+// NOTE: definitions are not thread safe
+public interface Definition {
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * Represent types that conform only to {@code SemType} APIs.
- *
- * @since 2201.10.0
- */
-public final class PureSemType extends ImmutableSemType {
-
-    public PureSemType(int all, int some, SubType[] subTypeData) {
-        super(all, some, subTypeData);
-    }
-
-    public PureSemType(int all) {
-        super(all);
-    }
+    SemType getSemType(Env env);
 }

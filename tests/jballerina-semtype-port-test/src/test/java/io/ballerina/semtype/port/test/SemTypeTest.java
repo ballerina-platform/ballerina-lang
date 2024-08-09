@@ -225,15 +225,7 @@ public class SemTypeTest {
         List<File> balFiles = new ArrayList<>();
         listAllBalFiles(dataDir, balFiles);
         Collections.sort(balFiles);
-        Predicate<File> tableFilter = createRuntimeFileNameFilter(Set.of(
-                "anydata-tv.bal",
-                "table2-t.bal",
-                "table3-t.bal",
-                "table-readonly-t.bal",
-                "table-t.bal"
-        ));
         return balFiles.stream()
-                .filter(tableFilter)
                 .map(File::getAbsolutePath).toArray();
     }
 
