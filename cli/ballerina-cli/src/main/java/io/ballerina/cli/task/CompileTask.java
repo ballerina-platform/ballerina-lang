@@ -219,6 +219,11 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
+
+            String projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic();
+            if (projectLoadingDiagnostic != null && !projectLoadingDiagnostic.isEmpty()) {
+                out.println(projectLoadingDiagnostic);
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;

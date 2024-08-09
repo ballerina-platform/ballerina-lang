@@ -1,0 +1,5 @@
+[plugin]
+class = "io.context.plugins.CompilerPluginWithResourceAddition"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/pkg-provided-compiler-plugin-with-resource-addition-1.0.0.jar"

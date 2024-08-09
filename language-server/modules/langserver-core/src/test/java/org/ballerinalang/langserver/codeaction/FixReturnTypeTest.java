@@ -80,7 +80,13 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnTypeForQueryExpr1.json"},
                 {"fixReturnTypeForQueryExpr2.json"},
                 {"fixReturnTypeForQueryExpr3.json"},
-                {"fixReturnTypeForQueryExpr4.json"}
+                {"fixReturnTypeForQueryExpr4.json"},
+                {"fixReturnTypeOfAnonymousFunc1.json"},
+                {"fixReturnTypeOfAnonymousFunc2.json"},
+                {"fixReturnTypeOfAnonymousFunc3.json"},
+                {"fixReturnTypeOfAnonymousFunc4.json"},
+                {"fixReturnTypeOfAnonymousFunc5.json"},
+
         };
     }
 
@@ -93,7 +99,12 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
     @DataProvider
     public Object[][] negativeDataProvider() {
         return new Object[][] {
-                {"negativeFixReturnTypeWithMain1.json"}      
+                {"negativeFixReturnTypeWithMain1.json"},
+                {"negativeFixReturnTypeOfAnonymousFunc1.json"},
+                {"negativeFixReturnTypeOfAnonymousFunc2.json"},
+                {"negativeFixReturnTypeOfAnonymousFunc3.json"},
+                {"negativeFixReturnTypeOfAnonymousFunc4.json"},
+                {"negativeFixReturnTypeOfAnonymousFunc5.json"}
         };
     }
 }

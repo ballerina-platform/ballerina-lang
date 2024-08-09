@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
@@ -107,7 +108,7 @@ public class JvmConstantsGen {
         functionTypeConstantsGen.setJvmTypeGen(jvmCreateTypeGen.getJvmTypeGen());
     }
 
-    public void generateConstants(Map<String, byte[]> jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
+    public void generateConstants(JarEntries jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
         functionTypeConstantsGen.generateClass(jarEntries);
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);

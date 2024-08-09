@@ -1,0 +1,59 @@
+{
+  "range": {
+    "start": {
+      "line": 7,
+      "character": 18
+    },
+    "end": {
+      "line": 7,
+      "character": 28
+    }
+  },
+  "source": "extractToConfigurableInMappingConstructor.bal",
+  "expected": [
+    {
+      "title": "Extract to configurable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "configurable record {|string field1;|} config = {field1: \"\"};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 18
+            },
+            "end": {
+              "line": 7,
+              "character": 30
+            }
+          },
+          "newText": "config"
+        }
+      ],
+      "command": {
+        "title": "Rename configurable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConfigurableInMappingConstructor.bal",
+          {
+            "line": 8,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

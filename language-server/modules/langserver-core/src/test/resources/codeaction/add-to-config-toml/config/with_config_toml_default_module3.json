@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 0,
+    "character": 1
+  },
+  "source": "project2/file1.bal",
+  "expected": [
+    {
+      "title": "Add to Config.toml",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 0
+            },
+            "end": {
+              "line": 6,
+              "character": 0
+            }
+          },
+          "newText": "bool = false\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
