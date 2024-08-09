@@ -60,5 +60,6 @@ public class CentralClientConstants {
     public static final int UPDATE_INTERVAL_MILLIS = 1000;
     public static final String SHA256 = "sha-256=";
     public static final String SHA256_ALGORITHM = "SHA-256";
-
+    public static final String TEST_MODE_ACTIVE = "TEST_MODE_ACTIVE";
+    public static final String BALLERINA_CENTRAL_TELEMETRY_DISABLED = "Ballerina-Central-Telemetry-Disabled";
 }
