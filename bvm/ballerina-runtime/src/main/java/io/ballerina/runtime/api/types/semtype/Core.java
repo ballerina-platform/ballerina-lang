@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.types.semtype.BTypedescSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
@@ -38,6 +39,7 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_STRING;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_FUTURE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_OBJECT;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
@@ -57,13 +59,6 @@ public final class Core {
 
     public static final SemType SEMTYPE_TOP = SemType.from((1 << (CODE_UNDEF + 1)) - 1);
     public static final SemType B_TYPE_TOP = SemType.from(1 << BT_B_TYPE.code());
-    private static final SemType implementedTypes =
-            unionOf(Builder.neverType(), Builder.nilType(), Builder.booleanType(), Builder.intType(),
-                    Builder.floatType(), Builder.decimalType(), Builder.stringType(), listType(),
-                    Builder.mappingType(), Builder.functionType(), Builder.objectType(), Builder.errorType(),
-                    Builder.xmlType(), Builder.handleType(), Builder.futureType(), Builder.regexType());
-    public static final SemType ANY_SEMTYPE_PART = intersect(implementedTypes, Builder.anyType());
-    public static final SemType READONLY_SEMTYPE_PART = intersect(implementedTypes, Builder.readonlyType());
 
     private Core() {
     }
@@ -421,6 +416,7 @@ public final class Core {
         SubType subType = switch (typeCode.code()) {
             case CODE_OBJECT -> BObjectSubType.createDelegate(bdd);
             case CODE_FUTURE -> BFutureSubType.createDelegate(bdd);
+            case CODE_TYPEDESC -> BTypedescSubType.createDelegate(bdd);
             default -> throw new IllegalArgumentException("Unexpected type code: " + typeCode);
         };
         return SemType.from(0, 1 << typeCode.code(), new SubType[]{subType});

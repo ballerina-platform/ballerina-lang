@@ -28,40 +28,40 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEveryPositive;
 
-public class BErrorSubType extends SubType implements DelegatedSubType {
+public class BTypedescSubType extends SubType implements DelegatedSubType {
 
-    public final Bdd inner;
+    private final Bdd inner;
 
-    private BErrorSubType(Bdd inner) {
+    private BTypedescSubType(Bdd inner) {
         super(inner.isAll(), inner.isNothing());
         this.inner = inner;
     }
 
-    public static BErrorSubType createDelegate(SubType inner) {
+    public static BTypedescSubType createDelegate(SubType inner) {
         if (inner instanceof Bdd bdd) {
-            return new BErrorSubType(bdd);
+            return new BTypedescSubType(bdd);
         } else if (inner.isAll() || inner.isNothing()) {
             throw new IllegalStateException("unimplemented");
-        } else if (inner instanceof BErrorSubType bError) {
-            return new BErrorSubType(bError.inner);
+        } else if (inner instanceof BTypedescSubType other) {
+            return new BTypedescSubType(other.inner);
         }
         throw new IllegalArgumentException("Unexpected inner type");
     }
 
     @Override
     public SubType union(SubType other) {
-        if (!(other instanceof BErrorSubType otherError)) {
+        if (!(other instanceof BTypedescSubType otherTypedesc)) {
             throw new IllegalArgumentException("union of different subtypes");
         }
-        return createDelegate(inner.union(otherError.inner));
+        return createDelegate(inner.union(otherTypedesc.inner));
     }
 
     @Override
     public SubType intersect(SubType other) {
-        if (!(other instanceof BErrorSubType otherError)) {
-            throw new IllegalArgumentException("intersect of different subtypes");
+        if (!(other instanceof BTypedescSubType otherTypedesc)) {
+            throw new IllegalArgumentException("union of different subtypes");
         }
-        return createDelegate(inner.intersect(otherError.inner));
+        return createDelegate(inner.intersect(otherTypedesc.inner));
     }
 
     @Override
@@ -76,37 +76,33 @@ public class BErrorSubType extends SubType implements DelegatedSubType {
         // does not get an empty posList, because it will interpret that
         // as `map<any|error>` rather than `readonly & map<readonly>`.
         b = b.posMaybeEmpty() ? (Bdd) b.intersect(Builder.bddSubtypeRo()) : b;
-        return cx.memoSubtypeIsEmpty(cx.mappingMemo, BErrorSubType::errorBddIsEmpty, b);
+        return cx.memoSubtypeIsEmpty(cx.mappingMemo, BTypedescSubType::typedescBddIsEmpty, b);
     }
 
-    private static boolean errorBddIsEmpty(Context cx, Bdd b) {
+    private static boolean typedescBddIsEmpty(Context cx, Bdd b) {
         return bddEveryPositive(cx, b, null, null, BMappingSubType::mappingFormulaIsEmpty);
     }
 
     @Override
     public SubTypeData data() {
-        return inner();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public Bdd inner() {
-        return inner;
+    public SubType inner() {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof BErrorSubType that)) {
+        if (!(o instanceof BTypedescSubType other)) {
             return false;
         }
-        return Objects.equals(inner, that.inner);
+        return Objects.equals(inner, other.inner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(inner);
+        return Objects.hash(inner);
     }
-
 }
