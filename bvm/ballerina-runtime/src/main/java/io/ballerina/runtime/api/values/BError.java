@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.internal.types.TypeWithShape;
+
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -27,7 +29,7 @@ import java.util.List;
  *
  * @since 1.1.0
  */
-public abstract class BError extends RuntimeException implements BValue {
+public abstract class BError extends RuntimeException implements BValue, PatternMatchableValue {
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
@@ -83,4 +85,8 @@ public abstract class BError extends RuntimeException implements BValue {
      */
     public abstract List<StackTraceElement> getCallStack();
 
+    @Override
+    public TypeWithShape getTypeWithShape() {
+        return (TypeWithShape) getType();
+    }
 }

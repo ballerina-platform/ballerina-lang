@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,30 +225,45 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     @Override
     public SemType createSemType() {
-        Type effectiveType = getEffectiveType();
         if (constituentTypes.isEmpty()) {
             return Builder.neverType();
         }
         SemType result = mutableSemTypeDependencyManager.getSemType(constituentTypes.get(0), this);
-        boolean hasBType = Core.containsBasicType(mutableSemTypeDependencyManager.getSemType(effectiveType, this),
-                Builder.bType());
+        assert !Core.containsBasicType(result, Builder.bType()) : "Intersection constituent cannot be a BType";
         result = Core.intersect(result, Core.SEMTYPE_TOP);
         for (int i = 1; i < constituentTypes.size(); i++) {
             SemType memberType = mutableSemTypeDependencyManager.getSemType(constituentTypes.get(i), this);
-            memberType = Core.intersect(memberType, Core.SEMTYPE_TOP);
+            assert !Core.containsBasicType(memberType, Builder.bType()) : "Intersection constituent cannot be a BType";
             result = Core.intersect(result, memberType);
         }
-        if (hasBType) {
-            return Core.union(result, Builder.wrapAsPureBType((BType) effectiveType));
+        if (Core.isSubtypeSimple(result, Builder.errorType())) {
+            BErrorType effectiveErrorType = (BErrorType) effectiveType;
+            DistinctIdSupplier distinctIdSupplier =
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveErrorType.getTypeIdSet());
+            result = distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(result, Core::intersect);
+        } else if (Core.isSubtypeSimple(result, Builder.objectType())) {
+            BObjectType effectiveObjectType = (BObjectType) effectiveType;
+            DistinctIdSupplier distinctIdSupplier =
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveObjectType.getTypeIdSet());
+            result = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(result, Core::intersect);
         }
         return result;
     }
 
     @Override
-    public Optional<SemType> shapeOf(Context cx, Object object) {
+    public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         Type effectiveType = getEffectiveType();
         if (effectiveType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.shapeOf(cx, object);
+            return typeWithShape.readonlyShapeOf(cx, shapeSupplierFn, object);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, shapeSupplier, object);
         }
         return Optional.empty();
     }

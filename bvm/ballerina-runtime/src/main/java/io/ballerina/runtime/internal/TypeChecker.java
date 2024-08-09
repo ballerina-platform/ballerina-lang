@@ -324,9 +324,20 @@ public final class TypeChecker {
      * @return true if the value has the same shape as the given type; false otherwise
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
-        return FallbackTypeChecker.checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(),
-                allowNumericConversion,
-                null);
+        Context cx = context();
+        Optional<SemType> readonlyShape = Builder.readonlyShapeOf(cx, sourceValue);
+        assert readonlyShape.isPresent();
+        SemType shape = readonlyShape.get();
+        if (Core.isSubType(cx, shape, Builder.from(cx, targetType))) {
+            return true;
+        }
+        if (allowNumericConversion) {
+            // FIXME: this should check against a union of target types
+            return FallbackTypeChecker.checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(),
+                    true, null);
+        }
+        // FIXME: parent -> address
+        return false;
     }
 
     /**

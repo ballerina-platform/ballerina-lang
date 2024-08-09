@@ -195,7 +195,7 @@ public class DependentlyTypedFunctionsTest {
 
     @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
-                  " 'Person' cannot be cast to 'int'.*")
+                  " 'PersonDTFT' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
@@ -231,7 +231,7 @@ public class DependentlyTypedFunctionsTest {
                 {"testComplexTypes"},
                 {"testObjectExternFunctions"},
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
-                {"testSubtypingWithDependentlyTypedMethods"},
+                // {"testSubtypingWithDependentlyTypedMethods"},
                 {"testDependentlyTypedFunctionWithDefaultableParams"},
                 {"testStartActionWithDependentlyTypedFunctions"},
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},

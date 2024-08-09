@@ -100,11 +100,7 @@ public class BTypedescType extends BType implements TypedescType {
         }
         SemType constraint = mutableSemTypeDependencyManager.getSemType(getConstraint(), this);
         Context cx = TypeChecker.context();
-        if (Core.containsBasicType(constraint, Builder.bType())) {
-            constraint = Core.intersect(constraint, Core.SEMTYPE_TOP);
-            SemType pureSemType = TypedescUtils.typedescContaining(cx.env, constraint);
-            return Core.union(pureSemType, Builder.wrapAsPureBType(this));
-        }
+        assert !Core.containsBasicType(constraint, Builder.bType()) : "Typedesc constraint cannot be a BType";
         return TypedescUtils.typedescContaining(cx.env, constraint);
     }
 }

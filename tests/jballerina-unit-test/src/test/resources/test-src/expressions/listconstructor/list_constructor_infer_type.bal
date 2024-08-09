@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type FooListInfer record {
     string s;
     int i = 1;
 };
 
-class Bar {
+class BarListInfer {
     int i;
 
     public function init(int i) {
@@ -27,8 +27,8 @@ class Bar {
     }
 }
 
-Foo f = {s: "hello"};
-Bar b = new (1);
+FooListInfer f = {s: "hello"};
+BarListInfer b = new (1);
 json j = 1;
 
 function inferSimpleTuple() {
@@ -40,14 +40,14 @@ function inferSimpleTuple() {
 function inferStructuredTuple() {
     var x = [f, b, xml `text`, j];
     typedesc<any> ta = typeof x;
-    assertEquality("typedesc [Foo,Bar,lang.xml:Text,json]", ta.toString());
+    assertEquality("typedesc [FooListInfer,BarListInfer,lang.xml:Text,json]", ta.toString());
 }
 
 function inferNestedTuple() {
     int[2] arr = [1, 2];
     var x = [1, 2.0d, [3, f, [b, b]], arr, j];
     typedesc<any> ta = typeof x;
-    assertEquality("typedesc [int,decimal,[int,Foo,[Bar,Bar]],int[2],json]", ta.toString());
+    assertEquality("typedesc [int,decimal,[int,FooListInfer,[BarListInfer,BarListInfer]],int[2],json]", ta.toString());
 }
 
 function testInferSameRecordsInTuple() {
@@ -102,15 +102,15 @@ function testInferringForReadOnly() {
     error err = <error> res;
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 
-    Foo & readonly foo = {
+    FooListInfer & readonly foo = {
         s: "May",
         i: 20
     };
     readonly rd2 = [1, [b, false], foo, foo];
 
-    assertEquality(true, rd2 is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
-    assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
-    [int, [boolean, boolean], Foo, Foo] arr2 = <[int, [boolean, boolean], Foo, Foo] & readonly> checkpanic rd2;
+    assertEquality(true, rd2 is [int, [boolean, boolean], FooListInfer, FooListInfer & readonly] & readonly);
+    assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, FooListInfer & readonly] & readonly);
+    [int, [boolean, boolean], FooListInfer, FooListInfer] arr2 = <[int, [boolean, boolean], FooListInfer, FooListInfer] & readonly> checkpanic rd2;
 
     fn = function() {
         arr2[0] = 2;
@@ -122,18 +122,30 @@ function testInferringForReadOnly() {
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 }
 
+function test() {
+    FooListInfer & readonly foo = {
+        s: "May",
+        i: 20
+    };
+    boolean b = true;
+    readonly rd2 = [1, [b, false], foo, foo];
+
+    assertEquality(true, rd2 is [int, [boolean, boolean], FooListInfer, FooListInfer & readonly] & readonly);
+    assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, FooListInfer & readonly] & readonly);
+}
+
 function testInferringForReadOnlyInUnion() {
-    Foo & readonly foo = {
+    FooListInfer & readonly foo = {
         s: "May",
         i: 20
     };
     boolean b = true;
 
-    readonly|(Foo|int)[] rd = [1, [b, false], foo, foo];
+    readonly|(FooListInfer|int)[] rd = [1, [b, false], foo, foo];
 
-    assertEquality(true, rd is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
-    assertEquality(false, rd is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
-    [int, [boolean, boolean], Foo, Foo] arr = <[int, [boolean, boolean], Foo, Foo] & readonly> checkpanic rd;
+    assertEquality(true, rd is [int, [boolean, boolean], FooListInfer, FooListInfer & readonly] & readonly);
+    assertEquality(false, rd is [int, [boolean, boolean], object {} & readonly, FooListInfer & readonly] & readonly);
+    [int, [boolean, boolean], FooListInfer, FooListInfer] arr = <[int, [boolean, boolean], FooListInfer, FooListInfer] & readonly> checkpanic rd;
 
     var fn = function() {
         arr[0] = 2;

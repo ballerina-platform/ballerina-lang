@@ -99,6 +99,6 @@ public class BAnydataType extends BUnionType implements AnydataType, SemType {
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.readonlyType());
         }
-        return Core.union(semType, Builder.wrapAsPureBType(this));
+        return semType;
     }
 }

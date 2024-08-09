@@ -24,6 +24,12 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
 
 import java.util.Objects;
@@ -37,6 +43,7 @@ public class BStreamType extends BType implements StreamType {
 
     private final Type constraint;
     private final Type completionType;
+    private volatile StreamDefinition definition;
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.
@@ -134,5 +141,23 @@ public class BStreamType extends BType implements StreamType {
 
         return Objects.equals(constraint, other.constraint)
                 && Objects.equals(completionType, other.completionType);
+    }
+
+    @Override
+    public SemType createSemType() {
+        if (constraint == null) {
+            return Builder.streamType();
+        }
+        Env env = TypeChecker.context().env;
+        if (definition != null) {
+            return definition.getSemType(env);
+        }
+        StreamDefinition sd = new StreamDefinition();
+        definition = sd;
+        SemType valueTy = mutableSemTypeDependencyManager.getSemType(constraint, this);
+        assert !Core.containsBasicType(valueTy, Builder.bType()) : "Value type shouldn't have BTypes";
+        SemType completionTy = mutableSemTypeDependencyManager.getSemType(completionType, this);
+        assert !Core.containsBasicType(completionTy, Builder.bType()) : "Completion type shouldn't have BTypes";
+        return sd.define(env, valueTy, completionTy);
     }
 }

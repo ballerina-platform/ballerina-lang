@@ -217,10 +217,7 @@ public class BFiniteType extends BType implements FiniteType {
                 bTypeValueSpace.add(each);
             }
         }
-        if (bTypeValueSpace.isEmpty()) {
-            return result;
-        }
-        BFiniteType newFiniteType = this.cloneWithValueSpace(bTypeValueSpace);
-        return Core.union(result, Builder.wrapAsPureBType(newFiniteType));
+        assert bTypeValueSpace.isEmpty() : "All values must be semtypes";
+        return result;
     }
 }
