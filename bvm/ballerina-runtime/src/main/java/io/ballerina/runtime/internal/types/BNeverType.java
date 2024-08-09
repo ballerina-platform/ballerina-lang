@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
+import io.ballerina.runtime.api.types.semtype.Builder;
 
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
@@ -34,7 +35,7 @@ public class BNeverType extends BNullType implements NeverType {
      * @param pkg package path
      */
     public BNeverType(Module pkg) {
-        super(TypeConstants.NEVER_TNAME, pkg);
+        super(TypeConstants.NEVER_TNAME, pkg, Builder.neverType());
     }
 
     @Override
