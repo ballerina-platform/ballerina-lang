@@ -29,90 +29,128 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * Util functions for async invocations.
  */
 public class AsyncUtils {
 
+    public static Object handleNonIsolatedStrand(Strand strand, Supplier<Boolean> conditionSupplier,
+                                                 Supplier<?> resultSupplier) {
+        while (!conditionSupplier.get()) {
+            strand.yield();
+            strand.resume();
+        }
+        return resultSupplier.get();
+    }
+
     @SuppressWarnings("unused")
     /*
      * Used for codegen wait for future.
      */
-    public static Object handleWait(FutureValue future) {
-        try {
-            return future.completableFuture.get();
-        } catch (BError e) {
-            return e;
-        } catch (Throwable e) {
-            return ErrorCreator.createError(e);
+    public static Object handleWait(Strand strand, FutureValue future) {
+        return handleWait(strand, future.completableFuture);
+    }
+
+    public static Object handleWait(Strand strand, CompletableFuture<?> completableFuture) {
+        if (strand.isIsolated) {
+            return getFutureResult(completableFuture);
         }
+        return handleNonIsolatedStrand(strand, completableFuture::isDone,() -> getFutureResult(completableFuture));
     }
 
     @SuppressWarnings("unused")
     /*
      * Used for codegen wait for any of future from given list.
      */
-    public static Object handleWaitAny(List<FutureValue> futures) {
+    public static Object handleWaitAny(Strand strand, List<FutureValue> futures) {
         CompletableFuture<?>[] completableFutures = new CompletableFuture[futures.size()];
         for (int i = 0; i < futures.size(); i++) {
             completableFutures[i] = futures.get(i).completableFuture;
         }
-        return handleWaitAny(completableFutures);
+        return handleWaitAny(strand, completableFutures);
     }
 
     @SuppressWarnings("unused")
     /*
      * Used for codegen wait for all futures from given list.
      */
-    public static void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue<BString, Object> target) {
-        for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
-            FutureValue future = entry.getValue();
-            Object result;
-            try {
-                result = future.completableFuture.get();
-            } catch (BError e) {
-                result = e;
-            } catch (Throwable e) {
-                throw ErrorCreator.createError(e);
-            }
-            target.put(StringUtils.fromString(entry.getKey()), result);
+    public static void handleWaitMultiple(Strand strand, Map<String, FutureValue> keyValues,
+                                          MapValue<BString, Object> target) {
+        if (strand.isIsolated) {
+            getAllFutureResult(keyValues, target);
         }
+        handleNonIsolatedStrand(strand, () -> {
+            for (FutureValue value : keyValues.values()) {
+                if (!value.completableFuture.isDone()) {
+                    return false;
+                }
+            }
+            return true;
+        }, () -> {
+            getAllFutureResult(keyValues, target);
+            return null;
+        });
     }
 
-    private static Object handleWaitAny(CompletableFuture<?>[] completableFutures) {
-        CompletableFuture<Object> anyFuture = CompletableFuture.anyOf(completableFutures);
+    public static Object handleWaitAny(Strand strand, CompletableFuture<?>[] completableFutures) {
         Object result;
-        try {
-            result = anyFuture.get();
-        } catch (BError e) {
-            result = e;
-        } catch (Throwable e) {
-           throw ErrorCreator.createError(e);
+        if (strand.isIsolated) {
+            result = getAnyFutureResult(completableFutures);
+        } else {
+            result = handleNonIsolatedStrand(strand, () -> {
+                for (CompletableFuture<?> completableFuture : completableFutures) {
+                    if (completableFuture.isDone()) {
+                        return true;
+                    }
+                }
+                return false;
+            }, () -> getAnyFutureResult(completableFutures));
         }
+
         if (completableFutures.length > 1 && result instanceof BError) {
             List<CompletableFuture<?>> nonErrorFutures = new ArrayList<>();
             for (CompletableFuture<?> completableFuture : completableFutures) {
                 if (completableFuture.isDone()) {
-                    try {
-                        result = completableFuture.get();
-                    } catch (Throwable e) {
-                        throw ErrorCreator.createError(e);
-                    }
-                    if (!(result instanceof BError)) {
+                    result = getFutureResult(completableFuture);
+                    if(!(getFutureResult(completableFuture) instanceof BError)) {
                         return result;
                     }
                 } else {
                     nonErrorFutures.add(completableFuture);
                 }
             }
-            if (nonErrorFutures.isEmpty()) {
-                return result;
-            } else {
-                return handleWaitAny(nonErrorFutures.toArray(new CompletableFuture<?>[0]));
+            if (!nonErrorFutures.isEmpty()) {
+                return handleWaitAny(strand, nonErrorFutures.toArray(new CompletableFuture<?>[0]));
             }
         }
         return result;
+    }
+
+    public static Object getFutureResult(CompletableFuture<?> completableFuture) {
+        try {
+            return completableFuture.get();
+        } catch (BError e) {
+            return e;
+        } catch (Throwable e) {
+            if (e.getCause() instanceof  BError error) {
+                return error;
+            }
+            return ErrorCreator.createError(e);
+        }
+    }
+
+    public static Object getAnyFutureResult(CompletableFuture<?>[] completableFutures) {
+        CompletableFuture<Object> anyFuture = CompletableFuture.anyOf(completableFutures);
+        return getFutureResult(anyFuture);
+    }
+
+    private static void getAllFutureResult(Map<String, FutureValue> keyValues, MapValue<BString, Object> target) {
+        for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
+            FutureValue future = entry.getValue();
+            target.put(StringUtils.fromString(entry.getKey()), getFutureResult(future.completableFuture));
+        }
     }
 
     private AsyncUtils() {

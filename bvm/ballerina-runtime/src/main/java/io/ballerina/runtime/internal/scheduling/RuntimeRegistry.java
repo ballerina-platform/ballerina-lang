@@ -80,29 +80,29 @@ public class RuntimeRegistry {
             invokeListenerGracefulStop(strand, (ObjectValue) listenerQueue.pollFirst());
         }
         while (!stopHandlerQueue.isEmpty()) {
-            invokeStopHandlerFunction(stopHandlerQueue.pollLast(), strand);
+            invokeStopHandlerFunction(stopHandlerQueue.pollLast());
         }
     }
 
     private void invokeListenerGracefulStop(Strand strand, ObjectValue listener) {
         try {
             Object result = listener.call(strand, "gracefulStop");
-            if (result instanceof BError) {
-                RuntimeUtils.handleRuntimeErrorReturns(result);
-            }
+//            if (result instanceof BError) {
+//                RuntimeUtils.handleRuntimeErrorReturns(result);
+//            }
         } catch (BError error) {
-            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+//            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
         }
     }
 
-    private void invokeStopHandlerFunction(BFunctionPointer bFunctionPointer, Strand strand) {
+    private void invokeStopHandlerFunction(BFunctionPointer bFunctionPointer) {
         try {
-            Object result = bFunctionPointer.call(strand);
-            if (result instanceof BError) {
-                RuntimeUtils.handleRuntimeErrorReturns(result);
-            }
+            Object result = bFunctionPointer.call();
+//            if (result instanceof BError) {
+//                RuntimeUtils.handleRuntimeErrorReturns(result);
+//            }
         } catch (BError error) {
-            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+//            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
         }
     }
 }

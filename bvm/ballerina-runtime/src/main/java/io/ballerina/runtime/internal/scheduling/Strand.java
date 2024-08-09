@@ -36,19 +36,19 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSA
  */
 public class Strand {
 
-    private static final AtomicInteger nextStrandId = new AtomicInteger(0);
-
     private final int id;
     private final String name;
     private final StrandMetadata metadata;
-    private final boolean isIsolated;
+    private static final AtomicInteger nextStrandId = new AtomicInteger(0);
+    private StrandState state = StrandState.RUNNABLE;
+    private Map<String, Object> globalProps;
 
+    public final boolean isIsolated;
     public Scheduler scheduler;
     public Strand parent;
-
-    private Map<String, Object> globalProps;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
+    public WorkerChannelMap workerChannelMap;
 
     public Strand() {
         this.id = -1;
@@ -58,7 +58,7 @@ public class Strand {
     }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
-                  Map<String, Object> properties) {
+                  Map<String, Object> properties, WorkerChannelMap workerChannelMap) {
         this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
         this.name = name;
@@ -74,11 +74,13 @@ public class Strand {
         } else {
             this.globalProps = new HashMap<>();
         }
+        this.workerChannelMap = workerChannelMap;
     }
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent, boolean isIsolated,
-                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
-        this(name, metadata, scheduler, parent, isIsolated, properties);
+                  Map<String, Object> properties, WorkerChannelMap workerChannelMap,
+                  TransactionLocalContext currentTrxContext) {
+        this(name, metadata, scheduler, parent, isIsolated, properties, workerChannelMap);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
@@ -94,15 +96,17 @@ public class Strand {
     }
 
     public void resume() {
-        if (!isIsolated) {
+        if (!isIsolated && state == StrandState.YIELDED) {
             scheduler.globalNonIsolatedLock.lock();
+            this.state =  StrandState.RUNNABLE;
         }
     }
 
     public void yield() {
-        if (!isIsolated) {
+        if (!isIsolated && state == StrandState.RUNNABLE) {
             scheduler.globalNonIsolatedLock.unlock();
         }
+        this.state =  StrandState.YIELDED;
     }
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
