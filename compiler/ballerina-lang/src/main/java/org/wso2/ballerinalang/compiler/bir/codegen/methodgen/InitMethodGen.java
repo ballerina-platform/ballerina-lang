@@ -110,20 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GRACEFUL_EXIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -167,7 +154,6 @@ public class InitMethodGen {
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
         String methodDesc;
-        MethodGenUtils.callSetDaemonStrand(mv);
         //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
@@ -204,7 +190,8 @@ public class InitMethodGen {
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, LAMBDA_STOP_DYNAMIC, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, PASS_OBJECT_ARRAY_RETURN_OBJECT,
+                null, null);
         mv.visitCode();
         return mv;
     }
@@ -269,9 +256,9 @@ public class InitMethodGen {
 
     private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
         String lambdaName = LAMBDA_PREFIX + "stopdynamic";
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, PASS_OBJECT_ARRAY_RETURN_OBJECT,
+                null, null);
         mv.visitCode();
-        MethodGenUtils.callSetDaemonStrand(mv);
         generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
         return lambdaName;
     }
@@ -331,6 +318,7 @@ public class InitMethodGen {
         mv.visitLdcInsn("stop");
         mv.visitFieldInsn(GETSTATIC,  jvmConstantsGen.getStrandMetadataConstantsClass(), metaDataVarName,
                 GET_STRAND_METADATA);
+        mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_ISOLATED_WORKER, SCHEDULE_CALL, false);
         mv.visitVarInsn(ASTORE, 3);
@@ -460,7 +448,7 @@ public class InitMethodGen {
 
     private void injectCLIArgInvocation(BIRNode.BIRFunction modExecFunc, List<BIROperand> functionArgs,
                                         List<BIROperand> tempFuncArgs) {
-        BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.getLast();
         JIMethodCLICall jiMethodCall = new JIMethodCLICall(null);
         jiMethodCall.lhsArgs = functionArgs;
         jiMethodCall.jClassName = CLI_SPEC;
@@ -478,7 +466,7 @@ public class InitMethodGen {
         for (int i = 0; i < tempFuncArgs.size(); i++) {
             int mainFuncParamIndex = mainFunc.parameters.size() - defaultParamCount + i;
             BIRNode.BIRFunctionParameter parameter = mainFunc.parameters.get(mainFuncParamIndex);
-            BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
+            BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.getLast();
             BIROperand argOperand = mainArgs.get(mainFuncParamIndex);
             BIROperand tempArgOperand = tempFuncArgs.get(i);
             BIRNonTerminator.TypeTest typeTest =
@@ -565,9 +553,8 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func,
-                                                                   String typeOwnerClass) {
-        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, String typeOwnerClass) {
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
         return nextBB;
@@ -592,7 +579,7 @@ public class InitMethodGen {
                                                                                List<BIRNode.BIRAnnotationAttachment>
                                                                                        calleeAnnotAttachments,
                                                                                String typeOwnerClass) {
-        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
@@ -612,7 +599,7 @@ public class InitMethodGen {
                                                                List<BIROperand> args,
                                                                List<BIRNode.BIRAnnotationAttachment>
                                                                        calleeAnnotAttachments) {
-        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
         if (JvmCodeGenUtil.isBuiltInPackage(modId)) {

@@ -125,8 +125,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.*;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
@@ -232,9 +231,8 @@ public class JvmPackageGen {
     }
 
     private static void generateLockForVariable(ClassWriter cw) {
-        String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, LOCK_STORE_VAR_NAME, lockStoreClass, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, LOCK_STORE_VAR_NAME, GET_LOCK_STORE, null, null);
         fv.visitEnd();
     }
 
@@ -265,11 +263,10 @@ public class JvmPackageGen {
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {
-        String lockStoreClass = "L" + LOCK_STORE + ";";
         mv.visitTypeInsn(NEW, LOCK_STORE);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, lockStoreClass);
+        mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
     }
 
     private static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,

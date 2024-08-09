@@ -158,7 +158,7 @@ public class LambdaGen {
     }
 
     private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
-                               boolean isWorker, boolean isSamePkg) {
+                               boolean isSamePkg) {
         String jvmClass, funcName, methodDesc;
         if (!isSamePkg) {
             // Use call method of function calls class to execute functions from imported modules
@@ -175,8 +175,7 @@ public class LambdaGen {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
                     MODULE_FUNCTION_CALLS_CLASS_NAME);
         }
-        methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
-                isWorker);
+        methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount);
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
     }
@@ -207,7 +206,7 @@ public class LambdaGen {
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
-        BIROperand ref = ins.args.get(0);
+        BIROperand ref = ins.args.getFirst();
         mv.visitInsn(AALOAD);
         jvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);
@@ -260,7 +259,7 @@ public class LambdaGen {
                 generateFpCallArgs(mv, paramIndex);
             }
         }
-        genNonVirtual(lambdaDetails, mv, paramBTypes, false, isSamePkg);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, isSamePkg);
     }
 
     private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
@@ -284,7 +283,7 @@ public class LambdaGen {
         loadClosureMaps(lambdaDetails, mv);
         // load and cast param values
         loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes, isSamePkg);
-        genNonVirtual(lambdaDetails, mv, paramBTypes, ins.isWorker, isSamePkg);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, isSamePkg);
     }
 
     private void loadAndCastParamValues(BIRNonTerminator.FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
@@ -332,13 +331,6 @@ public class LambdaGen {
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
         if (!isSamePkg) {
             mv.visitLdcInsn(lambdaDetails.encodedFuncName);
-        }
-        if ((ins.getKind() == InstructionKind.FP_LOAD) && ((BIRNonTerminator.FPLoad) ins).isWorker) {
-            mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
-            mv.visitInsn(ICONST_1);
-            mv.visitInsn(AALOAD);
-            mv.visitTypeInsn(CHECKCAST, INT_VALUE);
-            mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
         }
         return mv;
     }
@@ -461,11 +453,8 @@ public class LambdaGen {
         int closureMapsCount = 0;
     }
 
-    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount, boolean isWorker) {
+    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
         StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
-        if (isWorker) {
-            desc.append("I");
-        }
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

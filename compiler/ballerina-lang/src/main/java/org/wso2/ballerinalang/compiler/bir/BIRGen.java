@@ -834,7 +834,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         PackageID pkgID = lambdaExpr.function.symbol.pkgID;
-        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
         boolean isWorker = lambdaExpr.function.flagSet.contains(Flag.WORKER);
 
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
@@ -1398,10 +1397,17 @@ public class BIRGen extends BLangNodeVisitor {
             invocationExpr.expr.accept(this);
             fp = this.env.targetOperand;
         }
-
         // Create a temporary variable to store the return operation result.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.getBType(), this.env.nextLocalVarId(names),
-                                                       VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl;
+        if (invocationExpr.async && invocationExpr.parent instanceof BLangSimpleVariable simpleVar) {
+            tempVarDcl = new BIRVariableDcl(invocationExpr.pos, invocationExpr.getBType(),
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP, simpleVar.name.value);
+        } else {
+            tempVarDcl = new BIRVariableDcl(invocationExpr.getBType(), this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
+        }
+
+
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
@@ -1419,6 +1425,9 @@ public class BIRGen extends BLangNodeVisitor {
                     getBIRAnnotAttachmentsForASTAnnotAttachments(invocationExpr.annAttachments);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative, annots);
+            if (workerDerivative) {
+                this.env.enclFunc.hasWorkers = true;
+            }
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
@@ -2007,8 +2016,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB, this.currentScope);
         }
 
-        env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.get(0),
-                trappedBlocks.get(trappedBlocks.size() - 1), env.targetOperand, nextBB));
+        env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.getFirst(), trappedBlocks.getLast(),
+                env.targetOperand, nextBB));
 
         this.env.enclBB = nextBB;
     }

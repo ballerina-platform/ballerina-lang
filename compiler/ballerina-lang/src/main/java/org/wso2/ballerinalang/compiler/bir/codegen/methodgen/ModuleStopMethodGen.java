@@ -26,7 +26,6 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -80,14 +79,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE
  * @since 2.0.0
  */
 public class ModuleStopMethodGen {
-    public static final String FUTURE_VAR = "futureVar";
-    public static final String ARR_VAR = "arrVar";
-    private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
     private final String strandMetadataClass;
 
     public ModuleStopMethodGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
-        indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
         this.strandMetadataClass = jvmConstantsGen.getStrandMetadataConstantsClass();
     }
@@ -144,6 +139,7 @@ public class ModuleStopMethodGen {
         String metaDataVarName = JvmCodeGenUtil.setAndGetStrandMetadataVarName(MAIN_METHOD, asyncDataCollector);
         mv.visitLdcInsn("stop");
         mv.visitFieldInsn(GETSTATIC, strandMetadataClass, metaDataVarName, GET_STRAND_METADATA);
+        mv.visitInsn(ACONST_NULL);
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, START_ISOLATED_WORKER, SCHEDULE_CALL, false);

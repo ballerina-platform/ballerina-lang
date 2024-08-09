@@ -23,22 +23,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -102,30 +91,6 @@ public class MethodGenUtils {
         return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
     }
 
-    public static void callSetDaemonStrand(MethodVisitor mv) {
-        // set daemon strand
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "setDaemonStrand", SET_STRAND, false);
-    }
-
     private MethodGenUtils() {
-    }
-
-    static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
-        String frameClassName = pkgName + FRAME_CLASS_PREFIX;
-        if (isValidType(attachedType)) {
-            frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
-        }
-
-        return frameClassName + funcName;
-    }
-
-    private static boolean isValidType(BType attachedType) {
-        BType referredAttachedType = JvmCodeGenUtil.getImpliedType(attachedType);
-        return attachedType != null && (referredAttachedType.tag == TypeTags.OBJECT
-                || referredAttachedType.tag == TypeTags.RECORD);
     }
 }
