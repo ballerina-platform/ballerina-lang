@@ -150,7 +150,7 @@ if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be igno
 if defined BAL_DEBUG_OPTS (
     set JAVA_OPTS=%BAL_DEBUG_OPTS%
 ) else (
-    set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
+    set JAVA_OPTS=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
 )
 goto runServer
 
