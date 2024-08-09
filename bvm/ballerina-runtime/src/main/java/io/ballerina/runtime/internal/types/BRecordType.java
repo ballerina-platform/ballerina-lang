@@ -28,28 +28,42 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
+import static io.ballerina.runtime.api.types.semtype.Builder.neverType;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType implements RecordType {
+public class BRecordType extends BStructureType implements RecordType, TypeWithShape {
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -57,6 +71,8 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+    private MappingDefinition defn;
+    private final Env env = Env.getInstance();
 
     private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
 
@@ -218,4 +234,134 @@ public class BRecordType extends BStructureType implements RecordType {
         return defaultValues;
     }
 
+    @Override
+    public SemType createSemType() {
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        MappingDefinition md = new MappingDefinition();
+        defn = md;
+        Field[] fields = getFields().values().toArray(Field[]::new);
+        MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
+        boolean hasBTypePart = false;
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            SemType fieldType = mutableSemTypeDependencyManager.getSemType(field.getFieldType(), this);
+            if (!isOptional && Core.isNever(fieldType)) {
+                return neverType();
+            } else if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
+                hasBTypePart = true;
+                fieldType = Core.intersect(fieldType, Core.SEMTYPE_TOP);
+            }
+            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+            if (Core.isNever(fieldType)) {
+                isReadonly = true;
+            }
+            mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
+                    isReadonly, isOptional);
+        }
+        CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
+        SemType rest =
+                restFieldType != null ? mutableSemTypeDependencyManager.getSemType(restFieldType, this) : neverType();
+        if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+            hasBTypePart = true;
+            rest = Core.intersect(rest, Core.SEMTYPE_TOP);
+        }
+        if (hasBTypePart) {
+            SemType semTypePart = md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+            SemType bTypePart = Builder.wrapAsPureBType(this);
+            resetSemType();
+            return Core.union(semTypePart, bTypePart);
+        }
+        return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+    }
+
+    @Override
+    public void resetSemType() {
+        defn = null;
+        super.resetSemType();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, Object object) {
+        BMap value = (BMap) object;
+        SemType cachedSemType = value.shapeOf();
+        if (cachedSemType != null) {
+            return Optional.of(cachedSemType);
+        }
+        int nFields = value.size();
+        List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
+        Map.Entry[] entries = (Map.Entry[]) value.entrySet().toArray(Map.Entry[]::new);
+        Set<String> handledFields = new HashSet<>(nFields);
+        for (int i = 0; i < nFields; i++) {
+            String fieldName = entries[i].getKey().toString();
+            Object fieldValue = entries[i].getValue();
+            handledFields.add(fieldName);
+            boolean readonlyField = fieldIsReadonly(fieldName);
+            boolean optionalField = fieldIsOptional(fieldName);
+            Optional<SemType> fieldType;
+            if (isReadOnly() || readonlyField) {
+                optionalField = false;
+                fieldType = Builder.shapeOf(cx, fieldValue);
+            } else {
+                SemType fieldSemType = Builder.from(cx, fieldType(fieldName));
+                if (!Core.isNever(Core.intersect(fieldSemType, Core.B_TYPE_TOP))) {
+                    return Optional.empty();
+                }
+                fieldType = Optional.of(fieldSemType);
+            }
+            if (fieldType.isEmpty()) {
+                return Optional.empty();
+            }
+            fields.add(new MappingDefinition.Field(fieldName, fieldType.get(), readonlyField,
+                    optionalField));
+        }
+        for (var field : getFields().values()) {
+            String name = field.getFieldName();
+            if (handledFields.contains(name)) {
+                continue;
+            }
+            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+            SemType fieldType = Builder.from(cx, field.getFieldType());
+            if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
+                fieldType = Builder.undef();
+            }
+            if (!Core.isNever(Core.intersect(fieldType, Core.B_TYPE_TOP))) {
+                return Optional.of(neverType());
+            }
+            fields.add(new MappingDefinition.Field(field.getFieldName(), fieldType,
+                    isReadonly, isOptional));
+        }
+        MappingDefinition md = new MappingDefinition();
+        SemType semTypePart;
+        MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
+        if (isReadOnly()) {
+            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, neverType(), CELL_MUT_NONE);
+        } else {
+            SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
+            if (!Core.isNever(Core.intersect(rest, Core.B_TYPE_TOP))) {
+                return Optional.empty();
+            }
+            semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
+        }
+        value.cacheShape(semTypePart);
+        return Optional.of(semTypePart);
+    }
+
+    private Type fieldType(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field == null ? restFieldType : field.getFieldType();
+    }
+
+    private boolean fieldIsReadonly(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+    }
+
+    private boolean fieldIsOptional(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+    }
 }

@@ -18,6 +18,9 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Map;
 
@@ -58,4 +61,8 @@ public interface BValue {
     String expressionStringValue(BLink parent);
 
     Type getType();
+
+    default SemType widenedType(Context cx) {
+        return Builder.from(cx, getType());
+    }
 }

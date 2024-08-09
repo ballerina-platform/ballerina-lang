@@ -1022,8 +1022,7 @@ function testCastOfReadonlyRecordNegative() {
     Bar|error b = trap <Bar> a;
     assertEquality(true, b is error);
     error err = <error> b;
-    string errMsg = "incompatible types: '(Foo & readonly)' cannot be cast to 'Bar': " +
-    "\n\t\tfield 'arr' in record 'Bar' should be of type 'byte[]', found '[1,2,300]'";
+    string errMsg = "incompatible types: '(Foo & readonly)' cannot be cast to 'Bar'";
     assertEquality("{ballerina}TypeCastError", err.message());
     assertEquality(errMsg, <string> checkpanic err.detail()["message"]);
 }
