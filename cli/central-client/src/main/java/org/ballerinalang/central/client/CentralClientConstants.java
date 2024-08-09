@@ -52,5 +52,6 @@ public class CentralClientConstants {
     static final String DEV_REPO = "dev-central.ballerina.io";
     public static final String BALLERINA_STAGE_CENTRAL = "BALLERINA_STAGE_CENTRAL";
     public static final String BALLERINA_DEV_CENTRAL = "BALLERINA_DEV_CENTRAL";
-
+    public static final String TEST_MODE_ACTIVE = "TEST_MODE_ACTIVE";
+    public static final String BALLERINA_CENTRAL_TELEMETRY_DISABLED = "Ballerina-Central-Telemetry-Disabled";
 }
