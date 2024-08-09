@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 38,
+    "character": 25
+  },
+  "source": "add_readonly8.bal",
+  "description": "Add readonly to a array value",
+  "expected": [
+    {
+      "title": "Add readonly to 'int[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 36,
+              "character": 18
+            },
+            "end": {
+              "line": 36,
+              "character": 18
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

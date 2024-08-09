@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 6
+  },
+  "source": "project2/modules/mod1/mod1.bal",
+  "expected": [
+    {
+      "title": "Add to Config.toml",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 0
+            },
+            "end": {
+              "line": 16,
+              "character": 0
+            }
+          },
+          "newText": "b = 0\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

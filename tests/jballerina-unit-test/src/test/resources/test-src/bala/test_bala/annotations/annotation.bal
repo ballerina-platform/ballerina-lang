@@ -116,6 +116,57 @@ function testAnnotationsOnTypeRefTypes() {
     assertTrue('annotation is ());
 }
 
+@foo:annot {
+    examples: foo:EXAMPLES
+}
+type Student record {|
+    int id;
+    string name;
+|};
+
+public const foo:Examples EXAMPLES_2 = {
+    response: {
+        headers: {
+            "h1": "h1",
+            "h2": "h2"
+        }
+    }
+};
+
+@foo:annot {
+    examples: EXAMPLES_2
+}
+type Employee record {|
+    int id;
+    string name;
+|};
+
+function testConstAnnotationAccess() {
+    Employee employee = {id: 1, name: "chirans"};
+    typedesc<any> t = typeof employee;
+    foo:AnnotationRecord? annot = t.@foo:annot;
+    assertTrue(annot is foo:AnnotationRecord);
+    foo:AnnotationRecord config = <foo:AnnotationRecord> annot;
+    assertEquality({"response":{"headers": {"h1":"h1", "h2":"h2"}}}, config.examples);
+    assertTrue(config.examples is readonly);
+
+    Student student = {id: 2, name: "sachintha"};
+    typedesc<any> s = typeof student;
+    foo:AnnotationRecord? annot1 = s.@foo:annot;
+    assertTrue(annot1 is foo:AnnotationRecord);
+    foo:AnnotationRecord config1 = <foo:AnnotationRecord> annot1;
+    assertEquality({"response":{}}, config1.examples);
+    assertTrue(config1.examples is readonly);
+
+    foo:Teacher teacher = {id: 1, name: "James"};
+    typedesc<any> t1 = typeof teacher;
+    foo:AnnotationRecord? annot2 = t1.@foo:annot;
+    assertTrue(annot2 is foo:AnnotationRecord);
+    foo:AnnotationRecord config2 = <foo:AnnotationRecord> annot2;
+    assertEquality({"response":{}}, config2.examples);
+    assertTrue(config2.examples is readonly);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

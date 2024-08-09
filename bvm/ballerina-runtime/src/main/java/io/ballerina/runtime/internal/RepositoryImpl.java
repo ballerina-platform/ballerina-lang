@@ -72,6 +72,11 @@ public class RepositoryImpl implements Repository {
                 System.getProperty("os.version"));
     }
 
+    @Override
+    public boolean isRemoteEnabled() {
+        return isRemoteEnabled;
+    }
+
     private Artifact createArtifact(ObjectValue service, ObjectValue listener) {
         ArtifactImpl artifact = new ArtifactImpl(service.toString(), Artifact.ArtifactType.SERVICE);
         List<ObjectValue> listeners = (List<ObjectValue>) artifact.getDetail("listeners");

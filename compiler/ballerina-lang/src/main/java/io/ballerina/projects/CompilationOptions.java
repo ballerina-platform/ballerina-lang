@@ -40,13 +40,14 @@ public class CompilationOptions {
     Boolean enableCache;
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
+    Boolean optimizeDependencyCompilation;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement) {
+                       Boolean remoteManagement, Boolean optimizeDependencyCompilation) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -64,6 +65,7 @@ public class CompilationOptions {
         this.enableCache = enableCache;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
     }
 
     public boolean offlineBuild() {
@@ -128,6 +130,10 @@ public class CompilationOptions {
 
     boolean remoteManagement() {
         return toBooleanDefaultIfNull(this.remoteManagement);
+    }
+
+    boolean optimizeDependencyCompilation() {
+        return toBooleanDefaultIfNull(this.optimizeDependencyCompilation);
     }
 
     /**
@@ -218,6 +224,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setRemoteManagement(this.remoteManagement);
         }
+        if (theirOptions.optimizeDependencyCompilation != null) {
+            compilationOptionsBuilder.setOptimizeDependencyCompilation(theirOptions.optimizeDependencyCompilation);
+        } else {
+            compilationOptionsBuilder.setOptimizeDependencyCompilation(this.optimizeDependencyCompilation);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -273,6 +284,7 @@ public class CompilationOptions {
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
         private Boolean remoteManagement;
+        private Boolean optimizeDependencyCompilation;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -359,11 +371,17 @@ public class CompilationOptions {
             return this;
         }
 
+        public CompilationOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
+            optimizeDependencyCompilation = value;
+            return this;
+        }
+
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement);
+                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
+                    optimizeDependencyCompilation);
         }
     }
 }

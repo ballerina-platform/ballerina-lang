@@ -568,16 +568,15 @@ public class NewCommandTest extends BaseCommandTest {
 
         String packageName = Paths.get(args[0]).getFileName().toString();
         String expectedTomlContent = "[package]\n" +
-                "org = \"" + System.getProperty("user.name").toLowerCase().replaceAll("[^a-z0-9_]", "_") + "\"\n" +
+                "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
                 "name = \"" + packageName + "\"\n" +
                 "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
                 "\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(packageName + ".bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
