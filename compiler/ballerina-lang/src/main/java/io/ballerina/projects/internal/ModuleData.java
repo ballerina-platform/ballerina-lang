@@ -33,8 +33,6 @@ public class ModuleData {
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
     private final DocumentData moduleMd;
-    private final List<Path> resources;
-    private final List<Path> testResources;
 
     // TODO do we need to maintain resources and test resources
 
@@ -42,26 +40,20 @@ public class ModuleData {
                        String moduleName,
                        List<DocumentData> srcDocs,
                        List<DocumentData> testSrcDocs,
-                       DocumentData moduleMd,
-                       List<Path> resources,
-                       List<Path> testResources) {
+                       DocumentData moduleMd) {
         this.moduleDirPath = moduleDirPath;
         this.moduleName = moduleName;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
         this.moduleMd = moduleMd;
-        this.resources = resources;
-        this.testResources = testResources;
     }
 
     public static ModuleData from(Path path,
                                   String moduleName,
                                   List<DocumentData> srcDocuments,
                                   List<DocumentData> testSrcDocuments,
-                                  DocumentData moduleMd,
-                                  List<Path> resources,
-                                  List<Path> testResources) {
-        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, moduleMd, resources, testResources);
+                                  DocumentData moduleMd) {
+        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, moduleMd);
     }
 
     public Path moduleDirectoryPath() {
@@ -92,11 +84,4 @@ public class ModuleData {
         return Optional.ofNullable(this.moduleMd);
     }
 
-    public List<Path> resources () {
-        return resources;
-    }
-
-    public List<Path> testResources() {
-        return testResources;
-    }
 }

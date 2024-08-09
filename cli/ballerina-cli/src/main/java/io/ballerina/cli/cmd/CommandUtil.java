@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -94,6 +95,7 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
+import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
@@ -966,9 +968,9 @@ public class CommandUtil {
 
         Files.writeString(ballerinaToml, defaultManifest);
 
-        // Create README.md
-        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + ProjectConstants.README_MD_FILE_NAME);
-        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
+        // Create Package.md
+        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
+        write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -1150,12 +1152,14 @@ public class CommandUtil {
      * @param orgName org name of the dependent package
      * @param packageName name of the dependent package
      * @param version version of the dependent package
+     * @param buildOptions build options {sticky, offline}
      * @return true if the dependent package compilation has errors
      */
-    static boolean pullDependencyPackages(String orgName, String packageName, String version) {
+    static boolean pullDependencyPackages(String orgName, String packageName, String version,
+                                          BuildOptions buildOptions, String repository) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+                .resolve(repository);
         Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
@@ -1164,7 +1168,7 @@ public class CommandUtil {
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
 
         // Delete package cache if available
         Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
