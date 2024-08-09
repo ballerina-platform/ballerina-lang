@@ -51,7 +51,7 @@ public class Sort {
 
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
-                sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
+                sortArr[i][0] = function.call(arr.get(i));
                 sortArr[i][1] = arr.get(i);
             }
         } else {
