@@ -66,7 +66,7 @@ public class ExpressionTrial extends TreeParserTrial {
     private void validateExpression(String expression) {
         String functionName = expression.replaceAll("\\s*\\(.*", "");
         if (ParserConstants.isFunctionNameRestricted(functionName)) {
-            String message = String.format("Function name '%s' not allowed in Ballerina Shell.\n", functionName);
+            String message = String.format("Function name '%s' not allowed in Ballerina Shell.%n", functionName);
             throw new InvalidMethodException(message);
         }
     }
