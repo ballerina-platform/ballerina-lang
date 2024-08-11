@@ -91,7 +91,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         BObjectType type = (BObjectType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.symbol.getOriginalName().value, new BallerinaClassFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().getValue(), new BallerinaClassFieldSymbol(this.context, field));
         }
 
         this.classFields = Collections.unmodifiableMap(fields);
@@ -108,8 +108,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         if (this.initMethod == null && this.internalSymbol.initializerFunc != null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
-                                                               internalSymbol.initializerFunc.symbol
-                                                                       .getOriginalName().value);
+                    internalSymbol.initializerFunc.symbol
+                            .getOriginalName().getValue());
         }
 
         return Optional.ofNullable(this.initMethod);

@@ -238,8 +238,8 @@ public class JvmObjectTypeGen {
             }
             // create and load attached function
             createObjectMemberFunction(mv, attachedFunc, objType);
-            int attachedFunctionVarIndex = indexMap.addIfNotExists(toNameString(objType) + attachedFunc.funcName.value,
-                    symbolTable.anyType);
+            int attachedFunctionVarIndex = indexMap.addIfNotExists(
+                    toNameString(objType) + attachedFunc.funcName.getValue(), symbolTable.anyType);
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             mv.visitInsn(DUP);
@@ -273,13 +273,13 @@ public class JvmObjectTypeGen {
                                        BIRVarToJVMIndexMap indexMap, String funcName,
                                        SymbolTable symbolTable, boolean isGeneratedInit) {
 
-        if (initFunction == null || !initFunction.funcName.value.contains(funcName)) {
+        if (initFunction == null || !initFunction.funcName.getValue().contains(funcName)) {
             return;
         }
 
         mv.visitInsn(DUP);
         createObjectMemberFunction(mv, initFunction, objType);
-        int attachedFunctionVarIndex = indexMap.addIfNotExists(objType.name + initFunction.funcName.value,
+        int attachedFunctionVarIndex = indexMap.addIfNotExists(objType.name + initFunction.funcName.getValue(),
                 symbolTable.anyType);
         mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -345,7 +345,7 @@ public class JvmObjectTypeGen {
             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
             createResourceFunction(mv, resourceFunction, objType);
 
-            String varRefName = toNameString(objType) + resourceFunction.funcName.value + "$r$func";
+            String varRefName = toNameString(objType) + resourceFunction.funcName.getValue() + "$r$func";
             int rFuncVarIndex = indexMap.addIfNotExists(varRefName, symbolTable.anyType);
             mv.visitVarInsn(ASTORE, rFuncVarIndex);
 
@@ -405,7 +405,7 @@ public class JvmObjectTypeGen {
 
         mv.visitInsn(DUP);
         // Load function name
-        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.getValue()));
 
         // Load module
         String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
@@ -430,7 +430,7 @@ public class JvmObjectTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.getValue()));
 
         // Load module
         String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
@@ -456,7 +456,7 @@ public class JvmObjectTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(resourceFunction.funcName.value);
+        mv.visitLdcInsn(resourceFunction.funcName.getValue());
 
         // Load module
         String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
@@ -490,7 +490,7 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(resourceFunction.symbol.flags);
 
         // Load accessor
-        mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
+        mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.getValue()));
 
         // Load resource path
         mv.visitLdcInsn((long) pathSegmentSize);
@@ -503,7 +503,7 @@ public class JvmObjectTypeGen {
             mv.visitInsn(L2I);
 
             // load resource path name
-            mv.visitLdcInsn(path.value);
+            mv.visitLdcInsn(path.getValue());
 
             mv.visitInsn(AASTORE);
         }

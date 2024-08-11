@@ -196,7 +196,7 @@ public class ConfigMethodGen {
                 mv.visitInsn(DUP);
                 mv.visitFieldInsn(GETSTATIC, moduleClass, CURRENT_MODULE_VAR_NAME,
                         "L" + MODULE + ";");
-                mv.visitLdcInsn(globalVar.name.value);
+                mv.visitLdcInsn(globalVar.name.getValue());
                 jvmTypeGen.loadType(mv, globalVar.type);
                 mv.visitLdcInsn(getOneBasedLocationString(module, globalVar.pos));
                 if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {

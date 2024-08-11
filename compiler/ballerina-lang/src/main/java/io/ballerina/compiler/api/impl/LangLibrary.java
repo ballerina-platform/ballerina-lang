@@ -75,8 +75,8 @@ public class LangLibrary {
             PackageID moduleID = module.pkgID;
 
             if (isLangLibModule(moduleID)) {
-                if (!LANG_VALUE.equals(moduleID.nameComps.get(1).value)) {
-                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods, types);
+                if (!LANG_VALUE.equals(moduleID.nameComps.get(1).getValue())) {
+                    addLangLibMethods(moduleID.nameComps.get(1).getValue(), module, this.langLibMethods, types);
                 } else {
                     populateLangValueLibrary(module, this.langLibMethods);
                 }
@@ -186,7 +186,7 @@ public class LangLibrary {
                     (!invSymbol.params.isEmpty() && equalsToBasicType(invSymbol.params.get(0).type, basicType) ||
                             invSymbol.restParam != null &&
                                     equalsToBasicType(((BArrayType) invSymbol.restParam.type).eType, basicType))) {
-                methods.put(invSymbol.name.value, invSymbol);
+                methods.put(invSymbol.name.getValue(), invSymbol);
             }
         }
 
@@ -204,7 +204,7 @@ public class LangLibrary {
                 continue;
             }
 
-            methods.put(symbol.name.value, (BInvokableSymbol) symbol);
+            methods.put(symbol.name.getValue(), (BInvokableSymbol) symbol);
         }
 
         langLibMethods.put(LANG_VALUE, methods);

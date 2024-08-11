@@ -94,7 +94,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         BObjectType type = (BObjectType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.symbol.getOriginalName().value, new BallerinaObjectFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().getValue(), new BallerinaObjectFieldSymbol(this.context, field));
         }
 
         this.objectFields = Collections.unmodifiableMap(fields);
@@ -113,11 +113,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
             if (attachedFunc instanceof BResourceFunction resFn) {
                 String resPath = resFn.pathSegmentSymbols.stream()
-                        .map(p -> p.name.value).collect(Collectors.joining("/"));
-                methods.put(resFn.accessor.value + " " + resPath,
+                        .map(p -> p.name.getValue()).collect(Collectors.joining("/"));
+                methods.put(resFn.accessor.getValue() + " " + resPath,
                             symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
             } else {
-                methods.put(attachedFunc.funcName.value,
+                methods.put(attachedFunc.funcName.getValue(),
                             symbolFactory.createMethodSymbol(attachedFunc.symbol,
                                                              attachedFunc.symbol.getOriginalName().getValue()));
             }

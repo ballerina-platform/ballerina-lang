@@ -364,7 +364,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), Names.NEVER.value);
+        Integer hash = hash(baseHash(type), Names.NEVER.getValue());
         return addToVisited(type, hash);
     }
 
@@ -376,7 +376,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), Names.NIL_VALUE.value);
+        Integer hash = hash(baseHash(type), Names.NIL_VALUE.getValue());
         return addToVisited(type, hash);
     }
 
@@ -535,7 +535,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), Names.INT.value, type.name.getValue());
+        Integer hash = hash(baseHash(type), Names.INT.getValue(), type.name.getValue());
         return addToVisited(type, hash);
     }
 
@@ -547,7 +547,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), Names.XML.value, type.name.getValue());
+        Integer hash = hash(baseHash(type), Names.XML.getValue(), type.name.getValue());
         return addToVisited(type, hash);
     }
 
@@ -590,7 +590,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     private List<Integer> getFieldsHashes(Map<String, BField> fields) {
         List<Integer> list = new ArrayList<>();
         for (BField f : fields.values()) {
-            Integer hash = hash(f.name.value, f.symbol != null ? f.symbol.flags : null, visit(f.type));
+            Integer hash = hash(f.name.getValue(), f.symbol != null ? f.symbol.flags : null, visit(f.type));
             list.add(hash);
         }
         list.sort(Comparator.comparingInt(Integer::intValue));
@@ -611,7 +611,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (attachedFunction == null) {
             return 0;
         }
-        return hash(attachedFunction.funcName.value,
+        return hash(attachedFunction.funcName.getValue(),
                 attachedFunction.symbol != null ? attachedFunction.symbol.flags : null, visit(attachedFunction.type));
     }
 

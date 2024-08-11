@@ -327,7 +327,7 @@ public class LargeMethodSplitter {
         String alias = pkgNode.symbol.pkgID.toString();
         BLangFunction initFunction = ASTBuilderUtil
                 .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
-                        new Name(Names.INIT_FUNCTION_SUFFIX.value
+                        new Name(Names.INIT_FUNCTION_SUFFIX.getValue()
                                 + this.initFuncIndex++), symTable);
         // Create invokable symbol for init function
         desugar.createInvokableSymbol(initFunction, env);
@@ -346,7 +346,7 @@ public class LargeMethodSplitter {
         BLangFunction startFunction = ASTBuilderUtil
                 .createInitFunctionWithErrorOrNilReturn(new BLangDiagnosticLocation(SPLIT_START_FUNCTIONS_CLASS_NAME,
                                 0, 0, 0, 0, 0, 0),
-                        alias, new Name(Names.START_FUNCTION_SUFFIX.value + this.startFuncIndex++), symTable);
+                        alias, new Name(Names.START_FUNCTION_SUFFIX.getValue() + this.startFuncIndex++), symTable);
         // Create invokable symbol for start function
         desugar.createInvokableSymbol(startFunction, env);
         return startFunction;
@@ -364,7 +364,7 @@ public class LargeMethodSplitter {
         BLangFunction stopFunction = ASTBuilderUtil
                 .createInitFunctionWithNilReturn(new BLangDiagnosticLocation(SPLIT_STOP_FUNCTIONS_CLASS_NAME,
                                 0, 0, 0, 0, 0, 0),
-                        alias, new Name(Names.STOP_FUNCTION_SUFFIX.value + this.stopFuncIndex++));
+                        alias, new Name(Names.STOP_FUNCTION_SUFFIX.getValue() + this.stopFuncIndex++));
         // Create invokable symbol for stop function
         desugar.createInvokableSymbol(stopFunction, env);
         return stopFunction;

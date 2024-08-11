@@ -167,7 +167,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
-            pkgDirPath = pkgDirPath.resolve(comp.value);
+            pkgDirPath = pkgDirPath.resolve(comp.getValue());
         }
         return pkgDirPath;
     }
@@ -183,7 +183,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
     }
 
     private Path generatePathNew(PackageID pkgID) {
-        Path pkgDirPath = this.basePath.resolve(pkgID.getOrgName().value);
+        Path pkgDirPath = this.basePath.resolve(pkgID.getOrgName().getValue());
         return pkgDirPath.resolve(createPackageNameWithDots(pkgID));
     }
 
@@ -194,7 +194,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
             if (i != 0) {
                 builder.append(".");
             }
-            builder.append(nameComps.get(i).value);
+            builder.append(nameComps.get(i).getValue());
         }
         return builder.toString();
     }

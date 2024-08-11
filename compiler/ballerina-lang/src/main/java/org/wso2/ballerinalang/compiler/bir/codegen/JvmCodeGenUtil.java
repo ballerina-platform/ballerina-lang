@@ -203,8 +203,8 @@ public final class JvmCodeGenUtil {
         objectType = getImpliedType(objectType);
         // The call name will be in the format of`objectTypeName.funcName` for attached functions of imported modules.
         // Therefore, We need to remove the type name.
-        if (!objectType.tsymbol.name.value.isEmpty() && value.startsWith(objectType.tsymbol.name.value)) {
-            value = value.replace(objectType.tsymbol.name.value + ".", "").trim();
+        if (!objectType.tsymbol.name.getValue().isEmpty() && value.startsWith(objectType.tsymbol.name.getValue())) {
+            value = value.replace(objectType.tsymbol.name.getValue() + ".", "").trim();
         }
         return Utils.encodeFunctionIdentifier(value);
     }
@@ -281,16 +281,16 @@ public final class JvmCodeGenUtil {
 
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         String packageName = "";
-        String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
+        String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.getValue());
         String moduleName;
         if (!packageID.isTestPkg) {
-            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.getValue());
         } else {
-            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.getValue()) + Names.TEST_PACKAGE.getValue();
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.isEmpty()) {
-                packageName = getMajorVersion(packageID.version.value) + separator;
+            if (!packageID.version.getValue().isEmpty()) {
+                packageName = getMajorVersion(packageID.version.getValue()) + separator;
             }
             packageName = moduleName + separator + packageName;
         }
@@ -471,9 +471,9 @@ public final class JvmCodeGenUtil {
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
                 ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
             return Utils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
-                    .typeDefinitionSymbol.name.value);
+                    .typeDefinitionSymbol.name.getValue());
         }
-        return Utils.encodeNonFunctionIdentifier(typeSymbol.name.value);
+        return Utils.encodeNonFunctionIdentifier(typeSymbol.name.getValue());
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -487,7 +487,7 @@ public final class JvmCodeGenUtil {
 
         int insCount = bb.instructions.size();
         for (int i = 0; i < insCount; i++) {
-            Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + i);
+            Label insLabel = labelGen.getLabel(funcName + bb.id.getValue() + "ins" + i);
             mv.visitLabel(insLabel);
             BIRAbstractInstruction inst = bb.instructions.get(i);
             if (inst != null) {
@@ -556,7 +556,7 @@ public final class JvmCodeGenUtil {
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.getValue());
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
@@ -583,24 +583,25 @@ public final class JvmCodeGenUtil {
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(Utils.encodeNonFunctionIdentifier(pkgID.orgName.value));
-        Name module = new Name(Utils.encodeNonFunctionIdentifier(pkgID.name.value));
+        Name org = new Name(Utils.encodeNonFunctionIdentifier(pkgID.orgName.getValue()));
+        Name module = new Name(Utils.encodeNonFunctionIdentifier(pkgID.name.getValue()));
         return new PackageID(org, module, pkgID.version);
     }
 
     public static boolean isBuiltInPackage(PackageID packageID) {
         packageID = cleanupPackageID(packageID);
-        return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
+        return BALLERINA.equals(packageID.orgName.getValue()) &&
+                BUILT_IN_PACKAGE_NAME.equals(packageID.name.getValue());
     }
 
     public static boolean isSameModule(PackageID moduleId, PackageID importModule) {
         PackageID cleanedPkg = cleanupPackageID(importModule);
-        if (!moduleId.orgName.value.equals(cleanedPkg.orgName.value)) {
+        if (!moduleId.orgName.getValue().equals(cleanedPkg.orgName.getValue())) {
             return false;
-        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
+        } else if (!moduleId.name.getValue().equals(cleanedPkg.name.getValue())) {
             return false;
         } else {
-            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
+            return getMajorVersion(moduleId.version.getValue()).equals(getMajorVersion(cleanedPkg.version.getValue()));
         }
     }
 
@@ -745,7 +746,7 @@ public final class JvmCodeGenUtil {
     }
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
-        return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+        return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.getValue());
     }
 
     public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {

@@ -209,7 +209,7 @@ public class TypesFactory {
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
-                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
+                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.getValue(), objType);
                 }
                 return objType;
             case RECORD:
@@ -302,7 +302,7 @@ public class TypesFactory {
             return false;
         }
 
-        if (!isBuiltinNamedType(bType.tag) && !(tSymbol.name.value.isEmpty()
+        if (!isBuiltinNamedType(bType.tag) && !(tSymbol.name.getValue().isEmpty()
                 || anonymousModelHelper.isAnonymousType(tSymbol))) {
             return true;
         }

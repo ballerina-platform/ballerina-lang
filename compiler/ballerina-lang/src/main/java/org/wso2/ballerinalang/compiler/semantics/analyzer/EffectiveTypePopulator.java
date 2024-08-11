@@ -66,7 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -190,8 +189,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
         if (origMapType != null) {
             if (bMapType.constraint.tag == TypeTags.NEVER || bMapType.constraint == symTable.semanticError) {
                 bMapType.constraint = ImmutableTypeCloner.getImmutableType(loc, types, origMapType.constraint, env,
-                        pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                        new HashSet<>());
+                        pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
             }
             updateType(bMapType.constraint, loc, pkgID, typeNode, env);
             bMapType.mutableType = null;
@@ -256,7 +254,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
                         continue;
                     }
                     BType newType = ImmutableTypeCloner.getImmutableType(loc, types, origTupleMemType.type, env,
-                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
+                            pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
                     BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
                     BTupleMember member = new BTupleMember(newType, varSymbol);
                     bTupleType.addMembers(member);
@@ -268,7 +266,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
             }
 
             BTypeSymbol tsymbol = bTupleType.tsymbol;
-            if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.isEmpty()
+            if (tsymbol != null && tsymbol.name != null && !tsymbol.name.getValue().isEmpty()
                     && !Symbols.isFlagOn(bTupleType.flags, Flags.EFFECTIVE_TYPE_DEF)) {
                 BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
                 tupleTypeNode.setBType(bTupleType);
@@ -298,7 +296,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
         if (origXMLType != null) {
             if (bXMLType.constraint == symTable.semanticError) {
                 bXMLType.constraint = ImmutableTypeCloner.getImmutableType(loc, types, origXMLType.constraint, env,
-                        pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
+                        pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
             }
             updateType(bXMLType.constraint, loc, pkgID, typeNode, env);
             bXMLType.mutableType = null;
@@ -312,14 +310,14 @@ public class EffectiveTypePopulator implements TypeVisitor {
             if (bTableType.constraint.tag == TypeTags.NEVER ||
                     bTableType.constraint == symTable.semanticError) {
                 bTableType.constraint = ImmutableTypeCloner.getImmutableType(loc, types, origTableType.constraint, env,
-                        pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
+                        pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
             }
             updateType(bTableType.constraint, loc, pkgID, typeNode, env);
 
             if (origTableType.keyTypeConstraint != null) {
                 bTableType.keyTypeConstraint = ImmutableTypeCloner.getImmutableType(loc, types,
                         origTableType.keyTypeConstraint, env, pkgID, env.scope.owner, symTable,
-                        anonymousModelHelper, names, new HashSet<>());
+                        anonymousModelHelper, new HashSet<>());
                 updateType(bTableType.keyTypeConstraint, loc, pkgID, typeNode, env);
             }
             bTableType.mutableType = null;
@@ -335,8 +333,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
                 LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
                 for (BField origField : origRecordType.fields.values()) {
                     BType fieldType = ImmutableTypeCloner.getImmutableType(loc, types, origField.type, env,
-                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                            new HashSet<>());
+                            pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
 
                     Name origFieldName = origField.name;
                     BVarSymbol fieldSymbol;
@@ -361,7 +358,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
                                 fieldType, structureSymbol,
                                 origField.symbol.pos, SOURCE);
                     }
-                    String nameString = origFieldName.value;
+                    String nameString = origFieldName.getValue();
                     fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
                     structureSymbol.scope.define(origFieldName, fieldSymbol);
                 }
@@ -369,11 +366,10 @@ public class EffectiveTypePopulator implements TypeVisitor {
                 bRecordType.restFieldType = origRecordType.restFieldType;
             } else {
                 for (BField immutableField : bRecordType.fields.values()) {
-                    BField origField = origRecordType.fields.get(immutableField.name.value);
+                    BField origField = origRecordType.fields.get(immutableField.name.getValue());
                     if (immutableField.type.tag == TypeTags.NEVER) {
                         immutableField.type = ImmutableTypeCloner.getImmutableType(loc, types, origField.type, env,
-                                pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                                new HashSet<>());
+                                pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
                     }
                     Name origFieldName = origField.name;
                     updateType(immutableField.type, loc, pkgID, typeNode, env);
@@ -395,8 +391,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
                 LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
                 for (BField origField : origObjectType.fields.values()) {
                     BType fieldType = ImmutableTypeCloner.getImmutableType(loc, types, origField.type, env,
-                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                            new HashSet<>());
+                            pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
 
                     Name origFieldName = origField.name;
                     BVarSymbol fieldSymbol;
@@ -416,18 +411,17 @@ public class EffectiveTypePopulator implements TypeVisitor {
                                 fieldType, structureSymbol,
                                 origField.symbol.pos, SOURCE);
                     }
-                    String nameString = origFieldName.value;
+                    String nameString = origFieldName.getValue();
                     fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
                     structureSymbol.scope.define(origFieldName, fieldSymbol);
                 }
                 bObjectType.fields = fields;
             } else {
                 for (BField immutableField : bObjectType.fields.values()) {
-                    BField origField = origObjectType.fields.get(immutableField.name.value);
+                    BField origField = origObjectType.fields.get(immutableField.name.getValue());
                     if (immutableField.type.tag == TypeTags.NEVER) {
                         immutableField.type = ImmutableTypeCloner.getImmutableType(loc, types, origField.type, env,
-                                pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                                new HashSet<>());
+                                pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
                     }
                     Name origFieldName = origField.name;
                     updateType(immutableField.type, loc, pkgID, typeNode, env);

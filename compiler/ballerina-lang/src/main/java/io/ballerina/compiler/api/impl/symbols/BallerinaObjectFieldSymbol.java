@@ -59,7 +59,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.symbol.getOriginalName().value, kind, bField.symbol, context);
+        super(bField.symbol.getOriginalName().getValue(), kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);

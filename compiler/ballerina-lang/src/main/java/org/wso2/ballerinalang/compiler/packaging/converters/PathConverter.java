@@ -91,7 +91,7 @@ public class PathConverter implements Converter<Path> {
                             .toList();
                 }
                 if (packageID != null) {
-                    if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
+                    if (packageID.version.getValue().isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                             && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {
                         packageID.version = new Name(pathList.get(0).toFile().getName());
                     }
@@ -139,7 +139,7 @@ public class PathConverter implements Converter<Path> {
     @Override
     public Stream<CompilerInput> finalize(Path path, PackageID pkgId) {
         // Set package version if its empty
-        if (pkgId.version.value.isEmpty() && !pkgId.orgName.equals(Names.BUILTIN_ORG)
+        if (pkgId.version.getValue().isEmpty() && !pkgId.orgName.equals(Names.BUILTIN_ORG)
                 && !pkgId.orgName.equals(Names.ANON_ORG)) {
             Manifest manifest = TomlParserUtils.getManifest(root);
             pkgId.version = new Name(manifest.getProject().getVersion());
@@ -147,11 +147,11 @@ public class PathConverter implements Converter<Path> {
 
         if ((!ProjectDirs.isProject(root) || RepoUtils.isBallerinaStandaloneFile(path))
                 && Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceInput(path, root.resolve(pkgId.name.value)));
+            return Stream.of(new FileSystemSourceInput(path, root.resolve(pkgId.name.getValue())));
         } else if (Files.isRegularFile(path)) {
             return Stream.of(new FileSystemSourceInput(path,
                     root.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                            .resolve(pkgId.name.value)));
+                            .resolve(pkgId.name.getValue())));
         } else {
             return Stream.of();
         }

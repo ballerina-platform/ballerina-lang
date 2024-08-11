@@ -242,7 +242,7 @@ public final class Symbols {
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
-        return typeName + Names.DOT.value + funcName;
+        return typeName + Names.DOT.getValue() + funcName;
     }
 
     public static boolean isNative(BSymbol sym) {

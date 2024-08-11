@@ -111,7 +111,7 @@ public final class ProjectDirs {
     public static boolean isTestSource(Path sourcePath, Path sourceRoot, String pkg) {
         // CASE 1: Check if it the package name is "." i.e. if its a single ballerina source file, if so it should be
         // added to the bLangPackage
-        if (Names.DOT.value.equals(pkg)) {
+        if (Names.DOT.getValue().equals(pkg)) {
             return false;
         }
     

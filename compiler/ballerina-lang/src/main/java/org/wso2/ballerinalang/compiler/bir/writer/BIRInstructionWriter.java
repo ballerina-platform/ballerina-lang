@@ -130,7 +130,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     @Override
     public void visit(BIRBasicBlock birBasicBlock) {
         //Name of the basic block
-        addCpAndWriteString(birBasicBlock.id.value);
+        addCpAndWriteString(birBasicBlock.id.getValue());
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
@@ -164,35 +164,35 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
-        addCpAndWriteString(errorEntry.trapBB.id.value);
-        addCpAndWriteString(errorEntry.endBB.id.value);
+        addCpAndWriteString(errorEntry.trapBB.id.getValue());
+        addCpAndWriteString(errorEntry.endBB.id.getValue());
         errorEntry.errorOp.accept(this);
-        addCpAndWriteString(errorEntry.targetBB.id.value);
+        addCpAndWriteString(errorEntry.targetBB.id.getValue());
     }
 
     // Terminating instructions
 
     @Override
     public void visit(BIRTerminator.GOTO birGoto) {
-        addCpAndWriteString(birGoto.targetBB.id.value);
+        addCpAndWriteString(birGoto.targetBB.id.getValue());
     }
 
     @Override
     public void visit(BIRTerminator.Lock lock) {
-        addCpAndWriteString(lock.lockedBB.id.value);
+        addCpAndWriteString(lock.lockedBB.id.getValue());
     }
 
     @Override
     public void visit(BIRTerminator.FieldLock lock) {
         // TODO properly use operand instead of variablDcl.name here
-        addCpAndWriteString(lock.localVar.variableDcl.name.value);
+        addCpAndWriteString(lock.localVar.variableDcl.name.getValue());
         addCpAndWriteString(lock.field);
-        addCpAndWriteString(lock.lockedBB.id.value);
+        addCpAndWriteString(lock.lockedBB.id.getValue());
     }
 
     @Override
     public void visit(BIRTerminator.Unlock unlock) {
-        addCpAndWriteString(unlock.unlockBB.id.value);
+        addCpAndWriteString(unlock.unlockBB.id.getValue());
     }
 
     @Override
@@ -204,9 +204,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Branch birBranch) {
         birBranch.op.accept(this);
         // true:BB
-        addCpAndWriteString(birBranch.trueBB.id.value);
+        addCpAndWriteString(birBranch.trueBB.id.getValue());
         // false:BB
-        addCpAndWriteString(birBranch.falseBB.id.value);
+        addCpAndWriteString(birBranch.falseBB.id.getValue());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             expr.accept(this);
         }
         waitEntry.lhsOp.accept(this);
-        addCpAndWriteString(waitEntry.thenBB.id.value);
+        addCpAndWriteString(waitEntry.thenBB.id.getValue());
     }
 
     @Override
@@ -228,7 +228,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeBoolean(detail.send);
         }
         entry.lhsOp.accept(this);
-        addCpAndWriteString(entry.thenBB.id.value);
+        addCpAndWriteString(entry.thenBB.id.getValue());
     }
 
     @Override
@@ -236,7 +236,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(entry.workerName.getValue()));
         entry.lhsOp.accept(this);
         buf.writeBoolean(entry.isSameStrand);
-        addCpAndWriteString(entry.thenBB.id.value);
+        addCpAndWriteString(entry.thenBB.id.getValue());
     }
 
     @Override
@@ -248,7 +248,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         if (entry.isSync) {
             entry.lhsOp.accept(this);
         }
-        addCpAndWriteString(entry.thenBB.id.value);
+        addCpAndWriteString(entry.thenBB.id.getValue());
     }
 
     @Override
@@ -256,7 +256,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         entry.channels.forEach(key -> buf.writeInt(addStringCPEntry(key)));
         entry.lhsOp.accept(this);
         buf.writeBoolean(entry.isSameStrand);
-        addCpAndWriteString(entry.thenBB.id.value);
+        addCpAndWriteString(entry.thenBB.id.getValue());
     }
 
     @Override
@@ -268,7 +268,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeType(entry.targetType);
         entry.lhsOp.accept(this);
         buf.writeBoolean(entry.isSameStrand);
-        addCpAndWriteString(entry.thenBB.id.value);
+        addCpAndWriteString(entry.thenBB.id.getValue());
     }
 
     @Override
@@ -278,7 +278,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
         buf.writeInt(waitAll.valueExprs.size());
         waitAll.valueExprs.forEach(val -> val.accept(this));
-        addCpAndWriteString(waitAll.thenBB.id.value);
+        addCpAndWriteString(waitAll.thenBB.id.getValue());
     }
 
     // Non-terminating instructions
@@ -300,14 +300,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.Call birCall) {
         writeCallInstruction(birCall);
-        addCpAndWriteString(birCall.thenBB.id.value);
+        addCpAndWriteString(birCall.thenBB.id.getValue());
     }
 
     @Override
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
         BIRWriterUtils.writeAnnotAttachments(this.cp, buf, birAsyncCall.annotAttachments);
-        addCpAndWriteString(birAsyncCall.thenBB.id.value);
+        addCpAndWriteString(birAsyncCall.thenBB.id.getValue());
     }
 
     private void writeCallInstruction(BIRTerminator.Call birCall) {
@@ -342,7 +342,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(0);
         }
         buf.writeBoolean(fpCall.isAsync);
-        addCpAndWriteString(fpCall.thenBB.id.value);
+        addCpAndWriteString(fpCall.thenBB.id.getValue());
     }
 
     @Override
@@ -497,7 +497,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birOperand.variableDcl.scope.getValue());
 
         // TODO use the integer index of the variable.
-        addCpAndWriteString(birOperand.variableDcl.name.value);
+        addCpAndWriteString(birOperand.variableDcl.name.getValue());
 
         if (birOperand.variableDcl.kind == VarKind.GLOBAL || birOperand.variableDcl.kind == VarKind.CONSTANT) {
             int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
@@ -535,7 +535,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         fpLoad.params.forEach(param -> {
             buf.writeByte(param.kind.getValue());
             writeType(param.type);
-            buf.writeInt(addStringCPEntry(param.name.value));
+            buf.writeInt(addStringCPEntry(param.name.getValue()));
         });
     }
 

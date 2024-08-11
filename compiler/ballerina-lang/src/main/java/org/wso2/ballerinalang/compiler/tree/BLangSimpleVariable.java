@@ -78,7 +78,7 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     public String toString() {
         String varName = "_";
         if (symbol != null && symbol.name != null) {
-            varName = symbol.name.value;
+            varName = symbol.name.getValue();
         }
         return String.valueOf(getBType()) + " " + varName + (expr != null ? " = " + String.valueOf(expr) : "");
     }

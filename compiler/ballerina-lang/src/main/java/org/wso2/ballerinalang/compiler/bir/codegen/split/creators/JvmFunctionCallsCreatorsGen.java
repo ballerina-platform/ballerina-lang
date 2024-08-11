@@ -96,7 +96,7 @@ public class JvmFunctionCallsCreatorsGen {
         List<Label> targetLabels = new ArrayList<>();
         String callMethod = CALL_FUNCTION;
         for (BIRNode.BIRFunction func : functions) {
-            String encodedMethodName = Utils.encodeFunctionIdentifier(func.name.value);
+            String encodedMethodName = Utils.encodeFunctionIdentifier(func.name.getValue());
             String packageName = JvmCodeGenUtil.getPackageName(packageID);
             BIRFunctionWrapper functionWrapper =
                     jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
@@ -135,7 +135,7 @@ public class JvmFunctionCallsCreatorsGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
-            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName(), func.name.value,
+            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName(), func.name.getValue(),
                     functionWrapper.jvmMethodDescription(), false);
             int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {

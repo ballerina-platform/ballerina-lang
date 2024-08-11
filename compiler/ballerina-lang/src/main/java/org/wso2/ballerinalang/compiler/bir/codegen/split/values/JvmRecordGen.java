@@ -215,7 +215,7 @@ public class JvmRecordGen {
 
             // if the field is an optional-field, first check the 'isPresent' flag of that field.
             Label ifPresentLabel = new Label();
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, selfRegIndex);
                 mv.visitFieldInsn(GETFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -332,7 +332,7 @@ public class JvmRecordGen {
             mv.visitLabel(targetLabel);
 
             // load the existing value to return
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             mv.visitVarInsn(ALOAD, selfRegIndex);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
@@ -436,7 +436,7 @@ public class JvmRecordGen {
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presence of the field.
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -545,7 +545,7 @@ public class JvmRecordGen {
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 // if the field is optional, then return the value is the 'isPresent' flag.
                 mv.visitVarInsn(ALOAD, selfRegIndex);
@@ -637,7 +637,7 @@ public class JvmRecordGen {
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presence of the field.
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -742,7 +742,7 @@ public class JvmRecordGen {
 
             //Setting isPresent as zero
             if (isOptionalRecordField(optionalField)) {
-                String fieldName = optionalField.name.value;
+                String fieldName = optionalField.name.getValue();
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -853,7 +853,7 @@ public class JvmRecordGen {
             Label ifNotPresent = new Label();
 
             // If its an optional field, generate if-condition to check the presense of the field.
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -928,7 +928,7 @@ public class JvmRecordGen {
             BField field = sortedFields.get(i);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
-            String fieldName = field.name.value;
+            String fieldName = field.name.getValue();
 
             mv.visitVarInsn(ALOAD, selfRegister);
             BType fieldType = field.type;

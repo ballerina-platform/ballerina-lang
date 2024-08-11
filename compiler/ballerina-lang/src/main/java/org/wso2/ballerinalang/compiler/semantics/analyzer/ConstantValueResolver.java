@@ -205,7 +205,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 return;
             }
             this.unresolvableConstants.add(constSymbol);
-            dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
+            dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.getValue());
             this.result = null;
             return;
         }
@@ -778,7 +778,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
                 type.tsymbol.name, pkgID, null, env.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
-        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.getValue()), typeDefinitionSymbol);
 
         type.tsymbol.scope = new Scope(type.tsymbol);
         for (BField field : ((HashMap<String, BField>) type.fields).values()) {
@@ -818,7 +818,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private void addAssociatedTypeDefinition(BLangConstant constant, BIntersectionType immutableType) {
         BLangTypeDefinition typeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                immutableType.effectiveType.tsymbol.name.value);
+                immutableType.effectiveType.tsymbol.name.getValue());
 
         constant.associatedTypeDefinition = typeDefinition;
     }

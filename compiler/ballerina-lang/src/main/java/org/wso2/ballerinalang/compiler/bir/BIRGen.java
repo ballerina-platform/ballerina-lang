@@ -364,7 +364,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType type = getDefinedType(astTypeDefinition);
         BType referredType = Types.getImpliedType(type);
         BSymbol symbol = astTypeDefinition.symbol;
-        String displayName = symbol.name.value;
+        String displayName = symbol.name.getValue();
         if (referredType.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
@@ -579,12 +579,12 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         Name funcName;
         if (isTypeAttachedFunction) {
-            funcName = Names.fromString(astFunc.symbol.name.value);
+            funcName = Names.fromString(astFunc.symbol.name.getValue());
         } else {
             funcName = getFuncName(astFunc.symbol);
         }
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName,
-                Names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
+                Names.fromString(astFunc.symbol.getOriginalName().getValue()), astFunc.symbol.flags, type, workerName,
                 astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
@@ -651,7 +651,7 @@ public class BIRGen extends BLangNodeVisitor {
             // Parent symbol will always be BObjectTypeSymbol for resource functions
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) parentTSymbol;
             for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-                if (func.funcName.value.equals(funcName.value)) {
+                if (func.funcName.getValue().equals(funcName.getValue())) {
                     BResourceFunction resourceFunction = (BResourceFunction) func;
                     
                     List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams;
@@ -715,7 +715,7 @@ public class BIRGen extends BLangNodeVisitor {
     
     private BIRVariableDcl createBIRVarDeclForPathParam(BVarSymbol pathParamSym) {
         return new BIRVariableDcl(pathParamSym.pos, pathParamSym.type, this.env.nextLocalVarId(),
-                VarScope.FUNCTION, VarKind.ARG, pathParamSym.name.value);
+                VarScope.FUNCTION, VarKind.ARG, pathParamSym.name.getValue());
     }
 
     private BIRVariableDcl getSelf(BSymbol receiver) {
@@ -832,7 +832,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         PackageID pkgID = lambdaExpr.function.symbol.pkgID;
-        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
+        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.getValue());
         boolean isWorker = lambdaExpr.function.flagSet.contains(Flag.WORKER);
 
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
@@ -841,14 +841,14 @@ public class BIRGen extends BLangNodeVisitor {
                 lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                 lambdaExpr.function.symbol.schedulerPolicy, isWorker);
         setScopeAndEmit(fpLoad);
-        BType targetType = getRecordTargetType(funcName.value);
+        BType targetType = getRecordTargetType(funcName.getValue());
         if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
                 targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
             setScopeAndEmit(
                     new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
-                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
+                            getFieldName(funcName.getValue(), targetType.tsymbol.name.getValue())));
         }
         this.env.targetOperand = lhsOp;
     }
@@ -865,7 +865,7 @@ public class BIRGen extends BLangNodeVisitor {
         String[] split = funcName.split(Pattern.quote(RECORD_DELIMITER));
         String typeName = split[split.length - 2];
         for (BIRTypeDefinition type : this.env.enclPkg.typeDefs) {
-            if (typeName.equals(type.originalName.value)) {
+            if (typeName.equals(type.originalName.getValue())) {
                 return type.type;
             }
         }
@@ -889,11 +889,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     private Name getFuncName(BInvokableSymbol symbol) {
         if (symbol.receiverSymbol == null) {
-            return Names.fromString(symbol.name.value);
+            return Names.fromString(symbol.name.getValue());
         }
 
-        int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
-        String attachedFuncName = symbol.name.value;
+        int offset = symbol.receiverSymbol.type.tsymbol.name.getValue().length() + 1;
+        String attachedFuncName = symbol.name.getValue();
         return Names.fromString(attachedFuncName.substring(offset));
     }
 
@@ -912,7 +912,7 @@ public class BIRGen extends BLangNodeVisitor {
                 paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(), VarScope.FUNCTION, VarKind.ARG,
-                paramSymbol.name.value, defaultValExpr != null, isPathParam);
+                paramSymbol.name.getValue(), defaultValExpr != null, isPathParam);
 
         birFunc.localVars.add(birVarDcl);
 
@@ -928,7 +928,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false,
+                this.env.nextLocalVarId(), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.getValue(), false,
                 paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
@@ -946,7 +946,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
                 paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value,
+                this.env.nextLocalVarId(), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.getValue(),
                 false, isPathParam);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
@@ -1101,8 +1101,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        String name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? ANNOTATION_DATA : varNode.name.value;
-        String originalName = ANNOTATION_DATA.equals(varNode.symbol.getOriginalName().value) ?
+        String name = ANNOTATION_DATA.equals(varNode.symbol.name.getValue()) ? ANNOTATION_DATA : varNode.name.value;
+        String originalName = ANNOTATION_DATA.equals(varNode.symbol.getOriginalName().getValue()) ?
                                                                     ANNOTATION_DATA : varNode.name.originalValue;
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, varNode.symbol.pkgID,
@@ -1183,7 +1183,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerAlternateReceive(altWorkerReceive.pos,
                 getChannelList(altWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
@@ -1218,7 +1218,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerMultipleReceive(multipleWorkerReceive.pos,
                 getChannelList(multipleWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
@@ -1237,7 +1237,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos,
                 Names.fromString(workerReceive.getChannel().channelId()), lhsOp, isOnSameStrand, thenBB,
@@ -1259,7 +1259,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
                 asyncSendExpr.pos, Names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
@@ -1282,7 +1282,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
                 syncSend.pos, Names.fromString(syncSend.getChannel().channelId()), dataOp, isOnSameStrand, true, lhsOp,
@@ -1300,7 +1300,7 @@ public class BIRGen extends BLangNodeVisitor {
         //create channelDetails array
         BIRNode.ChannelDetails[] channels = new BIRNode.ChannelDetails[flushExpr.cachedWorkerSendStmts.size()];
         int i = 0;
-        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.getValue());
         for (BLangWorkerAsyncSendExpr sendStmt : flushExpr.cachedWorkerSendStmts) {
             channels[i] = new BIRNode.ChannelDetails(sendStmt.getChannel().channelId(), isOnSameStrand, true);
             i++;
@@ -1687,7 +1687,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef, objectType);
         } else {
-            String objectName = objectTypeSymbol.name.value;
+            String objectName = objectTypeSymbol.name.getValue();
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, objectTypeSymbol.pkgID, objectName,
                     toVarRef, objectType);
         }
@@ -2394,7 +2394,7 @@ public class BIRGen extends BLangNodeVisitor {
                 birGlobalVar = dummyGlobalVarMapForLocks.computeIfAbsent(globalVar, k ->
                         new BIRGlobalVariableDcl(null, globalVar.flags, globalVar.type, globalVar.pkgID,
                                                  globalVar.name, globalVar.getOriginalName(), VarScope.GLOBAL,
-                                                 VarKind.GLOBAL, globalVar.name.value,
+                                                 VarKind.GLOBAL, globalVar.name.getValue(),
                                                  globalVar.origin.toBIROrigin()));
             }
 

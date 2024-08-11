@@ -499,7 +499,7 @@ public final class ASTBuilderUtil {
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
-        invokeLambda.name = createIdentifier(pos, invokableSymbol.name.value);
+        invokeLambda.name = createIdentifier(pos, invokableSymbol.name.getValue());
         invokeLambda.requiredArgs.addAll(requiredArgs);
         invokeLambda.restArgs
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
@@ -518,7 +518,7 @@ public final class ASTBuilderUtil {
     static BLangSimpleVarRef createVariableRef(Location pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.variableName = createIdentifier(pos, varSymbol.name.value);
+        varRef.variableName = createIdentifier(pos, varSymbol.name.getValue());
         varRef.symbol = varSymbol;
         varRef.setBType(varSymbol.type);
         return varRef;

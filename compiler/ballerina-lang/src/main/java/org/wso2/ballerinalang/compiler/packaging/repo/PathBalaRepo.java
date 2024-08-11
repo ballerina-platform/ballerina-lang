@@ -65,8 +65,8 @@ public class PathBalaRepo implements Repo<Path> {
         
         Optional<Dependency> tomlDependency =
                 this.manifest.getDependencies().stream()
-                        .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
-                                       dep.getModuleName().equals(moduleID.name.value) &&
+                        .filter(dep -> dep.getOrgName().equals(moduleID.orgName.getValue()) &&
+                                       dep.getModuleName().equals(moduleID.name.getValue()) &&
                                        null != dep.getMetadata().getPath())
                         .findFirst();
         
@@ -91,7 +91,7 @@ public class PathBalaRepo implements Repo<Path> {
         }
         
         // update version of the dependency from the current(root) project
-        if (moduleID.version.value.isEmpty() && null != dep.getMetadata().getVersion()) {
+        if (moduleID.version.getValue().isEmpty() && null != dep.getMetadata().getVersion()) {
             Matcher semverMatcher = semVerPattern.matcher(dep.getMetadata().getVersion());
             if (semverMatcher.matches()) {
                 moduleID.version = new Name(dep.getMetadata().getVersion());
@@ -100,7 +100,7 @@ public class PathBalaRepo implements Repo<Path> {
 
         Manifest manifestFromBala = RepoUtils.getManifestFromBala(balaPath.toAbsolutePath());
         // if version is not set, then resolve by the bala path's manifest
-        if (moduleID.version.value.isEmpty()) {
+        if (moduleID.version.getValue().isEmpty()) {
             moduleID.version = new Name(manifestFromBala.getProject().getVersion());
         }
     

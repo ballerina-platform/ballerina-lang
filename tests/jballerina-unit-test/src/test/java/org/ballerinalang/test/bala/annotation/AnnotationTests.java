@@ -150,10 +150,10 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         BAnnotationAttachmentSymbol attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         PackageID pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Allow");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         assertTrueAnnot(attachmentSymbol);
         BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol;
@@ -170,10 +170,10 @@ public class AnnotationTests {
 
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "defn");
-        Assert.assertEquals(pkgID.version.value, "0.0.1");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Annot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+        Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Annot");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         Object value = ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol)
                 .attachmentValueSymbol.value.value;
@@ -184,20 +184,20 @@ public class AnnotationTests {
 
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(1);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "defn");
-        Assert.assertEquals(pkgID.version.value, "0.0.1");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "NonConstAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+        Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "NonConstAnnot");
         Assert.assertFalse(attachmentSymbol.isConstAnnotation());
 
         annotationAttachmentSymbols = otherFunc.restParam.getAnnotations();
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Allow");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
         Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
@@ -210,10 +210,10 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "NonConstAllow");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "NonConstAllow");
         Assert.assertFalse(attachmentSymbol.isConstAnnotation());
 
         BClassSymbol testListener =
@@ -228,31 +228,31 @@ public class AnnotationTests {
         for (AnnotationAttachmentSymbol annotationAttachmentSymbol : annotationAttachmentSymbols) {
             attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbol;
             pkgID = attachmentSymbol.annotPkgID;
-            Assert.assertEquals(pkgID.orgName.value, "annots");
+            Assert.assertEquals(pkgID.orgName.getValue(), "annots");
 
             Assert.assertTrue(attachmentSymbol.isConstAnnotation());
             constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
             Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
             Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
 
-            String pkgName = pkgID.pkgName.value;
+            String pkgName = pkgID.pkgName.getValue();
 
             if ("defn".equals(pkgName)) {
-                Assert.assertEquals(pkgID.version.value, "0.0.1");
-                Assert.assertEquals(attachmentSymbol.annotTag.value, "Expose");
+                Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+                Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Expose");
                 continue;
             }
 
             Assert.assertEquals(pkgName, "usage");
-            Assert.assertEquals(pkgID.version.value, "0.2.0");
-            Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
+            Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+            Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Allow");
         }
 
         BAttachedFunction attachMethod = null;
         BAttachedFunction detachMethod = null;
 
         for (BAttachedFunction attachedFunc : testListener.attachedFuncs) {
-            String funcName = attachedFunc.funcName.value;
+            String funcName = attachedFunc.funcName.getValue();
 
             if ("attach".equals(funcName)) {
                 attachMethod = attachedFunc;
@@ -271,10 +271,10 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "defn");
-        Assert.assertEquals(pkgID.version.value, "0.0.1");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Annot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+        Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Annot");
         constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
         value = constAttachmentSymbol.attachmentValueSymbol.value.value;
         Assert.assertTrue(value instanceof Map);
@@ -293,10 +293,10 @@ public class AnnotationTests {
         for (AnnotationAttachmentSymbol annotationAttachmentSymbol : annotationAttachmentSymbols) {
             attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbol;
             pkgID = attachmentSymbol.annotPkgID;
-            Assert.assertEquals(pkgID.orgName.value, "annots");
-            Assert.assertEquals(pkgID.pkgName.value, "defn");
-            Assert.assertEquals(pkgID.version.value, "0.0.1");
-            Assert.assertEquals(attachmentSymbol.annotTag.value, "Annots");
+            Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+            Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+            Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+            Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Annots");
             constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
             value = constAttachmentSymbol.attachmentValueSymbol.value.value;
             Assert.assertTrue(value instanceof Map);
@@ -322,20 +322,20 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 2);
         BAnnotationAttachmentSymbol attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         PackageID pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Allow");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         assertTrueAnnot(attachmentSymbol);
         BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol;
 
         attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(1);
         pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "defn");
-        Assert.assertEquals(pkgID.version.value, "0.0.1");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Annot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+        Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Annot");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol;
         Object value = constAttachmentSymbol.attachmentValueSymbol.value.value;
@@ -358,10 +358,10 @@ public class AnnotationTests {
 
         BAnnotationAttachmentSymbol f1a1 = ((BAnnotationAttachmentSymbol) f1.get(0));
         PackageID pkgID = f1a1.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(f1a1.annotTag.value, "Member");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(f1a1.annotTag.getValue(), "Member");
         Assert.assertTrue(f1a1.isConstAnnotation());
         BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) f1a1;
@@ -382,10 +382,10 @@ public class AnnotationTests {
 
         BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
         PackageID pkgID = m1a1.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(m1a1.annotTag.getValue(), "Member");
         Assert.assertTrue(m1a1.isConstAnnotation());
         BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachmentSymbol =
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
@@ -398,7 +398,7 @@ public class AnnotationTests {
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
-        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertEquals(m1a1.annotTag.getValue(), "Member");
         Assert.assertTrue(m1a1.isConstAnnotation());
         constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
         Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
@@ -410,7 +410,7 @@ public class AnnotationTests {
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
-        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertEquals(m1a1.annotTag.getValue(), "Member");
         Assert.assertTrue(m1a1.isConstAnnotation());
         constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
         Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
@@ -436,10 +436,10 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         BAnnotationAttachmentSymbol attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         PackageID pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "Custom");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "Custom");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         assertTrueAnnot(attachmentSymbol);
     }
@@ -454,10 +454,10 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
         BAnnotationAttachmentSymbol attachmentSymbol = (BAnnotationAttachmentSymbol) annotationAttachmentSymbols.get(0);
         PackageID pkgID = attachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "defn");
-        Assert.assertEquals(pkgID.version.value, "0.0.1");
-        Assert.assertEquals(attachmentSymbol.annotTag.value, "KnownConst");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "defn");
+        Assert.assertEquals(pkgID.version.getValue(), "0.0.1");
+        Assert.assertEquals(attachmentSymbol.annotTag.getValue(), "KnownConst");
         Assert.assertTrue(attachmentSymbol.isConstAnnotation());
         assertTrueAnnot(attachmentSymbol);
 
@@ -477,10 +477,10 @@ public class AnnotationTests {
 
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ClassAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "ClassAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
 
         Object constValue =
@@ -538,10 +538,10 @@ public class AnnotationTests {
 
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "AnnotWithList");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "AnnotWithList");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
 
         Object constValue =
@@ -573,10 +573,10 @@ public class AnnotationTests {
 
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "FunctionAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "FunctionAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         assertTrueAnnot(annotationAttachmentSymbol);
 
@@ -584,10 +584,10 @@ public class AnnotationTests {
         Assert.assertEquals(attachments.size(), 1);
         annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ReturnAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "ReturnAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         assertTrueAnnot(annotationAttachmentSymbol);
 
@@ -603,7 +603,7 @@ public class AnnotationTests {
 
         BClassSymbol classSymbol = (BClassSymbol) importedModuleEntries.get(Names.fromString("Cl2")).symbol;
         BInvokableSymbol invokableSymbol = classSymbol.attachedFuncs.stream()
-                .filter(method -> method.funcName.value.equals("cfn1"))
+                .filter(method -> method.funcName.getValue().equals("cfn1"))
                 .findFirst().get().symbol;
         Assert.assertEquals(invokableSymbol.getAnnotations().size(), 0);
 
@@ -612,23 +612,23 @@ public class AnnotationTests {
         Assert.assertEquals(attachments.size(), 1);
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ReturnAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "ReturnAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         assertTrueAnnot(annotationAttachmentSymbol);
 
-        invokableSymbol = classSymbol.attachedFuncs.stream().filter(method -> method.funcName.value.equals("cfn2"))
+        invokableSymbol = classSymbol.attachedFuncs.stream().filter(method -> method.funcName.getValue().equals("cfn2"))
                 .findFirst().get().symbol;
         attachments = invokableSymbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         pkgID = annotationAttachmentSymbol.annotPkgID;
-        Assert.assertEquals(pkgID.orgName.value, "annots");
-        Assert.assertEquals(pkgID.pkgName.value, "usage");
-        Assert.assertEquals(pkgID.version.value, "0.2.0");
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "FunctionAnnot");
+        Assert.assertEquals(pkgID.orgName.getValue(), "annots");
+        Assert.assertEquals(pkgID.pkgName.getValue(), "usage");
+        Assert.assertEquals(pkgID.version.getValue(), "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "FunctionAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         assertTrueAnnot(annotationAttachmentSymbol);
 

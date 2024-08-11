@@ -42,7 +42,7 @@ public class BNilType extends BType implements NullType {
 
     @Override
     public String toString() {
-        return Names.NIL_VALUE.value;
+        return Names.NIL_VALUE.getValue();
     }
 
     @Override

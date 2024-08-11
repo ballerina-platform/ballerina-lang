@@ -21,7 +21,7 @@ public class ProjectSourceRepoWithTests extends NonSysRepo<Path> {
 
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
-        return new Patten(Patten.path(pkg.getName().value),
+        return new Patten(Patten.path(pkg.getName().getValue()),
                           Patten.WILDCARD_SOURCE_WITH_TEST);
     }
 }

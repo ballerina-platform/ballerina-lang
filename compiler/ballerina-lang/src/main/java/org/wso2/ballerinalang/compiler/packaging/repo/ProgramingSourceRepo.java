@@ -25,7 +25,7 @@ public class ProgramingSourceRepo extends NonSysRepo<Path> {
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
         if (pkg.isUnnamed) {
-            return new Patten(path(pkg.sourceFileName.value));
+            return new Patten(path(pkg.sourceFileName.getValue()));
         } else {
             return Patten.NULL;
         }

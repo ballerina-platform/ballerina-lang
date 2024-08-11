@@ -62,8 +62,8 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
         SymbolTable symTable = SymbolTable.getInstance(this.context);
         SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
         this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langStringModuleSymbol,
-                                                                   symTable.langStringModuleSymbol
-                                                                           .getOriginalName().value);
+                symTable.langStringModuleSymbol
+                        .getOriginalName().getValue());
         return Optional.of(this.module);
     }
 

@@ -551,7 +551,8 @@ class JMethodResolver {
                                                 jMethodRequest.declaringClass.getName() + "': Java type '" +
                                                 jReturnType.getName() +
                                                 "' will not be matched to ballerina type '" +
-                                                (bReturnType.tag == TypeTags.FINITE ? bReturnType.tsymbol.name.value :
+                                                (bReturnType.tag == TypeTags.FINITE ?
+                                                        bReturnType.tsymbol.name.getValue() :
                                                         bReturnType) + "'");
         }
     }
@@ -1095,7 +1096,7 @@ class JMethodResolver {
         throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
                         "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
-                        (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
+                        (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.getValue() : bType) + "'");
     }
 
     private void throwParamCountMismatchError(JMethodRequest jMethodRequest) throws JInteropException {

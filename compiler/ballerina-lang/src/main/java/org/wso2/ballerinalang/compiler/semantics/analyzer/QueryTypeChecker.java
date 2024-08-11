@@ -310,7 +310,7 @@ public class QueryTypeChecker extends TypeChecker {
                     actualType = new BMapType(TypeTags.MAP, mapConstraintType, null);
                     if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
                         actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
-                                symTable, anonymousModelHelper, names, null);
+                                symTable, anonymousModelHelper, null);
                     }
                 }
             } else {
@@ -498,7 +498,7 @@ public class QueryTypeChecker extends TypeChecker {
         }
         if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types,
-                    tableType, env, symTable, anonymousModelHelper, names, null);
+                    tableType, env, symTable, anonymousModelHelper, null);
         }
         return tableType;
     }
@@ -647,7 +647,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (initType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
                 Symbols.isFlagOn(expType.flags, Flags.READONLY))) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types, initType, env,
-                    symTable, anonymousModelHelper, names, null);
+                    symTable, anonymousModelHelper, null);
         }
         return initType;
     }
@@ -729,7 +729,7 @@ public class QueryTypeChecker extends TypeChecker {
         handleInputClauseVariables(fromClause, fromEnv);
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakToParallelEnv;
         for (Name variable : fromEnv.scope.entries.keySet()) {
-            data.queryVariables.add(variable.value);
+            data.queryVariables.add(variable.getValue());
         }
     }
 
@@ -791,7 +791,7 @@ public class QueryTypeChecker extends TypeChecker {
             joinClause.onClause.accept(this, data);
         }
         for (Name variable : joinEnv.scope.entries.keySet()) {
-            data.queryVariables.add(variable.value);
+            data.queryVariables.add(variable.getValue());
         }
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakEnv;
     }
@@ -822,7 +822,7 @@ public class QueryTypeChecker extends TypeChecker {
             semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, this, commonAnalyzerData);
         }
         for (Name variable : letEnv.scope.entries.keySet()) {
-            data.queryVariables.add(variable.value);
+            data.queryVariables.add(variable.getValue());
         }
     }
 
@@ -1121,7 +1121,7 @@ public class QueryTypeChecker extends TypeChecker {
             BLangType enclType = data.env.enclType;
             if (symbol == symTable.notFoundSymbol && enclType != null && enclType.getBType().tsymbol.scope != null) {
                 Name objFuncName = Names.fromString(Symbols
-                        .getAttachedFuncSymbolName(enclType.getBType().tsymbol.name.value, varName.value));
+                        .getAttachedFuncSymbolName(enclType.getBType().tsymbol.name.getValue(), varName.getValue()));
                 symbol = symResolver.resolveStructField(varRefExpr.pos, data.env, objFuncName,
                         enclType.getBType().tsymbol);
             }
@@ -1171,7 +1171,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             } else {
                 varRefExpr.symbol = symbol; // Set notFoundSymbol
-                logUndefinedSymbolError(varRefExpr.pos, varName.value);
+                logUndefinedSymbolError(varRefExpr.pos, varName.getValue());
             }
         }
 

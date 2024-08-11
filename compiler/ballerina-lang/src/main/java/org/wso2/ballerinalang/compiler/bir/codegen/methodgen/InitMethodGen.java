@@ -521,7 +521,7 @@ public class InitMethodGen {
                                                                    List<BIRNode.BIRGlobalVariableDcl> globalVars) {
 
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar.name.value.equals(name.value)) {
+            if (globalVar.name.getValue().equals(name.getValue())) {
                 return globalVar;
             }
         }

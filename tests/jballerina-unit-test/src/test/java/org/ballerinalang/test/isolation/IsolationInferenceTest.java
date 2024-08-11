@@ -145,7 +145,7 @@ public class IsolationInferenceTest {
 
         for (BLangVariable variable : result.getAST().getGlobalVariables()) {
             BVarSymbol symbol = variable.symbol;
-            String name = symbol.name.value;
+            String name = symbol.name.getValue();
             switch (name) {
                 case "ln":
                     lnFlags = symbol.flags;

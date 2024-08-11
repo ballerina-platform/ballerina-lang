@@ -190,8 +190,8 @@ public class JvmValueGen {
                 return;
             }
             BType bType = optionalTypeDef.type;
-            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
-            String valueClass = VALUE_CLASS_PREFIX + optionalTypeDef.internalName.value;
+            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.getValue());
+            String valueClass = VALUE_CLASS_PREFIX + optionalTypeDef.internalName.getValue();
             asyncDataCollector.setCurrentSourceFileName(valueClass);
             asyncDataCollector.setCurrentSourceFileWithoutExt(valueClass);
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
@@ -204,7 +204,7 @@ public class JvmValueGen {
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
                         asyncDataCollector, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
-                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.getValue());
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
                 jarEntries.put(typedescClass + CLASS_FILE_SUFFIX, bytes);
             }
@@ -316,7 +316,7 @@ public class JvmValueGen {
         jvmRecordGen.createAndSplitContainsKeyMethod(cw, fields, className);
         jvmRecordGen.createAndSplitGetValuesMethod(cw, fields, className, jvmCastGen);
         this.createGetSizeMethod(cw, fields, className);
-        this.createRecordClearMethod(cw, typeDef.name.value);
+        this.createRecordClearMethod(cw, typeDef.name.getValue());
         jvmRecordGen.createAndSplitRemoveMethod(cw, fields, className, jvmCastGen);
         jvmRecordGen.createAndSplitGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw, className);
@@ -393,7 +393,7 @@ public class JvmValueGen {
             if (field == null) {
                 continue;
             }
-            String fieldName = field.name.value;
+            String fieldName = field.name.getValue();
             FieldVisitor fv = cw.visitField(0, fieldName, getTypeDesc(field.type), null, null);
             fv.visitEnd();
 
@@ -418,7 +418,7 @@ public class JvmValueGen {
 
         int requiredFieldsCount = 0;
         for (BField optionalField : fields.values()) {
-            String fieldName = optionalField.name.value;
+            String fieldName = optionalField.name.getValue();
             if (isOptionalRecordField(optionalField)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, getFieldIsPresentFlagName(fieldName),
@@ -490,10 +490,10 @@ public class JvmValueGen {
             if (field == null) {
                 continue;
             }
-            FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
+            FieldVisitor fvb = cw.visitField(0, field.name.getValue(), getTypeDesc(field.type), null, null);
             fvb.visitEnd();
             String lockClass = "L" + LOCK_VALUE + ";";
-            FieldVisitor fv = cw.visitField(ACC_PUBLIC, computeLockNameFromString(field.name.value),
+            FieldVisitor fv = cw.visitField(ACC_PUBLIC, computeLockNameFromString(field.name.getValue()),
                     lockClass, null, null);
             fv.visitEnd();
         }
@@ -524,7 +524,7 @@ public class JvmValueGen {
         int methodCountPerSplitClass = 0;
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
-            if (func.name.value.contains("$init$")) {
+            if (func.name.getValue().contains("$init$")) {
                 methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
                         jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
                 continue;
@@ -579,7 +579,7 @@ public class JvmValueGen {
             mv.visitTypeInsn(NEW, LOCK_VALUE);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-            mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
+            mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.getValue()), lockClass);
         }
 
         mv.visitInsn(RETURN);

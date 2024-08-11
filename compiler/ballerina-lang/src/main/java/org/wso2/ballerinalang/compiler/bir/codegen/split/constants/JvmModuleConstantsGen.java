@@ -117,9 +117,9 @@ public class JvmModuleConstantsGen {
             String varName = entry.getValue();
             mv.visitTypeInsn(NEW, MODULE);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
-            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
-            mv.visitLdcInsn(getMajorVersion(packageID.version.value));
+            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.getValue()));
+            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.getValue()));
+            mv.visitLdcInsn(getMajorVersion(packageID.version.getValue()));
             if (packageID.isTestPkg) {
                 mv.visitInsn(ICONST_1);
             } else {

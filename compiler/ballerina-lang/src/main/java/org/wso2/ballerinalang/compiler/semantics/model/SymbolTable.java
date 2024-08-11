@@ -244,7 +244,7 @@ public class SymbolTable {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
-        this.builtinPos = new BLangDiagnosticLocation(Names.EMPTY.value, -1, -1,
+        this.builtinPos = new BLangDiagnosticLocation(Names.EMPTY.getValue(), -1, -1,
                                             -1, -1);
         this.rootPkgNode.pos = this.builtinPos;
         this.rootPkgNode.symbol = this.rootPkgSymbol;

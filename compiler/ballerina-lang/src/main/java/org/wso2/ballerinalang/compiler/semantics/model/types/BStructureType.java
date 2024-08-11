@@ -67,7 +67,7 @@ public abstract class BStructureType extends BType {
             return false;
         }
 
-        String value = name.value;
+        String value = name.getValue();
 
         if (value.isEmpty() || value.startsWith(DOLLAR)) {
             return true;

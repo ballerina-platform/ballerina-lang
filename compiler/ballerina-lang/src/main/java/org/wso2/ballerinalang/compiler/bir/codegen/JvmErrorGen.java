@@ -64,7 +64,7 @@ public class JvmErrorGen {
     private BIRNode.BIRErrorEntry findErrorEntry(List<BIRNode.BIRErrorEntry> errors, BIRNode.BIRBasicBlock currentBB) {
 
         for (BIRNode.BIRErrorEntry err : errors) {
-            if (err != null && err.endBB.id.value.equals(currentBB.id.value)) {
+            if (err != null && err.endBB.id.getValue().equals(currentBB.id.getValue())) {
                 return err;
             }
         }
@@ -88,7 +88,7 @@ public class JvmErrorGen {
             return;
         }
 
-        Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
+        Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.getValue());
         Label endLabel = new Label();
         Label jumpLabel = new Label();
 
@@ -96,7 +96,7 @@ public class JvmErrorGen {
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         if (currentEE instanceof JErrorEntry jCurrentEE) {
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
-            int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
+            int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.getValue(), retVarDcl.type);
             boolean exeptionExist = false;
             for (CatchIns catchIns : jCurrentEE.catchIns) {
                 if (ERROR_VALUE.equals(catchIns.errorClass)) {
@@ -138,7 +138,7 @@ public class JvmErrorGen {
         this.mv.visitLabel(errorValueLabel);
 
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
-        int lhsIndex = this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
+        int lhsIndex = this.indexMap.addIfNotExists(varDcl.name.getValue(), varDcl.type);
         jvmInstructionGen.generateVarStore(this.mv, varDcl, lhsIndex);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
@@ -149,6 +149,6 @@ public class JvmErrorGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
+        return this.indexMap.addIfNotExists(varDcl.name.getValue(), varDcl.type);
     }
 }

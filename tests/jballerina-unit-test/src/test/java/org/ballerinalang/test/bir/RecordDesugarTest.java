@@ -55,7 +55,7 @@ public class RecordDesugarTest {
     @Test(description = "Test record field set")
     public void testRecordFieldSet() {
         List<String> functions = Arrays.asList("setRequiredField", "setNillableField", "setOptionalField");
-        result.getExpectedBIR().functions.stream().filter(function -> functions.contains(function.name.value))
+        result.getExpectedBIR().functions.stream().filter(function -> functions.contains(function.name.getValue()))
                 .forEach(this::assertFunctions);
     }
 
@@ -63,9 +63,9 @@ public class RecordDesugarTest {
         String actual = BIREmitter.emitFunction(function, 0);
         String expected = null;
         try {
-            expected = readFile(function.name.value);
+            expected = readFile(function.name.getValue());
         } catch (IOException e) {
-            Assert.fail("Failed to read the expected BIR file for function: " + function.name.value, e);
+            Assert.fail("Failed to read the expected BIR file for function: " + function.name.getValue(), e);
         }
         Assert.assertEquals(actual, expected);
     }

@@ -49,9 +49,9 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
         if (constraint != null && !(constraint.tag == TypeTags.UNION &&
                 constraint instanceof BUnionType &&
                 ((BUnionType) constraint).getMemberTypes().size() == 4)) {
-            stringRep = Names.XML.value + "<" + constraint + ">";
+            stringRep = Names.XML.getValue() + "<" + constraint + ">";
         } else {
-            stringRep = Names.XML.value;
+            stringRep = Names.XML.getValue();
         }
 
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");

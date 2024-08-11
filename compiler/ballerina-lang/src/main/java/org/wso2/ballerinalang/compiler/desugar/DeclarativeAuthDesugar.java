@@ -125,7 +125,8 @@ public class DeclarativeAuthDesugar {
     }
 
     private boolean isDefinedInStdLibPackage(BObjectType type, String packageName) {
-        return type.tsymbol.pkgID.orgName.value.equals(ORG_NAME) && type.tsymbol.pkgID.name.value.equals(packageName);
+        return type.tsymbol.pkgID.orgName.getValue().equals(ORG_NAME) &&
+                type.tsymbol.pkgID.name.getValue().equals(packageName);
     }
 
     void addAuthDesugarFunctionInvocation(BLangFunction functionNode, SymbolEnv env, String packageName) {
@@ -188,15 +189,16 @@ public class DeclarativeAuthDesugar {
     private BPackageSymbol getPackageSymbol(SymbolEnv env, String packageName) {
         // This resolves the package symbol when the code have an import relevant to the particular service
         for (BLangImportPackage pkg : env.enclPkg.imports) {
-            if (pkg.symbol.pkgID.orgName.value.equals(ORG_NAME) && pkg.symbol.pkgID.name.value.equals(packageName)) {
+            if (pkg.symbol.pkgID.orgName.getValue().equals(ORG_NAME) &&
+                    pkg.symbol.pkgID.name.getValue().equals(packageName)) {
                 return pkg.symbol;
             }
         }
         // This resolves the package symbol when the code is at a submodule of the module which have the listener
         // definition. In that case, there is no any import relevant to the particular service.
         while (env.enclEnv != null) {
-            if (env.enclEnv.scope.owner.pkgID.orgName.value.equals(ORG_NAME) &&
-                    env.enclEnv.scope.owner.pkgID.name.value.equals(packageName)) {
+            if (env.enclEnv.scope.owner.pkgID.orgName.getValue().equals(ORG_NAME) &&
+                    env.enclEnv.scope.owner.pkgID.name.getValue().equals(packageName)) {
                 return env.enclEnv.enclPkg.symbol;
             }
             env = env.enclEnv;

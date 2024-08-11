@@ -56,13 +56,13 @@ public class BRegexpType extends BType {
 
     @Override
     public String toString() {
-        return Names.REGEXP.value + Names.ALIAS_SEPARATOR + name;
+        return Names.REGEXP.getValue() + Names.ALIAS_SEPARATOR + name;
     }
 
     @Override
     public String getQualifiedTypeName() {
-        return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                + Names.LANG.value + Names.DOT.value + Names.REGEXP.value + Names.ALIAS_SEPARATOR + name;
+        return Names.BALLERINA_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue()
+                + Names.LANG.getValue() + Names.DOT.getValue() + Names.REGEXP.getValue() + Names.ALIAS_SEPARATOR + name;
     }
 
     public boolean isAnydata() {

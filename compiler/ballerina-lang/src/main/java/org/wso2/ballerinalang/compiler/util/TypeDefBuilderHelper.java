@@ -96,7 +96,7 @@ public final class TypeDefBuilderHelper {
                                         VIRTUAL);
             }
 
-            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.getValue(), field.type,
                                                                          null, symbol);
             fieldList.add(fieldVar);
         }
@@ -107,7 +107,7 @@ public final class TypeDefBuilderHelper {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : objectType.fields.values()) {
             BVarSymbol symbol = field.symbol;
-            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.getValue(), field.type,
                                                                          null, symbol);
             fieldList.add(fieldVar);
         }
@@ -149,7 +149,7 @@ public final class TypeDefBuilderHelper {
                                                                    Name suffix,
                                                                    BType type,
                                                                    BType returnType) {
-        String structTypeName = type.tsymbol.name.value;
+        String structTypeName = type.tsymbol.name.getValue();
         BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(null, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
@@ -166,7 +166,7 @@ public final class TypeDefBuilderHelper {
         initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
 
         // Create the function symbol
-        Name funcSymbolName = Names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
+        Name funcSymbolName = Names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.getValue()));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
                                       env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,
@@ -174,7 +174,7 @@ public final class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = createIdentifier(null, funcSymbolName.value);
+        initFunction.name = createIdentifier(null, funcSymbolName.getValue());
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -201,7 +201,7 @@ public final class TypeDefBuilderHelper {
         typeDefinition.typeNode = typeNode;
         typeDefinition.setBType(type);
         typeDefinition.symbol = symbol;
-        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.getValue());
         if (env != null) {
             env.enclPkg.addTypeDefinition(typeDefinition);
         }
@@ -214,9 +214,9 @@ public final class TypeDefBuilderHelper {
         typeDefinition.typeNode = typeNode;
         typeDefinition.setBType(type);
         typeDefinition.symbol = Symbols.createTypeDefinitionSymbol(symbol.flags,
-                    Names.fromString(symbol.name.value), symbol.pkgID, type, symbol.owner,
+                    Names.fromString(symbol.name.getValue()), symbol.pkgID, type, symbol.owner,
                     symbol.pos, symbol.origin);
-        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.getValue());
         env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }
@@ -227,7 +227,7 @@ public final class TypeDefBuilderHelper {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : objType.fields.values()) {
             BVarSymbol symbol = field.symbol;
-            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.getValue(), field.type,
                                                                          null, symbol);
             fieldList.add(fieldVar);
         }
@@ -270,7 +270,7 @@ public final class TypeDefBuilderHelper {
         }
 
         String typeName = detailType.tsymbol != null
-                ? detailType.tsymbol.name.value
+                ? detailType.tsymbol.name.getValue()
                 : anonymousModelHelper.getNextAnonymousIntersectionErrorDetailTypeName(env.enclPkg.packageID);
 
         userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
@@ -340,7 +340,7 @@ public final class TypeDefBuilderHelper {
                         origField.symbol.pos, SOURCE);
             }
             fieldSymbol.isDefaultable = origField.symbol.isDefaultable;
-            String nameString = fieldName.value;
+            String nameString = fieldName.getValue();
             fields.put(nameString, new BField(fieldName, null, fieldSymbol));
             structureSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -353,7 +353,7 @@ public final class TypeDefBuilderHelper {
                 ASTBuilderUtil.createIdentifier(pos,
                         TypeDefBuilderHelper.getPackageAlias(env, null,
                                 origStructureType.tsymbol.pkgID)),
-                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.getValue()));
         origTypeRef.pos = pos;
         origTypeRef.setBType(origStructureType);
 
@@ -370,7 +370,7 @@ public final class TypeDefBuilderHelper {
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
                 type.tsymbol.name, env.scope.owner.pkgID, null, env.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
-        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.getValue()), typeDefinitionSymbol);
 
         type.tsymbol.scope = new Scope(type.tsymbol);
         for (BField field : ((HashMap<String, BField>) type.fields).values()) {

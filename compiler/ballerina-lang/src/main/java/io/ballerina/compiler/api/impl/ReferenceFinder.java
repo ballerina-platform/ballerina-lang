@@ -1479,7 +1479,7 @@ public class ReferenceFinder extends BaseVisitor {
             }
             
             BLangLiteral literal = (BLangLiteral) expr;
-            if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+            if (literal.value.equals(pathSymbol.name.getValue()) && addIfSameSymbol(pathSymbol, expr.pos)) {
                 return;
             }
         }

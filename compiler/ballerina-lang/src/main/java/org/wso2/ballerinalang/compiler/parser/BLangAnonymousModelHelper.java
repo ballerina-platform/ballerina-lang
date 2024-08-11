@@ -154,7 +154,7 @@ public class BLangAnonymousModelHelper {
     public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {
         Integer nextValue = rawTemplateTypeCount.getOrDefault(packageID, 0);
         rawTemplateTypeCount.put(packageID, nextValue + 1);
-        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + UNDERSCORE + nextValue;
+        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.getValue() + "$" + UNDERSCORE + nextValue;
     }
 
     public String getNextTupleVarKey(PackageID packageID) {
@@ -176,7 +176,7 @@ public class BLangAnonymousModelHelper {
     }
 
     public boolean isAnonymousType(BSymbol symbol) {
-        return symbol.name.value.startsWith(ANON_TYPE);
+        return symbol.name.getValue().startsWith(ANON_TYPE);
     }
 
     public String getNextAnonymousIntersectionErrorDetailTypeName(PackageID packageID) {

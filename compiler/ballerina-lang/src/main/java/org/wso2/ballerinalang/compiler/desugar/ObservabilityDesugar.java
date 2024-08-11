@@ -60,10 +60,10 @@ public class ObservabilityDesugar {
                 && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
+            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.getValue()));
             importDcl.pkgNameComps = pkgNameComps;
             importDcl.pos = pkgNode.symbol.pos;
-            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_INTERNAL_ORG.value);
+            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_INTERNAL_ORG.getValue());
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
             importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE_INTERNAL);

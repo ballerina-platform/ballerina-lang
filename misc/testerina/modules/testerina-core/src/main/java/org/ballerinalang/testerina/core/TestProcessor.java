@@ -193,7 +193,7 @@ public class TestProcessor {
 
     public static String getTestModuleName(Module module) {
         PackageID packageID = module.descriptor().moduleTestCompilationId();
-        return packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
+        return packageID.isTestPkg ? packageID.name.getValue() + Names.TEST_PACKAGE : packageID.name.getValue();
     }
 
     /**
@@ -354,8 +354,8 @@ public class TestProcessor {
                 // Remove the duplicated annotations.
                 boolean testable = functionSymbol.getModule().get().id().isTestable();
                 PackageID moduleTestCompilationId = module.descriptor().moduleTestCompilationId();
-                String testModuleName = testable ? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
-                        moduleTestCompilationId.name.value;
+                String testModuleName = testable ? moduleTestCompilationId.name.getValue() + Names.TEST_PACKAGE :
+                        moduleTestCompilationId.name.getValue();
                 String className = pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)

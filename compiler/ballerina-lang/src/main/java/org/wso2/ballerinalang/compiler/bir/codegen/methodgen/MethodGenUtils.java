@@ -70,7 +70,7 @@ public final class MethodGenUtils {
     }
 
     static boolean isModuleInitFunction(BIRNode.BIRFunction func) {
-        return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
+        return func.name.getValue().equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
     public static void submitToScheduler(MethodVisitor mv, String strandMetadataClass, String workerName,
@@ -92,14 +92,14 @@ public final class MethodGenUtils {
     }
 
     static String calculateLambdaStopFuncName(PackageID id) {
-        String orgName = id.orgName.value;
+        String orgName = id.orgName.getValue();
         String moduleName;
         if (id.isTestPkg) {
-            moduleName = id.name.value + Names.TEST_PACKAGE;
+            moduleName = id.name.getValue() + Names.TEST_PACKAGE;
         } else {
-            moduleName = id.name.value;
+            moduleName = id.name.getValue();
         }
-        String version = getMajorVersion(id.version.value);
+        String version = getMajorVersion(id.version.getValue());
         String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
 
         String funcName;

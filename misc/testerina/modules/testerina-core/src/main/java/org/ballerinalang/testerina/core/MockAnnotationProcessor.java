@@ -332,11 +332,12 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      */
     private String formatPackageName(String value, BLangPackage parent) {
         // If empty or '.' then return the current package ID
-        if (value.isEmpty() || value.equals(Names.DOT.value)) {
+        if (value.isEmpty() || value.equals(Names.DOT.getValue())) {
             value = parent.packageID.toString();
 
             // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
+        } else if (!value.contains(Names.ORG_NAME_SEPARATOR.getValue()) &&
+                !value.contains(Names.VERSION_SEPARATOR.getValue())) {
             value = new PackageID(parent.packageID.orgName, new Name(value),
                     parent.packageID.version).toString();
         }

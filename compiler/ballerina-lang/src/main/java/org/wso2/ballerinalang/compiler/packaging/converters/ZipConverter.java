@@ -116,7 +116,7 @@ public class ZipConverter extends PathConverter {
                             .map(SortablePath::getPath)
                             .toList();
                 }
-                if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
+                if (packageID.version.getValue().isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                         && !packageID.orgName.equals(Names.ANON_ORG) && !pathList.isEmpty()) {
                     // <org-name>/<module-name>/<version>
                     Path modulePath = pathList.get(0);

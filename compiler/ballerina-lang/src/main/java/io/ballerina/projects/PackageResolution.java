@@ -327,7 +327,7 @@ public class PackageResolution {
             {
                 String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
+                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.getValue()), moduleName,
                         PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
@@ -338,7 +338,7 @@ public class PackageResolution {
                 "choreo".equals(compilationOptions.getCloud())) {
             String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
+                    PackageOrg.from(Names.BALLERINA_ORG.getValue()), moduleName,
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }

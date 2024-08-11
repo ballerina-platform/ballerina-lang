@@ -431,7 +431,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         }
         List<String> fieldNames = getFieldNames(recordTypeNode.fields);
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
-        String typeName = recordTypeNode.symbol.name.value;
+        String typeName = recordTypeNode.symbol.name.getValue();
         for (BLangType type : recordTypeNode.typeRefs) {
             BType bType = type.getBType();
             BRecordType recordType = (BRecordType) Types.getReferredType(bType);
@@ -580,7 +580,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.FIELD) && varNode.symbol.isDefaultable) {
-            String closureName = generateName(varNode.symbol.name.value, env.node);
+            String closureName = generateName(varNode.symbol.name.getValue(), env.node);
             varNode.pos = null;
             varNode.expr.pos = null;
             generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
@@ -589,7 +589,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         }
 
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
-            String closureName = generateName(varNode.symbol.name.value, env.node);
+            String closureName = generateName(varNode.symbol.name.getValue(), env.node);
             generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
         } else {
             rewriteExpr(varNode.expr);
@@ -642,7 +642,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         Location pos = funcSymbol.pos;
         for (BVarSymbol symbol : params) {
             Name symbolName = symbol.name;
-            if (paramName.equals(symbolName.value)) {
+            if (paramName.equals(symbolName.getValue())) {
                 break;
             }
             BType type = symbol.type;
@@ -651,7 +651,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             funcSymbol.scope.define(symbolName, varSymbol);
             funcSymbol.params.add(varSymbol);
             ((BInvokableType) funcSymbol.type).paramTypes.add(type);
-            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.value, type, null,
+            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.getValue(), type, null,
                                                                       varSymbol));
         }
     }
@@ -675,7 +675,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         varSymbol.params = invokableSymbol.params;
         varSymbol.restParam = invokableSymbol.restParam;
         varSymbol.retType = invokableSymbol.retType;
-        BLangSimpleVariableDef variableDef = createSimpleVariableDef(pos, name.value, type, lambdaFunction, varSymbol);
+        BLangSimpleVariableDef variableDef = createSimpleVariableDef(
+                pos, name.getValue(), type, lambdaFunction, varSymbol);
         addToQueue(variableDef, isAnnotationClosure);
         return varSymbol;
     }
@@ -686,7 +687,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         Name name = invokableSymbol.name;
         BVarSymbol varSymbol = new BVarSymbol(0, name, invokableSymbol.originalName, invokableSymbol.pkgID, type,
                                               invokableSymbol.owner, pos, VIRTUAL);
-        BLangSimpleVariableDef variableDef = createSimpleVariableDef(pos, name.value, type,
+        BLangSimpleVariableDef variableDef = createSimpleVariableDef(pos, name.getValue(), type,
                                                                      getInvocation(invokableSymbol), varSymbol);
         addToQueue(variableDef, isAnnotationClosure);
         return varSymbol;
@@ -713,7 +714,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         funcInvocation.setBType(symbol.retType);
         funcInvocation.symbol = symbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.getValue());
         funcInvocation.functionPointerInvocation = true;
         return funcInvocation;
     }
@@ -749,7 +750,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return switch (parent.getKind()) {
             case CLASS_DEFN ->
                     generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case FUNCTION -> generateName(((BLangFunction) parent).symbol.name.value.replace(".", UNDERSCORE)
+            case FUNCTION -> generateName(((BLangFunction) parent).symbol.name.getValue().replace(".", UNDERSCORE)
                     + UNDERSCORE + name, parent.parent);
             case RESOURCE_FUNC ->
                     generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
@@ -1045,7 +1046,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateFunctionParams(BLangFunction funcNode, BLangSimpleVarRef varRefExpr) {
         BInvokableSymbol funcSymbol = funcNode.symbol;
         for (BVarSymbol varSymbol : funcSymbol.params) {
-            if (varSymbol.name.value.equals(varRefExpr.symbol.name.value)) {
+            if (varSymbol.name.getValue().equals(varRefExpr.symbol.name.getValue())) {
                 varRefExpr.symbol = varSymbol;
                 return;
             }

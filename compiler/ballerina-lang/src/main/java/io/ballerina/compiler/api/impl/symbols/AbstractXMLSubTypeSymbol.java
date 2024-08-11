@@ -48,8 +48,8 @@ public abstract class AbstractXMLSubTypeSymbol extends AbstractTypeSymbol {
         SymbolTable symTable = SymbolTable.getInstance(this.context);
         SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
         this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langXmlModuleSymbol,
-                                                                   symTable.langXmlModuleSymbol
-                                                                           .getOriginalName().value);
+                symTable.langXmlModuleSymbol
+                        .getOriginalName().getValue());
         return Optional.of(this.module);
     }
 }

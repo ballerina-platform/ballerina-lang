@@ -1290,7 +1290,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             env.scope.entries.remove(symbol.name);
             env.enclPkg.globalVariableDependencies.values().forEach(d -> d.remove(symbol));
             BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameRef,
-                    symbol.name.value, ASTBuilderUtil.createVariableRef(pos, symbol));
+                    symbol.name.getValue(), ASTBuilderUtil.createVariableRef(pos, symbol));
             lambdaBody.stmts.add(0, addToFrameStmt);
         }
     }
@@ -1415,7 +1415,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef frame = defineFrameVariable(blockStmt, pos);
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
-            String key = symbol.name.value;
+            String key = symbol.name.getValue();
             BType structureType = Types.getImpliedType(type);
             if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();

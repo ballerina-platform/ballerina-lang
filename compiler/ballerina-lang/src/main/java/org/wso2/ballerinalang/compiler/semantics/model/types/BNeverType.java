@@ -42,7 +42,7 @@ public class BNeverType extends BType {
 
     @Override
     public String toString() {
-        return Names.NEVER.value;
+        return Names.NEVER.getValue();
     }
 
     @Override

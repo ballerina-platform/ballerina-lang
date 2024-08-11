@@ -62,14 +62,14 @@ public class BIntSubType extends BType {
     @Override
     public String toString() {
 
-        return Names.INT.value + Names.ALIAS_SEPARATOR + name;
+        return Names.INT.getValue() + Names.ALIAS_SEPARATOR + name;
     }
 
     @Override
     public String getQualifiedTypeName() {
 
-        return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                + Names.LANG.value + Names.DOT.value + Names.INT.value + Names.ALIAS_SEPARATOR + name;
+        return Names.BALLERINA_ORG.getValue() + Names.ORG_NAME_SEPARATOR.getValue()
+                + Names.LANG.getValue() + Names.DOT.getValue() + Names.INT.getValue() + Names.ALIAS_SEPARATOR + name;
     }
 
     public boolean isAnydata() {

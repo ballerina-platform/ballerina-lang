@@ -98,8 +98,8 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public String toString() {
         Name name = this.tsymbol.name;
-        if (!Symbols.isFlagOn(this.tsymbol.flags, Flags.ANONYMOUS) && !name.value.isEmpty()) {
-            return name.value;
+        if (!Symbols.isFlagOn(this.tsymbol.flags, Flags.ANONYMOUS) && !name.getValue().isEmpty()) {
+            return name.getValue();
         }
 
         StringJoiner joiner = new StringJoiner(" & ", "(", ")");

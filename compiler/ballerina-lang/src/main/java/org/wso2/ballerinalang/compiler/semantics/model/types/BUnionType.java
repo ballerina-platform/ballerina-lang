@@ -496,7 +496,7 @@ public class BUnionType extends BType implements UnionType {
 
         String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
-        cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
+        cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.getValue()) :
                 typeStr;
     }
 

@@ -196,7 +196,7 @@ public class Names {
     public static Name merge(Name... names) {
         StringBuilder builder = new StringBuilder();
         for (Name name : names) {
-            builder.append(name.value);
+            builder.append(name.getValue());
         }
         return new Name(builder.toString());
     }

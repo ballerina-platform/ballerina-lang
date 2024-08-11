@@ -228,7 +228,7 @@ public class LambdaGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value, ref.variableDcl.type));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.getValue(), ref.variableDcl.type));
         int objectArrayLength = paramTypes.size() - 1;
         mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -461,17 +461,17 @@ public class LambdaGen {
                 if (call.isVirtual) {
                     return false;
                 }
-                methodName = call.name.value;
+                methodName = call.name.getValue();
                 packageID = call.calleePkg;
             }
             case ASYNC_CALL -> {
                 BIRTerminator.AsyncCall asyncCall = (BIRTerminator.AsyncCall) callIns;
-                methodName = asyncCall.name.value;
+                methodName = asyncCall.name.getValue();
                 packageID = asyncCall.calleePkg;
             }
             case FP_LOAD -> {
                 BIRNonTerminator.FPLoad fpLoad = (BIRNonTerminator.FPLoad) callIns;
-                methodName = fpLoad.funcName.value;
+                methodName = fpLoad.funcName.getValue();
                 packageID = fpLoad.pkgId;
             }
             default -> throw new BLangCompilerException("JVM static function call generation is not supported for " +

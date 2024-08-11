@@ -150,7 +150,7 @@ public class BIRBinaryWriter {
             writePosition(buf, birGlobalVar.pos);
             buf.writeByte(birGlobalVar.kind.getValue());
             // Name
-            buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
+            buf.writeInt(addStringCPEntry(birGlobalVar.name.getValue()));
             // Flags
             buf.writeLong(birGlobalVar.flags);
             // Origin
@@ -169,9 +169,9 @@ public class BIRBinaryWriter {
                            BIRTypeDefinition typeDef) {
         writePosition(buf, typeDef.pos);
         // Type name CP Index
-        buf.writeInt(addStringCPEntry(typeDef.internalName.value));
+        buf.writeInt(addStringCPEntry(typeDef.internalName.getValue()));
         // Type original-name CP Index
-        buf.writeInt(addStringCPEntry(typeDef.originalName.value));
+        buf.writeInt(addStringCPEntry(typeDef.originalName.getValue()));
         // Flags
         buf.writeLong(typeDef.flags);
         // Origin
@@ -195,11 +195,11 @@ public class BIRBinaryWriter {
         // Write Position
         writePosition(buf, birFunction.pos);
         // Function name CP Index
-        buf.writeInt(addStringCPEntry(birFunction.name.value));
+        buf.writeInt(addStringCPEntry(birFunction.name.getValue()));
         // Function original name CP Index
-        buf.writeInt(addStringCPEntry(birFunction.originalName.value));
+        buf.writeInt(addStringCPEntry(birFunction.originalName.getValue()));
         // Function worker name CP Index
-        buf.writeInt(addStringCPEntry(birFunction.workerName.value));
+        buf.writeInt(addStringCPEntry(birFunction.workerName.getValue()));
         // Flags
         buf.writeLong(birFunction.flags);
         // Origin
@@ -218,7 +218,7 @@ public class BIRBinaryWriter {
 
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
-            buf.writeInt(addStringCPEntry(parameter.name.value));
+            buf.writeInt(addStringCPEntry(parameter.name.getValue()));
             buf.writeLong(parameter.flags);
             BIRWriterUtils.writeAnnotAttachments(cp, buf, parameter.annotAttachments);
         }
@@ -228,7 +228,7 @@ public class BIRBinaryWriter {
         boolean restParamExist = restParam != null;
         buf.writeBoolean(restParamExist);
         if (restParamExist) {
-            buf.writeInt(addStringCPEntry(restParam.name.value));
+            buf.writeInt(addStringCPEntry(restParam.name.getValue()));
             BIRWriterUtils.writeAnnotAttachments(cp, buf, restParam.annotAttachments);
         }
 
@@ -237,7 +237,7 @@ public class BIRBinaryWriter {
         if (hasReceiverType) {
             buf.writeByte(birFunction.receiver.kind.getValue());
             BIRWriterUtils.writeType(cp, buf, birFunction.receiver.type);
-            buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
+            buf.writeInt(addStringCPEntry(birFunction.receiver.name.getValue()));
         }
 
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
@@ -256,14 +256,14 @@ public class BIRBinaryWriter {
         if (birFunction.returnVariable != null) {
             birbuf.writeByte(birFunction.returnVariable.kind.getValue());
             BIRWriterUtils.writeType(cp, birbuf, birFunction.returnVariable.type);
-            birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
+            birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.getValue()));
         }
 
         birbuf.writeInt(birFunction.parameters.size());
         for (BIRNode.BIRFunctionParameter param : birFunction.parameters) {
             birbuf.writeByte(param.kind.getValue());
             BIRWriterUtils.writeType(cp, birbuf, param.type);
-            birbuf.writeInt(addStringCPEntry(param.name.value));
+            birbuf.writeInt(addStringCPEntry(param.name.getValue()));
             if (param.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(param.metaVarName != null ? param.metaVarName : ""));
             }
@@ -274,7 +274,7 @@ public class BIRBinaryWriter {
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             birbuf.writeByte(localVar.kind.getValue());
             BIRWriterUtils.writeType(cp, birbuf, localVar.type);
-            birbuf.writeInt(addStringCPEntry(localVar.name.value));
+            birbuf.writeInt(addStringCPEntry(localVar.name.getValue()));
             // skip compiler added vars and only write metaVarName for user added vars
             if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
@@ -282,8 +282,8 @@ public class BIRBinaryWriter {
             // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
-                birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
-                birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
+                birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.getValue() : ""));
+                birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.getValue() : ""));
                 birbuf.writeInt(localVar.insOffset);
             }
         }
@@ -335,12 +335,12 @@ public class BIRBinaryWriter {
             int pathSegmentCount = resourcePath.size();
             buf.writeInt(pathSegmentCount);
             for (int i = 0; i < pathSegmentCount; i++) {
-                buf.writeInt(addStringCPEntry(resourcePath.get(i).value));
+                buf.writeInt(addStringCPEntry(resourcePath.get(i).getValue()));
                 writePosition(buf, pathSegmentPosList.get(i));
                 BIRWriterUtils.writeType(cp, buf, pathSegmentTypeList.get(i));
             }
 
-            buf.writeInt(addStringCPEntry(birFunction.accessor.value));
+            buf.writeInt(addStringCPEntry(birFunction.accessor.getValue()));
         }
     }
 
@@ -348,7 +348,7 @@ public class BIRBinaryWriter {
         buf.writeInt(birFunction.dependentGlobalVars.size());
 
         for (BIRNode.BIRVariableDcl var : birFunction.dependentGlobalVars) {
-            buf.writeInt(addStringCPEntry(var.name.value));
+            buf.writeInt(addStringCPEntry(var.name.getValue()));
         }
     }
 
@@ -370,9 +370,9 @@ public class BIRBinaryWriter {
         buf.writeInt(BIRWriterUtils.addPkgCPEntry(birAnnotation.packageID, this.cp));
 
         // Annotation name CP Index
-        buf.writeInt(addStringCPEntry(birAnnotation.name.value));
+        buf.writeInt(addStringCPEntry(birAnnotation.name.getValue()));
         // Annotation original name CP Index
-        buf.writeInt(addStringCPEntry(birAnnotation.originalName.value));
+        buf.writeInt(addStringCPEntry(birAnnotation.originalName.getValue()));
 
         buf.writeLong(birAnnotation.flags);
         buf.writeByte(birAnnotation.origin.value());
@@ -397,7 +397,7 @@ public class BIRBinaryWriter {
 
     private void writeConstant(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRConstant birConstant) {
         // Annotation name CP Index
-        buf.writeInt(addStringCPEntry(birConstant.name.value));
+        buf.writeInt(addStringCPEntry(birConstant.name.getValue()));
         buf.writeLong(birConstant.flags);
         buf.writeByte(birConstant.origin.value());
         writePosition(buf, birConstant.pos);
@@ -423,8 +423,8 @@ public class BIRBinaryWriter {
     }
 
     private void writeServiceDeclaration(ByteBuf buf, BIRNode.BIRServiceDeclaration birServiceDecl) {
-        buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.value));
-        buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.value));
+        buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.getValue()));
+        buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.getValue()));
         buf.writeLong(birServiceDecl.flags);
         buf.writeByte(birServiceDecl.origin.value());
         writePosition(buf, birServiceDecl.pos);

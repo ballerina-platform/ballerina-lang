@@ -22,9 +22,9 @@ public class ObjRepo extends NonSysRepo<Path> {
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
 
-        String orgName = pkg.getOrgName().value;
-        String pkgName = pkg.getName().value;
-        String pkgVersion = pkg.version.value;
+        String orgName = pkg.getOrgName().getValue();
+        String pkgName = pkg.getName().getValue();
+        String pkgVersion = pkg.version.getValue();
 
         return new Patten(Patten.path("repo",
                                       orgName,

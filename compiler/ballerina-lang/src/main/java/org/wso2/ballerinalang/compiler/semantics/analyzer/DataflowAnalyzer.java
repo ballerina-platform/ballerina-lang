@@ -379,7 +379,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private boolean isModuleInitFunction(BLangNode node) {
         return node.getKind() == NodeKind.FUNCTION &&
-                Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value);
+                Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(((BLangFunction) node).name.value);
     }
 
     private void analyzeModuleInitFunc(BLangFunction funcNode) {
@@ -1045,7 +1045,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
 
         // marks the injected import as used
-        Name transactionPkgName = Names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name transactionPkgName = Names.fromString(Names.DOT.getValue() + Names.TRANSACTION_PACKAGE.getValue());
         Name compUnitName = Names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
@@ -1888,10 +1888,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (isFirstUninitializedField) {
-                    uninitializedFields = new StringBuilder(symbol.getName().value);
+                    uninitializedFields = new StringBuilder(symbol.getName().getValue());
                     isFirstUninitializedField = false;
                 } else {
-                    uninitializedFields.append(", ").append(symbol.getName().value);
+                    uninitializedFields.append(", ").append(symbol.getName().getValue());
                 }
             }
             if (!uninitializedFields.isEmpty()) {
@@ -1906,7 +1906,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean isSelfKeyWordExpr(BLangExpression expr) {
 
         return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+                Names.SELF.getValue().equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
     }
 
     private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
@@ -1916,10 +1916,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BField field : objType.fields.values()) {
             if (this.uninitializedVars.containsKey(field.symbol)) {
                 if (isFirstUninitializedField) {
-                    uninitializedFields = new StringBuilder(field.symbol.getName().value);
+                    uninitializedFields = new StringBuilder(field.symbol.getName().getValue());
                     isFirstUninitializedField = false;
                 } else {
-                    uninitializedFields.append(", ").append(field.symbol.getName().value);
+                    uninitializedFields.append(", ").append(field.symbol.getName().getValue());
                 }
             }
         }
@@ -2617,7 +2617,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return false;
         }
-        return Names.SELF.value.equals(((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value);
+        return Names.SELF.getValue().equals(((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value);
     }
 
     private void checkAssignment(BLangExpression varRef) {
@@ -2732,7 +2732,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             BObjectTypeSymbol objTypeSymbol = (BObjectTypeSymbol) type.tsymbol;
-            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
+            Name funcName = Names.fromString(
+                    Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.getValue(), fieldName));
             BSymbol funcSymbol = symResolver.resolveObjectMethod(pos, env, funcName, objTypeSymbol);
 
             // Object member functions are inherently final
@@ -2773,7 +2774,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             String prefixValue = prefix.value;
             Location location = prefix.pos;
             BPackageSymbol symbol = importStmt.symbol;
-            if (symbol != null && !symbol.isUsed && !Names.IGNORE.value.equals(prefixValue)) {
+            if (symbol != null && !symbol.isUsed && !Names.IGNORE.getValue().equals(prefixValue)) {
                 dlog.error(location, DiagnosticErrorCode.UNUSED_MODULE_PREFIX, prefixValue);
             }
         }
@@ -2813,7 +2814,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isWildCardBindingPattern(BLangSimpleVariable variable) {
-        return Names.IGNORE.value.equals(variable.name.value);
+        return Names.IGNORE.getValue().equals(variable.name.value);
     }
 
     private boolean isWildCardBindingPattern(BVarSymbol symbol) {

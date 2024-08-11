@@ -524,7 +524,7 @@ public class SymbolFactory {
 
         List<ConstantSymbol> members = new ArrayList<>();
         for (BConstantSymbol member : enumSymbol.members) {
-            members.add(this.createConstantSymbol(member, member.name.value));
+            members.add(this.createConstantSymbol(member, member.name.getValue()));
         }
 
         for (AnnotationAttachmentSymbol annot : enumSymbol.getAnnotations()) {
@@ -766,7 +766,7 @@ public class SymbolFactory {
         for (BAttachedFunction mthd : methods) {
             if (method == mthd.symbol) {
                 if (mthd instanceof BResourceFunction bResourceFunction) {
-                    return bResourceFunction.accessor.value;
+                    return bResourceFunction.accessor.getValue();
                 }
                 return mthd.symbol.getOriginalName().getValue();
             }
@@ -788,7 +788,7 @@ public class SymbolFactory {
     }
 
     private BField getBField(BVarSymbol symbol) {
-        String fieldName = symbol.name.value;
+        String fieldName = symbol.name.getValue();
         BStructureType type = (BStructureType) symbol.owner.type;
         return type.fields.get(fieldName);
     }

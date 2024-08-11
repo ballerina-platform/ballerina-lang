@@ -490,7 +490,7 @@ public class LargeMethodOptimizer {
                 // hence split function should be created after such function call
                 // only in this case we have to consider RHS operands (only function arguments)
                 BIRTerminator.Call callIns = (BIRTerminator.Call) bbTerminator;
-                if (callIns.name.value.contains(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
+                if (callIns.name.getValue().contains(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
                     for (BIROperand arg : callIns.args) {
                         addOperandToInsSplitPoints(arrayOrMapValueOperands, insSplitPoints, callIns, arg,
                                 operandsInSameBB, remainingArrayValueOperands);
@@ -1374,8 +1374,8 @@ public class LargeMethodOptimizer {
                 }
                 currentBB.terminator = basicBlocks.get(bbNum).terminator;
                 newBBList.add(currentBB);
-                changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
-                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
+                changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.getValue(), currentBB.id.getValue());
+                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.getValue(), currentBB.id.getValue());
                 startInsNum = 0;
                 bbNum += 1;
                 continue;
@@ -1398,7 +1398,7 @@ public class LargeMethodOptimizer {
             if (currentBB == null) {
                 throw new IllegalStateException("currentBB cannot be null");
             }
-            changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
+            changedLocalVarStartBB.put(basicBlocks.get(bbNum).id.getValue(), currentBB.id.getValue());
             if (!splitsInSameBBList.isEmpty()) {
                 // current unfinished BB is passed to the function and a new one is returned from it
                 currentBB = generateSplitsInSameBB(function, bbNum, splitsInSameBBList, newlyAddedFunctions,
@@ -1415,7 +1415,7 @@ public class LargeMethodOptimizer {
                 }
                 currentBB.terminator = basicBlocks.get(bbNum).terminator;
                 newBBList.add(currentBB);
-                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
+                changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.getValue(), currentBB.id.getValue());
                 startInsNum = 0;
                 bbNum += 1;
                 if (splitNum < possibleSplits.size() && (possibleSplits.get(splitNum).startBBNum == bbNum)) {
@@ -1468,7 +1468,7 @@ public class LargeMethodOptimizer {
                     currentPackageId, newFuncName, args, splitFuncCallResultOp, parentFuncNewBB,
                     Collections.emptyList(), Collections.emptySet(), lastInstruction.scope);
             newBBList.add(currentBB);
-            changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
+            changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.getValue(), currentBB.id.getValue());
             currentBB = parentFuncNewBB;
             if (currSplit.returnValAssigned) {
                 currentBB = handleNewFuncReturnVal(function, splitFuncCallResultOp, lastInstruction.scope, currentBB,
@@ -1622,22 +1622,22 @@ public class LargeMethodOptimizer {
 
         Map<String, BIRBasicBlock> newBBs = new HashMap<>();
         for (BIRBasicBlock newBB : newBBList) {
-            newBBs.put(newBB.id.value, newBB);
+            newBBs.put(newBB.id.getValue(), newBB);
         }
         for (BIRVariableDcl localVar : birFunction.localVars) {
             if (localVar.kind == VarKind.LOCAL) {
                 if (localVar.startBB != null) {
-                    if (changedLocalVarStartBB.containsKey(localVar.startBB.id.value)) {
-                        localVar.startBB = newBBs.get(changedLocalVarStartBB.get(localVar.startBB.id.value));
+                    if (changedLocalVarStartBB.containsKey(localVar.startBB.id.getValue())) {
+                        localVar.startBB = newBBs.get(changedLocalVarStartBB.get(localVar.startBB.id.getValue()));
                     } else {
-                        localVar.startBB = newBBs.get(localVar.startBB.id.value);
+                        localVar.startBB = newBBs.get(localVar.startBB.id.getValue());
                     }
                 }
                 if (localVar.endBB != null) {
-                    if (changedLocalVarEndBB.containsKey(localVar.endBB.id.value)) {
-                        localVar.endBB = newBBs.get(changedLocalVarEndBB.get(localVar.endBB.id.value));
+                    if (changedLocalVarEndBB.containsKey(localVar.endBB.id.getValue())) {
+                        localVar.endBB = newBBs.get(changedLocalVarEndBB.get(localVar.endBB.id.getValue()));
                     } else {
-                        localVar.endBB = newBBs.get(localVar.endBB.id.value);
+                        localVar.endBB = newBBs.get(localVar.endBB.id.getValue());
                     }
                 }
             }

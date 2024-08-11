@@ -78,7 +78,7 @@ public class PackageCache {
 
     public void remove(PackageID packageID) {
         packageMap.remove(getCacheID(packageID));
-        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.value);
+        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.getValue());
         packageSymbolMap.remove(packageElements[0]);
     }
 
@@ -106,7 +106,7 @@ public class PackageCache {
     }
 
     public BPackageSymbol getSymbol(String bvmAlias) {
-        String[] packageElements = bvmAlias.split(Names.VERSION_SEPARATOR.value);
+        String[] packageElements = bvmAlias.split(Names.VERSION_SEPARATOR.getValue());
         Map<String, BPackageSymbol> versionMap = packageSymbolMap.get(packageElements[0]);
         if (versionMap != null) {
             if (packageElements.length > 1) {
@@ -122,13 +122,13 @@ public class PackageCache {
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
-        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.value);
+        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.getValue());
         Map<String, BPackageSymbol> versionMap =
                 packageSymbolMap.computeIfAbsent(packageElements[0], k -> new LinkedHashMap<>());
         if (packageElements.length > 1) {
             versionMap.put(getMajorVersion(packageElements[1]), packageSymbol);
         } else {
-            versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
+            versionMap.put(Names.DEFAULT_VERSION.getValue(), packageSymbol);
         }
     }
 }

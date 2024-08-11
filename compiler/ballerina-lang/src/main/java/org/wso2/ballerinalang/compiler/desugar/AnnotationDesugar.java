@@ -499,7 +499,7 @@ public class AnnotationDesugar {
                 // Add the lambda/invocation in a temporary block.
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFnBody.pos;
-                String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
+                String identifier = function.attachedFunction ? function.symbol.name.getValue() : function.name.value;
 
                 int index;
                 if (function.attachedFunction
@@ -765,7 +765,7 @@ public class AnnotationDesugar {
 
         for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            str.value = varSymbol.name.value;
+            str.value = varSymbol.name.getValue();
             str.setBType(symTable.stringType);
             str.typeChecked = true;
             valueLiteral.exprs.add(str);
@@ -773,7 +773,7 @@ public class AnnotationDesugar {
 
         if (mainFunc.symbol.restParam != null) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            str.value = mainFunc.symbol.restParam.name.value;
+            str.value = mainFunc.symbol.restParam.name.getValue();
             str.setBType(symTable.stringType);
             str.typeChecked = true;
             valueLiteral.exprs.add(str);
@@ -999,7 +999,7 @@ public class AnnotationDesugar {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         funcInvocation.setBType(symbol.retType);
         funcInvocation.symbol = symbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.getValue());
         funcInvocation.functionPointerInvocation = true;
         return funcInvocation;
     }
@@ -1041,7 +1041,7 @@ public class AnnotationDesugar {
         funcInvocation.expr = null;
         BInvokableSymbol lambdaSymbol = lambdaFunction.function.symbol;
         funcInvocation.symbol = lambdaSymbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, lambdaSymbol.name.value);
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, lambdaSymbol.name.getValue());
         return funcInvocation;
     }
 

@@ -226,7 +226,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(function.pos, blockMap);
 
         // self.$map$objectCtor
-        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, classMapSymbol.name.value);
+        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, classMapSymbol.name.getValue());
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, identifierNode);
         fieldAccess.symbol = oceMap;
         fieldAccess.setBType(classMapSymbol.type);
@@ -254,11 +254,11 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     private void addMapSymbolAsAField(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.getValue(),
                 mapSymbol.type, null, mapSymbol);
 
         BObjectType object = (BObjectType) classDef.getBType();
-        object.fields.put(mapSymbol.name.value, new BField(mapSymbol.name, classDef.pos, mapSymbol));
+        object.fields.put(mapSymbol.name.getValue(), new BField(mapSymbol.name, classDef.pos, mapSymbol));
         classDef.fields.add(0, mapVar);
     }
 
@@ -313,7 +313,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private BLangSimpleVariableDef getClosureMap(BVarSymbol mapSymbol, SymbolEnv blockEnv) {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(symTable.builtinPos, mapSymbol.type);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.getValue(),
                                                                    mapSymbol.type, emptyRecord, mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(symTable.builtinPos, mapVar);

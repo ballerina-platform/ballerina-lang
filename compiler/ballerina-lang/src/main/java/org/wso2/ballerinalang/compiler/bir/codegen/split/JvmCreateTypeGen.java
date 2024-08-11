@@ -266,7 +266,7 @@ public class JvmCreateTypeGen {
 
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            String name = optionalTypeDef.internalName.value;
+            String name = optionalTypeDef.internalName.getValue();
             BType bType = optionalTypeDef.type;
             int bTypeTag = bType.tag;
             if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
@@ -284,7 +284,7 @@ public class JvmCreateTypeGen {
                         jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, typeOwnerClass, name);
                 case TypeTags.OBJECT -> jvmObjectTypeGen.createObjectType(mv, (BObjectType) bType);
                 case TypeTags.ERROR ->
-                        jvmErrorTypeGen.createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
+                        jvmErrorTypeGen.createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.getValue());
                 case TypeTags.TUPLE -> jvmTupleTypeGen.createTupleType(mv, (BTupleType) bType);
                 default -> jvmUnionTypeGen.createUnionType(mv, (BUnionType) bType);
             }
@@ -318,7 +318,7 @@ public class JvmCreateTypeGen {
                 continue;
             }
 
-            fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
+            fieldName = getTypeFieldName(optionalTypeDef.internalName.getValue());
             String methodName = POPULATE_METHOD_PREFIX + fieldName;
             MethodVisitor mv;
             switch (bTypeTag) {
@@ -435,9 +435,9 @@ public class JvmCreateTypeGen {
                 labels.add(i, new Label());
                 String name;
                 if (decodeCase) {
-                    name = decodeIdentifier(node.getName().value);
+                    name = decodeIdentifier(node.getName().getValue());
                 } else {
-                    name = node.getName().value;
+                    name = node.getName().getValue();
                 }
                 hashCodes[i] = name.hashCode();
                 i += 1;
@@ -466,9 +466,9 @@ public class JvmCreateTypeGen {
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
             if (decodeCase) {
-                mv.visitLdcInsn(decodeIdentifier(node.getName().value));
+                mv.visitLdcInsn(decodeIdentifier(node.getName().getValue()));
             } else {
-                mv.visitLdcInsn(node.getName().value);
+                mv.visitLdcInsn(node.getName().getValue());
             }
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     ANY_TO_JBOOLEAN, false);
@@ -590,7 +590,7 @@ public class JvmCreateTypeGen {
         for (BIRTypeDefinition node : nodes) {
             if (node != null) {
                 BType type = node.type;
-                String fieldName = getTypeFieldName(node.internalName.value);
+                String fieldName = getTypeFieldName(node.internalName.getValue());
                 Integer typeHash = typeHashVisitor.visit(type);
                 boolean fieldExists = labelFieldMapping.containsKey(fieldName);
                 boolean hashExists = labelHashMapping.containsKey(typeHash);
@@ -654,7 +654,7 @@ public class JvmCreateTypeGen {
             mv.visitVarInsn(ALOAD, fieldMapIndex);
 
             // Load field name
-            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.getValue()));
 
             // create and load field type
             createField(mv, optionalField);
@@ -698,7 +698,7 @@ public class JvmCreateTypeGen {
         jvmTypeGen.loadType(mv, field.symbol.type);
 
         // Load field name
-        mv.visitLdcInsn(decodeIdentifier(field.name.value));
+        mv.visitLdcInsn(decodeIdentifier(field.name.getValue()));
 
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);

@@ -438,7 +438,8 @@ public class MainMethodGen {
         List<String> defaultableNames = new ArrayList<>();
         int defaultableIndex = 0;
         for (BIRNode.BIRAnnotationAttachment attachment : annotAttachments) {
-            if (attachment != null && attachment.annotTagRef.value.equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
+            if (attachment != null &&
+                    attachment.annotTagRef.getValue().equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
                 Map<String, BIRNode.ConstValue> annotFieldMap =
                         (Map<String, BIRNode.ConstValue>)
                                 ((BIRNode.BIRConstAnnotationAttachment) attachment).annotValue.value;

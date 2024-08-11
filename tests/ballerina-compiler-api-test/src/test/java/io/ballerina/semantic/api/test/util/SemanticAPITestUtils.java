@@ -170,7 +170,7 @@ public final class SemanticAPITestUtils {
 
             if (value.symbol != null && (value.symbol.tag & symTag) == symTag
                     && Symbols.isFlagOn(value.symbol.flags, Flags.PUBLIC) && value.symbol.origin == COMPILED_SOURCE) {
-                symbolNames.add(name.value);
+                symbolNames.add(name.getValue());
             }
         }
         return symbolNames;
@@ -183,7 +183,7 @@ public final class SemanticAPITestUtils {
             Scope.ScopeEntry value = entry.getValue();
 
             if (value.symbol != null && (value.symbol.tag & symTag) == symTag && value.symbol.origin == origin) {
-                symbolNames.add(name.value);
+                symbolNames.add(name.getValue());
             }
         }
         return symbolNames;

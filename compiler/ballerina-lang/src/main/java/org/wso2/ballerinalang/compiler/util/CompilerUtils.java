@@ -72,16 +72,17 @@ public final class CompilerUtils {
 
     public static String getPackageIDStringWithMajorVersion(PackageID packageID) {
         if (Names.DOT.equals(packageID.name)) {
-            return packageID.name.value;
+            return packageID.name.getValue();
         }
         String org = "";
         if (packageID.orgName != null && !packageID.orgName.equals(Names.ANON_ORG)) {
-            org = packageID.orgName + Names.ORG_NAME_SEPARATOR.value;
+            org = packageID.orgName + Names.ORG_NAME_SEPARATOR.getValue();
         }
         if (packageID.version.equals(Names.EMPTY)) {
-            return org + packageID.name.value;
+            return org + packageID.name.getValue();
         }
-        return org + packageID.name + Names.VERSION_SEPARATOR.value + getMajorVersion(packageID.version.value);
+        return org + packageID.name + Names.VERSION_SEPARATOR.getValue() +
+                getMajorVersion(packageID.version.getValue());
     }
 
     public static boolean isInParameterList(BSymbol symbol, List<BLangSimpleVariable> params) {

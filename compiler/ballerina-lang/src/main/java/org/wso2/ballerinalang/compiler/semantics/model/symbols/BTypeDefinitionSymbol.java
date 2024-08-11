@@ -56,7 +56,7 @@ public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
         if (this.pkgID == PackageID.DEFAULT ||
                 this.pkgID.equals(PackageID.ANNOTATIONS) ||
                 this.pkgID.name == Names.DEFAULT_PACKAGE) {
-            return this.name.value;
+            return this.name.getValue();
         }
         return this.pkgID.toString() + ":" + this.name;
     }

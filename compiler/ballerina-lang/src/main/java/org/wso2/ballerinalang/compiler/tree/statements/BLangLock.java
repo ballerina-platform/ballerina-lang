@@ -123,7 +123,7 @@ public class BLangLock extends BLangStatement implements LockNode {
 
         @Override
         public String toString() {
-            return "lock [" + lockVariables.stream().map(s -> s.name.value).collect(Collectors.joining(", "));
+            return "lock [" + lockVariables.stream().map(s -> s.name.getValue()).collect(Collectors.joining(", "));
         }
 
         public boolean addLockVariable(BVarSymbol variable) {

@@ -99,9 +99,9 @@ public class DiagnosticPos implements Location {
     public int compareTo(DiagnosticPos diagnosticPosition) {
 
         // Compare the source first.
-        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().fileName();
-        String otherDiagnosticString = diagnosticPosition.getPackageID().name.value +
-                diagnosticPosition.getPackageID().version.value +
+        String thisDiagnosticString = packageID.name.getValue() + packageID.version.getValue() + lineRange().fileName();
+        String otherDiagnosticString = diagnosticPosition.getPackageID().name.getValue() +
+                diagnosticPosition.getPackageID().version.getValue() +
                 diagnosticPosition.lineRange().fileName();
         int value = thisDiagnosticString.compareTo(otherDiagnosticString);
 

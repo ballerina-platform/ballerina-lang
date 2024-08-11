@@ -140,7 +140,7 @@ public abstract class BIRNode {
             this.scope = scope;
             this.kind = kind;
             this.metaVarName = metaVarName;
-            this.jvmVarName = name.value.replace("%", "_");
+            this.jvmVarName = name.getValue().replace("%", "_");
         }
 
         public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
@@ -173,7 +173,7 @@ public abstract class BIRNode {
 
         @Override
         public int hashCode() {
-            return this.name.value.hashCode();
+            return this.name.getValue().hashCode();
         }
 
         @Override
@@ -485,7 +485,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return id.value;
+            return id.getValue();
         }
     }
 

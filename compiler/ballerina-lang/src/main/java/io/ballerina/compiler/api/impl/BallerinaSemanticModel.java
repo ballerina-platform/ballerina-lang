@@ -684,7 +684,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isIgnorableSelfSymbol(Name name, BSymbol symbol, BSymbol symbolEnvScopeOwner) {
-        return name.value.equals("self") && !symbol.owner.owner.equals(symbolEnvScopeOwner.owner);
+        return name.getValue().equals("self") && !symbol.owner.owner.equals(symbolEnvScopeOwner.owner);
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {

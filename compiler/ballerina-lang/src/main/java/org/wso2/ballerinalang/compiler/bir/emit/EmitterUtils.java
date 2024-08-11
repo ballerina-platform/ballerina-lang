@@ -40,7 +40,7 @@ final class EmitterUtils {
     private EmitterUtils() {}
 
     static String emitName(Name name) {
-        return name.value;
+        return name.getValue();
     }
 
     static String emitVarRef(BIROperand ref) {
@@ -62,9 +62,9 @@ final class EmitterUtils {
         String str = "";
         str += modId.orgName + "/";
         str += modId.name;
-        if (!modId.version.value.isEmpty()) {
+        if (!modId.version.getValue().isEmpty()) {
             str += ":";
-            str += modId.version.value;
+            str += modId.version.getValue();
         }
         return str;
     }
@@ -148,7 +148,7 @@ final class EmitterUtils {
     }
 
     static boolean isEmpty(Name nameVal) {
-        return nameVal.value.isEmpty();
+        return nameVal.getValue().isEmpty();
     }
 
     static String emitValue(Object value, BType type) {

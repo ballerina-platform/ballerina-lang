@@ -48,8 +48,8 @@ public abstract class AbstractIntSubTypeSymbol extends AbstractTypeSymbol {
         SymbolTable symTable = SymbolTable.getInstance(this.context);
         SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
         this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langIntModuleSymbol,
-                                                                   symTable.langIntModuleSymbol
-                                                                           .getOriginalName().value);
+                symTable.langIntModuleSymbol
+                        .getOriginalName().getValue());
         return Optional.of(this.module);
     }
 }

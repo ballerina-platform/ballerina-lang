@@ -231,7 +231,7 @@ public class JvmTypeGen {
                 // do not generate anything for other types (e.g.: finite type, type reference types etc.)
                 continue;
             }
-            String name = typeDef.internalName.value;
+            String name = typeDef.internalName.getValue();
             generateTypeField(cw, name);
             generateTypedescField(cw, name);
         }
@@ -730,7 +730,7 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        mv.visitLdcInsn(Utils.decodeIdentifier(bType.tsymbol.name.value));
+        mv.visitLdcInsn(Utils.decodeIdentifier(bType.tsymbol.name.getValue()));
         String varName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
         // Create the constituent types array.
@@ -785,9 +785,9 @@ public class JvmTypeGen {
         String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String defName = "";
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
-                && typeSymbol.name.value.isEmpty()) {
-            defName = Utils
-                    .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
+                && typeSymbol.name.getValue().isEmpty()) {
+            defName = Utils.encodeNonFunctionIdentifier(
+                    ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.getValue());
         }
         //class symbols
         String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
@@ -906,18 +906,18 @@ public class JvmTypeGen {
             mv.visitInsn(L2I);
             mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(paramSymbol.name.value);
+            mv.visitLdcInsn(paramSymbol.name.getValue());
             if (paramSymbol.isDefaultable) {
                 mv.visitInsn(ICONST_1);
             } else {
                 mv.visitInsn(ICONST_0);
             }
             BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(
-                    Utils.decodeIdentifier(paramSymbol.name.value));
+                    Utils.decodeIdentifier(paramSymbol.name.getValue()));
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
-                mv.visitLdcInsn(bInvokableSymbol.name.value);
+                mv.visitLdcInsn(bInvokableSymbol.name.getValue());
             }
             loadType(mv, paramSymbol.type);
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
@@ -1013,7 +1013,7 @@ public class JvmTypeGen {
         String name = Utils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
         // load original type name
-        mv.visitLdcInsn(finiteType.tsymbol.originalName.value);
+        mv.visitLdcInsn(finiteType.tsymbol.originalName.getValue());
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);

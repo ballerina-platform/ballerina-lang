@@ -1099,7 +1099,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             //Skip the first n arguments where n is the number of positional arguments specified by the user.
             int numOfPositionalArgs = argumentIndex - namedArgs.size();
             return invokableSymbol.params.subList(numOfPositionalArgs, paramsSize)
-                    .stream().filter(param -> !namedArgs.contains(param.name.value))
+                    .stream().filter(param -> !namedArgs.contains(param.name.getValue()))
                     .findFirst().flatMap(this::getSymbolType);
         }
         if (invokableSymbol.restParam != null) {

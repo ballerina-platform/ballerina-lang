@@ -127,8 +127,8 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
 
     @Override
     public String toString() {
-        return (typeNode == null ? String.valueOf(getBType()) : String.valueOf(typeNode)) + " " + symbol.name.value +
-                " = " + String.valueOf(expr);
+        return (typeNode == null ? String.valueOf(getBType()) : String.valueOf(typeNode)) + " " +
+                symbol.name.getValue() + " = " + String.valueOf(expr);
     }
 
     @Override

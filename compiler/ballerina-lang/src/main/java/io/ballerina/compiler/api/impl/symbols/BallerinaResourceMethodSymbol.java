@@ -150,6 +150,6 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
         }
 
         throw new IllegalStateException(
-                "Matching BResourceFunction not found for internal symbol: " + internalSymbol.name.value);
+                "Matching BResourceFunction not found for internal symbol: " + internalSymbol.name.getValue());
     }
 }

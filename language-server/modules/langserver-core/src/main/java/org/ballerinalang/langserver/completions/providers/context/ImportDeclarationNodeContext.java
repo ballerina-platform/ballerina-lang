@@ -235,7 +235,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     : CommonUtil.getPackageLabel(pkg);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
 
-            if (orgName.equals(Names.BALLERINA_ORG.value)
+            if (orgName.equals(Names.BALLERINA_ORG.getValue())
                     && pkgName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
                 insertText += getLangLibModuleNameInsertText(pkgName);
             } else {
@@ -343,7 +343,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
                     && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
-                if (orgName.equals(Names.BALLERINA_ORG.value)
+                if (orgName.equals(Names.BALLERINA_ORG.getValue())
                         && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
                     insertText = getLangLibModuleNameInsertText(packageName);
                 } else {

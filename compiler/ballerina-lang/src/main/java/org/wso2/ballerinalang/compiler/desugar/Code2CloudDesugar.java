@@ -48,8 +48,8 @@ public class Code2CloudDesugar {
         String cloudOption = CompilerOptions.getInstance(context).get(CompilerOptionName.CLOUD);
         c2cEnabled = "k8s".equals(cloudOption) || "docker".equals(cloudOption) || "choreo".equals(cloudOption);
         packageCache = PackageCache.getInstance(context);
-        final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
-                + Names.ORG_NAME_SEPARATOR.value + Names.CLOUD.value);
+        final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.getValue()
+                + Names.ORG_NAME_SEPARATOR.getValue() + Names.CLOUD.getValue());
         if (symbol != null) {
             c2cPkgID = symbol.pkgID;
         }
@@ -69,10 +69,10 @@ public class Code2CloudDesugar {
                 && c2cPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.CLOUD.value));
+            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.CLOUD.getValue()));
             importDcl.pkgNameComps = pkgNameComps;
             importDcl.pos = pkgNode.symbol.pos;
-            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
+            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.getValue());
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
             importDcl.symbol = packageCache.getSymbol(c2cPkgID);

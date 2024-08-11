@@ -83,7 +83,7 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.getValue());
         return Optional.of(this.module);
     }
 

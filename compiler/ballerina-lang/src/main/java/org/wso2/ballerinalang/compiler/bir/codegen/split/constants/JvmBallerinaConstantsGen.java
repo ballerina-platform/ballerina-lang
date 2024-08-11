@@ -114,7 +114,7 @@ public class JvmBallerinaConstantsGen {
         if (JvmCodeGenUtil.isSimpleBasicType(constValue.type)) {
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(constValue.type);
             JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, jvmConstantsGen);
-            mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
+            mv.visitFieldInsn(PUTSTATIC, className, constant.name.getValue(), descriptor);
         }
     }
 

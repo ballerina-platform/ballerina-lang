@@ -281,9 +281,10 @@ public class BIRPackageSymbolEnter {
                             // we should not copy private functions.
                             continue;
                         }
-                        String referencedFuncName = function.funcName.value;
+                        String referencedFuncName = function.funcName.getValue();
                         Name funcName = Names.fromString(
-                                Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
+                                Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.getValue(),
+                                        referencedFuncName));
                         Scope.ScopeEntry matchingObjFuncSym = objectType.tsymbol.scope.lookup(funcName);
                         if (matchingObjFuncSym == NOT_FOUND_ENTRY) {
                             structureTypeSymbol.attachedFuncs.add(function);
@@ -416,7 +417,7 @@ public class BIRPackageSymbolEnter {
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
-                    Names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
+                    Names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.getValue(), funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 if (isResourceFunction) {
@@ -478,10 +479,10 @@ public class BIRPackageSymbolEnter {
                             new BAttachedFunction(Names.fromString(funcName), invokableSymbol, funcType,
                                     symTable.builtinPos);
                     BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName) ||
-                            funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    if (Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(funcName) ||
+                            funcName.equals(Names.INIT_FUNCTION_SUFFIX.getValue())) {
                         ((BObjectTypeSymbol) structureTypeSymbol).initializerFunc = attachedFunc;
-                    } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
+                    } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.getValue())) {
                         ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
                     } else {
                         structureTypeSymbol.attachedFuncs.add(attachedFunc);
@@ -541,7 +542,7 @@ public class BIRPackageSymbolEnter {
         BTypeReferenceType referenceType = null;
         boolean hasReferenceType = dataInStream.readBoolean();
         if (hasReferenceType) {
-            if (type.tag == TypeTags.TYPEREFDESC && Objects.equals(type.tsymbol.name.value, typeDefName)
+            if (type.tag == TypeTags.TYPEREFDESC && Objects.equals(type.tsymbol.name.getValue(), typeDefName)
                     && type.tsymbol.owner == this.env.pkgSymbol) {
                 referenceType = (BTypeReferenceType) type;
                 referenceType.tsymbol.pos = pos;
@@ -1298,7 +1299,7 @@ public class BIRPackageSymbolEnter {
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
                         BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
-                        recordType.fields.put(structField.name.value, structField);
+                        recordType.fields.put(structField.name.getValue(), structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
@@ -1654,7 +1655,7 @@ public class BIRPackageSymbolEnter {
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
-                        objectType.fields.put(structField.name.value, structField);
+                        objectType.fields.put(structField.name.getValue(), structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                     }
                     boolean generatedConstructorPresent = inputStream.readBoolean();
@@ -1804,7 +1805,7 @@ public class BIRPackageSymbolEnter {
             long attachedFuncFlags = inputStream.readLong();
             BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
             Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(
-                    objectSymbol.name.value, attachedFuncName));
+                    objectSymbol.name.getValue(), attachedFuncName));
             Name funcOrigName = Names.fromString(attachedFuncOrigName);
             BInvokableSymbol attachedFuncSymbol =
                     Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
@@ -1832,7 +1833,8 @@ public class BIRPackageSymbolEnter {
     private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
         BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
 
-        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameBIRShape(readShape, type))) {
+        if (type != symTable.noType && (!name.getValue().contains(ANON_PREFIX) ||
+                types.isSameBIRShape(readShape, type))) {
             return type;
         }
 
@@ -1847,7 +1849,7 @@ public class BIRPackageSymbolEnter {
                     if (types.isSameBIRShape(readShape, anonType)) {
                         return anonType;
                     }
-                } else if (typeDefName.equals(name.value)) {
+                } else if (typeDefName.equals(name.getValue())) {
                     return symbol.type;
                 }
             }
@@ -1855,7 +1857,7 @@ public class BIRPackageSymbolEnter {
             for (Map.Entry<Name, Scope.ScopeEntry> value : pkgEnv.scope.entries.entrySet()) {
                 BSymbol symbol = value.getValue().symbol;
 
-                if (value.getKey().value.contains(ANON_PREFIX)) {
+                if (value.getKey().getValue().contains(ANON_PREFIX)) {
                     BType anonType = symbol.type;
 
                     if (types.isSameBIRShape(readShape, anonType)) {

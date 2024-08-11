@@ -203,7 +203,7 @@ public final class ConfigReader {
                         // Get description
                         String description = getDescriptionValue(varSymbol, module);
                         configVariables.add(new ConfigVariable(
-                                varSymbol.name.value.replace("\\", ""), varSymbol.type,
+                                varSymbol.name.getValue().replace("\\", ""), varSymbol.type,
                                 Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                     }
                 }

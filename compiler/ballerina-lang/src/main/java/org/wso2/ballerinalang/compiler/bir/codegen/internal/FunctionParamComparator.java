@@ -35,7 +35,7 @@ public class FunctionParamComparator implements Comparator<BIRNode.BIRVariableDc
             return Integer.compare(getWeight(o1), getWeight(o2));
         }
         if (o1.kind == VarKind.TEMP) {
-            return Integer.compare(o1.name.value.hashCode(), o2.name.value.hashCode());
+            return Integer.compare(o1.name.getValue().hashCode(), o2.name.getValue().hashCode());
         }
         return 0;
     }

@@ -213,9 +213,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (foundSym == symTable.notFoundSymbol && expSymTag == SymTag.FUNCTION) {
-            int dotPosition = symbol.name.value.indexOf('.');
-            if (dotPosition > 0 && dotPosition != symbol.name.value.length()) {
-                String funcName = symbol.name.value.substring(dotPosition + 1);
+            int dotPosition = symbol.name.getValue().indexOf('.');
+            if (dotPosition > 0 && dotPosition != symbol.name.getValue().length()) {
+                String funcName = symbol.name.getValue().substring(dotPosition + 1);
                 foundSym = lookupSymbolForDecl(env, Names.fromString(funcName), SymTag.MAIN);
             }
         }
@@ -341,7 +341,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 return false;
             }
             // This prevents `self` symbol crash between multilevel object ctors
-            if (foundSym.name.value.equals(Names.SELF.value) || symbol.name.value.equals(Names.SELF.value)) {
+            if (foundSym.name.getValue().equals(Names.SELF.getValue()) ||
+                    symbol.name.getValue().equals(Names.SELF.getValue())) {
                 return false;
             }
             return true;
@@ -457,7 +458,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // Lookup for an imported package
         BSymbol pkgSymbol = lookupSymbolInPrefixSpace(env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.getValue());
         }
 
         return pkgSymbol;
@@ -859,7 +860,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.getValue());
             return pkgSymbol;
         }
 
@@ -884,7 +885,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.getValue());
             return pkgSymbol;
         }
 
@@ -905,7 +906,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.getValue());
             return pkgSymbol;
         }
 
@@ -926,7 +927,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BSymbol pkgSymbol =
                 resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.getValue());
             return pkgSymbol;
         }
 
@@ -1753,7 +1754,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         for (int i = 0; i < params.size(); i++) {
             BLangSimpleVariable param = params.get(i);
 
-            if (param.name.value.equals(varSym.name.value)) {
+            if (param.name.value.equals(varSym.name.getValue())) {
                 if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return new ParameterizedTypeInfo(
                             ((BTypedescType) Types.getImpliedType(varSym.type)).constraint, i);
@@ -2484,7 +2485,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return false;
         }
 
-        if (unifier.refersInferableParamName(paramWithInferredTypedescDefault.name.value, retType)) {
+        if (unifier.refersInferableParamName(paramWithInferredTypedescDefault.name.getValue(), retType)) {
             return true;
         }
 
@@ -2647,7 +2648,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         boolean isFoundSymModuleXmlns = foundSymCompUnit != null;
         boolean isSymModuleXmlns = symbolCompUnit != null;
         if (isFoundSymModuleXmlns && isSymModuleXmlns) {
-            return !foundSymCompUnit.value.equals(symbolCompUnit.value);
+            return !foundSymCompUnit.getValue().equals(symbolCompUnit.getValue());
         }
         // If only one of the symbols have a compUnit then it is a module level xmlns and the symbols are distinct.
         // If they both don't have a compUnit then it is a redeclared prefix.

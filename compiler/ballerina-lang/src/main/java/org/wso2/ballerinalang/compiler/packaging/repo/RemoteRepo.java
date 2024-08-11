@@ -60,9 +60,9 @@ public class RemoteRepo extends NonSysRepo<URI> {
             return Patten.NULL;
         }
         
-        String orgName = pkg.getOrgName().value;
-        String pkgName = pkg.getName().value;
-        String pkgVersion = pkg.getPackageVersion().value;
+        String orgName = pkg.getOrgName().getValue();
+        String pkgName = pkg.getName().getValue();
+        String pkgVersion = pkg.getPackageVersion().getValue();
         if (pkgVersion.isEmpty()) {
             pkgVersion = "*";
         }
@@ -73,7 +73,7 @@ public class RemoteRepo extends NonSysRepo<URI> {
     @Override
     public Patten calculate(PackageID pkgId) {
         if (!COMPILE_BALLERINA_ORG &&
-                systemBirRepoPath.resolve(pkgId.orgName.value).resolve(pkgId.name.value).toFile().exists()) {
+                systemBirRepoPath.resolve(pkgId.orgName.getValue()).resolve(pkgId.name.getValue()).toFile().exists()) {
             return Patten.NULL;
         } else {
             return calculateNonSysPkg(pkgId);

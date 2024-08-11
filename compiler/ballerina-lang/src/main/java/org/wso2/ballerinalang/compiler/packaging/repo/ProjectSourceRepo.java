@@ -47,15 +47,15 @@ public class ProjectSourceRepo extends NonSysRepo<Path> {
     @Override
     public Patten calculateNonSysPkg(PackageID moduleID) {
         // check module has same organization
-        if (null != this.manifest && !moduleID.orgName.value.equals(this.manifest.getProject().getOrgName())) {
+        if (null != this.manifest && !moduleID.orgName.getValue().equals(this.manifest.getProject().getOrgName())) {
             return Patten.NULL;
         }
         
         if (testEnabled) {
-            return new Patten(Patten.path(ProjectDirConstants.SOURCE_DIR_NAME), Patten.path(moduleID.getName().value),
-                              Patten.WILDCARD_SOURCE_WITH_TEST);
+            return new Patten(Patten.path(ProjectDirConstants.SOURCE_DIR_NAME),
+                    Patten.path(moduleID.getName().getValue()), Patten.WILDCARD_SOURCE_WITH_TEST);
         }
-        return new Patten(Patten.path(ProjectDirConstants.SOURCE_DIR_NAME), Patten.path(moduleID.getName().value),
+        return new Patten(Patten.path(ProjectDirConstants.SOURCE_DIR_NAME), Patten.path(moduleID.getName().getValue()),
                           Patten.WILDCARD_SOURCE);
     }
 }

@@ -60,7 +60,7 @@ public class JvmRefTypeGen {
     public void createTypeRefType(MethodVisitor mv, BTypeReferenceType typeRefType) {
         mv.visitTypeInsn(NEW, TYPE_REF_TYPE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn(Utils.decodeIdentifier(typeRefType.tsymbol.name.value));
+        mv.visitLdcInsn(Utils.decodeIdentifier(typeRefType.tsymbol.name.getValue()));
         String varName = jvmConstantsGen.getModuleConstantVar(typeRefType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
         mv.visitLdcInsn(jvmTypeGen.typeFlag(typeRefType.referredType));

@@ -64,8 +64,8 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public String toString() {
-        if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.startsWith(DOLLAR)
-                && !tsymbol.name.value.isEmpty()) {
+        if (tsymbol != null && tsymbol.name != null && !tsymbol.name.getValue().startsWith(DOLLAR)
+                && !tsymbol.name.getValue().isEmpty()) {
             return String.valueOf(tsymbol);
         }
         return ERROR +  detailType + CLOSE_ERROR;

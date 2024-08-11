@@ -78,8 +78,8 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)
                     && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
-                if (orgName.equals(Names.BALLERINA_ORG.value)
-                        && packageName.startsWith(Names.LANG.value + ".")) {
+                if (orgName.equals(Names.BALLERINA_ORG.getValue())
+                        && packageName.startsWith(Names.LANG.getValue() + ".")) {
                     insertText = ImportDeclarationContextUtil.getLangLibModuleNameInsertText(packageName);
                 } else {
                     insertText = packageName;

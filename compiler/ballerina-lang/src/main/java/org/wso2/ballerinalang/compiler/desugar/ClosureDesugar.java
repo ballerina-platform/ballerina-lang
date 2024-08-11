@@ -298,7 +298,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(function.pos, blockMap);
 
         // self.$map$objectCtor
-        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, blockMap.name.value);
+        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, blockMap.name.getValue());
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, identifierNode);
         fieldAccess.symbol = oceMap;
         fieldAccess.setBType(classMapSymbol.type);
@@ -344,8 +344,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         initInvocation.argExprs.add(refToBlockClosureMap);
 
         // add closure map as a argument to init method of the object
-        BLangSimpleVariable blockClosureMap = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
-                mapSymbol.getType(), null, mapSymbol);
+        BLangSimpleVariable blockClosureMap = ASTBuilderUtil.createVariable(
+                symTable.builtinPos, mapSymbol.name.getValue(), mapSymbol.getType(), null, mapSymbol);
         blockClosureMap.flagSet.add(Flag.REQUIRED_PARAM);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDef.getBType().tsymbol);
         if (typeSymbol.generatedInitializerFunc != null) {
@@ -386,11 +386,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     private void addMapSymbolAsAField(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.getValue(),
                 mapSymbol.type, null, mapSymbol);
 
         BObjectType object = (BObjectType) classDef.getBType();
-        object.fields.put(mapSymbol.name.value, new BField(mapSymbol.name, classDef.pos, mapSymbol));
+        object.fields.put(mapSymbol.name.getValue(), new BField(mapSymbol.name, classDef.pos, mapSymbol));
         classDef.fields.add(0, mapVar);
     }
 
@@ -402,7 +402,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         BVarSymbol functionMap = functionMapSymbol;
 
-        BVarSymbol classFunctionMapSymbol = createFunctionMapSymbolIfAbsent(classDef, functionMapSymbol.name.value);
+        BVarSymbol classFunctionMapSymbol = createFunctionMapSymbolIfAbsent(
+                classDef, functionMapSymbol.name.getValue());
         classDef.oceEnvData.classEnclosedFunctionMap = classFunctionMapSymbol;
 
         addMapSymbolAsAField(classDef, classFunctionMapSymbol);
@@ -622,7 +623,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapAllType);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.getValue(),
                                                                    funcNode.mapSymbol.type, emptyRecord,
                                                                    funcNode.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.mapSymbol.type);
@@ -677,7 +678,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // $map$func$_num[localVarRef]
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, type,
                 funcNode.mapSymbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
-                        paramSymbol.name.value));
+                        paramSymbol.name.getValue()));
         accessExpr.setBType(((BMapType) funcNode.mapSymbol.type).constraint);
         accessExpr.isLValue = true;
         // $map$func$_num[localVarRef] = <tyoe> localVarRef;
@@ -705,7 +706,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private BLangSimpleVariableDef getClosureMap(BVarSymbol mapSymbol, SymbolEnv blockEnv) {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(symTable.builtinPos, mapSymbol.type);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.getValue(),
                                                                    mapSymbol.type, emptyRecord, mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(symTable.builtinPos, mapVar);
@@ -1675,7 +1676,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // Create the index based access expression.
         // [varRefExpr]
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
-                varRefExpr.varSymbol.name.value);
+                varRefExpr.varSymbol.name.getValue());
         // mapSymbol[varRefExpr]
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos,
                 varRefExpr.getBType(),
@@ -1748,7 +1749,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
         BVarSymbol blockMap = createMapSymbolIfAbsent(nodeKeepingClosureMap, blockClosureMapCount);
-        BVarSymbol classMapSymbol = createMapSymbolIfAbsent(classDef, blockMap.name.value, true);
+        BVarSymbol classMapSymbol = createMapSymbolIfAbsent(classDef, blockMap.name.getValue(), true);
         BVarSymbol parentBlockMap = null;
         if (!oceEnvData.parents.isEmpty()) {
             BLangClassDefinition parentClass = oceEnvData.parents.get(0);
@@ -1779,7 +1780,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
 
                         BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos,
-                                parentBlockMap.name.value);
+                                parentBlockMap.name.getValue());
                         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef,
                                 identifierNode);
                         fieldAccess.symbol = parentBlockMap;
@@ -1797,7 +1798,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                 env.scope.owner.pkgID, parentBlockMap.getType(), env.scope.owner, body.pos, VIRTUAL);
 
                         BLangSimpleVariable blockMapVar = ASTBuilderUtil.createVariable(body.pos,
-                                parentBlockMap.name.value,
+                                parentBlockMap.name.getValue(),
                                 parentBlockMap.getType(), fieldAccess, parentBlockSymbol);
 
                         body.scope.define(blockMapVar.symbol.name, parentBlockSymbol);

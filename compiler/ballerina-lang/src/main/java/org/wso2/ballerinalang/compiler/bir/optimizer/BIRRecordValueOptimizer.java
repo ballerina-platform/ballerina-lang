@@ -120,12 +120,12 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             return;
         }
 
-        if (!fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
+        if (!fpCall.fp.variableDcl.name.getValue().contains(recordType.tsymbol.name.getValue())) {
             resetBasicBlock(basicBlock);
             return;
         }
 
-        BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.value);
+        BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.getValue());
         if (defaultFunction == null) {
             resetBasicBlock(basicBlock);
             return;
@@ -160,7 +160,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
         if (firstBB.instructions.size() == 2) {
             BIRNonTerminator.TypeCast typeCast = (BIRNonTerminator.TypeCast) firstBB.instructions.get(1);
-            String tempVarName = "%temp_" + typeCast.rhsOp.variableDcl.name.value;
+            String tempVarName = "%temp_" + typeCast.rhsOp.variableDcl.name.getValue();
             BIRNode.BIRVariableDcl tempVar;
             if (typecastVars.containsKey(tempVarName)) {
                 tempVar = typecastVars.get(tempVarName);
@@ -212,7 +212,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     private BIRNode.BIRFunction getDefaultBIRFunction(String funcName) {
         for (BIRNode.BIRFunction func : moduleFunctions) {
-            if (func.name.value.equals(funcName)) {
+            if (func.name.getValue().equals(funcName)) {
                 return func;
             }
         }

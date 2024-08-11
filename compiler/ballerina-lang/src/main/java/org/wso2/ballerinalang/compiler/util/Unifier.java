@@ -544,7 +544,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BParameterizedType originalType, BType expType) {
-        String paramVarName = originalType.paramSymbol.name.value;
+        String paramVarName = originalType.paramSymbol.name.getValue();
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BTypedescType paramSymbolTypedescType =
@@ -640,7 +640,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BType getTypeAddingArgIfNotProvided(BParameterizedType originalType, BType expType) {
         BVarSymbol paramSymbol = originalType.paramSymbol;
 
-        String paramName = paramSymbol.name.value;
+        String paramName = paramSymbol.name.getValue();
 
         List<BLangExpression> requiredArgs = invocation.requiredArgs;
 
@@ -727,7 +727,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
                 if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
                     // If this is a positional arg, it should correspond to the current param.
-                    paramValueTypes.put(params.get(paramIndex).name.value, arg.getBType());
+                    paramValueTypes.put(params.get(paramIndex).name.getValue(), arg.getBType());
                     argIndex++;
                     continue;
                 } else {
@@ -746,7 +746,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
 
             BVarSymbol param = params.get(paramIndex);
-            String paramName = param.name.value;
+            String paramName = param.name.getValue();
             if (param.isDefaultable && !Symbols.isFlagOn(param.flags, Flags.INFER)) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
@@ -764,7 +764,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            String name = param.name.value;
+            String name = param.name.getValue();
             boolean argProvided = false;
 
             for (int argIndex = currentArgIndex; argIndex < requiredArgs.size(); argIndex++) {
@@ -806,7 +806,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromRecordRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                    BRecordType recordType) {
         for (int i = currentParamIndex; i < params.size(); i++) {
-            String paramName = params.get(i).name.value;
+            String paramName = params.get(i).name.getValue();
             paramValueTypes.put(paramName, recordType.fields.get(paramName).type);
         }
     }
@@ -815,7 +815,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                                                   BArrayType arrayType) {
         BType elementType = arrayType.eType;
         for (int i = currentParamIndex; i < params.size(); i++) {
-            paramValueTypes.put(params.get(i).name.value, elementType);
+            paramValueTypes.put(params.get(i).name.getValue(), elementType);
         }
     }
 
@@ -824,7 +824,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         int tupleIndex = 0;
         List<BType> tupleTypes = tupleType.getTupleTypes();
         for (int i = currentParamIndex; i < params.size(); i++) {
-            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
+            paramValueTypes.put(params.get(i).name.getValue(), tupleTypes.get(tupleIndex++));
         }
     }
 
@@ -847,7 +847,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private BType getParamConstraintTypeIfInferred(BLangFunction function, BParameterizedType parameterizedType) {
-        String paramName = parameterizedType.paramSymbol.name.value;
+        String paramName = parameterizedType.paramSymbol.name.getValue();
 
         for (BLangSimpleVariable requiredParam : function.requiredParams) {
             if (!requiredParam.name.value.equals(paramName)) {
@@ -1017,7 +1017,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         type = Types.getReferredType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
-                String paramName = ((BParameterizedType) type).paramSymbol.name.value;
+                String paramName = ((BParameterizedType) type).paramSymbol.name.getValue();
                 return paramsWithInferredTypedescDefault.contains(paramName);
             case TypeTags.XML:
                 return refersInferableParamName(paramsWithInferredTypedescDefault, ((BXMLType) type).constraint,
@@ -1127,7 +1127,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         for (BVarSymbol param : params) {
             if (Symbols.isFlagOn(param.flags, Flags.INFER)) {
-                paramsWithInferredTypedescDefault.add(param.name.value);
+                paramsWithInferredTypedescDefault.add(param.name.getValue());
             }
         }
         return paramsWithInferredTypedescDefault;

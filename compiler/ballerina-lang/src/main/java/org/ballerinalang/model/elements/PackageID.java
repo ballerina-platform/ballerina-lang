@@ -166,7 +166,7 @@ public class PackageID {
         if (name == Names.DEFAULT_PACKAGE) {
             return Lists.of(Names.DEFAULT_PACKAGE);
         }
-        return Arrays.stream(name.value.split("\\.")).map(Name::new).toList();
+        return Arrays.stream(name.getValue().split("\\.")).map(Name::new).toList();
     }
 
     /**
@@ -256,19 +256,19 @@ public class PackageID {
     @Override
     public String toString() {
         if (Names.DOT.equals(this.name)) {
-            return this.name.value;
+            return this.name.getValue();
         }
 
         String org = "";
         if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
-            org = this.orgName + Names.ORG_NAME_SEPARATOR.value;
+            org = this.orgName + Names.ORG_NAME_SEPARATOR.getValue();
         }
 
         if (version.equals(Names.EMPTY)) {
-            return org + this.name.value;
+            return org + this.name.getValue();
         }
 
-        return org + this.name + Names.VERSION_SEPARATOR.value + this.version;
+        return org + this.name + Names.VERSION_SEPARATOR.getValue() + this.version;
     }
 
     public Name getOrgName() {

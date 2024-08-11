@@ -59,7 +59,7 @@ public class BResourceFunction extends BAttachedFunction {
             } else if (pathSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
                 resourcePathStrings.add("[" + pathSym.type + "...]");
             } else {
-                resourcePathStrings.add(pathSym.name.value);
+                resourcePathStrings.add(pathSym.name.getValue());
             }
         }
         

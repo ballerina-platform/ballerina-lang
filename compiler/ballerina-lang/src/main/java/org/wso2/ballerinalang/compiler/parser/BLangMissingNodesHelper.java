@@ -61,7 +61,7 @@ public class BLangMissingNodesHelper {
     }
     
     public boolean isMissingNode(Name nodeName) {
-        return isMissingNode(nodeName.value);
+        return isMissingNode(nodeName.getValue());
     }
     
     public boolean isMissingNode(String nodeName) {

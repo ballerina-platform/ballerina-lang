@@ -144,10 +144,10 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-                !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
-            String moduleName = Names.TRANSACTION.value;
+                !currentModuleDesc.name().toString().equals(Names.TRANSACTION.getValue())) {
+            String moduleName = Names.TRANSACTION.getValue();
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
+                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.getValue()),
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequestSet.add(ballerinaiLoadReq);
         }

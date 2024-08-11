@@ -303,7 +303,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             // Check whether each annotation type definition is available in the AST.
             List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage);
             annotationSymbols.forEach(annSymbol -> {
-                DefinitionID definitionID = new DefinitionID(annSymbol.pkgID.name.value, annSymbol.name.value);
+                DefinitionID definitionID = new DefinitionID(
+                        annSymbol.pkgID.name.getValue(), annSymbol.name.getValue());
                 Set<CompilerPlugin> processors = processorMap.computeIfAbsent(definitionID, k -> new HashSet<>());
                 processors.add(plugin);
             });
@@ -333,7 +334,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         Map<CompilerPlugin, List<AnnotationAttachmentNode>> attachmentMap = new HashMap<>();
 
         for (BLangAnnotationAttachment attachment : attachments) {
-            DefinitionID aID = new DefinitionID(attachment.annotationSymbol.pkgID.getName().value,
+            DefinitionID aID = new DefinitionID(attachment.annotationSymbol.pkgID.getName().getValue(),
                     attachment.annotationName.value);
             if (!processorMap.containsKey(aID)) {
                 continue;
@@ -427,8 +428,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                     final BLangFunction resourceNode = (BLangFunction) function;
                     if (resourceNode.symbol.params.stream().filter(varSym -> varSym.type.tsymbol != null)
                             .map(varSym -> varSym.type.tsymbol).noneMatch(
-                                    tsym -> definitionID.name.equals(tsym.name.value) && definitionID.pkgName
-                                            .equals(tsym.pkgID.name.value))) {
+                                    tsym -> definitionID.name.equals(tsym.name.getValue()) && definitionID.pkgName
+                                            .equals(tsym.pkgID.name.getValue()))) {
                         continue;
                     }
                     isCurrentPluginProcessed = true;

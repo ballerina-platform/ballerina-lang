@@ -130,12 +130,12 @@ final class BIRTestUtils {
 
             // assert name
             Bir.ConstantPoolEntry constantPoolEntryName = constantPoolEntries.get(actualFunction.nameCpIndex());
-            assertConstantPoolEntry(constantPoolEntryName, expectedFunction.name.value);
+            assertConstantPoolEntry(constantPoolEntryName, expectedFunction.name.getValue());
 
             // assert original name
             Bir.ConstantPoolEntry constantPoolEntryOrigName =
                     constantPoolEntries.get(actualFunction.originalNameCpIndex());
-            assertConstantPoolEntry(constantPoolEntryOrigName, expectedFunction.originalName.value);
+            assertConstantPoolEntry(constantPoolEntryOrigName, expectedFunction.originalName.getValue());
 
             // assert markdown document
             assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
@@ -252,7 +252,7 @@ final class BIRTestUtils {
 
         for (int i = 0; i < actualGlobalVarCpEntries.size(); i++) {
             Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualGlobalVarCpEntries.get(i));
-            String expectedName = ((BIRNode.BIRGlobalVariableDcl) expectedGlobalVars[i]).name.value;
+            String expectedName = ((BIRNode.BIRGlobalVariableDcl) expectedGlobalVars[i]).name.getValue();
             assertConstantPoolEntry(constantPoolEntry, expectedName);
         }
     }
@@ -322,7 +322,7 @@ final class BIRTestUtils {
             BIRNode.BIRBasicBlock expectedBasicBlock = expectedBasicBlocks.get(i);
 
             Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualBasicBlock.nameCpIndex());
-            assertConstantPoolEntry(constantPoolEntry, expectedBasicBlock.id.value);
+            assertConstantPoolEntry(constantPoolEntry, expectedBasicBlock.id.getValue());
 
             ArrayList<Bir.Instruction> actualInstructions = actualBasicBlock.instructions();
             List<BIRNonTerminator> expectedInstructions = expectedBasicBlock.instructions;
@@ -372,11 +372,11 @@ final class BIRTestUtils {
 
         // assert true bb name
         Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualBranch.trueBbIdNameCpIndex());
-        assertConstantPoolEntry(constantPoolEntry, expectedBranch.trueBB.id.value);
+        assertConstantPoolEntry(constantPoolEntry, expectedBranch.trueBB.id.getValue());
 
         // assert false bb name
         constantPoolEntry = constantPoolEntries.get(actualBranch.falseBbIdNameCpIndex());
-        assertConstantPoolEntry(constantPoolEntry, expectedBranch.falseBB.id.value);
+        assertConstantPoolEntry(constantPoolEntry, expectedBranch.falseBB.id.getValue());
     }
 
     private static void assertCallInstruction(Bir.InstructionCall actualCall, BIRTerminator.Call expectedCall,
@@ -393,18 +393,18 @@ final class BIRTestUtils {
 
         // assert call name
         constantPoolEntry = constantPoolEntries.get(callInstructionInfo.callNameCpIndex());
-        assertConstantPoolEntry(constantPoolEntry, expectedCall.name.value);
+        assertConstantPoolEntry(constantPoolEntry, expectedCall.name.getValue());
 
         // assert then bb id
         constantPoolEntry = constantPoolEntries.get(actualCall.thenBbIdNameCpIndex());
-        assertConstantPoolEntry(constantPoolEntry, expectedCall.thenBB.id.value);
+        assertConstantPoolEntry(constantPoolEntry, expectedCall.thenBB.id.getValue());
     }
 
     private static void assertGotoInstruction(Bir.InstructionGoto actualGoto, BIRTerminator.GOTO expectedInstruction,
                                               ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
         // assert goto bb id
         Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualGoto.targetBbIdNameCpIndex());
-        assertConstantPoolEntry(constantPoolEntry, expectedInstruction.targetBB.id.value);
+        assertConstantPoolEntry(constantPoolEntry, expectedInstruction.targetBB.id.getValue());
     }
 
     private static void assertMoveInstruction(Bir.InstructionMove actual, BIRNonTerminator.Move expected,
@@ -430,7 +430,7 @@ final class BIRTestUtils {
 
             // assert var name
             Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualVar.variableDclNameCpIndex());
-            assertConstantPoolEntry(constantPoolEntry, expectedVar.name.value);
+            assertConstantPoolEntry(constantPoolEntry, expectedVar.name.getValue());
         }
     }
 
@@ -445,7 +445,8 @@ final class BIRTestUtils {
             BIRNode.BIRConstant expectedConstant = expectedConstants.get(i);
 
             // assert name
-            assertConstantPoolEntry(constantPoolEntries.get(actualConstant.nameCpIndex()), expectedConstant.name.value);
+            assertConstantPoolEntry(constantPoolEntries.get(actualConstant.nameCpIndex()),
+                    expectedConstant.name.getValue());
 
             // assert flags
             assertFlags(actualConstant.flags(), expectedConstant.flags);
@@ -471,11 +472,11 @@ final class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
-                    expectedTypeDefinition.internalName.value);
+                    expectedTypeDefinition.internalName.getValue());
 
             // assert original name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.originalNameCpIndex()),
-                    expectedTypeDefinition.originalName.value);
+                    expectedTypeDefinition.originalName.getValue());
 
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);
@@ -508,11 +509,11 @@ final class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.nameCpIndex()),
-                                    expServiceDecl.generatedName.value);
+                    expServiceDecl.generatedName.getValue());
 
             // assert associated class name
             assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.associatedClassNameCpIndex()),
-                                    expServiceDecl.associatedClassName.value);
+                    expServiceDecl.associatedClassName.getValue());
 
             // assert flags
             assertFlags(actualServiceDecl.flags(), expServiceDecl.flags);
@@ -576,11 +577,11 @@ final class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.nameCpIndex()),
-                    expectedAnnotation.name.value);
+                    expectedAnnotation.name.getValue());
 
             // assert original name
             assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.originalNameCpIndex()),
-                    expectedAnnotation.originalName.value);
+                    expectedAnnotation.originalName.getValue());
 
             // assert type
             assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.annotationTypeCpIndex()),
@@ -629,9 +630,12 @@ final class BIRTestUtils {
                 PackageID packageID = (PackageID) expectedValue;
                 ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = constantPoolEntry._parent().
                         constantPoolEntries();
-                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.orgIndex()), packageID.orgName.value);
-                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.nameIndex()), packageID.name.value);
-                assertConstantPoolEntry(constantPoolEntries.get(packageCpInfo.versionIndex()), packageID.version.value);
+                assertConstantPoolEntry(
+                        constantPoolEntries.get(packageCpInfo.orgIndex()), packageID.orgName.getValue());
+                assertConstantPoolEntry(
+                        constantPoolEntries.get(packageCpInfo.nameIndex()), packageID.name.getValue());
+                assertConstantPoolEntry(
+                        constantPoolEntries.get(packageCpInfo.versionIndex()), packageID.version.getValue());
                 break;
             case CP_ENTRY_BYTE:
                 Bir.ByteCpInfo byteCpInfo = (Bir.ByteCpInfo) constantPoolEntry.cpInfo();
@@ -787,7 +791,7 @@ final class BIRTestUtils {
             assertPosition(actualAnnot.position(), expAnnot.pos);
 
             Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
-            assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.value);
+            assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.getValue());
 
             boolean constAnnotAttachment = expAnnot instanceof BIRNode.BIRConstAnnotationAttachment;
             Assert.assertEquals(actualAnnot.isConstAnnot() == 1, constAnnotAttachment);

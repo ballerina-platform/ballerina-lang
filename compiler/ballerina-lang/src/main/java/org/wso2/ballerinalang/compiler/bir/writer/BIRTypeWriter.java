@@ -145,7 +145,7 @@ public class BIRTypeWriter implements TypeVisitor {
         // Write the error package and type name
         int pkgIndex = BIRWriterUtils.addPkgCPEntry(bErrorType.tsymbol.pkgID, cp);
         buff.writeInt(pkgIndex);
-        buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.value));
+        buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.getValue()));
         // Write detail types.
         writeTypeCpIndex(bErrorType.detailType);
         writeTypeIds(bErrorType.typeIdSet);
@@ -172,7 +172,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BFiniteType bFiniteType) {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
-        buff.writeInt(addStringCPEntry(tsymbol.name.value));
+        buff.writeInt(addStringCPEntry(tsymbol.name.getValue()));
         buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
@@ -214,7 +214,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
         buff.writeInt(invokableTypeSymbol.params.size());
         for (BVarSymbol symbol : invokableTypeSymbol.params) {
-            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeInt(addStringCPEntry(symbol.name.getValue()));
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
             writeTypeCpIndex(symbol.type);
@@ -224,7 +224,7 @@ public class BIRTypeWriter implements TypeVisitor {
         boolean restParamExists = restParam != null;
         buff.writeBoolean(restParamExists);
         if (restParamExists) {
-            buff.writeInt(addStringCPEntry(restParam.name.value));
+            buff.writeInt(addStringCPEntry(restParam.name.getValue()));
             buff.writeLong(restParam.flags);
             writeMarkdownDocAttachment(buff, restParam.markdownDocumentation);
             writeTypeCpIndex(restParam.type);
@@ -238,14 +238,14 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeSymbolOfClosure(BInvokableSymbol invokableSymbol) {
-        buff.writeInt(addStringCPEntry(invokableSymbol.name.value));
+        buff.writeInt(addStringCPEntry(invokableSymbol.name.getValue()));
         buff.writeLong(invokableSymbol.flags);
         writeTypeCpIndex(invokableSymbol.type);
         writePackageIndex(invokableSymbol.type.tsymbol);
 
         buff.writeInt(invokableSymbol.params.size());
         for (BVarSymbol symbol : invokableSymbol.params) {
-            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeInt(addStringCPEntry(symbol.name.getValue()));
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
             writeTypeCpIndex(symbol.type);
@@ -356,7 +356,7 @@ public class BIRTypeWriter implements TypeVisitor {
         if (bUnionType.isCyclic && (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
             buff.writeBoolean(true);
             writePackageIndex(tsymbol);
-            buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
+            buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.getValue()));
         } else {
             buff.writeBoolean(false);
         }
@@ -381,11 +381,11 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeEnumSymbolInfo(BEnumSymbol symbol) {
         writePackageIndex(symbol);
 
-        buff.writeInt(addStringCPEntry(symbol.name.value));
+        buff.writeInt(addStringCPEntry(symbol.name.getValue()));
 
         buff.writeInt(symbol.members.size());
         for (BConstantSymbol member : symbol.members) {
-            buff.writeInt(addStringCPEntry(member.name.value));
+            buff.writeInt(addStringCPEntry(member.name.getValue()));
         }
     }
 
@@ -408,7 +408,7 @@ public class BIRTypeWriter implements TypeVisitor {
         writePackageIndex(tsymbol);
 
         BTypeDefinitionSymbol typDefSymbol = tsymbol.typeDefinitionSymbol;
-        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tsymbol).name.value));
+        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tsymbol).name.getValue()));
 
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
@@ -416,7 +416,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(bRecordType.fields.size());
         for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
-            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeInt(addStringCPEntry(symbol.name.getValue()));
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
@@ -446,12 +446,12 @@ public class BIRTypeWriter implements TypeVisitor {
         writePackageIndex(tSymbol);
 
         BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
-        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
+        buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.getValue()));
 
         buff.writeLong(tSymbol.flags);
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
-            buff.writeInt(addStringCPEntry(field.name.value));
+            buff.writeInt(addStringCPEntry(field.name.getValue()));
             // TODO add position
             buff.writeLong(field.symbol.flags);
             buff.writeBoolean(field.symbol.isDefaultable);
@@ -488,7 +488,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
-        buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+        buff.writeInt(addStringCPEntry(attachedFunc.funcName.getValue()));
         buff.writeInt(addStringCPEntry(attachedFunc.symbol.getOriginalName().getValue()));
         buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);

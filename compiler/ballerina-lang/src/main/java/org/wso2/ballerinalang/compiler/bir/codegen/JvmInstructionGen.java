@@ -395,7 +395,7 @@ public class JvmInstructionGen {
                 return;
             }
             case CONSTANT, GLOBAL -> {
-                String varName = varDcl.name.value;
+                String varName = varDcl.name.getValue();
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
                 String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
@@ -443,7 +443,7 @@ public class JvmInstructionGen {
 
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
         if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
-            String varName = varDcl.name.value;
+            String varName = varDcl.name.getValue();
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
             String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
@@ -1224,7 +1224,7 @@ public class JvmInstructionGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
+        return this.indexMap.addIfNotExists(varDcl.name.getValue(), varDcl.type);
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
@@ -1636,7 +1636,7 @@ public class JvmInstructionGen {
                                               objectNewIns.objectName);
         } else {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID),
-                                              objectNewIns.def.internalName.value);
+                    objectNewIns.def.internalName.getValue());
         }
 
         this.mv.visitTypeInsn(NEW, className);
@@ -1668,7 +1668,7 @@ public class JvmInstructionGen {
     void generateFPLoadIns(BIRNonTerminator.FPLoad inst) {
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
-        String name = inst.funcName.value;
+        String name = inst.funcName.getValue();
 
         String funcKey = inst.pkgId.toString() + ":" + name;
 

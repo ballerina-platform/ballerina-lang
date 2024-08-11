@@ -137,7 +137,7 @@ public class JvmErrorTypeConstantsGen {
     }
 
     private void createBErrorType(BErrorType errorType, String varName) {
-        jvmErrorTypeGen.createErrorType(mv, errorType, errorType.tsymbol.name.value);
+        jvmErrorTypeGen.createErrorType(mv, errorType, errorType.tsymbol.name.getValue());
         mv.visitFieldInsn(Opcodes.PUTSTATIC, errorVarConstantsClass, varName,
                 GET_ERROR_TYPE_IMPL);
     }

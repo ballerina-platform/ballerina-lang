@@ -147,7 +147,7 @@ public final class InteropMethodGen {
 
         String desc = JvmCodeGenUtil.getMethodDesc(birFunc.type.paramTypes, retType);
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
-        MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
+        MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.getValue(), desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen, jvmTypeGen,
                                                           jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
@@ -166,7 +166,7 @@ public final class InteropMethodGen {
         for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
             if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter functionParameter) {
                 birFuncParams.add(functionParameter);
-                indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
+                indexMap.addIfNotExists(functionParameter.name.getValue(), functionParameter.type);
             }
         }
 
@@ -176,7 +176,7 @@ public final class InteropMethodGen {
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic()) {
             BIRNode.BIRVariableDcl var = birFuncParams.get(0);
-            int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
+            int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.getValue(), var.type);
             mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
             mv.visitTypeInsn(CHECKCAST, jField.getDeclaringClassName());
@@ -203,7 +203,7 @@ public final class InteropMethodGen {
         int birFuncParamIndex = jField.isStatic() ? 0 : 1;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
-            int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
+            int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.getValue(), birFuncParam.type);
             loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType,
                                                     paramLocalVarIndex, instGen, jvmCastGen);
         }
@@ -224,7 +224,7 @@ public final class InteropMethodGen {
 
         // Handle return type
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
-        int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.value, retType);
+        int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.getValue(), retType);
 
         int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
         if (retTypeTag == TypeTags.NIL) {
@@ -253,7 +253,7 @@ public final class InteropMethodGen {
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc, -1, 0);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, birFunc.name.getValue(), birFunc.javaField.getDeclaringClassName());
         mv.visitEnd();
     }
 

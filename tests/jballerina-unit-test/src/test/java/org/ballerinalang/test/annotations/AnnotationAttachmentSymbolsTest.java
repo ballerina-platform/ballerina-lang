@@ -259,7 +259,7 @@ public class AnnotationAttachmentSymbolsTest {
         // assertAttachmentSymbol(attachments.get(0), "v25", true, "val", "ABC");
         // Replace the assertion for v25 with the line above once fixed.
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v25");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "v25");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         Object constValue =
                 ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
@@ -269,7 +269,7 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(mapConst.size(), 0);
 
         annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(1);
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v26");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "v26");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         constValue =
                 ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
@@ -287,7 +287,7 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(attachments.size(), 1);
 
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = attachments.get(0);
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v1");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "v1");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
 
         Object constValue =
@@ -350,7 +350,7 @@ public class AnnotationAttachmentSymbolsTest {
                         listAnnotFieldResult.getAST().getTypeDefinitions(), "Baz").symbol).getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v2");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), "v2");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         Object constValue =
                 ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
@@ -407,7 +407,7 @@ public class AnnotationAttachmentSymbolsTest {
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
-            if (name.equals(bLangTypeDefinition.symbol.name.value)) {
+            if (name.equals(bLangTypeDefinition.symbol.name.getValue())) {
                 return bLangTypeDefinition;
             }
         }
@@ -421,7 +421,7 @@ public class AnnotationAttachmentSymbolsTest {
             }
 
             BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
-            if (name.equals(classDefinition.symbol.name.value)) {
+            if (name.equals(classDefinition.symbol.name.getValue())) {
                 return classDefinition;
             }
         }
@@ -435,7 +435,7 @@ public class AnnotationAttachmentSymbolsTest {
     private void assertAttachmentSymbol(AnnotationAttachmentSymbol attachmentSymbol, String annotationTag,
                                         boolean constAnnot, String key, Object value) {
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachmentSymbol;
-        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, annotationTag);
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.getValue(), annotationTag);
         Assert.assertEquals(annotationAttachmentSymbol.isConstAnnotation(), constAnnot);
 
         if (!constAnnot) {
@@ -477,7 +477,7 @@ public class AnnotationAttachmentSymbolsTest {
     }
 
     private boolean isServiceIntropAnnot(BAnnotationAttachmentSymbol annot) {
-        return AnnotationDesugar.SERVICE_INTROSPECTION_INFO_ANN.equals(annot.annotTag.value);
+        return AnnotationDesugar.SERVICE_INTROSPECTION_INFO_ANN.equals(annot.annotTag.getValue());
     }
 
     @AfterClass

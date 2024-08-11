@@ -111,7 +111,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
 
         @Override
         public String toString() {
-            return this.symbol.name.value;
+            return this.symbol.name.getValue();
         }
     }
 
@@ -220,7 +220,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
 
         @Override
         public String toString() {
-            return this.symbol.name.value;
+            return this.symbol.name.getValue();
         }
     }
 }

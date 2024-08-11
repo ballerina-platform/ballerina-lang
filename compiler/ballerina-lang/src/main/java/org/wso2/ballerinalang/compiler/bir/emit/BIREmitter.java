@@ -138,7 +138,7 @@ public class BIREmitter {
 
     private static String emitTypeDef(BIRNode.BIRTypeDefinition tDef) {
         // Adding the type to global type map
-        TypeEmitter.B_TYPES.put(tDef.internalName.value, tDef.type);
+        TypeEmitter.B_TYPES.put(tDef.internalName.getValue(), tDef.type);
 
         StringBuilder tDefStr = new StringBuilder();
         tDefStr.append(emitFlags(tDef.flags));

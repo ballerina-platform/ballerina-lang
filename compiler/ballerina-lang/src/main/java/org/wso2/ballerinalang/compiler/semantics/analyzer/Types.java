@@ -1854,7 +1854,7 @@ public class Types {
         }
 
         for (BField lhsField : lhsType.fields.values()) {
-            BField rhsField = rhsType.fields.get(lhsField.name.value);
+            BField rhsField = rhsType.fields.get(lhsField.name.getValue());
             if (rhsField == null ||
                     !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
@@ -2136,7 +2136,7 @@ public class Types {
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
+            if (func.funcName.getValue().equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 return getVarTypeFromIteratorFunc(func);
             }
         }
@@ -2163,7 +2163,7 @@ public class Types {
 
         objectTypeSymbol = (BObjectTypeSymbol) returnType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.NEXT_FUNC)) {
+            if (func.funcName.getValue().equals(BLangCompilerConstants.NEXT_FUNC)) {
                 return getVarTypeFromNextFunc(func);
             }
         }
@@ -2260,7 +2260,7 @@ public class Types {
     public BAttachedFunction getAttachedFuncFromObject(BObjectType objectType, String funcName) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
-            if (funcName.equals(bAttachedFunction.funcName.value)) {
+            if (funcName.equals(bAttachedFunction.funcName.getValue())) {
                 return bAttachedFunction;
             }
         }
@@ -2819,8 +2819,8 @@ public class Types {
             }
 
             for (BField sourceField : sFields.values()) {
-                if (tFields.containsKey(sourceField.name.value)) {
-                    BField targetField = tFields.get(sourceField.name.value);
+                if (tFields.containsKey(sourceField.name.getValue())) {
+                    BField targetField = tFields.get(sourceField.name.getValue());
                     if ((!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
                             Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY)) &&
                             hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
@@ -3492,7 +3492,7 @@ public class Types {
 
         // Check if the RHS record has corresponding fields to those of the LHS record.
         for (BField lhsField : lhsType.fields.values()) {
-            BField rhsField = rhsFields.get(lhsField.name.value);
+            BField rhsField = rhsFields.get(lhsField.name.getValue());
 
             // If LHS field is required, there should be a corresponding RHS field
             // If LHS field is never typed, RHS rest field type should include never type
@@ -3521,7 +3521,7 @@ public class Types {
                 return false;
             }
 
-            rhsFields.remove(lhsField.name.value);
+            rhsFields.remove(lhsField.name.getValue());
         }
 
         if (lhsType.sealed) {
@@ -4716,10 +4716,10 @@ public class Types {
 
         List<Name> matchedFieldNames = new ArrayList<>();
         for (BField lhsField : lhsFields.values()) {
-            if (rhsFields.containsKey(lhsField.name.value)) {
+            if (rhsFields.containsKey(lhsField.name.getValue())) {
                 if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
                                                 expandAndGetMemberTypesRecursive(
-                                                        rhsFields.get(lhsField.name.value).type))) {
+                                                        rhsFields.get(lhsField.name.getValue()).type))) {
                     return false;
                 }
                 matchedFieldNames.add(lhsField.getName());
@@ -5686,7 +5686,7 @@ public class Types {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : originalRecordType.fields.values()) {
             org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
-            String nameString = origFieldName.value;
+            String nameString = origFieldName.getValue();
 
             if (!validateRecordFieldDefaultValueForIntersection(diagnosticContext, origField, originalRecordType)) {
                 return false;
@@ -5760,7 +5760,7 @@ public class Types {
     }
 
     private boolean hasField(BRecordType recordType, BField origField) {
-        return recordType.fields.containsKey(origField.name.value);
+        return recordType.fields.containsKey(origField.name.getValue());
     }
 
     private BType validateOverlappingFields(BRecordType newType, BField origField) {
@@ -5768,7 +5768,7 @@ public class Types {
             return origField.type;
         }
 
-        BField overlappingField = newType.fields.get(origField.name.value);
+        BField overlappingField = newType.fields.get(origField.name.getValue());
         if (isAssignable(overlappingField.type, origField.type)) {
             return overlappingField.type;
         }
@@ -6697,7 +6697,7 @@ public class Types {
 
         private boolean checkMethods(List<BAttachedFunction> rhsFuncs) {
             for (BAttachedFunction func : rhsFuncs) {
-                switch (func.funcName.value) {
+                switch (func.funcName.getValue()) {
                     case "attach":
                         if (!checkAttachMethod(func)) {
                             return false;

@@ -73,7 +73,7 @@ public class FrameClassGen {
                                                JarEntries pkgEntries,
                                                BType attachedType) {
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
-                                                                 func.name.value, attachedType);
+                func.name.getValue(), attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (func.pos != null && func.pos.lineRange().fileName() != null) {
             cw.visitSource(func.pos.lineRange().fileName(), null);

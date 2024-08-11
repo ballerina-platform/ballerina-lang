@@ -168,11 +168,11 @@ public class JvmObjectCreatorGen {
                         bTypesCount, remainingCases, labels, defaultCaseLabel);
                 i = 0;
             }
-            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
+            String fieldName = getTypeFieldName(optionalTypeDef.internalName.getValue());
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
+            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.getValue());
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);

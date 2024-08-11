@@ -73,14 +73,14 @@ public class ObjectIncludeOverrideBalaTest {
 
         BVarSymbol aVarParam = fnSymbol.getParameters().get(0);
         assertEquals(aVarParam.getName().getValue(), "aVar");
-        assertEquals(aVarParam.pkgID.name.value, ".");
-        assertEquals(aVarParam.pkgID.orgName.value, "$anon");
+        assertEquals(aVarParam.pkgID.name.getValue(), ".");
+        assertEquals(aVarParam.pkgID.orgName.getValue(), "$anon");
         assertEquals(aVarParam.origin, SymbolOrigin.SOURCE);
 
         BVarSymbol bVarParam = fnSymbol.getParameters().get(1);
         assertEquals(bVarParam.getName().getValue(), "bVar");
-        assertEquals(bVarParam.pkgID.name.value, ".");
-        assertEquals(bVarParam.pkgID.orgName.value, "$anon");
+        assertEquals(bVarParam.pkgID.name.getValue(), ".");
+        assertEquals(bVarParam.pkgID.orgName.getValue(), "$anon");
         assertEquals(bVarParam.origin, SymbolOrigin.SOURCE);
     }
 

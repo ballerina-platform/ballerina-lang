@@ -513,7 +513,7 @@ public class AnnotationAttachmentTest {
             Assert.assertTrue(getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD
                     || getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.MAP);
             if (getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD) {
-                Assert.assertEquals(recordLiteral.getBType().tsymbol.name.value, typeName);
+                Assert.assertEquals(recordLiteral.getBType().tsymbol.name.getValue(), typeName);
             } else {
                 Assert.assertEquals(getConstrainedTypeFromRef(recordLiteral.getBType()).tag, TypeTags.MAP);
                 Assert.assertEquals(((BMapType) getConstrainedTypeFromRef(recordLiteral.getBType())).constraint.tag,
@@ -601,7 +601,7 @@ public class AnnotationAttachmentTest {
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
-            if (name.equals(bLangTypeDefinition.symbol.name.value)) {
+            if (name.equals(bLangTypeDefinition.symbol.name.getValue())) {
                 return bLangTypeDefinition;
             }
         }
@@ -615,7 +615,7 @@ public class AnnotationAttachmentTest {
             }
 
             BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
-            if (name.equals(classDefinition.symbol.name.value)) {
+            if (name.equals(classDefinition.symbol.name.getValue())) {
                 return classDefinition;
             }
         }

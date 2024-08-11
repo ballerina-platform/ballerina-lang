@@ -672,9 +672,9 @@ public class TypeParamAnalyzer {
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (BField exField : expType.fields.values()) {
-            if (actualType.fields.containsKey(exField.name.value)) {
-                findTypeParam(loc, exField.type, actualType.fields.get(exField.name.value).type, env, resolvedTypes,
-                              result);
+            if (actualType.fields.containsKey(exField.name.getValue())) {
+                findTypeParam(loc, exField.type, actualType.fields.get(exField.name.getValue()).type, env,
+                        resolvedTypes, result);
             }
         }
     }
@@ -727,9 +727,9 @@ public class TypeParamAnalyzer {
 
         // Not needed now.
         for (BField exField : expType.fields.values()) {
-            if (actualType.fields.containsKey(exField.name.value)) {
-                findTypeParam(loc, exField.type, actualType.fields.get(exField.name.value).type, env, resolvedTypes,
-                              result);
+            if (actualType.fields.containsKey(exField.name.getValue())) {
+                findTypeParam(loc, exField.type, actualType.fields.get(exField.name.getValue()).type, env,
+                        resolvedTypes, result);
             }
         }
         List<BAttachedFunction> expAttFunctions = ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs;
@@ -972,7 +972,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(0, expField.name, env.enclPkg.packageID,
                                               matchingBoundType, env.scope.owner, expField.pos, VIRTUAL));
-            fields.put(field.name.value, field);
+            fields.put(field.name.getValue(), field);
             recordSymbol.scope.define(expField.name, field.symbol);
         }
 
@@ -1066,7 +1066,7 @@ public class TypeParamAnalyzer {
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
                                               matchingBoundType, env.scope.owner, expField.pos, VIRTUAL));
-            objectType.fields.put(field.name.value, field);
+            objectType.fields.put(field.name.getValue(), field);
             objectType.tsymbol.scope.define(expField.name, field.symbol);
         }
 
@@ -1092,8 +1092,8 @@ public class TypeParamAnalyzer {
             matchType.tsymbol = typeSymbol;
 
             actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
-            String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
-                    expFunc.funcName.value);
+            String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.getValue(),
+                    expFunc.funcName.getValue());
             actObjectSymbol.scope.define(Names.fromString(funcName), invokableSymbol);
         }
 

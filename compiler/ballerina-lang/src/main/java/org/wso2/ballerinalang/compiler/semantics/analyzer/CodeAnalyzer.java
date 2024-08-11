@@ -2204,7 +2204,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         Set<Flag> flagSet = funcNode.flagSet;
         // Analyze worker interactions inside workers
-        Name workerDerivedName = Names.fromString("0" + otherWorker.name.value);
+        Name workerDerivedName = Names.fromString("0" + otherWorker.name.getValue());
         if (flagSet.contains(Flag.WORKER)) {
             // Interacting with default worker from a worker within a fork.
             if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {
@@ -3840,7 +3840,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                             BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                             if (workerSymbol != null) {
-                                waitingOnWorkerSet.add(workerSymbol.name.value);
+                                waitingOnWorkerSet.add(workerSymbol.name.getValue());
                             }
                         }
                     } else {
@@ -3883,7 +3883,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (isWorkerSymbol(workerSymbol)) {
                     Name workerName = workerSymbol.name;
                     if (isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerName)) {
-                        WorkerActionStateMachine otherSM = workerActionSystem.find(workerName.value);
+                        WorkerActionStateMachine otherSM = workerActionSystem.find(workerName.getValue());
                         allWorkersAreDone = allWorkersAreDone && otherSM.done();
                     }
                 }
@@ -4124,7 +4124,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
-        if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcNode.name.value)) {
+        if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(funcNode.name.value)) {
             return;
         }
 

@@ -744,7 +744,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 }
                 BRecordType recordType = (BRecordType) type;
                 for (BField recField : recordType.fields.values()) {
-                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.value,
+                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.getValue(),
                             fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -883,7 +883,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         containErrors = true;
                         continue;
                     }
-                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.value,
+                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.getValue(),
                             fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -957,7 +957,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         boolean hasAllRequiredFields = true;
 
         for (BField field : type.fields.values()) {
-            String fieldName = field.name.value;
+            String fieldName = field.name.getValue();
             if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)
                     && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
                 // Check if `field` is explicitly assigned a value in the record literal
@@ -1004,7 +1004,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         List<String> fieldNames = new ArrayList<>();
         for (BField bField : ((BRecordType) spreadType).getFields().values()) {
             if (!Symbols.isOptional(bField.symbol)) {
-                fieldNames.add(bField.name.value);
+                fieldNames.add(bField.name.getValue());
             }
         }
         return fieldNames;
@@ -2000,7 +2000,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         long flags = recordSymbol.flags | Flags.REQUIRED;
         BVarSymbol fieldSymbol = new BVarSymbol(flags, fieldName, recordSymbol.pkgID , keyValueType,
                 recordSymbol, symTable.builtinPos, VIRTUAL);
-        fields.put(fieldName.value, new BField(fieldName, null, fieldSymbol));
+        fields.put(fieldName.getValue(), new BField(fieldName, null, fieldSymbol));
         return true;
     }
 

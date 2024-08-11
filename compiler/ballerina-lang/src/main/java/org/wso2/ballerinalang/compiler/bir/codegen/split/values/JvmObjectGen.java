@@ -146,7 +146,7 @@ public class JvmObjectGen {
                 j += 1;
             }
 
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.getValue(),
                     methodSig, false);
             int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
@@ -197,7 +197,8 @@ public class JvmObjectGen {
     }
 
     private boolean isListenerAttach(BIRNode.BIRFunction func) {
-        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
+        return func.name.getValue().equals("attach") &&
+                Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -266,7 +267,7 @@ public class JvmObjectGen {
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, optionalField.name.value, getTypeDesc(optionalField.type));
+            mv.visitFieldInsn(GETFIELD, className, optionalField.name.getValue(), getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitInsn(ARETURN);
             i += 1;
@@ -398,7 +399,7 @@ public class JvmObjectGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
             jvmCastGen.addUnboxInsn(mv, optionalField.type);
-            String filedName = optionalField.name.value;
+            String filedName = optionalField.name.getValue();
             mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(optionalField.type));
             mv.visitInsn(RETURN);
             i += 1;

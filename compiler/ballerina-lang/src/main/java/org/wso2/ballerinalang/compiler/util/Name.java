@@ -22,8 +22,7 @@ package org.wso2.ballerinalang.compiler.util;
  */
 public class Name implements org.ballerinalang.model.Name {
 
-    //TODO: Make this field private.
-    public final String value;
+    private final String value;
 
     public Name(String value) {
         this.value = value;

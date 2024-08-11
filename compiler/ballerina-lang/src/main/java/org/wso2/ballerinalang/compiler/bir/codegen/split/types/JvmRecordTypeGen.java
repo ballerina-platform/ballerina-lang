@@ -195,7 +195,7 @@ public class JvmRecordTypeGen {
             fullName = recordType.toString();
         } else {
             // for non-shape values toString gives the org name + name, we only need the name
-            fullName = recordType.tsymbol.name.value;
+            fullName = recordType.tsymbol.name.getValue();
         }
         return fullName;
     }

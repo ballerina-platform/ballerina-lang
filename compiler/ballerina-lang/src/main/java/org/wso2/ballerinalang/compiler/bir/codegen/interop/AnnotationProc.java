@@ -60,7 +60,7 @@ public final class AnnotationProc {
             return null;
         }
 
-        String annotTagRef = annotAttach.annotTagRef.value;
+        String annotTagRef = annotAttach.annotTagRef.getValue();
         return createJInteropValidationRequest(annotTagRef, annotAttach, birFunc);
     }
 
@@ -76,9 +76,9 @@ public final class AnnotationProc {
 
     private static boolean isInteropAnnotAttachment(BIRAnnotationAttachment annotAttach) {
 
-        return INTEROP_ANNOT_ORG.equals(annotAttach.annotPkgId.orgName.value) &&
-                INTEROP_ANNOT_MODULE.equals(annotAttach.annotPkgId.name.value) &&
-                isInteropAnnotationTag(annotAttach.annotTagRef.value);
+        return INTEROP_ANNOT_ORG.equals(annotAttach.annotPkgId.orgName.getValue()) &&
+                INTEROP_ANNOT_MODULE.equals(annotAttach.annotPkgId.name.getValue()) &&
+                isInteropAnnotationTag(annotAttach.annotTagRef.getValue());
     }
 
     private static InteropValidationRequest createJInteropValidationRequest(String annotTagRef,
@@ -177,7 +177,7 @@ public final class AnnotationProc {
             return JVM_INIT_METHOD;
         } else {
             String methodName = (String) getLiteralValueFromAnnotValue(jNameValueEntry);
-            return methodName != null ? methodName : birFunc.name.value;
+            return methodName != null ? methodName : birFunc.name.getValue();
         }
     }
 
@@ -185,6 +185,6 @@ public final class AnnotationProc {
                                                  BIRFunction birFunc) {
 
         String fieldName = (String) getLiteralValueFromAnnotValue(jNameValueEntry);
-        return fieldName != null ? fieldName : birFunc.name.value;
+        return fieldName != null ? fieldName : birFunc.name.getValue();
     }
 }

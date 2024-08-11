@@ -145,7 +145,7 @@ public final class ImmutableTypeCloner {
 
         while (objectTypeFieldIterator.hasNext()) {
             BField typeField = objectTypeFieldIterator.next();
-            BLangSimpleVariable classField = classFields.get(typeField.name.value);
+            BLangSimpleVariable classField = classFields.get(typeField.name.getValue());
 
             BType type = typeField.type;
 
@@ -429,7 +429,7 @@ public final class ImmutableTypeCloner {
         String originalTypeName = origTupleTypeSymbol == null ? "" : origTupleTypeSymbol.name.getValue();
         Name origTupleTypeSymbolName = Names.EMPTY;
         if (!originalTypeName.isEmpty()) {
-            origTupleTypeSymbolName = origTupleTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
+            origTupleTypeSymbolName = origTupleTypeSymbol.name.getValue().isEmpty() ? Names.EMPTY :
                     getImmutableTypeName(getSymbolFQN(origTupleTypeSymbol));
             tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
         }
@@ -473,7 +473,7 @@ public final class ImmutableTypeCloner {
         BType effectiveType = immutableTupleIntersectionType.effectiveType;
         BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
         if (Types.getImpliedType(effectiveType).tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
-                tsymbol.name.value.isEmpty()) {
+                tsymbol.name.getValue().isEmpty()) {
             return immutableTupleIntersectionType;
         }
 
@@ -678,8 +678,8 @@ public final class ImmutableTypeCloner {
 
         List<BAttachedFunction> immutableFuncs = new ArrayList<>();
         for (BAttachedFunction origFunc : originalObjectAttachedFuncs) {
-            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.value,
-                                                                               origFunc.funcName.value));
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(immutableObjectSymbol.name.getValue(),
+                    origFunc.funcName.getValue()));
             BInvokableSymbol immutableFuncSymbol =
                     ASTBuilderUtil.duplicateFunctionDeclarationSymbol(origFunc.symbol, immutableObjectSymbol,
                                                                       funcName, immutableObjectSymbol.pkgID,
@@ -716,7 +716,7 @@ public final class ImmutableTypeCloner {
         BType effectiveType = immutableType.effectiveType;
         BTypeSymbol tsymbol = effectiveType.tsymbol;
         if (effectiveType.tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
-                tsymbol.name.value.isEmpty()) {
+                tsymbol.name.getValue().isEmpty()) {
             return immutableType;
         }
 
@@ -825,7 +825,7 @@ public final class ImmutableTypeCloner {
         } else if (origUnionTypeSymbol != null) {
             BTypeSymbol immutableUnionTSymbol =
                     getReadonlyTSymbol(origUnionTypeSymbol, env, pkgId, owner,
-                                       origUnionTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
+                                       origUnionTypeSymbol.name.getValue().isEmpty() ? Names.EMPTY :
                                                getImmutableTypeName(getSymbolFQN(origUnionTypeSymbol)));
             immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
@@ -870,10 +870,10 @@ public final class ImmutableTypeCloner {
         if (pkgID == PackageID.DEFAULT ||
                 pkgID.equals(PackageID.ANNOTATIONS) ||
                 pkgID.name == Names.DEFAULT_PACKAGE) {
-            return originalTSymbol.name.value;
+            return originalTSymbol.name.getValue();
         }
-        return pkgID.orgName + Names.ORG_NAME_SEPARATOR.value + pkgID.name + Names.VERSION_SEPARATOR +
-                getMajorVersion(pkgID.version.value) + ":" + originalTSymbol.name;
+        return pkgID.orgName + Names.ORG_NAME_SEPARATOR.getValue() + pkgID.name + Names.VERSION_SEPARATOR +
+                getMajorVersion(pkgID.version.getValue()) + ":" + originalTSymbol.name;
     }
 
     private static Name getImmutableTypeName(BTypeSymbol originalTSymbol) {

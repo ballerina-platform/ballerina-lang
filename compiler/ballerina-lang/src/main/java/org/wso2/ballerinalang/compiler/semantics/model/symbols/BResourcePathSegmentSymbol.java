@@ -43,11 +43,11 @@ public class BResourcePathSegmentSymbol extends BSymbol {
         super(SymTag.RESOURCE_PATH_SEGMENT, 0, name, pkgID, type, owner, location, origin);
         this.parentResource = parentResource;
         this.resourceMethod = resourceMethod;
-        if (name.value.contains("^^")) {
+        if (name.getValue().contains("^^")) {
             this.kind = SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT;
-        } else if (name.value.contains("^")) {
+        } else if (name.getValue().contains("^")) {
             this.kind = SymbolKind.RESOURCE_PATH_PARAM_SEGMENT; 
-        } else if (name.value.equals(".")) {
+        } else if (name.getValue().equals(".")) {
             this.kind = SymbolKind.RESOURCE_ROOT_PATH_SEGMENT;
         } else {
             this.kind = SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT;

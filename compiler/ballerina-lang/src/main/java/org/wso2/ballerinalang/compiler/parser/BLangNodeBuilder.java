@@ -809,7 +809,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 case RESOURCE_PATH_SEGMENT_PARAM:
                     BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
                     bLangPathSegment = TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_PARAM_SEGMENT);
-                    if (!param.name.value.equals(Names.EMPTY.value)) {
+                    if (!param.name.value.equals(Names.EMPTY.getValue())) {
                         params.add(param);
                         bLFunction.addPathParam(param);
                         bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^");
@@ -824,7 +824,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
                     bLangPathSegment =
                             TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT);
-                    if (!restParam.name.value.equals(Names.EMPTY.value)) {
+                    if (!restParam.name.value.equals(Names.EMPTY.getValue())) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
                         bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^^");
@@ -1248,7 +1248,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
-                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                if (Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(bLangFunction.name.value)) {
                     if (objectTypeNode.initFunction == null) {
                         bLangFunction.objInitFunction = true;
                         objectTypeNode.initFunction = bLangFunction;
@@ -1294,7 +1294,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 bLangFunction.flagSet.add(Flag.OBJECT_CTOR);
-                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                if (!Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(bLangFunction.name.value)) {
                     classDefinition.addFunction(bLangFunction);
                     continue;
                 }
@@ -2739,8 +2739,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private BLangIdentifier createIgnoreIdentifier(Node node) {
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        ignore.value = Names.IGNORE.value;
-        ignore.setOriginalValue(Names.IGNORE.value);
+        ignore.value = Names.IGNORE.getValue();
+        ignore.setOriginalValue(Names.IGNORE.getValue());
         ignore.pos = getPosition(node);
         return ignore;
     }
@@ -4324,7 +4324,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
-                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                if (!Names.USER_DEFINED_INIT_SUFFIX.getValue().equals(bLangFunction.name.value)) {
                     blangClass.addFunction(bLangFunction);
                     continue;
                 }

@@ -546,7 +546,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangExpression expr = param.expr;
             if (expr != null) {
-                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, expr.getBType());
+                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.getValue(), expr.getBType());
             }
 
             validateIsolatedParamUsage(inIsolatedFunction, param, false, data);
@@ -1226,9 +1226,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         String rootModuleName = rootModule.packageName().value();
         Map<String, PackageID> configKeys =  getModuleKeys(configVars, rootOrgName);
         for (BVarSymbol variable : configVars) {
-            String moduleName = variable.pkgID.name.value;
-            String orgName = variable.pkgID.orgName.value;
-            String varName = variable.name.value;
+            String moduleName = variable.pkgID.name.getValue();
+            String orgName = variable.pkgID.orgName.getValue();
+            String varName = variable.name.getValue();
             validateMapConfigVariable(orgName + "." + moduleName + "." + varName, variable, configKeys);
             if (orgName.equals(rootOrgName)) {
                 validateMapConfigVariable(moduleName + "." + varName, variable, configKeys);
@@ -1243,8 +1243,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         Map<String, PackageID> configKeys = new HashMap<>();
         for (BVarSymbol variable : configVars) {
             PackageID pkgID = variable.pkgID;
-            String orgName = pkgID.orgName.value;
-            String moduleName = pkgID.name.value;
+            String orgName = pkgID.orgName.getValue();
+            String moduleName = pkgID.name.getValue();
             configKeys.put(orgName + "." + moduleName, pkgID);
             if (!orgName.equals(rootOrg)) {
                 break;
@@ -1257,7 +1257,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private void validateMapConfigVariable(String configKey, BVarSymbol variable, Map<String, PackageID> configKeys) {
         if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type)) {
             dlog.error(variable.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY,
-                    variable.name.value, configKeys.get(configKey));
+                    variable.name.getValue(), configKeys.get(configKey));
         }
     }
 
@@ -2033,7 +2033,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void handleWildCardBindingVariable(BLangSimpleVariable variable, SymbolEnv env) {
-        if (!variable.name.value.equals(Names.IGNORE.value)) {
+        if (!variable.name.value.equals(Names.IGNORE.getValue())) {
             return;
         }
         BLangExpression bindingExp = variable.expr;
@@ -2715,7 +2715,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BUnionType wideType = BUnionType.create(null);
         for (BField field : rhsDetailType.fields.values()) {
             // avoid fields extracted from binding pattern
-            if (!extractedKeys.contains(field.name.value)) {
+            if (!extractedKeys.contains(field.name.getValue())) {
                 wideType.add(field.type);
             }
         }
@@ -2727,7 +2727,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private boolean isIgnoreVar(BLangErrorVarRef lhsRef) {
         if (lhsRef.restVar != null && lhsRef.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return ((BLangSimpleVarRef) lhsRef.restVar).variableName.value.equals(Names.IGNORE.value);
+            return ((BLangSimpleVarRef) lhsRef.restVar).variableName.value.equals(Names.IGNORE.getValue());
         }
         return false;
     }
@@ -2743,7 +2743,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
 
-        if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF && detailItem.name.value.equals(Names.IGNORE.value)) {
+        if (detailItem.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                detailItem.name.value.equals(Names.IGNORE.getValue())) {
             return;
         }
 
@@ -3307,7 +3308,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         captureBindingPattern.symbol = symbolEnter.defineVarSymbol(captureBindingPattern.getIdentifier().getPosition(),
                                                                    Flags.unMask(0), captureBindingPattern.getBType(),
                                                                    name, origName, data.env, false);
-        captureBindingPattern.declaredVars.put(name.value, captureBindingPattern.symbol);
+        captureBindingPattern.declaredVars.put(name.getValue(), captureBindingPattern.symbol);
     }
 
     @Override
@@ -3347,7 +3348,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             symbolEnter.defineSymbol(restBindingPattern.variableName.pos, symbol, currentEnv);
         }
         restBindingPattern.symbol = (BVarSymbol) symbol;
-        restBindingPattern.declaredVars.put(name.value, restBindingPattern.symbol);
+        restBindingPattern.declaredVars.put(name.getValue(), restBindingPattern.symbol);
     }
 
     @Override
@@ -3646,7 +3647,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         restMatchPattern.symbol = symbolEnter.defineVarSymbol(restMatchPattern.variableName.pos, Flags.unMask(0),
                                                               restMatchPattern.getBType(), name, origName, data.env,
                                                               false);
-        restMatchPattern.declaredVars.put(name.value, restMatchPattern.symbol);
+        restMatchPattern.declaredVars.put(name.getValue(), restMatchPattern.symbol);
     }
 
     @Override
@@ -4124,7 +4125,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BObjectType objectType = (BObjectType) type;
             BObjectTypeSymbol tsymbol = (BObjectTypeSymbol) objectType.tsymbol;
             for (BAttachedFunction func : tsymbol.attachedFuncs) {
-                if (func.funcName.value.equals("attach")) {
+                if (func.funcName.getValue().equals("attach")) {
                     BType firstParam = func.type.paramTypes.get(0);
                     result.add(firstParam);
                     return;
@@ -4151,7 +4152,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private void validateServiceAttachmentOnListener(BLangService serviceNode, BLangExpression attachExpr,
                                                      BObjectType listenerType, BType serviceType) {
         for (var func : ((BObjectTypeSymbol) listenerType.tsymbol).attachedFuncs) {
-            if (func.funcName.value.equals("attach")) {
+            if (func.funcName.getValue().equals("attach")) {
                 List<BType> paramTypes = func.type.paramTypes;
                 if (serviceType != null && serviceType != symTable.noType) {
                     validateServiceTypeAgainstAttachMethod(serviceNode.inferredServiceType, paramTypes.get(0),
@@ -4741,9 +4742,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 continue;
             }
             String annotationName = attachment.annotationName.value;
-            if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+            if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.getValue())) {
                 dlog.error(attachment.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
-            } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+            } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.getValue())) {
                 dlog.error(attachment.pos, DiagnosticErrorCode.BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE);
             }
         }
@@ -4927,7 +4928,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     // TODO: 2022-03-05 check if this can be replaced to access info via annot attchments from the symbol
     private void validateIsolatedParamUsage(boolean inIsolatedFunction, BLangSimpleVariable variable,
                                             boolean isRestParam, AnalyzerData data) {
-        if (!hasAnnotation(variable.annAttachments, Names.ANNOTATION_ISOLATED_PARAM.value)) {
+        if (!hasAnnotation(variable.annAttachments, Names.ANNOTATION_ISOLATED_PARAM.getValue())) {
             return;
         }
 
@@ -4997,7 +4998,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, fieldType, data.env,
-                symTable, anonModelHelper, names, new HashSet<>());
+                symTable, anonModelHelper, new HashSet<>());
     }
 
     private void setRestMatchPatternConstraintType(BRecordType recordType,

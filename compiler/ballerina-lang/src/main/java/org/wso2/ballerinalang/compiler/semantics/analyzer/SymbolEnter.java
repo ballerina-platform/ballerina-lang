@@ -662,7 +662,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (defineReadOnlyInclusionsOnly) {
             for (BAttachedFunction function :
                     ((BObjectTypeSymbol) classDefinition.getBType().tsymbol).referencedFunctions) {
-                includedFunctionNames.add(function.funcName.value);
+                includedFunctionNames.add(function.funcName.getValue());
             }
         }
 
@@ -810,8 +810,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             // to the precedence.
             // Default values of fields are not inherited.
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
-                if (fieldNames.containsKey(field.name.value)) {
-                    BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                if (fieldNames.containsKey(field.name.getValue())) {
+                    BLangSimpleVariable existingVariable = fieldNames.get(field.name.getValue());
                     if ((existingVariable.flagSet.contains(Flag.PUBLIC) !=
                             Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
                             (existingVariable.flagSet.contains(Flag.PRIVATE) !=
@@ -823,7 +823,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
 
-                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.getValue(), field.type);
                 var.flagSet = field.symbol.getFlags();
                 referencedFields.add(var);
             }
@@ -1018,7 +1018,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
                     if (this.sourceDirectory.getSourcePackageNames().contains(pkgNameComps)
-                            && orgName.value.equals(enclPackageID.orgName.value)) {
+                            && orgName.getValue().equals(enclPackageID.orgName.getValue())) {
                         version = enclPackageID.version;
                     } else {
                         version = Names.EMPTY;
@@ -1061,7 +1061,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Only peer lang.* modules able to see these two modules.
             // Spec allows to annotation model to be imported, but implementation not support this.
             if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
-                    && enclPackageID.name.value.startsWith(Names.LANG.value))) {
+                    && enclPackageID.name.getValue().startsWith(Names.LANG.getValue()))) {
                 dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
                         importPkgNode.getQualifiedPackageName());
                 return;
@@ -1147,11 +1147,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (int i = index; i < compUnits.size(); i++) {
                 boolean isUndefinedModule = true;
                 String compUnitName = compUnits.get(i).name;
-                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
+                if (((BPackageSymbol) entry.symbol).compUnit.getValue().equals(compUnitName)) {
                     isUndefinedModule = false;
                 }
                 while (entry.next != NOT_FOUND_ENTRY) {
-                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.getValue().equals(compUnitName)) {
                         isUndefinedModule = false;
                         break;
                     }
@@ -1192,7 +1192,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name prefix = Names.fromIdNode(xmlnsNode.prefix);
-        Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
+        Location nsSymbolPos = prefix.getValue().isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BLangIdentifier compUnit = xmlnsNode.compUnit;
         BXMLNSSymbol xmlnsSymbol =
                 Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner, nsSymbolPos,
@@ -1706,7 +1706,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (typeDefinition.annAttachments.stream()
-                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+                .anyMatch(attachment ->
+                        attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.getValue()))) {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
@@ -1960,7 +1961,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BType constructDependencyListError(BLangTypeDefinition typeDef, BType member) {
         List<String> dependencyList = new ArrayList<>();
         dependencyList.add(getTypeOrClassName(typeDef));
-        dependencyList.add(member.tsymbol.name.value);
+        dependencyList.add(member.tsymbol.name.getValue());
         dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
         return symTable.semanticError;
     }
@@ -2010,11 +2011,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BLangAnnotationAttachment attachment = typeDefinition.annAttachments.get(0);
-        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.getValue())) {
             BSymbol typeDefSymbol = typeDefinition.symbol;
             typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
             typeDefSymbol.flags |= Flags.TYPE_PARAM;
-        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.getValue())) {
             // Type is pre-defined in symbol Table.
             BType type = symTable.getLangLibSubType(typeDefinition.name.value);
             typeDefinition.symbol.type = type;
@@ -2038,11 +2039,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BLangAnnotationAttachment attachment = typeDefinition.annAttachments.get(0);
-        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.getValue())) {
             BSymbol typeDefSymbol = typeDefinition.symbol;
             typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
             typeDefSymbol.flags |= Flags.TYPE_PARAM;
-        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.getValue())) {
             // Type is pre-defined in symbol Table.
             BType type = symTable.getLangLibSubType(typeDefinition.name.value);
             typeDefinition.symbol.type = type;
@@ -2076,7 +2077,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
 
-        Name generatedServiceName = Names.fromString("service$" + serviceNode.serviceClass.symbol.name.value);
+        Name generatedServiceName = Names.fromString("service$" + serviceNode.serviceClass.symbol.name.getValue());
         BType type = serviceNode.serviceClass.typeRefs.isEmpty() ? null : serviceNode.serviceClass.typeRefs.get(0)
                 .getBType();
         BServiceSymbol serviceSymbol = new BServiceSymbol((BClassSymbol) serviceNode.serviceClass.symbol,
@@ -2887,7 +2888,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BField field = new BField(Names.fromString(fieldName), pos,
                     new BVarSymbol(0, Names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol, pos, SOURCE));
-            fields.put(field.name.value, field);
+            fields.put(field.name.getValue(), field);
         }
         return fields;
     }
@@ -3132,14 +3133,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         for (BField field : unMappedFields.values()) {
-            if (fields.containsKey(field.name.value)) {
-                BField targetField = fields.get(field.getName().value);
+            if (fields.containsKey(field.name.getValue())) {
+                BField targetField = fields.get(field.getName().getValue());
                 targetField.type = types.mergeTypes(targetField.type, field.type);
             } else {
                 BField newField = new BField(field.name, pos,
                         new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
                                 field.type, targetRestRecType.tsymbol, pos, VIRTUAL));
-                fields.put(field.name.value, newField);
+                fields.put(field.name.getValue(), newField);
                 targetRestRecType.tsymbol.scope.define(newField.name, newField.symbol);
             }
         }
@@ -3375,7 +3376,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             boolean isIgnoredVar = boundVar.getKind() == NodeKind.VARIABLE
-                    && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.value);
+                    && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.getValue());
             if (!isIgnoredVar) {
                 defineMemberNode(boundVar, env, boundVar.getBType());
             }
@@ -3463,12 +3464,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean isIgnoredOrEmpty(BLangSimpleVariable varNode) {
-        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.isEmpty();
+        return varNode.name.value.equals(Names.IGNORE.getValue()) || varNode.name.value.isEmpty();
     }
 
     private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {
         return errorVariable.restDetail != null &&
-                !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
+                !errorVariable.restDetail.name.value.equals(Names.IGNORE.getValue());
     }
 
     private BTypeSymbol createTypeSymbol(long type, SymbolEnv env) {
@@ -3602,7 +3603,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BinaryOperator<BField> mergeFunc = (u, v) -> {
             throw new IllegalStateException(String.format("Duplicate key %s", u));
         };
-        return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
+        return Collectors.toMap(field -> field.name.getValue(), Function.identity(), mergeFunc, LinkedHashMap::new);
     }
 
     // Private methods
@@ -3960,7 +3961,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             BType refType = Types.getImpliedType(typeRef.getBType());
             if (typeResolver.resolvingStructureTypes.contains((BStructureType) refType)) {
-                BLangTypeDefinition typeDefinition = typeResolver.getTypeDefinition(refType.tsymbol.name.value);
+                BLangTypeDefinition typeDefinition = typeResolver.getTypeDefinition(refType.tsymbol.name.getValue());
                 if (typeDefinition != null) {
                     resolveRestField(typeDefinition);
                 }
@@ -4526,7 +4527,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
-                requiredParamNames.add(symbol.name.value);
+                requiredParamNames.add(symbol.name.getValue());
                 BType varNodeType = Types.getImpliedType(varNode.getBType());
                 if (varNodeType.getKind() == TypeKind.RECORD) {
                     symbol.flags |= Flags.INCLUDED;
@@ -4543,7 +4544,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     dlog.error(varNode.typeNode.pos, EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER);
                 }
             } else {
-                requiredParamNames.add(symbol.name.value);
+                requiredParamNames.add(symbol.name.getValue());
             }
             paramSymbols.add(symbol);
         }
@@ -4744,7 +4745,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableSymbol.params = invokableTypeSymbol.params;
             invokableSymbol.restParam = invokableTypeSymbol.restParam;
             invokableSymbol.retType = invokableTypeSymbol.returnType;
-            if (varName.value.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+            if (varName.getValue().startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 varSymbol.flags |= Flags.WORKER;
             }
         } else if (Symbols.isFlagOn(flags, Flags.WORKER)) {
@@ -4775,7 +4776,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 targetRangePos = env.enclInvokable.pos;
             }
 
-            if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
+            if (worker.name.getValue().equals(lambdaFn.function.defaultWorkerName.value)
                     && withinRange(workerVarPos, targetRangePos.lineRange())
                     && withinRange(workerBodyPos, targetRangePos.lineRange())) {
                 worker.setAssociatedFuncSymbol(lambdaFn.function.symbol);
@@ -4784,7 +4785,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         throw new IllegalStateException(
-                "Matching function node not found for worker: " + worker.name.value + " at " + worker.pos);
+                "Matching function node not found for worker: " + worker.name.getValue() + " at " + worker.pos);
     }
 
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
@@ -4988,7 +4989,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Name getFuncSymbolName(BLangFunction funcNode) {
         if (funcNode.receiver != null) {
             return Names.fromString(Symbols.getAttachedFuncSymbolName(
-                    funcNode.receiver.getBType().tsymbol.name.value, funcNode.name.value));
+                    funcNode.receiver.getBType().tsymbol.name.getValue(), funcNode.name.value));
         }
         return Names.fromIdNode(funcNode.name);
     }
@@ -4999,7 +5000,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
         return Names.fromString(Symbols.getAttachedFuncSymbolName(
-                receiver.getBType().tsymbol.name.value, variable.name.value));
+                receiver.getBType().tsymbol.name.getValue(), variable.name.value));
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {
@@ -5113,7 +5114,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (referredTypeTag == TypeTags.RECORD || referredTypeTag == TypeTags.OBJECT) {
                 if ((typeResolver.resolvingStructureTypes.contains((BStructureType) referredType))) {
                     List<BLangSimpleVariable> includedFields = new ArrayList<>();
-                    typeResolver.getFieldsOfStructureType(referredType.tsymbol.name.value, includedFields);
+                    typeResolver.getFieldsOfStructureType(referredType.tsymbol.name.getValue(), includedFields);
                     return includedFields.stream().filter(f -> {
                         if (fieldNames.containsKey(f.name.value)) {
                             BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
@@ -5137,8 +5138,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
-                if (fieldNames.containsKey(f.name.value)) {
-                    BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                if (fieldNames.containsKey(f.name.getValue())) {
+                    BLangSimpleVariable existingVariable = fieldNames.get(f.name.getValue());
                     if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
                             Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
                         dlog.error(existingVariable.pos,
@@ -5149,7 +5150,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 return true;
             }).map(field -> {
-                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.getValue(), field.type);
                 var.flagSet = field.symbol.getFlags();
                 return var;
             });
@@ -5162,9 +5163,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                           Set<String> includedFunctionNames, BSymbol typeDefSymbol,
                                           List<BLangFunction> declaredFunctions, boolean isInternal) {
         typeDefSymbol = typeDefSymbol.tag == SymTag.TYPE_DEF ? typeDefSymbol.type.tsymbol : typeDefSymbol;
-        String referencedFuncName = referencedFunc.funcName.value;
+        String referencedFuncName = referencedFunc.funcName.getValue();
         Name funcName = Names.fromString(
-                Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
+                Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.getValue(), referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         BInvokableSymbol referencedFuncSymbol = referencedFunc.symbol;
@@ -5265,7 +5266,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         signatureBuilder.append("function ")
-                .append(funcSymbol.name.value.split("\\.")[1]);
+                .append(funcSymbol.name.getValue().split("\\.")[1]);
 
         funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString()));
 
@@ -5302,12 +5303,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isSameImport(BLangImportPackage importPkgNode, BPackageSymbol importSymbol) {
-        if (!importPkgNode.orgName.value.equals(importSymbol.pkgID.orgName.value)) {
+        if (!importPkgNode.orgName.value.equals(importSymbol.pkgID.orgName.getValue())) {
             return false;
         }
 
         BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
-        return pkgName.value.equals(importSymbol.pkgID.name.value);
+        return pkgName.value.equals(importSymbol.pkgID.name.getValue());
     }
 
     private void setTypeFromLambdaExpr(BLangVariable variable) {
@@ -5335,7 +5336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SymbolOrigin getOrigin(Name name) {
-        return getOrigin(name.value);
+        return getOrigin(name.getValue());
     }
 
     public SymbolOrigin getOrigin(String name) {

@@ -81,9 +81,9 @@ public class JvmStrandMetadataConstantsGen {
     private void genStrandMetadataField(MethodVisitor mv, String varName, ScheduleFunctionInfo metaData) {
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(Utils.decodeIdentifier(this.packageID.orgName.value));
-        mv.visitLdcInsn(Utils.decodeIdentifier(this.packageID.name.value));
-        mv.visitLdcInsn(getMajorVersion(this.packageID.version.value));
+        mv.visitLdcInsn(Utils.decodeIdentifier(this.packageID.orgName.getValue()));
+        mv.visitLdcInsn(Utils.decodeIdentifier(this.packageID.name.getValue()));
+        mv.visitLdcInsn(getMajorVersion(this.packageID.version.getValue()));
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
         } else {

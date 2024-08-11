@@ -2272,7 +2272,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 String name = ((BLangNamedArgsExpression) arg).name.value;
 
                 for (BVarSymbol param : params) {
-                    if (!param.name.value.equals(name)) {
+                    if (!param.name.getValue().equals(name)) {
                         continue;
                     }
 
@@ -3139,9 +3139,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        String methodName = invocation.symbol.name.value;
+        String methodName = invocation.symbol.name.getValue();
 
-        return invocation.symbol.pkgID.name.value.equals(VALUE_LANG_LIB) &&
+        return invocation.symbol.pkgID.name.getValue().equals(VALUE_LANG_LIB) &&
                 (methodName.equals(CLONE_LANG_LIB_METHOD) || methodName.equals(CLONE_READONLY_LANG_LIB_METHOD));
     }
 
@@ -3222,7 +3222,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isSelfOfObject(BLangSimpleVarRef varRefExpr) {
-        if (!Names.SELF.value.equals(varRefExpr.variableName.value)) {
+        if (!Names.SELF.getValue().equals(varRefExpr.variableName.value)) {
             return false;
         }
 

@@ -56,7 +56,7 @@ public class BallerinaRegexpTypeSymbol extends AbstractTypeSymbol implements Reg
             SymbolTable symTable = SymbolTable.getInstance(this.context);
             SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
             this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langRegexpModuleSymbol,
-                    symTable.langRegexpModuleSymbol.getOriginalName().value);
+                    symTable.langRegexpModuleSymbol.getOriginalName().getValue());
         }
         return Optional.ofNullable(this.module);
     }

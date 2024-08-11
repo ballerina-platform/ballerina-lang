@@ -68,7 +68,7 @@ public class JvmTypeTestGen {
         // instanceof operator.
         if (canOptimizeNilCheck(sourceType, targetType) ||
                 canOptimizeNilUnionCheck(sourceType, targetType) ||
-                sourceValue.name.value.startsWith(MAIN_ARG_VAR_PREFIX)) {
+                sourceValue.name.getValue().startsWith(MAIN_ARG_VAR_PREFIX)) {
             handleNilUnionType(typeTestIns);
             return;
         }
@@ -146,7 +146,7 @@ public class JvmTypeTestGen {
             }
         }
         return (foundError == 1 && types.isAssignable(errorType, targetType)) || (foundError > 0 && "error".equals(
-                targetType.tsymbol.name.value));
+                targetType.tsymbol.name.getValue()));
     }
 
     /**

@@ -118,9 +118,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -196,7 +196,7 @@ public class MethodGen {
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
-        String funcName = func.name.value;
+        String funcName = func.name.getValue();
         BType retType = getReturnType(func);
         String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, funcName, desc, null, null);
@@ -209,7 +209,7 @@ public class MethodGen {
         mv.visitVarInsn(ALOAD, 0); // load self
         String encodedMethodName = Utils.encodeFunctionIdentifier(funcName);
         for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
-            instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
+            instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.getValue(), parameter.type));
         }
         String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
@@ -222,7 +222,7 @@ public class MethodGen {
             String metaVarName = parameter.metaVarName;
             if (isValidArg(parameter) && isCompilerAddedVars(metaVarName)) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(parameter.type), null, methodStartLabel,
-                        methodEndLabel, indexMap.addIfNotExists(parameter.name.value, parameter.type));
+                        methodEndLabel, indexMap.addIfNotExists(parameter.name.getValue(), parameter.type));
             }
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
@@ -269,7 +269,7 @@ public class MethodGen {
             indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         }
 
-        String funcName = func.name.value;
+        String funcName = func.name.getValue();
         BType retType = getReturnType(func);
         String desc;
         int invocationCountArgVarIndex = -1;
@@ -489,7 +489,7 @@ public class MethodGen {
         localVars.sort(new FunctionParamComparator());
         for (int i = 1; i < localVars.size(); i++) {
             BIRVariableDcl localVar = localVars.get(i);
-            int index = indexMap.addIfNotExists(localVar.name.value, localVar.type);
+            int index = indexMap.addIfNotExists(localVar.name.getValue(), localVar.type);
             if (localVar.kind != VarKind.ARG) {
                 BType bType = localVar.type;
                 genDefaultValue(mv, bType, index);
@@ -499,7 +499,7 @@ public class MethodGen {
 
     private int getReturnVarRefIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap, BType retType, MethodVisitor mv) {
         BIRVariableDcl varDcl = func.localVars.get(0);
-        int returnVarRefIndex = indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
+        int returnVarRefIndex = indexMap.addIfNotExists(varDcl.name.getValue(), varDcl.type);
         genDefaultValue(mv, retType, returnVarRefIndex);
         return returnVarRefIndex;
     }
@@ -585,11 +585,11 @@ public class MethodGen {
         for (int i = 0; i < func.basicBlocks.size(); i++) {
             BIRBasicBlock bb = func.basicBlocks.get(i);
             if (i == 0) {
-                labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.value));
+                labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.getValue()));
                 states.add(caseIndex, caseIndex);
                 caseIndex += 1;
             }
-            labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.value + "beforeTerm"));
+            labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.getValue() + "beforeTerm"));
             states.add(caseIndex, caseIndex);
             caseIndex += 1;
         }
@@ -609,7 +609,7 @@ public class MethodGen {
                              int invocationVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
                              String moduleClassName, Label loopLabel) {
 
-        String funcName = func.name.value;
+        String funcName = func.name.getValue();
         BirScope lastScope = null;
         Set<BirScope> visitedScopesSet = new HashSet<>();
 
@@ -617,7 +617,7 @@ public class MethodGen {
         for (int i = 0; i < func.basicBlocks.size(); i++) {
             BIRBasicBlock bb = func.basicBlocks.get(i);
             // create jvm label
-            Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
+            Label bbLabel = labelGen.getLabel(funcName + bb.id.getValue());
             mv.visitLabel(bbLabel);
             if (i == 0) {
                 pushShort(mv, stateVarIndex, caseIndex);
@@ -629,7 +629,7 @@ public class MethodGen {
                     .getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, funcName, bb,
                             visitedScopesSet, lastScope);
 
-            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.getValue() + "beforeTerm");
             mv.visitLabel(bbEndLabel);
 
             String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
@@ -714,7 +714,7 @@ public class MethodGen {
     }
 
     private boolean isModuleTestInitFunction(BIRFunction func) {
-        return func.name.value.equals(
+        return func.name.getValue().equals(
                 MethodGenUtils
                         .encodeModuleSpecialFuncName(".<testinit>"));
     }
@@ -754,7 +754,7 @@ public class MethodGen {
                 continue;
             }
             BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
-            int index = indexMap.addIfNotExists(localVar.name.value, bType);
+            int index = indexMap.addIfNotExists(localVar.name.getValue(), bType);
             mv.visitInsn(DUP);
 
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -893,7 +893,7 @@ public class MethodGen {
                 continue;
             }
             BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
-            int index = indexMap.addIfNotExists(localVar.name.value, bType);
+            int index = indexMap.addIfNotExists(localVar.name.getValue(), bType);
             mv.visitInsn(DUP);
 
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1053,7 +1053,7 @@ public class MethodGen {
     private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap indexMap, int localVarOffset,
                                           MethodVisitor mv, Label methodStartLabel, LabelGenerator labelGen,
                                           Label methodEndLabel, boolean isObjectMethodSplit) {
-        String funcName = func.name.value;
+        String funcName = func.name.getValue();
         // Add strand variable to LVT
         mv.visitLocalVariable(STRAND_LOCAL_VARIABLE_NAME, GET_STRAND, null, methodStartLabel, methodEndLabel,
                 localVarOffset);
@@ -1075,14 +1075,14 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id());
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.getValue() + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
             if (isCompilerAddedVars(metaVarName)) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
                         startLabel, endLabel,
-                        indexMap.addIfNotExists(localVar.name.value, localVar.type));
+                        indexMap.addIfNotExists(localVar.name.getValue(), localVar.type));
             }
         }
     }
@@ -1090,7 +1090,7 @@ public class MethodGen {
     private boolean isValidArg(BIRVariableDcl localVar) {
         boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
         boolean synArg = JvmCodeGenUtil.getImpliedType(localVar.type).tag == TypeTags.BOOLEAN &&
-                localVar.name.value.startsWith("%syn");
+                localVar.name.getValue().startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;
         return (localArg && !synArg) || lambdaMapArg;

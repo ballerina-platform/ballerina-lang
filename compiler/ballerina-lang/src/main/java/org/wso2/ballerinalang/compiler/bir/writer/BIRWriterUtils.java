@@ -181,7 +181,7 @@ public final class BIRWriterUtils {
         annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.annotPkgId, cp));
         // Write position
         writePosition(annotAttachment.pos, annotBuf, cp);
-        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value, cp));
+        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.getValue(), cp));
 
         if (!(annotAttachment instanceof BIRNode.BIRConstAnnotationAttachment)) {
             annotBuf.writeBoolean(false);

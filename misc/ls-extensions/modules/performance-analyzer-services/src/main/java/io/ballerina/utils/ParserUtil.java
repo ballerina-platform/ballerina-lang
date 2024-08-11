@@ -130,7 +130,7 @@ public final class ParserUtil {
             List<BVarSymbol> params = bInvokableSymbol.getParameters();
             for (int i = 0; i < params.size(); i++) {
                 if (connectorInitExpr.argsExpr.size() > i &&
-                        (CLIENT_URL_ATTR_NAME.equals(params.get(i).name.value.toLowerCase(Locale.ENGLISH))
+                        (CLIENT_URL_ATTR_NAME.equals(params.get(i).name.getValue().toLowerCase(Locale.ENGLISH))
                                 || isRecordObject(params.get(i).type.tsymbol))) {
                     return connectorInitExpr.argsExpr.get(i);
                 }
@@ -147,7 +147,7 @@ public final class ParserUtil {
                 List<BVarSymbol> params = bInvokableSymbol.getParameters();
                 for (int i = 0; i < params.size(); i++) {
                     if (actionInvocation.argExprs.size() > i &&
-                            (ACTION_PATH_ATTR_NAME.equals(params.get(i).name.value.toLowerCase(Locale.ENGLISH)))) {
+                            (ACTION_PATH_ATTR_NAME.equals(params.get(i).name.getValue().toLowerCase(Locale.ENGLISH)))) {
                         return actionInvocation.argExprs.get(i);
                     }
                 }

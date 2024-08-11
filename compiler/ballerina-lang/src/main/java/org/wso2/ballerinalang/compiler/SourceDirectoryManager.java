@@ -236,9 +236,9 @@ public class SourceDirectoryManager implements Project {
 
     @Override
     public boolean isModuleExists(PackageID moduleId) {
-        if (this.sourceDirectory.getSourcePackageNames().contains(moduleId.name.value) &&
-            this.manifest.getProject().getOrgName().equals(moduleId.orgName.value) &&
-            this.manifest.getProject().getVersion().equals(moduleId.version.value)) {
+        if (this.sourceDirectory.getSourcePackageNames().contains(moduleId.name.getValue()) &&
+            this.manifest.getProject().getOrgName().equals(moduleId.orgName.getValue()) &&
+            this.manifest.getProject().getVersion().equals(moduleId.version.getValue())) {
             return true;
         } else {
             return false;
@@ -253,11 +253,11 @@ public class SourceDirectoryManager implements Project {
         // Get the version of the project.
         String versionNo = manifest.getProject().getVersion();
         // Identify the platform version
-        String platform = manifest.getTargetPlatform(moduleId.name.value);
+        String platform = manifest.getTargetPlatform(moduleId.name.getValue());
         // {module}-{lang spec version}-{platform}-{version}.bala
         //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
-        String balaFileName = moduleId.name.value + "-"
-                + moduleId.orgName.value + "-"
+        String balaFileName = moduleId.name.getValue() + "-"
+                + moduleId.orgName.getValue() + "-"
                 + platform + "-"
                 + versionNo
                 + BLANG_COMPILED_PKG_BINARY_EXT;

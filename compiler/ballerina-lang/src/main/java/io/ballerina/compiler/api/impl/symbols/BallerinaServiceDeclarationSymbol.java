@@ -123,7 +123,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         Map<String, ClassFieldSymbol> fields = new LinkedHashMap<>();
 
         for (BField field : classType.fields.values()) {
-            fields.put(field.name.value, new BallerinaClassFieldSymbol(this.context, field));
+            fields.put(field.name.getValue(), new BallerinaClassFieldSymbol(this.context, field));
         }
 
         this.fields = Collections.unmodifiableMap(fields);
@@ -146,14 +146,15 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
                 StringJoiner stringJoiner = new StringJoiner("/");
 
                 for (BResourcePathSegmentSymbol pathSegmentSym : resFn.pathSegmentSymbols) {
-                    stringJoiner.add(pathSegmentSym.name.value);
+                    stringJoiner.add(pathSegmentSym.name.getValue());
                 }
 
-                methods.put(resFn.accessor.value + " " + stringJoiner.toString(),
+                methods.put(resFn.accessor.getValue() + " " + stringJoiner.toString(),
                             symbolFactory.createResourceMethodSymbol(method.symbol));
             } else {
-                methods.put(method.funcName.value,
-                            symbolFactory.createMethodSymbol(method.symbol, method.symbol.getOriginalName().value));
+                methods.put(
+                        method.funcName.getValue(),
+                        symbolFactory.createMethodSymbol(method.symbol, method.symbol.getOriginalName().getValue()));
             }
         }
 

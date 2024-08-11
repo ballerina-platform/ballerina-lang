@@ -207,7 +207,7 @@ public final class BRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     PredefinedTypes.TYPE_ANY, "test",
-                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName));
+                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.getValue(), functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new BLangTestException(futureValue.panic.getMessage(),
@@ -251,7 +251,7 @@ public final class BRunUtil {
         checkAndNotifyCompilationErrors(compileResult);
         BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();
         for (BIRNode.BIRFunction function : birPackage.functions) {
-            if (functionName.equals(function.name.value)) {
+            if (functionName.equals(function.name.getValue())) {
                 return function;
             }
         }

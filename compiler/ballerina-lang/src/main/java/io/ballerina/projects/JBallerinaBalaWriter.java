@@ -247,8 +247,8 @@ public class JBallerinaBalaWriter extends BalaWriter {
 
         // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
-            if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.value) &&
-                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value) &&
+            if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.getValue()) &&
+                    dependency.packageInstance().packageName().value().equals(Names.JAVA.getValue()) &&
                     !dependency.scope().equals(PackageDependencyScope.TEST_ONLY)) {
                 return this.backend.targetPlatform();
             }

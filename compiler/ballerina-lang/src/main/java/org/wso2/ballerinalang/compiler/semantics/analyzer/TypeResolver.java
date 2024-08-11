@@ -1156,10 +1156,10 @@ public class TypeResolver {
             Name paramName = Names.fromIdNode(param.name);
             Name paramOrigName = Names.originalNameFromIdNode(param.name);
             if (paramName != Names.EMPTY) {
-                if (paramNames.contains(paramName.value)) {
-                    dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
+                if (paramNames.contains(paramName.getValue())) {
+                    dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.getValue());
                 } else {
-                    paramNames.add(paramName.value);
+                    paramNames.add(paramName.getValue());
                 }
             }
             BType type = resolveTypeDesc(env, typeDefinition, depth + 1, param.getTypeNode(), data);
@@ -1880,7 +1880,8 @@ public class TypeResolver {
         }
 
         if (typeDefinition.annAttachments.stream()
-                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+                .anyMatch(attachment ->
+                        attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.getValue()))) {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
@@ -1958,9 +1959,9 @@ public class TypeResolver {
     }
 
     public BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName) {
-        if (pkgAlias == Names.EMPTY && modTable.containsKey(varName.value)) {
+        if (pkgAlias == Names.EMPTY && modTable.containsKey(varName.getValue())) {
             // modTable contains the available constants in current module.
-            BLangNode node = modTable.get(varName.value);
+            BLangNode node = modTable.get(varName.getValue());
             if (node.getKind() == NodeKind.CONSTANT) {
                 if (!resolvedConstants.contains((BLangConstant) node)) {
                     resolveConstant(env, modTable, (BLangConstant) node);
@@ -2109,7 +2110,7 @@ public class TypeResolver {
 
             if (immutableType.effectiveType.tag == TypeTags.RECORD) {
                 constant.associatedTypeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                        immutableType.effectiveType.tsymbol.name.value);
+                        immutableType.effectiveType.tsymbol.name.getValue());
             }
         }
     }
