@@ -88,7 +88,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
     private static final CompilerContext.Key<EffectiveTypePopulator> UPDATE_IMMUTABLE_TYPE_KEY =
                 new CompilerContext.Key<>();
     private final SymbolTable symTable;
-    private final Names names;
     private final Types types;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private Location loc;
@@ -100,7 +99,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
     public EffectiveTypePopulator(CompilerContext context) {
         context.put(UPDATE_IMMUTABLE_TYPE_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
@@ -144,7 +142,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
         if (origArrayType != null) {
             if (bArrayType.eType.tag == TypeTags.NEVER || bArrayType.eType == symTable.semanticError) {
                 bArrayType.eType = ImmutableTypeCloner.getImmutableType(loc, types, origArrayType.eType, env,
-                        pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
+                        pkgID, env.scope.owner, symTable, anonymousModelHelper, new HashSet<>());
             }
             updateType(bArrayType.eType, loc, pkgID, typeNode, env);
             bArrayType.mutableType = null;

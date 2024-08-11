@@ -84,7 +84,6 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     private final BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
-    private final Names names;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -98,7 +97,6 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
 

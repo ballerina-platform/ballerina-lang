@@ -103,7 +103,6 @@ public class TypeParamAnalyzer {
 
     private SymbolTable symTable;
     private Types types;
-    private Names names;
     private BLangDiagnosticLog dlog;
     private BLangAnonymousModelHelper anonymousModelHelper;
 
@@ -123,7 +122,6 @@ public class TypeParamAnalyzer {
 
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
@@ -921,7 +919,7 @@ public class TypeParamAnalyzer {
         }
 
         return ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
+                matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, new HashSet<>());
     }
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

@@ -103,7 +103,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Location currentPos;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SymbolEnv symEnv;
-    private Names names;
     private SymbolTable symTable;
     private Types types;
     private PackageID pkgID;
@@ -118,7 +117,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.types = Types.getInstance(context);
     }
@@ -794,7 +792,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names,
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null,
                 recordTypeNode, type, type, pos, env, pkgID, null, 0, false);
         recordTypeNode.sealed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
@@ -868,7 +866,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol structureSymbol = recordType.tsymbol;
         for (BField field : recordType.fields.values()) {
             field.type = ImmutableTypeCloner.getImmutableType(pos, types, field.type, env,
-                    env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names,
+                    env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper,
                     new HashSet<>());
             Name fieldName = field.symbol.name;
             field.symbol = new BVarSymbol(field.symbol.flags | Flags.READONLY, fieldName,
@@ -1027,7 +1025,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                env.scope.owner, pos, VIRTUAL);
 
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
-                                                                env, symTable, anonymousModelHelper, names,
+                                                                env, symTable, anonymousModelHelper,
                                                                 new HashSet<>());
     }
 }

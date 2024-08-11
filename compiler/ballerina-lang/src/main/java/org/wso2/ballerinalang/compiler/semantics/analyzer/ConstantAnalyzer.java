@@ -56,7 +56,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private final BLangMissingNodesHelper missingNodesHelper;
-    private final Names names;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
@@ -66,7 +65,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
         context.put(CONSTANT_ANALYZER_KEY, this);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -106,7 +104,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         if (varRef.pkgSymbol != symTable.notFoundSymbol && symbol == symTable.notFoundSymbol) {
             SymbolEnv pkgEnv = symTable.pkgEnvMap.get(varRef.pkgSymbol);
             symbol = pkgEnv == null ? symbol : symResolver.lookupMainSpaceSymbolInPackage(varRef.pos, pkgEnv,
-                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName));
+                    Names.fromIdNode(varRef.pkgAlias), Names.fromIdNode(varRef.variableName));
         }
 
         if (symbol == symTable.notFoundSymbol) {

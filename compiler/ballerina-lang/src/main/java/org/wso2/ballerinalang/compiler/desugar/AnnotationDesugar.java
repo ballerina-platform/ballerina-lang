@@ -135,7 +135,6 @@ public class AnnotationDesugar {
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final Types types;
-    private final Names names;
     private SymbolResolver symResolver;
     private ConstantValueResolver constantValueResolver;
     private ClosureGenerator closureGenerator;
@@ -153,7 +152,6 @@ public class AnnotationDesugar {
         this.desugar = Desugar.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.closureGenerator = ClosureGenerator.getInstance(context);
@@ -921,7 +919,7 @@ public class AnnotationDesugar {
                                                                           symTable.mapType,
                                                                           ASTBuilderUtil.createEmptyRecordLiteral(
                                                                                   pkgNode.pos, symTable.mapType), null);
-        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
+        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol);
         pkgNode.globalVars.add(0, annotationMap); // TODO fix this
         pkgNode.topLevelNodes.add(0, annotationMap);
         return annotationMap;

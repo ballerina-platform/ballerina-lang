@@ -127,7 +127,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             new CompilerContext.Key<>();
 
     private final SymbolTable symTable;
-    private final Names names;
     private final NodeCloner nodeCloner;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
@@ -141,7 +140,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         context.put(CONSTANT_TYPE_CHECKER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -293,13 +291,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        Name varName = names.fromIdNode(varRefExpr.variableName);
+        Name varName = Names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
-                    names.originalNameFromIdNode(varRefExpr.variableName),
+                    Names.originalNameFromIdNode(varRefExpr.variableName),
                     data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
                     varRefExpr.pos, VIRTUAL);
 
@@ -309,13 +307,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         Name compUnitName = typeChecker.getCurrentCompUnit(varRefExpr);
         varRefExpr.pkgSymbol =
-                symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+                symResolver.resolvePrefixSymbol(data.env, Names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         } else {
             BSymbol symbol =
-                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, Names.fromIdNode(varRefExpr.pkgAlias),
                             varName);
 
             if (symbol == symTable.notFoundSymbol) {
@@ -353,13 +351,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangRecordLiteral.BLangRecordVarNameField varRefExpr, AnalyzerData data) {
         BType actualType = symTable.semanticError;
 
-        Name varName = names.fromIdNode(varRefExpr.variableName);
+        Name varName = Names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
-                    names.originalNameFromIdNode(varRefExpr.variableName),
+                    Names.originalNameFromIdNode(varRefExpr.variableName),
                     data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
                     varRefExpr.pos, VIRTUAL);
 
@@ -369,7 +367,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         Name compUnitName = typeChecker.getCurrentCompUnit(varRefExpr);
         varRefExpr.pkgSymbol =
-                symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+                symResolver.resolvePrefixSymbol(data.env, Names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
@@ -377,7 +375,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol =
-                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, Names.fromIdNode(varRefExpr.pkgAlias),
                             varName);
 
             if (symbol == symTable.notFoundSymbol) {
@@ -519,8 +517,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         symbol.type = recordType;
         recordType.tsymbol = symbol;
         recordType.sealed = true;
-        TypeDefBuilderHelper.createTypeDefinition(recordType, data.constantSymbol.pos, names, types,
-                symTable, data.env);
+        TypeDefBuilderHelper.createTypeDefinition(recordType, data.constantSymbol.pos, types, symTable, data.env);
         return recordType;
     }
 
@@ -644,15 +641,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.JSON:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapJsonType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapJsonType, data.env,
-                                symTable, anonymousModelHelper, names);
+                                symTable, anonymousModelHelper);
             case TypeTags.ANYDATA:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAnydataType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAnydataType,
-                                data.env, symTable, anonymousModelHelper, names);
+                                data.env, symTable, anonymousModelHelper);
             case TypeTags.ANY:
                 return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAllType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAllType, data.env,
-                                symTable, anonymousModelHelper, names);
+                                symTable, anonymousModelHelper);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
@@ -1388,13 +1385,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                  TypeTags.TYPEDESC -> type;
             case TypeTags.JSON -> !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
                     ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
-                            data.env, symTable, anonymousModelHelper, names);
+                            data.env, symTable, anonymousModelHelper);
             case TypeTags.ANYDATA -> !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
                     ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
-                            data.env, symTable, anonymousModelHelper, names);
+                            data.env, symTable, anonymousModelHelper);
             case TypeTags.ANY -> !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAllType :
                     ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
-                            symTable, anonymousModelHelper, names);
+                            symTable, anonymousModelHelper);
             case TypeTags.INTERSECTION -> ((BIntersectionType) type).effectiveType;
             default -> symTable.semanticError;
         };
@@ -2160,7 +2157,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         private final SymbolTable symTable;
         private final Types types;
         private final ConstantTypeChecker constantTypeChecker;
-        private final Names names;
         private final BLangDiagnosticLog dlog;
 
         private AnalyzerData data;
@@ -2171,7 +2167,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             this.symTable = SymbolTable.getInstance(context);
             this.types = Types.getInstance(context);
             this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
-            this.names = Names.getInstance(context);
             this.dlog = BLangDiagnosticLog.getInstance(context);
         }
 
@@ -2321,7 +2316,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             resultRecordType.tsymbol = recordSymbol;
             resultRecordType.sealed = true;
             resultRecordType.restFieldType = symTable.neverType;
-            TypeDefBuilderHelper.createTypeDefinition(resultRecordType, data.constantSymbol.pos, names, types,
+            TypeDefBuilderHelper.createTypeDefinition(resultRecordType, data.constantSymbol.pos, types,
                     symTable, data.env);
             data.resultType = resultRecordType;
         }
@@ -2439,7 +2434,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             resultRecordType.tsymbol = recordSymbol;
             resultRecordType.sealed = true;
             resultRecordType.restFieldType = symTable.neverType;
-            TypeDefBuilderHelper.createTypeDefinition(resultRecordType, data.constantSymbol.pos, names, types,
+            TypeDefBuilderHelper.createTypeDefinition(resultRecordType, data.constantSymbol.pos, types,
                     symTable, data.env);
             data.resultType = resultRecordType;
         }

@@ -259,7 +259,6 @@ import java.util.stream.Stream;
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private final SymbolResolver symResolver;
-    private final Names names;
     private SymbolEnv env;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
@@ -285,7 +284,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.currDependentSymbolDeque = new ArrayDeque<>();
         this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
         this.unusedLocalVariables = new HashMap<>();

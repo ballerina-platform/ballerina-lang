@@ -86,7 +86,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private SymbolTable symTable;
     private PackageCache packageCache;
     private SymbolResolver symResolver;
-    private Names names;
     private final Types types;
     private BLangDiagnosticLog dlog;
 
@@ -114,7 +113,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.context = context;

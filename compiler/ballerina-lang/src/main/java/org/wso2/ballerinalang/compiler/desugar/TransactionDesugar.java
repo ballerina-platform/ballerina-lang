@@ -94,7 +94,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private final Names names;
     private final PackageCache packageCache;
 
     private BSymbol transactionError;
@@ -115,7 +114,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         context.put(TRANSACTION_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.types = Types.getInstance(context);

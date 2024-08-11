@@ -70,7 +70,6 @@ public class DeclarativeAuthDesugar {
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private final Names names;
 
     private static final String ORG_NAME = "ballerina";
     private static final String HTTP_PACKAGE_NAME = "http";
@@ -94,7 +93,6 @@ public class DeclarativeAuthDesugar {
         context.put(DECLARATIVE_AUTH_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
     }
 
     void desugarFunction(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
@@ -181,7 +179,7 @@ public class DeclarativeAuthDesugar {
         List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
         statements.add(0, result);
 
-        BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
+        BVarSymbol resultSymbol = new BVarSymbol(0, Names.fromIdNode(result.var.name), env.enclPkg.packageID,
                                                  result.var.getBType(), functionNode.symbol, pos, VIRTUAL);
         functionNode.symbol.scope.define(resultSymbol.name, resultSymbol);
         result.var.symbol = resultSymbol;

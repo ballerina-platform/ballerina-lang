@@ -290,7 +290,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private final Names names;
     private final Types types;
     private final BLangDiagnosticLog dlog;
 
@@ -306,7 +305,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         context.put(ISOLATION_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
@@ -3249,7 +3247,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         switch (variableReference.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) variableReference;
-                return isDefinedOutsideLock(names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
+                return isDefinedOutsideLock(Names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
                                             env);
             case RECORD_VARIABLE_REF:
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) variableReference;
@@ -3362,7 +3360,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, SymbolEnv currentEnv) {
-        return isInvalidCopyIn(varRefExpr, names.fromIdNode(varRefExpr.variableName), varRefExpr.symbol.tag,
+        return isInvalidCopyIn(varRefExpr, Names.fromIdNode(varRefExpr.variableName), varRefExpr.symbol.tag,
                                currentEnv);
     }
 

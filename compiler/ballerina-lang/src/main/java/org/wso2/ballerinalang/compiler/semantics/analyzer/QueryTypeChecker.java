@@ -116,7 +116,6 @@ public class QueryTypeChecker extends TypeChecker {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final TypeNarrower typeNarrower;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private final Names names;
     private final BLangDiagnosticLog dlog;
     private final NodeCloner nodeCloner;
 
@@ -132,7 +131,6 @@ public class QueryTypeChecker extends TypeChecker {
         super(context, new CompilerContext.Key<>());
         context.put(QUERY_TYPE_CHECKER_KEY, this);
 
-        this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
@@ -969,7 +967,7 @@ public class QueryTypeChecker extends TypeChecker {
             super.visit(iExpr, data);
             return;
         }
-        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+        Name pkgAlias = Names.fromIdNode(iExpr.pkgAlias);
         BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, pkgAlias, getCurrentCompUnit(iExpr));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
@@ -983,7 +981,7 @@ public class QueryTypeChecker extends TypeChecker {
             invocationType =
                     firstArgType.tag == TypeTags.SEQUENCE ? ((BSequenceType) firstArgType).elementType : firstArgType;
         }
-        Name funcName = names.fromIdNode(iExpr.name);
+        Name funcName = Names.fromIdNode(iExpr.name);
         BSymbol symbol = symResolver.lookupLangLibMethod(invocationType, funcName, data.env);
         if (symbol == symTable.notFoundSymbol) {
             symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
@@ -1091,13 +1089,13 @@ public class QueryTypeChecker extends TypeChecker {
         BType actualType = symTable.semanticError;
 
         BLangIdentifier identifier = varRefExpr.variableName;
-        Name varName = names.fromIdNode(identifier);
+        Name varName = Names.fromIdNode(identifier);
         if (varName == Names.IGNORE) {
             varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
-                    names.originalNameFromIdNode(identifier),
+                    Names.originalNameFromIdNode(identifier),
                     data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
                     varRefExpr.pos, VIRTUAL);
 
@@ -1106,7 +1104,7 @@ public class QueryTypeChecker extends TypeChecker {
         }
 
         Name compUnitName = getCurrentCompUnit(varRefExpr);
-        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias),
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, Names.fromIdNode(varRefExpr.pkgAlias),
                 compUnitName);
         varRefExpr.pkgSymbol = pkgSymbol;
         if (pkgSymbol == symTable.notFoundSymbol) {
@@ -1118,7 +1116,7 @@ public class QueryTypeChecker extends TypeChecker {
             actualType = symTable.stringType;
         } else if (pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, data.env,
-                    names.fromIdNode(varRefExpr.pkgAlias), varName);
+                    Names.fromIdNode(varRefExpr.pkgAlias), varName);
             // if no symbol, check same for object attached function
             BLangType enclType = data.env.enclType;
             if (symbol == symTable.notFoundSymbol && enclType != null && enclType.getBType().tsymbol.scope != null) {

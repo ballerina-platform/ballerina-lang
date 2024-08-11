@@ -33,12 +33,10 @@ public final class NodeUtils {
     /**
      * Return the {@code Name} from the give package name components.
      *
-     * @param names        utility class which manages all the names used
-     *                     in the Ballerina compiler.
      * @param pkgNameComps components of the given package name.
      * @return returns the name from the given package name components.
      */
-    public static Name getName(Names names, List<BLangIdentifier> pkgNameComps) {
+    public static Name getName(List<BLangIdentifier> pkgNameComps) {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
                 .toList());
@@ -50,14 +48,14 @@ public final class NodeUtils {
         return new Name(qname);
     }
 
-    public static PackageID getPackageID(Names names, BLangIdentifier orgNameNode,
+    public static PackageID getPackageID(BLangIdentifier orgNameNode,
                                          List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
-        List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).toList();
+        List<Name> nameList = pkgNameComps.stream().map(Names::fromIdNode).toList();
         Name orgName = null;
         if (orgNameNode != null) {
-            orgName = names.fromIdNode(orgNameNode);
+            orgName = Names.fromIdNode(orgNameNode);
         }
-        Name version = names.fromIdNode(versionNode);
+        Name version = Names.fromIdNode(versionNode);
         if (version == Names.EMPTY) {
             version = Names.DEFAULT_VERSION;
         }

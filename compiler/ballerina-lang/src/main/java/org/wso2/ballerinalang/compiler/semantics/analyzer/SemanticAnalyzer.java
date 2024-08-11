@@ -260,7 +260,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private final ConstantAnalyzer constantAnalyzer;
     private final ConstantValueResolver constantValueResolver;
     private final BLangDiagnosticLog dlog;
-    private final Names names;
     private final SymbolEnter symbolEnter;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
@@ -286,7 +285,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         this.symTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
@@ -1173,7 +1171,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 if (!types.isInherentlyImmutableType(lhsType)) {
                     // Configurable variables are implicitly readonly
                     lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
-                            lhsType, currentEnv, symTable, anonModelHelper, names, new HashSet<>());
+                            lhsType, currentEnv, symTable, anonModelHelper, new HashSet<>());
                     varNode.setBType(lhsType);
                     varNode.symbol.type = lhsType;
                 }
@@ -2131,8 +2129,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
         switch (variable.getKind()) {
             case VARIABLE:
-                Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
-                Name origName = names.originalNameFromIdNode(((BLangSimpleVariable) variable).name);
+                Name name = Names.fromIdNode(((BLangSimpleVariable) variable).name);
+                Name origName = Names.originalNameFromIdNode(((BLangSimpleVariable) variable).name);
                 variable.setBType(symTable.semanticError);
                 symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.getBType(), name, origName,
                                             blockEnv, variable.internal);
@@ -2397,7 +2395,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangErrorDestructure errorDeStmt, AnalyzerData data) {
         BLangErrorVarRef varRef = errorDeStmt.varRef;
         if (varRef.message != null) {
-            if (names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
+            if (Names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
                 setTypeOfVarRefInErrorBindingAssignment(varRef.message, data);
                 checkInvalidTypeDef(varRef.message);
             } else {
@@ -2408,7 +2406,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (varRef.cause != null) {
             if (varRef.cause.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                    names.fromIdNode(((BLangSimpleVarRef) varRef.cause).variableName) != Names.IGNORE) {
+                    Names.fromIdNode(((BLangSimpleVarRef) varRef.cause).variableName) != Names.IGNORE) {
                 setTypeOfVarRefInErrorBindingAssignment(varRef.cause, data);
                 checkInvalidTypeDef(varRef.cause);
             } else {
@@ -2484,7 +2482,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             } else if (variableReference.getKind() == NodeKind.ERROR_VARIABLE_REF) {
                 checkErrorVarRefEquivalency((BLangErrorVarRef) variableReference, rhsField.type, rhsPos, data);
             } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
+                Name varName = Names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
@@ -2546,7 +2544,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 checkErrorVarRefEquivalency(errorVarRef, souceElementType, rhsPos, data);
             } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
-                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                Name varName = Names.fromIdNode(simpleVarRef.variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
@@ -2614,7 +2612,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 checkErrorVarRefEquivalency(errorVarRef, sourceType, rhsPos, data);
             } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                Name varName = Names.fromIdNode(simpleVarRef.variableName);
                 if (varName == Names.IGNORE) {
                     continue;
                 }
@@ -2769,7 +2767,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
 
-        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        Name varName = Names.fromIdNode(simpleVarRef.variableName);
         if (!Names.IGNORE.equals(varName) && currentEnv.enclInvokable != currentEnv.enclPkg.initFunction) {
             if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
                 if ((simpleVarRef.symbol.flags & Flags.SERVICE) == Flags.SERVICE) {
@@ -3049,9 +3047,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
             analyzeNode(fieldMatchPattern, data);
-            Name fieldName = names.fromIdNode(fieldMatchPattern.fieldName);
+            Name fieldName = Names.fromIdNode(fieldMatchPattern.fieldName);
             BVarSymbol fieldSymbol = new BVarSymbol(0, fieldName,
-                                                    names.originalNameFromIdNode(fieldMatchPattern.fieldName),
+                                                    Names.originalNameFromIdNode(fieldMatchPattern.fieldName),
                                                     currentEnv.enclPkg.symbol.pkgID,
                                                     fieldMatchPattern.matchPattern.getBType(),
                                                     recordSymbol, fieldMatchPattern.pos, COMPILED_SOURCE);
@@ -3341,7 +3339,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangRestBindingPattern restBindingPattern, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         Name name = new Name(restBindingPattern.variableName.value);
-        Name origName = names.originalNameFromIdNode(restBindingPattern.variableName);
+        Name origName = Names.originalNameFromIdNode(restBindingPattern.variableName);
         BSymbol symbol = symResolver.lookupSymbolInMainSpace(currentEnv, name);
         if (symbol == symTable.notFoundSymbol) {
             symbol = new BVarSymbol(0, name, origName, currentEnv.enclPkg.packageID, restBindingPattern.getBType(),
@@ -3585,9 +3583,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
             fieldBindingPattern.accept(this, data);
-            Name fieldName = names.fromIdNode(fieldBindingPattern.fieldName);
+            Name fieldName = Names.fromIdNode(fieldBindingPattern.fieldName);
             BVarSymbol fieldSymbol = new BVarSymbol(0, fieldName,
-                                                    names.originalNameFromIdNode(fieldBindingPattern.fieldName),
+                                                    Names.originalNameFromIdNode(fieldBindingPattern.fieldName),
                                                     currentEnv.enclPkg.symbol.pkgID,
                                                     fieldBindingPattern.bindingPattern.getBType(), recordSymbol,
                                                     fieldBindingPattern.pos, COMPILED_SOURCE);

@@ -138,16 +138,14 @@ public final class TypeDefBuilderHelper {
 
     public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
-                                                                   Names names,
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
-        return createInitFunctionForStructureType(symbol, env, names, suffix, type, symTable.nilType);
+        return createInitFunctionForStructureType(symbol, env, suffix, type, symTable.nilType);
     }
 
     public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
-                                                                   Names names,
                                                                    Name suffix,
                                                                    BType type,
                                                                    BType returnType) {
@@ -157,8 +155,8 @@ public final class TypeDefBuilderHelper {
         // Create the receiver and add receiver details to the node
         initFunction.receiver = ASTBuilderUtil.createReceiver(null, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                                                   names.fromIdNode(initFunction.receiver.name),
-                                                   names.originalNameFromIdNode(initFunction.receiver.name),
+                                                   Names.fromIdNode(initFunction.receiver.name),
+                                                   Names.originalNameFromIdNode(initFunction.receiver.name),
                                                    env.enclPkg.symbol.pkgID, type, null, null, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
@@ -299,7 +297,7 @@ public final class TypeDefBuilderHelper {
 
     public static void populateStructureFieldsAndTypeInclusions(Types types, SymbolTable symTable,
                                                                 BLangAnonymousModelHelper anonymousModelHelper,
-                                                                Names names, BLangStructureTypeNode structureTypeNode,
+                                                                BLangStructureTypeNode structureTypeNode,
                                                                 BStructureType structureType,
                                                                 BStructureType origStructureType, Location pos,
                                                                 SymbolEnv env, PackageID pkgID,
@@ -312,7 +310,7 @@ public final class TypeDefBuilderHelper {
             BType fieldType;
             if (isImmutable) {
                 fieldType = ImmutableTypeCloner.getImmutableType(pos, types, origField.type, env,
-                        env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+                        env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, unresolvedTypes);
             } else {
                 fieldType = origField.type;
             }
@@ -364,7 +362,7 @@ public final class TypeDefBuilderHelper {
         }
     }
 
-    public static void createTypeDefinition(BRecordType type, Location pos, Names names,
+    public static void createTypeDefinition(BRecordType type, Location pos,
                                             Types types, SymbolTable symTable,
                                             SymbolEnv env) {
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
@@ -386,7 +384,7 @@ public final class TypeDefBuilderHelper {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names, recordTypeNode,
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, recordTypeNode,
                                                                       type, type, pos, env, env.scope.owner.pkgID,
                                                                       null, Flags.REQUIRED, false);
         recordTypeNode.sealed = true;

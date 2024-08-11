@@ -53,7 +53,6 @@ public class SourceDirectoryManager implements Project {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final Names names;
     private final SourceDirectory sourceDirectory;
     private Manifest manifest;
 
@@ -71,7 +70,6 @@ public class SourceDirectoryManager implements Project {
         // This has to be further refactored with ProjectAPI Implementation
         context.put(PROJECT_KEY, this);
 
-        this.names = Names.getInstance(context);
         this.options = CompilerOptions.getInstance(context);
 
         // Check whether the compilation is initiated by the project API.

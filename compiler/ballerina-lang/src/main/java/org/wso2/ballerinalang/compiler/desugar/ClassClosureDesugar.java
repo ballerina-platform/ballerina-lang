@@ -178,7 +178,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private final SymbolTable symTable;
     private final Desugar desugar;
-    private final Names names;
     private final BLangDiagnosticLog dlog;
 
     static {
@@ -197,7 +196,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         context.put(CLASS_CLOSURE_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
     }

@@ -167,9 +167,9 @@ public final class ASTBuilderUtil {
         target.stmts.add(index, stmt);
     }
 
-    static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name),
-                                         names.originalNameFromIdNode(variable.name),
+    static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol) {
+        variable.symbol = new BVarSymbol(0, Names.fromIdNode(variable.name),
+                                         Names.originalNameFromIdNode(variable.name),
                                          targetSymbol.pkgID, variable.getBType(), targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
@@ -628,7 +628,6 @@ public final class ASTBuilderUtil {
                                                         BLangExpression lhsExpr,
                                                         BType targetType,
                                                         BType type,
-                                                        Names names,
                                                         Location opSymPos) {
         final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
         assignableExpr.pos = pos;

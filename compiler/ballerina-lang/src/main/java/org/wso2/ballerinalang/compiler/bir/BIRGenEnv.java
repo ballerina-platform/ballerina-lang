@@ -85,14 +85,14 @@ class BIRGenEnv {
         return ++currentBBId;
     }
 
-    Name nextLocalVarId(Names names) {
+    Name nextLocalVarId() {
         currentLocalVarId++;
-        return names.merge(Names.BIR_LOCAL_VAR_PREFIX, Names.fromString(Integer.toString(currentLocalVarId)));
+        return Names.merge(Names.BIR_LOCAL_VAR_PREFIX, Names.fromString(Integer.toString(currentLocalVarId)));
     }
 
-    Name nextLambdaVarId(Names names) {
+    Name nextLambdaVarId() {
         currentLambdaVarId++;
-        return names.merge(Names.BIR_LOCAL_VAR_PREFIX, Names.fromString(Integer.toString(currentLambdaVarId)));
+        return Names.merge(Names.BIR_LOCAL_VAR_PREFIX, Names.fromString(Integer.toString(currentLambdaVarId)));
     }
 
     void clear() {

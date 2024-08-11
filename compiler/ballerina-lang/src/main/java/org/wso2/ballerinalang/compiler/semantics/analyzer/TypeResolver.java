@@ -143,7 +143,6 @@ public class TypeResolver {
     private static final CompilerContext.Key<TypeResolver> TYPE_RESOLVER_KEY = new CompilerContext.Key<>();
 
     private final SymbolTable symTable;
-    private final Names names;
     private final SymbolResolver symResolver;
     private final SymbolEnter symEnter;
     private final BLangDiagnosticLog dlog;
@@ -175,7 +174,6 @@ public class TypeResolver {
 
         this.symTable = SymbolTable.getInstance(context);
         this.symEnter = SymbolEnter.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
@@ -318,7 +316,7 @@ public class TypeResolver {
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
-            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
+            objType.fields.put(field.name.value, new BField(Names.fromIdNode(field.name), field.pos, field.symbol));
         }
     }
 
@@ -348,8 +346,8 @@ public class TypeResolver {
     public void defineClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
-        Name className = names.fromIdNode(classDefinition.name);
-        Name classOrigName = names.originalNameFromIdNode(classDefinition.name);
+        Name className = Names.fromIdNode(classDefinition.name);
+        Name classOrigName = Names.originalNameFromIdNode(classDefinition.name);
 
         BClassSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                 env.scope.owner, classDefinition.name.pos,
@@ -887,8 +885,8 @@ public class TypeResolver {
                     }
 
                     BLangSimpleVarRef sizeReference = (BLangSimpleVarRef) size;
-                    Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
-                    Name typeName = names.fromIdNode(sizeReference.variableName);
+                    Name pkgAlias = Names.fromIdNode(sizeReference.pkgAlias);
+                    Name typeName = Names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol =
                             symResolver.lookupMainSpaceSymbolInPackage(size.pos, symEnv, pkgAlias, typeName);
@@ -1155,8 +1153,8 @@ public class TypeResolver {
 
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
-            Name paramName = names.fromIdNode(param.name);
-            Name paramOrigName = names.originalNameFromIdNode(param.name);
+            Name paramName = Names.fromIdNode(param.name);
+            Name paramOrigName = Names.originalNameFromIdNode(param.name);
             if (paramName != Names.EMPTY) {
                 if (paramNames.contains(paramName.value)) {
                     dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
@@ -1194,7 +1192,7 @@ public class TypeResolver {
             BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
             restVariable.setBType(restType);
             restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
-                    names.fromIdNode(id), names.originalNameFromIdNode(id),
+                    Names.fromIdNode(id), Names.originalNameFromIdNode(id),
                     env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, BUILTIN);
             restVariable.symbol = restParam;
         }
@@ -1465,7 +1463,7 @@ public class TypeResolver {
 
             BIntersectionType immutableIntersectionType =
                     ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                            intersectionType.effectiveType, env, symTable, anonymousModelHelper, names,
+                            intersectionType.effectiveType, env, symTable, anonymousModelHelper,
                             new HashSet<>());
             intersectionType.effectiveType = immutableIntersectionType.effectiveType;
         }
@@ -1485,8 +1483,8 @@ public class TypeResolver {
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
         SymbolResolver.AnalyzerData analyzerData = new SymbolResolver.AnalyzerData(symEnv);
 
-        Name pkgAlias = names.fromIdNode(td.pkgAlias);
-        Name typeName = names.fromIdNode(td.typeName);
+        Name pkgAlias = Names.fromIdNode(td.pkgAlias);
+        Name typeName = Names.fromIdNode(td.typeName);
         BSymbol symbol = symTable.notFoundSymbol;
 
         // 1) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
@@ -1783,7 +1781,7 @@ public class TypeResolver {
     }
 
     public BType visitBuiltInTypeNode(BLangType typeNode, SymbolResolver.AnalyzerData data, TypeKind typeKind) {
-        Name typeName = names.fromTypeKind(typeKind);
+        Name typeName = Names.fromTypeKind(typeKind);
         BSymbol typeSymbol =
                 symResolver.lookupMemberSymbol(typeNode.pos, symTable.rootScope, data.env, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
@@ -1814,7 +1812,7 @@ public class TypeResolver {
 
         typeDefinition.setPrecedence(this.typePrecedence++);
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
-                names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
+                Names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
                 typeDefinition.name.pos, symEnter.getOrigin(typeDefinition.name.value));
         typeDefSymbol.markdownDocumentation =
                 symEnter.getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
@@ -1831,8 +1829,8 @@ public class TypeResolver {
 
         //todo remove after type ref introduced to runtime
         if (resolvedType.tsymbol.name == Names.EMPTY) {
-            resolvedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
-            resolvedType.tsymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
+            resolvedType.tsymbol.name = Names.fromIdNode(typeDefinition.name);
+            resolvedType.tsymbol.originalName = Names.originalNameFromIdNode(typeDefinition.name);
             resolvedType.tsymbol.flags |= typeDefSymbol.flags;
 
             resolvedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
@@ -1917,12 +1915,12 @@ public class TypeResolver {
         }
 
         BEnumSymbol enumSymbol = new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet),
-                names.fromIdNode(typeDefinition.name), names.fromIdNode(typeDefinition.name),
+                Names.fromIdNode(typeDefinition.name), Names.fromIdNode(typeDefinition.name),
                 env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                 typeDefinition.pos, SOURCE);
 
-        enumSymbol.name = names.fromIdNode(typeDefinition.name);
-        enumSymbol.originalName = names.fromIdNode(typeDefinition.name);
+        enumSymbol.name = Names.fromIdNode(typeDefinition.name);
+        enumSymbol.originalName = Names.fromIdNode(typeDefinition.name);
         enumSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
         enumSymbol.markdownDocumentation =
@@ -1953,8 +1951,8 @@ public class TypeResolver {
     public void resolveXMLNS(SymbolEnv symEnv, BLangXMLNS xmlnsNode) {
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            varRef.symbol = getSymbolOfVarRef(varRef.pos, symEnv, names.fromIdNode(varRef.pkgAlias),
-                            names.fromIdNode(varRef.variableName));
+            varRef.symbol = getSymbolOfVarRef(varRef.pos, symEnv, Names.fromIdNode(varRef.pkgAlias),
+                            Names.fromIdNode(varRef.variableName));
         }
         symEnter.defineXMLNS(symEnv, xmlnsNode);
     }
@@ -2045,12 +2043,12 @@ public class TypeResolver {
         }
 
         if (resolvedType.tag == TypeTags.FINITE) {
-            resolvedType.tsymbol.originalName = names.originalNameFromIdNode(constant.name);
+            resolvedType.tsymbol.originalName = Names.originalNameFromIdNode(constant.name);
         }
 
         // Get immutable type for the narrowed type.
         BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, resolvedType, symEnv,
-                symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper, names,
+                symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper,
                 new HashSet<>());
 
         // Fix the constant expr types due to tooling requirements.

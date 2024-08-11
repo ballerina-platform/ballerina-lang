@@ -250,7 +250,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private final Names names;
     private final Types types;
     private SymbolEnv env;
     private SymbolEnv queryEnv;
@@ -264,7 +263,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         context.put(QUERY_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
     }

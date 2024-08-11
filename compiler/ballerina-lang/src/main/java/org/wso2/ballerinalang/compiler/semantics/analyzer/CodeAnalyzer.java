@@ -294,7 +294,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
-    private final Names names;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -311,7 +310,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
     }
@@ -2020,7 +2018,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
         BSymbol receiver =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, Names.fromIdNode(asyncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
@@ -2111,7 +2109,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr, AnalyzerData data) {
         BSymbol receiver =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(syncSendExpr.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, Names.fromIdNode(syncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
@@ -2168,7 +2166,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Location workerReceivePos = workerReceiveNode.pos;
         validateActionParentNode(workerReceivePos, workerReceiveNode);
         BSymbol sender =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerReceiveNode.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, Names.fromIdNode(workerReceiveNode.workerIdentifier));
         if ((sender.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             sender = symTable.notFoundSymbol;
         }

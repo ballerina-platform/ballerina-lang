@@ -62,7 +62,6 @@ public class LargeMethodSplitter {
 
     private final Desugar desugar;
     private final SymbolTable symTable;
-    private final Names names;
     private final SymbolResolver symResolver;
 
     private static final CompilerContext.Key<LargeMethodSplitter> LARGE_METHOD_SPLITTER_KEY =
@@ -80,7 +79,6 @@ public class LargeMethodSplitter {
         context.put(LARGE_METHOD_SPLITTER_KEY, this);
         this.desugar = Desugar.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
     }
 
@@ -142,7 +140,7 @@ public class LargeMethodSplitter {
                 }
                 newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
+                symTable.rootScope.define(Names.fromIdNode(newFunc.name), newFunc.symbol);
             }
             newFuncBody.stmts.add(stmts.get(i));
         }
@@ -209,7 +207,7 @@ public class LargeMethodSplitter {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStartFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
+                symTable.rootScope.define(Names.fromIdNode(newFunc.name), newFunc.symbol);
             }
             newFuncBody.stmts.add(stmts.get(i));
         }
@@ -271,7 +269,7 @@ public class LargeMethodSplitter {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStopFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
+                symTable.rootScope.define(Names.fromIdNode(newFunc.name), newFunc.symbol);
             }
             newFuncBody.stmts.add(stmts.get(i));
         }

@@ -210,7 +210,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private BLangNode result;
     private Types types;
     private Desugar desugar;
-    private Names names;
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
@@ -233,7 +232,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;

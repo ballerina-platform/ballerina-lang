@@ -135,7 +135,6 @@ public class BIRPackageSymbolEnter {
     private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
-    private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final Types types;
     private BIRTypeReader typeReader;
@@ -167,7 +166,6 @@ public class BIRPackageSymbolEnter {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.types = Types.getInstance(context);
     }
@@ -1945,11 +1943,11 @@ public class BIRPackageSymbolEnter {
     private BType getEffectiveImmutableType(BType type) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type,
                 type.tsymbol.pkgID, type.tsymbol.owner,
-                symTable, null, names);
+                symTable, null);
     }
 
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type, pkgID, owner, symTable,
-                null, names);
+                null);
     }
 }

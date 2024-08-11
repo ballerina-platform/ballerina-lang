@@ -223,7 +223,6 @@ public class SymbolTable {
 
     public BPackageSymbol langRegexpModuleSymbol;
 
-    private Names names;
     private Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
@@ -241,7 +240,6 @@ public class SymbolTable {
     private SymbolTable(CompilerContext context) {
         context.put(SYM_TABLE_KEY, this);
 
-        this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
@@ -314,7 +312,7 @@ public class SymbolTable {
         }});
 
         this.anyAndReadonly =
-                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
+                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, this.types,
                                                                  rootPkgSymbol.pkgID);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 

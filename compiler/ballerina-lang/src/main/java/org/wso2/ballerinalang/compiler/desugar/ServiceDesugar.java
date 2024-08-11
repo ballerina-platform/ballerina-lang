@@ -76,7 +76,6 @@ public class ServiceDesugar {
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private final Names names;
     private DeclarativeAuthDesugar declarativeAuthDesugar;
     private TransactionDesugar transactionDesugar;
     private final Types types;
@@ -94,7 +93,6 @@ public class ServiceDesugar {
         context.put(SERVICE_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.names = Names.getInstance(context);
         this.declarativeAuthDesugar = DeclarativeAuthDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.types = Types.getInstance(context);
@@ -154,7 +152,7 @@ public class ServiceDesugar {
 
         final Location pos = service.pos;
 
-        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
+        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol);
         env.enclPkg.globalVars.add(service.serviceVariable);
 
         int count = 0;
@@ -169,7 +167,7 @@ public class ServiceDesugar {
                         .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.getBType(),
                                         attachExpr,
                                         null);
-                ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
+                ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol);
                 listenerVar.symbol.flags |= Flags.LISTENER;
                 env.enclPkg.globalVars.add(listenerVar);
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
@@ -184,7 +182,7 @@ public class ServiceDesugar {
                         getListenerTypeWithoutError(listenerVarRef.getBType()),
                         listenerCheckExpr,
                         null);
-                ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
+                ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol);
                 env.enclPkg.globalVars.add(listenerWithoutErrors);
                 BLangSimpleVarRef checkedRef = ASTBuilderUtil.createVariableRef(pos, listenerWithoutErrors.symbol);
                 listenerVarRef = checkedRef;

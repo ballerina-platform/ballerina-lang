@@ -51,7 +51,6 @@ public class SourceDirectoryManagerTest {
 
     @Test(description = "Return modules list should be equivalence to the expected module list")
     public void testListSourceFilesAndPackages() {
-        Names names = Names.getInstance(context);
         List<PackageID> expectedPackageIds = new ArrayList<>();
         expectedPackageIds.add(new PackageID(Names.fromString("abc"),
                                              Names.fromString("fruits"),
@@ -65,7 +64,6 @@ public class SourceDirectoryManagerTest {
     @Test(description = "Return module should be equivalence to the expected module")
     public void testGetPackageID() {
         PackageID fruits = directoryManager.getPackageID("fruits");
-        Names names = Names.getInstance(context);
         PackageID expectedPackageId = new PackageID(Names.fromString("abc"),
                                                     Names.fromString("fruits"),
                                                     Names.fromString("0.0.1"));
@@ -75,7 +73,6 @@ public class SourceDirectoryManagerTest {
     @Test(description = "Test if module exist in the project")
     public void testIsModuleExists() {
         Project project = context.get(Project.PROJECT_KEY);
-        Names names = Names.getInstance(context);
         PackageID expectedPackageId = new PackageID(Names.fromString("abc"),
                 Names.fromString("fruits"),
                 Names.fromString("0.0.1"));
@@ -97,7 +94,6 @@ public class SourceDirectoryManagerTest {
     @Test(description = "Test if get bala path")
     public void getBalaPath() throws InvalidModuleException {
         Project project = context.get(Project.PROJECT_KEY);
-        Names names = Names.getInstance(context);
         PackageID moduleId = new PackageID(Names.fromString("abc"),
                 Names.fromString("fruits"),
                 Names.fromString("0.0.1"));

@@ -167,7 +167,6 @@ public class Types {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
-    private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
@@ -200,7 +199,6 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.names = Names.getInstance(context);
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
@@ -5160,7 +5158,7 @@ public class Types {
                 }
 
                 return ImmutableTypeCloner.getEffectiveImmutableType(intersectionContext.pos, this, bType,
-                                                                     env, symTable, anonymousModelHelper, names);
+                                                                     env, symTable, anonymousModelHelper);
             }
         }
 
@@ -5308,7 +5306,7 @@ public class Types {
 
         if (isImmutable(type)) {
             return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, mapType, env, symTable,
-                    anonymousModelHelper, names);
+                    anonymousModelHelper);
         }
         return mapType;
     }
@@ -5319,7 +5317,7 @@ public class Types {
 
         if (isImmutable(type)) {
             return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, arrayType, env, symTable,
-                    anonymousModelHelper, names);
+                    anonymousModelHelper);
         }
         return arrayType;
     }

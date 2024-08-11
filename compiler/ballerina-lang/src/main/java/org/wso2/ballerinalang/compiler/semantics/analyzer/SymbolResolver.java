@@ -154,7 +154,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             new CompilerContext.Key<>();
 
     private final SymbolTable symTable;
-    private final Names names;
     private final BLangDiagnosticLog dlog;
     private final Types types;
 
@@ -179,7 +178,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         context.put(SYMBOL_RESOLVER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -1200,8 +1198,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     }
 
                     BLangSimpleVarRef sizeReference = (BLangSimpleVarRef) size;
-                    Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
-                    Name typeName = names.fromIdNode(sizeReference.variableName);
+                    Name pkgAlias = Names.fromIdNode(sizeReference.pkgAlias);
+                    Name typeName = Names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, data.env, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
@@ -1601,9 +1599,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
         BLangIdentifier pkgAliasIdentifier = userDefinedTypeNode.pkgAlias;
-        Name pkgAlias = names.fromIdNode(pkgAliasIdentifier);
+        Name pkgAlias = Names.fromIdNode(pkgAliasIdentifier);
         BLangIdentifier typeNameIdentifier = userDefinedTypeNode.typeName;
-        Name typeName = names.fromIdNode(typeNameIdentifier);
+        Name typeName = Names.fromIdNode(typeNameIdentifier);
         BSymbol symbol = symTable.notFoundSymbol;
         SymbolEnv env = data.env;
 
@@ -1769,7 +1767,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 }
 
                 if (defaultValueExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
-                    Name varName = names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
+                    Name varName = Names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
                     BSymbol typeRefSym = lookupSymbolInMainSpace(data.env, varName);
                     if (typeRefSym != symTable.notFoundSymbol) {
                         return new ParameterizedTypeInfo(typeRefSym.type, i);
@@ -2203,7 +2201,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public BType visitBuiltInTypeNode(BLangType typeNode, AnalyzerData data, TypeKind typeKind) {
-        Name typeName = names.fromTypeKind(typeKind);
+        Name typeName = Names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope, data.env, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, data.diagCode, typeName);
@@ -2395,7 +2393,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
         return ImmutableTypeCloner.getImmutableIntersectionType(intersectionTypeNode.pos, types,
                         potentialIntersectionType,
-                data.env, symTable, anonymousModelHelper, names, flagSet);
+                data.env, symTable, anonymousModelHelper, flagSet);
     }
 
     public BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,

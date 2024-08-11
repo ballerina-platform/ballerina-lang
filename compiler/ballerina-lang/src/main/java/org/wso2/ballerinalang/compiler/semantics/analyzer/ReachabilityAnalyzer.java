@@ -124,14 +124,12 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     private final TypeNarrower typeNarrower;
     private final Types types;
     private final BLangDiagnosticLog dlog;
-    private final Names names;
 
     private ReachabilityAnalyzer(CompilerContext context) {
         context.put(REACHABILITY_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
     }
@@ -883,7 +881,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             return;
         }
 
-        Name name = names.fromIdNode(varRef.variableName);
+        Name name = Names.fromIdNode(varRef.variableName);
         SymbolEnv loopEnv = data.loopAndDoClauseEnvs.peek();
         SymbolEnv currentEnv = data.env;
 
