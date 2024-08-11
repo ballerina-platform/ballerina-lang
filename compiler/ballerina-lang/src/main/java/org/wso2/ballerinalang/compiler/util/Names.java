@@ -25,8 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
  */
 public class Names {
 
-    public static final CompilerContext.Key<Names> NAMES_KEY =
-            new CompilerContext.Key<>();
+    public static final CompilerContext.Key<Names> NAMES_KEY = new CompilerContext.Key<>();
 
     public static final String STRING_SIGNED32 = "Signed32";
     public static final String STRING_SIGNED16 = "Signed16";
@@ -168,12 +167,12 @@ public class Names {
         this.context.put(NAMES_KEY, this);
     }
 
-    public Name fromIdNode(BLangIdentifier identifier) {
+    public static Name fromIdNode(BLangIdentifier identifier) {
         // identifier.value cannot be null
         return fromString(identifier.value);
     }
 
-    public Name originalNameFromIdNode(BLangIdentifier identifier) {
+    public static Name originalNameFromIdNode(BLangIdentifier identifier) {
         if (identifier.originalValue == null || identifier.value.equals(identifier.originalValue)) {
             return fromString(identifier.value);
         }
@@ -190,11 +189,11 @@ public class Names {
         return new Name(value);
     }
 
-    public Name fromTypeKind(TypeKind typeKind) {
+    public static Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
     }
 
-    public Name merge(Name... names) {
+    public static Name merge(Name... names) {
         StringBuilder builder = new StringBuilder();
         for (Name name : names) {
             builder.append(name.value);
