@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 10,
+    "character": 15
+  },
+  "source": "add_readonly10.bal",
+  "description": "Add readonly to a table value",
+  "expected": [
+    {
+      "title": "Add readonly to 'table<Row>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 23
+            },
+            "end": {
+              "line": 8,
+              "character": 23
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -90,3 +90,10 @@ class Qux {
         return;
     }
 }
+
+isolated function intFunc() returns int => 1;
+
+type Quux record {|
+    int i1 = check intFunc();
+    int[] i2 = check f1();
+|};

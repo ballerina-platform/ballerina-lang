@@ -43,6 +43,9 @@ public class Package {
     private Optional<CloudToml> cloudToml = Optional.empty();
     private Optional<CompilerPluginToml> compilerPluginToml = Optional.empty();
     private Optional<BalToolToml> balToolToml = Optional.empty();
+    private final Map<DocumentId, Resource> resources;
+    private final Map<DocumentId, Resource> testResources;
+    private final Function<DocumentId, Resource> populateResourceFunc;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -50,6 +53,10 @@ public class Package {
         this.moduleMap = new ConcurrentHashMap<>();
         this.populateModuleFunc = moduleId -> Module.from(
                 this.packageContext.moduleContext(moduleId), this);
+        this.resources = new ConcurrentHashMap<>();
+        this.testResources = new ConcurrentHashMap<>();
+        this.populateResourceFunc = documentId -> new Resource(
+                this.packageContext.resourceContext(documentId), this);
     }
 
     static Package from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -227,6 +234,24 @@ public class Package {
         }
         return this.packageMd;
     }
+
+    public Collection<DocumentId> resourceIds() {
+        return this.packageContext.resourceIds();
+    }
+
+    public Collection<DocumentId> testResourceIds() {
+        return this.packageContext.testResourceIds();
+    }
+
+    public Resource resource(DocumentId documentId) {
+        // TODO Should we throw an error if the documentId is not present
+        if (resourceIds().contains(documentId)) {
+            return this.resources.computeIfAbsent(documentId, this.populateResourceFunc);
+        } else {
+            return this.testResources.computeIfAbsent(documentId, this.populateResourceFunc);
+        }
+    }
+
 
     Package duplicate(Project project) {
         return new Package(packageContext.duplicate(project), project);
@@ -425,6 +450,8 @@ public class Package {
         private TomlDocumentContext compilerPluginTomlContext;
         private TomlDocumentContext balToolTomlContext;
         private MdDocumentContext packageMdContext;
+        private final Map<DocumentId, ResourceContext> resourceContextMap;
+        private final Map<DocumentId, ResourceContext> testResourceContextMap;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -440,6 +467,8 @@ public class Package {
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.balToolTomlContext = oldPackage.packageContext.balToolTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
+            resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
+            testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {
@@ -572,7 +601,6 @@ public class Package {
         }
 
 
-
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updatePackageManifest();
@@ -626,12 +654,13 @@ public class Package {
 
         private Package createNewPackage() {
             Package oldPackage = this.project.currentPackage();
-            PackageResolution oldResolution = oldPackage.getResolution();;
+            PackageResolution oldResolution = oldPackage.getResolution();
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
                     this.packageMdContext, this.compilationOptions, this.moduleContextMap,
-                    DependencyGraph.emptyGraph());
+                    DependencyGraph.emptyGraph(), this.resourceContextMap,
+                    this.testResourceContextMap);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             if (isOldDependencyGraphValid(oldPackage, this.project.currentPackage())) {
                 this.project.currentPackage().packageContext().getResolution(oldResolution);
@@ -734,9 +763,9 @@ public class Package {
 
         private void updateDependencyManifest() {
             DependencyManifestBuilder manifestBuilder = DependencyManifestBuilder.from(
-                     Optional.ofNullable(this.dependenciesTomlContext)
-                             .map(TomlDocumentContext::tomlDocument).orElse(null),
-                     project.currentPackage().descriptor());
+                    Optional.ofNullable(this.dependenciesTomlContext)
+                            .map(TomlDocumentContext::tomlDocument).orElse(null),
+                    project.currentPackage().descriptor());
             this.dependencyManifest = manifestBuilder.dependencyManifest();
         }
 
@@ -761,25 +790,64 @@ public class Package {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
-                Map<DocumentId, ResourceContext> resourceMap = new HashMap<>();
-                for (DocumentId documentId : oldModuleContext.resourceIds()) {
-                    resourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
-                }
-
-                Map<DocumentId, ResourceContext> testResourceMap = new HashMap<>();
-                for (DocumentId documentId : oldModuleContext.testResourceIds()) {
-                    testResourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
-                }
-
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
+                        oldModuleContext.moduleDescDependencies()));
                 // Remove the module with old PackageID from the compilation cache
                 PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)).
                         remove(oldModuleContext.descriptor().moduleCompilationId());
             }
             updateModules(moduleContextSet);
         }
+
+        private Map<DocumentId, ResourceContext> copyResources(Package oldPackage, Collection<DocumentId> documentIds) {
+            Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+            for (DocumentId documentId : documentIds) {
+                resourceContextMap.put(documentId, oldPackage.packageContext.resourceContext(documentId));
+            }
+            return resourceContextMap;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new resource to the new module.
+         *
+         * @param resourceConfig configurations to create the resource
+         * @return an instance of the Module.Modifier
+         */
+        public Package.Modifier addResource(ResourceConfig resourceConfig) {
+            ResourceContext newResourceContext = ResourceContext.from(resourceConfig);
+            this.resourceContextMap.put(newResourceContext.documentId(), newResourceContext);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new test resource to the new module.
+         *
+         * @param resourceConfig configurations to create the test resource
+         * @return an instance of the Module.Modifier
+         */
+        public Package.Modifier addTestResource(ResourceConfig resourceConfig) {
+            ResourceContext newResourceContext = ResourceContext.from(resourceConfig);
+            this.testResourceContextMap.put(newResourceContext.documentId(), newResourceContext);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and removes the specified resource from the new module.
+         *
+         * @param documentId documentId of the resource to remove
+         * @return an instance of the Module.Modifier
+         */
+        public Package.Modifier removeResource(DocumentId documentId) {
+
+            if (this.resourceContextMap.containsKey(documentId)) {
+                this.resourceContextMap.remove(documentId);
+            } else {
+                this.testResourceContextMap.remove(documentId);
+            }
+            return this;
+        }
+
     }
 }

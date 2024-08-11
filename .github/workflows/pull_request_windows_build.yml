@@ -51,9 +51,18 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
+
       - name: Build with Gradle
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :ballerina-cli:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 
