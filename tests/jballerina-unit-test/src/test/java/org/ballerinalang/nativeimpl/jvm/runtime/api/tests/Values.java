@@ -552,6 +552,6 @@ public class Values {
 
     public static void validateIsRemoteEnabled(Environment env) {
         Repository repository = env.getRepository();
-        Assert.assertTrue(repository.isRemoteEnabled());
+        Assert.assertTrue(repository.isRemoteManagementEnabled());
     }
 }
