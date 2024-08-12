@@ -724,7 +724,6 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 

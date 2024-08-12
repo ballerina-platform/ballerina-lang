@@ -370,9 +370,6 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
                 .addQuotationMarkToString(nativeTargetPath.toString())));
 
-        // Add resources
-        nativeArgs.add("-H:IncludeResources=" + getResourcesPath());
-
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
