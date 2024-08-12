@@ -43,7 +43,7 @@ public class RepositoryImpl implements Repository {
     private static final String nodeId = generateNodeId();
     private static String balHome;
     private static String balVersion;
-    private static boolean isRemoteEnabled = false;
+    private static boolean isRemoteManagementEnabled = false;
 
     @Override
     public List<Artifact> getArtifacts() {
@@ -73,8 +73,8 @@ public class RepositoryImpl implements Repository {
     }
 
     @Override
-    public boolean isRemoteEnabled() {
-        return isRemoteEnabled;
+    public boolean isRemoteManagementEnabled() {
+        return isRemoteManagementEnabled;
     }
 
     private Artifact createArtifact(ObjectValue service, ObjectValue listener) {
@@ -92,7 +92,7 @@ public class RepositoryImpl implements Repository {
     }
 
     public static void addServiceListener(BObject listener, BObject service, Object attachPoint) {
-        if (!isRemoteEnabled) {
+        if (!isRemoteManagementEnabled) {
             return;
         }
         BServiceType serviceType = (BServiceType) service.getType();
@@ -101,10 +101,11 @@ public class RepositoryImpl implements Repository {
         listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
     }
 
-    public static void addBallerinaRuntimeInformation(String balHome, String balVersion, boolean isRemoteEnabled) {
+    public static void addBallerinaRuntimeInformation(String balHome, String balVersion,
+                                                      boolean isRemoteManagementEnabled) {
         RepositoryImpl.balHome = balHome;
         RepositoryImpl.balVersion = balVersion;
-        RepositoryImpl.isRemoteEnabled = isRemoteEnabled;
+        RepositoryImpl.isRemoteManagementEnabled = isRemoteManagementEnabled;
     }
 
     private static String generateNodeId() {
