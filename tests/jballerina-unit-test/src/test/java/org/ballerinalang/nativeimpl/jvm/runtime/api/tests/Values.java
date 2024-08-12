@@ -550,7 +550,7 @@ public class Values {
         return StringUtils.fromString("balNode-" + node.nodeId);
     }
 
-    public static void validateIsRemoteEnabled(Environment env) {
+    public static void validateIsRemoteManagementEnabled(Environment env) {
         Repository repository = env.getRepository();
         Assert.assertTrue(repository.isRemoteManagementEnabled());
     }
