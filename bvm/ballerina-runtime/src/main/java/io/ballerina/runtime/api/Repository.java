@@ -41,5 +41,5 @@ public interface Repository {
      * Get whether remote management is enabled.
      * @return True if remote management is enabled, false otherwise.
      */
-    boolean isRemoteEnabled();
+    boolean isRemoteManagementEnabled();
 }
