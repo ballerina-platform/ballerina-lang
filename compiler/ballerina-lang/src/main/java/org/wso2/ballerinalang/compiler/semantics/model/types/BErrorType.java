@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
@@ -27,6 +28,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * Represents error type in Ballerina.
@@ -43,18 +49,21 @@ public class BErrorType extends BType implements ErrorType {
 
     public final Env env;
     public int distinctId = -1;
+    private final DistinctIdSupplier distinctIdSupplier;
 
     public BErrorType(Env env, BTypeSymbol tSymbol, BType detailType) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.detailType = detailType;
         this.typeIdSet = BTypeIdSet.emptySet();
         this.env = env;
+        this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     public BErrorType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.ERROR, tSymbol, Flags.READONLY);
         this.typeIdSet = BTypeIdSet.emptySet();
         this.env = env;
+        this.distinctIdSupplier = new DistinctIdSupplier(env);
     }
 
     @Override
@@ -89,22 +98,41 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public SemType semType() {
-        SemType err;
+        return distinctIdWrapper(semTypeInner());
+    }
+
+    SemType distinctIdWrapper(SemType semTypeInner) {
+        return distinctIdSupplier.get().stream().map(SemTypes::errorDistinct).reduce(semTypeInner, Core::intersect);
+    }
+
+    private SemType semTypeInner() {
         if (detailType == null || detailType.semType() == null) {
             // semtype will be null for semantic error
-            err = PredefinedType.ERROR;
+            return PredefinedType.ERROR;
         } else {
             SemType detail = detailType.semType();
-            err = SemTypes.errorDetail(detail);
+            return SemTypes.errorDetail(detail);
+        }
+    }
+
+    private final class DistinctIdSupplier implements Supplier<List<Integer>> {
+
+        private List<Integer> ids = null;
+        private static final Map<BTypeIdSet.BTypeId, Integer> allocatedIds = new ConcurrentHashMap<>();
+        private final Env env;
+
+        private DistinctIdSupplier(Env env) {
+            this.env = env;
         }
 
-        if (Symbols.isFlagOn(this.getFlags(), Flags.DISTINCT)) {
-            // this is to avoid creating a new ID every time calling this method
-            if (distinctId == -1) {
-                distinctId = env.distinctAtomCountGetAndIncrement();
+        public synchronized List<Integer> get() {
+            if (ids != null) {
+                return ids;
             }
-            err = SemTypes.intersect(SemTypes.errorDistinct(distinctId), err);
+            ids = typeIdSet.getAll().stream()
+                    .map(each -> allocatedIds.computeIfAbsent(each, (key) -> env.distinctAtomCountGetAndIncrement()))
+                    .toList();
+            return ids;
         }
-        return err;
     }
 }

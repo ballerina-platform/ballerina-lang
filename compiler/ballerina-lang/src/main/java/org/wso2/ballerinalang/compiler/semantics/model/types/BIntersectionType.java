@@ -23,6 +23,7 @@ import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -145,6 +146,12 @@ public class BIntersectionType extends BType implements IntersectionType {
         SemType t = PredefinedType.VAL;
         for (BType constituentType : this.getConstituentTypes()) {
             t = SemTypes.intersect(t, SemTypeHelper.semTypeComponent(constituentType));
+        }
+
+        // TODO: this is a temporary workaround to propagate effective typeIds
+        BType referredType = Types.getReferredType(this.effectiveType);
+        if (referredType instanceof BErrorType effErr) {
+            t = effErr.distinctIdWrapper(t);
         }
         return t;
     }
