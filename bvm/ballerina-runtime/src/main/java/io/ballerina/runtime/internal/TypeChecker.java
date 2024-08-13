@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -37,6 +38,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BBooleanType;
@@ -77,6 +79,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
@@ -119,6 +122,7 @@ public final class TypeChecker {
     private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
     private static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
+    private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -415,68 +419,103 @@ public final class TypeChecker {
             return false;
         }
 
-        Type lhsType = getImpliedType(getType(lhsValue));
-        Type rhsType = getImpliedType(getType(rhsValue));
-
-        return switch (lhsType.getTag()) {
-            case TypeTags.FLOAT_TAG -> {
-                if (rhsType.getTag() != TypeTags.FLOAT_TAG) {
-                    yield false;
-                }
-                yield lhsValue.equals(((Number) rhsValue).doubleValue());
-            }
-            case TypeTags.DECIMAL_TAG -> {
-                if (rhsType.getTag() != TypeTags.DECIMAL_TAG) {
-                    yield false;
-                }
-                yield checkDecimalExactEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
-            }
-            case TypeTags.INT_TAG,
-                 TypeTags.BYTE_TAG,
-                 TypeTags.BOOLEAN_TAG,
-                 TypeTags.STRING_TAG -> isEqual(lhsValue, rhsValue);
-            case TypeTags.XML_TAG,
-                 TypeTags.XML_COMMENT_TAG,
-                 TypeTags.XML_ELEMENT_TAG,
-                 TypeTags.XML_PI_TAG,
-                 TypeTags.XML_TEXT_TAG -> {
-                if (!TypeTags.isXMLTypeTag(rhsType.getTag())) {
-                    yield false;
-                }
-                yield FallbackTypeChecker.isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
-            }
-            case TypeTags.HANDLE_TAG -> {
-                if (rhsType.getTag() != TypeTags.HANDLE_TAG) {
-                    yield false;
-                }
-                yield isHandleValueRefEqual(lhsValue, rhsValue);
-            }
-            case TypeTags.FUNCTION_POINTER_TAG -> lhsType.getPackage().equals(rhsType.getPackage()) &&
-                    lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
-            default -> {
-                if (lhsValue instanceof RegExpValue lhsRegExpValue && rhsValue instanceof RegExpValue) {
-                    yield lhsRegExpValue.equals(rhsValue, new HashSet<>());
-                }
-                yield false;
-            }
-        };
+        Context cx = context();
+        SemType lhsType = widenedType(cx, lhsValue);
+        SemType rhsType = widenedType(cx, rhsValue);
+        if (isSimpleBasicSemType(lhsType)) {
+            return isSimpleBasicValuesEqual(lhsValue, rhsValue);
+        }
+        Predicate<SemType> basicTypePredicate =
+                (basicType) -> Core.isSubType(cx, lhsType, basicType) && Core.isSubType(cx, rhsType, basicType);
+        if (basicTypePredicate.test(Builder.stringType())) {
+            return isEqual(lhsValue, rhsValue);
+        }
+        if (basicTypePredicate.test(Builder.xmlType())) {
+            return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+        }
+        if (basicTypePredicate.test(Builder.handleType())) {
+            return isHandleValueRefEqual(lhsValue, rhsValue);
+        }
+        if (basicTypePredicate.test(Builder.functionType())) {
+            return isFunctionPointerEqual(getImpliedType(getType(lhsValue)), getImpliedType(getType(rhsValue)));
+        }
+        if (basicTypePredicate.test(Builder.regexType())) {
+            RegExpValue lhsReg = (RegExpValue) lhsValue;
+            RegExpValue rhsReg = (RegExpValue) rhsValue;
+            return lhsReg.equals(rhsReg, new HashSet<>());
+        }
+        // Other types have storage identity so == test should have passed
+        return false;
     }
 
-    private static boolean isReferenceEqualNew(Object lhsValue, Object rhsValue) {
-        if (lhsValue == rhsValue) {
-            return true;
-        }
+    static boolean isXMLValueRefEqual(XmlValue lhsValue, XmlValue rhsValue) {
+        boolean isLhsXmlSequence = lhsValue.getNodeType() == XmlNodeType.SEQUENCE;
+        boolean isRhsXmlSequence = rhsValue.getNodeType() == XmlNodeType.SEQUENCE;
 
-        // if one is null, the other also needs to be null to be true
-        if (lhsValue == null || rhsValue == null) {
+        if (isLhsXmlSequence && isRhsXmlSequence) {
+            return isXMLSequenceRefEqual((XmlSequence) lhsValue, (XmlSequence) rhsValue);
+        }
+        if (isLhsXmlSequence && lhsValue.isSingleton()) {
+            return ((XmlSequence) lhsValue).getChildrenList().get(0) == rhsValue;
+        }
+        if (isRhsXmlSequence && rhsValue.isSingleton()) {
+            return ((XmlSequence) rhsValue).getChildrenList().get(0) == lhsValue;
+        }
+        if (lhsValue.getNodeType() != rhsValue.getNodeType()) {
+            return false;
+        }
+        if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
+            return isEqual(lhsValue, rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isXMLSequenceRefEqual(XmlSequence lhsValue, XmlSequence rhsValue) {
+        Iterator<BXml> lhsIter = lhsValue.getChildrenList().iterator();
+        Iterator<BXml> rhsIter = rhsValue.getChildrenList().iterator();
+        while (lhsIter.hasNext() && rhsIter.hasNext()) {
+            BXml l = lhsIter.next();
+            BXml r = rhsIter.next();
+            if (!(l == r || isXMLValueRefEqual((XmlValue) l, (XmlValue) r))) {
+                return false;
+            }
+        }
+        // lhs hasNext = false & rhs hasNext = false -> empty sequences, hence ref equal
+        // lhs hasNext = true & rhs hasNext = true would never reach here
+        // only one hasNext method returns true means sequences are of different sizes, hence not ref equal
+        return lhsIter.hasNext() == rhsIter.hasNext();
+    }
+
+    private static boolean isFunctionPointerEqual(Type lhsType, Type rhsType) {
+        return lhsType.getPackage().equals(rhsType.getPackage()) &&
+                lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
+    }
+
+    private static boolean isSimpleBasicValuesEqual(Object v1, Object v2) {
+        Context cx = context();
+        SemType v1Ty = widenedType(cx, v1);
+        if (!isSimpleBasicSemType(v1Ty)) {
             return false;
         }
 
-        Context cx = context();
-        Optional<SemType> lhsShape = Builder.shapeOf(cx, lhsValue);
-        Optional<SemType> rhsShape = Builder.shapeOf(cx, rhsValue);
-        assert lhsShape.isPresent() && rhsShape.isPresent();
-        return true;
+        SemType v2Ty = widenedType(cx, v2);
+        if (!isSimpleBasicSemType(v2Ty)) {
+            return false;
+        }
+
+        if (!Core.isSameType(cx, v1Ty, v2Ty)) {
+            return false;
+        }
+
+        if (Core.isSubType(cx, v1Ty, Builder.decimalType())) {
+            return checkDecimalExactEqual((DecimalValue) v1, (DecimalValue) v2);
+        }
+        if (Core.isSubType(cx, v1Ty, Builder.intType())) {
+            Number n1 = (Number) v1;
+            Number n2 = (Number) v2;
+            return n1.longValue() == n2.longValue();
+        }
+        return v1.equals(v2);
     }
 
     /**
@@ -1197,8 +1236,7 @@ public final class TypeChecker {
         if ((errors == null) || (errors.isEmpty())) {
             return ErrorUtils.createTypeCastError(value, targetType);
         } else {
-            return ErrorUtils.createTypeCastError(value, targetType,
-                    getErrorMessage(errors, FallbackTypeChecker.MAX_TYPECAST_ERROR_COUNT));
+            return ErrorUtils.createTypeCastError(value, targetType, getErrorMessage(errors, MAX_TYPECAST_ERROR_COUNT));
         }
     }
 
@@ -1209,7 +1247,13 @@ public final class TypeChecker {
 
     static boolean isSimpleBasicType(Type type) {
         Context cx = context();
-        return Core.isSubType(cx, Builder.from(cx, type), SIMPLE_BASIC_TYPE);
+        SemType semtype = Builder.from(cx, type);
+        return isSimpleBasicSemType(semtype);
+    }
+
+    static boolean isSimpleBasicSemType(SemType semType) {
+        Context cx = context();
+        return Core.isSubType(cx, semType, SIMPLE_BASIC_TYPE);
     }
 
     static boolean belongToSingleBasicTypeOrString(Type type) {
