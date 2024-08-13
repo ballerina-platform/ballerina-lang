@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.BasicTypeCode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -58,7 +57,6 @@ import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
-import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
@@ -105,8 +103,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
-import static io.ballerina.runtime.api.types.semtype.Core.B_TYPE_TOP;
-import static io.ballerina.runtime.api.types.semtype.Core.SEMTYPE_TOP;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 
@@ -277,12 +273,7 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = Builder.from(cx, getType(sourceVal));
-        return switch (isSubTypeInner(cx, sourceVal, sourceSemType, targetSemType)) {
-            case TRUE -> true;
-            case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(null, sourceVal, bTypePart(sourceSemType),
-                    bTypePart(targetSemType));
-        };
+        return isSubTypeInner(cx, sourceVal, sourceSemType, targetSemType);
     }
 
     /**
@@ -296,12 +287,7 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         Context cx = context();
-        return switch (isSubType(cx, sourceVal, sourceType, targetType)) {
-            case TRUE -> true;
-            case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(errors, sourceVal, bTypePart(cx, sourceType),
-                    bTypePart(cx, targetType));
-        };
+        return isSubType(cx, sourceVal, sourceType, targetType);
     }
 
     /**
@@ -508,33 +494,18 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
         Context cx = context();
-        return switch (isSubType(cx, sourceType, targetType)) {
-            case TRUE -> true;
-            case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(cx, sourceType), bTypePart(cx, targetType), null);
-        };
+        return isSubType(cx, sourceType, targetType);
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         Context cx = context();
-        return switch (isSubType(cx, sourceType, targetType)) {
-            case TRUE -> true;
-            case FALSE -> false;
-            case MAYBE -> FallbackTypeChecker.checkIsType(bTypePart(cx, sourceType), bTypePart(cx, targetType),
-                    unresolvedTypes);
-        };
+        return isSubType(cx, sourceType, targetType);
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         Context cx = context();
-        return switch (isSubType(cx, sourceVal, sourceType, targetType)) {
-            case TRUE -> true;
-            case FALSE -> false;
-            case MAYBE ->
-                    FallbackTypeChecker.checkIsType(sourceVal, bTypePart(cx, sourceType), bTypePart(cx, targetType),
-                    unresolvedTypes);
-        };
+        return isSubType(cx, sourceVal, sourceType, targetType);
     }
 
     /**
@@ -560,33 +531,24 @@ public final class TypeChecker {
 
     // Private methods
 
-    private enum TypeCheckResult {
-        TRUE,
-        FALSE,
-        MAYBE
-    }
-
-    private static TypeCheckResult isSubType(Context cx, Object sourceValue, Type source, Type target) {
-        TypeCheckResult result = isSubType(cx, source, target);
-        if (result != TypeCheckResult.FALSE) {
-            return result;
-        }
-        return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, source), Builder.from(cx, target));
-    }
-
-    private static TypeCheckResult isSubTypeWithShape(Context cx, Object sourceValue, SemType source, SemType target) {
-        TypeCheckResult result;
-        result = isSubTypeWithShapeInner(cx, sourceValue, target);
-        if (result == TypeCheckResult.MAYBE) {
-            if (Core.containsBasicType(source, B_TYPE_TOP)) {
-                return TypeCheckResult.MAYBE;
-            }
-            return TypeCheckResult.FALSE;
+    private static boolean isSubType(Context cx, Object sourceValue, Type source, Type target) {
+        boolean result = isSubType(cx, source, target);
+        if (!result) {
+            return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, source), Builder.from(cx, target));
         }
         return result;
     }
 
-    private static TypeCheckResult isSubType(Context cx, Type source, Type target) {
+    private static boolean isSubTypeWithShape(Context cx, Object sourceValue, SemType source, SemType target) {
+        Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
+        if (sourceSingletonType.isEmpty()) {
+            return false;
+        }
+        SemType singletonType = sourceSingletonType.get();
+        return isSubTypeInner(singletonType, target);
+    }
+
+    private static boolean isSubType(Context cx, Type source, Type target) {
         if (source instanceof ParameterizedType sourceParamType) {
             if (target instanceof ParameterizedType targetParamType) {
                 return isSubType(cx, sourceParamType.getParamValueType(), targetParamType.getParamValueType());
@@ -596,47 +558,17 @@ public final class TypeChecker {
         return isSubTypeInner(Builder.from(cx, source), Builder.from(cx, target));
     }
 
-    private static TypeCheckResult isSubTypeInner(Context cx, Object sourceValue, SemType source, SemType target) {
-        TypeCheckResult result = isSubTypeInner(source, target);
-        if (result != TypeCheckResult.FALSE) {
-            return result;
+    private static boolean isSubTypeInner(Context cx, Object sourceValue, SemType source, SemType target) {
+        boolean result = isSubTypeInner(source, target);
+        if (!result) {
+            return isSubTypeWithShape(cx, sourceValue, source, target);
         }
-        return isSubTypeWithShape(cx, sourceValue, source, target);
+        return true;
     }
 
-    private static TypeCheckResult isSubTypeWithShapeInner(Context cx, Object sourceValue, SemType target) {
-        Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
-        if (sourceSingletonType.isEmpty()) {
-            return fallbackToBTypeWithoutShape(sourceValue, target) ?
-                    TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
-        }
-        SemType singletonType = sourceSingletonType.get();
-        return isSubTypeInner(singletonType, target);
-    }
-
-    private static boolean fallbackToBTypeWithoutShape(Object sourceValue, SemType target) {
-        if (!Core.containsBasicType(target, B_TYPE_TOP)) {
-            return false;
-        }
-        return !(sourceValue instanceof FPValue);
-    }
-
-    private static TypeCheckResult isSubTypeInner(SemType source, SemType target) {
+    private static boolean isSubTypeInner(SemType source, SemType target) {
         Context cx = context();
-        if (!Core.containsBasicType(source, B_TYPE_TOP)) {
-            return Core.isSubType(cx, source, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
-        }
-        if (!Core.containsBasicType(target, B_TYPE_TOP)) {
-            if (Core.containsBasicType(source, Builder.objectType())) {
-                // This is a hack but since target defines the minimal it is fine
-                SemType sourcePureSemType = Core.intersect(source, SEMTYPE_TOP);
-                return Core.isSubType(cx, sourcePureSemType, target) ? TypeCheckResult.TRUE : TypeCheckResult.FALSE;
-            }
-            return TypeCheckResult.FALSE;
-        }
-        SemType sourcePureSemType = Core.intersect(source, SEMTYPE_TOP);
-        SemType targetPureSemType = Core.intersect(target, SEMTYPE_TOP);
-        return Core.isSubType(cx, sourcePureSemType, targetPureSemType) ? TypeCheckResult.MAYBE : TypeCheckResult.FALSE;
+        return Core.isSubType(cx, source, target);
     }
 
     private static SemType widenedType(Context cx, Object value) {
@@ -655,14 +587,6 @@ public final class TypeChecker {
         } else {
             return ((BValue) value).widenedType(cx);
         }
-    }
-
-    private static BType bTypePart(Context cx, Type t) {
-        return bTypePart(Builder.from(cx, t));
-    }
-
-    private static BType bTypePart(SemType t) {
-        return (BType) Core.subTypeData(t, BasicTypeCode.BT_B_TYPE);
     }
 
     public static boolean isInherentlyImmutableType(Type sourceType) {
