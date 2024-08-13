@@ -40,7 +40,7 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
     @Override
     default SemType widenedType(Context cx) {
-        SemType semType = Builder.from(cx, getType());
+        SemType semType = getType();
         return Core.intersect(semType, Builder.mappingType());
     }
 }

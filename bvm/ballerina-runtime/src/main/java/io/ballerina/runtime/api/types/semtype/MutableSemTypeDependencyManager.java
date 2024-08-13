@@ -19,7 +19,6 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.TypeChecker;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -56,6 +55,6 @@ public final class MutableSemTypeDependencyManager {
                     this.dependencies.computeIfAbsent(mutableTarget, (ignored) -> new ArrayList<>());
             dependencies.add(self);
         }
-        return Builder.from(TypeChecker.context(), target);
+        return target;
     }
 }

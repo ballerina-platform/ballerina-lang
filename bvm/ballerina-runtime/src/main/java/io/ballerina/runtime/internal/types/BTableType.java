@@ -33,7 +33,6 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -219,7 +218,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
         SemType constraintType = Builder.neverType();
         for (var value : table.values()) {
-            SemType valueShape = shapeSupplier.get(cx, value).orElse(Builder.from(cx, constraint));
+            SemType valueShape = shapeSupplier.get(cx, value).orElse(constraint);
             constraintType = Core.union(constraintType, valueShape);
         }
         return createSemTypeWithConstraint(constraintType);

@@ -129,14 +129,6 @@ public final class Builder {
         return SemType.from(1 << typeCode.code());
     }
 
-    // TODO: remove this method
-    public static SemType from(Context cx, Type type) {
-        if (type instanceof SemType semType) {
-            return semType;
-        }
-        throw new IllegalArgumentException("Unsupported type: " + type);
-    }
-
     public static SemType neverType() {
         return SemType.from(0);
     }
@@ -319,7 +311,7 @@ public final class Builder {
         } else if (object instanceof BMap mapValue) {
             return typeOfMap(cx, mapValue);
         } else if (object instanceof FPValue fpValue) {
-            return Optional.of(from(cx, fpValue.getType()));
+            return Optional.of(fpValue.getType());
         } else if (object instanceof BError errorValue) {
             return typeOfError(cx, errorValue);
         } else if (object instanceof AbstractObjectValue objectValue) {
