@@ -168,12 +168,12 @@ public final class BFloatSubType extends SubType {
         }
 
         @Override
-        boolean allowed() {
+        public boolean allowed() {
             return allowed;
         }
 
         @Override
-        Double[] values() {
+        public Double[] values() {
             return values;
         }
     }
