@@ -65,6 +65,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.TEST_MODE_ACTIVE;
 
 /**
  * Utils class for this package.
@@ -76,6 +77,8 @@ public class Utils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+    public static final boolean SET_TEST_MODE_ACTIVE = Boolean.parseBoolean(System.getenv(TEST_MODE_ACTIVE));
+
     private Utils() {
     }
 
@@ -447,13 +450,13 @@ public class Utils {
         private final RequestBody reqBody;
         private final String task;
         private final PrintStream out;
-    
+
         public ProgressRequestBody(RequestBody reqBody, String task, PrintStream out) {
             this.reqBody = reqBody;
             this.task = task;
             this.out = out;
         }
-    
+
         @Override
         public MediaType contentType() {
             return this.reqBody.contentType();
@@ -469,7 +472,7 @@ public class Utils {
             final long totalBytes = contentLength();
             long byteConverter;
             String unitName;
-    
+
             if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
                 byteConverter = 1;
                 unitName = " B";
@@ -480,7 +483,7 @@ public class Utils {
                 byteConverter = 1024 * 1024;
                 unitName = " MB";
             }
-    
+
             ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out,
                     ProgressBarStyle.ASCII, unitName, byteConverter);
             CountingSink countingSink = new CountingSink(sink, progressBar);
@@ -490,16 +493,16 @@ public class Utils {
             progressBar.close();
         }
     }
-    
+
     private static class CountingSink extends ForwardingSink {
         private long bytesWritten = 0;
         private final ProgressBar progressBar;
-    
+
         public CountingSink(Sink delegate, ProgressBar progressBar) {
             super(delegate);
             this.progressBar = progressBar;
         }
-        
+
         @Override
         public void write(Buffer source, long byteCount) throws IOException {
             super.write(source, byteCount);
