@@ -196,7 +196,7 @@ public class BInvokableType extends BType implements InvokableType {
                         FunctionQualifiers.from(env, Symbols.isFlagOn(getFlags(), Flags.ISOLATED),
                                 Symbols.isFlagOn(getFlags(), Flags.TRANSACTIONAL));
                 FunctionDefinition definition = new FunctionDefinition();
-                definition.define(env, PredefinedType.NEVER, PredefinedType.VAL, qualifiers);
+                return definition.define(env, PredefinedType.NEVER, PredefinedType.VAL, qualifiers);
             }
             return PredefinedType.FUNCTION;
         }
