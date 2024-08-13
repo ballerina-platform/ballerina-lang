@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ParameterizedType;
+import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -55,8 +56,6 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -111,6 +110,8 @@ public final class TypeChecker {
     private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
     private static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
+    private static final SemType NUMERIC_TYPE = createNumericType();
+    private static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
 
     public static Object checkCast(Object sourceVal, Type targetType) {
@@ -333,31 +334,32 @@ public final class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
-        // FIXME:
-        return sourceType == targetType || sourceType.equals(targetType);
+        return Core.isSameType(context(), sourceType, targetType);
     }
 
     public static Type getType(Object value) {
         if (value == null) {
             return TYPE_NULL;
         } else if (value instanceof Number number) {
-            if (value instanceof Double) {
-                return BFloatType.singletonType(number.doubleValue());
-            }
-            long numberValue =
-                    number instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : number.longValue();
-            if (value instanceof Long) {
-                return BIntegerType.singletonType(numberValue);
-            } else if (value instanceof Integer || value instanceof Byte) {
-                return BByteType.singletonType(numberValue);
-            }
+            return getNumberType(number);
         } else if (value instanceof Boolean booleanValue) {
             return BBooleanType.singletonType(booleanValue);
         } else if (value instanceof BObject bObject) {
             return bObject.getOriginalType();
         }
-
         return ((BValue) value).getType();
+    }
+
+    private static Type getNumberType(Number number) {
+        if (number instanceof Double) {
+            return BFloatType.singletonType(number.doubleValue());
+        }
+        long numberValue =
+                number instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : number.longValue();
+        if (number instanceof Integer || number instanceof Byte) {
+            return BByteType.singletonType(numberValue);
+        }
+        return BIntegerType.singletonType(numberValue);
     }
 
     /**
@@ -575,10 +577,13 @@ public final class TypeChecker {
                 lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
 
+    private static SemType createNumericType() {
+        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType())
+                .reduce(Builder.neverType(), Core::union);
+    }
+
     public static boolean isNumericType(Type type) {
-        // FIXME:
-        type = getImpliedType(type);
-        return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
+        return Core.isSubType(context(), type, NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {
@@ -621,37 +626,19 @@ public final class TypeChecker {
         }
     }
 
-    // FIXME:
-    public static boolean isInherentlyImmutableType(Type sourceType) {
-        sourceType = getImpliedType(sourceType);
-        if (belongToSingleBasicTypeOrString(sourceType)) {
-            return true;
-        }
-
-        switch (sourceType.getTag()) {
-            case TypeTags.XML_TEXT_TAG:
-            case TypeTags.FINITE_TYPE_TAG: // Assuming a finite type will only have members from simple basic types.
-            case TypeTags.READONLY_TAG:
-            case TypeTags.NULL_TAG:
-            case TypeTags.NEVER_TAG:
-            case TypeTags.ERROR_TAG:
-            case TypeTags.INVOKABLE_TAG:
-            case TypeTags.SERVICE_TAG:
-            case TypeTags.TYPEDESC_TAG:
-            case TypeTags.FUNCTION_POINTER_TAG:
-            case TypeTags.HANDLE_TAG:
-            case TypeTags.REG_EXP_TYPE_TAG:
-                return true;
-            case TypeTags.XML_TAG:
-                return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return isInherentlyImmutableType(((BTypeReferenceType) sourceType).getReferredType());
-            default:
-                return false;
-        }
+    private static SemType createInherentlyImmutableType() {
+        return Stream.of(createSimpleBasicType(), Builder.stringType(), Builder.errorType(), Builder.functionType(),
+                        Builder.typeDescType(), Builder.handleType(), Builder.xmlTextType(), Builder.xmlNeverType(),
+                        Builder.regexType())
+                .reduce(Builder.neverType(), Core::union);
     }
 
-    // FIXME:
+    public static boolean isInherentlyImmutableType(Type sourceType) {
+        // readonly part is there to match to old API
+        return
+                Core.isSubType(context(), sourceType, INHERENTLY_IMMUTABLE_TYPE) || sourceType instanceof ReadonlyType;
+    }
+
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
@@ -665,6 +652,7 @@ public final class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_PI_TAG:
+            case TypeTags.READONLY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
                 Type elementType = ((BArrayType) type).getElementType();

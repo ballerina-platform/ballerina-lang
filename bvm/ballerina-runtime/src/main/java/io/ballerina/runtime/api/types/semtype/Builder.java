@@ -113,7 +113,8 @@ public final class Builder {
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_TEXT));
     private static final ConcurrentLazySupplier<SemType> XML_PI = new ConcurrentLazySupplier<>(() ->
             XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_PI_RO | XmlUtils.XML_PRIMITIVE_PI_RW));
-
+    private static final ConcurrentLazySupplier<SemType> XML_NEVER = new ConcurrentLazySupplier<>(() ->
+            XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_NEVER));
     private static final PredefinedTypeEnv PREDEFINED_TYPE_ENV = PredefinedTypeEnv.getInstance();
     private static final BddNode LIST_SUBTYPE_THREE_ELEMENT = bddAtom(PREDEFINED_TYPE_ENV.atomListThreeElement());
     private static final BddNode LIST_SUBTYPE_THREE_ELEMENT_RO = bddAtom(PREDEFINED_TYPE_ENV.atomListThreeElementRO());
@@ -415,6 +416,10 @@ public final class Builder {
 
     public static SemType xmlTextType() {
         return XML_TEXT.get();
+    }
+
+    public static SemType xmlNeverType() {
+        return XML_NEVER.get();
     }
 
     public static SemType xmlPIType() {
