@@ -155,7 +155,7 @@ public final class BIntSubType extends SubType {
         return intSubTypeData.contains(n);
     }
 
-    static final class IntSubTypeData implements SubTypeData {
+    public static final class IntSubTypeData implements SubTypeData {
 
         final Range[] ranges;
 
@@ -165,6 +165,16 @@ public final class BIntSubType extends SubType {
 
         private IntSubTypeData(Range[] ranges) {
             this.ranges = ranges;
+        }
+
+        public List<Long> values() {
+            List<Long> values = new ArrayList<>();
+            for (Range range : ranges) {
+                for (long i = range.min; i <= range.max; i++) {
+                    values.add(i);
+                }
+            }
+            return values;
         }
 
         public long max() {

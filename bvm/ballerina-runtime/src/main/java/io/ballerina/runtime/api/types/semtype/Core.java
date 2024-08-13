@@ -20,22 +20,28 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
+import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BObjectSubType;
 import io.ballerina.runtime.internal.types.semtype.BStreamSubType;
 import io.ballerina.runtime.internal.types.semtype.BSubType;
 import io.ballerina.runtime.internal.types.semtype.BTableSubType;
 import io.ballerina.runtime.internal.types.semtype.BTypedescSubType;
 import io.ballerina.runtime.internal.types.semtype.DelegatedSubType;
+import io.ballerina.runtime.internal.types.semtype.EnumerableSubtypeData;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 import io.ballerina.runtime.internal.types.semtype.SubtypePair;
 import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_B_TYPE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_INT;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_LIST;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_STRING;
@@ -454,6 +460,93 @@ public final class Core {
             return Optional.empty();
         }
         return bddListAtomicType(env, (Bdd) getComplexSubtypeData(t, BT_LIST), listAtomicInner);
+    }
+
+    public static SemType floatToInt(SemType t) {
+        if (!containsBasicType(t, Builder.floatType())) {
+            return Builder.neverType();
+        }
+        return convertEnumerableNumericType(t, BT_FLOAT, Builder.intType(),
+                (floatValue) -> ((Double) floatValue).longValue(),
+                Builder::intConst);
+    }
+
+    public static SemType floatToDecimal(SemType t) {
+        if (!containsBasicType(t, Builder.floatType())) {
+            return Builder.neverType();
+        }
+        return convertEnumerableNumericType(t, BT_FLOAT, Builder.decimalType(),
+                (floatValue) -> BigDecimal.valueOf((Double) floatValue),
+                Builder::decimalConst);
+    }
+
+    public static SemType decimalToInt(SemType t) {
+        if (!containsBasicType(t, Builder.decimalType())) {
+            return Builder.neverType();
+        }
+        return convertEnumerableNumericType(t, BT_DECIMAL, Builder.intType(),
+                (decimalVal) -> ((BigDecimal) decimalVal).longValue(),
+                Builder::intConst);
+    }
+
+    public static SemType decimalToFloat(SemType t) {
+        if (!containsBasicType(t, Builder.decimalType())) {
+            return Builder.neverType();
+        }
+        return convertEnumerableNumericType(t, BT_DECIMAL, Builder.floatType(),
+                (decimalVal) -> ((BigDecimal) decimalVal).doubleValue(),
+                Builder::floatConst);
+    }
+
+    public static SemType intToFloat(SemType t) {
+        if (!containsBasicType(t, Builder.intType())) {
+            return Builder.neverType();
+        }
+        SubTypeData subTypeData = subTypeData(t, BT_INT);
+        if (subTypeData == AllOrNothing.NOTHING) {
+            return Builder.neverType();
+        }
+        if (subTypeData == AllOrNothing.ALL) {
+            return Builder.floatType();
+        }
+        BIntSubType.IntSubTypeData intSubTypeData = (BIntSubType.IntSubTypeData) subTypeData;
+        return intSubTypeData.values().stream().map(Builder::floatConst).reduce(Builder.neverType(), Core::union);
+    }
+
+    public static SemType intToDecimal(SemType t) {
+        if (!containsBasicType(t, Builder.intType())) {
+            return Builder.neverType();
+        }
+        SubTypeData subTypeData = subTypeData(t, BT_INT);
+        if (subTypeData == AllOrNothing.NOTHING) {
+            return Builder.neverType();
+        }
+        if (subTypeData == AllOrNothing.ALL) {
+            return Builder.decimalType();
+        }
+        BIntSubType.IntSubTypeData intSubTypeData = (BIntSubType.IntSubTypeData) subTypeData;
+        return intSubTypeData.values().stream().map(BigDecimal::new).map(Builder::decimalConst)
+                .reduce(Builder.neverType(), Core::union);
+    }
+
+    private static <E extends Comparable<E>, T extends Comparable<T>> SemType convertEnumerableNumericType(
+            SemType source, BasicTypeCode targetTypeCode, SemType topType,
+            Function<T, E> valueConverter, Function<E, SemType> semTypeCreator) {
+        SubTypeData subTypeData = subTypeData(source, targetTypeCode);
+        if (subTypeData == AllOrNothing.NOTHING) {
+            return Builder.neverType();
+        }
+        if (subTypeData == AllOrNothing.ALL) {
+            return topType;
+        }
+        assert subTypeData instanceof EnumerableSubtypeData;
+        EnumerableSubtypeData<T> enumerableSubtypeData = (EnumerableSubtypeData<T>) subTypeData;
+        SemType posType = Arrays.stream(enumerableSubtypeData.values()).map(valueConverter).distinct()
+                .map(semTypeCreator).reduce(Builder.neverType(), Core::union);
+        if (enumerableSubtypeData.allowed()) {
+            return posType;
+        }
+        return diff(topType, posType);
     }
 
     private static Optional<ListAtomicType> bddListAtomicType(Env env, Bdd bdd,

@@ -309,16 +309,22 @@ public final class TypeChecker {
         Optional<SemType> readonlyShape = Builder.readonlyShapeOf(cx, sourceValue);
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
-        if (Core.isSubType(cx, shape, Builder.from(cx, targetType))) {
-            return true;
-        }
+        SemType targetSemType = Builder.from(cx, targetType);
         if (allowNumericConversion) {
-            // FIXME: this should check against a union of target types
-            return FallbackTypeChecker.checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(),
-                    true, null);
+            targetSemType = appendNumericConversionTypes(targetSemType);
         }
-        // FIXME: parent -> address
-        return false;
+        return Core.isSubType(cx, shape, targetSemType);
+    }
+
+    private static SemType appendNumericConversionTypes(SemType semType) {
+        SemType result = semType;
+        result = Core.union(result, Core.intToFloat(semType));
+        result = Core.union(result, Core.intToDecimal(semType));
+        result = Core.union(result, Core.floatToInt(semType));
+        result = Core.union(result, Core.floatToDecimal(semType));
+        result = Core.union(result, Core.decimalToInt(semType));
+        result = Core.union(result, Core.decimalToFloat(semType));
+        return result;
     }
 
     /**
