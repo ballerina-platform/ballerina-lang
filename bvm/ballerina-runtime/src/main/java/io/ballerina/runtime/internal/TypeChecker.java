@@ -78,6 +78,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
@@ -106,6 +107,7 @@ public final class TypeChecker {
     private static final String REG_EXP_TYPENAME = "RegExp";
     private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
+    private static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -369,8 +371,18 @@ public final class TypeChecker {
      */
 
     public static boolean checkDecimalExactEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return FallbackTypeChecker.isDecimalRealNumber(lhsValue) && FallbackTypeChecker.isDecimalRealNumber(rhsValue)
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue)
                 && lhsValue.decimalValue().equals(rhsValue.decimalValue());
+    }
+
+    /**
+     * Checks if the given decimal number is a real number.
+     *
+     * @param decimalValue The decimal value being checked
+     * @return True if the decimal value is a real number.
+     */
+    static boolean isDecimalRealNumber(DecimalValue decimalValue) {
+        return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
     }
 
     /**
@@ -439,6 +451,23 @@ public final class TypeChecker {
         };
     }
 
+    private static boolean isReferenceEqualNew(Object lhsValue, Object rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        // if one is null, the other also needs to be null to be true
+        if (lhsValue == null || rhsValue == null) {
+            return false;
+        }
+
+        Context cx = context();
+        Optional<SemType> lhsShape = Builder.shapeOf(cx, lhsValue);
+        Optional<SemType> rhsShape = Builder.shapeOf(cx, rhsValue);
+        assert lhsShape.isPresent() && rhsShape.isPresent();
+        return true;
+    }
+
     /**
      * Get the typedesc of a value.
      *
@@ -450,7 +479,7 @@ public final class TypeChecker {
         if (type == null) {
             return null;
         }
-        if (FallbackTypeChecker.isSimpleBasicType(type)) {
+        if (belongToSingleBasicTypeOrString(type)) {
             return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
         if (value instanceof BRefValue bRefValue) {
@@ -505,7 +534,7 @@ public final class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return FallbackTypeChecker.isDecimalRealNumber(lhsValue) && FallbackTypeChecker.isDecimalRealNumber(rhsValue) &&
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                 lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
 
@@ -580,7 +609,7 @@ public final class TypeChecker {
 
     public static boolean isInherentlyImmutableType(Type sourceType) {
         sourceType = getImpliedType(sourceType);
-        if (FallbackTypeChecker.isSimpleBasicType(sourceType)) {
+        if (belongToSingleBasicTypeOrString(sourceType)) {
             return true;
         }
 
@@ -1160,6 +1189,27 @@ public final class TypeChecker {
             return ErrorUtils.createTypeCastError(value, targetType,
                     getErrorMessage(errors, FallbackTypeChecker.MAX_TYPECAST_ERROR_COUNT));
         }
+    }
+
+    private static SemType createSimpleBasicType() {
+        return Stream.of(Builder.nilType(), Builder.booleanType(), Builder.intType(), Builder.floatType(),
+                Builder.decimalType()).reduce(Builder.neverType(), Core::union);
+    }
+
+    static boolean isSimpleBasicType(Type type) {
+        Context cx = context();
+        return Core.isSubType(cx, Builder.from(cx, type), SIMPLE_BASIC_TYPE);
+    }
+
+    static boolean belongToSingleBasicTypeOrString(Type type) {
+        Context cx = context();
+        SemType semType = Builder.from(cx, type);
+        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.simpleOrStringType()) &&
+                !Core.isSubType(cx, semType, Builder.nilType());
+    }
+
+    private static boolean isSingleBasicType(SemType semType) {
+        return Integer.bitCount(semType.all()) + Integer.bitCount(semType.some()) == 1;
     }
 
     private TypeChecker() {

@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.api.values.PatternMatchableValue;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
@@ -320,7 +319,6 @@ public final class Builder {
         } else if (object instanceof BMap mapValue) {
             return typeOfMap(cx, mapValue);
         } else if (object instanceof FPValue fpValue) {
-            // TODO: this is a hack to support partial function types, remove when semtypes are fully implemented
             return Optional.of(from(cx, fpValue.getType()));
         } else if (object instanceof BError errorValue) {
             return typeOfError(cx, errorValue);
@@ -460,7 +458,8 @@ public final class Builder {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
-        SemType accum = unionOf(SIMPLE_OR_STRING, xmlType(), listDef.getSemType(env), mapDef.getSemType(env), tableTy);
+        SemType accum =
+                unionOf(simpleOrStringType(), xmlType(), listDef.getSemType(env), mapDef.getSemType(env), tableTy);
         listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
         mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
         context.anydataMemo = accum;
@@ -513,6 +512,10 @@ public final class Builder {
 
     public static BddNode listSubtypeTwoElement() {
         return LIST_SUBTYPE_TWO_ELEMENT;
+    }
+
+    public static SemType simpleOrStringType() {
+        return SIMPLE_OR_STRING;
     }
 
     private static final class IntTypeCache {
