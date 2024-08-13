@@ -283,7 +283,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public SemType widenedType(Context cx) {
-        SemType semType = Builder.from(cx, getType());
+        SemType semType = getType();
         return Core.intersect(semType, Builder.listType());
     }
 

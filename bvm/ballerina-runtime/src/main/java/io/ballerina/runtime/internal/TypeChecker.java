@@ -269,17 +269,16 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Context cx = context();
-        SemType targetSemType = Builder.from(cx, targetType);
-        SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetSemType);
+        SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetType);
         SemType valueBasicType = widenedType(cx, sourceVal);
         if (!Core.isSubtypeSimple(valueBasicType, targetBasicTypeUnion)) {
             return false;
         }
-        if (targetBasicTypeUnion == targetSemType) {
+        if (targetBasicTypeUnion == targetType) {
             return true;
         }
-        SemType sourceSemType = Builder.from(cx, getType(sourceVal));
-        return isSubTypeInner(cx, sourceVal, sourceSemType, targetSemType);
+        SemType sourceSemType = getType(sourceVal);
+        return Core.isSubType(context(), sourceSemType, targetType) || isSubTypeWithShape(cx, sourceVal, targetType);
     }
 
     /**
@@ -292,8 +291,7 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        Context cx = context();
-        return isSubType(cx, sourceVal, sourceType, targetType);
+        return isSubType(sourceType, targetType) || isSubTypeWithShape(context(), sourceVal, targetType);
     }
 
     /**
@@ -320,7 +318,7 @@ public final class TypeChecker {
         Optional<SemType> readonlyShape = Builder.readonlyShapeOf(cx, sourceValue);
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
-        SemType targetSemType = Builder.from(cx, targetType);
+        SemType targetSemType = targetType;
         if (allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
@@ -346,6 +344,7 @@ public final class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
+        // FIXME:
         return sourceType == targetType || sourceType.equals(targetType);
     }
 
@@ -567,14 +566,12 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        Context cx = context();
-        return isSubType(cx, sourceType, targetType);
+        return isSubType(sourceType, targetType);
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        Context cx = context();
-        return isSubType(cx, sourceType, targetType);
+        return isSubType(sourceType, targetType);
     }
 
     /**
@@ -590,6 +587,7 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
+        // FIXME:
         type = getImpliedType(type);
         return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
@@ -600,44 +598,20 @@ public final class TypeChecker {
 
     // Private methods
 
-    private static boolean isSubType(Context cx, Object sourceValue, Type source, Type target) {
-        boolean result = isSubType(cx, source, target);
-        if (!result) {
-            return isSubTypeWithShape(cx, sourceValue, Builder.from(cx, source), Builder.from(cx, target));
-        }
-        return result;
+    private static boolean isSubTypeWithShape(Context cx, Object sourceValue, SemType target) {
+        return Builder.shapeOf(cx, sourceValue)
+                .map(source -> Core.isSubType(context(), source, target))
+                .orElse(false);
     }
 
-    private static boolean isSubTypeWithShape(Context cx, Object sourceValue, SemType source, SemType target) {
-        Optional<SemType> sourceSingletonType = Builder.shapeOf(cx, sourceValue);
-        if (sourceSingletonType.isEmpty()) {
-            return false;
-        }
-        SemType singletonType = sourceSingletonType.get();
-        return isSubTypeInner(singletonType, target);
-    }
-
-    private static boolean isSubType(Context cx, Type source, Type target) {
+    private static boolean isSubType(Type source, Type target) {
         if (source instanceof ParameterizedType sourceParamType) {
             if (target instanceof ParameterizedType targetParamType) {
-                return isSubType(cx, sourceParamType.getParamValueType(), targetParamType.getParamValueType());
+                return isSubType(sourceParamType.getParamValueType(), targetParamType.getParamValueType());
             }
-            return isSubType(cx, sourceParamType.getParamValueType(), target);
+            return isSubType(sourceParamType.getParamValueType(), target);
         }
-        return isSubTypeInner(Builder.from(cx, source), Builder.from(cx, target));
-    }
-
-    private static boolean isSubTypeInner(Context cx, Object sourceValue, SemType source, SemType target) {
-        boolean result = isSubTypeInner(source, target);
-        if (!result) {
-            return isSubTypeWithShape(cx, sourceValue, source, target);
-        }
-        return true;
-    }
-
-    private static boolean isSubTypeInner(SemType source, SemType target) {
-        Context cx = context();
-        return Core.isSubType(cx, source, target);
+        return Core.isSubType(context(), source, target);
     }
 
     private static SemType widenedType(Context cx, Object value) {
@@ -658,6 +632,7 @@ public final class TypeChecker {
         }
     }
 
+    // FIXME:
     public static boolean isInherentlyImmutableType(Type sourceType) {
         sourceType = getImpliedType(sourceType);
         if (belongToSingleBasicTypeOrString(sourceType)) {
@@ -687,6 +662,7 @@ public final class TypeChecker {
         }
     }
 
+    // FIXME:
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
@@ -1304,12 +1280,6 @@ public final class TypeChecker {
                 Builder.decimalType()).reduce(Builder.neverType(), Core::union);
     }
 
-    static boolean isSimpleBasicType(Type type) {
-        Context cx = context();
-        SemType semtype = Builder.from(cx, type);
-        return isSimpleBasicSemType(semtype);
-    }
-
     static boolean isSimpleBasicSemType(SemType semType) {
         Context cx = context();
         return Core.isSubType(cx, semType, SIMPLE_BASIC_TYPE);
@@ -1317,9 +1287,8 @@ public final class TypeChecker {
 
     static boolean belongToSingleBasicTypeOrString(Type type) {
         Context cx = context();
-        SemType semType = Builder.from(cx, type);
-        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.simpleOrStringType()) &&
-                !Core.isSubType(cx, semType, Builder.nilType());
+        return isSingleBasicType(type) && Core.isSubType(cx, type, Builder.simpleOrStringType()) &&
+                !Core.isSubType(cx, type, Builder.nilType());
     }
 
     private static boolean isSingleBasicType(SemType semType) {

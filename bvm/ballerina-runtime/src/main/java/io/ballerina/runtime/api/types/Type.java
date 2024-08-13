@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -29,7 +30,7 @@ import io.ballerina.runtime.api.Module;
  *
  * @since 2.0.0
  */
-public interface Type {
+public interface Type extends SemType {
 
     // TODO: remove default implementations when standard library types are updated
     /**
