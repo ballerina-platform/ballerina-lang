@@ -398,7 +398,7 @@ public final class TypeConverter {
             if (inputValue == valueSpaceItem) {
                 return inputValueType;
             }
-            if (FallbackTypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
+            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, false)) {
                 return TypeChecker.getType(valueSpaceItem);
             }
         }
@@ -408,7 +408,7 @@ public final class TypeConverter {
 
         // if not we check whether it can be converted into a member of the finite type
         for (Object valueSpaceItem : finiteTypeValueSpace) {
-            if (FallbackTypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
+            if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
                 return TypeChecker.getType(valueSpaceItem);
             }
         }
