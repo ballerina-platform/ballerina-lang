@@ -313,7 +313,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
                 optionalField = false;
                 fieldType = shapeSupplier.get(cx, fieldValue);
             } else {
-                SemType fieldSemType = Builder.from(cx, fieldType(fieldName));
+                SemType fieldSemType = fieldType(fieldName);
                 assert !Core.containsBasicType(fieldSemType, Builder.bType());
                 fieldType = Optional.of(fieldSemType);
             }
@@ -329,7 +329,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
                 }
                 boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
                 boolean isReadonly = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-                SemType fieldType = Builder.from(cx, field.getFieldType());
+                SemType fieldType = field.getFieldType();
                 if (isReadonly && isOptional && value.get(StringUtils.fromString(name)) == null) {
                     fieldType = Builder.undef();
                 }
@@ -343,7 +343,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (readonly) {
             semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, neverType(), CELL_MUT_NONE);
         } else {
-            SemType rest = restFieldType != null ? Builder.from(cx, restFieldType) : neverType();
+            SemType rest = restFieldType != null ? restFieldType : neverType();
             assert !Core.containsBasicType(rest, Builder.bType());
             semTypePart = md.defineMappingTypeWrapped(env, fieldsArray, rest, CELL_MUT_LIMITED);
         }
