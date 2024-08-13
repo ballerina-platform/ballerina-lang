@@ -34,8 +34,6 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -65,7 +63,6 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.DecimalValueKind;
 import io.ballerina.runtime.internal.values.ErrorValue;
-import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
@@ -104,27 +101,6 @@ final class FallbackTypeChecker {
     static final byte MAX_TYPECAST_ERROR_COUNT = 20;
 
     private FallbackTypeChecker() {
-    }
-
-    static boolean checkIsType(List<String> errors, Object sourceVal, BType sourceType, BType targetType) {
-        if (TypeChecker.checkIsType(sourceVal, sourceType, targetType, null)) {
-            return true;
-        }
-
-        if (getImpliedType(sourceType).getTag() == TypeTags.XML_TAG && !targetType.isReadOnly()) {
-            XmlValue val = (XmlValue) sourceVal;
-            if (val.getNodeType() == XmlNodeType.SEQUENCE) {
-                return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(),
-                        false, null);
-            }
-        }
-
-        if (isMutable(sourceVal, sourceType)) {
-            return false;
-        }
-
-        return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false,
-                null);
     }
 
     @Deprecated
@@ -219,48 +195,6 @@ final class FallbackTypeChecker {
                             unresolvedTypes);
             default -> checkIsRecursiveType(sourceType, targetType,
                     unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
-        };
-    }
-
-    static boolean checkIsType(Object sourceVal, BType sourceBType, BType targetBType,
-                               List<TypeChecker.TypePair> unresolvedTypes) {
-        Type sourceType = getImpliedType(sourceBType);
-        Type targetType = getImpliedType(targetBType);
-
-        int sourceTypeTag = sourceType.getTag();
-        int targetTypeTag = targetType.getTag();
-
-        // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
-        // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
-        // e.g.,
-        //      const HUNDRED = 100;
-        //
-        //      type Foo record {
-        //          HUNDRED i;
-        //      };
-        //
-        //      type Bar record {
-        //          readonly string|int i;
-        //      };
-        //
-        // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
-        if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
-            return TypeChecker.checkIsType(sourceType, targetType);
-        }
-
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
-        }
-
-        if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
-            return false;
-        }
-
-        return switch (targetTypeTag) {
-            case TypeTags.ANY_TAG -> checkIsAnyType(sourceType);
-            case TypeTags.READONLY_TAG -> TypeChecker.isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
-            default -> checkIsRecursiveTypeOnValue(sourceVal, sourceType, targetType, sourceTypeTag,
-                    targetTypeTag, unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
         };
     }
 
@@ -565,17 +499,6 @@ final class FallbackTypeChecker {
         }
 
         return false;
-    }
-
-    static boolean isMutable(Object value, Type sourceType) {
-        // All the value types are immutable
-        sourceType = getImpliedType(sourceType);
-        if (value == null || sourceType.getTag() < TypeTags.NULL_TAG ||
-                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return false;
-        }
-
-        return !((BRefValue) value).isFrozen();
     }
 
     static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
@@ -1432,38 +1355,6 @@ final class FallbackTypeChecker {
         }
     }
 
-    static boolean checkIsRecursiveTypeOnValue(Object sourceVal, Type sourceType, Type targetType,
-                                               int sourceTypeTag, int targetTypeTag,
-                                               List<TypeChecker.TypePair> unresolvedTypes) {
-        switch (targetTypeTag) {
-            case TypeTags.ANYDATA_TAG:
-                if (sourceTypeTag == TypeTags.OBJECT_TYPE_TAG) {
-                    return false;
-                }
-                return checkRecordBelongsToAnydataType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes);
-            case TypeTags.MAP_TAG:
-                return checkIsMapType(sourceVal, sourceType, (BMapType) targetType, unresolvedTypes);
-            case TypeTags.JSON_TAG:
-                return checkIsMapType(sourceVal, sourceType,
-                        new BMapType(targetType.isReadOnly() ? TYPE_READONLY_JSON :
-                                TYPE_JSON), unresolvedTypes);
-            case TypeTags.RECORD_TYPE_TAG:
-                return checkIsRecordType(sourceVal, sourceType, (BRecordType) targetType, unresolvedTypes);
-            case TypeTags.UNION_TAG:
-                for (Type type : ((BUnionType) targetType).getMemberTypes()) {
-                    if (TypeChecker.checkIsType(sourceVal, sourceType, type, unresolvedTypes)) {
-                        return true;
-                    }
-                }
-                return false;
-            case TypeTags.OBJECT_TYPE_TAG:
-                return checkObjectEquivalency(sourceVal, sourceType, (BObjectType) targetType,
-                        unresolvedTypes);
-            default:
-                return false;
-        }
-    }
-
     private static boolean checkIsUnionType(Type sourceType, BUnionType targetType,
                                             List<TypeChecker.TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
@@ -1508,51 +1399,6 @@ final class FallbackTypeChecker {
             default:
                 return false;
         }
-    }
-
-    private static boolean checkIsMapType(Object sourceVal, Type sourceType, BMapType targetType,
-                                          List<TypeChecker.TypePair> unresolvedTypes) {
-        Type targetConstrainedType = targetType.getConstrainedType();
-        sourceType = getImpliedType(sourceType);
-        switch (sourceType.getTag()) {
-            case TypeTags.MAP_TAG:
-                return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
-                        unresolvedTypes);
-            case TypeTags.RECORD_TYPE_TAG:
-                return checkIsMapType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes,
-                        targetConstrainedType);
-            default:
-                return false;
-        }
-    }
-
-    private static boolean checkIsMapType(MapValue sourceVal, BRecordType sourceType,
-                                          List<TypeChecker.TypePair> unresolvedTypes,
-                                          Type targetConstrainedType) {
-        for (Field field : sourceType.getFields().values()) {
-            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
-                if (!TypeChecker.checkIsType(field.getFieldType(), targetConstrainedType, unresolvedTypes)) {
-                    return false;
-                }
-                continue;
-            }
-
-            BString name = StringUtils.fromString(field.getFieldName());
-
-            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL) && !sourceVal.containsKey(name)) {
-                continue;
-            }
-
-            if (!TypeChecker.checkIsLikeType(sourceVal.get(name), targetConstrainedType)) {
-                return false;
-            }
-        }
-
-        if (sourceType.sealed) {
-            return true;
-        }
-
-        return TypeChecker.checkIsType(sourceType.restFieldType, targetConstrainedType, unresolvedTypes);
     }
 
     private static boolean checkIsXMLType(Type sourceType, Type targetType,
@@ -1885,198 +1731,6 @@ final class FallbackTypeChecker {
         }
 
         return TypeChecker.checkIsType(constraintType, targetType.restFieldType, unresolvedTypes);
-    }
-
-    private static boolean checkRecordBelongsToAnydataType(MapValue sourceVal, BRecordType recordType,
-                                                           List<TypeChecker.TypePair> unresolvedTypes) {
-        Type targetType = TYPE_ANYDATA;
-        TypeChecker.TypePair pair = new TypeChecker.TypePair(recordType, targetType);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-        unresolvedTypes.add(pair);
-
-        Map<String, Field> fields = recordType.getFields();
-
-        for (Map.Entry<String, Field> fieldEntry : fields.entrySet()) {
-            String fieldName = fieldEntry.getKey();
-            Field field = fieldEntry.getValue();
-
-            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
-
-                if (SymbolFlags
-                        .isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL) && !sourceVal.containsKey(fieldNameBString)) {
-                    continue;
-                }
-
-                if (!TypeChecker.checkIsLikeType(sourceVal.get(fieldNameBString), targetType)) {
-                    return false;
-                }
-            } else {
-                if (!TypeChecker.checkIsType(field.getFieldType(), targetType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-        }
-
-        if (recordType.sealed) {
-            return true;
-        }
-
-        return TypeChecker.checkIsType(recordType.restFieldType, targetType, unresolvedTypes);
-    }
-
-    private static boolean checkIsRecordType(Object sourceVal, Type sourceType, BRecordType targetType,
-                                             List<TypeChecker.TypePair> unresolvedTypes) {
-        sourceType = getImpliedType(sourceType);
-        switch (sourceType.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                return checkIsRecordType((MapValue) sourceVal, (BRecordType) sourceType, targetType, unresolvedTypes);
-            case TypeTags.MAP_TAG:
-                return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
-            default:
-                return false;
-        }
-    }
-
-    private static boolean checkIsRecordType(MapValue sourceRecordValue, BRecordType sourceRecordType,
-                                             BRecordType targetType, List<TypeChecker.TypePair> unresolvedTypes) {
-        TypeChecker.TypePair pair = new TypeChecker.TypePair(sourceRecordType, targetType);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-        unresolvedTypes.add(pair);
-
-        // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
-        // vice-versa is allowed.
-        if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
-                getImpliedType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
-            return false;
-        }
-
-        // If both are sealed check the rest field type
-        if (!sourceRecordType.sealed && !targetType.sealed &&
-                !TypeChecker.checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
-            return false;
-        }
-
-        Map<String, Field> sourceFields = sourceRecordType.getFields();
-        Set<String> targetFieldNames = targetType.getFields().keySet();
-
-        for (Map.Entry<String, Field> targetFieldEntry : targetType.getFields().entrySet()) {
-            String fieldName = targetFieldEntry.getKey();
-            Field targetField = targetFieldEntry.getValue();
-            Field sourceField = sourceFields.get(fieldName);
-
-            if (getImpliedType(targetField.getFieldType()).getTag() == TypeTags.NEVER_TAG &&
-                    containsInvalidNeverField(sourceField, sourceRecordType)) {
-                return false;
-            }
-
-            if (sourceField == null) {
-                if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
-                    return false;
-                }
-
-                if (!sourceRecordType.sealed &&
-                        !TypeChecker.checkIsType(sourceRecordType.restFieldType, targetField.getFieldType(),
-                                unresolvedTypes)) {
-                    return false;
-                }
-
-                continue;
-            }
-
-            if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {
-                return false;
-            }
-
-            boolean optionalTargetField = SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL);
-            boolean optionalSourceField = SymbolFlags.isFlagOn(sourceField.getFlags(), SymbolFlags.OPTIONAL);
-
-            if (SymbolFlags.isFlagOn(sourceField.getFlags(), SymbolFlags.READONLY)) {
-                BString fieldNameBString = StringUtils.fromString(fieldName);
-
-                if (optionalSourceField && !sourceRecordValue.containsKey(fieldNameBString)) {
-                    if (!optionalTargetField) {
-                        return false;
-                    }
-                    continue;
-                }
-
-                if (!TypeChecker.checkIsLikeType(sourceRecordValue.get(fieldNameBString), targetField.getFieldType())) {
-                    return false;
-                }
-            } else {
-                if (!optionalTargetField && optionalSourceField) {
-                    return false;
-                }
-
-                if (!TypeChecker.checkIsType(sourceField.getFieldType(), targetField.getFieldType(), unresolvedTypes)) {
-                    return false;
-                }
-            }
-        }
-
-        if (targetType.sealed) {
-            for (String sourceFieldName : sourceFields.keySet()) {
-                if (targetFieldNames.contains(sourceFieldName)) {
-                    continue;
-                }
-
-                if (!checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
-                        sourceFields.get(sourceFieldName).getFieldType())) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        for (Map.Entry<String, Field> targetFieldEntry : sourceFields.entrySet()) {
-            String fieldName = targetFieldEntry.getKey();
-            Field field = targetFieldEntry.getValue();
-            if (targetFieldNames.contains(fieldName)) {
-                continue;
-            }
-
-            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
-                if (!TypeChecker.checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(fieldName)),
-                        targetType.restFieldType)) {
-                    return false;
-                }
-            } else if (!TypeChecker.checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean containsInvalidNeverField(Field sourceField, BRecordType sourceRecordType) {
-        if (sourceField != null) {
-            return !containsNeverType(sourceField.getFieldType());
-        }
-        if (sourceRecordType.isSealed()) {
-            return true;
-        }
-        return !containsNeverType(sourceRecordType.getRestFieldType());
-    }
-
-    private static boolean containsNeverType(Type fieldType) {
-        fieldType = getImpliedType(fieldType);
-        int fieldTag = fieldType.getTag();
-        if (fieldTag == TypeTags.NEVER_TAG) {
-            return true;
-        }
-        if (fieldTag == TypeTags.UNION_TAG) {
-            List<Type> memberTypes = ((BUnionType) fieldType).getOriginalMemberTypes();
-            for (Type member : memberTypes) {
-                if (getImpliedType(member).getTag() == TypeTags.NEVER_TAG) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType,
