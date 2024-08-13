@@ -577,11 +577,6 @@ public final class TypeChecker {
         return isSubType(cx, sourceType, targetType);
     }
 
-    static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        Context cx = context();
-        return isSubType(cx, sourceVal, sourceType, targetType);
-    }
-
     /**
      * Check if two decimal values are equal in value.
      *
@@ -953,6 +948,64 @@ public final class TypeChecker {
                     true;
             default -> false;
         };
+    }
+
+    static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
+                                     boolean allowNumericConversion) {
+        Type valueSpaceItemType = getType(valueSpaceItem);
+        int sourceTypeTag = getImpliedType(sourceType).getTag();
+        int valueSpaceItemTypeTag = getImpliedType(valueSpaceItemType).getTag();
+        if (valueSpaceItemTypeTag > TypeTags.DECIMAL_TAG) {
+            return valueSpaceItemTypeTag == sourceTypeTag &&
+                    (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
+        }
+
+        switch (sourceTypeTag) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                switch (valueSpaceItemTypeTag) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
+                    case TypeTags.FLOAT_TAG:
+                        return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue() &&
+                                allowNumericConversion;
+                    case TypeTags.DECIMAL_TAG:
+                        return ((Number) sourceValue).longValue() == ((DecimalValue) valueSpaceItem).intValue() &&
+                                allowNumericConversion;
+                }
+            case TypeTags.FLOAT_TAG:
+                switch (valueSpaceItemTypeTag) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue()
+                                && allowNumericConversion;
+                    case TypeTags.FLOAT_TAG:
+                        return (((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue() ||
+                                (Double.isNaN((Double) sourceValue) && Double.isNaN((Double) valueSpaceItem)));
+                    case TypeTags.DECIMAL_TAG:
+                        return ((Number) sourceValue).doubleValue() == ((DecimalValue) valueSpaceItem).floatValue()
+                                && allowNumericConversion;
+                }
+            case TypeTags.DECIMAL_TAG:
+                switch (valueSpaceItemTypeTag) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue,
+                                DecimalValue.valueOf(((Number) valueSpaceItem).longValue())) && allowNumericConversion;
+                    case TypeTags.FLOAT_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue,
+                                DecimalValue.valueOf(((Number) valueSpaceItem).doubleValue())) &&
+                                allowNumericConversion;
+                    case TypeTags.DECIMAL_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue, (DecimalValue) valueSpaceItem);
+                }
+            default:
+                if (sourceTypeTag != valueSpaceItemTypeTag) {
+                    return false;
+                }
+                return valueSpaceItem.equals(sourceValue);
+        }
     }
 
     /**
