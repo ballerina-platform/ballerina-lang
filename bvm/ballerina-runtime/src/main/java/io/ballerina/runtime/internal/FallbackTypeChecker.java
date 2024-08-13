@@ -263,16 +263,6 @@ final class FallbackTypeChecker {
         };
     }
 
-    /**
-     * Checks if the given decimal number is a real number.
-     *
-     * @param decimalValue The decimal value being checked
-     * @return True if the decimal value is a real number.
-     */
-    static boolean isDecimalRealNumber(DecimalValue decimalValue) {
-        return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
-    }
-
     static boolean isFiniteTypeMatch(BFiniteType sourceType, Type targetType) {
         for (Object bValue : sourceType.valueSpace) {
             if (!TypeChecker.checkIsType(bValue, targetType)) {
@@ -1256,7 +1246,8 @@ final class FallbackTypeChecker {
                                                      boolean allowNumericConversion) {
         if (targetType.valueSpace.size() == 1) {
             Type valueType = getImpliedType(TypeChecker.getType(targetType.valueSpace.iterator().next()));
-            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+            if (!TypeChecker.belongToSingleBasicTypeOrString(valueType) &&
+                    valueType.getTag() != TypeTags.NULL_TAG) {
                 return checkIsLikeOnValue(null, sourceValue, sourceType, valueType, unresolvedValues,
                         allowNumericConversion, null);
             }
