@@ -251,12 +251,12 @@ public final class BStringSubType extends SubType {
         }
 
         @Override
-        boolean allowed() {
+        public boolean allowed() {
             return allowed;
         }
 
         @Override
-        String[] values() {
+        public String[] values() {
             return values;
         }
     }

@@ -156,12 +156,12 @@ public final class BDecimalSubType extends SubType {
         }
 
         @Override
-        boolean allowed() {
+        public boolean allowed() {
             return allowed;
         }
 
         @Override
-        BigDecimal[] values() {
+        public BigDecimal[] values() {
             return values;
         }
     }

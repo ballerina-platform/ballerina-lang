@@ -31,11 +31,11 @@ import java.util.List;
  * @param <E> type individual value in the subset
  * @since 2201.10.0
  */
-abstract class EnumerableSubtypeData<E extends Comparable<E>> {
+public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
 
-    abstract boolean allowed();
+    public abstract boolean allowed();
 
-    abstract E[] values();
+    public abstract E[] values();
 
     @Override
     public boolean equals(Object obj) {
