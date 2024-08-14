@@ -47,6 +47,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -287,7 +288,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value, boolean readonly) {
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
-        Map.Entry<?,?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
+        Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
         MappingDefinition md;
         if (readonly) {

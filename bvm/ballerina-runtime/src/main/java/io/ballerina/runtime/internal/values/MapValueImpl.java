@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -49,7 +50,6 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
-import io.ballerina.runtime.api.types.semtype.Definition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

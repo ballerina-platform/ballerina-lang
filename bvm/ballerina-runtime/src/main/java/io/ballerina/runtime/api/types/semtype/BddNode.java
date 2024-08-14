@@ -16,13 +16,13 @@ public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSim
         return this instanceof BddNodeSimple;
     }
 
-    abstract public Atom atom();
+    public abstract Atom atom();
 
-    abstract public Bdd left();
+    public abstract Bdd left();
 
-    abstract public Bdd middle();
+    public abstract Bdd middle();
 
-    abstract public Bdd right();
+    public abstract Bdd right();
 
     @Override
     public boolean equals(Object obj) {

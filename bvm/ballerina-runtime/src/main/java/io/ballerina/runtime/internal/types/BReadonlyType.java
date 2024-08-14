@@ -21,8 +21,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -30,40 +28,40 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 1.3.0
  */
-public class BReadonlyType extends BType implements ReadonlyType {
+public class BReadonlyType extends BSemTypeWrapper implements ReadonlyType {
 
     public BReadonlyType(String typeName, Module pkg) {
-        super(typeName, pkg, RefValue.class);
+        super(new BReadonlyTypeImpl(typeName, pkg), Builder.readonlyType());
     }
 
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return null;
-    }
+    private static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
-    }
+        private BReadonlyTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, RefValue.class);
+        }
 
-    @Override
-    public int getTag() {
-        return TypeTags.READONLY_TAG;
-    }
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
 
-    @Override
-    public boolean isNilable() {
-        return true;
-    }
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
+        @Override
+        public int getTag() {
+            return TypeTags.READONLY_TAG;
+        }
 
-    // TODO: this must be immutable semtype as well
-    @Override
-    public SemType createSemType() {
-        return Builder.readonlyType();
+        public boolean isNilable() {
+            return true;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

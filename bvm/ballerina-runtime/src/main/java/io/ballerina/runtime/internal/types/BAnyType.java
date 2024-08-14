@@ -38,11 +38,7 @@ import java.util.Optional;
  *
  * @since 0.995.0
  */
-public class BAnyType extends BType implements AnyType {
-
-    private final boolean readonly;
-    private IntersectionType immutableType;
-    private IntersectionType intersectionType = null;
+public class BAnyType extends BSemTypeWrapper implements AnyType {
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -50,65 +46,95 @@ public class BAnyType extends BType implements AnyType {
      * @param typeName string name of the type
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, RefValue.class);
-        this.readonly = readonly;
-
-        if (!readonly) {
-            BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
-                                                       immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
-        }
-    }
-
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return null;
-    }
-
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.ANY_TAG;
-    }
-
-    @Override
-    public boolean isNilable() {
-        return true;
-    }
-
-    @Override
-    public boolean isReadOnly() {
-        return this.readonly;
-    }
-
-    @Override
-    public IntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void setImmutableType(IntersectionType immutableType) {
-        this.immutableType = immutableType;
+        super(new BAnyTypeImpl(typeName, pkg, readonly), pickSemType(readonly));
     }
 
     @Override
     public Optional<IntersectionType> getIntersectionType() {
-        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+        return ((BAnyTypeImpl) this.bType).getIntersectionType();
     }
 
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
+        ((BAnyTypeImpl) this.bType).setIntersectionType(intersectionType);
     }
 
     @Override
-    public SemType createSemType() {
+    public Type getReferredType() {
+        return ((BAnyTypeImpl) this.bType).getReferredType();
+    }
+
+    @Override
+    public IntersectionType getImmutableType() {
+        return ((BAnyTypeImpl) this.bType).getImmutableType();
+    }
+
+    private static final class BAnyTypeImpl extends BType implements AnyType {
+
+        private final boolean readonly;
+        private IntersectionType immutableType;
+        private IntersectionType intersectionType = null;
+
+        private BAnyTypeImpl(String typeName, Module pkg, boolean readonly) {
+            super(typeName, pkg, RefValue.class);
+            this.readonly = readonly;
+
+            if (!readonly) {
+                BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
+                this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+                        immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
+            }
+        }
+
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.ANY_TAG;
+        }
+
+        public boolean isNilable() {
+            return true;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return this.readonly;
+        }
+
+        @Override
+        public IntersectionType getImmutableType() {
+            return this.immutableType;
+        }
+
+        @Override
+        public void setImmutableType(IntersectionType immutableType) {
+            this.immutableType = immutableType;
+        }
+
+        @Override
+        public Optional<IntersectionType> getIntersectionType() {
+            return this.intersectionType == null ? Optional.empty() : Optional.of(this.intersectionType);
+        }
+
+        @Override
+        public void setIntersectionType(IntersectionType intersectionType) {
+            this.intersectionType = intersectionType;
+        }
+
+    }
+
+    private static SemType pickSemType(boolean readonly) {
         SemType semType = Builder.anyType();
-        if (isReadOnly()) {
+        if (readonly) {
             semType = Core.intersect(semType, Builder.readonlyType());
         }
         return semType;

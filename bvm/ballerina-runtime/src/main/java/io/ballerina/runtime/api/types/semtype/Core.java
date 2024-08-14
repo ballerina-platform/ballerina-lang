@@ -467,8 +467,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_FLOAT, Builder.intType(),
-                (floatValue) -> ((Double) floatValue).longValue(),
-                Builder::intConst);
+                (floatValue) -> ((Double) floatValue).longValue(), Builder::intConst);
     }
 
     public static SemType floatToDecimal(SemType t) {
@@ -476,8 +475,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_FLOAT, Builder.decimalType(),
-                (floatValue) -> BigDecimal.valueOf((Double) floatValue),
-                Builder::decimalConst);
+                (floatValue) -> BigDecimal.valueOf((Double) floatValue), Builder::decimalConst);
     }
 
     public static SemType decimalToInt(SemType t) {
@@ -485,8 +483,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_DECIMAL, Builder.intType(),
-                (decimalVal) -> ((BigDecimal) decimalVal).longValue(),
-                Builder::intConst);
+                (decimalVal) -> ((BigDecimal) decimalVal).longValue(), Builder::intConst);
     }
 
     public static SemType decimalToFloat(SemType t) {
@@ -494,8 +491,7 @@ public final class Core {
             return Builder.neverType();
         }
         return convertEnumerableNumericType(t, BT_DECIMAL, Builder.floatType(),
-                (decimalVal) -> ((BigDecimal) decimalVal).doubleValue(),
-                Builder::floatConst);
+                (decimalVal) -> ((BigDecimal) decimalVal).doubleValue(), Builder::floatConst);
     }
 
     public static SemType intToFloat(SemType t) {
@@ -530,8 +526,8 @@ public final class Core {
     }
 
     private static <E extends Comparable<E>, T extends Comparable<T>> SemType convertEnumerableNumericType(
-            SemType source, BasicTypeCode targetTypeCode, SemType topType,
-            Function<T, E> valueConverter, Function<E, SemType> semTypeCreator) {
+            SemType source, BasicTypeCode targetTypeCode, SemType topType, Function<T, E> valueConverter,
+            Function<E, SemType> semTypeCreator) {
         SubTypeData subTypeData = subTypeData(source, targetTypeCode);
         if (subTypeData == AllOrNothing.NOTHING) {
             return Builder.neverType();
@@ -539,18 +535,18 @@ public final class Core {
         if (subTypeData == AllOrNothing.ALL) {
             return topType;
         }
-        assert subTypeData instanceof EnumerableSubtypeData;
+        //noinspection unchecked - it's a enumerable type
         EnumerableSubtypeData<T> enumerableSubtypeData = (EnumerableSubtypeData<T>) subTypeData;
-        SemType posType = Arrays.stream(enumerableSubtypeData.values()).map(valueConverter).distinct()
-                .map(semTypeCreator).reduce(Builder.neverType(), Core::union);
+        SemType posType =
+                Arrays.stream(enumerableSubtypeData.values()).map(valueConverter).distinct().map(semTypeCreator)
+                        .reduce(Builder.neverType(), Core::union);
         if (enumerableSubtypeData.allowed()) {
             return posType;
         }
         return diff(topType, posType);
     }
 
-    private static Optional<ListAtomicType> bddListAtomicType(Env env, Bdd bdd,
-                                                              ListAtomicType top) {
+    private static Optional<ListAtomicType> bddListAtomicType(Env env, Bdd bdd, ListAtomicType top) {
         if (!(bdd instanceof BddNode bddNode)) {
             if (bdd.isAll()) {
                 return Optional.ofNullable(top);
