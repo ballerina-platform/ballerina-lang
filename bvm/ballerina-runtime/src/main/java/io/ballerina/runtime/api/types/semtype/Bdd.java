@@ -205,7 +205,7 @@ public abstract sealed class Bdd extends SubType implements SubTypeData permits 
             return left.bddUnion(right);
         }
 
-        return new BddNode(atom, left, middle, right);
+        return new BddNodeImpl(atom, left, middle, right);
     }
 
     @Override
