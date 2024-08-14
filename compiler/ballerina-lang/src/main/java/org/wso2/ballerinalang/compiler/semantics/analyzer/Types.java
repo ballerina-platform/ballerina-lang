@@ -879,9 +879,10 @@ public class Types {
 
         SemType semSource = SemTypeHelper.semTypeComponent(source, this.ignoreObjectTypeIds);
         SemType semTarget = SemTypeHelper.semTypeComponent(target, this.ignoreObjectTypeIds);
-        return SemTypes.isSubtype(semTypeCtx, semSource, semTarget) &&
-                isAssignableInternal(SemTypeHelper.bTypeComponent(source),
-                        SemTypeHelper.bTypeComponent(target), unresolvedTypes);
+        boolean subtype1 = SemTypes.isSubtype(semTypeCtx, semSource, semTarget);
+        boolean subtype2 = isAssignableInternal(SemTypeHelper.bTypeComponent(source),
+                SemTypeHelper.bTypeComponent(target), unresolvedTypes);
+        return subtype1;
     }
 
     private boolean isAssignableInternal(BType source, BType target, Set<TypePair> unresolvedTypes) {

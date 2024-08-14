@@ -3981,11 +3981,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> expandedCandidates = new ArrayList<>();
         if (referredType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) referredType).getMemberTypes()) {
-                if (types.isAssignable(memberType, symTable.errorType)) {
+                if (memberType.tag != TypeTags.SEMANTIC_ERROR && types.isAssignable(memberType, symTable.errorType)) {
                     expandedCandidates.add(memberType);
                 }
             }
-        } else if (types.isAssignable(candidateType, symTable.errorType)) {
+        } else if (candidateType.tag != TypeTags.SEMANTIC_ERROR &&
+                types.isAssignable(candidateType, symTable.errorType)) {
             expandedCandidates.add(candidateType);
         }
 
@@ -6467,7 +6468,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        boolean isErrorType = types.isAssignable(exprType, symTable.errorType);
+        boolean isErrorType = exprType.tag != TypeTags.SEMANTIC_ERROR &&
+                types.isAssignable(exprType, symTable.errorType);
         BType referredExprType = Types.getImpliedType(exprType);
         if (referredExprType.tag != TypeTags.UNION && !isErrorType) {
             if (referredExprType.tag == TypeTags.READONLY) {
@@ -8810,7 +8812,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
         BType actualType = symTable.semanticError;
 
-        if (types.isSubTypeOfMapping(varRefType)) {
+        if (varRefType == symTable.semanticError) {
+            indexBasedAccessExpr.indexExpr.setBType(symTable.semanticError);
+            return symTable.semanticError;
+        } else if (types.isSubTypeOfMapping(varRefType)) {
             checkExpr(indexExpr, symTable.stringType, data);
 
             if (indexExpr.getBType() == symTable.semanticError) {
@@ -8918,9 +8923,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             actualType = types.addNilForNillableAccessType(constraint);
             indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
                     types.getTypeWithoutNil(actualType);
-        } else if (varRefType == symTable.semanticError) {
-            indexBasedAccessExpr.indexExpr.setBType(symTable.semanticError);
-            return symTable.semanticError;
         } else {
             indexBasedAccessExpr.indexExpr.setBType(symTable.semanticError);
             dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS,

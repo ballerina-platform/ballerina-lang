@@ -912,7 +912,7 @@ public class QueryTypeChecker extends TypeChecker {
         orderByClause.env = data.commonAnalyzerData.queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env, data);
-            if (!types.isOrderedType(exprType, false)) {
+            if (exprType.tag != TypeTags.SEMANTIC_ERROR && !types.isOrderedType(exprType, false)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
         }

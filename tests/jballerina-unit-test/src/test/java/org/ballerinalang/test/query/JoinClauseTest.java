@@ -127,7 +127,6 @@ public class JoinClauseTest {
     
     @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 40);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 46, 13);
         validateError(negativeResult, i++, "undeclared field 'name' in record 'Person'", 51, 19);
@@ -167,9 +166,8 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 389, 59);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 389, 59);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 395, 22);
-        validateError(negativeResult, i++, "order by not supported for complex type fields, order key should belong" +
-                " to a basic type", 395, 22);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 397, 36);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

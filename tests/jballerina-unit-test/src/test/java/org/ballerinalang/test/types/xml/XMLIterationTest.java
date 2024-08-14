@@ -59,26 +59,17 @@ public class XMLIterationTest {
                 "expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns ()', " +
                 "found 'function ([int,xml,string]) returns ()'", 18, 19);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found 'xml:Element'",
-                29, 13);
-        BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Element' is not an iterable collection",
                 29, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Comment value; |}?', found " +
                         "'record {| xml:Element value; |}?'", 33, 54);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found 'xml:Comment'",
-                40, 13);
-        BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Comment' is not an iterable collection",
                 40, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Element value; |}?', found " +
                         "'record {| xml:Comment value; |}?'", 44, 54);
-        BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
-                51, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
                 51, 48);
@@ -92,14 +83,8 @@ public class XMLIterationTest {
                 "incompatible types: expected '(xml<xml:Element>|xml<xml:Text>)', found 'xml'",
                 60, 44);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                63, 13);
-        BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml:Element|xml:Text)' is not an iterable collection",
                 63, 44);
-        BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                68, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
                 68, 44);

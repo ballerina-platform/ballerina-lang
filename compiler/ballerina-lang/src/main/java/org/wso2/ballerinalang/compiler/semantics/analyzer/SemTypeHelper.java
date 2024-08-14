@@ -134,7 +134,11 @@ public final class SemTypeHelper {
             case TypeTags.ERROR:
             case TypeTags.TABLE:
             case TypeTags.SEQUENCE:
+            case TypeTags.NONE:
                 return t.semType();
+            case TypeTags.NULL_SET:
+            case TypeTags.SEMANTIC_ERROR:
+                return PredefinedType.NEVER;
             case TypeTags.UNION:
                 if (ignoreObjectTypeIds) {
                     return ((BUnionType) t).semTypeIgnoringTypeIds();
