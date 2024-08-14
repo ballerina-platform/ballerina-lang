@@ -321,7 +321,7 @@ public final class TypeChecker {
         assert readonlyShape.isPresent();
         SemType shape = readonlyShape.get();
         SemType targetSemType = targetType;
-        if (allowNumericConversion) {
+        if (Core.isSubType(context(), shape, NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
         return Core.isSubType(cx, shape, targetSemType);
@@ -329,8 +329,11 @@ public final class TypeChecker {
 
     private static SemType appendNumericConversionTypes(SemType semType) {
         SemType result = semType;
-        result = Core.union(result, Core.intToFloat(semType));
-        result = Core.union(result, Core.intToDecimal(semType));
+        // We can represent any int value as a float or a decimal. This is to avoid the overhead of creating
+        // enumerable semtypes for them
+        if (Core.containsBasicType(semType, Builder.intType())) {
+            result = Core.union(Core.union(Builder.decimalType(), Builder.floatType()), result);
+        }
         result = Core.union(result, Core.floatToInt(semType));
         result = Core.union(result, Core.floatToDecimal(semType));
         result = Core.union(result, Core.decimalToInt(semType));
