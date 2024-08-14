@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
+import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
@@ -36,7 +37,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  *
  * @since 0.995.0
  */
-public final class BDecimalType extends BSemTypeWrapper implements DecimalType {
+public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTypeImpl> implements DecimalType {
 
     private static final BDecimalTypeImpl DEFAULT_B_TYPE =
             new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
@@ -47,22 +48,24 @@ public final class BDecimalType extends BSemTypeWrapper implements DecimalType {
      * @param typeName string name of the type
      */
     public BDecimalType(String typeName, Module pkg) {
-        this(new BDecimalTypeImpl(typeName, pkg), Builder.decimalType());
+        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, Builder.decimalType());
     }
 
     public static BDecimalType singletonType(BigDecimal value) {
-        try {
-            return new BDecimalType((BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), Builder.decimalConst(value));
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new BDecimalType(() -> {
+            try {
+                return (BDecimalTypeImpl) DEFAULT_B_TYPE.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }, TypeConstants.DECIMAL_TNAME, Builder.decimalConst(value));
     }
 
-    private BDecimalType(BDecimalTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, SemType semType) {
+        super(bType, typeName, semType);
     }
 
-    private static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
+    protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
 
         private BDecimalTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, DecimalValue.class);

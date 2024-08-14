@@ -25,13 +25,15 @@ import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 /**
  * {@code BStringType} represents a String type in ballerina.
  *
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public final class BStringType extends BSemTypeWrapper implements StringType {
+public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeImpl> implements StringType {
 
     // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
     // dependencies.
@@ -44,23 +46,25 @@ public final class BStringType extends BSemTypeWrapper implements StringType {
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        this(new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), Builder.stringType());
+        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, Builder.stringType());
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
-        this(new BStringTypeImpl(typeName, pkg, tag), pickSemtype(tag));
+        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, pickSemtype(tag));
     }
 
-    private BStringType(BStringTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BStringType(Supplier<BStringTypeImpl> bType, String typeName, SemType semType) {
+        super(bType, typeName, semType);
     }
 
     public static BStringType singletonType(String value) {
-        try {
-            return new BStringType((BStringTypeImpl) DEFAULT_B_TYPE.clone(), Builder.stringConst(value));
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new BStringType(() -> {
+            try {
+                return (BStringTypeImpl) DEFAULT_B_TYPE.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }, TypeConstants.STRING_TNAME, Builder.stringConst(value));
     }
 
     private static SemType pickSemtype(int tag) {
@@ -71,7 +75,7 @@ public final class BStringType extends BSemTypeWrapper implements StringType {
         };
     }
 
-    private static final class BStringTypeImpl extends BType implements StringType, Cloneable {
+    protected static final class BStringTypeImpl extends BType implements StringType, Cloneable {
 
         private final int tag;
 

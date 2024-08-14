@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 
+import java.util.function.Supplier;
+
 // TODO: make this a sealed class with clearly defined extensions
 
 /**
@@ -32,39 +34,40 @@ import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
  *
  * @since 2201.10.0
  */
-public non-sealed class BSemTypeWrapper extends ImmutableSemType implements Type {
+public non-sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type {
 
     // FIXME: turn this to a lazy supplier to avoid intialization if not needed
-    protected final BType bType;
+    private E bType;
+    private final Supplier<E> bTypeSupplier;
     protected final String typeName; // Debugger uses this field to show the type name
 
-    BSemTypeWrapper(BType bType, SemType semType) {
+    BSemTypeWrapper(Supplier<E> bTypeSupplier, String typeName, SemType semType) {
         super(semType);
-        this.bType = bType;
-        this.typeName = bType.typeName;
+        this.bTypeSupplier = bTypeSupplier;
+        this.typeName = typeName;
     }
 
     public <V extends Object> Class<V> getValueClass() {
-        return bType.getValueClass();
+        return getbType().getValueClass();
     }
 
     public <V extends Object> V getZeroValue() {
-        return bType.getZeroValue();
+        return getbType().getZeroValue();
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return bType.getEmptyValue();
+        return getbType().getEmptyValue();
     }
 
     @Override
     public int getTag() {
-        return bType.getTag();
+        return getbType().getTag();
     }
 
     @Override
     public String toString() {
-        return bType.toString();
+        return getbType().toString();
     }
 
     @Override
@@ -72,98 +75,105 @@ public non-sealed class BSemTypeWrapper extends ImmutableSemType implements Type
         if (!(obj instanceof BSemTypeWrapper other)) {
             return false;
         }
-        return bType.equals(other.bType);
+        return getbType().equals(other.getbType());
     }
 
     @Override
     public boolean isNilable() {
-        return bType.isNilable();
+        return getbType().isNilable();
     }
 
     @Override
     public int hashCode() {
-        return bType.hashCode();
+        return getbType().hashCode();
     }
 
     @Override
     public String getName() {
-        return bType.getName();
+        return getbType().getName();
     }
 
     @Override
     public String getQualifiedName() {
-        return bType.getQualifiedName();
+        return getbType().getQualifiedName();
     }
 
     @Override
     public Module getPackage() {
-        return bType.getPackage();
+        return getbType().getPackage();
     }
 
     @Override
     public boolean isPublic() {
-        return bType.isPublic();
+        return getbType().isPublic();
     }
 
     @Override
     public boolean isNative() {
-        return bType.isNative();
+        return getbType().isNative();
     }
 
     // TODO: use semtype
     @Override
     public boolean isAnydata() {
-        return bType.isAnydata();
+        return getbType().isAnydata();
     }
 
     @Override
     public boolean isPureType() {
-        return bType.isPureType();
+        return getbType().isPureType();
     }
 
     // TODO: use semtype
     @Override
     public boolean isReadOnly() {
-        return bType.isReadOnly();
+        return getbType().isReadOnly();
     }
 
     @Override
     public Type getImmutableType() {
-        return bType.getImmutableType();
+        return getbType().getImmutableType();
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
-        bType.setImmutableType(immutableType);
+        getbType().setImmutableType(immutableType);
     }
 
     @Override
     public Module getPkg() {
-        return bType.getPkg();
+        return getbType().getPkg();
     }
 
     @Override
     public long getFlags() {
-        return bType.getFlags();
+        return getbType().getFlags();
     }
 
     @Override
     public void setCachedReferredType(Type type) {
-        bType.setCachedReferredType(type);
+        getbType().setCachedReferredType(type);
     }
 
     @Override
     public Type getCachedReferredType() {
-        return bType.getCachedReferredType();
+        return getbType().getCachedReferredType();
     }
 
     @Override
     public void setCachedImpliedType(Type type) {
-        bType.setCachedImpliedType(type);
+        getbType().setCachedImpliedType(type);
     }
 
     @Override
     public Type getCachedImpliedType() {
-        return bType.getCachedImpliedType();
+        return getbType().getCachedImpliedType();
+    }
+
+    protected synchronized E getbType() {
+        if (bType == null) {
+            bType = bTypeSupplier.get();
+        }
+        return bType;
     }
 }

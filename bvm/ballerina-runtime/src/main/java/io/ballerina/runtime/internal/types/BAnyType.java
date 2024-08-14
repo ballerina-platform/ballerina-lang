@@ -37,7 +37,7 @@ import java.util.Optional;
  *
  * @since 0.995.0
  */
-public class BAnyType extends BSemTypeWrapper implements AnyType {
+public class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements AnyType {
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -45,30 +45,30 @@ public class BAnyType extends BSemTypeWrapper implements AnyType {
      * @param typeName string name of the type
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
-        super(new BAnyTypeImpl(typeName, pkg, readonly), pickSemType(readonly));
+        super(() -> new BAnyTypeImpl(typeName, pkg, readonly), typeName, pickSemType(readonly));
     }
 
     @Override
     public Optional<IntersectionType> getIntersectionType() {
-        return ((BAnyTypeImpl) this.bType).getIntersectionType();
+        return this.getbType().getIntersectionType();
     }
 
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
-        ((BAnyTypeImpl) this.bType).setIntersectionType(intersectionType);
+        this.getbType().setIntersectionType(intersectionType);
     }
 
     @Override
     public Type getReferredType() {
-        return ((BAnyTypeImpl) this.bType).getReferredType();
+        return this.getbType().getReferredType();
     }
 
     @Override
     public IntersectionType getImmutableType() {
-        return ((BAnyTypeImpl) this.bType).getImmutableType();
+        return this.getbType().getImmutableType();
     }
 
-    private static final class BAnyTypeImpl extends BType implements AnyType {
+    protected static final class BAnyTypeImpl extends BType implements AnyType {
 
         private final boolean readonly;
         private IntersectionType immutableType;

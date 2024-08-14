@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.types.ByteType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 
@@ -33,7 +35,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
  *
  * @since 0.995.0
  */
-public final class BByteType extends BSemTypeWrapper implements ByteType {
+public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> implements ByteType {
 
     private static final BByteTypeImpl DEFAULT_B_TYPE = new BByteTypeImpl(TypeConstants.BYTE_TNAME, EMPTY_MODULE);
 
@@ -43,22 +45,24 @@ public final class BByteType extends BSemTypeWrapper implements ByteType {
      * @param typeName string name of the type
      */
     public BByteType(String typeName, Module pkg) {
-        this(new BByteTypeImpl(typeName, pkg), Builder.intRange(0, UNSIGNED8_MAX_VALUE));
+        this(() -> new BByteTypeImpl(typeName, pkg), typeName, Builder.intRange(0, UNSIGNED8_MAX_VALUE));
     }
 
-    private BByteType(BByteTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BByteType(Supplier<BByteTypeImpl> bTypeSupplier, String typeName, SemType semType) {
+        super(bTypeSupplier, typeName, semType);
     }
 
     public static BByteType singletonType(long value) {
-        try {
-            return new BByteType((BByteTypeImpl) DEFAULT_B_TYPE.clone(), Builder.intConst(value));
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new BByteType(() -> {
+            try {
+                return (BByteTypeImpl) DEFAULT_B_TYPE.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }, TypeConstants.BYTE_TNAME, Builder.intConst(value));
     }
 
-    private static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
+    protected static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
 
         private BByteTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, Integer.class);

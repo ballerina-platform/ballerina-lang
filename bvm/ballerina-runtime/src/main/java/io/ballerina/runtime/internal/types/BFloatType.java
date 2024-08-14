@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
 
 /**
@@ -33,7 +35,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.EMPTY_MODULE;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BSemTypeWrapper implements FloatType {
+public class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> implements FloatType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
@@ -41,18 +43,19 @@ public class BFloatType extends BSemTypeWrapper implements FloatType {
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        this(new BFloatTypeImpl(typeName, pkg), Builder.floatType());
+        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, Builder.floatType());
     }
 
-    private BFloatType(BFloatTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, SemType semType) {
+        super(bType, typeName, semType);
     }
 
     public static BFloatType singletonType(Double value) {
-        return new BFloatType(new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE), Builder.floatConst(value));
+        return new BFloatType(() -> new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE),
+                TypeConstants.FLOAT_TNAME, Builder.floatConst(value));
     }
 
-    private static final class BFloatTypeImpl extends BType implements FloatType {
+    protected static final class BFloatTypeImpl extends BType implements FloatType {
 
         private BFloatTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, Double.class);
