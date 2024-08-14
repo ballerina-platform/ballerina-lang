@@ -56,6 +56,7 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
                 xmlPatternChain);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLFilterExpressionNode(
                 this.expression,
@@ -78,6 +79,7 @@ public class STXMLFilterExpressionNode extends STXMLNavigateExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLFilterExpressionNode(this, position, parent);
     }

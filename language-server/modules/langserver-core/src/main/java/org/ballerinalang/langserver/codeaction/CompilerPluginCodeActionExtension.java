@@ -116,11 +116,10 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 })
                 .peek(codeActionResult -> {
                     // Log all the errors captured while calculating code actions
-                    codeActionResult.getErrors().forEach(ex -> {
+                    codeActionResult.getErrors().forEach(ex ->
                         clientLogger.logError(LSContextOperation.TXT_CODE_ACTION,
                                 "Exception thrown while getting code action: '%s'" + ex.getCodeActionName(),
-                                ex.getCause(), new TextDocumentIdentifier(context.fileUri()));
-                    });
+                                ex.getCause(), new TextDocumentIdentifier(context.fileUri())));
                 })
                 .flatMap(codeActionResult -> codeActionResult.getCodeActions().stream())
                 .map(codeActionInfo -> {

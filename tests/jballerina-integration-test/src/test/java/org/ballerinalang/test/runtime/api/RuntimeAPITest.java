@@ -60,7 +60,7 @@ public class RuntimeAPITest extends BaseTest {
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath, "RuntimeAPICall.java", "targetDir");
+        compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java", "RuntimeAPITestUtils.java");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
         Map<String, String> envProperties = new HashMap<>();
@@ -101,7 +101,7 @@ public class RuntimeAPITest extends BaseTest {
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath, "RuntimeAPICallNegative.java", "target-dir-negative");
+        compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java", "RuntimeAPITestUtils.java");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",
                 "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
@@ -128,48 +128,14 @@ public class RuntimeAPITest extends BaseTest {
             List<LogLeecher> leechers = new ArrayList<>();
             leechers.add(new LogLeecher("function 'add' is called before module initialization",
                     LogLeecher.LeecherType.ERROR));
-            addToServerInfoLogReader(serverInfoLogReader, leechers);
-            serverInfoLogReader.start();
-            bMainInstance.waitForLeechers(leechers, 5000);
-            runProcess.waitFor();
-            serverInfoLogReader.stop();
-            serverInfoLogReader.removeAllLeechers();
-        } catch (IOException | InterruptedException e) {
-            throw new BallerinaTestException("Error occurred while running the java file");
-        }
-    }
-
-    @Test
-    public void testModuleStartCallNegative() throws BallerinaTestException {
-        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
-                "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath, "ModuleStartCallNegative.java", "start-call-negative");
-        unzipJarFile(jarPath, "start-call-negative");
-        createExecutableJar("start-call-negative",
-                "org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
-
-        // Run the executable jar and assert the output
-        Path execJarPath = Paths.get(javaSrcLocation.toString(), "start-call-negative",
-                "test-exec.jar").toAbsolutePath();
-        List<String> runCmdSet = new ArrayList<>();
-        runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
-        runCmdSet.add("-jar");
-        runCmdSet.add(execJarPath.toString());
-        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
-        runProcessBuilder.redirectErrorStream(true);
-        try {
-            Process runProcess = runProcessBuilder.start();
-            ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
-            List<LogLeecher> leechers = new ArrayList<>();
-            leechers.add(new LogLeecher("'start' method is called before module initialization",
+            leechers.add(new LogLeecher("function 'start' is called before module initialization",
                     LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("function 'stop' is called before module initialization",
+                    LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("function 'init' has already been called", LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("function 'start' has already been called", LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("function 'stop' has already been called", LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("module 'testorg/non-exist:1' does not exist", LogLeecher.LeecherType.ERROR));
             addToServerInfoLogReader(serverInfoLogReader, leechers);
             serverInfoLogReader.start();
             bMainInstance.waitForLeechers(leechers, 5000);
@@ -189,7 +155,7 @@ public class RuntimeAPITest extends BaseTest {
         BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "start-call-negative").toFile());
     }
 
-    private static void compileJavaSource(Path jarPath, String srcFile, String targetDir)
+    private static void compileJavaSource(Path jarPath, String targetDir, String... srcFiles)
             throws BallerinaTestException {
         List<String> compileCmdSet = new ArrayList<>();
         compileCmdSet.add("javac");
@@ -197,7 +163,9 @@ public class RuntimeAPITest extends BaseTest {
         compileCmdSet.add(jarPath.toString());
         compileCmdSet.add("-d");
         compileCmdSet.add(targetDir);
-        compileCmdSet.add(Paths.get(javaSrcLocation.toString(), srcFile).toString());
+        for (String srcFile : srcFiles) {
+            compileCmdSet.add(Paths.get(javaSrcLocation.toString(), srcFile).toString());
+        }
         ProcessBuilder compile = new ProcessBuilder(compileCmdSet).directory(javaSrcLocation.toFile());
         try {
             Process process = compile.start();

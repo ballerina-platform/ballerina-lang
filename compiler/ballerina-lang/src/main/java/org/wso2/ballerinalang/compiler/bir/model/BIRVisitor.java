@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 
 /**
  * A BIR node visitor.

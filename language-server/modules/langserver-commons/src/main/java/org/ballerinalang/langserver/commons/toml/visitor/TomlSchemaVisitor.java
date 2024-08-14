@@ -168,7 +168,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
      * that represent properties of a particular document level node.
      * eg: TableNode(build-options) -> observability, cloud, etc.
      *
-     * @return {@link Map<TomlNode,Map<String,CompletionItem>} completion items map.
+     * @return {@link Map Map&lt;TomlNode,Map&lt;String,CompletionItem&gt;&gt;} completion items map.
      */
     public Map<TomlNode, Map<String, CompletionItem>> getAllCompletionSnippets() {
         return Collections.unmodifiableMap(removeTopLevelKeyCompletionItems(completions));
@@ -182,7 +182,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
      * Only platform.java17.dependency is valid.
      *
      * @param completions
-     * @return {@link Map<TomlNode,Map<String,CompletionItem>>} Optimized completion item map.
+     * @return {@link Map Map&lt;TomlNode,Map&lt;String,CompletionItem&gt;&gt;} Optimized completion item map.
      */
     protected Map<TomlNode, Map<String, CompletionItem>> removeTopLevelKeyCompletionItems(
             Map<TomlNode, Map<String, CompletionItem>> completions) {

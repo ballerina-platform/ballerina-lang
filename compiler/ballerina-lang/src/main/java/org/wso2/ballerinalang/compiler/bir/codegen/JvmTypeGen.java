@@ -70,13 +70,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.SemTypes.isSubtypeSimple;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -100,6 +100,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.removeDecimalDiscriminator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -372,151 +373,128 @@ public class JvmTypeGen {
             typeFieldName = "TYPE_NULL";
         } else {
             switch (bType.tag) {
-                case TypeTags.NEVER:
-                    typeFieldName = "TYPE_NEVER";
-                    break;
-                case TypeTags.INT:
-                    typeFieldName = "TYPE_INT";
-                    break;
-                case TypeTags.SIGNED32_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_32";
-                    break;
-                case TypeTags.SIGNED16_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_16";
-                    break;
-                case TypeTags.SIGNED8_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_8";
-                    break;
-                case TypeTags.UNSIGNED32_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_32";
-                    break;
-                case TypeTags.UNSIGNED16_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_16";
-                    break;
-                case TypeTags.UNSIGNED8_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_8";
-                    break;
-                case TypeTags.FLOAT:
-                    typeFieldName = "TYPE_FLOAT";
-                    break;
-                case TypeTags.STRING:
-                    typeFieldName = "TYPE_STRING";
-                    break;
-                case TypeTags.CHAR_STRING:
-                    typeFieldName = "TYPE_STRING_CHAR";
-                    break;
-                case TypeTags.DECIMAL:
-                    typeFieldName = "TYPE_DECIMAL";
-                    break;
-                case TypeTags.BOOLEAN:
-                    typeFieldName = "TYPE_BOOLEAN";
-                    break;
-                case TypeTags.BYTE:
-                    typeFieldName = "TYPE_BYTE";
-                    break;
-                case TypeTags.ANY:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANY" :
-                            "TYPE_ANY";
-                    break;
-                case TypeTags.ANYDATA:
-                case TypeTags.REGEXP:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
-                            "TYPE_ANYDATA";
-                    break;
-                case TypeTags.JSON:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_JSON" :
-                            "TYPE_JSON";
-                    break;
-                case TypeTags.XML:
+                case TypeTags.NEVER -> typeFieldName = "TYPE_NEVER";
+                case TypeTags.INT -> typeFieldName = "TYPE_INT";
+                case TypeTags.SIGNED32_INT -> typeFieldName = "TYPE_INT_SIGNED_32";
+                case TypeTags.SIGNED16_INT -> typeFieldName = "TYPE_INT_SIGNED_16";
+                case TypeTags.SIGNED8_INT -> typeFieldName = "TYPE_INT_SIGNED_8";
+                case TypeTags.UNSIGNED32_INT -> typeFieldName = "TYPE_INT_UNSIGNED_32";
+                case TypeTags.UNSIGNED16_INT -> typeFieldName = "TYPE_INT_UNSIGNED_16";
+                case TypeTags.UNSIGNED8_INT -> typeFieldName = "TYPE_INT_UNSIGNED_8";
+                case TypeTags.FLOAT -> typeFieldName = "TYPE_FLOAT";
+                case TypeTags.STRING -> typeFieldName = "TYPE_STRING";
+                case TypeTags.CHAR_STRING -> typeFieldName = "TYPE_STRING_CHAR";
+                case TypeTags.DECIMAL -> typeFieldName = "TYPE_DECIMAL";
+                case TypeTags.BOOLEAN -> typeFieldName = "TYPE_BOOLEAN";
+                case TypeTags.BYTE -> typeFieldName = "TYPE_BYTE";
+                case TypeTags.ANY ->
+                        typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANY" :
+
+                                "TYPE_ANY";
+                case TypeTags.ANYDATA, TypeTags.REGEXP ->
+                        typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
+                                "TYPE_ANYDATA";
+                case TypeTags.JSON ->
+                        typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_JSON" :
+
+                                "TYPE_JSON";
+                case TypeTags.XML -> {
                     loadXmlType(mv, (BXMLType) bType);
                     return;
-                case TypeTags.XML_ELEMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ELEMENT" :
-                            "TYPE_ELEMENT";
-                    break;
-                case TypeTags.XML_PI:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ?
-                            "TYPE_READONLY_PROCESSING_INSTRUCTION" : "TYPE_PROCESSING_INSTRUCTION";
-                    break;
-                case TypeTags.XML_COMMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_COMMENT" :
-                            "TYPE_COMMENT";
-                    break;
-                case TypeTags.XML_TEXT:
-                    typeFieldName = "TYPE_TEXT";
-                    break;
-                case TypeTags.TYPEDESC:
+                }
+                case TypeTags.XML_ELEMENT ->
+                        typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_ELEMENT" :
+                                "TYPE_ELEMENT";
+                case TypeTags.XML_PI -> typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ?
+                        "TYPE_READONLY_PROCESSING_INSTRUCTION" : "TYPE_PROCESSING_INSTRUCTION";
+                case TypeTags.XML_COMMENT ->
+                        typeFieldName = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? "TYPE_READONLY_COMMENT" :
+                                "TYPE_COMMENT";
+                case TypeTags.XML_TEXT -> typeFieldName = "TYPE_TEXT";
+                case TypeTags.TYPEDESC -> {
                     loadTypedescType(mv, (BTypedescType) bType);
                     return;
-                case TypeTags.OBJECT:
-                case TypeTags.RECORD:
+                }
+                case TypeTags.OBJECT, TypeTags.RECORD -> {
                     loadUserDefinedType(mv, bType);
                     return;
-                case TypeTags.HANDLE:
-                    typeFieldName = "TYPE_HANDLE";
-                    break;
-                case TypeTags.ARRAY:
+                }
+                case TypeTags.HANDLE -> typeFieldName = "TYPE_HANDLE";
+                case TypeTags.ARRAY -> {
                     jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
                     return;
-                case TypeTags.MAP:
+                }
+                case TypeTags.MAP -> {
                     loadMapType(mv, (BMapType) bType);
                     return;
-                case TypeTags.STREAM:
+                }
+                case TypeTags.STREAM -> {
                     loadStreamType(mv, (BStreamType) bType);
                     return;
-                case TypeTags.TABLE:
+                }
+                case TypeTags.TABLE -> {
                     loadTableType(mv, (BTableType) bType);
                     return;
-                case TypeTags.ERROR:
+                }
+                case TypeTags.ERROR -> {
                     loadErrorType(mv, (BErrorType) bType);
                     return;
-                case TypeTags.UNION:
+                }
+                case TypeTags.UNION -> {
                     BUnionType unionType = (BUnionType) bType;
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
                         jvmConstantsGen.generateGetBUnionType(mv,
-                                                              jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
+                                jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
                     }
                     return;
-                case TypeTags.INTERSECTION:
+                }
+                case TypeTags.INTERSECTION -> {
                     loadIntersectionType(mv, (BIntersectionType) bType);
                     return;
-                case TypeTags.INVOKABLE:
+                }
+                case TypeTags.INVOKABLE -> {
                     loadInvokableType(mv, (BInvokableType) bType);
                     return;
-                case TypeTags.NONE:
+                }
+                case TypeTags.NONE -> {
                     mv.visitInsn(ACONST_NULL);
                     return;
-                case TypeTags.TUPLE:
+                }
+                case TypeTags.TUPLE -> {
                     BTupleType tupleType = (BTupleType) bType;
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
                         jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType,
-                                                                                                      symbolTable));
+                                symbolTable));
                     }
                     return;
-                case TypeTags.FINITE:
+                }
+                case TypeTags.FINITE -> {
                     loadFiniteType(mv, (BFiniteType) bType);
                     return;
-                case TypeTags.FUTURE:
+                }
+                case TypeTags.FUTURE -> {
                     loadFutureType(mv, (BFutureType) bType);
                     return;
-                case TypeTags.READONLY:
-                    typeFieldName = "TYPE_READONLY";
-                    break;
-                case TypeTags.PARAMETERIZED_TYPE:
+                }
+                case TypeTags.READONLY -> typeFieldName = "TYPE_READONLY";
+                case TypeTags.PARAMETERIZED_TYPE -> {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
-                case TypeTags.TYPEREFDESC:
+                }
+                case TypeTags.TYPEREFDESC -> {
                     String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(bType.tsymbol.pkgID,
                             JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
                     mv.visitFieldInsn(GETSTATIC, typeOwner,
                             JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
                     return;
-                default:
+                }
+                default -> {
                     return;
+                }
             }
         }
 
@@ -528,53 +506,27 @@ public class JvmTypeGen {
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
         } else {
-            switch (bType.tag) {
-                case TypeTags.NEVER:
-                    return LOAD_NEVER_TYPE;
-                case TypeTags.INT:
-                case TypeTags.UNSIGNED8_INT:
-                case TypeTags.UNSIGNED16_INT:
-                case TypeTags.UNSIGNED32_INT:
-                case TypeTags.SIGNED8_INT:
-                case TypeTags.SIGNED16_INT:
-                case TypeTags.SIGNED32_INT:
-                    return LOAD_INTEGER_TYPE;
-                case TypeTags.FLOAT:
-                    return LOAD_FLOAT_TYPE;
-                case TypeTags.STRING:
-                case TypeTags.CHAR_STRING:
-                    return LOAD_STRING_TYPE;
-                case TypeTags.DECIMAL:
-                    return LOAD_DECIMAL_TYPE;
-                case TypeTags.BOOLEAN:
-                    return LOAD_BOOLEAN_TYPE;
-                case TypeTags.BYTE:
-                    return LOAD_BYTE_TYPE;
-                case TypeTags.ANY:
-                    return LOAD_ANY_TYPE;
-                case TypeTags.ANYDATA:
-                case TypeTags.REGEXP:
-                    return LOAD_ANYDATA_TYPE;
-                case TypeTags.JSON:
-                    return LOAD_JSON_TYPE;
-                case TypeTags.XML:
-                case TypeTags.XML_TEXT:
-                    return LOAD_XML_TYPE;
-                case TypeTags.XML_ELEMENT:
-                case TypeTags.XML_PI:
-                case TypeTags.XML_COMMENT:
-                    return Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
-                case TypeTags.OBJECT:
-                    return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
-                case TypeTags.HANDLE:
-                    return LOAD_HANDLE_TYPE;
-                case TypeTags.READONLY:
-                    return LOAD_READONLY_TYPE;
-                case TypeTags.UNION:
-                    return LOAD_UNION_TYPE;
-                default:
-                    return LOAD_TYPE;
-            }
+            return switch (bType.tag) {
+                case TypeTags.NEVER -> LOAD_NEVER_TYPE;
+                case TypeTags.INT, TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT,
+                     TypeTags.SIGNED8_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED32_INT -> LOAD_INTEGER_TYPE;
+                case TypeTags.FLOAT -> LOAD_FLOAT_TYPE;
+                case TypeTags.STRING, TypeTags.CHAR_STRING -> LOAD_STRING_TYPE;
+                case TypeTags.DECIMAL -> LOAD_DECIMAL_TYPE;
+                case TypeTags.BOOLEAN -> LOAD_BOOLEAN_TYPE;
+                case TypeTags.BYTE -> LOAD_BYTE_TYPE;
+                case TypeTags.ANY -> LOAD_ANY_TYPE;
+                case TypeTags.ANYDATA, TypeTags.REGEXP -> LOAD_ANYDATA_TYPE;
+                case TypeTags.JSON -> LOAD_JSON_TYPE;
+                case TypeTags.XML, TypeTags.XML_TEXT -> LOAD_XML_TYPE;
+                case TypeTags.XML_ELEMENT, TypeTags.XML_PI, TypeTags.XML_COMMENT ->
+                        Symbols.isFlagOn(bType.getFlags(), Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
+                case TypeTags.OBJECT -> Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
+                case TypeTags.HANDLE -> LOAD_HANDLE_TYPE;
+                case TypeTags.READONLY -> LOAD_READONLY_TYPE;
+                case TypeTags.UNION -> LOAD_UNION_TYPE;
+                default -> LOAD_TYPE;
+            };
         }
     }
 
@@ -586,7 +538,7 @@ public class JvmTypeGen {
      * @param bType typedesc type to load
      */
     private void loadTypedescType(MethodVisitor mv, BTypedescType bType) {
-        // Create an new map type
+        // Create a new map type
         mv.visitTypeInsn(NEW, TYPEDESC_TYPE_IMPL);
         mv.visitInsn(DUP);
 
@@ -605,7 +557,7 @@ public class JvmTypeGen {
      * @param bType map type to load
      */
     private void loadMapType(MethodVisitor mv, BMapType bType) {
-        // Create an new map type
+        // Create a new map type
         mv.visitTypeInsn(NEW, MAP_TYPE_IMPL);
         mv.visitInsn(DUP);
 
@@ -634,7 +586,7 @@ public class JvmTypeGen {
      * @param bType xml type to load
      */
     private void loadXmlType(MethodVisitor mv, BXMLType bType) {
-        // Create an new xml type
+        // Create a new xml type
         mv.visitTypeInsn(NEW, XML_TYPE_IMPL);
         mv.visitInsn(DUP);
 
@@ -655,7 +607,7 @@ public class JvmTypeGen {
      * @param bType table type to load
      */
     private void loadTableType(MethodVisitor mv, BTableType bType) {
-        // Create an new table type
+        // Create a new table type
         mv.visitTypeInsn(NEW, TABLE_TYPE_IMPL);
         mv.visitInsn(DUP);
 
@@ -691,7 +643,7 @@ public class JvmTypeGen {
     }
 
     private void loadStreamType(MethodVisitor mv, BStreamType bType) {
-        // Create an new stream type
+        // Create a new stream type
         mv.visitTypeInsn(NEW, STREAM_TYPE_IMPL);
         mv.visitInsn(DUP);
 
@@ -742,12 +694,8 @@ public class JvmTypeGen {
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
         valueType = JvmCodeGenUtil.getImpliedType(valueType);
         switch (valueType.tag) {
-            case TypeTags.UNION:
-                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TUPLE:
-                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
+            case TypeTags.UNION -> mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+            case TypeTags.TUPLE -> mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
         }
     }
 
@@ -790,22 +738,6 @@ public class JvmTypeGen {
         mv.visitEnd();
         methodVisitor.visitVarInsn(ALOAD, arrayIndex);
         methodVisitor.visitMethodInsn(INVOKESTATIC, className, curMethodName, SET_TYPE_ARRAY, false);
-    }
-
-    public void createUnionMembersArray(MethodVisitor mv, Set<BType> members) {
-        generateCreateNewArray(mv, members);
-        int i = 0;
-        for (BType memberType : members) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i++);
-            mv.visitInsn(L2I);
-
-            // Load the member type
-            loadType(mv, memberType);
-
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-        }
     }
 
     /**
@@ -894,7 +826,7 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
             mv.visitLdcInsn(hash);
-            mv.visitLdcInsn("Package: " + typeOwner + ", TypeName: " + fieldName + ", Shape: " + shape + "");
+            mv.visitLdcInsn("Package: " + typeOwner + ", TypeName: " + fieldName + ", Shape: " + shape);
             mv.visitMethodInsn(INVOKEVIRTUAL, typeOwner, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         } else {
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
@@ -959,7 +891,7 @@ public class JvmTypeGen {
             loadType(mv, restType);
         }
 
-        // load return type type
+        // load return type
         loadType(mv, bType.retType);
 
         mv.visitLdcInsn(bType.getFlags());
@@ -1071,49 +1003,25 @@ public class JvmTypeGen {
             return GET_REGEXP;
         }
 
-        switch (bType.tag) {
-            case TypeTags.BYTE:
-                return "I";
-            case TypeTags.FLOAT:
-                return "D";
-            case TypeTags.BOOLEAN:
-                return "Z";
-            case TypeTags.NIL:
-            case TypeTags.NEVER:
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-            case TypeTags.UNION:
-            case TypeTags.JSON:
-            case TypeTags.FINITE:
-            case TypeTags.READONLY:
-                return GET_OBJECT;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-                return GET_ARRAY_VALUE;
-            case TypeTags.ERROR:
-                return GET_ERROR_VALUE;
-            case TypeTags.FUTURE:
-                return GET_FUTURE_VALUE;
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return GET_MAP_VALUE;
-            case TypeTags.TYPEDESC:
-                return GET_TYPEDESC;
-            case TypeTags.STREAM:
-                return GET_STREAM_VALUE;
-            case TypeTags.TABLE:
-                return GET_TABLE_VALUE;
-            case TypeTags.DECIMAL:
-                return GET_BDECIMAL;
-            case TypeTags.OBJECT:
-                return GET_BOBJECT;
-            case TypeTags.HANDLE:
-                return GET_HANDLE_VALUE;
-            case TypeTags.INVOKABLE:
-                return GET_FUNCTION_POINTER;
-            default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
-        }
+        return switch (bType.tag) {
+            case TypeTags.BYTE -> "I";
+            case TypeTags.FLOAT -> "D";
+            case TypeTags.BOOLEAN -> "Z";
+            case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON,
+                 TypeTags.FINITE, TypeTags.READONLY -> GET_OBJECT;
+            case TypeTags.ARRAY, TypeTags.TUPLE -> GET_ARRAY_VALUE;
+            case TypeTags.ERROR -> GET_ERROR_VALUE;
+            case TypeTags.FUTURE -> GET_FUTURE_VALUE;
+            case TypeTags.MAP, TypeTags.RECORD -> GET_MAP_VALUE;
+            case TypeTags.TYPEDESC -> GET_TYPEDESC;
+            case TypeTags.STREAM -> GET_STREAM_VALUE;
+            case TypeTags.TABLE -> GET_TABLE_VALUE;
+            case TypeTags.DECIMAL -> GET_BDECIMAL;
+            case TypeTags.OBJECT -> GET_BOBJECT;
+            case TypeTags.HANDLE -> GET_HANDLE_VALUE;
+            case TypeTags.INVOKABLE -> GET_FUNCTION_POINTER;
+            default -> throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
+        };
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
@@ -1133,39 +1041,56 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
         for (SemNamedType semNamedType : finiteType.valueSpace) {
+            mv.visitInsn(DUP);
             SemType s = semNamedType.semType();
             if (PredefinedType.NIL.equals(s)) {
-                loadNilValue(mv);
-                continue;
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                ComplexSemType cs = (ComplexSemType) s;
+                if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
+                    boolean boolVal =
+                            BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
+                    mv.visitLdcInsn(boolVal);
+                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
+                } else if (isSubtypeSimple(s, PredefinedType.INT)) {
+                    long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
+                    if (0 <= longVal && longVal <= 255) {
+                        mv.visitLdcInsn((int) longVal);
+                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
+                    } else {
+                        mv.visitLdcInsn(longVal);
+                        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF, false);
+                    }
+                } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
+                    double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
+                    mv.visitLdcInsn(doubleVal);
+                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
+                } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
+                    BigDecimal bVal =
+                            DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
+                    mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+                    mv.visitInsn(DUP);
+                    mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(bVal)));
+                    mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
+                } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
+                    String stringVal =
+                            StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
+                    int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
+                    String varName = B_STRING_VAR_PREFIX + index;
+                    String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
+                    mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
+                } else {
+                    throw new IllegalStateException("Unexpected value space type: " + s);
+                }
             }
 
-            ComplexSemType cs = (ComplexSemType) s;
-            if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
-                loadBooleanValue(mv, boolVal);
-            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
-                if (0 <= longVal && longVal <= 255) {
-                    loadByteValue(mv, (int) longVal);
-                } else {
-                    loadIntValue(mv, longVal);
-                }
-            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
-                loadFloatValue(mv, doubleVal);
-            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
-                loadDecimalValue(mv, bVal);
-            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
-                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
-                loadStringValue(mv, stringVal);
-            } else {
-                throw new IllegalStateException("Unexpected value space type: " + s);
-            }
+            // Add the value to the set
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+            mv.visitInsn(POP);
         }
 
         // Load type flags
-        mv.visitLdcInsn(TypeFlags.asMask(finiteType.isNullable(), true, true));
+        mv.visitLdcInsn(typeFlag(finiteType));
 
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD, INIT_FINITE_TYPE_IMPL, false);
@@ -1213,40 +1138,15 @@ public class JvmTypeGen {
         mv.visitInsn(POP);
     }
 
-    private void loadStringValue(MethodVisitor mv, String stringVal) {
-        mv.visitInsn(DUP);
-
-        int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
-        String varName = B_STRING_VAR_PREFIX + index;
-        String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
-        mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
-    }
-
-    private void loadDecimalValue(MethodVisitor mv, BigDecimal bigDecimal) {
-        mv.visitInsn(DUP);
-
-        mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(bigDecimal.toPlainString());
-        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
-    }
-
-    private void loadFloatValue(MethodVisitor mv, double doubleVal) {
-        mv.visitInsn(DUP);
-
-        mv.visitLdcInsn(doubleVal);
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
+    private void loadValueType(MethodVisitor mv, BType valueType) {
+        valueType = JvmCodeGenUtil.getImpliedType(valueType);
+        switch (valueType.tag) {
+            case TypeTags.BOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                    BOOLEAN_VALUE_OF_METHOD, false);
+            case TypeTags.FLOAT -> mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                    DOUBLE_VALUE_OF_METHOD, false);
+            case TypeTags.BYTE -> mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
+                    INT_VALUE_OF_METHOD, false);
+        }
     }
 }

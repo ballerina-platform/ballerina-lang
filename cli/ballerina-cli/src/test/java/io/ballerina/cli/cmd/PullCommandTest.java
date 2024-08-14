@@ -46,11 +46,11 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package without package name")
     public void testPullWithoutPackage() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse();
+        new CommandLine(pullCommand).parseArgs();
         pullCommand.execute();
 
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         Assert.assertTrue(actual.contains("ballerina: no package given"));
         Assert.assertTrue(actual.contains("bal pull <package-name>"));
     }
@@ -58,11 +58,11 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with too many args")
     public void testPullWithTooManyArgs() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(TEST_PKG_NAME, "tests");
+        new CommandLine(pullCommand).parseArgs(TEST_PKG_NAME, "tests");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
+        String actual = buildLog.replace("\r", "");
         Assert.assertTrue(actual.contains("ballerina: too many arguments"));
         Assert.assertTrue(actual.contains("bal pull <package-name>"));
     }
@@ -70,13 +70,13 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid package name")
     public void testPullInvalidPackage() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery/1.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery/1.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(
-                actual.contains("ballerina: invalid package name. Provide the package name with the organization."));
+                actual.contains("ballerina: invalid package. Provide the package name with the organization."));
         Assert.assertTrue(
                 actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }
@@ -84,7 +84,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid org")
     public void testPullPackageWithInvalidOrg() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2-dev/winery");
+        new CommandLine(pullCommand).parseArgs("wso2-dev/winery");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -98,7 +98,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid name")
     public void testPullPackageWithInvalidName() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery$:1.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery$:1.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -112,7 +112,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid version")
     public void testPullPackageWithInvalidVersion() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery:1.0.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery:1.0.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -129,7 +129,7 @@ public class PullCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(args);
+        new CommandLine(pullCommand).parseArgs(args);
         pullCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-pull - Fetch packages from Ballerina Central"));
@@ -140,7 +140,7 @@ public class PullCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "-h" };
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(args);
+        new CommandLine(pullCommand).parseArgs(args);
         pullCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-pull - Fetch packages from Ballerina Central"));
@@ -156,7 +156,7 @@ public class PullCommandTest extends BaseCommandTest {
         Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("luheerathan/pact1:0.1.0", "--repository=repo-push-pull");
+        new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pull");
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
             repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
@@ -178,7 +178,7 @@ public class PullCommandTest extends BaseCommandTest {
         Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
 
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("luheerathan/pact1:0.1.0", "--repository=repo-push-pul");
+        new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0", "--repository=repo-push-pul");
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
             repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,

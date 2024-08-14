@@ -92,7 +92,7 @@ public class DocCommandTest extends BaseCommandTest {
         docCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("doc-with-build-tool.txt"));
 
         Assert.assertTrue(Files.exists(this.testResources.resolve("doc_project_with_build_tool").resolve("target")

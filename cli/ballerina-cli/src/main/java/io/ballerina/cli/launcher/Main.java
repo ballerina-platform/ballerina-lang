@@ -38,6 +38,7 @@ import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessage;
 
 /**
  * This class executes a Ballerina program.
@@ -208,10 +209,6 @@ public class Main {
         }
     }
 
-    private static String prepareCompilerErrorMessage(String message) {
-        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
-    }
-
     private static String getFirstUnknownArg(String errorMessage) {
         String optionsString = errorMessage.split(":")[1];
         return (optionsString.split(","))[0].trim();
@@ -230,6 +227,7 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
             if (helpCommands == null) {
@@ -286,6 +284,7 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.VERSION);
@@ -334,6 +333,7 @@ public class Main {
 
         private CommandLine parentCmdParser;
 
+        @Override
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.HOME);

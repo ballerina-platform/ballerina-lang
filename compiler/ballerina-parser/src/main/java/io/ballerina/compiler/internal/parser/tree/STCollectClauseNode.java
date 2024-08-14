@@ -56,6 +56,7 @@ public class STCollectClauseNode extends STClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STCollectClauseNode(
                 this.collectKeyword,
@@ -78,6 +79,7 @@ public class STCollectClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CollectClauseNode(this, position, parent);
     }

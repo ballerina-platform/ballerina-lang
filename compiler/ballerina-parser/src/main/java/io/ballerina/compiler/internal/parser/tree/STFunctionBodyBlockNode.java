@@ -74,6 +74,7 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionBodyBlockNode(
                 this.openBraceToken,
@@ -108,6 +109,7 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionBodyBlockNode(this, position, parent);
     }

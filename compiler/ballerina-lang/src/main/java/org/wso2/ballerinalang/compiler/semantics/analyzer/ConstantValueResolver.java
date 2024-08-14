@@ -297,10 +297,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
     }
 
+    @Override
     public void visit(BLangGroupExpr groupExpr) {
         this.result = constructBLangConstantValue(groupExpr.expression);
     }
 
+    @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         BLangConstantValue value = constructBLangConstantValue(unaryExpr.expr);
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);
@@ -780,7 +782,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
                 type.tsymbol.name, pkgID, null, env.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
-        typeDefinitionSymbol.scope.define(names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
 
         type.tsymbol.scope = new Scope(type.tsymbol);
         for (BField field : ((HashMap<String, BField>) type.fields).values()) {
@@ -868,11 +870,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol structureSymbol = recordType.tsymbol;
         for (BField field : recordType.fields.values()) {
             field.type = ImmutableTypeCloner.getImmutableType(pos, types, field.type, env,
-                    pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
+                    env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names,
                     new HashSet<>());
             Name fieldName = field.symbol.name;
             field.symbol = new BVarSymbol(field.symbol.flags | Flags.READONLY, fieldName,
-                    pkgID, field.type, structureSymbol, pos, SOURCE);
+                    env.enclPkg.packageID, field.type, structureSymbol, pos, SOURCE);
             structureSymbol.scope.define(fieldName, field.symbol);
         }
     }
@@ -923,11 +925,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return false;
                 }
                 keyValuePair.setBType(newType);
-                if (newType.getKind() != TypeKind.FINITE) {
+                TypeKind kind = newType.getKind();
+                if (kind != TypeKind.FINITE) {
                     constValueMap.get(key).type = newType;
-                    if (newType.getKind() == TypeKind.INTERSECTION) {
-                        exprValueField.setBType(((BIntersectionType) newType).effectiveType);
-                    }
+                    BType type = kind == TypeKind.INTERSECTION ? ((BIntersectionType) newType).effectiveType : newType;
+                    exprValueField.setBType(type);
                 }
 
                 recordType.fields.put(key, createField(newSymbol, newType, key, pos));

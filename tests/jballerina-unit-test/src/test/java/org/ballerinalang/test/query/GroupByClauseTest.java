@@ -248,66 +248,64 @@ public class GroupByClauseTest {
                 65, 33);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found '[int...]'",
                 70, 36);
-        BAssertUtil.validateError(negativeResult, i++, "record literal is not supported for record binding pattern",
-                79, 32);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                        "'seq record {| string name; int price1; |}' does not support field access", 87, 29);
+                        "'seq record {| string name; int price1; |}' does not support field access", 78, 29);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 87, 29);
+                "list constructor or function invocation", 78, 29);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found 'seq int?'",
-                108, 32);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 116, 40);
+                99, 32);
+        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 107, 40);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element" +
-                " list constructor or function invocation", 116, 40);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 120, 33);
+                " list constructor or function invocation", 107, 40);
+        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 111, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element" +
-                " list constructor or function invocation", 120, 33);
+                " list constructor or function invocation", 111, 33);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                133, 36);
+                124, 36);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 133, 36);
+                "list constructor or function invocation", 124, 36);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 133, 45);
+                "list constructor or function invocation", 124, 45);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                136, 28);
+                127, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 136, 28);
+                "list constructor or function invocation", 127, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 136, 37);
+                "list constructor or function invocation", 127, 37);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                139, 28);
+                130, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 139, 28);
+                "list constructor or function invocation", 130, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 139, 37);
+                "list constructor or function invocation", 130, 37);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                142, 28);
+                133, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 142, 28);
+                "list constructor or function invocation", 133, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 142, 37);
+                "list constructor or function invocation", 133, 37);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                145, 26);
+                136, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 145, 26);
+                "list constructor or function invocation", 136, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 145, 35);
-        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 148, 36);
-        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after rest argument", 151, 39);
-        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 37);
-        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 40);
+                "list constructor or function invocation", 136, 35);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 139, 36);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after rest argument", 142, 39);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 145, 37);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 145, 40);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(any|error)[]', found 'int'",
-                157, 37);
+                148, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'([int,int...]|record {| int n; |})', found '[int...]'", 167, 43);
+                "'([int,int...]|record {| int n; |})', found '[int...]'", 158, 43);
         BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
-                "'anydata'", 175, 26);
+                "'anydata'", 166, 26);
         BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
-                "'anydata'", 178, 26);
+                "'anydata'", 169, 26);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'seq string'",
-                200, 24);
+                191, 24);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
-                "list constructor or function invocation", 200, 24);
+                "list constructor or function invocation", 191, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

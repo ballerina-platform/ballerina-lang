@@ -168,9 +168,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         List<ParameterNode> oldParams = oldNode.functionSignature().parameters().stream().collect(Collectors.toList());
 
         ParamListComparator paramComparator = new ParamListComparator(newParams, oldParams);
-        paramComparator.computeDiff().ifPresent(diff -> {
-            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>()));
-        });
+        paramComparator.computeDiff().ifPresent(diff ->
+            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>())));
 
         return paramDiffs;
     }

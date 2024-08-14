@@ -80,6 +80,7 @@ public class STVariableDeclarationNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STVariableDeclarationNode(
                 this.annotations,
@@ -118,6 +119,7 @@ public class STVariableDeclarationNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new VariableDeclarationNode(this, position, parent);
     }

@@ -45,7 +45,7 @@ public interface PackageCache {
      * Returns the package with the given {@code PackageId} or throw an {@code IllegalStateException}.
      *
      * @param packageId the packageId
-     * @return the package with the given {@code PackageId} or throw an {@code IllegalStateException.
+     * @return the package with the given {@code PackageId} or throw an {@code IllegalStateException}.
      */
     Package getPackageOrThrow(PackageId packageId);
 

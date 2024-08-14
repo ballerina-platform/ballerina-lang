@@ -64,6 +64,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public static final String NAME = "Extract To Local Variable";
     private static final String VARIABLE_NAME_PREFIX = "var";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
                 SyntaxKind.BINARY_EXPRESSION, SyntaxKind.BRACED_EXPRESSION, SyntaxKind.XML_TEMPLATE_EXPRESSION,

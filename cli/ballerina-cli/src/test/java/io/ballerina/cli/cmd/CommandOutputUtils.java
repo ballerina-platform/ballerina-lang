@@ -48,7 +48,7 @@ public class CommandOutputUtils {
 
     static String readFileAsString(Path filePath) throws IOException {
         if (isWindows()) {
-            return Files.readString(filePath).replaceAll("\r", "");
+            return Files.readString(filePath).replace("\r", "");
         } else {
             return Files.readString(filePath);
         }
@@ -57,7 +57,7 @@ public class CommandOutputUtils {
     static String getOutput(String outputFileName) throws IOException {
         if (isWindows()) {
             return Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName))
-                    .replaceAll("\r", "");
+                    .replace("\r", "");
         } else {
             return Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
         }

@@ -61,6 +61,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -372,7 +373,8 @@ public class BRunUtil {
         final Scheduler scheduler = new Scheduler(false);
         ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                new Class[]{Map.class, String[].class, Path[].class, String.class},
+                new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
         runOnSchedule(initClazz, "$moduleInit", scheduler);
         runOnSchedule(initClazz, "$moduleStart", scheduler);

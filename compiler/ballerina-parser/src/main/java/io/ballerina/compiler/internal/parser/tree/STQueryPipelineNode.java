@@ -56,6 +56,7 @@ public class STQueryPipelineNode extends STNode {
                 intermediateClauses);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STQueryPipelineNode(
                 this.fromClause,
@@ -78,6 +79,7 @@ public class STQueryPipelineNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryPipelineNode(this, position, parent);
     }

@@ -411,8 +411,9 @@ public class DebuggerRuntime {
             // Initialize configurations
             ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
-                    CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
-                    new Object[]{new String[]{}, configurationDetails.paths, configurationDetails.configContent});
+                    CONFIGURE_INIT_METHOD_NAME, new Class[]{Map.class, String[].class, Path[].class, String.class},
+                    new Object[]{new HashMap<>(), new String[]{}, configurationDetails.paths,
+                            configurationDetails.configContent});
             // Initialize the module
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);

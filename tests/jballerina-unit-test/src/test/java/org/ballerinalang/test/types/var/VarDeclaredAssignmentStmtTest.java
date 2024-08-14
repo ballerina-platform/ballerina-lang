@@ -206,17 +206,18 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString(),
-                "'map<json>' value cannot be converted to 'Person': " +
-                        "\n\t\tmissing required field 'a' of type 'anydata' in record 'Person'" +
-                        "\n\t\tmissing required field 'score' of type 'float' in record 'Person'" +
-                        "\n\t\tmissing required field 'alive' of type 'boolean' in record 'Person'" +
-                        "\n\t\t{" +
-                        "\n\t\t  missing required field 'parent.a' of type 'anydata' in record 'Person'" +
-                        "\n\t\t  missing required field 'parent.score' of type 'float' in record 'Person'" +
-                        "\n\t\t  missing required field 'parent.alive' of type 'boolean' in record 'Person'" +
-                        "\n\t\t  field 'parent.parent' in record 'Person' should be of type 'Person?', found " +
-                        "'\"Parent\"'\n\t\t  field 'parent.marks' in record 'Person' should be of type 'int[]'," +
-                        " found '()'\n\t\t}");
+                """
+                        'map<json>' value cannot be converted to 'Person':\s
+                        \t\tmissing required field 'a' of type 'anydata' in record 'Person'
+                        \t\tmissing required field 'score' of type 'float' in record 'Person'
+                        \t\tmissing required field 'alive' of type 'boolean' in record 'Person'
+                        \t\t{
+                        \t\t  missing required field 'parent.a' of type 'anydata' in record 'Person'
+                        \t\t  missing required field 'parent.score' of type 'float' in record 'Person'
+                        \t\t  missing required field 'parent.alive' of type 'boolean' in record 'Person'
+                        \t\t  field 'parent.parent' in record 'Person' should be of type 'Person?', found '"Parent"'
+                        \t\t  field 'parent.marks' in record 'Person' should be of type 'int[]', found '()'
+                        \t\t}""");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")

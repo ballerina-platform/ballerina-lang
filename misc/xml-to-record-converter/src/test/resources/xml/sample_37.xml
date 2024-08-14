@@ -1,0 +1,11 @@
+<Countries xmlns="example2.com">
+    <Data xmlns:ns2="example.com" xmlns:ns1="example1.com">
+        <ns1:Person xmlns="example3.com" ns1:name="Emily" age="32" city="New York">2</ns1:Person>
+        <Name>Data Sample</Name>
+        <ns2:Details number="1234">
+            <ns2:Info>Additional Information</ns2:Info>
+            <ns2:Status>Active</ns2:Status>
+        </ns2:Details>
+        <Description>Sample Text</Description>
+    </Data>
+</Countries>

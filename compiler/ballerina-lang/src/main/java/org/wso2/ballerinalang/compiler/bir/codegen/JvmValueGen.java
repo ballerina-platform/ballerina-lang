@@ -24,10 +24,10 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
@@ -184,7 +184,7 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
+    void generateValueClasses(JarEntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
                               AsyncDataCollector asyncDataCollector) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
@@ -457,7 +457,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries) {
+                                          JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -516,7 +516,7 @@ public class JvmValueGen {
                                                      JvmConstantsGen jvmConstantsGen,
                                                      AsyncDataCollector asyncDataCollector,
                                                      BIRNode.BIRTypeDefinition typeDef,
-                                                     Map<String, byte[]> jarEntries) {
+                                                     JarEntries jarEntries) {
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);

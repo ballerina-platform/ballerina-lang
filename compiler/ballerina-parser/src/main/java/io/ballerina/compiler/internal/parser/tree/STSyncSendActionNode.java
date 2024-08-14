@@ -62,6 +62,7 @@ public class STSyncSendActionNode extends STActionNode {
                 peerWorker);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSyncSendActionNode(
                 this.expression,
@@ -88,6 +89,7 @@ public class STSyncSendActionNode extends STActionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SyncSendActionNode(this, position, parent);
     }

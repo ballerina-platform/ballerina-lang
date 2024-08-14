@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * Node factory API call generation segment.
  * Number of parameters may be zero or more.
- * Method call of format: "NodeFactory.<Type>createNodeType(param1, param2)"
+ * Method call of format: {@literal "NodeFactory.<Type>createNodeType(param1, param2)"}
  *
  * @since 2.0.0
  */
@@ -122,7 +122,7 @@ public class NodeFactorySegment extends Segment implements Iterable<Segment> {
     /**
      * @return Formatted Generic type of the method call.
      * Empty string if doesn't have a generic type.
-     * If it has a generic type: <GENERIC_TYPE>
+     * If it has a generic type: {@literal <GENERIC_TYPE>}
      */
     public String getGenericType() {
         if (genericType == null) {

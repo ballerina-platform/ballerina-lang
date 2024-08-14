@@ -74,6 +74,7 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
                 getToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLEmptyElementNode(
                 this.ltToken,
@@ -108,6 +109,7 @@ public class STXMLEmptyElementNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEmptyElementNode(this, position, parent);
     }

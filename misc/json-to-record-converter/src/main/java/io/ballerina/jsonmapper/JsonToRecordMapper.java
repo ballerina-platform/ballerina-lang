@@ -93,7 +93,8 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager)}}
+     * <p> Use {@link
+     * JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager, boolean)}}
      * instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
@@ -102,6 +103,7 @@ public class JsonToRecordMapper {
      * @param isClosed To denote whether the response record is closed or not
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
+    @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordFields, String filePathUri,
                                                WorkspaceManager workspaceManager) {
@@ -145,7 +147,7 @@ public class JsonToRecordMapper {
                         diagnosticMessages, isNullAsOptional);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
-                object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
+                object.add(((recordName == null) || recordName.isEmpty()) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
                 generateRecords(object, null, isClosed, recordToTypeDescNodes, null, jsonFieldToElements,
                         existingFieldNames, updatedFieldNames, diagnosticMessages, isNullAsOptional);
@@ -170,7 +172,7 @@ public class JsonToRecordMapper {
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     String recordTypeName = entry.getKey() == null ?
-                            (recordName == null || recordName.equals("")) ?
+                            (recordName == null || recordName.isEmpty()) ?
                                     getAndUpdateFieldNames(NEW_RECORD_NAME, false,
                                             existingFieldNames, updatedFieldNames)
                                     : escapeIdentifier(StringUtils.capitalize(recordName)) : entry.getKey();

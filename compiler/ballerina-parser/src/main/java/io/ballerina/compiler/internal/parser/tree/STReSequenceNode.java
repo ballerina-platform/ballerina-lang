@@ -50,6 +50,7 @@ public class STReSequenceNode extends STNode {
                 reTerm);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReSequenceNode(
                 this.reTerm,
@@ -68,6 +69,7 @@ public class STReSequenceNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReSequenceNode(this, position, parent);
     }

@@ -21,7 +21,7 @@ def buildLog = file("$duplicateSrcPath/ballerina-internal.log")
 
 
 // We duplicate source to avoid creating garbage in source dir
-task duplicateBalSouce(type: Copy) {
+tasks.register('duplicateBalSouce', Copy) {
     from("src/main/ballerina/") {
         exclude '.ballerina/**', 'target/**', 'ballerina-internal.log'
     }
@@ -30,7 +30,7 @@ task duplicateBalSouce(type: Copy) {
     outputs.cacheIf { false }
 }
 
-task convertDuplicateSrcToProject() {
+tasks.register('convertDuplicateSrcToProject') {
     dependsOn duplicateBalSouce
 
     def dotBalDir = duplicateSrcPath + "/.ballerina";
@@ -44,15 +44,15 @@ task convertDuplicateSrcToProject() {
     outputs.cacheIf { false }
 }
 
-task deleteBirJar(type: Delete) {
-  delete "build/duplicate-src/target"
+tasks.register('deleteBirJar', Delete) {
+    delete "build/duplicate-src/target"
 }
 
-task deleteBalBuildLog(type: Delete) {
-  delete buildLog
+tasks.register('deleteBalBuildLog', Delete) {
+    delete buildLog
 }
 
-task copySelfToExternal(type: Copy) {
+tasks.register('copySelfToExternal', Copy) {
     dependsOn jar
     from "$buildDir/libs/"
     include "*.jar"
@@ -60,7 +60,7 @@ task copySelfToExternal(type: Copy) {
     rename '.*', "${project.ext.moduleName}.jar"
 }
 
-task copyBirJar(type: Copy){
+tasks.register('copyBirJar', Copy) {
     from "$buildDir/duplicate-src/target/caches"
     into "$buildDir/generated-bir-jar"
     dependsOn createOldBirJar
@@ -86,7 +86,7 @@ compileJava {
     }
 }
 
-createJavadoc {
+javadoc {
     enabled = false
 }
 

@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,6 +65,11 @@ public abstract class BaseCommandTest {
     public void beforeMethod() {
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
+    }
+
+    @DataProvider(name = "optimizeDependencyCompilation")
+    public Object [] [] provideOptimizeDependencyCompilation() {
+        return new Object [][] {{ false }, { true }};
     }
 
     protected String readOutput() throws IOException {
@@ -114,8 +120,8 @@ public abstract class BaseCommandTest {
         Path balaDestPath = centralRepoPath.resolve(org).resolve(name).resolve(version).resolve(platform);
         Files.createDirectories(balaDestPath);
 
-        try {
-            Files.walk(balaProjectDirectory).forEach(a -> {
+        try (var files = Files.walk(balaProjectDirectory)) {
+            files.forEach(a -> {
                 Path b = Paths.get(String.valueOf(balaDestPath),
                         a.toString().substring(balaProjectDirectory.toString().length()));
                 try {

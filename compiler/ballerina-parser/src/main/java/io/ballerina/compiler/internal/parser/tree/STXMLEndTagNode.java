@@ -68,6 +68,7 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
                 getToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLEndTagNode(
                 this.ltToken,
@@ -98,6 +99,7 @@ public class STXMLEndTagNode extends STXMLElementTagNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLEndTagNode(this, position, parent);
     }

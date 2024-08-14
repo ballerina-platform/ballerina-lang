@@ -166,24 +166,29 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
 
     // Tokens
 
+    @Override
     public STToken transform(STToken token) {
         return token;
     }
 
+    @Override
     public STIdentifierToken transform(STIdentifierToken identifier) {
         return identifier;
     }
 
+    @Override
     public STLiteralValueToken transform(STLiteralValueToken literalValueToken) {
         return literalValueToken;
     }
 
+    @Override
     public STMissingToken transform(STMissingToken missingToken) {
         return missingToken;
     }
 
     // Misc
 
+    @Override
     public STNode transform(STNodeList nodeList) {
         if (nodeList.isEmpty()) {
             return nodeList;

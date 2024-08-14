@@ -443,9 +443,10 @@ public class ConstrainedMapTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'PersonComplexTwo': " +
-                "\n\t\tmap field 'address.city' should be of type 'int', found '\"Colombo\"'" +
-                "\n\t\tmap field 'address.country' should be of type 'int', found '\"SriLanka\"'");
+        Assert.assertEquals(errorMsg, """
+                'map<json>' value cannot be converted to 'PersonComplexTwo':\s
+                \t\tmap field 'address.city' should be of type 'int', found '"Colombo"'
+                \t\tmap field 'address.country' should be of type 'int', found '"SriLanka"'""");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

@@ -62,6 +62,7 @@ public class STTypeTestExpressionNode extends STExpressionNode {
                 typeDescriptor);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypeTestExpressionNode(
                 this.expression,
@@ -88,6 +89,7 @@ public class STTypeTestExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeTestExpressionNode(this, position, parent);
     }

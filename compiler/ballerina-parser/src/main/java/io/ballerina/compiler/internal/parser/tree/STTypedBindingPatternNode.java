@@ -56,6 +56,7 @@ public class STTypedBindingPatternNode extends STNode {
                 bindingPattern);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTypedBindingPatternNode(
                 this.typeDescriptor,
@@ -78,6 +79,7 @@ public class STTypedBindingPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypedBindingPatternNode(this, position, parent);
     }

@@ -26,6 +26,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
     private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Project>>>
             projectsByOrgNameVersion = new HashMap<>();
 
+    @Override
     public void cache(Package pkg) {
         projectsById.put(pkg.packageId(), pkg.project());
         projectsByOrgNameVersion.computeIfAbsent(pkg.packageOrg(), k -> new HashMap<>())

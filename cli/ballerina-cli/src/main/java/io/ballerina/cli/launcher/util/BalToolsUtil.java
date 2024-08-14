@@ -114,7 +114,7 @@ public class BalToolsUtil {
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
-    private static final List<String> builtInToolCommands = Arrays.asList();
+    private static final List<String> builtInToolCommands = List.of();
 
     private static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
             Path.of(CONFIG_DIR, BAL_TOOLS_TOML));

@@ -46,6 +46,7 @@ public class RegExpValue implements BRegexpValue, RefValue {
         this.regExpDisjunction = regExpDisjunction;
     }
 
+    @Override
     public RegExpDisjunction getRegExpDisjunction() {
         return this.regExpDisjunction;
     }

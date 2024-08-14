@@ -21,6 +21,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -29,6 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+
+import static io.netty.util.internal.PlatformDependent.isWindows;
 
 /**
  * Contains FileSystemRepository test cases.
@@ -91,6 +94,9 @@ public class FileSystemRepositoryGetPackagesTests {
 
     @Test(description = "Test getPackages with a hidden org", groups = {"nonEmptyBalaDirGetPackage"})
     public void testGetPackagesWithAHiddenOrg() {
+        if (isWindows()) {
+            throw new SkipException("Test currently doesn't work on Windows.");
+        }
         // orgs cannot have "." since it is not alphanumeric. Hence ignored
         Assert.assertFalse(nonEmptyRepoPackages.containsKey(".hidden-org"));
     }

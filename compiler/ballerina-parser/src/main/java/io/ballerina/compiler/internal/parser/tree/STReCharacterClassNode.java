@@ -68,6 +68,7 @@ public class STReCharacterClassNode extends STNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCharacterClassNode(
                 this.openBracket,
@@ -98,6 +99,7 @@ public class STReCharacterClassNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReCharacterClassNode(this, position, parent);
     }

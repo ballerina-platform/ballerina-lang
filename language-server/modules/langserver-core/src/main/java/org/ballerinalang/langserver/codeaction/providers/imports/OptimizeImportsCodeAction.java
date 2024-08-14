@@ -55,6 +55,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
     public static final String UNUSED_IMPORT_DIAGNOSTIC_CODE = "BCE2002";
     public static final String REDECLARED_IMPORT_DIAGNOSTIC_CODE = "BCE2004";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Collections.singletonList(SyntaxKind.IMPORT_DECLARATION);
     }

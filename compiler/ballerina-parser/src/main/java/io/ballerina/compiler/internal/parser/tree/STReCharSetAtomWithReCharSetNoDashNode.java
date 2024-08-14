@@ -56,6 +56,7 @@ public class STReCharSetAtomWithReCharSetNoDashNode extends STNode {
                 reCharSetNoDash);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReCharSetAtomWithReCharSetNoDashNode(
                 this.reCharSetAtom,
@@ -78,6 +79,7 @@ public class STReCharSetAtomWithReCharSetNoDashNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReCharSetAtomWithReCharSetNoDashNode(this, position, parent);
     }

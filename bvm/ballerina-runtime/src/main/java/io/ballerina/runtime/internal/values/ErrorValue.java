@@ -259,6 +259,7 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return detail record
      */
+    @Override
     public Object getDetails() {
         if (details instanceof BRefValue) {
             return ((BRefValue) details).frozenCopy(new HashMap<>());
@@ -302,6 +303,7 @@ public class ErrorValue extends BError implements RefValue {
      * Returns error stack trace as a string.
      * @return stack trace string
      */
+    @Override
     public String getPrintableStackTrace() {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();

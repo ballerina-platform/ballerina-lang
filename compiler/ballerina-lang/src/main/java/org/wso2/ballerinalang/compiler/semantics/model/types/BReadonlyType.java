@@ -35,6 +35,8 @@ import static io.ballerina.types.PredefinedType.IMPLEMENTED_VAL_READONLY;
  */
 public class BReadonlyType extends BBuiltInRefType {
 
+    private boolean nullable = true;
+
     public BReadonlyType(BTypeSymbol tsymbol) {
         this(tsymbol, IMPLEMENTED_VAL_READONLY);
     }
@@ -51,6 +53,12 @@ public class BReadonlyType extends BBuiltInRefType {
         this.addFlags(Flags.READONLY);
     }
 
+    public BReadonlyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+        super(tag, tsymbol);
+        this.nullable = nullable;
+        this.addFlags(Flags.READONLY);
+    }
+
     public static BReadonlyType newNilLiftedBReadonlyType(BTypeSymbol tsymbol) {
         return new BReadonlyType(tsymbol, Core.diff(IMPLEMENTED_VAL_READONLY, PredefinedType.NIL));
     }
@@ -58,6 +66,11 @@ public class BReadonlyType extends BBuiltInRefType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override

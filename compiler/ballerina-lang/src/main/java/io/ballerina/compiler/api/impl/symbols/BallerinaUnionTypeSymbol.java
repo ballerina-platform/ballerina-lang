@@ -30,6 +30,7 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -46,6 +47,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
@@ -273,5 +276,10 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return Optional.of(this.getBType().tsymbol.pos);
     }
 }

@@ -56,6 +56,7 @@ public class STReQuoteEscapeNode extends STNode {
                 reSyntaxChar);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReQuoteEscapeNode(
                 this.slashToken,
@@ -78,6 +79,7 @@ public class STReQuoteEscapeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReQuoteEscapeNode(this, position, parent);
     }

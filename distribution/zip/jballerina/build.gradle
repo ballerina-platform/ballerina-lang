@@ -82,7 +82,7 @@ dependencies {
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }
 
-task configured {
+tasks.register('configured') {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
         dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
@@ -129,7 +129,7 @@ CopySpec copyResourceSpec = copySpec {
 //}
 
 
-task createZip(type: Zip) {
+tasks.register('createZip', Zip) {
     with copyJarSpec
     with copyBalaSpec
     with copyBinSpec

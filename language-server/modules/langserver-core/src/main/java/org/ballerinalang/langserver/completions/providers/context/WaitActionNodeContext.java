@@ -87,6 +87,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
         return completionItems;
     }
 
+    @Override
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         /*
