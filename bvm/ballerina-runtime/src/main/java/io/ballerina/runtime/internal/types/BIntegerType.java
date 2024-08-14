@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MIN_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED32_MAX_VALUE;
@@ -41,7 +43,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public final class BIntegerType extends BSemTypeWrapper implements IntegerType {
+public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTypeImpl> implements IntegerType {
 
     private static final BIntegerTypeImpl DEFAULT_B_TYPE =
             new BIntegerTypeImpl(TypeConstants.INT_TNAME, PredefinedTypes.EMPTY_MODULE, TypeTags.INT_TAG);
@@ -52,15 +54,15 @@ public final class BIntegerType extends BSemTypeWrapper implements IntegerType {
      * @param typeName string name of the type
      */
     public BIntegerType(String typeName, Module pkg) {
-        this(new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), Builder.intType());
+        this(() -> new BIntegerTypeImpl(typeName, pkg, TypeTags.INT_TAG), typeName, Builder.intType());
     }
 
     public BIntegerType(String typeName, Module pkg, int tag) {
-        this(new BIntegerTypeImpl(typeName, pkg, tag), pickSemType(tag));
+        this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, pickSemType(tag));
     }
 
-    private BIntegerType(BIntegerTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BIntegerType(Supplier<BIntegerTypeImpl> bType, String typeName, SemType semType) {
+        super(bType, typeName, semType);
     }
 
     private static SemType pickSemType(int tag) {
@@ -84,14 +86,16 @@ public final class BIntegerType extends BSemTypeWrapper implements IntegerType {
     }
 
     private static BIntegerType createSingletonType(long value) {
-        try {
-            return new BIntegerType((BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), Builder.intConst(value));
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new BIntegerType(() -> {
+            try {
+                return (BIntegerTypeImpl) DEFAULT_B_TYPE.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }, TypeConstants.INT_TNAME, Builder.intConst(value));
     }
 
-    private static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {
+    protected static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {
 
         private final int tag;
 

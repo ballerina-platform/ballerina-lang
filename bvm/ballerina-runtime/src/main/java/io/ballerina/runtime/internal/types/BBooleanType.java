@@ -25,19 +25,21 @@ import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.995.0
  */
-public final class BBooleanType extends BSemTypeWrapper implements BooleanType {
+public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTypeImpl> implements BooleanType {
 
     private static final BBooleanType TRUE =
-            new BBooleanType(new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    Builder.booleanConst(true));
+            new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    TypeConstants.BOOLEAN_TNAME, Builder.booleanConst(true));
     private static final BBooleanType FALSE =
-            new BBooleanType(new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
-                    Builder.booleanConst(false));
+            new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    TypeConstants.BOOLEAN_TNAME, Builder.booleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
@@ -45,18 +47,18 @@ public final class BBooleanType extends BSemTypeWrapper implements BooleanType {
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        this(new BBooleanTypeImpl(typeName, pkg), Builder.booleanType());
+        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, Builder.booleanType());
     }
 
     public static BBooleanType singletonType(boolean value) {
         return value ? TRUE : FALSE;
     }
 
-    private BBooleanType(BBooleanTypeImpl bType, SemType semType) {
-        super(bType, semType);
+    private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, SemType semType) {
+        super(bTypeSupplier, typeName, semType);
     }
 
-    private static final class BBooleanTypeImpl extends BType implements BooleanType {
+    protected static final class BBooleanTypeImpl extends BType implements BooleanType {
 
         private BBooleanTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, Boolean.class);

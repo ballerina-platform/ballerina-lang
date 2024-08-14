@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 1.0.0
  */
-public final class BHandleType extends BSemTypeWrapper implements HandleType {
+public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeImpl> implements HandleType {
 
     /**
      * Create a {@code BHandleType} which represents the handle type.
@@ -39,10 +39,10 @@ public final class BHandleType extends BSemTypeWrapper implements HandleType {
      * @param typeName string name of the type
      */
     public BHandleType(String typeName, Module pkg) {
-        super(BHandleTypeImpl.create(typeName, pkg), Builder.handleType());
+        super(() -> BHandleTypeImpl.create(typeName, pkg), typeName, Builder.handleType());
     }
 
-    private static final class BHandleTypeImpl extends BType implements HandleType {
+    protected static final class BHandleTypeImpl extends BType implements HandleType {
 
         private static final BHandleTypeImpl DEFAULT =
                 new BHandleTypeImpl(TypeConstants.HANDLE_TNAME, PredefinedTypes.EMPTY_MODULE);

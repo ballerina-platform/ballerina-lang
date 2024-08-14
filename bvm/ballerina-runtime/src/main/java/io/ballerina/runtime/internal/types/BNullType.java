@@ -23,12 +23,14 @@ import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.function.Supplier;
+
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BSemTypeWrapper implements NullType {
+public class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implements NullType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -37,18 +39,18 @@ public class BNullType extends BSemTypeWrapper implements NullType {
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        this(new BNullTypeImpl(typeName, pkg), Builder.nilType());
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, Builder.nilType());
     }
 
-    BNullType(String typeName, Module pkg, SemType semType) {
-        this(new BNullTypeImpl(typeName, pkg), semType);
+    protected BNullType(String typeName, Module pkg, SemType semType) {
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, semType);
     }
 
-    private BNullType(BNullTypeImpl bNullType, SemType semType) {
-        super(bNullType, semType);
+    private BNullType(Supplier<BNullTypeImpl> bNullType, String typeName, SemType semType) {
+        super(bNullType, typeName, semType);
     }
 
-    private static final class BNullTypeImpl extends BType implements NullType {
+    protected static final class BNullTypeImpl extends BType implements NullType {
 
         private BNullTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, null);
