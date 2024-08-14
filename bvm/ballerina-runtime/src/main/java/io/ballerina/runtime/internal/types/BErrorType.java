@@ -35,7 +35,6 @@ import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
@@ -48,8 +47,6 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
     private DistinctIdSupplier distinctIdSupplier;
-    private static final AtomicInteger nextId = new AtomicInteger(0);
-    private final int id = nextId.getAndIncrement();
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -134,9 +131,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
             err = Builder.errorType();
         } else {
             SemType detailType = mutableSemTypeDependencyManager.getSemType(getDetailType(), this);
-            if (!Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP))) {
-                throw new IllegalStateException("Error types can't have BTypes");
-            }
+            assert (!Core.isNever(Core.intersect(detailType, Core.B_TYPE_TOP)));
             err = ErrorUtils.errorDetail(detailType);
         }
 

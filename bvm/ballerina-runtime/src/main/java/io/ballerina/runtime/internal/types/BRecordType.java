@@ -290,7 +290,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value, boolean readonly) {
         int nFields = value.size();
         List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
-        Map.Entry<?,?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
+        Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         Set<String> handledFields = new HashSet<>(nFields);
         MappingDefinition md;
         if (readonly) {

@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import java.util.Optional;
 
 @FunctionalInterface
-public interface ShapeSupplier {
+interface ShapeSupplier {
 
     Optional<SemType> get(Context cx, Object object);
 }
