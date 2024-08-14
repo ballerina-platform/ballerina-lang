@@ -74,4 +74,5 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.tracer.noop;
     exports io.ballerina.runtime.internal.regexp;
     exports io.ballerina.runtime.internal.configurable.providers to org.ballerinalang.debugadapter.runtime;
+    exports io.ballerina.runtime.internal.types.semtype to io.ballerina.runtime.internal.types;
 }

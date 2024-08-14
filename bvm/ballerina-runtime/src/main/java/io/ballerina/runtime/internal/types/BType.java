@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.MutableSemType;
-import io.ballerina.runtime.api.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
 import java.util.Objects;
