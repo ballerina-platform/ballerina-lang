@@ -18,6 +18,9 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * CellAtomicType node.
  *
@@ -32,13 +35,13 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
     }
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
-        return new CellAtomicType(ty, mut);
+        return CellAtomCache.get(ty, mut);
     }
 
     public static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
         SemType ty = Core.intersect(c1.ty(), c2.ty());
         CellMutability mut = min(c1.mut(), c2.mut());
-        return new CellAtomicType(ty, mut);
+        return CellAtomicType.from(ty, mut);
     }
 
     private static CellMutability min(CellMutability m1,
@@ -50,5 +53,26 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
         CELL_MUT_UNLIMITED
+    }
+
+    private static final class CellAtomCache {
+
+        private final static Map<Integer, CellAtomicType> NONE_CACHE = new HashMap<>();
+        private final static Map<Integer, CellAtomicType> LIMITED_CACHE = new HashMap<>();
+        private final static Map<Integer, CellAtomicType> UNLIMITED_CACHE = new HashMap<>();
+
+        private static CellAtomicType get(SemType semType, CellMutability mut) {
+            if (semType.some() != 0) {
+                return new CellAtomicType(semType, mut);
+            }
+            int key = semType.all();
+            return switch (mut) {
+                case CELL_MUT_NONE -> NONE_CACHE.computeIfAbsent(key, (ignored) -> new CellAtomicType(semType, mut));
+                case CELL_MUT_LIMITED ->
+                        LIMITED_CACHE.computeIfAbsent(key, (ignored) -> new CellAtomicType(semType, mut));
+                case CELL_MUT_UNLIMITED ->
+                        UNLIMITED_CACHE.computeIfAbsent(key, (ignored) -> new CellAtomicType(semType, mut));
+            };
+        }
     }
 }
