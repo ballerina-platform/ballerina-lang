@@ -51,7 +51,6 @@ public class StreamDefinition implements Definition {
     private SemType streamContaining(SemType tupleType) {
         SubTypeData bdd = subTypeData(tupleType, BasicTypeCode.BT_LIST);
         assert bdd instanceof Bdd;
-        // FIXME: wrap in delegate
         return createBasicSemType(BasicTypeCode.BT_STREAM, (Bdd) bdd);
     }
 }

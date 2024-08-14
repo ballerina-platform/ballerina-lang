@@ -221,9 +221,9 @@ public class BMapType extends BType implements MapType, TypeWithShape {
         return readonlyShape(cx, shapeSupplierFn, (BMap<?, ?>) object);
     }
 
-    static Optional<SemType> readonlyShape(Context cx, ShapeSupplier shapeSupplier, BMap<?,?> value) {
+    static Optional<SemType> readonlyShape(Context cx, ShapeSupplier shapeSupplier, BMap<?, ?> value) {
         int nFields = value.size();
-        MappingDefinition md ;
+        MappingDefinition md;
 
         Optional<Definition> readonlyShapeDefinition = value.getReadonlyShapeDefinition();
         if (readonlyShapeDefinition.isPresent()) {
@@ -234,13 +234,10 @@ public class BMapType extends BType implements MapType, TypeWithShape {
             value.setReadonlyShapeDefinition(md);
         }
         MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
-        Map.Entry<?,?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
+        Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
         for (int i = 0; i < nFields; i++) {
             Optional<SemType> valueType = shapeSupplier.get(cx, entries[i].getValue());
-            if (valueType.isEmpty()) {
-                return Optional.empty();
-            }
-            SemType fieldType = valueType.get();
+            SemType fieldType = valueType.orElseThrow();
             fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
         }
         SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.neverType(), CELL_MUT_NONE);

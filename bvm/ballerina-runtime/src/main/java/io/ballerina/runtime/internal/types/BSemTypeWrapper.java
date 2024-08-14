@@ -34,7 +34,8 @@ import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
  */
 public non-sealed class BSemTypeWrapper extends ImmutableSemType implements Type {
 
-    private final BType bType;
+    // FIXME: turn this to a lazy supplier to avoid intialization if not needed
+    protected final BType bType;
     protected final String typeName; // Debugger uses this field to show the type name
 
     BSemTypeWrapper(BType bType, SemType semType) {

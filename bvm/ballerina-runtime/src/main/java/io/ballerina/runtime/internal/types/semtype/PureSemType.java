@@ -20,8 +20,6 @@ package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.SubType;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Represent types that conform only to {@code SemType} APIs.
  *
