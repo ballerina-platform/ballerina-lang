@@ -16,16 +16,17 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api.types.semtype;
+package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.MutableSemType;
+import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: consider moving this to internal package
 public final class MutableSemTypeDependencyManager {
 
     private static final MutableSemTypeDependencyManager INSTANCE = new MutableSemTypeDependencyManager();
