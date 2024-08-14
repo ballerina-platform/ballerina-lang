@@ -28,13 +28,13 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 1.3.0
  */
-public class BReadonlyType extends BSemTypeWrapper implements ReadonlyType {
+public class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
 
     public BReadonlyType(String typeName, Module pkg) {
-        super(new BReadonlyTypeImpl(typeName, pkg), Builder.readonlyType());
+        super(() -> new BReadonlyTypeImpl(typeName, pkg), typeName, Builder.readonlyType());
     }
 
-    private static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
+    protected static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
 
         private BReadonlyTypeImpl(String typeName, Module pkg) {
             super(typeName, pkg, RefValue.class);
