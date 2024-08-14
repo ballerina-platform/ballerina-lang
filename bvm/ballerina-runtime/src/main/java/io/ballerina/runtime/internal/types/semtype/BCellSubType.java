@@ -107,7 +107,7 @@ public final class BCellSubType extends SubType implements DelegatedSubType {
     private static boolean cellFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         CellAtomicType combined;
         if (posList == null) {
-            combined = new CellAtomicType(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+            combined = CellAtomicType.from(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         } else {
             combined = cellAtomType(posList.atom());
             Conjunction p = posList.next();
