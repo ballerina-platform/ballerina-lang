@@ -376,7 +376,7 @@ public final class Builder {
     }
 
     private static SemType createCellSemType(Env env, SemType ty, CellAtomicType.CellMutability mut) {
-        CellAtomicType atomicCell = new CellAtomicType(ty, mut);
+        CellAtomicType atomicCell = CellAtomicType.from(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);
         return basicSubType(BT_CELL, BCellSubType.createDelegate(bdd));
