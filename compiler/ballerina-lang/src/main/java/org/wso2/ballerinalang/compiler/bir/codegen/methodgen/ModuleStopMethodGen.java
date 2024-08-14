@@ -29,9 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 import java.util.Set;
 

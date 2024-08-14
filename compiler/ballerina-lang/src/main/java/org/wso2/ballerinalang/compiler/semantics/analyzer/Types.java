@@ -4268,7 +4268,8 @@ public class Types {
 
                 if (getImpliedType(arrayElementType).tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
-                    elementUnionTypes.forEach(elementUnionType -> memberTypes.add(new BArrayType(typeEnv(), elementUnionType)));
+                    elementUnionTypes.forEach(
+                            elementUnionType -> memberTypes.add(new BArrayType(typeEnv(), elementUnionType)));
                 }
                 memberTypes.add(bType);
                 break;
@@ -4277,8 +4278,9 @@ public class Types {
                 if (getImpliedType(mapConstraintType).tag == TypeTags.UNION) {
                     Set<BType> constraintUnionTypes =
                             expandAndGetMemberTypesRecursiveHelper(mapConstraintType, visited);
-                    constraintUnionTypes.forEach(constraintUnionType ->
-                        memberTypes.add(new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol)));
+                    constraintUnionTypes.forEach(constraintUnionType -> memberTypes.add(
+                            new BMapType(symTable.typeEnv(), TypeTags.MAP, constraintUnionType,
+                                    symTable.mapType.tsymbol)));
                 }
                 memberTypes.add(bType);
                 break;

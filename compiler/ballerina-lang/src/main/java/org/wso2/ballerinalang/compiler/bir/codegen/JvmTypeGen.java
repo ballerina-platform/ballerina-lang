@@ -1024,7 +1024,6 @@ public class JvmTypeGen {
         };
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
     private void loadFiniteType(MethodVisitor mv, BFiniteType finiteType) {
 
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
@@ -1045,43 +1044,18 @@ public class JvmTypeGen {
             SemType s = semNamedType.semType();
             if (PredefinedType.NIL.equals(s)) {
                 mv.visitInsn(ACONST_NULL);
+            } else if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
+                loadConstBoolean(mv, (ComplexSemType) s);
+            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
+                loadConstInteger(mv, (ComplexSemType) s);
+            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
+                loadConstFloat(mv, (ComplexSemType) s);
+            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
+                loadConstDecimal(mv, (ComplexSemType) s);
+            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
+                loadConstString(mv, (ComplexSemType) s);
             } else {
-                ComplexSemType cs = (ComplexSemType) s;
-                if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
-                    boolean boolVal =
-                            BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
-                    mv.visitLdcInsn(boolVal);
-                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
-                } else if (isSubtypeSimple(s, PredefinedType.INT)) {
-                    long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
-                    if (0 <= longVal && longVal <= 255) {
-                        mv.visitLdcInsn((int) longVal);
-                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
-                    } else {
-                        mv.visitLdcInsn(longVal);
-                        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF, false);
-                    }
-                } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
-                    double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
-                    mv.visitLdcInsn(doubleVal);
-                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
-                } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
-                    BigDecimal bVal =
-                            DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
-                    mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-                    mv.visitInsn(DUP);
-                    mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(bVal)));
-                    mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
-                } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
-                    String stringVal =
-                            StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
-                    int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
-                    String varName = B_STRING_VAR_PREFIX + index;
-                    String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
-                    mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
-                } else {
-                    throw new IllegalStateException("Unexpected value space type: " + s);
-                }
+                throw new IllegalStateException("Unexpected value space type: " + s);
             }
 
             // Add the value to the set
@@ -1096,57 +1070,42 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD, INIT_FINITE_TYPE_IMPL, false);
     }
 
-    private void loadNilValue(MethodVisitor mv) {
-        mv.visitInsn(DUP);
-        mv.visitInsn(ACONST_NULL);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
+    private void loadConstString(MethodVisitor mv, ComplexSemType s) {
+        String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(s, BT_STRING)).orElseThrow();
+        int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
+        String varName = B_STRING_VAR_PREFIX + index;
+        String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
+        mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
     }
 
-    private void loadBooleanValue(MethodVisitor mv, boolean booleanVal) {
+    private static void loadConstDecimal(MethodVisitor mv, ComplexSemType s) {
+        BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(s, BT_DECIMAL)).orElseThrow();
+        mv.visitTypeInsn(NEW, DECIMAL_VALUE);
         mv.visitInsn(DUP);
-
-        mv.visitLdcInsn(booleanVal);
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
+        mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(bVal)));
+        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
     }
 
-    private void loadByteValue(MethodVisitor mv, int intValue) {
-        mv.visitInsn(DUP);
-
-        mv.visitLdcInsn(intValue);
-        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
+    private static void loadConstFloat(MethodVisitor mv, ComplexSemType s) {
+        double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(s, BT_FLOAT)).orElseThrow();
+        mv.visitLdcInsn(doubleVal);
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
     }
 
-    private void loadIntValue(MethodVisitor mv, long intValue) {
-        mv.visitInsn(DUP);
-
-        mv.visitLdcInsn(intValue);
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF, false);
-
-        // Add the value to the set
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-        mv.visitInsn(POP);
-    }
-
-    private void loadValueType(MethodVisitor mv, BType valueType) {
-        valueType = JvmCodeGenUtil.getImpliedType(valueType);
-        switch (valueType.tag) {
-            case TypeTags.BOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                    BOOLEAN_VALUE_OF_METHOD, false);
-            case TypeTags.FLOAT -> mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
-                    DOUBLE_VALUE_OF_METHOD, false);
-            case TypeTags.BYTE -> mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
-                    INT_VALUE_OF_METHOD, false);
+    private static void loadConstInteger(MethodVisitor mv, ComplexSemType s) {
+        long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(s, BT_INT)).orElseThrow();
+        if (0 <= longVal && longVal <= 255) {
+            mv.visitLdcInsn((int) longVal);
+            mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
+        } else {
+            mv.visitLdcInsn(longVal);
+            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF, false);
         }
+    }
+
+    private static void loadConstBoolean(MethodVisitor mv, ComplexSemType s) {
+        boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(s, BT_BOOLEAN)).orElseThrow();
+        mv.visitLdcInsn(boolVal);
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
     }
 }

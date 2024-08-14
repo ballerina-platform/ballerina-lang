@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
@@ -30,7 +31,6 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -48,20 +48,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.SemTypes.isSubtypeSimple;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
 
 /**
  * Represents an union type descriptor.
