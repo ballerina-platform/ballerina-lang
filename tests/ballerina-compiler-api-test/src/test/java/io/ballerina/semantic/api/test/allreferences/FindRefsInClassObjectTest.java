@@ -18,6 +18,7 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -54,7 +55,8 @@ public class FindRefsInClassObjectTest extends FindAllReferencesTest {
                         List.of(location(24, 13, 20))
                 },
                 {30, 13, location(30, 13, 17),
-                        List.of(location(30, 13, 17))
+                        List.of(location(30, 13, 17),
+                                location(52, 17, 20))
                 },
                 {34, 13, location(34, 13, 20),
                         List.of(location(34, 13, 20),
@@ -78,5 +80,10 @@ public class FindRefsInClassObjectTest extends FindAllReferencesTest {
     @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_refs_in_class_object.bal";
+    }
+
+    @AfterClass
+    public void tearDown() {
+        super.tearDown();
     }
 }

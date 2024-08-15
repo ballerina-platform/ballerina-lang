@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
+public type Person record {
     int id;
     string name;
     SportsActivity sportsActivity;

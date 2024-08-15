@@ -53,13 +53,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}
 
-      - name: Check for APIDocs related issue
-        if: ${{ contains(github.event.issue.body, '-> API Docs') }}
-        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-tools"
-        env:
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          ISSUE: ${{ github.event.issue.number }}
-
       - name: Check for Debugger related issue
         if: ${{ contains(github.event.issue.body, '-> Debugger') }}
         run: |

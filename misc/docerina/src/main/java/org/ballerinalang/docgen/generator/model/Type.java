@@ -106,6 +106,8 @@ public class Type {
     @Expose
     public boolean isNullable;
     @Expose
+    public boolean isOptional;
+    @Expose
     public boolean isTuple;
     @Expose
     public boolean isIntersectionType;

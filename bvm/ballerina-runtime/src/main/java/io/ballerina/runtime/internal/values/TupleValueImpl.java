@@ -433,8 +433,20 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Object shift(long index) {
+        return shift(index, "shift");
+    }
+
+    public Object pop(long index) {
+        return shift(index, "pop");
+    }
+
+    public Object remove(long index) {
+        return shift(index, "remove");
+    }
+
+    public Object shift(long index, String operation) {
         handleImmutableArrayValue();
-        validateTupleSizeAndInherentType();
+        validateTupleSizeAndInherentType((int) index, operation);
         Object val = get(index);
         shiftArray((int) index);
         return val;
@@ -837,15 +849,15 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void validateTupleSizeAndInherentType() {
+    private void validateTupleSizeAndInherentType(int index, String operation) {
         List<Type> tupleTypesList = this.tupleType.getTupleTypes();
         int numOfMandatoryTypes = tupleTypesList.size();
         if (numOfMandatoryTypes >= this.getLength()) {
             throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
-                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, "shift");
+                            OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorCodes.INVALID_TUPLE_MEMBER_SIZE, operation);
         }
         // Check if value belonging to i th type can be assigned to i-1 th type (Checking done by value, not type)
-        for (int i = 1; i <= numOfMandatoryTypes; i++) {
+        for (int i = index + 1; i <= numOfMandatoryTypes; i++) {
             if (!TypeChecker.checkIsType(this.getRefValue(i), tupleTypesList.get(i - 1))) {
                 throw ErrorHelper.getRuntimeException(getModulePrefixedReason(ARRAY_LANG_LIB,
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorCodes.INCOMPATIBLE_TYPE,
