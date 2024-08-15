@@ -318,7 +318,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
+    public synchronized SemType createSemType() {
         if (defn != null) {
             return defn.getSemType(env);
         }

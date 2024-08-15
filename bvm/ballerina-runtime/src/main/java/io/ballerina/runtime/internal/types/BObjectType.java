@@ -87,8 +87,6 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private boolean resolving;
     private ObjectDefinition defn;
     private final Env env = Env.getInstance();
-    // TODO: better name
-    private SemType softSemTypeCache;
     private DistinctIdSupplier distinctIdSupplier;
 
     /**
@@ -294,10 +292,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         return !seen.add(name);
     }
 
-    private SemType semTypeInner() {
-        if (softSemTypeCache != null) {
-            return softSemTypeCache;
-        }
+    private synchronized SemType semTypeInner() {
         if (defn != null) {
             return defn.getSemType(env);
         }
