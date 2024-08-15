@@ -18,11 +18,15 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BStringType;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Class representing ballerina strings.
@@ -102,4 +106,8 @@ public abstract class StringValue implements BString, SimpleValue {
         return false;
     }
 
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        return Optional.of(Builder.stringConst(getValue()));
+    }
 }

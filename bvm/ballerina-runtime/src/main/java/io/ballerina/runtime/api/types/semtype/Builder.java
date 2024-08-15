@@ -19,12 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
@@ -40,10 +35,7 @@ import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
-import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
-import io.ballerina.runtime.internal.values.FPValue;
-import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -293,10 +285,11 @@ public final class Builder {
 
     // TODO: factor this to a separate class
     public static Optional<SemType> shapeOf(Context cx, Object object) {
+        if (object instanceof BValue bValue) {
+            return bValue.shapeOf(cx);
+        }
         if (object == null) {
             return Optional.of(nilType());
-        } else if (object instanceof DecimalValue decimalValue) {
-            return Optional.of(decimalConst(decimalValue.value()));
         } else if (object instanceof Double doubleValue) {
             return Optional.of(floatConst(doubleValue));
         } else if (object instanceof Number intValue) {
@@ -305,57 +298,8 @@ public final class Builder {
             return Optional.of(intConst(value));
         } else if (object instanceof Boolean booleanValue) {
             return Optional.of(booleanConst(booleanValue));
-        } else if (object instanceof BString stringValue) {
-            return Optional.of(stringConst(stringValue.getValue()));
-        } else if (object instanceof BArray arrayValue) {
-            return typeOfArray(cx, arrayValue);
-        } else if (object instanceof BMap mapValue) {
-            return typeOfMap(cx, mapValue);
-        } else if (object instanceof FPValue fpValue) {
-            return Optional.of(fpValue.getType());
-        } else if (object instanceof BError errorValue) {
-            return typeOfError(cx, errorValue);
-        } else if (object instanceof AbstractObjectValue objectValue) {
-            return typeOfObject(cx, objectValue);
-        } else if (object instanceof XmlValue xmlValue) {
-            return typeOfXml(cx, xmlValue);
-        } else if (object instanceof BRegexpValue regexpValue) {
-            return regexpValue.shapeOf();
-        } else if (object instanceof BTable table) {
-            return typeOfTable(cx, table);
         }
         return Optional.empty();
-    }
-
-    private static Optional<SemType> typeOfTable(Context cx, BTable table) {
-        TypeWithShape typeWithShape = (TypeWithShape) table.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, table);
-    }
-
-    // Combine these methods maybe introduce a marker interface
-    private static Optional<SemType> typeOfXml(Context cx, XmlValue xmlValue) {
-        TypeWithShape typeWithShape = (TypeWithShape) xmlValue.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, xmlValue);
-    }
-
-    private static Optional<SemType> typeOfError(Context cx, BError errorValue) {
-        TypeWithShape typeWithShape = (TypeWithShape) errorValue.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, errorValue);
-    }
-
-    private static Optional<SemType> typeOfMap(Context cx, BMap mapValue) {
-        TypeWithShape typeWithShape = (TypeWithShape) mapValue.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, mapValue);
-    }
-
-    private static Optional<SemType> typeOfObject(Context cx, AbstractObjectValue objectValue) {
-        TypeWithShape typeWithShape = (TypeWithShape) objectValue.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, objectValue);
-    }
-
-    private static Optional<SemType> typeOfArray(Context cx, BArray arrayValue) {
-        TypeWithShape typeWithShape = (TypeWithShape) arrayValue.getType();
-        return typeWithShape.shapeOf(cx, Builder::shapeOf, arrayValue);
     }
 
     public static SemType roCellContaining(Env env, SemType ty) {
