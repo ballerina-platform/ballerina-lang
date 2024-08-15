@@ -129,6 +129,15 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
                 return mappingInhabited(cx, pos, negList.next());
             }
             for (FieldPair fieldPair : new FieldPairs(pos, neg)) {
+                SemType intersect = Core.intersect(fieldPair.type1(), fieldPair.type2());
+                // if types of at least one field are disjoint, the neg atom will not contribute to the next iteration.
+                // Therefore, we can skip the current neg atom.
+                // i.e. if we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then,
+                // record { T1 f1; T2 f2; } / record { S1 f1; S2 f2; } = record { T1 f1; T2 f2; }
+                if (Core.isEmpty(cx, intersect)) {
+                    return mappingInhabited(cx, pos, negList.next());
+                }
+
                 SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
