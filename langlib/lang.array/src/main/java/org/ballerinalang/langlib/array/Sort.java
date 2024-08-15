@@ -30,9 +30,10 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.types.*;
+import io.ballerina.runtime.internal.types.BTupleType;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;
@@ -50,14 +51,14 @@ public class Sort {
         BArray sortedArray;
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
         Set<Type> typeList = new HashSet<>();
-        if(arr.getType().getTag() == TypeTags.TUPLE_TAG) {
-            if(!isOrderedType(arr.getType()) && function == null) {
+        if (arr.getType().getTag() == TypeTags.TUPLE_TAG) {
+            if (!isOrderedType(arr.getType()) && function == null) {
                 throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
                         StringUtils.fromString("Valid Key function needed"));
             }
-            typeList = new HashSet<>(((BTupleType)arr.getType()).getTupleTypes());
-            if(((BTupleType)arr.getType()).getRestType() != null) {
-                typeList.add(((BTupleType)arr.getType()).getRestType());
+            typeList = new HashSet<>(((BTupleType) arr.getType()).getTupleTypes());
+            if (((BTupleType) arr.getType()).getRestType() != null) {
+                typeList.add(((BTupleType) arr.getType()).getRestType());
             }
         }
         Object[][] sortArr = new Object[arr.size()][2];
@@ -73,7 +74,7 @@ public class Sort {
             }
         }
         mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
-        if(arr.getType().getTag() == TypeTags.TUPLE_TAG) {
+        if (arr.getType().getTag() == TypeTags.TUPLE_TAG) {
             sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(
                     TypeCreator.createUnionType(typeList.stream().toList())));
         } else {

@@ -29,7 +29,11 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BTupleType;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class SortUtils {
 
@@ -49,12 +53,12 @@ public class SortUtils {
                     // Union contains only the nil type.
                     return true;
                 }
-                if(!isOrderedType(firstTypeInUnion)) {
+                if (!isOrderedType(firstTypeInUnion)) {
                     return false;
                 }
                 for (Type memType : memberTypes) {
                     memType = TypeUtils.getImpliedType(memType);
-                    if(!isOrderedType(memType) || isDifferentOrderedType(memType, firstTypeInUnion)) {
+                    if (!isOrderedType(memType) || isDifferentOrderedType(memType, firstTypeInUnion)) {
                         return false;
                     }
                 }
@@ -63,8 +67,10 @@ public class SortUtils {
                 return isOrderedType(((BArrayType) type).getElementType());
             case TypeTags.TUPLE_TAG:
                 List<Type> tupleTypes = ((BTupleType) type).getTupleTypes();
-                if (((BTupleType) type).getRestType() != null) tupleTypes.add(((BTupleType) type).getRestType());
-                if(!isOrderedType(tupleTypes.get(0))) {
+                if (((BTupleType) type).getRestType() != null) {
+                    tupleTypes.add(((BTupleType) type).getRestType());
+                }
+                if (!isOrderedType(tupleTypes.get(0))) {
                     return false;
                 }
                 for (Type memType : tupleTypes) {
@@ -89,7 +95,7 @@ public class SortUtils {
         Type type = TypeUtils.getReferredType(bType);
         Type effectiveType = null;
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            effectiveType = ((IntersectionType)type).getEffectiveType();
+            effectiveType = ((IntersectionType) type).getEffectiveType();
             type = effectiveType;
         }
 
@@ -122,7 +128,7 @@ public class SortUtils {
                     TypeUtils.getType(finiteType.getValueSpace().iterator().next()));
         }
         for (Object expr : finiteType.getValueSpace()) {
-            if(isDifferentOrderedType(TypeUtils.getType(expr), baseType)) {
+            if (isDifferentOrderedType(TypeUtils.getType(expr), baseType)) {
                 return false;
             }
         }
@@ -135,7 +141,7 @@ public class SortUtils {
         if (source.getTag() == TypeTags.NULL_TAG || target.getTag() == TypeTags.NULL_TAG) {
             return false;
         }
-        if(checkIfDifferent(source)) {
+        if (checkIfDifferent(source)) {
             return true;
         }
         return !TypeChecker.checkIsType(source, target);
