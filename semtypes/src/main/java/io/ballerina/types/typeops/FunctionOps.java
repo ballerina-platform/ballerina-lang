@@ -49,10 +49,11 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
     }
 
     private static boolean functionFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        return functionPathIsEmpty(cx, functionUnionParams(cx, pos), functionUnionQualifiers(cx, pos), pos, neg);
+        return functionPathIsEmpty(cx, functionIntersectRet(cx, pos), functionUnionParams(cx, pos),
+                functionUnionQualifiers(cx, pos), pos, neg);
     }
 
-    private static boolean functionPathIsEmpty(Context cx, SemType params, SemType qualifiers, Conjunction pos,
+    private static boolean functionPathIsEmpty(Context cx, SemType rets, SemType params, SemType qualifiers, Conjunction pos,
                                                Conjunction neg) {
         if (neg == null) {
             return false;
@@ -67,12 +68,13 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
                 //  monomorphization (at least for types) since generics can contain calls to other generics, and
                 //  in order to do latter we need to define generics properly in spec. Untill that we are going to use
                 //  a hack just to make sure internal libraries type checks passes
-                return (Core.isSubtype(cx, qualifiers, t2) && Core.isSubtype(cx, params, t0))
-                        || functionPathIsEmpty(cx, params, qualifiers, pos, neg.next);
+                return (Core.isSubtype(cx, qualifiers, t2) && Core.isSubtype(cx, params, t0) &&
+                        Core.isSubtype(cx, rets, t1))
+                        || functionPathIsEmpty(cx, rets, params, qualifiers, pos, neg.next);
             }
             return (Core.isSubtype(cx, qualifiers, t2) && Core.isSubtype(cx, t0, params) &&
                     functionPhi(cx, t0, Core.complement(t1), pos))
-                    || functionPathIsEmpty(cx, params, qualifiers, pos, neg.next);
+                    || functionPathIsEmpty(cx, rets, params, qualifiers, pos, neg.next);
         }
     }
 
