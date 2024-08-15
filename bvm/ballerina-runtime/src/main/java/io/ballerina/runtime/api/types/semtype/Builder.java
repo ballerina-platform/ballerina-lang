@@ -515,6 +515,10 @@ public final class Builder {
         return SIMPLE_OR_STRING;
     }
 
+    public static SemType tableType() {
+        return from(BasicTypeCode.BT_TABLE);
+    }
+
     private static final class IntTypeCache {
 
         private static final int CACHE_MAX_VALUE = 127;
