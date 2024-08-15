@@ -25,16 +25,16 @@ package io.ballerina.projects;
 public class Resource {
 
     private final ResourceContext resourceContext;
-    private final Module module;
+    private final Package packageInstance;
 
-    Resource(ResourceContext resourceContext, Module module) {
+    Resource(ResourceContext resourceContext, Package aPackage) {
         this.resourceContext = resourceContext;
-        this.module = module;
+        this.packageInstance = aPackage;
     }
 
-    Resource from(ResourceConfig resourceConfig, Module module) {
+    Resource from(ResourceConfig resourceConfig, Package aPackage) {
         ResourceContext resourceContext = ResourceContext.from(resourceConfig);
-        return new Resource(resourceContext, module);
+        return new Resource(resourceContext, aPackage);
     }
 
     public DocumentId documentId() {
@@ -49,7 +49,12 @@ public class Resource {
         return resourceContext.content();
     }
 
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     public Module module() {
-        return module;
+        return packageInstance.getDefaultModule();
+    }
+
+    public Package packageInstance() {
+        return packageInstance;
     }
 }

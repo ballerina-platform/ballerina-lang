@@ -1,0 +1,50 @@
+{
+  "source": {
+    "file": "projectls/class_def.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 16
+  },
+  "result": [
+    {
+      "uri": "projectls/class_def.bal",
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 16
+        },
+        "end": {
+          "line": 10,
+          "character": 19
+        }
+      }
+    },
+    {
+      "uri": "projectls/union_types.bal",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 16
+        },
+        "end": {
+          "line": 6,
+          "character": 19
+        }
+      }
+    },
+    {
+      "uri": "projectls/class_def.bal",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 13
+        },
+        "end": {
+          "line": 4,
+          "character": 17
+        }
+      }
+    }
+  ]
+}

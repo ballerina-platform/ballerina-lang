@@ -38,6 +38,7 @@ import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessage;
 
 /**
  * This class executes a Ballerina program.
@@ -206,10 +207,6 @@ public class Main {
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("home info not available");
         }
-    }
-
-    private static String prepareCompilerErrorMessage(String message) {
-        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
     private static String getFirstUnknownArg(String errorMessage) {
