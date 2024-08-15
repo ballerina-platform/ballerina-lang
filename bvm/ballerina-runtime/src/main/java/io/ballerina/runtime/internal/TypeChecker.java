@@ -118,33 +118,32 @@ public final class TypeChecker {
     private static final SemType NUMERIC_TYPE = createNumericType();
     private static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
     private static final SemType REF_TYPE_MASK = createRefValueMask();
+    private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
         // TODO: we don't need to do this like this see checkIsType(Object, Type)
-        Type sourceType = getImpliedType(getType(sourceVal));
-        if (checkIsType(errors, sourceVal, sourceType, targetType)) {
+        if (checkIsType(sourceVal, targetType)) {
             return sourceVal;
         }
-
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            return TypeConverter.castValues(targetType, sourceVal);
-        }
-
-        // if the source is a numeric value and the target type is a union, try to find a matching
-        // member.
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.UNION_TAG) {
-            for (Type memberType : ((BUnionType) targetType).getMemberTypes()) {
-                try {
-                    return TypeConverter.castValues(memberType, sourceVal);
-                } catch (Exception e) {
-                    //ignore and continue
+        Type sourceType = getType(sourceVal);
+        if (Core.containsBasicType(sourceType, CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(targetType, CONVERTIBLE_CAST_MASK)) {
+            // We need to maintain order for these?
+            if (targetType instanceof BUnionType unionType) {
+                for (Type memberType : unionType.getMemberTypes()) {
+                    try {
+                        return TypeConverter.castValues(memberType, sourceVal);
+                    } catch (Exception e) {
+                        //ignore and continue
+                    }
                 }
+            } else {
+                return TypeConverter.castValues(targetType, sourceVal);
             }
         }
-
         throw createTypeCastError(sourceVal, targetType, errors);
     }
 
@@ -649,6 +648,7 @@ public final class TypeChecker {
                 Core.isSubType(context(), sourceType, INHERENTLY_IMMUTABLE_TYPE) || sourceType instanceof ReadonlyType;
     }
 
+    // FIXME:
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
@@ -809,6 +809,12 @@ public final class TypeChecker {
     private static SemType createRefValueMask() {
         return Stream.of(Builder.xmlType(), Builder.mappingType(), Builder.listType(), Builder.errorType(),
                         Builder.tableType(), Builder.regexType())
+                .reduce(Builder.neverType(), Core::union);
+    }
+
+    private static SemType createConvertibleCastMask() {
+        return Stream.of(Builder.intType(), Builder.floatType(), Builder.decimalType(), Builder.stringType(),
+                        Builder.booleanType())
                 .reduce(Builder.neverType(), Core::union);
     }
 
