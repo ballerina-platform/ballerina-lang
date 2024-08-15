@@ -49,57 +49,41 @@ public final class Context {
     }
 
     public boolean memoSubtypeIsEmpty(Map<Bdd, BddMemo> memoTable, BddIsEmptyPredicate isEmptyPredicate, Bdd bdd) {
-        BddMemo mm = memoTable.get(bdd);
-        BddMemo m;
-        if (mm != null) {
-            switch (mm.isEmpty) {
-                case CYCLIC:
-                    // Since we define types inductively we consider these to be empty
-                    return true;
-                case TRUE, FALSE:
-                    // We know whether b is empty or not for certain
-                    return mm.isEmpty == BddMemo.Status.TRUE;
-                case NULL:
-                    // this is same as not having memo so fall through
-                    m = mm;
-                    break;
-                case LOOP, PROVISIONAL:
-                    // We've got a loop.
-                    mm.isEmpty = BddMemo.Status.LOOP;
-                    return true;
-                default:
-                    throw new AssertionError("Unexpected memo status: " + mm.isEmpty);
-            }
-        } else {
-            m = new BddMemo();
-            memoTable.put(bdd, m);
-        }
+        BddMemo m = memoTable.computeIfAbsent(bdd, ignored -> new BddMemo());
+        return m.isEmpty().orElseGet(() -> memoSubTypeIsEmptyInner(isEmptyPredicate, bdd, m));
+    }
+
+    private boolean memoSubTypeIsEmptyInner(BddIsEmptyPredicate isEmptyPredicate, Bdd bdd, BddMemo m) {
         m.isEmpty = BddMemo.Status.PROVISIONAL;
         int initStackDepth = memoStack.size();
         memoStack.add(m);
         boolean isEmpty = isEmptyPredicate.apply(this, bdd);
         boolean isLoop = m.isEmpty == BddMemo.Status.LOOP;
         if (!isEmpty || initStackDepth == 0) {
-            for (int i = initStackDepth + 1; i < memoStack.size(); i++) {
-                BddMemo.Status memoStatus = memoStack.get(i).isEmpty;
-                if (Objects.requireNonNull(memoStatus) == BddMemo.Status.PROVISIONAL ||
-                        memoStatus == BddMemo.Status.LOOP || memoStatus == BddMemo.Status.CYCLIC) {
-                    memoStack.get(i).isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.NULL;
-                }
-            }
-            if (memoStack.size() > initStackDepth) {
-                memoStack.subList(initStackDepth, memoStack.size()).clear();
-            }
-            // The only way that we have found that this can be empty is by going through a loop.
-            // This means that the shapes in the type would all be infinite.
-            // But we define types inductively, which means we only consider finite shapes.
-            if (isLoop && isEmpty) {
-                m.isEmpty = BddMemo.Status.CYCLIC;
-            } else {
-                m.isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.FALSE;
-            }
+            resetMemoizedValues(initStackDepth, isEmpty, isLoop, m);
         }
         return isEmpty;
+    }
+
+    private void resetMemoizedValues(int initStackDepth, boolean isEmpty, boolean isLoop, BddMemo m) {
+        for (int i = initStackDepth + 1; i < memoStack.size(); i++) {
+            BddMemo.Status memoStatus = memoStack.get(i).isEmpty;
+            if (Objects.requireNonNull(memoStatus) == BddMemo.Status.PROVISIONAL ||
+                    memoStatus == BddMemo.Status.LOOP || memoStatus == BddMemo.Status.CYCLIC) {
+                memoStack.get(i).isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.NULL;
+            }
+        }
+        if (memoStack.size() > initStackDepth) {
+            memoStack.subList(initStackDepth, memoStack.size()).clear();
+        }
+        // The only way that we have found that this can be empty is by going through a loop.
+        // This means that the shapes in the type would all be infinite.
+        // But we define types inductively, which means we only consider finite shapes.
+        if (isLoop && isEmpty) {
+            m.isEmpty = BddMemo.Status.CYCLIC;
+        } else {
+            m.isEmpty = isEmpty ? BddMemo.Status.TRUE : BddMemo.Status.FALSE;
+        }
     }
 
     public ListAtomicType listAtomType(Atom atom) {

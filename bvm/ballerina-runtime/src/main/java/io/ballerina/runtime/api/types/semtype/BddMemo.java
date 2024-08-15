@@ -19,6 +19,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import java.util.Objects;
+import java.util.Optional;
 
 // TODO: consider moving this to inner as well
 public final class BddMemo {
@@ -52,5 +53,17 @@ public final class BddMemo {
     @Override
     public int hashCode() {
         return Objects.hashCode(isEmpty);
+    }
+
+    public Optional<Boolean> isEmpty() {
+        return switch (isEmpty) {
+            case TRUE, CYCLIC -> Optional.of(true);
+            case FALSE -> Optional.of(false);
+            case LOOP, PROVISIONAL -> {
+                isEmpty = Status.LOOP;
+                yield Optional.of(true);
+            }
+            case NULL -> Optional.empty();
+        };
     }
 }
