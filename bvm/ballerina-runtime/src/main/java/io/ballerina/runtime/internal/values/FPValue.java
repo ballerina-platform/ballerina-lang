@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.BalRuntime;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -108,5 +109,10 @@ public class FPValue implements BFunctionPointer, RefValue {
     @Override
     public SemType widenedType(Context cx) {
         return Builder.functionType();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        return Optional.of(getType());
     }
 }

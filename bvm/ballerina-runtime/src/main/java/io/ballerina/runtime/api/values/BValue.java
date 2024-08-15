@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * <p>
@@ -63,5 +64,9 @@ public interface BValue {
 
     default SemType widenedType(Context cx) {
         return getType();
+    }
+
+    default Optional<SemType> shapeOf(Context cx) {
+        return Optional.empty();
     }
 }

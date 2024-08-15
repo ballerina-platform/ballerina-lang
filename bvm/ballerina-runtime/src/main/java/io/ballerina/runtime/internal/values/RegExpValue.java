@@ -140,4 +140,9 @@ public class RegExpValue implements BRegexpValue, RefValue {
     public Optional<SemType> shapeOf() {
         return Optional.of(this.shape);
     }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        return shapeOf();
+    }
 }
