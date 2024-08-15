@@ -128,9 +128,6 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
         if (!shouldCache()) {
             return CachedResult.NOT_FOUND;
         }
-        if (this == other) {
-            return CachedResult.TRUE;
-        }
         return resultCache.getCachedResult(other);
     }
 
