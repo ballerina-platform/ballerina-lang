@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -36,10 +38,12 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BObjectType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
@@ -242,5 +246,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     public final void cacheShape(SemType semType) {
         this.shape = semType;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        TypeWithShape typeWithShape = (TypeWithShape) getType();
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, this);
     }
 }

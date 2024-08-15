@@ -22,6 +22,9 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.DecimalValueKind;
@@ -35,6 +38,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * <p>
@@ -483,5 +487,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
         // TODO check whether we need to create a new BigDecimal again(or use the same value)
         return new DecimalValue(new BigDecimal(value.toString(), MathContext.DECIMAL128)
                 .setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        return Optional.of(Builder.decimalConst(value));
     }
 }

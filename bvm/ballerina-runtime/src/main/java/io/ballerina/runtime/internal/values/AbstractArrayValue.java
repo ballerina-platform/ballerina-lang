@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -330,5 +331,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
     @Override
     public void resetReadonlyShapeDefinition() {
         readonlyAttachedDefinition = null;
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        TypeWithShape typeWithShape = (TypeWithShape) getType();
+        return typeWithShape.shapeOf(cx, Builder::shapeOf, this);
     }
 }

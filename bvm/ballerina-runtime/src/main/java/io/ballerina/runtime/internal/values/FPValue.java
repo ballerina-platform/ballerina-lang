@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -135,5 +136,10 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     @Override
     public SemType widenedType(Context cx) {
         return Builder.functionType();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx) {
+        return Optional.of(getType());
     }
 }
