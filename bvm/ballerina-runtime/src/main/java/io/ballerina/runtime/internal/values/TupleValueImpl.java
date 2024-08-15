@@ -23,28 +23,19 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BIterator;
-import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BListInitialValueEntry;
-import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.types.BType;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
@@ -322,6 +313,25 @@ public class TupleValueImpl extends AbstractArrayValue {
     public void addRefValue(long index, Object value) {
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
+    }
+
+    public boolean checkSortCompatibility(BArray arr, BFunctionPointer<Object, Object> function, Set<Type> typeList, Integer[] orderedTypeList) {
+        Type memberType;
+        for(int i = 0; i < arr.getLength(); i++) {
+            memberType = TypeUtils.getReferredType(this.tupleType.getTupleTypes().get(i));
+            if( memberType != this.tupleType.getTupleTypes().get(0) && function == null) {
+                return false;
+            }
+            typeList.add(memberType);
+        }
+        return (Arrays.stream(orderedTypeList).toList().contains(typeList.stream().toList().get(0).getTag()) &&
+                typeList.size() == 1);
+    }
+
+    public List<Type> getElementTypeList() {
+        List<Type> typeList = this.tupleType.getTupleTypes();
+        typeList.add(this.tupleType.getRestType());
+        return typeList;
     }
 
     public void convertStringAndAddRefValue(long index, BString value) {

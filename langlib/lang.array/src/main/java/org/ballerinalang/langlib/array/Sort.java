@@ -18,21 +18,26 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.*;
+
+import java.util.*;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.langlib.array.utils.SortUtils.isOrderedType;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], direction, function).
@@ -42,12 +47,21 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Sort {
 
     public static BArray sort(BArray arr, Object direction, Object func) {
-        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");
+        BArray sortedArray;
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
-
+        Set<Type> typeList = new HashSet<>();
+        if(arr.getType().getTag() == TypeTags.TUPLE_TAG) {
+            if(!isOrderedType(arr.getType()) && function == null) {
+                throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                        StringUtils.fromString("Valid Key function needed"));
+            }
+            typeList = new HashSet<>(((BTupleType)arr.getType()).getTupleTypes());
+            if(((BTupleType)arr.getType()).getRestType() != null) {
+                typeList.add(((BTupleType)arr.getType()).getRestType());
+            }
+        }
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
-
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
@@ -58,15 +72,16 @@ public class Sort {
                 sortArr[i][0] = sortArr[i][1] = arr.get(i);
             }
         }
-
         mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
-
-        BArray sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
-
+        if(arr.getType().getTag() == TypeTags.TUPLE_TAG) {
+            sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(
+                    TypeCreator.createUnionType(typeList.stream().toList())));
+        } else {
+            sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+        }
         for (int k = 0; k < sortArr.length; k++) {
             sortedArray.add(k, sortArr[k][1]);
         }
-
         return sortedArray;
     }
 
