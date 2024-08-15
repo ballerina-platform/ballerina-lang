@@ -237,6 +237,3 @@ public interface BArray extends BRefValue, BCollection {
 
     long getLength();
 }
-
-
-

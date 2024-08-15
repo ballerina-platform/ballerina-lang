@@ -315,25 +315,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         refValues[(int) index] = value;
     }
 
-    public boolean checkSortCompatibility(BArray arr, BFunctionPointer<Object, Object> function, Set<Type> typeList, Integer[] orderedTypeList) {
-        Type memberType;
-        for(int i = 0; i < arr.getLength(); i++) {
-            memberType = TypeUtils.getReferredType(this.tupleType.getTupleTypes().get(i));
-            if( memberType != this.tupleType.getTupleTypes().get(0) && function == null) {
-                return false;
-            }
-            typeList.add(memberType);
-        }
-        return (Arrays.stream(orderedTypeList).toList().contains(typeList.stream().toList().get(0).getTag()) &&
-                typeList.size() == 1);
-    }
-
-    public List<Type> getElementTypeList() {
-        List<Type> typeList = this.tupleType.getTupleTypes();
-        typeList.add(this.tupleType.getRestType());
-        return typeList;
-    }
-
     public void convertStringAndAddRefValue(long index, BString value) {
         rangeCheck(index, size);
         int intIndex = (int) index;
