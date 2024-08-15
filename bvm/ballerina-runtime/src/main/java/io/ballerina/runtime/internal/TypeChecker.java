@@ -62,17 +62,12 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.DecimalValueKind;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.HandleValue;
-import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
-import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValuePair;
-import io.ballerina.runtime.internal.values.XmlComment;
-import io.ballerina.runtime.internal.values.XmlItem;
-import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
-import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
@@ -126,6 +121,7 @@ public final class TypeChecker {
     private static final SemType SIMPLE_BASIC_TYPE = createSimpleBasicType();
     private static final SemType NUMERIC_TYPE = createNumericType();
     private static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
+    private static final SemType REF_TYPE_MASK = createRefValueMask();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
 
     public static Object checkCast(Object sourceVal, Type targetType) {
@@ -438,6 +434,7 @@ public final class TypeChecker {
         if (isSimpleBasicSemType(lhsType)) {
             return isSimpleBasicValuesEqual(lhsValue, rhsValue);
         }
+        // Use belong to basic type
         Predicate<SemType> basicTypePredicate =
                 (basicType) -> Core.isSubType(cx, lhsType, basicType) && Core.isSubType(cx, rhsType, basicType);
         if (basicTypePredicate.test(Builder.stringType())) {
@@ -810,87 +807,42 @@ public final class TypeChecker {
             return false;
         }
 
-        return checkValueEquals(lhsValue, rhsValue, checkedValues, getType(lhsValue), getType(rhsValue));
+        return checkValueEqual(lhsValue, rhsValue, new HashSet<>(checkedValues));
     }
 
-    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues,
-                                            Type lhsValType, Type rhsValType) {
-        lhsValType = getImpliedType(lhsValType);
-        rhsValType = getImpliedType(rhsValType);
-        int lhsValTypeTag = lhsValType.getTag();
-        int rhsValTypeTag = rhsValType.getTag();
+    private static SemType createRefValueMask() {
+        return Stream.of(Builder.xmlType(), Builder.mappingType(), Builder.listType(), Builder.errorType(),
+                        Builder.tableType(), Builder.regexType())
+                .reduce(Builder.neverType(), Core::union);
+    }
 
-        switch (lhsValTypeTag) {
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG:
-                return lhsValue.equals(rhsValue);
-            case TypeTags.INT_TAG:
-                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
-                    return false;
-                }
-                return lhsValue.equals(((Number) rhsValue).longValue());
-            case TypeTags.BYTE_TAG:
-                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
-                    return false;
-                }
-                return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
-            case TypeTags.FLOAT_TAG:
-                if (rhsValTypeTag != TypeTags.FLOAT_TAG) {
-                    return false;
-                }
-                if (Double.isNaN((Double) lhsValue) && Double.isNaN((Double) rhsValue)) {
-                    return true;
-                }
-                return ((Number) lhsValue).doubleValue() == ((Number) rhsValue).doubleValue();
-            case TypeTags.DECIMAL_TAG:
-                if (rhsValTypeTag != TypeTags.DECIMAL_TAG) {
-                    return false;
-                }
-                return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
-            case TypeTags.XML_TAG:
-                // Instance of xml never
-                if (lhsValue instanceof XmlText xmlText) {
-                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && xmlText.equals(rhsValue, checkedValues);
-                }
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlSequence) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.XML_ELEMENT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlItem) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.XML_COMMENT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlComment) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.XML_TEXT_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlText) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.XML_PI_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && ((XmlPi) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.MAP_TAG:
-            case TypeTags.JSON_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && ((MapValueImpl) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.TUPLE_TAG:
-            case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) && ((ArrayValue) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.ERROR_TAG:
-                return rhsValTypeTag == TypeTags.ERROR_TAG && ((ErrorValue) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.TABLE_TAG:
-                return rhsValTypeTag == TypeTags.TABLE_TAG &&
-                        ((TableValueImpl) lhsValue).equals(rhsValue, checkedValues);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return checkValueEquals(lhsValue, rhsValue, checkedValues,
-                        ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
-            case TypeTags.SERVICE_TAG:
-            default:
-                if (lhsValue instanceof RegExpValue lhsRegExpValue) {
-                    return lhsRegExpValue.equals(rhsValue, checkedValues);
-                }
-                return false;
+    private static boolean checkValueEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
+        Context cx = context();
+        SemType lhsShape = Builder.shapeOf(cx, lhsValue).orElseThrow();
+        SemType rhsShape = Builder.shapeOf(cx, rhsValue).orElseThrow();
+        Predicate<SemType> belongToSameBasicType = (basicType) -> Core.containsBasicType(lhsShape, basicType) &&
+                Core.containsBasicType(rhsShape, basicType);
+        if (belongToSameBasicType.test(Builder.stringType()) || belongToSameBasicType.test(Builder.booleanType())) {
+            return lhsValue.equals(rhsValue);
         }
-    }
-
-    private static boolean isListType(int typeTag) {
-        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
-    }
-
-    private static boolean isMappingType(int typeTag) {
-        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+        if (belongToSameBasicType.test(Builder.intType())) {
+            // TODO: is this correct if one of the values are bytes (shouldn't we check of unsigned etc)
+            return ((Number) lhsValue).longValue() == ((Number) rhsValue).longValue();
+        }
+        if (belongToSameBasicType.test(Builder.floatType())) {
+            Double lhs = (Double) lhsValue;
+            Double rhs = (Double) rhsValue;
+            // directly doing equals don't work with -0 and 0
+            return (Double.isNaN(lhs) && Double.isNaN(rhs)) || lhs.doubleValue() == rhs.doubleValue();
+        }
+        if (belongToSameBasicType.test(Builder.decimalType())) {
+            return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
+        }
+        if (belongToSameBasicType.test(REF_TYPE_MASK)) {
+            RefValue lhs = (RefValue) lhsValue;
+            return lhs.equals(rhsValue, checkedValues);
+        }
+        return false;
     }
 
     public static boolean isRegExpType(Type targetType) {
