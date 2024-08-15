@@ -32,7 +32,9 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemTypeDependencyManager;
 import io.ballerina.runtime.internal.types.semtype.SubTypeData;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -56,6 +58,7 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
     private volatile SemType cachedSemType = null;
     protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
             MutableSemTypeDependencyManager.getInstance();
+    private Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -282,12 +285,12 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
 
     @Override
     public CachedResult cachedSubTypeRelation(SemType other) {
-        return CachedResult.NOT_FOUND;
+        return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
     }
 
     @Override
     public void cacheSubTypeRelation(SemType other, boolean result) {
-
+        cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
 
     @Override
