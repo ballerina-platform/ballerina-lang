@@ -41,8 +41,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.NotNull;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -209,8 +211,7 @@ public class SemTypeResolver {
     }
 
     private SemType resolveNonDistinctObject(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                             int depth,
-                                             BLangObjectTypeNode td) {
+                                             int depth, BLangObjectTypeNode td) {
         if (td.defn != null) {
             return td.defn.getSemType(cx.env);
         }
@@ -258,8 +259,7 @@ public class SemTypeResolver {
         }
         FunctionDefinition fd = new FunctionDefinition();
         attachedDefinitions.put(functionType, fd);
-        List<SemType> params = functionType.getParameters().stream()
-                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode)).toList();
+        List<SemType> params = getParameters(cx, mod, defn, depth, functionType);
         SemType rest;
         if (functionType.getRestParameters() == null) {
             rest = PredefinedType.NEVER;
@@ -274,6 +274,22 @@ public class SemTypeResolver {
                 functionType.flagSet.contains(Flag.TRANSACTIONAL));
         return fd.define(cx.env, paramListDefinition.defineListTypeWrapped(cx.env, params, params.size(), rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE), returnType, qualifiers);
+    }
+
+    @NotNull
+    private List<SemType> getParameters(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                        BLangFunction functionType) {
+        List<SemType> params = new ArrayList<>();
+        if (functionType instanceof BLangResourceFunction resourceFunctionType) {
+            params.add(SemTypes.stringConst(resourceFunctionType.methodName.value));
+            for (var each : resourceFunctionType.resourcePathSegments) {
+                params.add(resolveTypeDesc(cx, mod, defn, depth + 1, each.typeNode));
+            }
+        }
+        functionType.getParameters().stream()
+                .map(paramVar -> resolveTypeDesc(cx, mod, defn, depth + 1, paramVar.typeNode))
+                .forEach(params::add);
+        return params;
     }
 
     private SemType resolveTypeDesc(Context cx, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
