@@ -137,6 +137,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private static Optional<Member> createMember(BAttachedFunction func, Set<String> visitedFields) {
         String name = func.funcName.value;
+        if (Symbols.isFlagOn(func.symbol.flags, Flags.REMOTE)) {
+            name = "$remote$" + name;
+        }
         if (visitedFields.contains(name)) {
             return Optional.empty();
         }
