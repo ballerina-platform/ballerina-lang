@@ -19,10 +19,10 @@
 package io.ballerina.runtime.api.types.semtype;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 /**
  * Context in which type checking operations are performed. Note context is not thread safe, requiring external
@@ -35,9 +35,9 @@ public final class Context {
     // Contains all BddMemo entries with isEmpty == PROVISIONAL
     private final List<BddMemo> memoStack = new ArrayList<>();
     public final Env env;
-    public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
-    public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
-    public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
+    public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
+    public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
 
     SemType anydataMemo;
     private Context(Env env) {
