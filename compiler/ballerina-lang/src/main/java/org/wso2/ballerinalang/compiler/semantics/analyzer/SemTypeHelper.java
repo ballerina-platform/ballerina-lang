@@ -134,6 +134,7 @@ public final class SemTypeHelper {
             case TypeTags.ERROR:
             case TypeTags.TABLE:
             case TypeTags.SEQUENCE:
+            case TypeTags.PARAMETERIZED_TYPE:
             case TypeTags.NONE:
                 return t.semType();
             case TypeTags.NULL_SET:

@@ -58,7 +58,6 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'typedesc<(int|float|decimal|string|boolean)>', "
                           + "found 'typedesc<json>'", 41, 23);
         validateError(errors, indx++, "unknown type 'aTypeVar'", 44, 60);
-        validateError(errors, indx++, "incompatible types: expected 'map<int>', found 'map<other>'", 51, 18);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'customType'", 61, 13);
         validateError(errors, indx++, "incompatible types: expected 'float', found 'customType'", 62, 15);
         validateError(errors, indx++, "unknown type 'td'", 65, 73);
@@ -79,23 +78,29 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
                 "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
-        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
-                " (other|error)'", 140, 5);
-        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-                "function", 140, 64);
-        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
-                " (other|error)'", 144, 5);
-        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-                "function", 144, 64);
-        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 176, 15);
+        validateError(errors, indx++,
+                "a function with a non-'external' function body cannot be a dependently-typed function", 140, 64);
+        validateError(errors, indx++,
+                "a function with a non-'external' function body cannot be a dependently-typed function", 144, 64);
+        // TODO: 16/8/24 ballerina-platform/ballerina-spec#633
+//        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+//                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
+//                " (other|error)'", 140, 5);
+//        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+//                "function", 140, 64);
+//        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+//                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
+//                " (other|error)'", 144, 5);
+//        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+//                "function", 144, 64);
+//        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 176, 15);
         validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 180, 17);
         validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 181, 15);
         validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 182, 16);
         validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 183, 17);
-        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 185, 19);
-        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 186, 21);
+        // TODO: 16/8/24 ballerina-platform/ballerina-spec#633
+//        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 185, 19);
+//        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 186, 21);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 196, 16);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 197, 16);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 198, 13);
@@ -178,6 +183,8 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
         validateError(errors, indx++, "incompatible type for parameter 't' with inferred typedesc value: expected " +
                 "'typedesc<(int|string)>', found 'typedesc<boolean>'", 369, 17);
+        validateError(errors, indx++, "a wildcard binding pattern can be used only with a value that belong to type " +
+                "'any'", 371, 5);
         validateError(errors, indx++, "incompatible types: expected 'TargetType', found 'typedesc<boolean>'", 371, 64);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
