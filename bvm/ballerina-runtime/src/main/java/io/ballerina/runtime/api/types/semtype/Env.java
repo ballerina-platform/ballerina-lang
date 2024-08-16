@@ -18,11 +18,13 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -39,8 +41,7 @@ public final class Env {
 
     private static final Env INSTANCE = new Env();
 
-    private final Map<AtomicType, TypeAtom> atomTable;
-    private final ReadWriteLock atomTableLock = new ReentrantReadWriteLock();
+    private final Map<AtomicType, Reference<TypeAtom>> atomTable;
 
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
     final List<ListAtomicType> recListAtoms;
@@ -56,7 +57,7 @@ public final class Env {
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
 
     private Env() {
-        this.atomTable = new HashMap<>();
+        this.atomTable = new WeakHashMap<>();
         this.recListAtoms = new ArrayList<>();
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
@@ -73,29 +74,17 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        atomTableLock.readLock().lock();
-        try {
-            TypeAtom ta = this.atomTable.get(atomicType);
-            if (ta != null) {
-                return ta;
+        synchronized (this.atomTable) {
+            Reference<TypeAtom> ref = this.atomTable.get(atomicType);
+            if (ref != null) {
+                TypeAtom atom = ref.get();
+                if (atom != null) {
+                    return atom;
+                }
             }
-        } finally {
-            atomTableLock.readLock().unlock();
-        }
-
-        atomTableLock.writeLock().lock();
-        try {
-            // we are double-checking since there may be 2 trying to add at the same time
-            TypeAtom ta = this.atomTable.get(atomicType);
-            if (ta != null) {
-                return ta;
-            } else {
-                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size() + 1, atomicType);
-                this.atomTable.put(result.atomicType(), result);
-                return result;
-            }
-        } finally {
-            atomTableLock.writeLock().unlock();
+            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+            this.atomTable.put(result.atomicType(), new WeakReference<>(result));
+            return result;
         }
     }
 
