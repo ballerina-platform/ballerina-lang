@@ -29,6 +29,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -76,6 +77,11 @@ public class BaseTest {
 
         // Revert the distribution version to the placeholder
         replaceDistributionVersionOfDependenciesToml(packageBPath, "**INSERT_DISTRIBUTION_VERSION_HERE**");
+    }
+
+    @DataProvider(name = "optimizeDependencyCompilation")
+    public Object [] [] provideOptimizeDependencyCompilation() {
+        return new Object [][] {{ false }, { true }};
     }
 
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {

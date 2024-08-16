@@ -22,8 +22,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Map;
-
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -51,7 +49,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class ShutDownListenerGen {
 
-    void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
+    void generateShutdownSignalListener(String initClass, JarEntries jarEntries) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);

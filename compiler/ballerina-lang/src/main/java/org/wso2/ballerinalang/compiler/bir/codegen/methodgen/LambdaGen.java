@@ -26,6 +26,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
@@ -118,7 +119,7 @@ public class LambdaGen {
     }
 
     public void generateLambdaClasses(AsyncDataCollector asyncDataCollector,
-                                      Map<String, byte[]> jarEntries) {
+                                      JarEntries jarEntries) {
         Map<String, LambdaClass> lambdaClasses = asyncDataCollector.getLambdaClasses();
         if (lambdaClasses.isEmpty()) {
             return;
@@ -227,7 +228,7 @@ public class LambdaGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value, ref.variableDcl.type));
         int objectArrayLength = paramTypes.size() - 1;
         mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);

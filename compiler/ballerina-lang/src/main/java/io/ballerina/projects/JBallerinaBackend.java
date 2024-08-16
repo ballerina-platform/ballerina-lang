@@ -22,7 +22,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -38,8 +37,8 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -78,6 +77,9 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
+import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -95,6 +97,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    public static final String JAR_NAME_SEPARATOR = "-";
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -108,6 +111,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+    List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -188,10 +192,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.cleanBLangPackage();
             }
         }
+
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+        // add conflicting resources diagnostics
+        diagnostics.addAll(conflictedResourcesDiagnostics);
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -346,6 +353,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
+        return codeGeneratedResourcesLibrary(packageId, PlatformLibraryScope.DEFAULT);
+    }
+
+    @Override
     public PlatformLibrary runtimeLibrary() {
         return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
     }
@@ -370,10 +382,14 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+        if (moduleContext.project().currentPackage().packageContext() == packageContext &&
+                moduleContext.isDefaultModule()) {
+            cacheResources(compilationCache, moduleContext.project().buildOptions().skipTests());
         }
         // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
@@ -388,7 +404,7 @@ public class JBallerinaBackend extends CompilerBackend {
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
                 isRemoteMgtEnabled);
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -560,59 +576,61 @@ public class JBallerinaBackend extends CompilerBackend {
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
-
-        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
-        ZipArchiveEntryPredicate predicate = entry -> {
-            String entryName = entry.getName();
-            if (entryName.equals("META-INF/MANIFEST.MF")) {
-                return false;
-            }
-            if (entryName.equals("module-info.class")) {
-                return false;
-            }
-            if (entryName.startsWith("META-INF/services")) {
-                StringBuilder s = services.get(entryName);
-                if (s == null) {
-                    s = new StringBuilder();
-                    services.put(entryName, s);
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        try (ZipFile zipFile = new ZipFile(jarLibrary.path().toFile())) {
+            ZipArchiveEntryPredicate predicate = entry -> {
+                String entryName = entry.getName();
+                if (entryName.equals("META-INF/MANIFEST.MF")) {
+                    return false;
                 }
-                char c = '\n';
-
-                int len;
-                try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
-                    while ((len = inStream.read()) != -1) {
-                        c = (char) len;
-                        s.append(c);
+                if (entryName.equals("module-info.class")) {
+                    return false;
+                }
+                if (entryName.startsWith("META-INF/services")) {
+                    StringBuilder s = services.get(entryName);
+                    if (s == null) {
+                        s = new StringBuilder();
+                        services.put(entryName, s);
                     }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    char c = '\n';
+
+                    int len;
+                    try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
+                        while ((len = inStream.read()) != -1) {
+                            c = (char) len;
+                            s.append(c);
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
+                    }
+
+                    // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
+                    // separately. Therefore the predicate should be set as false.
+                    return false;
                 }
-                if (c != '\n') {
-                    s.append('\n');
+
+                // Skip already copied files or excluded extensions.
+                if (isCopiedEntry(entryName, copiedEntries)) {
+                    addConflictedJars(jarLibrary, copiedEntries, entryName);
+                    return false;
                 }
+                if (isExcludedEntry(entryName)) {
+                    return false;
+                }
+                // SPIs will be merged first and then put into jar separately.
+                copiedEntries.put(entryName, jarLibrary);
+                return true;
+            };
 
-                // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
-                // separately. Therefore the predicate should be set as false.
-                return false;
-            }
-
-            // Skip already copied files or excluded extensions.
-            if (isCopiedEntry(entryName, copiedEntries)) {
-                addConflictedJars(jarLibrary, copiedEntries, entryName);
-                return false;
-            }
-            if (isExcludedEntry(entryName)) {
-                return false;
-            }
-            // SPIs will be merged first and then put into jar separately.
-            copiedEntries.put(entryName, jarLibrary);
-            return true;
-        };
-
-        // Transfers selected entries from this zip file to the output stream, while preserving its compression and
-        // all the other original attributes.
-        zipFile.copyRawEntries(outStream, predicate);
-        zipFile.close();
+            // Transfers selected entries from this zip file to the output stream, while preserving its compression and
+            // all the other original attributes.
+            zipFile.copyRawEntries(outStream, predicate);
+        }
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -706,6 +724,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
+                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 
@@ -748,32 +767,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         return Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
-    }
-
-    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = new HashMap<>();
-        for (DocumentId documentId : moduleContext.resourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org().toString() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
-    }
-
-    private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
-        Map<String, byte[]> resourceMap = getResources(moduleContext);
-        for (DocumentId documentId : moduleContext.testResourceIds()) {
-            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
-                    + moduleContext.descriptor().org() + "/"
-                    + moduleContext.moduleName().toString() + "/"
-                    + moduleContext.descriptor().version().value().major() + "/"
-                    + moduleContext.resourceContext(documentId).name();
-            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
-        }
-        return resourceMap;
     }
 
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
@@ -950,4 +943,145 @@ public class JBallerinaBackend extends CompilerBackend {
                     this.packageContext().descriptor().name().toString()));
         }
     }
+
+    private PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId, PlatformLibraryScope scope) {
+        Package pkg = packageCache.getPackageOrThrow(packageId);
+        CompilationCache compilationCache = pkg.project().projectEnvironmentContext().getService(
+                CompilationCache.class);
+        return compilationCache.getPlatformSpecificLibrary(this, RESOURCE_DIR_NAME)
+                .map(path -> new JarLibrary(path, scope))
+                .orElse(null);
+    }
+
+    private Map<String, byte[]> getPackageResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : packageContext.resourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private Map<String, byte[]> getPackageAndTestResources(PackageContext packageContext) {
+        Map<String, byte[]> resourceMap = getPackageResources(packageContext);
+        for (DocumentId documentId : packageContext.testResourceIds()) {
+            String resourceName = RESOURCE_DIR_NAME + "/"
+                    + packageContext.resourceContext(documentId).name();
+            if (resourceMap.containsKey(resourceName)) {
+                addConflictingTestResourceDiag(packageContext.descriptor().toString(), resourceName);
+            }
+            resourceMap.put(resourceName, packageContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private void cacheResources(CompilationCache compilationCache, boolean skipTests) {
+        Map<String, byte[]> resources = new HashMap<>();
+        Map<String, String> resourceToPkgMap = new HashMap<>();
+        List<String> conflictingResourceFiles = new ArrayList<>();
+
+        // Add resources from dependencies in order
+        pkgResolution.allDependencies()
+                .stream()
+                .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
+                .map(pkgDep -> pkgDep.packageInstance().packageContext())
+                .forEach(pkgContext -> {
+                    Map<String, byte[]> depResources = getPackageResources(pkgContext);
+                    for (Map.Entry<String, byte[]> entry : depResources.entrySet()) {
+                        if (resources.containsKey(entry.getKey())) {
+                            addConflictingDepResourceDiag(pkgContext.descriptor().toString(),
+                                    resourceToPkgMap.get(entry.getKey()), entry.getKey());
+                        }
+                        resources.put(entry.getKey(), entry.getValue());
+                        resourceToPkgMap.put(entry.getKey(), pkgContext.descriptor().toString());
+                    }
+                });
+        // Add resources from the package
+        Map<String, byte[]> packageResources = skipTests ? getPackageResources(packageContext) :
+                getPackageAndTestResources(packageContext);
+        for (Map.Entry<String, byte[]> entry : packageResources.entrySet()) {
+            if (resources.containsKey(entry.getKey())) {
+                addConflictingDepResourceDiag(packageContext.descriptor().toString(),
+                        resourceToPkgMap.get(entry.getKey()), entry.getKey());
+            }
+            resources.put(entry.getKey(), entry.getValue());
+            resourceToPkgMap.put(entry.getKey(), packageContext.descriptor().toString());
+        }
+
+        // Add generated resources and check for conflicts for build projects
+        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)) {
+            Map<String, byte[]> generatedResources = ProjectUtils.getAllGeneratedResources(
+                    packageContext.project().generatedResourcesDir());
+            for (Map.Entry<String, byte[]> entry : generatedResources.entrySet()) {
+                if (resources.containsKey(entry.getKey())) {
+                    if (packageResources.containsKey(entry.getKey())) {
+                        conflictingResourceFiles.add(entry.getKey());
+                        continue;
+                    }
+                    // Issue a warning for conflicts with dependency resources
+                    addConflictingGenResourceDiag(resourceToPkgMap.get(entry.getKey()),
+                            packageContext.descriptor().toString(), entry.getKey());
+                }
+                resources.put(entry.getKey(), entry.getValue());
+            }
+            // Handle conflicting resources
+            if (!conflictingResourceFiles.isEmpty()) {
+                throw new ProjectException(getConflictingResourcesMsg(packageContext.descriptor().toString(),
+                        conflictingResourceFiles));
+            }
+        }
+
+        // Cache the resources if there are any
+        if (!resources.isEmpty()) {
+            try {
+                String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
+                CompiledJarFile resourceJar = new CompiledJarFile("");
+                resourceJar.jarEntries.putResourceEntries(resources);
+                try (ByteArrayOutputStream byteStream = resourceJar.toByteArrayStream()) {
+                    compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache resources jar, package: " +
+                        packageContext.packageName(), e);
+            }
+        }
+    }
+
+    private void addConflictingDepResourceDiag(String packageDesc, String existingPackageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The packages '" +
+                        existingPackageDesc + "' and '" + packageDesc +
+                        "' both export a resource with the same name '" + resourceName +
+                        "'. Picking the resource exported by '" + packageDesc + "'."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                this.packageContext.descriptor().name().toString()));
+    }
+
+    private void addConflictingGenResourceDiag(String existingPackageDesc, String packageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The package " + existingPackageDesc +
+                        "  and the generated resources for the current package '" + packageDesc +
+                        "' both export a resource with the same name '" + resourceName + "'. " +
+                        "Picking the generated resource file."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(
+                diagnosticInfo, this.packageContext.descriptor().name().toString()));
+    }
+
+    private void addConflictingTestResourceDiag(String packageDesc, String resourceName) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_RESOURCE_FILE.diagnosticId(),
+                String.format("detected conflicting resource files. The test specific resources and package " +
+                        "resources for '" + packageDesc + "' both export a resource with the same name '" +
+                        resourceName + "'. Picking the test specific resource."),
+                DiagnosticSeverity.WARNING);
+        conflictedResourcesDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                this.packageContext.descriptor().name().toString()));
+    }
+
 }

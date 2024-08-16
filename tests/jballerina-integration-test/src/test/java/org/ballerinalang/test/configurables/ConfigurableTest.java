@@ -50,20 +50,8 @@ public class ConfigurableTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
-                "-java21-0.1.0");
-    }
-
-    private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.");
-        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              packagPath);
-        buildLeecher.waitForText(5000);
-        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              packagPath);
-        pushLeecher.waitForText(5000);
+        bMainInstance.compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(),
+                "testOrg-configLib-java21-0.1.0");
     }
 
     @Test
@@ -323,7 +311,7 @@ public class ConfigurableTest extends BaseTest {
         String projectPath = Paths.get(testFileLocation, "testAmbiguousCases").toString();
         LogLeecher errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates an " +
                 "ambiguity with module 'testOrg/test:0.1.0'", ERROR);
-        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
+        bMainInstance.compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
         bMainInstance.runMain("pack", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");

@@ -549,4 +549,9 @@ public class Values {
         Assert.assertNotNull(node.getDetail("osName"));
         return StringUtils.fromString("balNode-" + node.nodeId);
     }
+
+    public static void validateIsRemoteEnabled(Environment env) {
+        Repository repository = env.getRepository();
+        Assert.assertTrue(repository.isRemoteEnabled());
+    }
 }

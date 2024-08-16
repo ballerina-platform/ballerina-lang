@@ -977,7 +977,9 @@ public class ObjectMock {
     private static BError validateField(Map.Entry<String, Field> mockField, Map<String, Field> fieldMap) {
         for (Map.Entry<String, Field> field : fieldMap.entrySet()) {
             if (field.getKey().equals(mockField.getKey())) {
-                if (TypeChecker.checkIsType(field.getValue().getFieldType(), mockField.getValue().getFieldType())) {
+                // Ignore type checking if the field is private
+                if (SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.PRIVATE) ||
+                        TypeChecker.checkIsType(field.getValue().getFieldType(), mockField.getValue().getFieldType())) {
                     return null;
                 } else {
                     String detail = "incompatible field type '" + mockField.getValue().getFieldType() + "' provided " +
