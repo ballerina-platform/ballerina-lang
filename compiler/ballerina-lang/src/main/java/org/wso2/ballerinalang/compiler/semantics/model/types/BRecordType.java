@@ -158,32 +158,35 @@ public class BRecordType extends BStructureType implements RecordType {
             return md.defineMappingTypeWrapped(env, List.of(), VAL);
         }
 
+        SemType restFieldSemType;
+        if (restFieldType == null || restFieldType instanceof BNoType || restFieldType.semType() == null) {
+            restFieldSemType = NEVER;
+        } else {
+            restFieldSemType = restFieldType.semType();
+        }
+
         List<Field> semFields = new ArrayList<>(this.fields.size());
         for (BField field : this.fields.values()) {
             boolean optional = Symbols.isOptional(field.symbol);
             BType bType = field.type;
             SemType ty = bType.semType();
             if (ty == null || NEVER.equals(ty) && SemTypeHelper.bTypeComponent(bType).isBTypeComponentEmpty) {
-                if (optional) {
-                    // ignore the field
-                    continue;
-                } else {
+                if (!optional) {
                     // if there is a non-optional field with `never` type(BType Component + SemType Component),
                     // it is not possible to create a value. Hence, the whole record type is considered as `never`.
                     md.setSemTypeToNever();
                     return NEVER;
                 }
+
+                if (restFieldSemType.equals(NEVER)) {
+                    // record { never x?; never...;} is equivalent to record { never... }
+                    // ignore the field
+                    continue;
+                }
             }
             Field semField = Field.from(field.name.value, ty, Symbols.isFlagOn(field.symbol.flags, Flags.READONLY),
                     optional);
             semFields.add(semField);
-        }
-
-        SemType restFieldSemType;
-        if (restFieldType == null || restFieldType instanceof BNoType || restFieldType.semType() == null) {
-            restFieldSemType = NEVER;
-        } else {
-            restFieldSemType = restFieldType.semType();
         }
 
         boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
