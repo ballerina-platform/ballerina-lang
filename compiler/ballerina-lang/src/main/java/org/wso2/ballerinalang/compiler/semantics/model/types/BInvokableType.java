@@ -205,6 +205,10 @@ public class BInvokableType extends BType implements InvokableType {
         FunctionDefinition fd = new FunctionDefinition();
         this.defn = fd;
         List<SemType> params = this.paramTypes.stream().map(BInvokableType::from).toList();
+        return getSemTypeWithParams(params, fd);
+    }
+
+    public SemType getSemTypeWithParams(List<SemType> params, FunctionDefinition fd) {
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
             rest = from(arrayType.eType);

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.SemType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -53,5 +54,9 @@ public class BAttachedFunction {
         }
         sb.append("function ").append(funcName).append(" ").append(type.getTypeSignature());
         return sb.toString();
+    }
+
+    public SemType semType() {
+        return type.semType();
     }
 }

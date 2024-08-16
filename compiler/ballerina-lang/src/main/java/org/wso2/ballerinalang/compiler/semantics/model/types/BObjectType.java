@@ -143,7 +143,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         visitedFields.add(name);
         Member.Visibility visibility = Symbols.isFlagOn(func.symbol.flags, Flags.PUBLIC) ?
                 Member.Visibility.Public : Member.Visibility.Private;
-        SemType type = func.type.semType();
+        SemType type = func.semType();
         assert type != null : "function type is fully implemented";
         assert !Core.isNever(type) : "method can't be never";
         return Optional.of(new Member(name, type, Member.Kind.Method, visibility, true));
