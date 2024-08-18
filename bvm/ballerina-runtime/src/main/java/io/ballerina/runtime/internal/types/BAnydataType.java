@@ -95,7 +95,7 @@ public class BAnydataType extends BUnionType implements AnydataType, SemType {
     @Override
     public SemType createSemType() {
         Context cx = TypeChecker.context();
-        SemType semType = Builder.anyDataType(cx);
+        SemType semType = Builder.anyDataType();
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.readonlyType());
         }

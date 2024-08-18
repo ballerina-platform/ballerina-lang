@@ -368,7 +368,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
 
         SemType rest;
         if (!td.isSealed() && td.getRestFieldType() == null) {
-            rest = Builder.anyDataType((Context) cx.getInnerContext());
+            rest = Builder.anyDataType();
         } else {
             rest = resolveTypeDesc(cx, mod, defn, depth + 1, td.getRestFieldType());
         }
@@ -635,7 +635,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case STRING -> Builder.stringType();
             case READONLY -> Builder.readonlyType();
             case ANY -> Builder.anyType();
-            case ANYDATA -> Builder.anyDataType((Context) cx.getInnerContext());
+            case ANYDATA -> Builder.anyDataType();
             case ERROR -> Builder.errorType();
             case XML -> Builder.xmlType();
             case HANDLE -> Builder.handleType();
