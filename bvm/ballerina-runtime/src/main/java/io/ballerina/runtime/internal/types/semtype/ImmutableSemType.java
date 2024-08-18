@@ -48,17 +48,10 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
 
     private Integer hashCode;
 
-    private final TypeCheckResultCache resultCache;
-
     ImmutableSemType(int all, int some, SubType[] subTypeData) {
         this.all = all;
         this.some = some;
         this.subTypeData = subTypeData;
-        if ((some & CACHEABLE_TYPE_MASK) != 0) {
-            this.resultCache = new TypeCheckResultCache();
-        } else {
-            this.resultCache = TypeCheckResultCache.EMPTY;
-        }
     }
 
     ImmutableSemType(int all) {
@@ -125,18 +118,12 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
 
     @Override
     public CachedResult cachedSubTypeRelation(SemType other) {
-        if (!shouldCache()) {
-            return CachedResult.NOT_FOUND;
-        }
-        return resultCache.getCachedResult(other);
+        return CachedResult.NOT_FOUND;
     }
 
     @Override
     public void cacheSubTypeRelation(SemType other, boolean result) {
-        if (shouldCache()) {
-            resultCache.cacheResult(other, result);
-            assert isValidCacheState(other, result) : "Invalid cache state";
-        }
+        return;
     }
 
     private boolean isValidCacheState(SemType other, boolean result) {
@@ -153,62 +140,5 @@ public abstract sealed class ImmutableSemType implements SemType permits BSemTyp
         int someMask = (1 << code) - 1;
         int some = some() & someMask;
         return subTypeData()[Integer.bitCount(some)];
-    }
-
-    private static sealed class TypeCheckResultCache {
-
-        private static final TypeCheckResultCache EMPTY = new EmptyTypeCheckResultCache();
-        // make this an int
-        private final Map<TypeCheckCacheKey, Boolean> cache = new WeakHashMap<>();
-
-        public void cacheResult(SemType semType, boolean result) {
-            cache.put(TypeCheckCacheKey.from(semType), result);
-        }
-
-        public CachedResult getCachedResult(SemType semType) {
-            Boolean cachedData = cache.get(TypeCheckCacheKey.from(semType));
-            if (cachedData == null) {
-                return CachedResult.NOT_FOUND;
-            }
-            return cachedData ? CachedResult.TRUE : CachedResult.FALSE;
-        }
-    }
-
-    private static final class EmptyTypeCheckResultCache extends TypeCheckResultCache {
-
-        @Override
-        public void cacheResult(SemType semType, boolean result) {
-            throw new UnsupportedOperationException("Empty cache");
-        }
-
-        @Override
-        public CachedResult getCachedResult(SemType semType) {
-            throw new UnsupportedOperationException("Empty cache");
-        }
-    }
-
-    private record TypeCheckCacheKey(Reference<SemType> semtype) {
-
-        static TypeCheckCacheKey from(SemType semType) {
-            return new TypeCheckCacheKey(new WeakReference<>(semType));
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof TypeCheckCacheKey other)) {
-                return false;
-            }
-            SemType thisSemType = semtype.get();
-            SemType otherSemType = other.semtype.get();
-            if (thisSemType == null || otherSemType == null) {
-                return false;
-            }
-            return thisSemType == otherSemType;
-        }
-
-        @Override
-        public int hashCode() {
-            return System.identityHashCode(semtype.get());
-        }
     }
 }
