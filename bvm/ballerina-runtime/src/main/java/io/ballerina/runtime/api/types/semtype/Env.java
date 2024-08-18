@@ -89,10 +89,16 @@ public final class Env {
     }
 
     Optional<SemType> getCachedCellType(SemType ty, CellAtomicType.CellMutability mut) {
+        if (ty.some() != 0) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut)));
     }
 
     void cacheCellType(SemType ty, CellAtomicType.CellMutability mut, SemType semType) {
+        if (ty.some() != 0) {
+            return;
+        }
         this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), semType);
     }
 
