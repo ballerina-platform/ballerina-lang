@@ -62,18 +62,18 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubType union(SubType other) {
-        if (!(other instanceof BMappingSubType otherList)) {
+        if (!(other instanceof BMappingSubType otherMapping)) {
             throw new IllegalArgumentException("union of different subtypes");
         }
-        return createDelegate(inner.union(otherList.inner));
+        return createDelegate(inner.union(otherMapping.inner));
     }
 
     @Override
     public SubType intersect(SubType other) {
-        if (!(other instanceof BMappingSubType otherList)) {
+        if (!(other instanceof BMappingSubType otherMapping)) {
             throw new IllegalArgumentException("intersect of different subtypes");
         }
-        return createDelegate(inner.intersect(otherList.inner));
+        return createDelegate(inner.intersect(otherMapping.inner));
     }
 
     @Override

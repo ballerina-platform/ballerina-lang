@@ -1,206 +1,48 @@
-/*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
- *
- *  WSO2 LLC. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
- */
-
 package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.types.semtype.Atom;
 import io.ballerina.runtime.api.types.semtype.Bdd;
+import io.ballerina.runtime.api.types.semtype.BddNode;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CellAtomicType;
-import io.ballerina.runtime.api.types.semtype.Conjunction;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.types.semtype.TypeAtom;
 
-import java.util.Objects;
-import java.util.function.Predicate;
+public abstract sealed class BCellSubType extends SubType implements DelegatedSubType
+        permits BCellSubTypeImpl, BCellSubTypeSimple {
 
-// TODO: would making this a child class of say BddNode be faster than making this a delegate
-//   -- Problem with this is modeling type operations (union, intersect, complement) since parent must return a Cell
-//   as well
-
-/**
- * Runtime representation of CellSubType.
- *
- * @since 2201.10.0
- */
-public final class BCellSubType extends SubType implements DelegatedSubType {
-
-    public final Bdd inner;
-
-    private BCellSubType(Bdd inner) {
-        super(inner.isAll(), inner.isNothing());
-        this.inner = inner;
+    public BCellSubType(boolean all, boolean nothing) {
+        super(all, nothing);
     }
 
     public static BCellSubType createDelegate(SubType inner) {
-        if (inner instanceof Bdd bdd) {
-            return new BCellSubType(bdd);
-        } else if (inner instanceof BCellSubType bCell) {
-            return new BCellSubType(bCell.inner);
-        }
-        throw new IllegalArgumentException("Unexpected inner type");
-    }
-
-    public static CellAtomicType cellAtomType(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType();
-    }
-
-    @Override
-    public SubType union(SubType other) {
-        if (!(other instanceof BCellSubType otherCell)) {
-            throw new IllegalArgumentException("union of different subtypes");
-        }
-        return createDelegate(inner.union(otherCell.inner));
-    }
-
-    @Override
-    public SubType intersect(SubType other) {
-        if (!(other instanceof BCellSubType otherCell)) {
-            throw new IllegalArgumentException("intersect of different subtypes");
-        }
-        return createDelegate(inner.intersect(otherCell.inner));
-    }
-
-    @Override
-    public SubType complement() {
-        return createDelegate(inner.complement());
-    }
-
-    @Override
-    public boolean isEmpty(Context cx) {
-        return Bdd.bddEvery(cx, inner, null, null, BCellSubType::cellFormulaIsEmpty);
-    }
-
-    @Override
-    public SubType diff(SubType other) {
-        if (!(other instanceof BCellSubType otherCell)) {
-            throw new IllegalArgumentException("diff of different subtypes");
-        }
-
-        return createDelegate(inner.diff(otherCell.inner));
-    }
-
-    @Override
-    public SubTypeData data() {
-        throw new IllegalStateException("unimplemented");
-    }
-
-    private static boolean cellFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
-        CellAtomicType combined;
-        if (posList == null) {
-            combined = CellAtomicType.from(Builder.valType(), CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+        Bdd bdd;
+        if (inner instanceof Bdd b) {
+            bdd = b;
+        } else if (inner instanceof BCellSubTypeImpl bCellImpl) {
+            bdd = bCellImpl.inner();
+        } else if (inner instanceof BCellSubTypeSimple simple) {
+            return simple;
         } else {
-            combined = cellAtomType(posList.atom());
-            Conjunction p = posList.next();
-            while (p != null) {
-                combined = CellAtomicType.intersectCellAtomicType(combined, cellAtomType(p.atom()));
-                p = p.next();
-            }
+            throw new IllegalArgumentException("Unexpected inner type");
         }
-        return !cellInhabited(cx, combined, negList);
-    }
-
-    private static boolean cellInhabited(Context cx, CellAtomicType posCell, Conjunction negList) {
-        SemType pos = posCell.ty();
-        if (Core.isEmpty(cx, pos)) {
-            return false;
+        if (!(bdd instanceof BddNode bddNode && bddNode.isSimple())) {
+            return new BCellSubTypeImpl(bdd);
         }
-        return switch (posCell.mut()) {
-            case CELL_MUT_NONE -> cellMutNoneInhabited(cx, pos, negList);
-            case CELL_MUT_LIMITED -> cellMutLimitedInhabited(cx, pos, negList);
-            default -> cellMutUnlimitedInhabited(cx, pos, negList);
-        };
-    }
-
-    private static boolean cellMutUnlimitedInhabited(Context cx, SemType pos, Conjunction negList) {
-        Conjunction neg = negList;
-        while (neg != null) {
-            if (cellAtomType(neg.atom()).mut() == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
-                    Core.isSameType(cx, Builder.valType(), cellAtomType(neg.atom()).ty())) {
-                return false;
-            }
-            neg = neg.next();
+        Atom atom = bddNode.atom();
+        if (!(atom instanceof TypeAtom typeAtom)) {
+            return new BCellSubTypeImpl(bdd);
         }
-        SemType negListUnionResult = filteredCellListUnion(negList,
-                conjunction -> cellAtomType(conjunction.atom()).mut() ==
-                        CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
-        // We expect `isNever` condition to be `true` when there are no negative atoms with unlimited mutability.
-        // Otherwise, we do `isEmpty` to conclude on the inhabitance.
-        return Core.isNever(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
-    }
-
-    private static boolean cellMutLimitedInhabited(Context cx, SemType pos, Conjunction negList) {
-        if (negList == null) {
-            return true;
+        CellAtomicType atomicType = (CellAtomicType) typeAtom.atomicType();
+        SemType ty = atomicType.ty();
+        // We have special logic when it comes to handling undef that needs to be updated to deal with simple cell
+        // TODO: probably we can also handle immutable cells as well
+        if (Core.containsBasicType(ty, Builder.undef()) || ty.some() != 0 ||
+                atomicType.mut() != CellAtomicType.CellMutability.CELL_MUT_LIMITED) {
+            return new BCellSubTypeImpl(bdd);
         }
-        CellAtomicType negAtomicCell = cellAtomType(negList.atom());
-        if ((negAtomicCell.mut().compareTo(CellAtomicType.CellMutability.CELL_MUT_LIMITED) >= 0) &&
-                Core.isEmpty(cx, Core.diff(pos, negAtomicCell.ty()))) {
-            return false;
-        }
-        return cellMutLimitedInhabited(cx, pos, negList.next());
-    }
-
-    private static boolean cellMutNoneInhabited(Context cx, SemType pos, Conjunction negList) {
-        SemType negListUnionResult = cellListUnion(negList);
-        // We expect `isNever` condition to be `true` when there are no negative atoms.
-        // Otherwise, we do `isEmpty` to conclude on the inhabitance.
-        return Core.isNever(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
-    }
-
-    private static SemType cellListUnion(Conjunction negList) {
-        return filteredCellListUnion(negList, neg -> true);
-    }
-
-    private static SemType filteredCellListUnion(Conjunction negList, Predicate<Conjunction> predicate) {
-        SemType negUnion = Builder.neverType();
-        Conjunction neg = negList;
-        while (neg != null) {
-            if (predicate.test(neg)) {
-                negUnion = Core.union(negUnion, cellAtomType(neg.atom()).ty());
-            }
-            neg = neg.next();
-        }
-        return negUnion;
-    }
-
-    @Override
-    public Bdd inner() {
-        return inner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof BCellSubType other)) {
-            return false;
-        }
-        return Objects.equals(inner, other.inner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(inner);
+        return new BCellSubTypeSimple(ty, bddNode);
     }
 }
