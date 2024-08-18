@@ -18,16 +18,10 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.types.semtype.PureSemType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.WeakHashMap;
 
 /**
@@ -44,7 +38,6 @@ public final class Context {
     public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
-    private final Map<BTypeMemoKey, SemType> computedSemTypes = new WeakHashMap<>();
 
     SemType anydataMemo;
     private Context(Env env) {
@@ -114,34 +107,6 @@ public final class Context {
             return this.env.getRecFunctionAtomType(recAtom);
         } else {
             return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
-        }
-    }
-
-    public SemType cachedSemType(BType bType) {
-        return BTypeMemoKey.from(bType)
-                .map(computedSemTypes::get)
-                .orElse(null);
-    }
-
-    public void cacheSemType(BType bType, SemType semType) {
-        if (semType instanceof PureSemType) {
-            BTypeMemoKey.from(bType).ifPresent(key -> computedSemTypes.put(key, semType));
-        }
-    }
-
-    private record BTypeMemoKey(String typeName, Module pkg) {
-
-        static Optional<BTypeMemoKey> from(BType bType) {
-            // Can have different function (isolation flag etc, with the same name, pkg combination)
-            if (bType instanceof BFunctionType) {
-                return Optional.empty();
-            }
-            String name = bType.getName();
-            Module module = bType.getPkg();
-            if (name == null || name.isEmpty() || module == null) {
-                return Optional.empty();
-            }
-            return Optional.of(new BTypeMemoKey(bType.getName(), bType.getPkg()));
         }
     }
 }
