@@ -267,4 +267,9 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
         }
         return Optional.empty();
     }
+
+    @Override
+    public boolean couldShapeBeDifferent() {
+        return true;
+    }
 }

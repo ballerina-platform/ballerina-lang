@@ -145,6 +145,11 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
+    public boolean couldShapeBeDifferent() {
+        return true;
+    }
+
+    @Override
     public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {

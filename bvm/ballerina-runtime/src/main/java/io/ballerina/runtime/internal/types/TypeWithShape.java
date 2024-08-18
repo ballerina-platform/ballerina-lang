@@ -30,4 +30,6 @@ public interface TypeWithShape {
 
     // Calculate the shape assuming object is readonly. This is the shape of value spec calls looks like shape
     Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object);
+
+    boolean couldShapeBeDifferent();
 }
