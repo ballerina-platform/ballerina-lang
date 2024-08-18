@@ -211,6 +211,11 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
+    public boolean couldShapeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
     public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return Optional.of(valueShape(cx, shapeSupplierFn, (BTable<?, ?>) object));
     }
