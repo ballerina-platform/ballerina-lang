@@ -22,8 +22,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.MutableSemType;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
@@ -48,7 +46,6 @@ import java.util.WeakHashMap;
  */
 public abstract class BType implements Type, SubTypeData, MutableSemType {
 
-    private static final SemType READONLY_WITH_B_TYPE = Core.union(Builder.readonlyType(), Core.B_TYPE_TOP);
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -58,7 +55,7 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
     private volatile SemType cachedSemType = null;
     protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
             MutableSemTypeDependencyManager.getInstance();
-    private Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
+    private final Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -258,9 +255,6 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
             return semType;
         }
         semType = createSemType();
-        if (isReadOnly()) {
-            semType = Core.intersect(semType, READONLY_WITH_B_TYPE);
-        }
         cachedSemType = semType;
         return semType;
     }
