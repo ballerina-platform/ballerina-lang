@@ -49,6 +49,10 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
         return m1.compareTo(m2) <= 0 ? m1 : m2;
     }
 
+    public static CellAtomicType cellAtomType(Atom atom) {
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
+    }
+
     public enum CellMutability {
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,

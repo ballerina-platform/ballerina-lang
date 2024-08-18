@@ -60,7 +60,7 @@ final class SubtypePairIterator implements Iterator<SubtypePair> {
     public SubtypePair next() {
         SubType subType1 = t1.subTypeByCode(index);
         SubType subType2 = t2.subTypeByCode(index);
-        assert (subType1 == null || subType2 == null) || (subType1.getClass().equals(subType2.getClass()));
+        assert (!(subType1 == null && subType2 == null));
         int typeCode = index;
         index++;
         incrementIndex();

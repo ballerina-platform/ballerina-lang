@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 class ConcurrentLazySupplier<E> implements Supplier<E> {
 
     private Supplier<E> initializer;
-    private E value = null;
+    private volatile E value = null;
 
     ConcurrentLazySupplier(Supplier<E> initializer) {
         this.initializer = initializer;
@@ -50,7 +50,7 @@ class ConcurrentLazySupplier<E> implements Supplier<E> {
 
 class ConcurrentLazySupplierWithCallback<E> implements Supplier<E> {
 
-    private E value = null;
+    private volatile E value = null;
     private Supplier<E> initializer;
     private Consumer<E> callback;
 

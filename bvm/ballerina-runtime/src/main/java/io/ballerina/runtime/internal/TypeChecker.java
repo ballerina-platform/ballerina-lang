@@ -936,6 +936,10 @@ public final class TypeChecker {
         }
     }
 
+    public static Env getEnv() {
+        return Env.getInstance();
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      *

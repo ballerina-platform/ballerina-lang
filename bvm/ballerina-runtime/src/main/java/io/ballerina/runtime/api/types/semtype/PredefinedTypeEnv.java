@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -51,6 +52,7 @@ import static io.ballerina.runtime.api.types.semtype.TypeAtom.createTypeAtom;
 final class PredefinedTypeEnv {
 
     private static PredefinedTypeEnv instance;
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
     private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
     private static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
@@ -329,7 +331,7 @@ final class PredefinedTypeEnv {
     public static synchronized PredefinedTypeEnv getInstance() {
         if (instance == null) {
             instance = new PredefinedTypeEnv();
-            instance.initilize();
+            instance.initialize();
         }
         return instance;
     }
@@ -343,7 +345,7 @@ final class PredefinedTypeEnv {
         });
     }
 
-    private void initilize() {
+    private void initialize() {
         // Initialize RecAtoms
         mappingAtomicRO();
         listAtomicRO();
@@ -358,6 +360,7 @@ final class PredefinedTypeEnv {
         cellAtomicInner();
         listAtomicMappingRO();
         cellAtomicInnerRO();
+        initialized.set(true);
     }
 
     private void addInitializedCellAtom(CellAtomicType atom) {
@@ -559,6 +562,7 @@ final class PredefinedTypeEnv {
 
     // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.
     final void initializeEnv(Env env) {
+        assert initialized.get() : "PredefinedTypeEnv has not fully initialized, check concurrency issues";
         fillRecAtoms(env.recListAtoms, initializedRecListAtoms);
         fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms);
         initializedCellAtoms.forEach(each -> env.cellAtom(each.atomicType()));
