@@ -12,7 +12,7 @@ public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSim
         return new BddNodeSimple(atom);
     }
 
-    boolean isSimple() {
+    public boolean isSimple() {
         return this instanceof BddNodeSimple;
     }
 

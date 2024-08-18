@@ -56,8 +56,8 @@ import static io.ballerina.runtime.api.types.semtype.Builder.cellContaining;
 import static io.ballerina.runtime.api.types.semtype.Builder.listType;
 import static io.ballerina.runtime.api.types.semtype.Builder.undef;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.api.types.semtype.CellAtomicType.cellAtomType;
 import static io.ballerina.runtime.api.types.semtype.CellAtomicType.intersectCellAtomicType;
-import static io.ballerina.runtime.internal.types.semtype.BCellSubType.cellAtomType;
 import static io.ballerina.runtime.internal.types.semtype.BListSubType.bddListMemberTypeInnerVal;
 import static io.ballerina.runtime.internal.types.semtype.BMappingProj.mappingMemberTypeInner;
 
@@ -281,9 +281,7 @@ public final class Core {
         }
         for (SubType subType : t.subTypeData()) {
             assert subType != null : "subtype array must not be sparse";
-            if (subType instanceof BSubType) {
-                continue;
-            }
+            assert !(subType instanceof BSubType) : "expect pure semtype";
             if (!subType.isEmpty(cx)) {
                 return false;
             }
