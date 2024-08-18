@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -58,6 +59,15 @@ import java.util.Set;
  */
 public final class TypeCreator {
 
+    private static final Map<TypeMemoKey, BTupleType> tupleTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BMapType> mapTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BRecordType> recordTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BObjectType> objectTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BStreamType> streamTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BUnionType> unionTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BErrorType> errorTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BXmlType> xmlTypeMemo = new WeakHashMap<>(100);
+    private static final Map<TypeMemoKey, BJsonType> jsonTypeMemo = new WeakHashMap<>(100);
     /**
      * Creates a new array type with given element type.
      *
@@ -163,7 +173,9 @@ public final class TypeCreator {
      */
     public static TupleType createTupleType(String name, Module pkg,
                   int typeFlags, boolean isCyclic, boolean readonly) {
-        return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
+        TypeMemoKey key = new TypeMemoKey(name, pkg);
+        return tupleTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BTupleType(name, pkg, typeFlags, isCyclic, readonly));
     }
 
     /**
@@ -196,7 +208,8 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module) {
-        return new BMapType(typeName, constraint, module);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return mapTypeMemo.computeIfAbsent(key, (ignored) -> new BMapType(typeName, constraint, module));
     }
 
     /**
@@ -209,7 +222,8 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
-        return new BMapType(typeName, constraint, module, readonly);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return mapTypeMemo.computeIfAbsent(key, (ignored) -> new BMapType(typeName, constraint, module, readonly));
     }
 
     /**
@@ -224,7 +238,9 @@ public final class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
-        return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return recordTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BRecordType(typeName, typeName, module, flags, sealed, typeFlags));
     }
 
     /**
@@ -242,7 +258,9 @@ public final class TypeCreator {
     public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
                                               Type restFieldType,
                                               boolean sealed, int typeFlags) {
-        return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return recordTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags));
     }
 
     /**
@@ -254,7 +272,8 @@ public final class TypeCreator {
      * @return the new object type
      */
     public static ObjectType createObjectType(String typeName, Module module, long flags) {
-        return new BObjectType(typeName, module, flags);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return objectTypeMemo.computeIfAbsent(key, (ignored) -> new BObjectType(typeName, module, flags));
     }
 
     /**
@@ -279,7 +298,9 @@ public final class TypeCreator {
      */
     public static StreamType createStreamType(String typeName, Type constraint,
                                               Type completionType, Module modulePath) {
-        return new BStreamType(typeName, constraint, completionType, modulePath);
+        TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
+        return streamTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BStreamType(typeName, constraint, completionType, modulePath));
     }
 
     /**
@@ -305,7 +326,9 @@ public final class TypeCreator {
      */
     @Deprecated
     public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
-        return new BStreamType(typeName, completionType, modulePath);
+        TypeMemoKey key = new TypeMemoKey(typeName, modulePath);
+        return streamTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BStreamType(typeName, completionType, modulePath));
     }
 
     /**
@@ -375,7 +398,9 @@ public final class TypeCreator {
      */
     public static UnionType createUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags,
                                             boolean isCyclic, long flags) {
-        return new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags);
+        TypeMemoKey key = new TypeMemoKey(name, pkg);
+        return unionTypeMemo.computeIfAbsent(key,
+                (ignored) -> new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags));
     }
 
     /**
@@ -386,7 +411,8 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module) {
-        return new BErrorType(typeName, module);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return errorTypeMemo.computeIfAbsent(key, (ignored) -> new BErrorType(typeName, module));
     }
 
     /**
@@ -398,7 +424,8 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module, Type detailType) {
-        return new BErrorType(typeName, module, detailType);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return errorTypeMemo.computeIfAbsent(key, (ignored) -> new BErrorType(typeName, module, detailType));
     }
 
     /**
@@ -457,7 +484,8 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Type constraint, Module module) {
-        return new BXmlType(typeName, constraint, module);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return xmlTypeMemo.computeIfAbsent(key, (ignored) -> new BXmlType(typeName, constraint, module));
     }
 
     /**
@@ -470,7 +498,8 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Module module, int tag, boolean readonly) {
-        return new BXmlType(typeName, module, tag, readonly);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return xmlTypeMemo.computeIfAbsent(key, (ignored) -> new BXmlType(typeName, module, tag, readonly));
     }
 
     /**
@@ -493,7 +522,8 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static JsonType createJSONType(String typeName, Module module, boolean readonly) {
-        return new BJsonType(typeName, module, readonly);
+        TypeMemoKey key = new TypeMemoKey(typeName, module);
+        return jsonTypeMemo.computeIfAbsent(key, (ignored) -> new BJsonType(typeName, module, readonly));
     }
 
     /**
@@ -519,5 +549,9 @@ public final class TypeCreator {
     }
 
     private TypeCreator() {
+    }
+
+    private record TypeMemoKey(String typeName, Module module) {
+
     }
 }
