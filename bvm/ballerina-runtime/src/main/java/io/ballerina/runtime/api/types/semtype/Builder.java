@@ -87,6 +87,20 @@ public final class Builder {
     private static final ConcurrentLazySupplier<SemType> MAPPING_RO = new ConcurrentLazySupplier<>(() ->
             basicSubType(BT_MAPPING, BMappingSubType.createDelegate(bddSubtypeRo()))
     );
+    private static final ConcurrentLazySupplier<SemType> ANYDATA = new ConcurrentLazySupplier<>(
+            () -> {
+                Env env = Env.getInstance();
+                ListDefinition listDef = new ListDefinition();
+                MappingDefinition mapDef = new MappingDefinition();
+                SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
+                SemType accum =
+                        unionOf(simpleOrStringType(), xmlType(), listDef.getSemType(env), mapDef.getSemType(env),
+                                tableTy);
+                listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
+                mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
+                return accum;
+            }
+    );
     private static final ConcurrentLazySupplier<SemType> INNER_RO =
             new ConcurrentLazySupplier<>(() -> union(readonlyType(), inner()));
 
@@ -390,21 +404,8 @@ public final class Builder {
         return from(BasicTypeCode.BT_STREAM);
     }
 
-    public static SemType anyDataType(Context context) {
-        SemType memo = context.anydataMemo;
-        if (memo != null) {
-            return memo;
-        }
-        Env env = context.env;
-        ListDefinition listDef = new ListDefinition();
-        MappingDefinition mapDef = new MappingDefinition();
-        SemType tableTy = TableUtils.tableContaining(env, mapDef.getSemType(env));
-        SemType accum =
-                unionOf(simpleOrStringType(), xmlType(), listDef.getSemType(env), mapDef.getSemType(env), tableTy);
-        listDef.defineListTypeWrapped(env, EMPTY_TYPES_ARR, 0, accum, CELL_MUT_LIMITED);
-        mapDef.defineMappingTypeWrapped(env, new MappingDefinition.Field[0], accum, CELL_MUT_LIMITED);
-        context.anydataMemo = accum;
-        return accum;
+    public static SemType anyDataType() {
+        return ANYDATA.get();
     }
 
     private static SemType unionOf(SemType... types) {
