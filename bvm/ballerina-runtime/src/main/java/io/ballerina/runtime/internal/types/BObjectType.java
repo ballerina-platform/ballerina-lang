@@ -363,6 +363,16 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         return Optional.of(valueShape(cx, shapeSupplierFn, (AbstractObjectValue) object));
     }
 
+    @Override
+    public boolean couldShapeBeDifferent() {
+        if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY)) {
+            return true;
+        }
+        return fields.values().stream().anyMatch(
+                field -> SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) ||
+                        SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL));
+    }
+
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, AbstractObjectValue object) {
         ObjectDefinition od = new ObjectDefinition();
         List<Member> members = new ArrayList<>();

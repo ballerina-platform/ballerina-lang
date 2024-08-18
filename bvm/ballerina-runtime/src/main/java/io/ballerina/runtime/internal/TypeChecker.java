@@ -56,6 +56,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -273,7 +274,10 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = getType(sourceVal);
-        return Core.isSubType(context(), sourceSemType, targetType) || isSubTypeWithShape(cx, sourceVal, targetType);
+        if (Core.isSubType(cx, sourceSemType, targetType)) {
+            return true;
+        }
+        return couldShapeBeDifferent(sourceSemType) && isSubTypeWithShape(cx, sourceVal, targetType);
     }
 
     /**
@@ -286,7 +290,18 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        return isSubType(sourceType, targetType) || isSubTypeWithShape(context(), sourceVal, targetType);
+        if (checkIsType(sourceVal, targetType)) {
+            return true;
+        }
+        return couldShapeBeDifferent(sourceType) && isSubTypeWithShape(context(), sourceVal, targetType);
+    }
+
+    // This is just an optimization since shapes are not cached, when in doubt return false
+    private static boolean couldShapeBeDifferent(SemType type) {
+        if (type instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.couldShapeBeDifferent();
+        }
+        return true;
     }
 
     /**

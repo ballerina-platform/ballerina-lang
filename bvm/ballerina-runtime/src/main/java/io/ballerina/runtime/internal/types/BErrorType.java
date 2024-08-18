@@ -171,4 +171,10 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
         }
         return BMapType.readonlyShape(cx, shapeSupplierFn, errorDetails).map(ErrorUtils::errorDetail);
     }
+
+    @Override
+    public boolean couldShapeBeDifferent() {
+        // TODO: consider properly handling this
+        return true;
+    }
 }

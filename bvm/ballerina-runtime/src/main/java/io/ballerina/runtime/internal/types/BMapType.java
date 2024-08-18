@@ -217,6 +217,11 @@ public class BMapType extends BType implements MapType, TypeWithShape {
     }
 
     @Override
+    public boolean couldShapeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
     public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
         return readonlyShape(cx, shapeSupplierFn, (BMap<?, ?>) object);
     }

@@ -355,6 +355,14 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
+    public boolean couldShapeBeDifferent() {
+        if (isReadOnly()) {
+            return true;
+        }
+        return fields.values().stream().anyMatch(field -> SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY));
+    }
+
+    @Override
     public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         return Optional.of(shapeOfInner(cx, shapeSupplier, (BMap<?, ?>) object, true));
     }

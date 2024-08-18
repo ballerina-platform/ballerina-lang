@@ -267,6 +267,11 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     @Override
+    public boolean couldShapeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
     public Optional<SemType> readonlyShapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         return Optional.of(readonlyShape(cx, shapeSupplier, (BArray) object));
     }
