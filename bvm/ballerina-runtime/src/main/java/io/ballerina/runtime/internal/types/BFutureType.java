@@ -90,7 +90,7 @@ public class BFutureType extends BType implements FutureType, TypeWithShape {
             return true;
         }
 
-        return TypeChecker.checkIsType(constraint, other.constraint);
+        return TypeChecker.isSameType(constraint, other.constraint);
     }
 
     @Override
