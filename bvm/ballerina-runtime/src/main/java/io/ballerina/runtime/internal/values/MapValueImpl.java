@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -48,7 +49,6 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
@@ -241,7 +241,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((BMapType) this.referredType).getConstrainedType();
+            expectedType = ((MapType) this.referredType).getConstrainedType();
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
@@ -355,7 +355,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public void populateInitialValue(K key, V value) {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (MapType) referredType);
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
@@ -711,7 +711,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private void initializeIteratorNextReturnType() {
         Type type;
         if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            BMapType mapType = (BMapType) this.referredType;
+            MapType mapType = (MapType) this.referredType;
             type = mapType.getConstrainedType();
         } else {
             BRecordType recordType = (BRecordType) this.referredType;

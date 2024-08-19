@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ReferenceType;
@@ -39,7 +40,6 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
@@ -112,7 +112,7 @@ public final class TypeReference {
     }
 
     public static Boolean validateMapType(BTypedesc typedesc) {
-        BMapType mapType = (BMapType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        MapType mapType = (MapType) TypeUtils.getImpliedType(typedesc.getDescribingType());
 
         if (mapType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("map type API provided a non type reference " +

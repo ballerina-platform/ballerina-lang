@@ -58,13 +58,8 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     }
 
     public static BStringType singletonType(String value) {
-        return new BStringType(() -> {
-            try {
-                return (BStringTypeImpl) DEFAULT_B_TYPE.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
-        }, TypeConstants.STRING_TNAME, Builder.stringConst(value));
+        return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
+                Builder.stringConst(value));
     }
 
     private static SemType pickSemtype(int tag) {
@@ -105,11 +100,8 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         }
 
         @Override
-        protected Object clone() throws CloneNotSupportedException {
-            BType bType = (BType) super.clone();
-            bType.setCachedImpliedType(null);
-            bType.setCachedReferredType(null);
-            return bType;
+        public BType clone() {
+            return super.clone();
         }
     }
 }
