@@ -265,14 +265,6 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Context cx = context();
-        SemType targetBasicTypeUnion = Core.widenToBasicTypeUnion(targetType);
-        SemType valueBasicType = widenedType(cx, sourceVal);
-        if (!Core.isSubtypeSimple(valueBasicType, targetBasicTypeUnion)) {
-            return false;
-        }
-        if (targetBasicTypeUnion == targetType) {
-            return true;
-        }
         SemType sourceSemType = getType(sourceVal);
         if (Core.isSubType(cx, sourceSemType, targetType)) {
             return true;
