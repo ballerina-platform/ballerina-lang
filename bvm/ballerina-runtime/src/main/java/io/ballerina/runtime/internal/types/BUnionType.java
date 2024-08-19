@@ -238,12 +238,14 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void addMember(Type type) {
+        resetSemType();
         this.memberTypes.add(type);
         setFlagsBasedOnMembers();
         this.originalMemberTypes.add(type);
     }
 
     public void addMembers(Type... types) {
+        resetSemType();
         this.memberTypes.addAll(Arrays.asList(types));
         setFlagsBasedOnMembers();
         this.originalMemberTypes.addAll(Arrays.asList(types));
