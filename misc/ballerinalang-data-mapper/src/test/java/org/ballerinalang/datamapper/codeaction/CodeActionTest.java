@@ -213,7 +213,7 @@ public class CodeActionTest {
         // Get code action from language server
         JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
 
-        if (responseJson.getAsJsonArray("result").size() == 0) {
+        if (responseJson.getAsJsonArray("result").isEmpty()) {
             Assert.assertFalse(false);
         } else {
             JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();

@@ -197,7 +197,7 @@ public class HoverObjectResolver {
                 String desc = paramsMap.getOrDefault(paramName, "");
                 return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
                         + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc;
-            }).collect(Collectors.toList()));
+            }).toList());
             params.addAll(functionSymbol.typeDescriptor().params().get().stream().map(param -> {
                 if (param.getName().isEmpty()) {
                     return MarkupUtils.quotedString(NameUtil
@@ -226,7 +226,7 @@ public class HoverObjectResolver {
                 }
                 return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
                         + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defaultValueEdit;
-            }).collect(Collectors.toList()));
+            }).toList());
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
             if (restParam.isPresent()) {
@@ -280,7 +280,7 @@ public class HoverObjectResolver {
                                 .getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
                         return MarkupUtils.quotedString(typeName) + " "
                                 + MarkupUtils.italicString(MarkupUtils.boldString(fieldEntry.getKey())) + " : " + desc;
-                    }).collect(Collectors.toList()));
+                    }).toList());
             Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
             restTypeDesc.ifPresent(typeSymbol ->
                     params.add(MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, typeSymbol) + "...")));
@@ -317,7 +317,7 @@ public class HoverObjectResolver {
                             return MarkupUtils.quotedString(modifiedTypeName) + " " +
                                     MarkupUtils.italicString(MarkupUtils.boldString(fieldEntry.getKey()))
                                     + " : " + desc;
-                        }).collect(Collectors.toList()));
+                        }).toList());
                 if (params.size() > 1) {
                     hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
                 }

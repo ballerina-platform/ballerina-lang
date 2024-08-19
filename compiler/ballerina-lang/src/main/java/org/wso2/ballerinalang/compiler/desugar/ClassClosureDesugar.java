@@ -199,7 +199,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
+        CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
     }
 
     private void reset() {
@@ -566,6 +566,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = panicNode;
     }
 
+    @Override
     public void visit(BLangDo doNode) {
         doNode.body = rewrite(doNode.body, env);
         result = doNode;
@@ -766,6 +767,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = errorConstructorExpr;
     }
 
+    @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
         BLangNode parent = typeInitExpr.initInvocation.parent;
@@ -975,7 +977,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
      * @return map symbol created
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
-        return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
+        return new BVarSymbol(0, Names.fromString(mapName), symbolEnv.scope.owner.pkgID,
                               symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 

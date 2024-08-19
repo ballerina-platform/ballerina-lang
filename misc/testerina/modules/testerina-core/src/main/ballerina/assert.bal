@@ -43,7 +43,7 @@ public isolated function createBallerinaError(string errorMessage, string catego
 
 # Asserts whether the given condition is true. If it is not, a AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -57,14 +57,14 @@ public isolated function createBallerinaError(string errorMessage, string catego
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
 public isolated function assertTrue(boolean condition, string msg = "Assertion Failed!") {
-    if (!condition) {
+    if !condition {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
 # Asserts whether the given condition is false. If it is not, a AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -78,14 +78,14 @@ public isolated function assertTrue(boolean condition, string msg = "Assertion F
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
 public isolated function assertFalse(boolean condition, string msg = "Assertion Failed!") {
-    if (condition) {
+    if condition {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
 # Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -104,7 +104,7 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 # + expected - Expected value
 # + msg - Assertion error message
 public isolated function assertEquals(any|error actual, anydata expected, string msg = "Assertion Failed!") {
-    if (actual is error || actual != expected) {
+    if actual is error || actual != expected {
         string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -112,7 +112,7 @@ public isolated function assertEquals(any|error actual, anydata expected, string
 
 # Asserts whether the given values are not equal. If it is equal, an AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -131,7 +131,7 @@ public isolated function assertEquals(any|error actual, anydata expected, string
 # + expected - Expected value
 # + msg - Assertion error message
 public isolated function assertNotEquals(any actual, anydata expected, string msg = "Assertion Failed!") {
-    if (actual == expected) {
+    if actual == expected {
         string expectedStr = sprintf("%s", expected);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
@@ -140,7 +140,7 @@ public isolated function assertNotEquals(any actual, anydata expected, string ms
 
 # Asserts whether the given values are exactly equal. If it is not, an AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -165,7 +165,7 @@ public isolated function assertNotEquals(any actual, anydata expected, string ms
 # + msg - Assertion error message
 public isolated function assertExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
-    if (!isEqual) {
+    if !isEqual {
         string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -173,7 +173,7 @@ public isolated function assertExactEquals(any|error actual, any|error expected,
 
 # Asserts whether the given values are not exactly equal. If it is equal, an AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
@@ -198,7 +198,7 @@ public isolated function assertExactEquals(any|error actual, any|error expected,
 # + msg - Assertion error message
 public isolated function assertNotExactEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = (actual === expected);
-    if (isEqual) {
+    if isEqual {
         string expectedStr = sprintf("%s", expected);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
@@ -207,14 +207,14 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
 
 # Assert failure is triggered based on your discretion. AssertError is thrown with the given errorMessage.
 #
-#### Example
+# ### Example
 # ```ballerina
 # import ballerina/test;
 #
 #  @test:Config {}
 #  function foo() {
 #      error? e = trap bar(); // Expecting `bar()` to panic
-#      if (e is error) {
+#      if e is error {
 #          test:assertEquals(e.message().toString(), "Invalid Operation", msg = "Invalid error reason");
 #      } else {
 #          test:assertFail(msg = "Expected an error");
@@ -238,34 +238,34 @@ public isolated function assertFail(string msg = "Test Failed!") returns never {
 # + expected - Expected value
 # + msg - Assertion error message
 # + return - Error message constructed based on the compared values
-isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns @tainted string {
-        string expectedType = getBallerinaType(expected);
-        string actualType = getBallerinaType(actual);
-        string errorMsg = "";
-        string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
-        if (expectedStr.length() > maxArgLength) {
-            expectedStr = getFormattedString(expectedStr);
-        }
-        if (actualStr.length() > maxArgLength) {
-            actualStr = getFormattedString(actualStr);
-        }
-        if (expectedType != actualType) {
-            errorMsg = string `${msg}` + "\n \nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
-                + string `<${actualType}> '${actualStr}'`;
-        } else if (actual is string && expected is string) {
-            string diff = getStringDiff(<string>actual, <string>expected);
-            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-                                     + string `'${actualStr}'` + "\n \nDiff\t:\n" + string `${diff}`;
-        } else if (actual is map<anydata> && expected is map<anydata>) {
-            string diff = getMapValueDiff(<map<anydata>>actual, <map<anydata>>expected);
-            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: " +
-                            string `'${actualStr}'` + "\n \nDiff\t:\n" + string `${diff}`;
-        } else {
-            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-                                                 + string `'${actualStr}'`;
-        }
-        return errorMsg;
+isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!")
+        returns @tainted string {
+    string expectedType = getBallerinaType(expected);
+    string actualType = getBallerinaType(actual);
+    string errorMsg = "";
+    string expectedStr = sprintf("%s", expected);
+    string actualStr = sprintf("%s", actual);
+    if expectedStr.length() > maxArgLength {
+        expectedStr = getFormattedString(expectedStr);
+    }
+    if actualStr.length() > maxArgLength {
+        actualStr = getFormattedString(actualStr);
+    }
+    if expectedType != actualType {
+        errorMsg = string `${msg}${"\n \n"}expected: <${expectedType}> '${expectedStr}'${"\n"}` +
+                string `actual${"\t"}: <${actualType}> '${actualStr}'`;
+    } else if actual is string && expected is string {
+        string diff = getStringDiff(<string>actual, <string>expected);
+        errorMsg = string `${msg}${"\n \n"}expected: '${expectedStr}'${"\n"}` +
+                string `actual${"\t"}: '${actualStr}'${"\n \n"}Diff${"\t"}:${"\n"}${diff}`;
+    } else if actual is map<anydata> && expected is map<anydata> {
+        string diff = getMapValueDiff(<map<anydata>>actual, <map<anydata>>expected);
+        errorMsg = string `${msg}${"\n \n"}expected: '${expectedStr}'${"\n"}` +
+                string `actual${"\t"}: '${actualStr}'${"\n \n"}Diff${"\t"}:${"\n"}${diff}`;
+    } else {
+        errorMsg = string `${msg}${"\n \n"}expected: '${expectedStr}'${"\n"}actual${"\t"}: '${actualStr}'`;
+    }
+    return errorMsg;
 }
 
 isolated function getFormattedString(string str) returns string {
@@ -274,7 +274,7 @@ isolated function getFormattedString(string str) returns string {
     int itr = (str.length() / maxArgLength) + 1;
     foreach int i in 0 ..< itr {
         // If the calculated substring index is less than string length
-        if ((i + 1) * maxArgLength < str.length()) {
+        if (i + 1) * maxArgLength < str.length() {
             // Formulate the substring
             string subString = str.substring((i * maxArgLength), ((i + 1) * maxArgLength));
             // Append substring with newline
@@ -293,7 +293,7 @@ isolated function getKeyArray(map<anydata> valueMap) returns @tainted string[] {
     string[] keyArray = valueMap.keys();
     foreach string keyVal in keyArray {
         var value = valueMap.get(keyVal);
-        if (value is map<anydata>) {
+        if value is map<anydata> {
             string[] childKeys = getKeyArray(<map<anydata>>value);
             foreach string childKey in childKeys {
                 keyArray.push(keyVal + "." + childKey);
@@ -309,7 +309,7 @@ isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedM
     string[] expectedKeyArray = getKeyArray(expectedMap);
     string keyDiff = getKeysDiff(actualKeyArray, expectedKeyArray);
     string valueDiff = compareMapValues(actualMap, expectedMap);
-    if (keyDiff != "") {
+    if keyDiff != "" {
         diffValue = diffValue.concat(keyDiff, "\n", valueDiff);
     } else {
         diffValue = diffValue.concat(valueDiff);
@@ -317,40 +317,37 @@ isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedM
     return diffValue;
 }
 
-isolated function getValueComparison(anydata actual, anydata expected, string keyVal, int count) returns @tainted ([string, int])  {
+isolated function getValueComparison(anydata actual, anydata expected, string keyVal, int count)
+        returns @tainted ([string, int]) {
     int diffCount = count;
     string diff = "";
     string expectedType = getBallerinaType(expected);
     string actualType = getBallerinaType(actual);
-    if (expectedType != actualType) {
-        diff = diff.concat("\n", "key: ", keyVal, "\n \nexpected value\t: <", expectedType, "> ", expected.toString(),
-        "\nactual value\t: <", actualType, "> ", actual.toString());
+    if expectedType != actualType {
+        diff = diff.concat(string `${"\n"}key: ${keyVal}${"\n \n"}` 
+                + string `expected value${"\t"}: <${expectedType}> ${expected.toString()}` 
+                + string `${"\n"}actual value${"\t"}: <${actualType}> ${actual.toString()}`);
         diffCount = diffCount + 1;
-    } else {
-        if (actual is map<anydata> && expected is map<anydata>) {
-            string[] expectedkeyArray = (<map<anydata>>expected).keys();
-            string[] actualKeyArray = (<map<anydata>>actual).keys();
-            int orderCount = diffCount;
-            foreach string childKey in actualKeyArray {
-                if (expectedkeyArray.indexOf(childKey) != ()){
-                    anydata expectedChildVal = expected.get(childKey);
-                    anydata actualChildVal = actual.get(childKey);
-                    string childDiff;
-                    if (expectedChildVal != actualChildVal) {
-                        [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal, keyVal + "." + childKey, diffCount);
-                        if (diffCount != (orderCount + 1)) {
-                            diff = diff.concat("\n");
-                        }
-                        diff = diff.concat(childDiff);
+    } else if actual is map<anydata> && expected is map<anydata> {
+        int orderCount = diffCount;
+        foreach [string, anydata] [childKey, actualChildVal] in actual.entries() {
+            if expected.hasKey(childKey) {
+                anydata expectedChildVal = expected.get(childKey);
+                string childDiff;
+                if expectedChildVal != actualChildVal {
+                    [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal,
+                            keyVal + "." + childKey, diffCount);
+                    if diffCount != (orderCount + 1) {
+                        diff = diff.concat("\n");
                     }
+                    diff = diff.concat(childDiff);
                 }
-
             }
-        } else {
-            diff = diff.concat("\n", "key: ", keyVal, "\n \nexpected value\t: ", expected.toString(),
-            "\nactual value\t: ", actual.toString());
-            diffCount = diffCount + 1;
         }
+    } else {
+        diff = diff.concat(string `${"\n"}key: ${keyVal}${"\n \n"}expected value${"\t"}: ${expected.toString()}` 
+                + string `${"\n"}actual value${"\t"}: ${actual.toString()}`);
+        diffCount = diffCount + 1;
     }
     return [diff, diffCount];
 }
@@ -360,21 +357,21 @@ isolated function compareMapValues(map<anydata> actualMap, map<anydata> expected
     string[] actualKeyArray = actualMap.keys();
     int count = 0;
     foreach string keyVal in actualKeyArray {
-        if (expectedMap.hasKey(keyVal)) {
+        if expectedMap.hasKey(keyVal) {
             anydata expected = expectedMap.get(keyVal);
             anydata actual = actualMap.get(keyVal);
-            if (expected != actual) {
+            if expected != actual {
                 string diffVal;
                 [diffVal, count] = getValueComparison(actual, expected, keyVal, count);
-                if (count != 1) {
+                if count != 1 {
                     diff = diff.concat("\n");
                 }
                 diff = diff.concat(diffVal);
             }
         }
     }
-    if (count > mapValueDiffLimit) {
-        diff = diff.concat("\n \nTotal value mismatches: " + count.toString() + "\n");
+    if count > mapValueDiffLimit {
+        diff = diff.concat(string `${"\n \n"}Total value mismatches: ${count.toString()}${"\n"}`);
     }
     return diff;
 }

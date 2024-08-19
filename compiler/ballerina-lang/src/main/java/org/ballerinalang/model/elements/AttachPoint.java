@@ -106,7 +106,7 @@ public class AttachPoint {
          */
         CLASS("class");
 
-        private String value;
+        private final String value;
 
         Point(String value) {
             this.value = value;

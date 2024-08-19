@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -135,7 +134,7 @@ public class BTuple extends IndexedCompoundVariable {
         Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                 fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+                .map(Map.Entry::getKey).toList().get(0);
         tupleSize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

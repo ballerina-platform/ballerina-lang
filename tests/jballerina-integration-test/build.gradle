@@ -48,7 +48,6 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
-    implementation project(':ballerina-cli')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation project(':ballerina-shell:shell-core')
@@ -78,12 +77,12 @@ dependencies {
     launchListenerTestUtils project(':test-launch-listener-03')
     launchListenerTestUtils project(':test-launch-listener-04')
 
-    testLibs 'org.hsqldb:hsqldb:2.4.1'
+    testLibs 'org.hsqldb:hsqldb:2.7.1'
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
-task createBre(type: Copy) {
+tasks.register('createBre', Copy) {
     from configurations.balRuntime
     into '$buildDir/bre/lib'
 }
@@ -117,14 +116,14 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
-task copyToLib(type: Copy) {
+tasks.register('copyToLib', Copy) {
     into "${buildDir}/libs"
     from configurations.testLibs
 }
 
 test.dependsOn(copyToLib)
 
-task createLaunchListenerUtilsLib(type: Copy) {
+tasks.register('createLaunchListenerUtilsLib', Copy) {
     from configurations.launchListenerTestUtils
     into "${buildDir}/launch-listener/libs"
 }

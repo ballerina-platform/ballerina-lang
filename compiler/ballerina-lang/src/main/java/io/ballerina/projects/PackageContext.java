@@ -52,6 +52,10 @@ class PackageContext {
 
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
+    private final Collection<DocumentId> resourceIds;
+    private final Collection<DocumentId> testResourceIds;
+    private final Map<DocumentId, ResourceContext> resourceContextMap;
+    private final Map<DocumentId, ResourceContext> testResourceContextMap;
 
     /**
      * This variable holds the dependency graph cached in a project.
@@ -80,7 +84,9 @@ class PackageContext {
                    MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
-                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
+                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph,
+                   Map<DocumentId, ResourceContext> resourceContextMap,
+                   Map<DocumentId, ResourceContext> testResourceContextMap) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
@@ -98,6 +104,10 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
+        this.resourceContextMap = resourceContextMap;
+        this.testResourceContextMap = testResourceContextMap;
+        this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
+        this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -106,7 +116,15 @@ class PackageContext {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig,
                     packageConfig.isSyntaxTreeDisabled()));
         }
+        Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : packageConfig.resources()) {
+            resourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
 
+        Map<DocumentId, ResourceContext> testResourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : packageConfig.testResources()) {
+            testResourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),
                           packageConfig.ballerinaToml().map(TomlDocumentContext::from).orElse(null),
@@ -115,7 +133,8 @@ class PackageContext {
                           packageConfig.compilerPluginToml().map(TomlDocumentContext::from).orElse(null),
                           packageConfig.balToolToml().map(TomlDocumentContext::from).orElse(null),
                           packageConfig.packageMd().map(MdDocumentContext::from).orElse(null),
-                          compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
+                          compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph(),
+                          resourceContextMap, testResourceContextMap);
     }
 
     PackageId packageId() {
@@ -274,6 +293,13 @@ class PackageContext {
         return buildToolResolution;
     }
 
+   PackageResolution getResolution(PackageResolution oldResolution) {
+        if (packageResolution == null) {
+            packageResolution = PackageResolution.from(oldResolution, this, this.compilationOptions);
+        }
+        return packageResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
@@ -320,6 +346,22 @@ class PackageContext {
         }
     }
 
+    Collection<DocumentId> resourceIds() {
+        return this.resourceIds;
+    }
+
+    Collection<DocumentId> testResourceIds() {
+        return this.testResourceIds;
+    }
+
+    ResourceContext resourceContext(DocumentId documentId) {
+        if (this.resourceIds.contains(documentId)) {
+            return this.resourceContextMap.get(documentId);
+        } else {
+            return this.testResourceContextMap.get(documentId);
+        }
+    }
+
     PackageContext duplicate(Project project) {
         Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
         for (ModuleId moduleId : this.moduleIds) {
@@ -330,6 +372,7 @@ class PackageContext {
         return new PackageContext(project, this.packageId, this.packageManifest,
                 this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                 this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext, this.packageMdContext,
-                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
+                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph,
+                this.resourceContextMap, this.testResourceContextMap);
     }
 }

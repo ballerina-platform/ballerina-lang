@@ -112,7 +112,7 @@ public class FunctionMock {
         if (Thread.currentThread().getStackTrace().length >= 5) {
             String classname = Thread.currentThread().getStackTrace()[4].getClassName();
             if (classname.contains("/")) {
-                classname = classname.replaceAll("/", ".");
+                classname = classname.replace("/", ".");
             }
             String[] projectInfo = classname.split(Pattern.quote("."));
             // Set project info

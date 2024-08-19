@@ -54,6 +54,7 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
 
     private Process process = null;
 
+    @Override
     public void start() throws IOException {
         if (workingDir == null || commands == null || commands.isEmpty() || commands.contains(null)) {
             throw new IOException("Unable to start debug server: " + this);
@@ -109,6 +110,7 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
         return process != null ? process.getOutputStream() : null;
     }
 
+    @Override
     public void stop() {
         if (process != null) {
             killProcessWithDescendants(process);

@@ -26,12 +26,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.with.inbuilt.code.modifier'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

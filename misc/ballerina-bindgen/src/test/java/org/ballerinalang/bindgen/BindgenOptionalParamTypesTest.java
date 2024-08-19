@@ -69,6 +69,13 @@ public class BindgenOptionalParamTypesTest extends BindgenUnitBaseTest {
 
     @Override
     @Test
+    public void abstractClassMapping() throws FormatterException, ClassNotFoundException, BindgenException,
+            IOException {
+        super.abstractClassMapping();
+    }
+
+    @Override
+    @Test
     public void directThrowableMapping() throws FormatterException, ClassNotFoundException, BindgenException,
             IOException {
         super.directThrowableMapping();

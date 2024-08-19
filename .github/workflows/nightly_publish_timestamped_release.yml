@@ -45,7 +45,7 @@ jobs:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
-            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew clean build -x javadoc --scan --continue --rerun-tasks
             ./gradlew publish
             ./gradlew createCodeCoverageReport
             curl -X POST \

@@ -132,6 +132,6 @@ public class SnippetBlock extends CompletionItemBuilder {
      * Represents Snippet Types in B7a LS.
      */
     public enum Kind {
-        KEYWORD, SNIPPET, STATEMENT, TYPE, VALUE;
+        KEYWORD, SNIPPET, STATEMENT, TYPE, VALUE
     }
 }

@@ -33,6 +33,7 @@ public enum JvmTarget implements CompilerBackend.TargetPlatform {
         this.code = code;
     }
 
+    @Override
     public String code() {
         return code;
     }

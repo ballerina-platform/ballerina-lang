@@ -63,7 +63,7 @@ public enum VarKind {
      */
     SYNTHETIC((byte) 8);
 
-    byte value;
+    final byte value;
 
     VarKind(byte value) {
         this.value = value;

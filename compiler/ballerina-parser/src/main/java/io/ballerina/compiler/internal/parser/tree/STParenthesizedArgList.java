@@ -62,6 +62,7 @@ public class STParenthesizedArgList extends STNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STParenthesizedArgList(
                 this.openParenToken,
@@ -88,6 +89,7 @@ public class STParenthesizedArgList extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesizedArgList(this, position, parent);
     }

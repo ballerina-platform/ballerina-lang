@@ -85,7 +85,7 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
     @Override
     public String toString() {
         return "[" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) +
-                ((restVariable != null) ? (memberVariables.size() > 0 ? ",..." : "...") +
+                ((restVariable != null) ? (!memberVariables.isEmpty() ? ",..." : "...") +
                         restVariable.toString() : "") + "] " + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

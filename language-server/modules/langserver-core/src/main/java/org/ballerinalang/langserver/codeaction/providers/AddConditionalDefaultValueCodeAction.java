@@ -39,7 +39,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Code action to add conditional default value.
@@ -96,7 +95,7 @@ public class AddConditionalDefaultValueCodeAction implements DiagnosticBasedCode
             return Optional.empty();
         }
         List<TypeSymbol> memberTypes = ((UnionTypeSymbol) actualType).memberTypeDescriptors().stream()
-                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).collect(Collectors.toList());
+                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).toList();
         UnionTypeSymbol unionType = semanticModel.get().types().builder().UNION_TYPE
                 .withMemberTypes(memberTypes.toArray(TypeSymbol[]::new)).build();
         return Optional.of(unionType);

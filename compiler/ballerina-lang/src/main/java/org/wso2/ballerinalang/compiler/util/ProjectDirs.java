@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -84,7 +83,7 @@ public class ProjectDirs {
         List<Path> sourceFiles = new ArrayList<>();
         try {
             sourceFiles = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
-                    path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)).collect(Collectors.toList());
+                    path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)).toList();
         } catch (IOException ignored) {
             // Here we are trying to check if there are source files inside the package to be compiled. If an error
             // occurs when trying to visit the files inside the package then we simply return the empty list created.
@@ -98,7 +97,7 @@ public class ProjectDirs {
                 throw e;
             }
         }
-        return sourceFiles.size() > 0;
+        return !sourceFiles.isEmpty();
     }
 
     /**

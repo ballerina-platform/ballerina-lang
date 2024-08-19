@@ -65,6 +65,7 @@ public class TypeGuardCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Type Guard";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT);
     }

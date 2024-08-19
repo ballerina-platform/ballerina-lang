@@ -24,7 +24,7 @@ package io.ballerina.cli.launcher;
  */
 public class RuntimePanicException extends RuntimeException {
 
-    private int exitCode;
+    private final int exitCode;
 
     /**
      * Constructs a new {@link RuntimePanicException} with the specified exit code.

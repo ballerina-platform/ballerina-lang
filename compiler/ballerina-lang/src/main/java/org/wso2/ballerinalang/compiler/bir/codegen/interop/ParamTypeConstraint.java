@@ -27,7 +27,7 @@ class ParamTypeConstraint {
 
     static final ParamTypeConstraint NO_CONSTRAINT = new ParamTypeConstraint(null);
 
-    private Class<?> constraint;
+    private final Class<?> constraint;
 
     ParamTypeConstraint(Class<?> constraint) {
 

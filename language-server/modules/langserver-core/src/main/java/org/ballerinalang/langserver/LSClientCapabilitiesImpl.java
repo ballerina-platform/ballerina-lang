@@ -236,6 +236,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             this.supportBalaScheme = supportBalaScheme;
         }
 
+        @Override
         public boolean isEnableSemanticTokens() {
             return enableSemanticTokens;
         }

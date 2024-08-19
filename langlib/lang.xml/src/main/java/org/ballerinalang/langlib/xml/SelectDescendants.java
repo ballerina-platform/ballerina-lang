@@ -45,7 +45,7 @@ public class SelectDescendants {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (BXml) xml.descendants(XmlUtils.getList(qname));
+            return xml.descendants(XmlUtils.getList(qname));
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

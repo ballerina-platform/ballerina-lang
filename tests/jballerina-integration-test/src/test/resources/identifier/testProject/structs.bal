@@ -38,3 +38,16 @@ public function add(int a, int b) returns int {
 public function main() {
     // do nothing
 }
+
+public isolated client class Client {
+    final string greeting;
+
+    public isolated function init(string greeting = "Hello World!") returns error? {
+        self.greeting = greeting;
+        return;
+    }
+
+    resource isolated function get users\.getPresence(map<string|string[]> headers = {}) returns string|error {
+        return string `/users.getPresence ${self.greeting}`;
+    }
+}

@@ -26,13 +26,13 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class for managing responses.
  */
 public class ResponseReader {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseReader.class);
-    public static final String UTF_8 = "UTF-8";
 
     /**
      * Get the response value from input stream.
@@ -46,7 +46,8 @@ public class ResponseReader {
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();
         try {
-            reader = new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream(), UTF_8);
+            reader = new InputStreamReader(
+                    new HttpMessageDataStreamer(response).getInputStream(), StandardCharsets.UTF_8);
             while (true) {
                 int size = reader.read(buffer, 0, buffer.length);
                 if (size < 0) {

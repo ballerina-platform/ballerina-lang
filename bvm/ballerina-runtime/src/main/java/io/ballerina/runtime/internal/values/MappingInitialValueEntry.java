@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
  */
 public abstract class MappingInitialValueEntry implements BMapInitialValueEntry {
 
+    @Override
     public boolean isKeyValueEntry() {
         return true;
     }

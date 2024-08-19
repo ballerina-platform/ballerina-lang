@@ -105,6 +105,7 @@
          return typedesc;
      }
 
+     @Override
      public void cancel() {
          this.strand.cancel = true;
      }
@@ -113,6 +114,7 @@
       * Returns the strand that the future is attached to.
       * @return {@code Strand}
       */
+     @Override
      public Strand getStrand() {
          return this.strand;
      }
@@ -121,6 +123,7 @@
       * Returns the result value of the future.
       * @return result value
       */
+     @Override
      public Object getResult() {
          return this.result;
      }
@@ -129,6 +132,7 @@
       * Returns completion status of the {@code Strand} that the future is attached.
       * @return true if future is completed
       */
+     @Override
      public boolean isDone() {
          return this.isDone;
      }
@@ -137,6 +141,7 @@
       * Returns {@code Throwable} if the attached strand panic.
       * @return panic error or null if not panic occurred
       */
+     @Override
      public Throwable getPanic() {
          return this.panic;
      }
@@ -145,6 +150,7 @@
       * {@code CallableUnitCallback} listening on the completion of this future.
       * @return registered {@code CallableUnitCallback}
       */
+     @Override
      public Callback getCallback() {
          return this.callback;
      }

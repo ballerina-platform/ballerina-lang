@@ -68,6 +68,7 @@ public class STWhileStatementNode extends STStatementNode {
                 onFailClause);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWhileStatementNode(
                 this.whileKeyword,
@@ -98,6 +99,7 @@ public class STWhileStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhileStatementNode(this, position, parent);
     }

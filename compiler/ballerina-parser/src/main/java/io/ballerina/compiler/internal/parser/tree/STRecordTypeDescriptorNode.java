@@ -74,6 +74,7 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
                 bodyEndDelimiter);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordTypeDescriptorNode(
                 this.recordKeyword,
@@ -108,6 +109,7 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordTypeDescriptorNode(this, position, parent);
     }

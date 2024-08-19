@@ -485,7 +485,7 @@ public class SignatureHelpUtil {
             }
 
             List<Node> resourcePathSegments = resourceNode.resourceAccessPath().stream()
-                    .filter(segmentNode -> !segmentNode.isMissing()).collect(Collectors.toList());
+                    .filter(segmentNode -> !segmentNode.isMissing()).toList();
 
             List<PathSegment> segments;
             if (resourcePath.kind() == ResourcePath.Kind.PATH_SEGMENT_LIST) {

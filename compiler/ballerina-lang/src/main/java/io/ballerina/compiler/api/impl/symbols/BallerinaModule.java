@@ -46,7 +46,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -136,7 +135,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             this.typeDefs = this.allSymbols().stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION)
                     .map(symbol -> (TypeDefinitionSymbol) symbol)
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
         }
 
         return this.typeDefs;

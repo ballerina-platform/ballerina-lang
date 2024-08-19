@@ -42,7 +42,7 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -115,9 +115,7 @@ public class CleanCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (Files.notExists(generatedDir)) {
-            this.outStream.println("Existing generated directory was not found");
-        } else {
+        if (Files.exists(generatedDir)) {
             ProjectUtils.deleteDirectory(generatedDir);
             this.outStream.println("Successfully deleted '" + generatedDir + "'.");
         }

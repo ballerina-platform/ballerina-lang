@@ -31,15 +31,6 @@ dependencies {
 
 ext.moduleName = 'org.ballerinalang.config.schema.generator'
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'

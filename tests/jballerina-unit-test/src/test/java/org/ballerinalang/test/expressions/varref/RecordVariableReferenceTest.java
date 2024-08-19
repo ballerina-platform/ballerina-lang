@@ -28,6 +28,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -136,43 +137,24 @@ public class RecordVariableReferenceTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    // TODO: Uncomment below tests once record literal is supported with var ref
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(returns[2], 12);
-//        Assert.assertEquals(returns[3].toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral2() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral2");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral3() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral3");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
-//
-//    @Test(description = "Test simple record variable definition")
-//    public void testVarAssignmentOfRecordLiteral4() {
-//        Object returns = JvmRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral4");
-//        Assert.assertEquals(returns.toString(), "Peter");
-//        Assert.assertTrue((Boolean) returns[1]]);
-//        Assert.assertEquals(( ((BMap) returns[2]).get(StringUtils.fromString("age"))), 12);
-//        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
-//    }
+    @Test(description = "Test variable assignment with record literal", dataProvider = "VarAssignmentOfRecordLiteral")
+    public void testVarAssignmentOfRecordLiteral(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "VarAssignmentOfRecordLiteral")
+    public Object[] varAssignmentOfRecordLiteralProvider() {
+        return new Object[]{
+                "testVarAssignmentOfRecordLiteral1",
+                "testVarAssignmentOfRecordLiteral2",
+                "testVarAssignmentOfRecordLiteral3",
+                "testVarAssignmentOfRecordLiteral4",
+                "testVarAssignmentOfRecordLiteral5",
+                "testVarAssignmentOfRecordLiteral6",
+                "testVarAssignmentOfRecordLiteral7",
+                "testVarAssignmentOfRecordLiteral8",
+        };
+    }
 
     @Test
     public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
@@ -187,6 +169,11 @@ public class RecordVariableReferenceTest {
     @Test
     public void testMappingBindingWithSingleNameFieldBinding() {
         BRunUtil.invoke(result, "testMappingBindingWithSingleNameFieldBinding");
+    }
+
+    @Test
+    public void testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
+        BRunUtil.invoke(result, "testMappingBindingPatternAgainstOpenRecordInTupleDestructuring");
     }
 
     @Test
@@ -210,7 +197,10 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'record type', found 'int'", 96, 38);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "record literal is not supported for record binding pattern", 97, 38);
+                "incompatible types: expected 'Bar', found 'string'", 97, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "incompatible types: expected 'string', found 'record {| int var1; [string,int,boolean] var2; |}'",
+                97, 27);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'Person', found 'Age'", 106, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
@@ -278,6 +268,34 @@ public class RecordVariableReferenceTest {
                 "duplicate variable 'x'", 36, 21);
         BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 27);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
+    @Test
+    public void testDestructuringWithRecordReferenceNegative() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/record_bp_in_list_and_record_destructuring_assignment_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[record {| int a; int b; (any|error)...; |}]', " +
+                "found '[record {| int a; int b?; |}]'", 22, 15);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[int,[record {| int b; (any|error)...; |}]]', " +
+                "found '[int,[record {| int b?; anydata...; |}]]'", 24, 18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[record {| int a; int b; int c; (any|error)...; |}]', " +
+                "found '[record {| int a; int b; anydata...; |}]'", 32, 18);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
+                "expected '[int,[record {| int b; int c; (any|error)...; |}]]', " +
+                "found '[int,[record {| int b; anydata...; |}]]'", 34, 21);
+        BAssertUtil.validateError(resultNegative, i++, "invalid field binding pattern; can only bind required fields",
+                41, 9);
+        BAssertUtil.validateError(resultNegative, i++, "invalid field binding pattern; can only bind required fields",
+                43, 14);
+        BAssertUtil.validateError(resultNegative, i++, "invalid record binding pattern; " +
+                        "unknown field 'b' in record type 'record {| int a; anydata...; |}'", 50, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid record binding pattern; " +
+                        "unknown field 'b' in record type 'record {| |} & readonly'", 52, 13);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);
     }
 

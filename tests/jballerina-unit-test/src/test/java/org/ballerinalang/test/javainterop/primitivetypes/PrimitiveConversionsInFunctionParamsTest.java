@@ -64,11 +64,11 @@ public class PrimitiveConversionsInFunctionParamsTest {
 
         returns = BRunUtil.invoke(result, "testCreateJFloatFromBByte", args);
         Float floatValue = (Float) ((HandleValue) returns).getValue();
-        Assert.assertEquals(floatValue, (float) byteValue);
+        Assert.assertEquals(floatValue, byteValue);
 
         returns = BRunUtil.invoke(result, "testCreateJDoubleFromBByte", args);
         Double doubleValue = (Double) ((HandleValue) returns).getValue();
-        Assert.assertEquals(doubleValue, (double) byteValue);
+        Assert.assertEquals(doubleValue, byteValue);
     }
 
     @Test(description = "Test functions that pass ballerina int to Java primitive types")

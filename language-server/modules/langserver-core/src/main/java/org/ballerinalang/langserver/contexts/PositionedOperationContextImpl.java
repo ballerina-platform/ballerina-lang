@@ -115,6 +115,7 @@ public abstract class PositionedOperationContextImpl extends AbstractDocumentSer
             return self();
         }
 
+        @Override
         public abstract T build();
 
         @Override

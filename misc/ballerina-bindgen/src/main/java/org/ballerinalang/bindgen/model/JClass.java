@@ -23,6 +23,7 @@ import org.ballerinalang.bindgen.utils.BindgenUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -48,21 +49,21 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
  */
 public class JClass {
 
-    private BindgenEnv env;
-    private String prefix;
-    private String packageName;
-    private String shortClassName;
-    private Class currentClass;
+    private final BindgenEnv env;
+    private final Class currentClass;
+    private final String prefix;
+    private final String packageName;
+    private final boolean modulesFlag;
 
-    private boolean modulesFlag;
+    private String shortClassName;
     private boolean importJavaArraysModule = false;
 
-    private Map<String, String> superClassPackage = new HashMap<>();
-    private Set<String> importedPackages = new HashSet<>();
-    private List<JField> fieldList = new ArrayList<>();
-    private List<JMethod> methodList = new ArrayList<>();
-    private List<JConstructor> constructorList = new ArrayList<>();
-    private Map<String, Integer> overloadedMethods = new HashMap<>();
+    private final Map<String, String> superClassPackage = new HashMap<>();
+    private final Set<String> importedPackages = new HashSet<>();
+    private final List<JField> fieldList = new ArrayList<>();
+    private final List<JMethod> methodList = new ArrayList<>();
+    private final List<JConstructor> constructorList = new ArrayList<>();
+    private final Map<String, Integer> overloadedMethods = new HashMap<>();
 
     public JClass(Class c, BindgenEnv env) {
         this.env = env;
@@ -86,7 +87,12 @@ public class JClass {
         }
 
         if (env.isDirectJavaClass()) {
-            populateConstructors(c.getConstructors());
+            // skips Ballerina bindings generation for constructors of abstract classes
+            boolean isAbstract = Modifier.isAbstract(c.getModifiers());
+            if (!isAbstract) {
+                populateConstructors(c.getConstructors());
+            }
+
             populateMethods(c);
             populateFields(c.getFields());
         }
@@ -171,7 +177,7 @@ public class JClass {
         List<JMethod> tempList = new ArrayList<>();
         List<Method> tempMethodList = new ArrayList<>(methods);
         for (Method method : tempMethodList) {
-            boolean isInherited = superClassMethods.stream().anyMatch(m-> method.getName().equals(m.getName())
+            boolean isInherited = superClassMethods.stream().anyMatch(m -> method.getName().equals(m.getName())
                     && Arrays.equals(method.getParameterTypes(), m.getParameterTypes()));
             if (!isInherited) {
                 tempList.add(new JMethod(method, env, prefix, currentClass, 0));

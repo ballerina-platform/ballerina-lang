@@ -33,7 +33,7 @@ public class GetElementNameNilLifting {
     public static Object getElementNameNilLifting(BXml xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
-            if (elementName.equals("")) {
+            if (elementName.isEmpty()) {
                 return null;
             }
             return elementName;

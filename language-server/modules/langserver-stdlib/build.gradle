@@ -39,7 +39,7 @@ configurations.testCompileClasspath {
     }
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
                 file: "${project.buildDir}/ballerina-src/Ballerina.toml",
@@ -58,4 +58,5 @@ configurations {
 }
 
 tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
+tasks.javadoc.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
 description = 'Language Server - Standard Libs'

@@ -252,13 +252,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<Symbol> updatedModVarSymbols = updatedSymbols.stream()
                 .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil
                         .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Symbol> updatedButNotDeclaredLocVarSymbolsInRange = updatedSymbols.stream()
                 .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil.isRangeWithinRange
                         (PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range()))
                 .filter(symbol -> !updatedModVarSymbols.contains(symbol))
-                .collect(Collectors.toList());
+                .toList();
 
         // LocalVarSymbols which are declared or updated inside the selected range and also referred after the range
         List<VariableSymbol> localVarSymbols = updatedOrDeclaredLocVarSymbolsInRange.stream()
@@ -268,7 +268,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                 (PositionUtil.toRange(location.lineRange()),
                                         getRangeAfterHighlightedRange(context, enclosingNode))))
                 .map(symbol -> (VariableSymbol) symbol)
-                .collect(Collectors.toList());
+                .toList();
 
         /*
          * Following checks are done when deciding whether the selected range R is extractable to a function.
@@ -277,7 +277,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          * 2. The number of local variables in (1.) is less or equal to 1.
          *
          * */
-        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.size() == 0
+        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.isEmpty()
                 && localVarSymbols.size() <= 1;
 
         // Here we decide whether the selected range is extractable by the usages of symbols
@@ -314,7 +314,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 // this check is done to filter the local variables defined inside the function
                 .filter(symbol -> PositionUtil
                         .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
         // Declare a HashSet to collect local var symbols and param symbols and add param symbols
         HashSet<Symbol> paramAndLocVarSymbolsVisibleToRange = visibleSymbols.stream()
@@ -539,7 +539,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                 .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                                 .getRangeFromLineRange(location.lineRange()),
                                         PositionUtil.toRange(matchedLineRange))))
-                        .collect(Collectors.toList());
+                        .toList();
 
         if (varAndParamSymbols.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
             return Optional.empty();

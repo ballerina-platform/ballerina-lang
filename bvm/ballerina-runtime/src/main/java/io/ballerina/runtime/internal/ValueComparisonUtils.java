@@ -175,8 +175,8 @@ public class ValueComparisonUtils {
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
      * @param direction Sort direction ascending/descending/""
-     * @return 1 if the left hand side value > right hand side value,
-     * -1 if left hand side value < right hand side value,
+     * @return 1 if the left hand side value &gt; right hand side value,
+     * -1 if left hand side value &lt; right hand side value,
      * 0 left hand side value = right hand side value
      */
     public static int compareValues(Object lhsValue, Object rhsValue, String direction) {

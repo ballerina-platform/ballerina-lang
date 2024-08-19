@@ -70,7 +70,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Generates a Map<String, Object> for a given SyntaxTree.
+ * Generates a {@code Map<String, Object>} for a given SyntaxTree.
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
@@ -309,9 +309,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             boolean isBlockNode = node.kind() == SyntaxKind.BLOCK_STATEMENT
                     || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK
                     || node.kind() == SyntaxKind.SERVICE_DECLARATION;
-            boolean hasVisibleEps = this.visibleEpsForEachBlock.size() > 0
-                    || this.visibleEpsForClass.size() > 0
-                    || this.visibleEpsForModule.size() > 0;
+            boolean hasVisibleEps = !this.visibleEpsForEachBlock.isEmpty()
+                    || !this.visibleEpsForClass.isEmpty()
+                    || !this.visibleEpsForModule.isEmpty();
 
             if (isBlockNode && hasVisibleEps) {
 
@@ -653,9 +653,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
         } else {
             JsonElement memberValues = node.apply(this);
-            memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {
-                nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
-            });
+            memberValues.getAsJsonObject().entrySet().forEach(memberEntry ->
+                nodeInfo.add(memberEntry.getKey(), memberEntry.getValue()));
         }
         // Skip trailing minutiae if node doesn't have trailing minutiae (eg: ReTag)
         try {

@@ -156,7 +156,7 @@ public class TomlCompletionUtil {
         List<String> existingKeys = completions.keySet().stream()
                 .filter(key -> documentNode.members().stream().filter(node -> node.kind() == SyntaxKind.TABLE)
                         .map(node -> TomlSyntaxTreeUtil.toQualifiedName(((TableNode) node).identifier().value()))
-                        .collect(Collectors.toSet()).contains(key)).collect(Collectors.toList());
+                        .collect(Collectors.toSet()).contains(key)).toList();
         for (String key : existingKeys) {
             completions.remove(key);
         }
@@ -204,7 +204,7 @@ public class TomlCompletionUtil {
             CompletionItem>> snippets, String topLevelNodeKey) {
         List<Map.Entry<TomlNode, Map<String, CompletionItem>>> filteredMap =
                 snippets.entrySet().stream().filter(entry ->
-                        topLevelNodeKey.equals((entry.getKey().getKey()))).collect(Collectors.toList());
+                        topLevelNodeKey.equals((entry.getKey().getKey()))).toList();
         if (filteredMap.size() == 1) {
             return filteredMap.get(0).getValue();
         }

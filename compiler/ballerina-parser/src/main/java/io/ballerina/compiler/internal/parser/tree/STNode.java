@@ -63,7 +63,7 @@ public abstract class STNode {
     STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
         this.kind = kind;
         this.diagnostics = diagnostics;
-        if (diagnostics.size() > 0) {
+        if (!diagnostics.isEmpty()) {
             flags = STNodeFlags.withFlag(flags, STNodeFlags.HAS_DIAGNOSTIC);
         }
     }

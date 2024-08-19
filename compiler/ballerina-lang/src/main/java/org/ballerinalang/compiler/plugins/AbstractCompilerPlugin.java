@@ -40,6 +40,7 @@ import java.util.List;
  */
 public abstract class AbstractCompilerPlugin implements CompilerPlugin {
 
+    @Override
     public abstract void init(DiagnosticLog diagnosticLog);
 
     @Override

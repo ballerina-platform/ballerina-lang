@@ -50,6 +50,7 @@ public class STWildcardBindingPatternNode extends STBindingPatternNode {
                 underscoreToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWildcardBindingPatternNode(
                 this.underscoreToken,
@@ -68,6 +69,7 @@ public class STWildcardBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WildcardBindingPatternNode(this, position, parent);
     }

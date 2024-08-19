@@ -216,7 +216,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             int dotPosition = symbol.name.value.indexOf('.');
             if (dotPosition > 0 && dotPosition != symbol.name.value.length()) {
                 String funcName = symbol.name.value.substring(dotPosition + 1);
-                foundSym = lookupSymbolForDecl(env, names.fromString(funcName), SymTag.MAIN);
+                foundSym = lookupSymbolForDecl(env, Names.fromString(funcName), SymTag.MAIN);
             }
         }
 
@@ -410,19 +410,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
+        return resolveOperator(Names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
     }
 
     private BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+        return new BOperatorSymbol(Names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     public BSymbol resolveUnaryOperator(OperatorKind opKind,
                                         BType type) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+        return resolveOperator(Names.fromString(opKind.value()), Lists.of(type));
     }
 
     public BSymbol resolveOperator(Name name, List<BType> types) {
@@ -433,19 +433,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.booleanType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+        return new BOperatorSymbol(Names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     private BSymbol createBinaryOperator(OperatorKind opKind, BType lhsType, BType rhsType, BType retType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+        return new BOperatorSymbol(Names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+        return new BOperatorSymbol(Names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
@@ -857,7 +857,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
+                resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -882,7 +882,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
+                resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -903,7 +903,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
+                resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -924,7 +924,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
+                resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -1114,7 +1114,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 entry = entry.next;
                 continue;
             }
-            symTable.intRangeType = (BObjectType) types
+            symTable.intRangeType = (BObjectType) Types
                     .getImpliedType(((BInvokableType) entry.symbol.type).retType);
             symTable.defineIntRangeOperations();
             return;
@@ -1174,7 +1174,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                     data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
-            if (arrayTypeNode.sizes.size() == 0) {
+            if (arrayTypeNode.sizes.isEmpty()) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = arrayTypeNode.sizes.get(i);
@@ -1330,7 +1330,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             recordTypeNode.symbol = recordSymbol;
 
             if (data.env.node.getKind() != NodeKind.PACKAGE) {
-                recordSymbol.name = names.fromString(
+                recordSymbol.name = Names.fromString(
                         anonymousModelHelper.getNextAnonymousTypeKey(data.env.enclPkg.packageID));
                 symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, data.env);
                 symbolEnter.defineNode(recordTypeNode, data.env);
@@ -1502,7 +1502,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         PackageID packageID = data.env.enclPkg.packageID;
         if (data.env.node.getKind() != NodeKind.PACKAGE) {
-            errorTypeSymbol.name = names.fromString(
+            errorTypeSymbol.name = Names.fromString(
                     anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, data.env);
         }
@@ -2085,7 +2085,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
      * @param opKind Binary operator kind
      * @param lhsType Type of the left hand side value
      * @param rhsType Type of the right hand side value
-     * @return <, <=, >, or >= symbol
+     * @return {@literal <, <=, >, or >=} symbol
      */
     public BSymbol getBinaryComparisonOpForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
         boolean validOrderedTypesExist;
@@ -2398,7 +2398,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (typeNode == null) {
             flagSet = new HashSet<>();
         } else if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
+            flagSet = typeNode.flagSet;
         } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
             flagSet = typeNode.flagSet;
         } else {
@@ -2611,7 +2611,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public BAnnotationSymbol getStrandAnnotationSymbol() {
         return (BAnnotationSymbol) lookupSymbolInAnnotationSpace(
-                symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
+                symTable.pkgEnvMap.get(symTable.rootPkgSymbol), Names.fromString("strand"));
     }
 
     public BPackageSymbol getModuleForPackageId(PackageID packageID) {

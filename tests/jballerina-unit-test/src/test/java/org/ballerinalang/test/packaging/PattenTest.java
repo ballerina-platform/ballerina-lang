@@ -140,7 +140,7 @@ public class PattenTest {
                                               null, null);
         Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
-        List<String> strings = subject.convert(mock, null).limit(1).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).limit(1).toList();
 
         Assert.assertTrue(strings.isEmpty());
     }

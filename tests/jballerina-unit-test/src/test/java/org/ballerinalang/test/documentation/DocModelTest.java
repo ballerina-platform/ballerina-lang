@@ -349,7 +349,7 @@ public class DocModelTest {
                 "Type name of fourth field in Human Record should be Listener");
         Assert.assertEquals(humanRec.get().fields.get(3).type.category, "reference",
                 "Category of fourth field in Human Record should be reference");
-        Assert.assertTrue(humanRec.get().fields.get(3).type.isNullable,
+        Assert.assertTrue(humanRec.get().fields.get(3).type.isOptional,
                 "Fourth field in Human Record should be optional");
 
         Assert.assertEquals(humanRec.get().fields.get(4).name, "caller",
@@ -632,6 +632,29 @@ public class DocModelTest {
         Assert.assertEquals(tuple.get().type.memberTypes.get(0).category, "builtin");
         Assert.assertEquals(tuple.get().type.memberTypes.get(1).name, "float");
         Assert.assertEquals(tuple.get().type.memberTypes.get(1).category, "builtin");
+    }
+
+    @Test(description = "Test module configurable variables")
+    public void testModuleConfigurableVariables() {
+        Optional<DefaultableVariable> confString = testModule.configurables.stream()
+                .filter(client -> client.name.equals("confString")).findAny();
+        Assert.assertTrue(confString.isPresent());
+
+        Assert.assertEquals(confString.get().description, "A configurable variable of string type without " +
+                "default value" + System.lineSeparator());
+        Assert.assertEquals(confString.get().defaultValue, "?");
+        Assert.assertEquals(confString.get().type.category, "builtin");
+        Assert.assertEquals(confString.get().type.name, "string");
+
+        Optional<DefaultableVariable> defaultConfString = testModule.configurables.stream()
+                .filter(client -> client.name.equals("defaultConfString")).findAny();
+        Assert.assertTrue(defaultConfString.isPresent());
+
+        Assert.assertEquals(defaultConfString.get().description, "A configurable variable of string type with " +
+                "default value" + System.lineSeparator());
+        Assert.assertEquals(defaultConfString.get().defaultValue, "\"confidential\"");
+        Assert.assertEquals(defaultConfString.get().type.category, "builtin");
+        Assert.assertEquals(defaultConfString.get().type.name, "string");
     }
 
     @Test(description = "Test record rest field")

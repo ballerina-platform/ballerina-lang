@@ -40,7 +40,7 @@ public class BParameterizedType extends BType implements ParameterizedType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) paramValueType.getZeroValue();
+        return paramValueType.getZeroValue();
     }
 
     @Override

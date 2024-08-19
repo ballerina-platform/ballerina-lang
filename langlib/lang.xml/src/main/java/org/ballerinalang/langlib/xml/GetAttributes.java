@@ -44,6 +44,6 @@ public class GetAttributes {
                     "getAttributes", "element");
         }
 
-        return (BMap<BString, BString>) xmlVal.getAttributesMap();
+        return xmlVal.getAttributesMap();
     }
 }

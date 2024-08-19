@@ -199,7 +199,7 @@ public class PartialParserTests {
     public void testSTForModulePart() throws ExecutionException, InterruptedException, IOException {
         String file = "sample_service_and_listener.json";
 
-        String modulePart =  Files.readString(sampleServiceNListener);;
+        String modulePart =  Files.readString(sampleServiceNListener);
         PartialSTRequest request = new PartialSTRequest(modulePart);
         CompletableFuture<?> result = serviceEndpoint.request(MODULE_PART, request);
         STResponse json = (STResponse) result.get();
@@ -212,7 +212,7 @@ public class PartialParserTests {
     public void testSTForResource() throws ExecutionException, InterruptedException, IOException {
         String file = "sample_resource.json";
 
-        String modulePart =  Files.readString(sampleResource);;
+        String modulePart =  Files.readString(sampleResource);
         PartialSTRequest request = new PartialSTRequest(modulePart);
         CompletableFuture<?> result = serviceEndpoint.request(RESOURCE, request);
         STResponse json = (STResponse) result.get();

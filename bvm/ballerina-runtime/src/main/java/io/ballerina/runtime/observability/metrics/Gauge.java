@@ -119,6 +119,7 @@ public interface Gauge extends Metric {
      *
      * @return The registered Gauge instance.
      */
+    @Override
     default Gauge register() {
         return DefaultMetricRegistry.getInstance().register(this);
     }
@@ -128,6 +129,7 @@ public interface Gauge extends Metric {
      * Unregisters the metric to the registry.
      *
      */
+    @Override
     default void unregister() {
         DefaultMetricRegistry.getInstance().unregister(this);
     }

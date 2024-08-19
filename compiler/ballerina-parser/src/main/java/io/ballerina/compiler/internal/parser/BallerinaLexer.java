@@ -43,6 +43,7 @@ public class BallerinaLexer extends AbstractLexer {
      *
      * @return Next lexical token.
      */
+    @Override
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {

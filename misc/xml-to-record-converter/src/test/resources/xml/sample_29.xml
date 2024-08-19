@@ -1,0 +1,9 @@
+<lib:library xmlns:lib="http://example.com/library" xmlns:au="http://example.com/author">
+    <lib:book>
+        <lib:id>601971</lib:id>
+        <lib:title>string</lib:title>
+        <au:title>Title</au:title>
+        <lib:author>Name</lib:author>
+        <au:author>Name</au:author>
+    </lib:book>
+</lib:library>

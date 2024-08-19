@@ -56,6 +56,7 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestArgumentNode(
                 this.ellipsis,
@@ -78,6 +79,7 @@ public class STRestArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestArgumentNode(this, position, parent);
     }

@@ -69,7 +69,6 @@ import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static io.ballerina.projects.util.ProjectUtils.getPackageNameFromBalaName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -359,24 +358,13 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private static void validatePackageMdAndBalToml(Path balaPath) {
-        // Gets package name from balapath
-        String packageName = getPackageNameFromBalaName(balaPath.toFile().getName());
-
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
-                // Checks if Package.md or README.md exists and is not empty
                 if (entry.getName().equals(
                         ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
                     if (entry.getSize() == 0) {
                         throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
-                    }
-                    return;
-                } else if (entry.getName().equals(
-                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.MODULES_ROOT + "/"
-                                + packageName + "/" + ProjectConstants.README_MD_FILE_NAME)) {
-                    if (entry.getSize() == 0) {
-                        throw new ProjectException(ProjectConstants.README_MD_FILE_NAME + " cannot be empty.");
                     }
                     return;
                 }
@@ -384,8 +372,7 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
-        // Throws an exception if both files aren't present
-        throw new ProjectException(ProjectConstants.README_MD_FILE_NAME + " is missing in bala file:" + balaPath);
+        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
@@ -509,13 +496,13 @@ public class PushCommand implements BLauncherCmd {
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
-                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
 
-                    errorMessage = errorMessage.replaceAll("error: ", "");
+                    errorMessage = errorMessage.replace("error: ", "");
 
                     // when unauthorized access token for organization is given
                     if (errorMessage.contains("subject claims missing in the user info repsonse")) {

@@ -45,7 +45,7 @@ public class TaskExecutor {
      * Task executor builder class.
      */
     public static class TaskBuilder {
-        private TaskExecutor taskExecutor = new TaskExecutor();
+        private final TaskExecutor taskExecutor = new TaskExecutor();
 
         public TaskBuilder addTask(Task task) {
             this.taskExecutor.tasks.add(task);

@@ -487,10 +487,10 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
                 ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
-                        .toString(),
-                "'Employee' value cannot be converted to 'Teacher': " +
-                        "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
-                        "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
+                        .toString(), """
+                        'Employee' value cannot be converted to 'Teacher':\s
+                        \t\tmissing required field 'school' of type 'string' in record 'Teacher'
+                        \t\tmissing required field 'age' of type 'int' in record 'Teacher'""");
     }
 
     @Test

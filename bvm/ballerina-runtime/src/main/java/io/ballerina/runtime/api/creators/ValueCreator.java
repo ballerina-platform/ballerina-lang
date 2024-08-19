@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -69,6 +70,7 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -578,7 +580,15 @@ public class ValueCreator {
      * @return         xml sequence
      */
     public static BXmlSequence createXmlSequence(List<BXml> sequence) {
-        return XmlFactory.createXmlSequence(sequence);
+        List<BXml> flattenedSequence = new ArrayList<>();
+        for (BXml item : sequence) {
+            if (item.getNodeType() == XmlNodeType.SEQUENCE) {
+                flattenedSequence.addAll(((XmlSequence) item).getChildrenList());
+            } else {
+                flattenedSequence.add(item);
+            }
+        }
+        return XmlFactory.createXmlSequence(flattenedSequence);
     }
 
     /**

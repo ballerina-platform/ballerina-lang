@@ -480,6 +480,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             }
             return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
                     && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
+        } else if (CommandConstants.CREATE_CONFIG_TOML_COMMAND.equals(actualCommand.get("command").getAsString())) {
+            return actualArgs.size() == 2
+                    && validateCreateConfigTomlCommand(actualCommand, actualArgs, expArgs, sourceRoot);
         }
 
         for (JsonElement actualArg : actualArgs) {
@@ -519,6 +522,30 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         newArgs.add(actualName);
         newArgs.add(actualFilePath);
         newArgs.add(actualTextEdits);
+        actualCommand.add("arguments", newArgs);
+        return false;
+    }
+
+    private boolean validateCreateConfigTomlCommand(JsonObject actualCommand, JsonArray actualArgs, JsonArray expArgs,
+                                                                                      Path sourceRoot) {
+        String actualTextEdit = actualArgs.get(1).getAsString();
+        String expectedTextEdit = expArgs.get(1).getAsString();
+        String expectedFilePath = expArgs.get(0).getAsString();
+        String actualFilePath = actualArgs.get(0).getAsString().replace(sourceRoot.toString(), "");
+        if (actualFilePath.startsWith("/")) {
+            actualFilePath = actualFilePath.substring(1);
+        } else if (actualFilePath.startsWith("\\")) {
+            actualFilePath = actualFilePath.substring(1);
+            actualFilePath = actualFilePath.replace("\\", "/");
+            actualTextEdit = actualTextEdit.replaceAll(System.lineSeparator(), "\n");
+        }
+        if (actualFilePath.equals(expectedFilePath) && actualTextEdit.equals(expectedTextEdit)) {
+            return true;
+        }
+
+        JsonArray newArgs = new JsonArray();
+        newArgs.add(actualFilePath);
+        newArgs.add(actualTextEdit);
         actualCommand.add("arguments", newArgs);
         return false;
     }

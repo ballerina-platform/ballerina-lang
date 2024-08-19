@@ -70,7 +70,7 @@ public class ConstAnnotationAttachmentSymbolTest {
         TypeDefinitionSymbol typeDefSym = (TypeDefinitionSymbol) symbol.get();
 
         List<AnnotationAttachmentSymbol> attachments = typeDefSym.annotAttachments();
-        assertTrue(attachments.size() > 0);
+        assertTrue(!attachments.isEmpty());
 
         AnnotationAttachmentSymbol annotAttachment = attachments.get(0);
         assertTrue(annotAttachment.isConstAnnotation());
