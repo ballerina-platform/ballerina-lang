@@ -25,6 +25,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 
@@ -64,7 +65,7 @@ public class JvmStrandMetadataConstantsGen {
         generateConstantsClassInit(cw, strandMetadataConstantsClass);
     }
 
-    public void generateClass(Map<String, byte[]> jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
+    public void generateClass(JarEntries jarEntries, Map<String, ScheduleFunctionInfo> strandMetadata) {
         visitStrandMetadataFields(cw, strandMetadata);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         generateStrandMetadata(mv, strandMetadata);

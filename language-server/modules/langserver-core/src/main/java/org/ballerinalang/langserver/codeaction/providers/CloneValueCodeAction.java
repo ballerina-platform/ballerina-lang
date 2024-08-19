@@ -26,6 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -39,6 +40,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code action to clone the value or clone it as a readonly value.
@@ -49,14 +51,15 @@ import java.util.Optional;
 public class CloneValueCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static final String NAME = "Clone the value";
-    private static final String DIAGNOSTIC_CODE = "BCE3959";
+    private static final String DIAGNOSTIC_CODE_3959 = "BCE3959";
+    private static final Set<String> DIAGNOSTIC_CODES = Set.of(DIAGNOSTIC_CODE_3959, "BCE3960");
     private static final String CLONE_METHOD = ".clone()";
     private static final String CLONE_READONLY_METHOD = ".cloneReadOnly()";
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code())
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -64,6 +67,12 @@ public class CloneValueCodeAction implements DiagnosticBasedCodeActionProvider {
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         NonTerminalNode matchedNode = positionDetails.matchedNode();
+
+        // Check if there are multiple diagnostics of the considered category
+        if (CommonUtil.hasMultipleDiagnostics(context, matchedNode, diagnostic, DIAGNOSTIC_CODES,
+                DIAGNOSTIC_CODE_3959)) {
+            return Collections.emptyList();
+        }
 
         // Obtain the type symbol of the matched node.
         Optional<TypeSymbol> optTypeSymbol = context.currentSemanticModel()
