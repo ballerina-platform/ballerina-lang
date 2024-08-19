@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {|
+type PersonQT record {|
     string firstName;
     string lastName;
     int age;
 |};
 
-type Teacher record {|
+type TeacherQT record {|
     string firstName;
     string lastName;
     int age;
@@ -34,7 +34,7 @@ type EmployeeEntity record {
     int age;
 };
 
-type Employee record {|
+type EmployeeQT record {|
     string fname;
     string lname;
     int age;
@@ -42,6 +42,7 @@ type Employee record {|
 
 class NumberGenerator {
     int i = 0;
+
     public isolated function next() returns record {|int value;|}|error? {
         //closes the stream after 5 events
         if (self.i == 5) {
@@ -53,104 +54,104 @@ class NumberGenerator {
 }
 
 type ResultValue record {|
-    Person value;
+    PersonQT value;
 |};
 
-function getRecordValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal) returns Person? {
-   if (returnedVal is ResultValue) {
-      return returnedVal.value;
-   } else {
-      return ();
-   }
+function getRecordValue((record {|PersonQT value;|}|error?)|(record {|PersonQT value;|}?) returnedVal) returns PersonQT? {
+    if (returnedVal is ResultValue) {
+        return returnedVal.value;
+    } else {
+        return ();
+    }
 }
 
-function testSimpleSelectQueryWithSimpleVariable() returns Person[] {
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+function testSimpleSelectQueryWithSimpleVariable() returns PersonQT[] {
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
-    Person[] outputPersonList =
+    PersonQT[] outputPersonList =
             from var person in personList
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: person.age
-            };
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: person.age
+    };
 
     return outputPersonList;
 }
 
-function testSimpleSelectQueryWithRecordVariable() returns Person[] {
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+function testSimpleSelectQueryWithRecordVariable() returns PersonQT[] {
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
-    Person[] outputPersonList =
-            from var { firstName: nm1, lastName: nm2, age: a } in personList
-            select {
-                   firstName: nm1,
-                   lastName: nm2,
-                   age: a
-            };
+    PersonQT[] outputPersonList =
+            from var {firstName: nm1, lastName: nm2, age: a} in personList
+    select {
+        firstName: nm1,
+        lastName: nm2,
+        age: a
+    };
 
     return outputPersonList;
 }
 
-function testSimpleSelectQueryWithRecordVariableV2() returns Person[] {
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+function testSimpleSelectQueryWithRecordVariableV2() returns PersonQT[] {
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
     var outputPersonList =
-            from var { firstName, lastName, age } in personList
-            select {
-                   firstName: firstName,
-                   lastName: lastName,
-                   age: age
-            };
+            from var {firstName, lastName, age} in personList
+    select {
+        firstName: firstName,
+        lastName: lastName,
+        age: age
+    };
 
     return outputPersonList;
 }
 
-function testSimpleSelectQueryWithRecordVariableV3() returns Person[] {
-    Teacher p1 = {firstName: "Alex", lastName: "George", age: 23, teacherId: "XYZ01"};
-    Teacher p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, teacherId: "ABC01"};
-    Teacher p3 = {firstName: "John", lastName: "David", age: 33, teacherId: "ABC10"};
+function testSimpleSelectQueryWithRecordVariableV3() returns PersonQT[] {
+    TeacherQT p1 = {firstName: "Alex", lastName: "George", age: 23, teacherId: "XYZ01"};
+    TeacherQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, teacherId: "ABC01"};
+    TeacherQT p3 = {firstName: "John", lastName: "David", age: 33, teacherId: "ABC10"};
 
-    Teacher[] teacherList = [p1, p2, p3];
+    TeacherQT[] teacherList = [p1, p2, p3];
 
     var outputPersonList =
-            from var { firstName, lastName, age, teacherId} in teacherList
-            select {
-                   firstName: firstName,
-                   lastName: lastName,
-                   age: age
-            };
+            from var {firstName, lastName, age, teacherId} in teacherList
+    select {
+        firstName: firstName,
+        lastName: lastName,
+        age: age
+    };
 
     return outputPersonList;
 }
 
-function testSimpleSelectQueryWithWhereClause() returns Person[] {
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+function testSimpleSelectQueryWithWhereClause() returns PersonQT[] {
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
     var outputPersonList =
             from var person in personList
-            where person.age >= 30
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: person.age
-            };
+    where person.age >= 30
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: person.age
+    };
     return outputPersonList;
 }
 
@@ -160,8 +161,8 @@ function testQueryExpressionForPrimitiveType() returns boolean {
 
     var outputIntList =
             from var value in intList
-            where value > 20
-            select value;
+    where value > 20
+    select value;
 
     return outputIntList == [21, 25];
 }
@@ -172,102 +173,102 @@ function testQueryExpressionWithSelectExpression() returns boolean {
 
     var stringOutput =
             from var value in intList
-            select value.toString();
+    select value.toString();
 
     return stringOutput == ["1", "2", "3"];
 }
 
-function testFilteringNullElements() returns Person[] {
+function testFilteringNullElements() returns PersonQT[] {
 
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
 
-    Person?[] personList = [p1, (), p2];
+    PersonQT?[] personList = [p1, (), p2];
 
     var outputPersonList =
-                     from var person in personList
-                     where (person is Person)
-                     select {
-                         firstName: person.firstName,
-                         lastName: person.lastName,
-                         age: person.age
-                         };
+                    from var person in personList
+    where (person is PersonQT)
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: person.age
+    };
     return outputPersonList;
 }
 
 function testMapWithArity() returns boolean {
     map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
     var val = map from var v in m
-                   where <string> v == "1A"
-                   select ["a", v];
+        where <string>v == "1A"
+        select ["a", v];
     return val == {a: "1A"};
 }
 
 function testJSONArrayWithArity() returns boolean {
     json[] jdata = [{name: "bob", age: 10}, {name: "tom", age: 16}];
     var val = from var v in jdata
-                   select <string> checkpanic v.name;
+        select <string>checkpanic v.name;
     return val == ["bob", "tom"];
 }
 
 function testArrayWithTuple() returns boolean {
     [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
     var val = from var [i, v] in arr
-                   where i == 3
-                   select v;
+        where i == 3
+        select v;
     return val == ["C"];
 }
 
-function testQueryExpressionWithVarType() returns Teacher[] {
+function testQueryExpressionWithVarType() returns TeacherQT[] {
 
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
     var outputPersonList =
             from var person in personList
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: person.age,
-                   teacherId: "TER1200"
-            };
+    select {
+        firstName: person.firstName,
+        lastName: person.lastName,
+        age: person.age,
+        teacherId: "TER1200"
+    };
 
     return outputPersonList;
 }
 
-function testSimpleSelectQueryWithSpreadOperator() returns Person[] {
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+function testSimpleSelectQueryWithSpreadOperator() returns PersonQT[] {
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
-    Person[] outputPersonList =
+    PersonQT[] outputPersonList =
             from var person in personList
-            select {
-                   ...person
-            };
+    select {
+        ...person
+    };
 
     return outputPersonList;
 }
 
-function testQueryExpressionWithSpreadOperatorV2() returns Teacher[] {
+function testQueryExpressionWithSpreadOperatorV2() returns TeacherQT[] {
 
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
     var outputPersonList =
             from var person in personList
-            select {
-                   ...person,
-                   teacherId: "TER1200"
-            };
+    select {
+        ...person,
+        teacherId: "TER1200"
+    };
 
     return outputPersonList;
 }
@@ -277,11 +278,11 @@ public function testQueryWithStream() returns boolean {
     var numberStream = new stream<int, error?>(numGen);
 
     var oddNumberList = stream from var num in numberStream
-                        where (num % 2 == 1)
-                        select num;
+        where (num % 2 == 1)
+        select num;
     int[] result = [];
-    record {| int value; |}|error? v = oddNumberList.next();
-    while (v is record {| int value; |}) {
+    record {|int value;|}|error? v = oddNumberList.next();
+    while (v is record {|int value;|}) {
         result.push(v.value);
         v = oddNumberList.next();
     }
@@ -290,26 +291,26 @@ public function testQueryWithStream() returns boolean {
 
 function testSimpleSelectQueryReturnStream() returns boolean {
     boolean testPassed = true;
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
+    PersonQT p1 = {firstName: "Alex", lastName: "George", age: 23};
+    PersonQT p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    PersonQT p3 = {firstName: "John", lastName: "David", age: 33};
 
-    Person[] personList = [p1, p2, p3];
+    PersonQT[] personList = [p1, p2, p3];
 
     var outputPersonStream = stream from var person in personList
-                             select {
-                                 firstName: person.firstName,
-                                 lastName: person.lastName,
-                                 age: person.age
-                             };
-    Person? returnedVal = getRecordValue(outputPersonStream.next());
-    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p1);
+        select {
+            firstName: person.firstName,
+            lastName: person.lastName,
+            age: person.age
+        };
+    PersonQT? returnedVal = getRecordValue(outputPersonStream.next());
+    testPassed = testPassed && (returnedVal is PersonQT) && (returnedVal == p1);
 
     returnedVal = getRecordValue(outputPersonStream.next());
-    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p2);
+    testPassed = testPassed && (returnedVal is PersonQT) && (returnedVal == p2);
 
     returnedVal = getRecordValue(outputPersonStream.next());
-    testPassed = testPassed && (returnedVal is Person) && (returnedVal == p3);
+    testPassed = testPassed && (returnedVal is PersonQT) && (returnedVal == p3);
     return testPassed;
 }
 
@@ -318,14 +319,15 @@ string fname = "";
 function testVariableShadowingWithQueryExpressions1() returns boolean {
 
     EmployeeEntity[] entities = [
-            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
-            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
-            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
-        ];
+        {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+        {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+        {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+    ];
 
-    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    EmployeeQT[] records = from var {fname, lname, age} in entities
+        select {fname, lname, age};
     boolean testPassed = true;
-    Employee e = records[0];
+    EmployeeQT e = records[0];
     testPassed = testPassed && e.fname == "Sameera" && e.lname == "Jayasoma" && e.age == 30;
     e = records[1];
     testPassed = testPassed && e.fname == "Asanthi" && e.lname == "Kulasinghe" && e.age == 30;
@@ -337,15 +339,16 @@ function testVariableShadowingWithQueryExpressions1() returns boolean {
 function testVariableShadowingWithQueryExpressions2() returns boolean {
 
     EmployeeEntity[] entities = [
-            {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
-            {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
-            {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
-        ];
+        {id: 1232, fname: "Sameera", lname: "Jayasoma", age: 30},
+        {id: 1232, fname: "Asanthi", lname: "Kulasinghe", age: 30},
+        {id: 1232, fname: "Khiana", lname: "Jayasoma", age: 2}
+    ];
 
-    Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    EmployeeQT[] records = from var {fname, lname, age} in entities
+        select {fname, lname, age};
     var lname = 5;
     boolean testPassed = true;
-    Employee e = records[0];
+    EmployeeQT e = records[0];
     testPassed = testPassed && e.fname == "Sameera" && e.lname == "Jayasoma" && e.age == 30;
     e = records[1];
     testPassed = testPassed && e.fname == "Asanthi" && e.lname == "Kulasinghe" && e.age == 30;
