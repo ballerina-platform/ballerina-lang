@@ -368,7 +368,7 @@ public final class Core {
             return t;
         }
         int all = t.all() | t.some();
-        return Builder.basicTypeUnion(all);
+        return SemType.from(all);
     }
 
     public static SemType cellContainingInnerVal(Env env, SemType t) {
