@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -306,7 +307,7 @@ public final class TypeConverter {
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, (MapType) targetType, unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
@@ -617,7 +618,7 @@ public final class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
+    private static boolean isConvertibleToMapType(Object sourceValue, MapType targetType,
                                                   Set<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {

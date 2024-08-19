@@ -52,13 +52,8 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
     }
 
     public static BDecimalType singletonType(BigDecimal value) {
-        return new BDecimalType(() -> {
-            try {
-                return (BDecimalTypeImpl) DEFAULT_B_TYPE.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
-        }, TypeConstants.DECIMAL_TNAME, Builder.decimalConst(value));
+        return new BDecimalType(() -> (BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.DECIMAL_TNAME,
+                Builder.decimalConst(value));
     }
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, SemType semType) {
@@ -94,11 +89,8 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
         }
 
         @Override
-        protected Object clone() throws CloneNotSupportedException {
-            BType bType = (BType) super.clone();
-            bType.setCachedImpliedType(null);
-            bType.setCachedReferredType(null);
-            return bType;
+        public BType clone() {
+            return super.clone();
         }
     }
 }

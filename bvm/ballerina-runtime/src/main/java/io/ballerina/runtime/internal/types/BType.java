@@ -46,18 +46,18 @@ import java.util.WeakHashMap;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type, SubTypeData, MutableSemType {
+public abstract class BType implements Type, SubTypeData, MutableSemType, Cloneable {
 
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
+    protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
+            MutableSemTypeDependencyManager.getInstance();
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
-    protected MutableSemTypeDependencyManager mutableSemTypeDependencyManager =
-            MutableSemTypeDependencyManager.getInstance();
-    private final Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
+    private Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -299,5 +299,19 @@ public abstract class BType implements Type, SubTypeData, MutableSemType {
     public void resetSemType() {
         cachedSemType = null;
         mutableSemTypeDependencyManager.notifyDependenciesToReset(this);
+    }
+
+    @Override
+    public BType clone() {
+        try {
+            BType clone = (BType) super.clone();
+            clone.cachedResults = null;
+            clone.cachedSemType = null;
+            clone.setCachedImpliedType(null);
+            clone.setCachedReferredType(null);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

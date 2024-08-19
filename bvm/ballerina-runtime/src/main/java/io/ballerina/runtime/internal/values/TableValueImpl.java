@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -40,7 +41,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -435,7 +435,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
                 return fieldList.get(fieldName).getFieldType();
             case TypeTags.MAP_TAG:
-                return ((BMapType) constraintType).getConstrainedType();
+                return ((MapType) constraintType).getConstrainedType();
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
                 return getTableConstraintField(effectiveType, fieldName);
@@ -793,7 +793,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     Arrays.stream(fieldNames)
                             .forEach(field -> keyTypes.add(recordType.getFields().get(field).getFieldType()));
                 } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
-                    BMapType mapType = (BMapType) constraintType;
+                    MapType mapType = (MapType) constraintType;
                     Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
                 }
                 keyType = new BTupleType(keyTypes);

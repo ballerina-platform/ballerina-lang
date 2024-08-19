@@ -53,7 +53,7 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType implements MapType, TypeWithShape {
+public class BMapType extends BType implements MapType, TypeWithShape, Cloneable {
 
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
@@ -255,5 +255,12 @@ public class BMapType extends BType implements MapType, TypeWithShape {
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
         return defn.defineMappingTypeWrapped(env, EMPTY_FIELD_ARR, restType, mut);
+    }
+
+    @Override
+    public BMapType clone() {
+        BMapType clone = (BMapType) super.clone();
+        clone.defn = null;
+        return clone;
     }
 }

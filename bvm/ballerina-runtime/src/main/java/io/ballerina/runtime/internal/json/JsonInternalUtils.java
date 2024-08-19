@@ -43,7 +43,6 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -363,7 +362,7 @@ public final class JsonInternalUtils {
             case TypeTags.ARRAY_TAG:
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
-                return jsonToMap(jsonValue, (BMapType) targetType);
+                return jsonToMap(jsonValue, (MapType) targetType);
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
