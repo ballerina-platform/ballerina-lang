@@ -95,7 +95,7 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                     SpecificFieldNode specificFieldNode = (SpecificFieldNode) field;
                     if (specificFieldNode.fieldName().kind() == SyntaxKind.STRING_LITERAL) {
                         String fieldName = ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken().text();
-                        fieldName = fieldName.replaceAll("\"", "");
+                        fieldName = fieldName.replace("\"", "");
                         Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
                         if (symbol.isPresent()) {
                             TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();

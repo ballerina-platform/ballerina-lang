@@ -140,6 +140,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         analyzeExpr(binaryExpr.rhsExpr);
     }
 
+    @Override
     public void visit(BLangGroupExpr expr) {
         analyzeExpr(expr.expression);
     }
@@ -158,12 +159,14 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
             analyzeExpr(expr);
         }
     }
 
+    @Override
     public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
         analyzeExpr(spreadOpExpr.expr);
     }

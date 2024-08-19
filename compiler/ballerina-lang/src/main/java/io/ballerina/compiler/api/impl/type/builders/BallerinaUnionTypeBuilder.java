@@ -85,7 +85,7 @@ public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
     }
 
     private BType[] getMemberBTypes() {
-        if (memberTypes.size() == 0) {
+        if (memberTypes.isEmpty()) {
             throw new IllegalArgumentException("Member types can not be empty");
         }
 

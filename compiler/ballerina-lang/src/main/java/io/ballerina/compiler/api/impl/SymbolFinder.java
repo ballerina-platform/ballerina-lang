@@ -1784,7 +1784,7 @@ class SymbolFinder extends BaseVisitor {
         List<BResourcePathSegmentSymbol> pathSegSymbols = resourceInvocation.targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> pathExprs = resourceInvocation.resourceAccessPathSegments.exprs;
 
-        if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+        if (pathExprs.isEmpty() && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             // Returns since the resource-function has only the root-path segment
             // Assumption: If a resource-action with 0 path-expr matches with a resource function, 
             // then it must have a root-path

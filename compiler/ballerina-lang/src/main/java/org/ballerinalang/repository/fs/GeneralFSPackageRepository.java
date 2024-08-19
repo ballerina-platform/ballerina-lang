@@ -236,7 +236,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 try {
                     List<Path> files = Files.walk(this.pkgPath, 1).filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
-                            collect(Collectors.toList());
+                            toList();
                     this.cachedEntryNames = new ArrayList<>(files.size());
                     files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
                 } catch (IOException e) {

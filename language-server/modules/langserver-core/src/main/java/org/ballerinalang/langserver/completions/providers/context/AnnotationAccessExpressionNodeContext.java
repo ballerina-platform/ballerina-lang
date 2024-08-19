@@ -144,7 +144,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             case UNION:
                 List<TypeDescKind> typeDescKinds = ((UnionTypeSymbol) symbol).memberTypeDescriptors().stream()
                         .map(TypeSymbol::typeKind)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (typeDescKinds.contains(TypeDescKind.ANY) || !typeDescKinds.contains(TypeDescKind.ANYDATA)) {
                     annotationAttachPoints.addAll(Arrays.asList(
                             AnnotationAttachPoint.TYPE,

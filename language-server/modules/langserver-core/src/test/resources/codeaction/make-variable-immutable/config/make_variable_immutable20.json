@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 8,
+    "character": 15
+  },
+  "source": "make_variable_immutable20.bal",
+  "description": "Make immutable of a readonly class variable",
+  "expected": [
+    {
+      "title": "Add 'final' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "final "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

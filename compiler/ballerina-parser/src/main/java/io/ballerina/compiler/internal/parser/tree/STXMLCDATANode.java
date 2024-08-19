@@ -62,6 +62,7 @@ public class STXMLCDATANode extends STXMLItemNode {
                 cdataEnd);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLCDATANode(
                 this.cdataStart,
@@ -88,6 +89,7 @@ public class STXMLCDATANode extends STXMLItemNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLCDATANode(this, position, parent);
     }

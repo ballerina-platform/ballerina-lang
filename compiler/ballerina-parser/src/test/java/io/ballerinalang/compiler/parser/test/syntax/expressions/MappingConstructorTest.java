@@ -61,18 +61,19 @@ public class MappingConstructorTest extends AbstractExpressionsTest {
 
     @Test
     public void testNestedMappingConstructor() {
-        test("{    age:20, \n" + 
-                "  ...marks1,\n" + 
-                "  \"name\":\"John\",\n" + 
-                "  parent: { age:50,\n" + 
-                "            ...marks2,\n" + 
-                "            \"name\":\"Jane\",\n" + 
-                "            address2,\n" + 
-                "            [expr2]:\"value2\"\n" + 
-                "           },\n" + 
-                "  address,\n" + 
-                "  [expr1]: \"value1\"\n" + 
-                "}",
+        test("""
+                        {    age:20,\s
+                          ...marks1,
+                          "name":"John",
+                          parent: { age:50,
+                                    ...marks2,
+                                    "name":"Jane",
+                                    address2,
+                                    [expr2]:"value2"
+                                   },
+                          address,
+                          [expr1]: "value1"
+                        }""",
                 "mapping-constructor/mapping_constructor_assert_15.json");
     }
 

@@ -68,6 +68,7 @@ public class STLetExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STLetExpressionNode(
                 this.letKeyword,
@@ -98,6 +99,7 @@ public class STLetExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetExpressionNode(this, position, parent);
     }

@@ -59,6 +59,7 @@ public class STMarkdownDocumentationLineNode extends STDocumentationNode {
                 documentElements);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMarkdownDocumentationLineNode(
                 this.kind,
@@ -84,6 +85,7 @@ public class STMarkdownDocumentationLineNode extends STDocumentationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MarkdownDocumentationLineNode(this, position, parent);
     }

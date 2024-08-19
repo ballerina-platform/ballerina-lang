@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents an implementation of a path segment list.
@@ -69,7 +68,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         List<PathParameterSymbol> pathParams = new ArrayList<>();
 
         int internalPathParamCount = 0;
-        List<Name> segments = this.internalPathSegmentSymbols.stream().map(s -> s.name).collect(Collectors.toList());
+        List<Name> segments = this.internalPathSegmentSymbols.stream().map(s -> s.name).toList();
         for (int i = 0; i < segments.size(); i++) {
             Name internalSegment = segments.get(i);
             BResourcePathSegmentSymbol pathSegSymbol = this.internalPathSegmentSymbols.get(i);

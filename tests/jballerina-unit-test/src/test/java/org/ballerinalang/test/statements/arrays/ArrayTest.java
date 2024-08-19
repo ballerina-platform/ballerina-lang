@@ -62,7 +62,7 @@ public class ArrayTest {
 
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testFloatArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0 || returnVals.get(0) == null ||
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty() || returnVals.get(0) == null ||
                 returnVals.get(1) == null, "Invalid Return Values.");
         Assert.assertEquals(returnVals.get(0), 3L, "Length didn't match");
         Assert.assertEquals(returnVals.get(1), 3L, "Length didn't match");
@@ -76,7 +76,7 @@ public class ArrayTest {
         arrayValue.add(2, 12);
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testIntArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 3L, "Length didn't match");
@@ -91,7 +91,7 @@ public class ArrayTest {
         arrayValue.add(1, "World");
         Object[] args = {arrayValue};
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testStringArrayLength", args);
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 2L, "Length didn't match");
@@ -109,7 +109,7 @@ public class ArrayTest {
     @Test()
     public void testJSONArrayLength() {
         BArray returnVals = (BArray) BRunUtil.invoke(compileResult, "testJSONArrayLength");
-        Assert.assertFalse(returnVals == null || returnVals.size() == 0, "Invalid Return Values.");
+        Assert.assertFalse(returnVals == null || returnVals.isEmpty(), "Invalid Return Values.");
         Assert.assertNotNull(returnVals.get(0));
         Assert.assertNotNull(returnVals.get(1));
         Assert.assertEquals(returnVals.get(0), 2L, "Length didn't match");

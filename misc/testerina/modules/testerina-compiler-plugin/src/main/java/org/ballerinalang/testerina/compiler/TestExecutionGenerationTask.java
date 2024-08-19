@@ -248,7 +248,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             if ("test".equals(modulePrefix) && "call".equals(methodName)
                     && "when".equals(identifier)) {
                 String mockedFunction = methodCallExpressionNode.arguments()
-                        .get(0).toString().replaceAll("\"", "");
+                        .get(0).toString().replace("\"", "");
                 mockedFunctionList.add(mockedFunction);
             }
         }

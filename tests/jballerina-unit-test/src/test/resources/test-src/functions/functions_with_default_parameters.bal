@@ -198,9 +198,7 @@ function testDefaultByteValueInFunctionPointers() {
     function (byte b = 5) returns byte fp = funcWithDefaultByteValue;
     test:assertEquals(fp(15), 15);
     test:assertEquals(fp(funcWithDefaultByteValue()), 10);
-
-    //TODO : Enable this after merge #31589
-    //test:assertEquals(fp(), 5);
+    test:assertEquals(fp(), 5);
 }
 
 function funcWithDefaultByteValue(byte b = 10) returns byte {
@@ -348,6 +346,33 @@ function testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
     assertEquality(baz2(10), 21);
     assertEquality(baz3(10, 20), 61);
     assertEquality(baz4(10), 31);
+}
+
+isolated function intOrErrorError() returns int|error => error("err!");
+isolated function intOrErrorInt() returns int|error => 4;
+
+function functionWithIndirectUsageOfCheckInParamDefault(
+    function () returns int|error fn = function () returns int|error {
+        int intResult = check intOrErrorError();
+        return intResult + 1;
+    }) returns int|error => fn();
+
+function testValidCheckUsageViaDefaults() {
+    int|error res = functionWithIndirectUsageOfCheckInParamDefault();
+    assertEquality(true, res is error);
+    error err = <error> res;
+    assertEquality("err!", err.message());
+
+    record {|
+        function (int intP = checkpanic intOrErrorError()) returns int|error x = function (int intP) returns int|error {
+            int val = check intOrErrorInt();
+            return val + intP;
+        };
+        string y;
+    |} rec = {y: "test"};
+    function (int intP = 1 + checkpanic intOrErrorInt()) returns int|error x = rec.x;
+    assertEquality(9, x());
+    assertEquality("test", rec.y);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

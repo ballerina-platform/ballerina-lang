@@ -107,6 +107,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      *
      * @return {@link String} file uri
      */
+    @Override
     public String fileUri() {
         return this.fileUri;
     }
@@ -116,6 +117,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      *
      * @return {@link Path} file path
      */
+    @Override
     @Nonnull
     public Path filePath() {
         return this.filePath;

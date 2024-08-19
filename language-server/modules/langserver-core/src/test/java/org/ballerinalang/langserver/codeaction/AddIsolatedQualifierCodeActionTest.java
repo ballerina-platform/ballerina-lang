@@ -56,6 +56,11 @@ public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
                 {"add_isolated_qualifier_config11.json"},
                 {"add_isolated_qualifier_config12.json"},
                 {"add_isolated_qualifier_config13.json"},
+                {"add_isolated_qualifier_config14.json"},
+                {"add_isolated_qualifier_config15.json"},
+                {"add_isolated_qualifier_config16.json"},
+                {"add_isolated_qualifier_config17.json"},
+                {"add_isolated_qualifier_config18.json"},
         };
     }
 }

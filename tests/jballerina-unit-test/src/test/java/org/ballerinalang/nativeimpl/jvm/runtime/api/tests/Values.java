@@ -207,7 +207,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
+        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));
@@ -525,11 +525,12 @@ public class Values {
     }
 
     public static BXml getXMLValueFromInputStream2() {
-        String xmlString = "<Reservation>\n" +
-                "<reservationID>1234567890123456789012345678901234567890123456789012345678901234567890" +
-                "12345678901234567890123456789exceeding100chars</reservationID>\n" +
-                "    <confirmationID>RPFABE</confirmationID>\n" +
-                "</Reservation>";
+        String xmlString = """
+                <Reservation>
+                <reservationID>1234567890123456789012345678901234567890123456789012345678901234567890\
+                12345678901234567890123456789exceeding100chars</reservationID>
+                    <confirmationID>RPFABE</confirmationID>
+                </Reservation>""";
         return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
     }
 
@@ -547,5 +548,10 @@ public class Values {
         Assert.assertNotNull(node.getDetail("osVersion"));
         Assert.assertNotNull(node.getDetail("osName"));
         return StringUtils.fromString("balNode-" + node.nodeId);
+    }
+
+    public static void validateIsRemoteEnabled(Environment env) {
+        Repository repository = env.getRepository();
+        Assert.assertTrue(repository.isRemoteEnabled());
     }
 }

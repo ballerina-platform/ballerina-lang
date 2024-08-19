@@ -103,6 +103,6 @@ public class CommandUtilTest {
     @AfterMethod
     public void tearDown() throws IOException {
         Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML));
-        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve("hello_template_project").resolve(DEPENDENCIES_TOML));
     }
 }

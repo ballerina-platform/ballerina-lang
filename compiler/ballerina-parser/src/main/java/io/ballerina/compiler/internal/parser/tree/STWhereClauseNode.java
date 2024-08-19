@@ -56,6 +56,7 @@ public class STWhereClauseNode extends STIntermediateClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STWhereClauseNode(
                 this.whereKeyword,
@@ -78,6 +79,7 @@ public class STWhereClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhereClauseNode(this, position, parent);
     }

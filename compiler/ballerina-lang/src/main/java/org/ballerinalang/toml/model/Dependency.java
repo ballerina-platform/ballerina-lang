@@ -67,7 +67,7 @@ public class Dependency {
     public String toString() {
         return null != this.metadata &&
                null != this.metadata.getVersion() &&
-               !"".equals(this.metadata.getVersion().trim()) ?
+                !this.metadata.getVersion().trim().isEmpty() ?
                getModuleID() + ":" + this.metadata.getVersion() : getModuleID();
     }
     

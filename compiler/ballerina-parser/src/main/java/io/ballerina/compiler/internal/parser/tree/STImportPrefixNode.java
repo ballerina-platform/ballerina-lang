@@ -56,6 +56,7 @@ public class STImportPrefixNode extends STNode {
                 prefix);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImportPrefixNode(
                 this.asKeyword,
@@ -78,6 +79,7 @@ public class STImportPrefixNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportPrefixNode(this, position, parent);
     }

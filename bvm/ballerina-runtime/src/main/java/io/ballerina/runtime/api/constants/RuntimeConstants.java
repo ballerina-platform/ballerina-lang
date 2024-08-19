@@ -108,14 +108,15 @@ public class RuntimeConstants {
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775808.5",
                                                                                          MathContext.DECIMAL128);
     // runtime related error message constant values
-    public static final String INTERNAL_ERROR_MESSAGE =
-            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
-            "\n" +
-            "We appreciate it if you can report the code that broke Ballerina in\n" +
-            "https://github.com/ballerina-platform/ballerina-lang/issues with the\n" +
-            "log you get below and your sample code.\n" +
-            "\n" +
-            "We thank you for helping make us better.\n";
+    public static final String INTERNAL_ERROR_MESSAGE = """
+            ballerina: Oh no, something really went wrong. Bad. Sad.
+
+            We appreciate it if you can report the code that broke Ballerina in
+            https://github.com/ballerina-platform/ballerina-lang/issues with the
+            log you get below and your sample code.
+
+            We thank you for helping make us better.
+            """;
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";

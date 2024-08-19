@@ -53,6 +53,7 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
                 name);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBuiltinSimpleNameReferenceNode(
                 this.kind,
@@ -74,6 +75,7 @@ public class STBuiltinSimpleNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BuiltinSimpleNameReferenceNode(this, position, parent);
     }

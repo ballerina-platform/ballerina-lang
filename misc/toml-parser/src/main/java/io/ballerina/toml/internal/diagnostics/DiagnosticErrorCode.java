@@ -92,8 +92,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_EMPTY_QUOTED_STRING("BCE1505", "error.empty.quoted.string"),
     ERROR_UNEXPECTED_TOP_LEVEL_NODE("BCE1506", "error.unexpected.top.level.node");
 
-    String diagnosticId;
-    String messageKey;
+    final String diagnosticId;
+    final String messageKey;
 
     DiagnosticErrorCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;

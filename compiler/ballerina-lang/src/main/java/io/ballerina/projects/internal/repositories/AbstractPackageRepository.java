@@ -128,10 +128,10 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         // If the module is not found in the possible packages locked in the Dependencies.toml
         // we continue looking for the module in the remaining possible packages.
         List<PackageName> existing = importModuleRequest.possiblePackages().stream().map(PackageDescriptor::name)
-                .collect(Collectors.toList());
+                .toList();
         List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(
                 importModuleRequest.packageOrg(), importModuleRequest.moduleName()).stream()
-                .filter(o -> !existing.contains(o)).collect(Collectors.toList());
+                .filter(o -> !existing.contains(o)).toList();
 
         for (PackageName possiblePackageName : remainingPackageNames) {
             List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg(),

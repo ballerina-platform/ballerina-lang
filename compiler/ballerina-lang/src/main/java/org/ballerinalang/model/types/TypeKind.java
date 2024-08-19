@@ -95,7 +95,7 @@ public enum TypeKind {
     REGEXP("regexp")
     ;
 
-    private String name;
+    private final String name;
 
     TypeKind(String name) {
         this.name = name;

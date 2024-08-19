@@ -650,17 +650,17 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             }
         }
 
-        if (variablesDeclarations.size() > 0) {
+        if (!variablesDeclarations.isEmpty()) {
             varStrings.add("Variable declarations");
             varStrings.addAll(variablesDeclarations);
         }
 
-        if (finalVariablesDeclarations.size() > 0) {
+        if (!finalVariablesDeclarations.isEmpty()) {
             varStrings.add("Final variable declarations");
             varStrings.addAll(finalVariablesDeclarations);
         }
 
-        if (constDeclarations.size() > 0) {
+        if (!constDeclarations.isEmpty()) {
             varStrings.add("Constant declarations");
             varStrings.addAll(constDeclarations);
         }

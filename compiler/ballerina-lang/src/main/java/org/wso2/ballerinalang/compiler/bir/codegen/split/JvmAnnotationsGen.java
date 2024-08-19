@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
@@ -32,7 +33,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -62,19 +62,16 @@ public class JvmAnnotationsGen {
     private final String annotationsClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
-    private final JvmConstantsGen jvmConstantsGen;
     private final BIRNode.BIRPackage module;
 
-    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
-                             JvmConstantsGen jvmConstantsGen) {
+    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen) {
         this.annotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.module = module;
-        this.jvmConstantsGen = jvmConstantsGen;
     }
 
-    public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
+    public void generateAnnotationsClass(JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
         generateProcessAnnotationsMethod(cw, module.typeDefs, module.packageID);
@@ -126,7 +123,7 @@ public class JvmAnnotationsGen {
 
     private void loadAnnotations(MethodVisitor mv, String pkgName, BIRNode.BIRTypeDefinition typeDef,
                                  JvmTypeGen jvmTypeGen) {
-        String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+        String pkgClassName = pkgName.equals(".") || pkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         BType type = typeDef.type;

@@ -106,7 +106,7 @@ public class CodeActionTests {
         final Project project = BCompileUtil.loadProject(file);
 
         final List<CodeActionInfo> codeActions = CodeActionUtils.getCodeActions(project, filePath, cursorPos);
-        Assert.assertTrue(codeActions.size() > 0 || negative, "Expect at least 1 code action");
+        Assert.assertTrue(!codeActions.isEmpty() || negative, "Expect at least 1 code action");
 
         final Optional<CodeActionInfo> found = codeActions.stream()
                 .filter(info -> expectedProvider.equals(info.getProviderName()))

@@ -148,7 +148,9 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo&0046math/0",
                 "testerina_report/foo&0046bar/0/constants",
                 "test-report-tests/modules/bar",
-                "testerina_report/foo$test/0/creators"
+                "testerina_report/foo$test/0/creators",
+                "testerina_report/foo/0/functions",
+                "testerina_report/foo/0/lambdas"
         );
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
@@ -205,7 +207,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 resolve("report.dtd").toString());
         File reportDTDFileCopy = new File(reportRoot.resolve("report.dtd").toString());
         try (FileOutputStream outputStream = new FileOutputStream(reportDTDFileCopy);
-             FileInputStream inputStream = new FileInputStream(reportDTDFile);) {
+             FileInputStream inputStream = new FileInputStream(reportDTDFile)) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {

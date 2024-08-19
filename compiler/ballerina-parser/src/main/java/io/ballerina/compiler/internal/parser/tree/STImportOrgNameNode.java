@@ -56,6 +56,7 @@ public class STImportOrgNameNode extends STNode {
                 slashToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImportOrgNameNode(
                 this.orgName,
@@ -78,6 +79,7 @@ public class STImportOrgNameNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportOrgNameNode(this, position, parent);
     }

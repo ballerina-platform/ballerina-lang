@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 21,
+    "character": 33
+  },
+  "source": "add_readonly11.bal",
+  "description": "Add readonly to a class variable value",
+  "expected": [
+    {
+      "title": "Add readonly to 'string[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 44
+            },
+            "end": {
+              "line": 19,
+              "character": 44
+            }
+          },
+          "newText": " & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

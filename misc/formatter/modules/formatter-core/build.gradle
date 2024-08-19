@@ -44,17 +44,7 @@ test {
 
 ext.moduleName = 'ballerina.metrics'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-task parserTests(type: Copy) {
+tasks.register('parserTests', Copy) {
     from "../../../../compiler/ballerina-parser/src/test/resources"
     into "$buildDir/resources/test/parser-tests"
     include "**/*.bal"

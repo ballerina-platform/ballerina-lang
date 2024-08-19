@@ -86,6 +86,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModuleVariableDeclarationNode(
                 this.metadata,
@@ -128,6 +129,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ModuleVariableDeclarationNode(this, position, parent);
     }

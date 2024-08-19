@@ -23,13 +23,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -46,13 +46,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.ST
  */
 public class FrameClassGen {
 
-    public void generateFrameClasses(BIRNode.BIRPackage pkg, Map<String, byte[]> pkgEntries) {
+    public void generateFrameClasses(BIRNode.BIRPackage pkg, JarEntries pkgEntries) {
         pkg.functions.forEach(
                 func -> generateFrameClassForFunction(pkg.packageID, func, pkgEntries, null));
 
         for (BIRNode.BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-            if (attachedFuncs == null || attachedFuncs.size() == 0) {
+            if (attachedFuncs == null || attachedFuncs.isEmpty()) {
                 continue;
             }
 
@@ -70,7 +70,7 @@ public class FrameClassGen {
     }
 
     private void generateFrameClassForFunction(PackageID packageID, BIRNode.BIRFunction func,
-                                               Map<String, byte[]> pkgEntries,
+                                               JarEntries pkgEntries,
                                                BType attachedType) {
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
                                                                  func.name.value, attachedType);

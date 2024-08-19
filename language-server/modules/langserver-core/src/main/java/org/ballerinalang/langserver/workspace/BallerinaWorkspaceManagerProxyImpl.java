@@ -79,11 +79,10 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
         if (path.isEmpty()) {
             return;
         }
-        if (this.isExprScheme(uri)) {
-            this.clonedWorkspaceManager.didChange(path.get(), params);
-            return;
+        if (!this.isExprScheme(uri)) {
+            this.baseWorkspaceManager.didChange(path.get(), params);
         }
-        this.baseWorkspaceManager.didChange(path.get(), params);
+        this.clonedWorkspaceManager.didChange(path.get(), params);
     }
 
     @Override

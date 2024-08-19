@@ -265,7 +265,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                     String className = getQualifiedClassName(bLangTestablePackage,
                             functionToMockID.toString(), vals[1]);
-                    vals[1] = vals[1].replaceAll("\\\\", "");
+                    vals[1] = vals[1].replace("\\", "");
                     registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
                                     + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
                 } else {

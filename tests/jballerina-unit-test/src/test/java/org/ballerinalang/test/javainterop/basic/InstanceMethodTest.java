@@ -59,7 +59,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(1));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(1));
     }
 
     @Test(description = "Test invoking a java instance function that accepts and return nothing but has a throws")
@@ -162,7 +162,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(1));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(1));
     }
 
     @Test(description = "Test invoking a java instance function that accepts nothing and returns a something")
@@ -185,7 +185,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptSomethingButReturnNothing", args);
 
         Assert.assertNull(returns);
-        Assert.assertEquals(testIns.getCounter(), new Integer(22));
+        Assert.assertEquals(testIns.getCounter(), Integer.valueOf(22));
     }
 
     @Test(description = "Test invoking a java instance function that accepts and returns a something")

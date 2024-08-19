@@ -25,16 +25,16 @@ import java.util.Objects;
 public class BuildOptions {
 
     private final Boolean showDependencyDiagnostics;
-    private Boolean testReport;
-    private Boolean codeCoverage;
-    private Boolean dumpBuildTime;
-    private Boolean skipTests;
-    private CompilationOptions compilationOptions;
-    private String targetDir;
-    private Boolean enableCache;
-    private Boolean nativeImage;
-    private Boolean exportComponentModel;
-    private String graalVMBuildOptions;
+    private final Boolean testReport;
+    private final Boolean codeCoverage;
+    private final Boolean dumpBuildTime;
+    private final Boolean skipTests;
+    private final CompilationOptions compilationOptions;
+    private final String targetDir;
+    private final Boolean enableCache;
+    private final Boolean nativeImage;
+    private final Boolean exportComponentModel;
+    private final String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
@@ -212,6 +212,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
+        buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
 
         return buildOptionsBuilder.build();
     }
@@ -250,7 +251,8 @@ public class BuildOptions {
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
-        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics");
+        SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
 
         private final String name;
 
@@ -282,7 +284,6 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
         private Boolean showDependencyDiagnostics;
-
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -413,6 +414,17 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setShowDependencyDiagnostics(Boolean value) {
             showDependencyDiagnostics = value;
+            return this;
+        }
+        
+        /**
+         * (Experimental) option to specify that the memory usage must be optimized.
+         * 
+         * @param value true or false (default)  
+         * @return BuildOptionsBuilder instance
+         */
+        public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
+            compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
             return this;
         }
 

@@ -168,9 +168,7 @@ isolated function formatFailedError(string message, int tabCount) returns string
     string[] lines = split(message, "\n");
     lines.push("");
     string tabs = "";
-    int count = 0;
     foreach int i in 1 ... tabCount {
-        count += 1;
         tabs += "\t";
     }
     return string:'join("\n" + tabs, ...lines);
@@ -251,7 +249,7 @@ function moduleStatusReport(ReportData data) {
 
 function escapeSpecialCharactersJson(string name) returns string {
     string|error encodedName = escapeSpecialCharacters(name);
-    return ((encodedName is string) ? encodedName : name);
+    return encodedName is string ? encodedName : name;
 }
 
 function replaceDoubleQuotes(string originalString) returns string {

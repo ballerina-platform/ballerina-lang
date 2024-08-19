@@ -56,6 +56,7 @@ public class STImplicitNewExpressionNode extends STNewExpressionNode {
                 parenthesizedArgList);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STImplicitNewExpressionNode(
                 this.newKeyword,
@@ -78,6 +79,7 @@ public class STImplicitNewExpressionNode extends STNewExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitNewExpressionNode(this, position, parent);
     }

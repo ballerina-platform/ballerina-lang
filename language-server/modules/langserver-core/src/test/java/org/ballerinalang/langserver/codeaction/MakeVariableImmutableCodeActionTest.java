@@ -55,7 +55,14 @@ public class MakeVariableImmutableCodeActionTest extends AbstractCodeActionTest 
                 {"make_variable_immutable12.json"},
                 {"make_variable_immutable13.json"},
                 {"make_variable_immutable14.json"},
-                {"make_variable_immutable15.json"}
+                {"make_variable_immutable15.json"},
+                {"make_variable_immutable16.json"},
+                {"make_variable_immutable17.json"},
+                {"make_variable_immutable18.json"},
+                {"make_variable_immutable19.json"},
+                {"make_variable_immutable20.json"},
+                {"make_variable_immutable21.json"},
+                {"make_variable_immutable22.json"},
         };
     }
 

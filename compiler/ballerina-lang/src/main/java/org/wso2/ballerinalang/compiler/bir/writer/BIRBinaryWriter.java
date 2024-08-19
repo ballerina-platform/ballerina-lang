@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeConstValue;
 
@@ -132,7 +131,7 @@ public class BIRBinaryWriter {
     private void writeTypeDefBodies(ByteBuf buf, BIRTypeWriter typeWriter,
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
-                || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
+                || t.type.tag == TypeTags.RECORD).toList();
         buf.writeInt(filtered.size());
         filtered.forEach(typeDef -> {
             writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
@@ -247,7 +246,7 @@ public class BIRBinaryWriter {
 
         ByteBuf birbuf = Unpooled.buffer();
         ByteBuf scopebuf = Unpooled.buffer();
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, scopebuf, cp, this);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, scopebuf, cp);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);

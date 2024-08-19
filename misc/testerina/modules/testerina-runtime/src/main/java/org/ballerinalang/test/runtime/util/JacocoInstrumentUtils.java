@@ -45,7 +45,7 @@ public class JacocoInstrumentUtils {
         URLClassLoader classLoader = new URLClassLoader(projectModuleJarList.toArray(new URL[0]));
         for (String className : mockClassNames) {
             Class<?> clazz = classLoader.loadClass(className);
-            File file = new File(destDir.toString(), className.replaceAll("\\.", "/") + ".class");
+            File file = new File(destDir.toString(), className.replace(".", "/") + ".class");
             file.getParentFile().mkdirs();
             try (InputStream input = clazz.getResourceAsStream(clazz.getSimpleName() + ".class");
                  OutputStream output = new FileOutputStream(file)) {

@@ -418,7 +418,7 @@ public class GraphCommandTest extends BaseCommandTest {
     }
 
     private String readFormattedOutput() throws IOException {
-        return readOutput(true).replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
+        return readOutput(true).replace("\n\t\n", "\n\n").replace("\r", "").strip();
     }
 
     private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {

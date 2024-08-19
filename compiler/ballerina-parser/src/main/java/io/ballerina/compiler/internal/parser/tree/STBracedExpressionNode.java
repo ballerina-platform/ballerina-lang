@@ -65,6 +65,7 @@ public class STBracedExpressionNode extends STExpressionNode {
                 closeParen);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STBracedExpressionNode(
                 this.kind,
@@ -94,6 +95,7 @@ public class STBracedExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BracedExpressionNode(this, position, parent);
     }

@@ -62,6 +62,7 @@ public class STOrderByClauseNode extends STIntermediateClauseNode {
                 orderKey);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOrderByClauseNode(
                 this.orderKeyword,
@@ -88,6 +89,7 @@ public class STOrderByClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OrderByClauseNode(this, position, parent);
     }

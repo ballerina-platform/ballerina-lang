@@ -17,22 +17,19 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
@@ -43,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -54,7 +50,6 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -82,7 +77,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
@@ -124,8 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmValueGen {
 
-    static final String ENCODED_RECORD_INIT =
-            Utils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
@@ -147,21 +139,18 @@ public class JvmValueGen {
         this.types = types;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
-                                                       JvmPackageGen jvmPackageGen) {
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen,
-                                     jvmPackageGen);
+                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
-                                             JvmPackageGen jvmPackageGen) {
+    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 if (birFunc instanceof JMethodBIRFunction) {
@@ -193,7 +182,8 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen) {
+    void generateValueClasses(JarEntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
+                              AsyncDataCollector asyncDataCollector) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
             if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
@@ -201,7 +191,9 @@ public class JvmValueGen {
             }
             BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
-            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
+            String valueClass = VALUE_CLASS_PREFIX + optionalTypeDef.internalName.value;
+            asyncDataCollector.setCurrentSourceFileName(valueClass);
+            asyncDataCollector.setCurrentSourceFileWithoutExt(valueClass);
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
@@ -209,8 +201,8 @@ public class JvmValueGen {
                         asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector, jvmTypeGen);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef,
+                        asyncDataCollector, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef, jvmTypeGen);
@@ -277,18 +269,15 @@ public class JvmValueGen {
         mv.visitInsn(POP);
 
         // Invoke the init-function of this type.
-        String initFuncName;
         String valueClassName;
         List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
         // Attached functions are empty for type-labeling. In such cases, call the init() of the original type value
         if (!attachedFuncs.isEmpty()) {
-            initFuncName = attachedFuncs.get(0).name.value;
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitInsn(DUP);
@@ -308,8 +297,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          JvmTypeGen jvmTypeGen) {
+                                          AsyncDataCollector asyncDataCollector, JvmTypeGen jvmTypeGen) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -317,7 +305,6 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,
                 new String[]{MAP_VALUE});
 
@@ -334,11 +321,8 @@ public class JvmValueGen {
         jvmRecordGen.createAndSplitGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw, className);
 
-        this.createRecordConstructor(cw, INIT_TYPEDESC, className, typeDef, recordType);
-        this.createRecordConstructor(cw, TYPE_PARAMETER, className, typeDef, recordType);
-        this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
-        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
-        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
+        this.createRecordConstructor(cw, INIT_TYPEDESC, className);
+        this.createRecordConstructor(cw, TYPE_PARAMETER, className);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
@@ -365,8 +349,8 @@ public class JvmValueGen {
     }
 
     private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
-        String descriptor = TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS, null,
+                null);
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
@@ -389,8 +373,7 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className,
-                                         BIRNode.BIRTypeDefinition typedef, BRecordType recordType) {
+    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, argumentClass, null, null);
         mv.visitCode();
 
@@ -472,14 +455,13 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries) {
+                                          JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
@@ -499,9 +481,6 @@ public class JvmValueGen {
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);
-        this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
-        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
-        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
         jarEntries.put(className + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(cw, typeDef));
     }
@@ -535,7 +514,7 @@ public class JvmValueGen {
                                                      JvmConstantsGen jvmConstantsGen,
                                                      AsyncDataCollector asyncDataCollector,
                                                      BIRNode.BIRTypeDefinition typeDef,
-                                                     Map<String, byte[]> jarEntries) {
+                                                     JarEntries jarEntries) {
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -605,25 +584,6 @@ public class JvmValueGen {
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
-        mv.visitEnd();
-    }
-
-    private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector,
-                               LambdaGen lambdaGen, String className) {
-        for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey(), className);
-        }
-    }
-
-    private void generateStaticInitializer(ClassWriter cw, String moduleClass, PackageID module,
-                                           AsyncDataCollector asyncDataCollector) {
-        if (asyncDataCollector.getStrandMetadata().isEmpty()) {
-            return;
-        }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleClass);
         mv.visitEnd();
     }
 

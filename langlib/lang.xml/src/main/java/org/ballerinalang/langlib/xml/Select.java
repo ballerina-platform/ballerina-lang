@@ -40,7 +40,7 @@ public class Select {
 
     public static BXml select(Strand strand, BXml xml, String qname) {
         try {
-            return (BXml) xml.elements(qname);
+            return xml.elements(qname);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }

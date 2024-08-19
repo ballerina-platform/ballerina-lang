@@ -62,6 +62,7 @@ public class STPanicStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STPanicStatementNode(
                 this.panicKeyword,
@@ -88,6 +89,7 @@ public class STPanicStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PanicStatementNode(this, position, parent);
     }

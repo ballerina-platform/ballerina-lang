@@ -63,7 +63,7 @@ public class Transactions {
         ABORTED(-2),
         END(1);
 
-        private int status;
+        private final int status;
 
         TransactionStatus(int value) {
             status = value;

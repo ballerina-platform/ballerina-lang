@@ -105,6 +105,19 @@ public class BindgenUnitBaseTest {
     }
 
     /**
+     * Test the bindings generated for abstract classes.
+     */
+    public void abstractClassMapping() throws FormatterException, ClassNotFoundException,
+            BindgenException, IOException {
+        Path constructorFilePath = Paths.get(resourceDirectory.toString(), "abstractClass.bal");
+        String constructors = Files.readString(resourceDirectory.resolve(constructorFilePath));
+        SyntaxTree cSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("org.ballerinalang.bindgen.AbstractTestResource"), getBindgenEnv()));
+        Assert.assertEquals(Formatter.format(cSyntaxTree.toSourceCode()), Formatter.format(constructors));
+        Assert.assertFalse(cSyntaxTree.hasDiagnostics());
+    }
+
+    /**
      * Test the bindings generated for a module level mapping.
      */
     public void moduleLevelMapping1() throws FormatterException, ClassNotFoundException, BindgenException, IOException {

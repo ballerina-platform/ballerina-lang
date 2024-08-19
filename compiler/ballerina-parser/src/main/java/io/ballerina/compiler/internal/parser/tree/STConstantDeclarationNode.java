@@ -92,6 +92,7 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STConstantDeclarationNode(
                 this.metadata,
@@ -138,6 +139,7 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclarationNode(this, position, parent);
     }

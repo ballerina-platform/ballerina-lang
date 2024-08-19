@@ -93,7 +93,7 @@ public class ConstDeclSymbolTest {
 
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
@@ -150,7 +150,7 @@ public class ConstDeclSymbolTest {
         TypeDefinitionSymbol typeDefSym = (TypeDefinitionSymbol) symbol.get();
 
         List<AnnotationAttachmentSymbol> attachments = typeDefSym.annotAttachments();
-        assertTrue(attachments.size() > 0);
+        assertTrue(!attachments.isEmpty());
 
         AnnotationAttachmentSymbol annotAttachment = attachments.get(0);
         assertTrue(annotAttachment.isConstAnnotation());

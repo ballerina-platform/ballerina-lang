@@ -98,7 +98,7 @@ public class SyntaxTreeGenTest {
         Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
-        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        Assert.assertTrue(!stJson.getAsJsonObject().get("members").getAsJsonArray().isEmpty());
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Validate module var is identified as an Endpoint.
@@ -219,7 +219,7 @@ public class SyntaxTreeGenTest {
         Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
-        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        Assert.assertTrue(!stJson.getAsJsonObject().get("members").getAsJsonArray().isEmpty());
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Validate local var is identified as an Endpoint.
@@ -265,7 +265,7 @@ public class SyntaxTreeGenTest {
         Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
-        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        Assert.assertTrue(!stJson.getAsJsonObject().get("members").getAsJsonArray().isEmpty());
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Validate module var is identified as an Endpoint.
@@ -319,7 +319,7 @@ public class SyntaxTreeGenTest {
         Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
-        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        Assert.assertTrue(!stJson.getAsJsonObject().get("members").getAsJsonArray().isEmpty());
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Validate local var is identified as an Endpoint.

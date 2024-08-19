@@ -174,7 +174,7 @@ public abstract class AbstractNodeFactory {
         // TODO Validate the given text for whitespace characters
         STMinutiae internalNode = (STMinutiae) STNodeFactory.createMinutiae(
                 SyntaxKind.WHITESPACE_MINUTIAE, text);
-        return Minutiae.createUnlinked((STMinutiae) internalNode);
+        return Minutiae.createUnlinked(internalNode);
     }
 
     public static Minutiae createEndOfLineMinutiae(String text) {

@@ -23,10 +23,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -72,7 +72,7 @@ public class JvmFunctionCallsCreatorsGen {
     }
 
     public void generateFunctionCallsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                           Map<String, byte[]> jarEntries, JvmCastGen jvmCastGen,
+                                           JarEntries jarEntries, JvmCastGen jvmCastGen,
                                            List<BIRNode.BIRFunction> sortedFunctions) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V17, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);
@@ -135,8 +135,8 @@ public class JvmFunctionCallsCreatorsGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
-            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName, func.name.value,
-                    functionWrapper.jvmMethodDescription, false);
+            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName(), func.name.value,
+                    functionWrapper.jvmMethodDescription(), false);
             int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);

@@ -297,7 +297,7 @@ public class FormatterUtils {
                 errMessages.add(diagnostic.message());
             }
         }
-        if (errMessages.size() > 0) {
+        if (!errMessages.isEmpty()) {
             throw new FormatterException("invalid formatting configuration file" + System.lineSeparator() +
                     String.join(System.lineSeparator(), errMessages));
         }

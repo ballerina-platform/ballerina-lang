@@ -44,12 +44,11 @@ public class CompilationEventPlugin extends CompilerPlugin {
     private static class CompilationListener extends CompilerLifecycleListener {
         @Override
         public void init(CompilerLifecycleContext lifecycleContext) {
-            lifecycleContext.addCodeGenerationCompletedTask(compilerLifecycleEventContext -> {
+            lifecycleContext.addCodeGenerationCompletedTask(compilerLifecycleEventContext ->
                 compilerLifecycleEventContext.reportDiagnostic(DiagnosticUtils.createDiagnostic(
                         "CODE_GEN_COMPLETED_TEST_EVENT",
                         "End of codegen", new NullLocation(),
-                        DiagnosticSeverity.WARNING));
-            });
+                        DiagnosticSeverity.WARNING)));
         }
     }
 

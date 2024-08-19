@@ -464,6 +464,7 @@ isolated class GroupStatusRegistry {
             return self.executedTests.get('group) > 0;
         }
     }
+
     isolated function lastExecuted(string 'group) returns boolean {
         lock {
             return self.executedTests.get('group) == self.enabledTests.get('group);

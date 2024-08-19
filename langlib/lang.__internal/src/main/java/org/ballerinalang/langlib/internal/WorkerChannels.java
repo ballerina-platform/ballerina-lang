@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
+import io.ballerina.runtime.internal.values.ChannelDetails;
 
 import java.util.Objects;
 
@@ -40,9 +41,20 @@ public class WorkerChannels {
         Strand currentStrand = Scheduler.getStrand();
         Strand channelHoldingStrand = Objects.requireNonNullElse(currentStrand.parent, currentStrand);
         for (BString channelId : channelIds) {
-            String channelName = channelId.getValue() + ":" + (channelHoldingStrand.functionInvocation - 1);
+            String channelName = getMatchingChannelName(channelId.getValue(), currentStrand);
             WorkerDataChannel workerDataChannel = channelHoldingStrand.wdChannels.getWorkerDataChannel(channelName);
             workerDataChannel.autoClose();
         }
+    }
+
+    private static String getMatchingChannelName(String channelId, Strand currentStrand) {
+        String channelName = null;
+        for (ChannelDetails channelDetail : currentStrand.channelDetails) {
+            if (channelDetail.name.contains(channelId)) {
+                channelName = channelDetail.name;
+                break;
+            }
+        }
+        return channelName;
     }
 }

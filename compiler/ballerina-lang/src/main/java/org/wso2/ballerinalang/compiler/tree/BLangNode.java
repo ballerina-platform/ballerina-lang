@@ -87,6 +87,7 @@ public abstract class BLangNode implements Node, Cloneable {
         return this.determinedType;
     }
 
+    @Override
     public Location getPosition() {
         return pos;
     }

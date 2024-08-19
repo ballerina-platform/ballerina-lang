@@ -65,6 +65,6 @@ public class Get {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, size, i);
         }
 
-        return (BXml) childrenList.get((int) i);
+        return childrenList.get((int) i);
     }
 }

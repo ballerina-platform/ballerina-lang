@@ -69,6 +69,7 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
                 {{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new {{internalClassName}}(
                 {{^syntaxKind}}this.kind, &#10;                {{/syntaxKind}}{{#fields}}this.{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}},
@@ -86,6 +87,7 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
                 {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}, &#10;                {{/fields}}diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new {{externalClassName}}(this, position, parent);
     }

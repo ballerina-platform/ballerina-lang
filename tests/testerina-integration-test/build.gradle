@@ -62,19 +62,19 @@ jacoco {
     toolVersion = "${project.jacocoVersion}"
 }
 
-task copyCompilerPluginJars(type: Copy) {
+tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
 }
 
-task extractDistribution(type: Copy) {
+tasks.register('extractDistribution', Copy) {
     dependsOn ':jballerina-tools:build'
     from zipTree(configurations.jballerinaTools.asPath)
     into "$buildDir/extractedDistribution"
 
 }
 
-task testUtilsJar(type: Jar) {
+tasks.register('testUtilsJar', Jar) {
     from sourceSets.test.runtimeClasspath
     include "org/ballerinalang/testerina/utils/**"
     archiveFileName = "interops.jar"

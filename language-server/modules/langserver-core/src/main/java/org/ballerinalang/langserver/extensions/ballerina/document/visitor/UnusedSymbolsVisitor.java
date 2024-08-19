@@ -179,15 +179,11 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     @Override
     public void visit(ModulePartNode modulePartNode) {
         if (!modulePartNode.imports().isEmpty()) {
-            modulePartNode.imports().forEach(importDeclarationNode -> {
-                importDeclarationNode.accept(this);
-            });
+            modulePartNode.imports().forEach(importDeclarationNode -> importDeclarationNode.accept(this));
         }
 
         if (!modulePartNode.members().isEmpty()) {
-            modulePartNode.members().forEach(moduleMemberDeclarationNode -> {
-                moduleMemberDeclarationNode.accept(this);
-            });
+            modulePartNode.members().forEach(moduleMemberDeclarationNode -> moduleMemberDeclarationNode.accept(this));
         }
     }
 
@@ -196,7 +192,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         addUnusedImportNode(importDeclarationNode);
 
         int moduleNamePosition = importDeclarationNode.moduleName().size() - 1;
-        if (importDeclarationNode.moduleName().size() > 0
+        if (!importDeclarationNode.moduleName().isEmpty()
                 && importDeclarationNode.moduleName().get(moduleNamePosition) != null) {
             Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
             if (prefix.isPresent()) {

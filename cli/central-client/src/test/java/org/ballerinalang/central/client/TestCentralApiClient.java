@@ -1060,7 +1060,8 @@ public class TestCentralApiClient extends CentralAPIClient {
         String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
                 ": Connection reset. Retry attempt: ";
         String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
-                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\"}";
+                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
         String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
@@ -1126,7 +1127,8 @@ public class TestCentralApiClient extends CentralAPIClient {
         String retryOutput = "* Retrying to pull the tool: foosf:1.3.5 due to: error" +
                 ": Connection reset. Retry attempt: ";
         String responseBody = "{\"id\":14069, \"organization\":\"foo\", \"name\":\"sf\", \"version\":\"1.3.5\", " +
-                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\"}";
+                "\"platform\":\"java17\", \"balaURL\":\"" + this.balaUrl + "\", " +
+                "\"digest\":\"sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4\"}";
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
         String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";

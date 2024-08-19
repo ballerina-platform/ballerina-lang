@@ -31,8 +31,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-;
-
 /**
  * Test cases for user defined record types in ballerina.
  */

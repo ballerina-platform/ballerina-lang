@@ -78,6 +78,7 @@ public class BMapType extends BType implements MapType {
      *
      * @return constraint type.
      */
+    @Override
     public Type getConstrainedType() {
         return constraint;
     }

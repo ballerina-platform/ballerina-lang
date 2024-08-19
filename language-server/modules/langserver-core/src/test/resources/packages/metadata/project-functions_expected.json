@@ -1,4 +1,5 @@
 {
+  "orgName": "wso2",
   "packageName": "project_functions",
   "kind": "BUILD_PROJECT",
   "path": "file:///"

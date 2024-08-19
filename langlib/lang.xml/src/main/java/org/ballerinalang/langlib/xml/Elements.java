@@ -45,9 +45,9 @@ public class Elements {
     public static BXml elements(BXml xml, Object name) {
         try {
             if (name instanceof BString) {
-                return (BXml) xml.elements(((BString) name).getValue());
+                return xml.elements(((BString) name).getValue());
             }
-            return (BXml) xml.elements();
+            return xml.elements();
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }
