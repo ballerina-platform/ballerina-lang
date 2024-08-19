@@ -100,10 +100,11 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
+        if (this.elementType != null) {
+            resetSemType();
+        }
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
-        defn = null;
-        resetSemType();
     }
 
     private void setFlagsBasedOnElementType() {

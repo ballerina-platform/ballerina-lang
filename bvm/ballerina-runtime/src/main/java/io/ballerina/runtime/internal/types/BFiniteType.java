@@ -202,7 +202,20 @@ public class BFiniteType extends BType implements FiniteType {
         if (!(o instanceof BFiniteType that)) {
             return false;
         }
-        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+        if (this.valueSpace.size() != that.valueSpace.size()) {
+            return false;
+        }
+        for (var each : this.valueSpace) {
+            try {
+                if (!that.valueSpace.contains(each)) {
+                    return false;
+                }
+            } catch (NullPointerException ex) {
+                // If one of the sets is an immutable collection this can happen
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

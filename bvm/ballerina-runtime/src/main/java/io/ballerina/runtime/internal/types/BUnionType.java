@@ -186,7 +186,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void setMemberTypes(List<Type> members, List<Type> originalMembers) {
-        resetSemType();
+        if (memberTypes != null) {
+            resetSemType();
+        }
         if (members == null) {
             return;
         }
