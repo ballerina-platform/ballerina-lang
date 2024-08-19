@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -280,12 +279,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
         resetSize(intIndex);
-    }
-
-    @Override
-    public SemType widenedType(Context cx) {
-        SemType semType = getType();
-        return Core.intersect(semType, Builder.listType());
     }
 
     /**

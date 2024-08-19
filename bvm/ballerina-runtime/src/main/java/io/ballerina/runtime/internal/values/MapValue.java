@@ -17,10 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BMap;
 
 /**
@@ -38,9 +34,4 @@ import io.ballerina.runtime.api.values.BMap;
  */
 public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
-    @Override
-    default SemType widenedType(Context cx) {
-        SemType semType = getType();
-        return Core.intersect(semType, Builder.mappingType());
-    }
 }
