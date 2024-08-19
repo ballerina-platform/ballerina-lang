@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
@@ -212,7 +213,7 @@ public final class ReadOnlyUtils {
                                 origTupleType.isCyclic, true);
                 return createAndSetImmutableIntersectionType(origTupleType, immutableTupleType);
             case TypeTags.MAP_TAG:
-                BMapType origMapType = (BMapType) type;
+                MapType origMapType = (MapType) type;
                 BMapType immutableMapType = new BMapType(getImmutableType(origMapType.getConstrainedType(),
                                                                           unresolvedTypes), true);
                 return createAndSetImmutableIntersectionType(origMapType, immutableMapType);

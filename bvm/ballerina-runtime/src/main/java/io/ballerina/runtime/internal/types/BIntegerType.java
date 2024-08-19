@@ -86,13 +86,8 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
     }
 
     private static BIntegerType createSingletonType(long value) {
-        return new BIntegerType(() -> {
-            try {
-                return (BIntegerTypeImpl) DEFAULT_B_TYPE.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
-        }, TypeConstants.INT_TNAME, Builder.intConst(value));
+        return new BIntegerType(() -> (BIntegerTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.INT_TNAME,
+                Builder.intConst(value));
     }
 
     protected static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {
@@ -125,11 +120,8 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
         }
 
         @Override
-        protected Object clone() throws CloneNotSupportedException {
-            BType bType = (BType) super.clone();
-            bType.setCachedImpliedType(null);
-            bType.setCachedReferredType(null);
-            return bType;
+        public BType clone() {
+            return super.clone();
         }
     }
 

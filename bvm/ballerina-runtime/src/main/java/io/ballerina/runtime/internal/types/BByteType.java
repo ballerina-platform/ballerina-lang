@@ -53,13 +53,8 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
     }
 
     public static BByteType singletonType(long value) {
-        return new BByteType(() -> {
-            try {
-                return (BByteTypeImpl) DEFAULT_B_TYPE.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
-        }, TypeConstants.BYTE_TNAME, Builder.intConst(value));
+        return new BByteType(() -> (BByteTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.BYTE_TNAME,
+                Builder.intConst(value));
     }
 
     protected static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
@@ -91,11 +86,8 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
         }
 
         @Override
-        protected Object clone() throws CloneNotSupportedException {
-            BType bType = (BType) super.clone();
-            bType.setCachedImpliedType(null);
-            bType.setCachedReferredType(null);
-            return bType;
+        public BType clone() {
+            return super.clone();
         }
     }
 }

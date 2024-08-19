@@ -18,6 +18,7 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -89,7 +90,7 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertTrue(getType(mapValue0) instanceof BMapType);
-        Assert.assertTrue(((BMapType) getType(mapValue0)).getConstrainedType() instanceof BJsonType);
+        Assert.assertTrue(((MapType) getType(mapValue0)).getConstrainedType() instanceof BJsonType);
 
         Assert.assertEquals((mapValue0).size(), 5);
         Assert.assertEquals(((LinkedHashMap<?, ?>) mapValue0).get(StringUtils.fromString("school")).toString(),
@@ -190,8 +191,8 @@ public class AnydataStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampAnydataToAnydata");
         BMap<String, Object> mapValue = (BMap<String, Object>) results;
 
-        Assert.assertTrue(getType(mapValue) instanceof BMapType);
-        Assert.assertTrue(((BMapType) getType(mapValue)).getConstrainedType() instanceof BAnydataType);
+        Assert.assertTrue(getType(mapValue) instanceof MapType);
+        Assert.assertTrue(((MapType) getType(mapValue)).getConstrainedType() instanceof BAnydataType);
     }
 
     @Test
@@ -202,8 +203,8 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertTrue(getType(mapValue) instanceof BMapType);
-        Assert.assertTrue(((BMapType) getType(mapValue)).getConstrainedType() instanceof BJsonType);
+        Assert.assertTrue(getType(mapValue) instanceof MapType);
+        Assert.assertTrue(((MapType) getType(mapValue)).getConstrainedType() instanceof BJsonType);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
         Assert.assertTrue(getType(mapValue.get(StringUtils.fromString("name"))) instanceof BStringType);

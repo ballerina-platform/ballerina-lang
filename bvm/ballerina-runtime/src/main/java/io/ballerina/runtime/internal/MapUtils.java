@@ -21,13 +21,13 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
@@ -55,7 +55,7 @@ public final class MapUtils {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
-    public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
+    public static void handleInherentTypeViolatingMapUpdate(Object value, MapType mapType) {
         if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;
         }
@@ -151,7 +151,7 @@ public final class MapUtils {
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
+                handleInherentTypeViolatingMapUpdate(value, (MapType) mapType);
                 mapValue.put(fieldName, value);
                 return;
             case TypeTags.RECORD_TYPE_TAG:

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.ReadonlyType;
@@ -48,7 +49,6 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BFloatType;
 import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -730,7 +730,7 @@ public final class TypeChecker {
                 }
                 return true;
             case TypeTags.MAP_TAG:
-                Type constraintType = ((BMapType) type).getConstrainedType();
+                Type constraintType = ((MapType) type).getConstrainedType();
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
