@@ -54,7 +54,7 @@ public class Sort {
         if (arr.getType().getTag() == TypeTags.TUPLE_TAG) {
             if (!isOrderedType(arr.getType()) && function == null) {
                 throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                        StringUtils.fromString("Valid Key function needed"));
+                        StringUtils.fromString("Valid key function required"));
             }
             typeList = new HashSet<>(((BTupleType) arr.getType()).getTupleTypes());
             if (((BTupleType) arr.getType()).getRestType() != null) {

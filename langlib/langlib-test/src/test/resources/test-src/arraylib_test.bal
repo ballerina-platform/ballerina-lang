@@ -1957,18 +1957,30 @@ function testSort10() {
     assertValueEquality(sortedTup6, []);
 }
 
+type Grade2 1|15|"B";
+type Grade3 15|17|Grade3[];
+type Grade4 (Grade2|int)|Grade3;
+
 function testSortNegative() {
     [int, float] tup1 = [5, 7.3];
     [int|float, float] tup2 = [5, 7.3];
     [Grade, Student] tup3 = ["A", {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true}];
     [15|17, 15|17|21, 15|17|"hello"] tup4 = [15, 21, 17];
-    anydata[][] items = [tup1, tup2, tup3, tup4];
+    [int, Grade2] tup5 = [56, 1];
+    [Student|int, int] tup6 = [{id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true}, 7];
+    [Grade3, int] tup7 = [17, 15];
+    [Grade4, Grade3] tup8 = [1, 15];
+    [(readonly & Person2 & Student2)|int, int] tup9 = [{id: 16158, name: "Arun", age: 12, average: 89.9, school: "JHC"}, 15];
+    [((int|byte)|float), int] tup10 = [1, 15];
+    [()|(), int] tup11 = [(),67];
+    [json, json] tup12 = [{"abc":"defg"}, {"abc":"hello"}];
+    anydata[][] items = [tup1, tup2, tup3, tup4, tup5, tup6, tup7, tup8, tup9, tup10, tup11, tup12];
     foreach anydata[] item in items {
         any|error res = trap function:call(array:sort, item);
         assertTrue(res is error);
         if(res is error) {
             assertValueEquality("{ballerina/lang.array}SortOperationError", res.message());
-            assertValueEquality("Valid Key function needed", <string> checkpanic res.detail()["message"]);
+            assertValueEquality("Valid key function required", <string> checkpanic res.detail()["message"]);
         }
     }
 }

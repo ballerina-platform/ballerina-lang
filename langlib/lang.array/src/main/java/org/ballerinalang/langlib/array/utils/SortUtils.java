@@ -19,8 +19,6 @@
 package org.ballerinalang.langlib.array.utils;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.TypeCreator;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -30,9 +28,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BTupleType;
 
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class SortUtils {
@@ -46,9 +42,8 @@ public class SortUtils {
                     return true;
                 }
                 Set<Type> memberTypes = new HashSet<>(unionType.getMemberTypes());
-                Type firstTypeInUnion = getTypeWithEffectiveIntersectionTypes(TypeUtils.getImpliedType(
-                        memberTypes.stream().filter(m -> m.getTag() != TypeTags.NULL_TAG).findFirst().
-                                orElse(memberTypes.iterator().next())));
+                Type firstTypeInUnion = TypeUtils.getImpliedType(memberTypes.stream().findFirst().
+                        orElse(memberTypes.iterator().next()));
                 if (firstTypeInUnion.getTag() == TypeTags.NULL_TAG) {
                     // Union contains only the nil type.
                     return true;
@@ -91,36 +86,6 @@ public class SortUtils {
         }
     }
 
-    public static Type getTypeWithEffectiveIntersectionTypes(Type bType) {
-        Type type = TypeUtils.getReferredType(bType);
-        Type effectiveType = null;
-        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            effectiveType = ((IntersectionType) type).getEffectiveType();
-            type = effectiveType;
-        }
-
-        if (type.getTag() != TypeTags.UNION_TAG) {
-            return Objects.requireNonNullElse(effectiveType, bType);
-        }
-
-        LinkedHashSet<Type> members = new LinkedHashSet<>();
-        boolean hasDifferentMember = false;
-
-        for (Type memberType : ((UnionType) type).getMemberTypes()) {
-            effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
-            effectiveType = TypeUtils.getImpliedType(effectiveType);
-            if (effectiveType != memberType) {
-                hasDifferentMember = true;
-            }
-            members.add(effectiveType);
-        }
-
-        if (hasDifferentMember) {
-            return TypeCreator.createUnionType(members.stream().toList());
-        }
-        return bType;
-    }
-
     public static boolean checkValueSpaceHasSameType(BFiniteType finiteType, Type type) {
         Type baseType = TypeUtils.getImpliedType(type);
         if (baseType.getTag() == TypeTags.FINITE_TYPE_TAG) {
@@ -141,9 +106,6 @@ public class SortUtils {
         if (source.getTag() == TypeTags.NULL_TAG || target.getTag() == TypeTags.NULL_TAG) {
             return false;
         }
-        if (checkIfDifferent(source)) {
-            return true;
-        }
         return !TypeChecker.checkIsType(source, target);
     }
 
@@ -152,16 +114,6 @@ public class SortUtils {
             case TypeTags.BYTE_TAG, TypeTags.FLOAT_TAG, TypeTags.DECIMAL_TAG, TypeTags.BOOLEAN_TAG, TypeTags.NULL_TAG ->
                     true;
             default ->  tag >= TypeTags.INT_TAG && tag <= TypeTags.CHAR_STRING_TAG;
-        };
-    }
-
-    public static boolean checkIfDifferent(Type s) {
-        return switch (s.getTag()) {
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG, TypeTags.ANY_TAG, TypeTags.ANYDATA_TAG, TypeTags.MAP_TAG,
-                 TypeTags.FUTURE_TAG, TypeTags.XML_TAG, TypeTags.JSON_TAG, TypeTags.OBJECT_TYPE_TAG,
-                 TypeTags.RECORD_TYPE_TAG, TypeTags.STREAM_TAG, TypeTags.TABLE_TAG, TypeTags.INVOKABLE_TAG,
-                 TypeTags.ERROR_TAG -> true;
-            default -> false;
         };
     }
 }
