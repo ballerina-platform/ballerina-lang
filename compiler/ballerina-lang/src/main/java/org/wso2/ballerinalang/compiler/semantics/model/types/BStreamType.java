@@ -90,8 +90,8 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
         }
 
         d = new StreamDefinition();
-        SemType valueTy = SemTypeHelper.semTypeComponent(constraint);
-        SemType completionTy = SemTypeHelper.semTypeComponent(completionType);
+        SemType valueTy = SemTypeHelper.semType(constraint);
+        SemType completionTy = SemTypeHelper.semType(completionType);
         return d.define(env, valueTy, completionTy);
     }
 }

@@ -64,6 +64,6 @@ public class BParameterizedType extends BType {
 
     @Override
     public SemType semType() {
-        return SemTypeHelper.semTypeComponent(this.paramValueType);
+        return SemTypeHelper.semType(this.paramValueType);
     }
 }

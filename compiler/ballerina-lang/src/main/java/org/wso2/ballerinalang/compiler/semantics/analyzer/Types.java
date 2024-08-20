@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -117,7 +116,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -171,7 +169,6 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
-    private final Unifier unifier;
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
@@ -218,7 +215,6 @@ public class Types {
         this.expandedXMLBuiltinSubtypes = BUnionType.create(typeEnv, null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
-        this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
@@ -362,38 +358,6 @@ public class Types {
                 return atleastOneLaxType ? 1 : 0;
         }
         return 0;
-    }
-
-    public boolean isLaxType(BType type, Map<BType, Boolean> visited) {
-        type = getImpliedType(type);
-        if (visited.containsKey(type)) {
-            return visited.get(type);
-        }
-        switch (type.tag) {
-            case TypeTags.JSON:
-                visited.put(type, true);
-                return true;
-            case TypeTags.MAP:
-                boolean result = isLaxType(((BMapType) type).constraint, visited);
-                visited.put(type, result);
-                return result;
-            case TypeTags.UNION:
-                // TODO: remove
-                if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
-                    visited.put(type, true);
-                    return true;
-                }
-                for (BType member : ((BUnionType) type).getMemberTypes()) {
-                    if (!isLaxType(member, visited)) {
-                        visited.put(type, false);
-                        return false;
-                    }
-                }
-                visited.put(type, true);
-                return true;
-            }
-        visited.put(type, false);
-        return false;
     }
 
     public boolean isSameType(BType source, BType target) {
@@ -868,308 +832,10 @@ public class Types {
         return result;
     }
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (source.tag == TypeTags.PARAMETERIZED_TYPE) {
-            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
-        }
-
-        if (source.isBTypeComponentEmpty || target.isBTypeComponentEmpty) {
-            return isAssignableInternal(SemTypeHelper.bTypeComponent(source),
-                    SemTypeHelper.bTypeComponent(target), unresolvedTypes);
-        }
-
-        SemType semSource = SemTypeHelper.semTypeComponent(source, this.ignoreObjectTypeIds);
-        SemType semTarget = SemTypeHelper.semTypeComponent(target, this.ignoreObjectTypeIds);
-        boolean subtype1 = SemTypes.isSubtype(semTypeCtx, semSource, semTarget);
-        boolean subtype2 = isAssignableInternal(SemTypeHelper.bTypeComponent(source),
-                SemTypeHelper.bTypeComponent(target), unresolvedTypes);
-        return subtype1;
+        SemType semSource = SemTypeHelper.semType(source, this.ignoreObjectTypeIds);
+        SemType semTarget = SemTypeHelper.semType(target, this.ignoreObjectTypeIds);
+        return SemTypes.isSubtype(semTypeCtx, semSource, semTarget);
     }
-
-    private boolean isAssignableInternal(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (isSameType(source, target)) {
-            return true;
-        }
-
-        int sourceTag = source.tag;
-        int targetTag = target.tag;
-
-        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.SEQUENCE) {
-            BSequenceType seqType = (BSequenceType) source;
-            if (targetTag == TypeTags.ARRAY) {
-                return isAssignable(seqType.elementType, ((BArrayType) target).eType, unresolvedTypes);
-            }
-        }
-
-        if (!Symbols.isFlagOn(source.getFlags(), Flags.PARAMETERIZED) &&
-                !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.getFlags(), Flags.READONLY) &&
-                !isInherentlyImmutableType(source) && isMutable(source)) {
-            return false;
-        }
-
-        if (sourceTag == TypeTags.INTERSECTION) {
-            return isAssignable(((BIntersectionType) source).effectiveType,
-                                targetTag != TypeTags.INTERSECTION ? target :
-                                        ((BIntersectionType) target).effectiveType, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.INTERSECTION) {
-            return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
-            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
-        } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
-            return false;
-        }
-
-        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON) ||
-                sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING ||
-                sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT ||
-                sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC ||
-                (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag))) {
-            throw new IllegalStateException(); // TODO: remove
-        }
-
-        if (targetTag == TypeTags.ANY && !containsErrorType(source)) {
-            return true;
-        }
-
-        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
-            return true;
-        }
-
-        if (targetTag == TypeTags.READONLY) {
-            if ((isInherentlyImmutableType(source) || Symbols.isFlagOn(source.getFlags(), Flags.READONLY))) {
-                return true;
-            }
-            if (isAssignable(source, symTable.anyAndReadonlyOrError, unresolvedTypes)) {
-                return true;
-            }
-        }
-
-        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target, unresolvedTypes)) {
-            return true;
-        }
-
-        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, target, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
-            return isAssignableMapType((BMapType) source, (BRecordType) target);
-        }
-
-        if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
-            return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
-                                unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignableTableType((BTableType) source, (BTableType) target, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
-            return isAssignableStreamType((BStreamType) source, (BStreamType) target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.FINITE) {
-            throw new IllegalStateException("finite type reached!");
-        }
-
-        if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
-                isAssignableToUnionType(source, target, unresolvedTypes)) {
-            return true;
-        }
-
-        if (targetTag == TypeTags.JSON) {
-            if (sourceTag == TypeTags.JSON) {
-                return true;
-            }
-
-            if (sourceTag == TypeTags.TUPLE) {
-                return isTupleTypeAssignable(source, target, unresolvedTypes);
-            }
-
-            if (sourceTag == TypeTags.ARRAY) {
-                return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
-            }
-
-            if (sourceTag == TypeTags.MAP) {
-                return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
-            }
-
-            if (sourceTag == TypeTags.RECORD) {
-                return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
-            }
-        }
-
-        if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
-            if (((BFutureType) target).constraint.tag == TypeTags.NONE) {
-                return true;
-            }
-            return isAssignable(((BFutureType) source).constraint, ((BFutureType) target).constraint, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.MAP) {
-            // Here source condition is added for prevent assigning map union constrained
-            // to map any constrained.
-            if (((BMapType) target).constraint.tag == TypeTags.ANY &&
-                    ((BMapType) source).constraint.tag != TypeTags.UNION) {
-                return true;
-            }
-
-            return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
-        }
-
-        if ((sourceTag == TypeTags.OBJECT || sourceTag == TypeTags.RECORD)
-                && (targetTag == TypeTags.OBJECT || targetTag == TypeTags.RECORD)) {
-            return checkStructEquivalency(source, target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.TUPLE && targetTag == TypeTags.ARRAY) {
-            return isTupleTypeAssignableToArrayType((BTupleType) source, (BArrayType) target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.ARRAY && targetTag == TypeTags.TUPLE) {
-            return isArrayTypeAssignableToTupleType((BArrayType) source, (BTupleType) target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.TUPLE || targetTag == TypeTags.TUPLE) {
-            return isTupleTypeAssignable(source, target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
-            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
-        }
-
-        return (sourceTag == TypeTags.ARRAY || sourceTag == TypeTags.BYTE_ARRAY)
-                && targetTag == TypeTags.ARRAY
-                && isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
-    }
-
-    private boolean isMutable(BType type) {
-        if (Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
-            return false;
-        }
-
-        type = getImpliedType(type);
-        if (type.tag != TypeTags.UNION) {
-            return true;
-        }
-
-        BUnionType unionType = (BUnionType) type;
-        for (BType memberType : unionType.getMemberTypes()) {
-            if (!Symbols.isFlagOn(memberType.getFlags(), Flags.READONLY)) {
-                return true;
-            }
-        }
-
-        unionType.addFlags(Flags.READONLY);
-        BTypeSymbol tsymbol = unionType.tsymbol;
-        if (tsymbol != null) {
-            tsymbol.flags |= Flags.READONLY;
-        }
-        return false;
-    }
-
-    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        BType resolvedSourceType = unifier.build(source);
-        target = getImpliedType(target);
-        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
-            return isAssignable(resolvedSourceType, target, unresolvedTypes);
-        }
-
-        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
-            return false;
-        }
-
-        return isAssignable(resolvedSourceType, unifier.build(target), unresolvedTypes);
-    }
-
-    private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
-        TypePair pair = new TypePair(recordType, type);
-        if (!unresolvedTypes.add(pair)) {
-            return true;
-        }
-
-        type = getImpliedType(type);
-        BType targetType;
-        switch (type.tag) {
-            case TypeTags.MAP:
-                targetType = ((BMapType) type).constraint;
-                break;
-            case TypeTags.JSON:
-                targetType = type;
-                break;
-            default:
-                throw new IllegalArgumentException("Incompatible target type: " + type.toString());
-        }
-        return recordFieldsAssignableToType(recordType, targetType, unresolvedTypes);
-    }
-
-    private boolean isAssignableStreamType(BStreamType sourceStreamType, BStreamType targetStreamType,
-                                           Set<TypePair> unresolvedTypes) {
-        return isAssignable(sourceStreamType.constraint, targetStreamType.constraint, unresolvedTypes)
-                && isAssignable(sourceStreamType.completionType, targetStreamType.completionType, unresolvedTypes);
-    }
-
-    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType,
-                                                 Set<TypePair> unresolvedTypes) {
-        for (BField field : recordType.fields.values()) {
-            if (!isAssignable(field.type, targetType, unresolvedTypes)) {
-                return false;
-            }
-        }
-
-        if (!recordType.sealed) {
-            return isAssignable(recordType.restFieldType, targetType, unresolvedTypes);
-        }
-
-        return true;
-    }
-
-    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType,
-                                          Set<TypePair> unresolvedTypes) {
-        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint, unresolvedTypes)) {
-            return false;
-        }
-
-        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList.isEmpty()) {
-            return true;
-        }
-
-        if (targetTableType.keyTypeConstraint != null) {
-            if (sourceTableType.keyTypeConstraint != null &&
-                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint,
-                            unresolvedTypes))) {
-                return true;
-            }
-
-            if (sourceTableType.fieldNameList.isEmpty()) {
-                return false;
-            }
-
-            List<BTupleMember> fieldTypes = new ArrayList<>();
-            sourceTableType.fieldNameList.stream()
-                    .map(f -> getTableConstraintField(sourceTableType.constraint, f))
-                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                            Symbols.createVarSymbolForTupleMember(f.type))).forEach(fieldTypes::add);
-            if (fieldTypes.size() == 1) {
-                return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
-            }
-
-            BTupleType tupleType = new BTupleType(typeEnv(), fieldTypes);
-            return isAssignable(tupleType, targetTableType.keyTypeConstraint, unresolvedTypes);
-        }
-
-        return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
-    }
-
 
     BField getTableConstraintField(BType constraintType, String fieldName) {
         constraintType = getImpliedType(constraintType);
@@ -1196,107 +862,8 @@ public class Types {
         return null;
     }
 
-    private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
-        if (targetRecType.sealed) {
-            return false;
-        }
-
-        for (BField field : targetRecType.fields.values()) {
-            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
-                return false;
-            }
-
-            if (hasIncompatibleReadOnlyFlags(field.symbol.flags, sourceMapType.getFlags())) {
-                return false;
-            }
-
-            if (!isAssignable(sourceMapType.constraint, field.type)) {
-                return false;
-            }
-        }
-
-        return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
-    }
-
     private boolean hasIncompatibleReadOnlyFlags(long targetFlags, long sourceFlags) {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
-    }
-
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
-        if (target == symTable.errorType) {
-            return true;
-        }
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-        unresolvedTypes.add(pair);
-        return isAssignable(source.detailType, target.detailType, unresolvedTypes)
-                && target.typeIdSet.isAssignableFrom(source.typeIdSet);
-    }
-
-    private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-
-        source = getImpliedType(source);
-        if (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic) {
-            // add cyclic source to target pair to avoid recursive calls
-            unresolvedTypes.add(pair);
-        }
-
-        target = getImpliedType(target);
-        if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
-            BTupleType rhsTupleType = (BTupleType) source;
-            for (BType tupleType : rhsTupleType.getTupleTypes()) {
-                if (!isAssignable(tupleType, target, unresolvedTypes)) {
-                    return false;
-                }
-            }
-            if (rhsTupleType.restType != null) {
-                return isAssignable(rhsTupleType.restType, target, unresolvedTypes);
-            }
-            return true;
-        }
-
-        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
-            return false;
-        }
-
-        BTupleType lhsTupleType = (BTupleType) target;
-        BTupleType rhsTupleType = (BTupleType) source;
-
-        if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
-            return false;
-        }
-
-        if (lhsTupleType.restType == null &&
-                lhsTupleType.getMembers().size() != rhsTupleType.getMembers().size()) {
-            return false;
-        }
-
-        if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
-            if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
-                return false;
-            }
-        }
-        List<BType> lhsTupleMemberTypes = lhsTupleType.getTupleTypes();
-        List<BType> rhsTupleMemberTypes = rhsTupleType.getTupleTypes();
-
-        if (lhsTupleMemberTypes.size() > rhsTupleMemberTypes.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < rhsTupleMemberTypes.size(); i++) {
-            BType lhsType = (lhsTupleMemberTypes.size() > i)
-                    ? lhsTupleMemberTypes.get(i) : lhsTupleType.restType;
-            if (!isAssignable(rhsTupleMemberTypes.get(i), lhsType, unresolvedTypes)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private boolean checkAllTupleMembersBelongNoType(List<BType> tupleTypes) {
@@ -1318,91 +885,6 @@ public class Types {
             }
         }
         return isNoType;
-    }
-
-    private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
-                                                     Set<TypePair> unresolvedTypes) {
-        if (target.state != BArrayState.OPEN
-                && (source.restType != null || source.getMembers().size() != target.getSize())) {
-            return false;
-        }
-
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
-            return true;
-        }
-        unresolvedTypes.add(pair);
-
-        List<BType> sourceTypes = new ArrayList<>(source.getTupleTypes());
-        if (source.restType != null) {
-            BType type = source.restType;
-            sourceTypes.add(type);
-        }
-        return sourceTypes.stream()
-                .allMatch(tupleElemType -> isAssignable(tupleElemType, target.eType, unresolvedTypes));
-    }
-
-    private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
-                                                     Set<TypePair> unresolvedTypes) {
-        BType restType = target.restType;
-        List<BType> tupleTypes = target.getTupleTypes();
-        if (source.state == BArrayState.OPEN) {
-            if (restType == null || !tupleTypes.isEmpty()) {
-                // [int, int] = int[] || [int, int...] = int[]
-                return false;
-            }
-
-            return isAssignable(source.eType, restType, unresolvedTypes);
-        }
-
-        int targetTupleMemberSize = tupleTypes.size();
-        int sourceArraySize = source.getSize();
-
-        if (targetTupleMemberSize > sourceArraySize) {
-            // [int, int, int...] = int[1]
-            return false;
-        }
-
-        if (restType == null && targetTupleMemberSize < sourceArraySize) {
-            // [int, int] = int[3]
-            return false;
-        }
-
-        BType sourceElementType = source.eType;
-        for (BType memType : tupleTypes) {
-            if (!isAssignable(sourceElementType, memType, unresolvedTypes)) {
-                return false;
-            }
-        }
-
-        if (restType == null) {
-            return true;
-        }
-
-        return sourceArraySize == targetTupleMemberSize || isAssignable(sourceElementType, restType, unresolvedTypes);
-    }
-
-    private boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
-        BType sourceElementType = source.getElementType();
-        target = getImpliedType(target);
-        if (target.tag == TypeTags.ARRAY) {
-            BArrayType targetArrayType = (BArrayType) target;
-            BType targetElementType = targetArrayType.getElementType();
-            if (targetArrayType.state == BArrayState.OPEN) {
-                return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
-            }
-
-            if (targetArrayType.getSize() != source.getSize()) {
-                return false;
-            }
-
-            return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
-        } else if (target.tag == TypeTags.JSON) {
-            return isAssignable(sourceElementType, target, unresolvedTypes);
-        } else if (target.tag == TypeTags.ANYDATA) {
-            return isAssignable(sourceElementType, target, unresolvedTypes);
-        }
-        return false;
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
@@ -4012,7 +3494,7 @@ public class Types {
         BFiniteType bFiniteType = (BFiniteType) finiteType;
         List<SemNamedType> newValueSpace = new ArrayList<>(bFiniteType.valueSpace.length);
 
-        SemType targetSemType = SemTypeHelper.semTypeComponent(targetType);
+        SemType targetSemType = SemTypeHelper.semType(targetType);
         for (SemNamedType semNamedType : bFiniteType.valueSpace) {
             if (SemTypes.isSubtype(semTypeCtx, semNamedType.semType(), targetSemType)) {
                 newValueSpace.add(semNamedType);
@@ -4131,7 +3613,7 @@ public class Types {
      * @return a boolean
      */
     boolean isXmlSubType(BType type) {
-        SemType t = SemTypeHelper.semTypeComponent(type);
+        SemType t = SemTypeHelper.semType(type);
         return SemTypes.isSubtypeSimple(t, PredefinedType.XML);
     }
 
@@ -4142,7 +3624,7 @@ public class Types {
      * @return a boolean
      */
     boolean isStringSubtype(BType type) {
-        SemType t = SemTypeHelper.semTypeComponent(type);
+        SemType t = SemTypeHelper.semType(type);
         return SemTypes.isSubtypeSimple(t, PredefinedType.STRING);
     }
 
@@ -4153,7 +3635,7 @@ public class Types {
      * @return a boolean
      */
     boolean validNumericTypeExists(BType type) {
-        SemType t = SemTypeHelper.semTypeComponent(type);
+        SemType t = SemTypeHelper.semType(type);
         SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
         BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
         return basicTypeBitSet.equals(PredefinedType.INT) ||
@@ -5563,7 +5045,7 @@ public class Types {
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
         SemType removeSemType = PredefinedType.NEVER;
         for (BType removeType : removeTypes) {
-            SemType semTypeToRemove = SemTypeHelper.semTypeComponent(removeType);
+            SemType semTypeToRemove = SemTypeHelper.semType(removeType);
             removeSemType = SemTypes.union(removeSemType, semTypeToRemove);
         }
 

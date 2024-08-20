@@ -104,17 +104,17 @@ public final class SemTypeHelper {
         }
     }
 
-    public static SemType semTypeComponent(BType t) {
-        return semTypeComponent(t, false);
+    public static SemType semType(BType t) {
+        return semType(t, false);
     }
 
-    public static SemType semTypeComponent(BType t, boolean ignoreObjectTypeIds) {
+    public static SemType semType(BType t, boolean ignoreObjectTypeIds) {
         if (t == null) { // TODO: may be able to fix after tackling bir recursion issue
             return PredefinedType.NEVER;
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
-            return semTypeComponent(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
+            return semType(((BTypeReferenceType) t).referredType, ignoreObjectTypeIds);
         }
 
         switch (t.tag) {
@@ -156,25 +156,6 @@ public final class SemTypeHelper {
                 }
                 return PredefinedType.NEVER;
         }
-    }
-
-    /**
-     * This method returns the same instance if the given type is not fully sem-type supported.
-     * Hence, should be called very carefully.
-     */
-    @Deprecated
-    public static BType bTypeComponent(BType t) {
-        if (t == null || isFullSemType(t.tag) || t.tag == TypeTags.NEVER) {
-            BType neverType = BType.createNeverType();
-            neverType.isBTypeComponentEmpty = true;
-            return neverType;
-        }
-
-        if (t.tag == TypeTags.TYPEREFDESC) {
-            return bTypeComponent(((BTypeReferenceType) t).referredType);
-        }
-
-        return t;
     }
 
     public static boolean isSimpleOrString(TypeKind kind) {
