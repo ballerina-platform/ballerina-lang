@@ -57,7 +57,7 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
-    private Map<SemType, CachedResult> cachedResults = new WeakHashMap<>();
+    private Map<SemType, CachedResult> cachedResults;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -281,11 +281,15 @@ public abstract class BType implements Type, SubTypeData, MutableSemType, Clonea
 
     @Override
     public CachedResult cachedSubTypeRelation(SemType other) {
+        if (cachedResults == null) {
+            cachedResults = new WeakHashMap<>();
+        }
         return cachedResults.getOrDefault(other, CachedResult.NOT_FOUND);
     }
 
     @Override
     public void cacheSubTypeRelation(SemType other, boolean result) {
+        // we always check of the result before caching so there will always be a map
         cachedResults.put(other, result ? CachedResult.TRUE : CachedResult.FALSE);
     }
 
