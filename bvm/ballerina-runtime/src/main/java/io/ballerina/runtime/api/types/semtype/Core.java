@@ -34,7 +34,6 @@ import io.ballerina.runtime.internal.types.semtype.SubtypePairs;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -124,10 +123,10 @@ public final class Core {
                 filterNulls = true;
             } else {
                 subtypes[i] = data;
+                i++;
             }
-            i++;
         }
-        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(some, subtypes) : subtypes);
     }
 
     // TODO: this should return SubTypeData not subtype
@@ -195,17 +194,20 @@ public final class Core {
                 some &= ~(1 << code);
             } else {
                 subtypes[i] = data;
+                i++;
             }
-            i++;
         }
         if (some == 0) {
             return SemType.from(all);
         }
-        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(some, subtypes) : subtypes);
     }
 
-    private static SubType[] filterNulls(SubType[] subtypes) {
-        return Arrays.stream(subtypes).filter(Objects::nonNull).toArray(SubType[]::new);
+    private static SubType[] filterNulls(int some, SubType[] subtypes) {
+        int newSize = cardinality(some);
+        SubType[] filtered = new SubType[newSize];
+        System.arraycopy(subtypes, 0, filtered, 0, newSize);
+        return filtered;
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
@@ -260,16 +262,16 @@ public final class Core {
 
             if (!data.isNothing()) {
                 subtypes[i] = data;
+                i++;
             } else {
                 some &= ~(1 << code);
                 filterNulls = true;
             }
-            i++;
         }
         if (some == 0) {
             return SemType.from(all);
         }
-        return SemType.from(all, some, filterNulls ? filterNulls(subtypes) : subtypes);
+        return SemType.from(all, some, filterNulls ? filterNulls(some, subtypes) : subtypes);
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
