@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -782,10 +783,10 @@ public class SyntaxTreeGenTest {
         }
         DocumentId documentId = optionalDocumentId.get();
         Document document = module.document(documentId);
+        System.out.println("------------------------------------ Log -----------------------------");
+        System.out.println(packageCompilation.defaultModuleBLangPackage().getImports());
+        System.out.println("----------------------------------------------------------------------");
         JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
-        System.out.println("------------------------------------ ParentJson");
-        System.out.println(stJson);
-        System.out.println("-----------------------------------------------");
         Assert.assertTrue(stJson.isJsonObject());
 
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
