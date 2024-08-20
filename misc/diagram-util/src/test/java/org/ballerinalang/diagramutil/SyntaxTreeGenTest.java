@@ -783,6 +783,9 @@ public class SyntaxTreeGenTest {
         DocumentId documentId = optionalDocumentId.get();
         Document document = module.document(documentId);
         JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        System.out.println("------------------------------------ ParentJson");
+        System.out.println(stJson);
+        System.out.println("-----------------------------------------------");
         Assert.assertTrue(stJson.isJsonObject());
 
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
@@ -793,6 +796,7 @@ public class SyntaxTreeGenTest {
         JsonObject userPostFunction = userService.get("members").getAsJsonArray().get(5).getAsJsonObject();
         JsonArray userPostFunctionVEp = userPostFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
                 .getAsJsonArray();
+        System.out.println(userPostFunctionVEp);
         Assert.assertEquals(userPostFunctionVEp.size(), 5);
         checkClientVisibleEndpoints(userPostFunctionVEp.get(0).getAsJsonObject(), "httpEp", "Client", "ballerina",
                 "http", "http", "2.8.0", 4, 4, false, true, true, false);
