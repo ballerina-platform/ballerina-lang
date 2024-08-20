@@ -316,6 +316,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             if (isBlockNode && hasVisibleEps) {
 
                 JsonArray blockEndpoints = new JsonArray();
+                System.out.println("------------------------------------ Log -----------------------------");
+                System.out.println("--- visibleEpsForModule ---" + visibleEpsForModule);
+                System.out.println("--- visibleEpsForClass ---" + visibleEpsForClass);
+                System.out.println("--- visibleEpsForEachBlock ---" + visibleEpsForEachBlock);
+
                 // Add module level endpoints
                 this.visibleEpsForModule.forEach(blockEndpoints::add);
                 // Add class level endpoints
@@ -341,6 +346,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         endpoint.addProperty("innerBlock", true);
                     }
                 }
+                System.out.println("----------------------------------------------------------------------");
                 nodeJson.add("VisibleEndpoints", blockEndpoints);
             }
         }

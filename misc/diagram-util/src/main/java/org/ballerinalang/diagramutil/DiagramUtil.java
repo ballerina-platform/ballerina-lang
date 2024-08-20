@@ -47,9 +47,6 @@ public class DiagramUtil {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             SyntaxTree syntaxTree = srcFile.syntaxTree();
             ModulePartNode modulePartNode = syntaxTree.rootNode();
-            System.out.println("------------------------------------ Log -----------------------------");
-            System.out.println(modulePartNode);
-            System.out.println("----------------------------------------------------------------------");
             syntaxTreeJson = mapGenerator.transform(modulePartNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
