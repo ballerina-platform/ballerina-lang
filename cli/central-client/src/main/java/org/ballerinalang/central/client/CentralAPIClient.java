@@ -56,6 +56,7 @@ import java.io.PrintStream;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +143,7 @@ public class CentralAPIClient {
     private static final String ERR_PACKAGE_UN_DEPRECATE = "error: failed to undo deprecation of the package: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final MediaType JSON_CONTENT_TYPE = MediaType.parse("application/json");
     // System property name for enabling central verbose
     public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
@@ -1354,62 +1356,55 @@ public class CentralAPIClient {
     }
 
     /**
-     * Get packages from central.
+     * Get packages information using graphql API.
      *
-     * @param params            Search query param map.
-     * @param supportedPlatform The supported platform.
-     * @param ballerinaVersion  The ballerina version.
-     * @return Package list
-     * @throws CentralClientException Central client exception.
+     * @param query payload query
+     * @param supportedPlatform supported platform
+     * @param ballerinaVersion ballerina version
+     * @return {@link JsonElement} Json Response
      */
-    public JsonElement getPackages(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
+    public JsonElement getCentralPackagesUsingGraphQL(String query, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
-        Optional<ResponseBody> body = Optional.empty();
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
-                .readTimeout(readTimeout, TimeUnit.SECONDS)
-                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                .callTimeout(callTimeout, TimeUnit.SECONDS)
-                .proxy(this.proxy)
-                .build();
+           Optional<ResponseBody> body = Optional.empty();
+           OkHttpClient client = new OkHttpClient.Builder()
+                   .followRedirects(false)
+                   .connectTimeout(callTimeout, TimeUnit.SECONDS)
+                   .readTimeout(readTimeout, TimeUnit.SECONDS)
+                   .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                   .callTimeout(callTimeout, TimeUnit.SECONDS)
+                   .proxy(this.proxy)
+                   .build();
 
-        try {
-            HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(this.baseUrl))
-                    .newBuilder().addPathSegment(PACKAGES);
-            for (Map.Entry<String, String> param : params.entrySet()) {
-                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
-            }
+           try {
+               HttpUrl.Builder httpUrl = Objects.requireNonNull(HttpUrl.parse(this.baseUrl)).newBuilder();
+               Request request = getNewRequest(supportedPlatform, ballerinaVersion)
+                       .url(httpUrl.build())
+                       .post(RequestBody.create(JSON_CONTENT_TYPE, query.getBytes(StandardCharsets.UTF_8)))
+                       .build();
 
-            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .get()
-                    .url(httpBuilder.build())
-                    .build();
-
-            Call httpRequestCall = client.newCall(searchReq);
-            Response searchResponse = httpRequestCall.execute();
-
-            ResponseBody responseBody = searchResponse.body();
-            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
-            if (body.isPresent()) {
-                MediaType contentType = body.get().contentType();
-                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
-                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().toJsonTree(body.get().string());
-                }
-            }
-            handleResponseErrors(searchResponse, ERR_CANNOT_SEARCH);
-            return new JsonArray();
-        } catch (IOException e) {
-            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
-        } finally {
-            body.ifPresent(ResponseBody::close);
-            try {
-                this.closeClient(client);
-            } catch (IOException e) {
-                // ignore
-            }
-        }
+               Call httpRequest = client.newCall(request);
+               Response response = httpRequest.execute();
+               ResponseBody responseBody = response.body();
+               body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
+               if (body.isPresent()) {
+                   MediaType contentType = body.get().contentType();
+                   if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
+                           response.code() == HttpsURLConnection.HTTP_OK) {
+                       return new Gson().toJsonTree(body.get().string());
+                   }
+               }
+               handleResponseErrors(response, ERR_CANNOT_SEARCH);
+               return new JsonObject();
+           } catch (IOException e) {
+               throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
+           } finally {
+               body.ifPresent(ResponseBody::close);
+               try {
+                   this.closeClient(client);
+               } catch (IOException e) {
+                   // ignore
+               }
+           }
     }
 
     /**
