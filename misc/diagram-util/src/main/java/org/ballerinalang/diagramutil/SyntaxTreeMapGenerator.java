@@ -468,6 +468,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 symbolMetaInfo = getModuleMetaInfo(typeSymbol, fieldName, objectFieldNode.lineRange(),
                         false, true);
                 symbolMetaInfo.addProperty("isClassField", true);
+                System.out.println("--- Field Name: " + fieldName);
+                System.out.println("--- isAvailableAsEndpoint: " + isAvailableAsEndpoint(fieldName));
                 if (!isAvailableAsEndpoint(fieldName)) {
                     this.visibleEpsForClass.add(symbolMetaInfo);
                 }
