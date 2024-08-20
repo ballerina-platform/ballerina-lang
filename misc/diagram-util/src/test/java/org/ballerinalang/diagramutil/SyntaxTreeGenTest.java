@@ -783,9 +783,6 @@ public class SyntaxTreeGenTest {
         }
         DocumentId documentId = optionalDocumentId.get();
         Document document = module.document(documentId);
-        System.out.println("------------------------------------ Log -----------------------------");
-        System.out.println(packageCompilation.defaultModuleBLangPackage().getImports());
-        System.out.println("----------------------------------------------------------------------");
         JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
         Assert.assertTrue(stJson.isJsonObject());
 
