@@ -73,6 +73,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private IntersectionType intersectionType = null;
     private MappingDefinition defn;
     private final Env env = Env.getInstance();
+    private byte couldShapeBeDifferentCache = 0;
 
     private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
@@ -354,6 +355,15 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
 
     @Override
     public boolean couldShapeBeDifferent() {
+        if (couldShapeBeDifferentCache != 0) {
+            return couldShapeBeDifferentCache == 1;
+        }
+        boolean result = couldShapeBeDifferentInner();
+        couldShapeBeDifferentCache = (byte) (result ? 1 : 2);
+        return result;
+    }
+
+    private boolean couldShapeBeDifferentInner() {
         if (isReadOnly()) {
             return true;
         }
