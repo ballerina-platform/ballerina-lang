@@ -137,6 +137,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     @Override
     public JsonElement transform(ServiceDeclarationNode serviceDeclarationNode) {
+        System.out.println("--- ServiceDeclarationNode: " + serviceDeclarationNode);
         // Find all visible endpoints in service block level
         serviceDeclarationNode.members().forEach(this::findAndUpdateClientNode);
         JsonElement seviceDeclarationJson = transformSyntaxNode(serviceDeclarationNode);
@@ -317,9 +318,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 JsonArray blockEndpoints = new JsonArray();
                 System.out.println("------------------------------------ Log -----------------------------");
-                System.out.println("--- visibleEpsForModule ---" + visibleEpsForModule);
                 System.out.println("--- visibleEpsForClass ---" + visibleEpsForClass);
-                System.out.println("--- visibleEpsForEachBlock ---" + visibleEpsForEachBlock);
 
                 // Add module level endpoints
                 this.visibleEpsForModule.forEach(blockEndpoints::add);
