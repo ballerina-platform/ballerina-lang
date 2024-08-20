@@ -52,11 +52,11 @@ import static io.ballerina.runtime.api.types.semtype.CellAtomicType.CellMutabili
  */
 public class BTupleType extends BAnnotatableType implements TupleType, TypeWithShape {
 
-    private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
     private final boolean readonly;
+    private boolean flagsPoisoned = false;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     public boolean isCyclic = false;
@@ -75,7 +75,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = null;
-        checkAllMembers();
+        this.flagsPoisoned = true;
         this.readonly = false;
     }
 
@@ -182,7 +182,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             this.tupleTypes = members;
             this.restType = restType;
         }
-        checkAllMembers();
+        flagsPoisoned = true;
         defn = null;
     }
 
@@ -271,16 +271,20 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
 
     @Override
     public boolean isAnydata() {
-        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
+        return TypeFlags.isFlagOn(getTypeFlags(), TypeFlags.ANYDATA);
     }
 
     @Override
     public boolean isPureType() {
-        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
+        return TypeFlags.isFlagOn(getTypeFlags(), TypeFlags.PURETYPE);
     }
 
     @Override
     public int getTypeFlags() {
+        if (flagsPoisoned) {
+            checkAllMembers();
+            flagsPoisoned = false;
+        }
         return this.typeFlags;
     }
 
