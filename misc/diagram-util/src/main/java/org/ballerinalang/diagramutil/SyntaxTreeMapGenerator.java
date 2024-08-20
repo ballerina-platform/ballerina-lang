@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -137,9 +138,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     @Override
     public JsonElement transform(ServiceDeclarationNode serviceDeclarationNode) {
-        System.out.println("--- ServiceDeclarationNode: " + serviceDeclarationNode);
         // Find all visible endpoints in service block level
-        serviceDeclarationNode.members().forEach(this::findAndUpdateClientNode);
+        NodeList<Node> members = serviceDeclarationNode.members();
+        System.out.println("--- Service Members: " + members);
+        members.forEach(node -> {
+            System.out.println("--- Node: " + node);
+        });
+        System.out.println("--- Member size: " + members.size());
+        members.forEach(this::findAndUpdateClientNode);
         JsonElement seviceDeclarationJson = transformSyntaxNode(serviceDeclarationNode);
         // Clear class block visible endpoints
         this.visibleEpsForClass.clear();
