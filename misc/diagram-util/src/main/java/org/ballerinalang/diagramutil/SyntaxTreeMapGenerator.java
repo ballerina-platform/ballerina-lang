@@ -143,6 +143,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         System.out.println("--- Service Members: " + members);
         members.forEach(node -> {
             System.out.println("--- Node: " + node);
+            System.out.println("--- Node Kind: " + node.kind());
+            System.out.println("--- Node Class: " + node.getClass());
         });
         System.out.println("--- Member size: " + members.size());
         members.forEach(this::findAndUpdateClientNode);
