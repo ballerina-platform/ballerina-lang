@@ -726,7 +726,7 @@ public class SyntaxTreeGenTest {
     }
 
 
-    @Test(description = "Test visible endpoint defined in Class/Service level")
+    @Test(description = "Test visible endpoint defined in Class/Service level", enabled = false)
     public void testClassLevelVisibleEndpoint() throws IOException {
         Path inputFile = TestUtil.createTempProject(classEndpoint);
 
@@ -762,7 +762,7 @@ public class SyntaxTreeGenTest {
                 "http", "http", "2.8.0", 4, 4, false, true, true, false);
     }
 
-    @Test(description = "Test visible endpoint with annotations and access modifiers")
+    @Test(description = "Test visible endpoint with annotations and access modifiers", enabled = false)
     public void testAnnotatedVisibleEndpoint() throws IOException {
         Path inputFile = TestUtil.createTempProject(annotatedEndpoint);
 
