@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -2032,6 +2031,10 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         String className = TYPEDESC_VALUE_IMPL;
+        BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
+        if (type.tag == TypeTags.RECORD) {
+            className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
+        }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
         jvmTypeGen.loadType(this.mv, newTypeDesc.type);
