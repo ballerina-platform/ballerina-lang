@@ -63,10 +63,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
 
     // Error codes used in resources resolution
-    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
-
-    // Error codes used for pack command
-    DEPRECATED_DOC_FILE("BCE5601", "deprecated.doc.file"),
+    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type")
     ;
 
     private final String diagnosticId;

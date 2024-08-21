@@ -22,7 +22,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -38,8 +37,8 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -80,7 +79,6 @@ import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getConflictingResourcesMsg;
-import static io.ballerina.projects.util.ProjectUtils.getResourcesPath;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
@@ -164,6 +162,9 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
                     for (Diagnostic diagnostic : moduleContext.diagnostics()) {
@@ -186,9 +187,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
 
-            if (shrink) {
-                ModuleContext.shrinkDocuments(moduleContext);
-            }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
@@ -383,7 +381,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, new HashMap<>());
+            ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
@@ -405,7 +403,7 @@ public class JBallerinaBackend extends CompilerBackend {
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
                 isRemoteMgtEnabled);
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, new HashMap<>());
+            ByteArrayOutputStream byteStream = compiledTestJarFile.toByteArrayStream();
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -577,59 +575,61 @@ public class JBallerinaBackend extends CompilerBackend {
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
-
-        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
-        ZipArchiveEntryPredicate predicate = entry -> {
-            String entryName = entry.getName();
-            if (entryName.equals("META-INF/MANIFEST.MF")) {
-                return false;
-            }
-            if (entryName.equals("module-info.class")) {
-                return false;
-            }
-            if (entryName.startsWith("META-INF/services")) {
-                StringBuilder s = services.get(entryName);
-                if (s == null) {
-                    s = new StringBuilder();
-                    services.put(entryName, s);
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        try (ZipFile zipFile = new ZipFile(jarLibrary.path().toFile())) {
+            ZipArchiveEntryPredicate predicate = entry -> {
+                String entryName = entry.getName();
+                if (entryName.equals("META-INF/MANIFEST.MF")) {
+                    return false;
                 }
-                char c = '\n';
-
-                int len;
-                try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
-                    while ((len = inStream.read()) != -1) {
-                        c = (char) len;
-                        s.append(c);
+                if (entryName.equals("module-info.class")) {
+                    return false;
+                }
+                if (entryName.startsWith("META-INF/services")) {
+                    StringBuilder s = services.get(entryName);
+                    if (s == null) {
+                        s = new StringBuilder();
+                        services.put(entryName, s);
                     }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    char c = '\n';
+
+                    int len;
+                    try (BufferedInputStream inStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
+                        while ((len = inStream.read()) != -1) {
+                            c = (char) len;
+                            s.append(c);
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
+                    }
+
+                    // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
+                    // separately. Therefore the predicate should be set as false.
+                    return false;
                 }
-                if (c != '\n') {
-                    s.append('\n');
+
+                // Skip already copied files or excluded extensions.
+                if (isCopiedEntry(entryName, copiedEntries)) {
+                    addConflictedJars(jarLibrary, copiedEntries, entryName);
+                    return false;
                 }
+                if (isExcludedEntry(entryName)) {
+                    return false;
+                }
+                // SPIs will be merged first and then put into jar separately.
+                copiedEntries.put(entryName, jarLibrary);
+                return true;
+            };
 
-                // Its not required to copy SPI entries in here as we'll be adding merged SPI related entries
-                // separately. Therefore the predicate should be set as false.
-                return false;
-            }
-
-            // Skip already copied files or excluded extensions.
-            if (isCopiedEntry(entryName, copiedEntries)) {
-                addConflictedJars(jarLibrary, copiedEntries, entryName);
-                return false;
-            }
-            if (isExcludedEntry(entryName)) {
-                return false;
-            }
-            // SPIs will be merged first and then put into jar separately.
-            copiedEntries.put(entryName, jarLibrary);
-            return true;
-        };
-
-        // Transfers selected entries from this zip file to the output stream, while preserving its compression and
-        // all the other original attributes.
-        zipFile.copyRawEntries(outStream, predicate);
-        zipFile.close();
+            // Transfers selected entries from this zip file to the output stream, while preserving its compression and
+            // all the other original attributes.
+            zipFile.copyRawEntries(outStream, predicate);
+        }
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -723,7 +723,6 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "-H:IncludeResources=" + getResourcesPath(),
                     "--no-fallback"));
         }
 
@@ -1036,8 +1035,9 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!resources.isEmpty()) {
             try {
                 String resourceJarName = RESOURCE_DIR_NAME + JAR_FILE_NAME_SUFFIX;
-                CompiledJarFile resourceJar = new CompiledJarFile("", new HashMap<>());
-                try (ByteArrayOutputStream byteStream = JarWriter.writeResources(resourceJar, resources)) {
+                CompiledJarFile resourceJar = new CompiledJarFile("");
+                resourceJar.jarEntries.putResourceEntries(resources);
+                try (ByteArrayOutputStream byteStream = resourceJar.toByteArrayStream()) {
                     compilationCache.cachePlatformSpecificLibrary(this, resourceJarName, byteStream);
                 }
             } catch (IOException e) {

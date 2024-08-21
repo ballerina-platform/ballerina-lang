@@ -28,6 +28,7 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BALA_EXTENSION = ".bala";
     public static final String PLATFORM = "platform";
+    public static final String TOML_EXTENSION = ".toml";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
@@ -42,7 +43,6 @@ public class ProjectConstants {
     public static final String DEVCONTAINER = ".devcontainer.json";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
-    public static final String README_MD_FILE_NAME = "README.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
@@ -99,6 +99,7 @@ public class ProjectConstants {
 
     public static final String ANON_ORG = "$anon";
     public static final String DOT = ".";
+    public static final String EQUAL = "=";
     public static final String DEFAULT_VERSION = "0.0.0";
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String MODULE_NAME_SEPARATOR = DOT;
@@ -144,5 +145,8 @@ public class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
+    public static final String STICKY_FLAG = "--sticky";
+    public static final String OFFLINE_FLAG = "--offline";
+    public static final String REPOSITORY_FLAG = "--repository";
     public static final String WILD_CARD = "*";
 }

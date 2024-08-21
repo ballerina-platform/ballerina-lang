@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
@@ -56,7 +57,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -89,7 +89,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -136,6 +135,7 @@ public class ProjectUtils {
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
+    private static String projectLoadingDiagnostic;
 
     /**
      * Validates the org-name.
@@ -550,43 +550,6 @@ public class ProjectUtils {
                 new FileOutputStream(jarPath.toFile())), manifest);
         jarOutputStream.close();
         return jarPath;
-    }
-
-    public static void assembleExecutableJar(Manifest manifest,
-                                             List<CompiledJarFile> compiledPackageJarList,
-                                             Path targetPath) throws IOException {
-
-        // Used to prevent adding duplicated entries during the final jar creation.
-        HashSet<String> copiedEntries = new HashSet<>();
-
-        try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
-                new BufferedOutputStream(new FileOutputStream(targetPath.toString())))) {
-            copyRuntimeJar(outStream, getBallerinaRTJarPath(), copiedEntries);
-
-            JarArchiveEntry e = new JarArchiveEntry(JarFile.MANIFEST_NAME);
-            outStream.putArchiveEntry(e);
-            manifest.write(new BufferedOutputStream(outStream));
-            outStream.closeArchiveEntry();
-
-            for (CompiledJarFile compiledJarFile : compiledPackageJarList) {
-                for (Map.Entry<String, byte[]> keyVal : compiledJarFile.getJarEntries().entrySet()) {
-                    copyEntry(copiedEntries, outStream, keyVal);
-                }
-            }
-        }
-    }
-
-    private static void copyEntry(HashSet<String> copiedEntries,
-                                  ZipArchiveOutputStream outStream,
-                                  Map.Entry<String, byte[]> keyVal) throws IOException {
-        String entryName = keyVal.getKey();
-        if (!isCopiedOrExcludedEntry(entryName, copiedEntries)) {
-            byte[] entryContent = keyVal.getValue();
-            JarArchiveEntry entry = new JarArchiveEntry(entryName);
-            outStream.putArchiveEntry(entry);
-            outStream.write(entryContent);
-            outStream.closeArchiveEntry();
-        }
     }
 
     /**
@@ -1472,5 +1435,35 @@ public class ProjectUtils {
          * Exact version provided.
          */
         EXACT
+    }
+
+    // TODO: Remove this with https://github.com/ballerina-platform/ballerina-lang/issues/43212
+    //  once diagnostic support for project loading stage is added.
+    public static void addProjectLoadingDiagnostic(String diagnosticMessage) {
+        projectLoadingDiagnostic = diagnosticMessage;
+    }
+
+    public static String getProjectLoadingDiagnostic() {
+        return projectLoadingDiagnostic;
+    }
+
+    /**
+     * Checks if there are any services in the default module of the project.
+     *
+     * @param pkg package instance
+     * @return true if there are services in the default module, false otherwise
+     */
+    public static boolean containsDefaultModuleService(Package pkg) {
+        // Here, we are looking at the services only in the default module, since they are run during a bal run.
+        // However, we can extend this to look at other services
+        // (including within dependencies) that get engaged during run.
+        Module defaultModule = pkg.getDefaultModule();
+        for (DocumentId documentId: pkg.getDefaultModule().documentIds()) {
+                ModulePartNode rootNode = defaultModule.document(documentId).syntaxTree().rootNode();
+                if (rootNode.members().stream().anyMatch(member -> member.kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                    return true;
+                }
+            }
+        return false;
     }
 }

@@ -68,27 +68,13 @@ public class PackCommandTest extends BaseCommandTest {
         Files.writeString(logFile, "");
     }
 
-    @Test(description = "Test package command")
-    public void testPackCommand() throws IOException {
-        Path projectPath = this.testResources.resolve(VALID_PROJECT);
-        System.setProperty(USER_DIR, projectPath.toString());
-
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parseArgs();
-        packCommand.execute();
-        String buildLog = readOutput(true);
-
-        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("compile-bal-project.txt"));
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-    }
-
-    @Test(description = "Pack a library package")
-    public void testPackProject() throws IOException {
+    @Test(description = "Pack a library package", dataProvider = "optimizeDependencyCompilation")
+    public void testPackProject(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         System.setProperty(USER_DIR, projectPath.toString());
 
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                optimizeDependencyCompilation);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
@@ -102,8 +88,9 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
-    @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins")
-    public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
+    @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testRunBalProjectWithAllCompilerPlugins(Boolean optimizeDependencyCompilation) throws IOException {
         Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
         BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
                 .toAbsolutePath().toString());
@@ -114,7 +101,8 @@ public class PackCommandTest extends BaseCommandTest {
 
         Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
         System.setProperty(USER_DIR, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                optimizeDependencyCompilation);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String logFileContent =  Files.readString(logFile);
@@ -162,18 +150,19 @@ public class PackCommandTest extends BaseCommandTest {
     public void testPackStandaloneFile() throws IOException {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty(USER_DIR, this.testResources.resolve("valid-bal-file").toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true, false);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains(" bal pack can only be used with a Ballerina package."));
     }
 
-    @Test(description = "Pack a package with platform libs")
-    public void testPackageWithPlatformLibs() throws IOException {
+    @Test(description = "Pack a package with platform libs", dataProvider = "optimizeDependencyCompilation")
+    public void testPackageWithPlatformLibs(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validGraalvmCompatibleProjectWithPlatformLibs");
         System.setProperty(USER_DIR, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                optimizeDependencyCompilation);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
@@ -258,11 +247,12 @@ public class PackCommandTest extends BaseCommandTest {
                 .toFile().exists());
     }
 
-    @Test(description = "Pack a project with a build tool execution")
-    public void testPackProjectWithBuildTool() throws IOException {
+    @Test(description = "Pack a project with a build tool execution", dataProvider = "optimizeDependencyCompilation")
+    public void testPackProjectWithBuildTool(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("proper-build-tool");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                optimizeDependencyCompilation);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
@@ -272,11 +262,13 @@ public class PackCommandTest extends BaseCommandTest {
                 .toFile().exists());
     }
 
-    @Test(description = "Pack a package with an empty Dependencies.toml")
-    public void testPackageWithEmptyDependenciesToml() throws IOException {
+    @Test(description = "Pack a package with an empty Dependencies.toml",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testPackageWithEmptyDependenciesToml(Boolean optimizeDependencyCompilation) throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithDependenciesToml");
         System.setProperty(USER_DIR, projectPath.toString());
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                optimizeDependencyCompilation);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
@@ -293,7 +285,8 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack a package without root package in Dependencies.toml")
-    public void testPackageWithoutRootPackageInDependenciesToml() throws IOException {
+    public void testPackageWithoutRootPackageInDependenciesToml()
+            throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWoRootPkgInDepsToml");
         System.setProperty(USER_DIR, projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);

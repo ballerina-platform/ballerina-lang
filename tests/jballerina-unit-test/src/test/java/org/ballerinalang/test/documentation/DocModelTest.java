@@ -349,7 +349,7 @@ public class DocModelTest {
                 "Type name of fourth field in Human Record should be Listener");
         Assert.assertEquals(humanRec.get().fields.get(3).type.category, "reference",
                 "Category of fourth field in Human Record should be reference");
-        Assert.assertTrue(humanRec.get().fields.get(3).type.isNullable,
+        Assert.assertTrue(humanRec.get().fields.get(3).type.isOptional,
                 "Fourth field in Human Record should be optional");
 
         Assert.assertEquals(humanRec.get().fields.get(4).name, "caller",

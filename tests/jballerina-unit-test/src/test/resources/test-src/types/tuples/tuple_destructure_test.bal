@@ -109,3 +109,35 @@ function tupleDestructureTest9() returns [boolean, string, [int, float]] {
 
     return [a, b, c];
 }
+
+function tupleDestructureTest10() {
+    Employee[2] employees = [employee1, employee2];
+
+    Employee e1;
+    Employee e2;
+    [e1, e2] = [...employees];
+    assertEquality(true, e1.intern);
+
+    Employee e3;
+    Employee e4;
+    [e3, e4] = [...[employee1, employee2]];
+    assertEquality(true, e3.intern);
+
+    Employee e5;
+    Employee e6;
+    [[e5, e6]] = [...[...[employees]]];
+    assertEquality(false, e6.intern);
+
+    Employee e7;
+    Employee e8;
+    [[e7, e8]] = [[...[...[employee1, employee2]]]];
+    assertEquality(false, e8.intern);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
+}

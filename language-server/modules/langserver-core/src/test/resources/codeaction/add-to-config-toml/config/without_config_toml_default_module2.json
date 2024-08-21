@@ -1,0 +1,22 @@
+{
+  "position": {
+    "line": 1,
+    "character": 12
+  },
+  "source": "project1/file1.bal",
+  "expected": [
+    {
+      "title": "Add all to Config.toml",
+      "kind": "",
+      "command": {
+        "title": "Add to Config.toml",
+        "command": "create.config.toml",
+        "arguments": [
+          "project1/Config.toml",
+          "i = 0\npp = 0\nxmls = []\nbools = []\ndecimals = []\nstrs = []\ntuple = []\nmapArray = []\npeople = []\nuserTeams = []\ncountry = \"\"\nb = 0\nf = 0.0\nd = 0.0\ns = \"\"\nx = \"\"\nints = []\nbytes = []\nfloats = []\ncode = 0\ndata = \"\"\npayload = \"\"\n\n[intMap]\n\n\n[person]\nname = \"\"\nid = \"\"\n\n\n[[users]]\n\n\n[input]\nfood.b.cake = \"\"\nfood.b.bake = \"\"\nfood.name = \"\"\nfood.cal = 0\nage = 0\n\n"
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

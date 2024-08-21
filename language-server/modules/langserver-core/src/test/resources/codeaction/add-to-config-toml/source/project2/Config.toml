@@ -1,0 +1,14 @@
+i = 0
+pp = 0
+country = ""
+code = 0
+data = ""
+payload = ""
+
+[intMap]
+
+[person]
+name = ""
+id = ""
+
+[[users]]
