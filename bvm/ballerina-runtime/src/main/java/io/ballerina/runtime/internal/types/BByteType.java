@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.ByteType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -49,7 +50,7 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
     }
 
     private BByteType(Supplier<BByteTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(bTypeSupplier, typeName, semType);
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
     }
 
     public static BByteType singletonType(long value) {

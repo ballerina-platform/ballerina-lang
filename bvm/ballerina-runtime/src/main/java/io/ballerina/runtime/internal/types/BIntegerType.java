@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -61,8 +62,8 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
         this(() -> new BIntegerTypeImpl(typeName, pkg, tag), typeName, pickSemType(tag));
     }
 
-    private BIntegerType(Supplier<BIntegerTypeImpl> bType, String typeName, SemType semType) {
-        super(bType, typeName, semType);
+    private BIntegerType(Supplier<BIntegerTypeImpl> bIntegerTypeSupplier, String typeName, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bIntegerTypeSupplier), typeName, semType);
     }
 
     private static SemType pickSemType(int tag) {

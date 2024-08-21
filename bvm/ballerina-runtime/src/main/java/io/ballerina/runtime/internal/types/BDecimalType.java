@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
@@ -57,7 +58,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
     }
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, SemType semType) {
-        super(bType, typeName, semType);
+        super(new ConcurrentLazySupplier<>(bType), typeName, semType);
     }
 
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {

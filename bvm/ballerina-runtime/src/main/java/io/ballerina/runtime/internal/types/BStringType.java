@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -53,8 +54,8 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, pickSemtype(tag));
     }
 
-    private BStringType(Supplier<BStringTypeImpl> bType, String typeName, SemType semType) {
-        super(bType, typeName, semType);
+    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
     }
 
     public static BStringType singletonType(String value) {
