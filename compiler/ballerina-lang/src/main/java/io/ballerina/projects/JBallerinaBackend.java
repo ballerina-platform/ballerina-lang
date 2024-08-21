@@ -162,6 +162,9 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
                     for (Diagnostic diagnostic : moduleContext.diagnostics()) {
@@ -184,9 +187,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
 
-            if (shrink) {
-                ModuleContext.shrinkDocuments(moduleContext);
-            }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
