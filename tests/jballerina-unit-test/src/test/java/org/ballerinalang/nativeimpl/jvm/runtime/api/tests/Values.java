@@ -338,7 +338,7 @@ public class Values {
     }
 
     public static Object validateRecord(Object value, BTypedesc typedesc) {
-        Type describingType = typedesc.getDescribingType();
+        Type describingType = TypeUtils.getImpliedType(typedesc.getDescribingType());
         Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
         for (Field field : ((BRecordType) describingType).getFields().values()) {
             BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
