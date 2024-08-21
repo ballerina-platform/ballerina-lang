@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -39,7 +40,8 @@ public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeIm
      * @param typeName string name of the type
      */
     public BHandleType(String typeName, Module pkg) {
-        super(() -> BHandleTypeImpl.create(typeName, pkg), typeName, Builder.handleType());
+        super(new ConcurrentLazySupplier<>
+                (() -> BHandleTypeImpl.create(typeName, pkg)), typeName, Builder.handleType());
     }
 
     protected static final class BHandleTypeImpl extends BType implements HandleType {

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -47,7 +48,7 @@ public class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> imple
     }
 
     private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, SemType semType) {
-        super(bType, typeName, semType);
+        super(new ConcurrentLazySupplier<>(bType), typeName, semType);
     }
 
     public static BFloatType singletonType(Double value) {

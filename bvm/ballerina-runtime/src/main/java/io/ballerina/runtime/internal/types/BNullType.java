@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -46,8 +47,8 @@ public class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implemen
         this(() -> new BNullTypeImpl(typeName, pkg), typeName, semType);
     }
 
-    private BNullType(Supplier<BNullTypeImpl> bNullType, String typeName, SemType semType) {
-        super(bNullType, typeName, semType);
+    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, semType);
     }
 
     protected static final class BNullTypeImpl extends BType implements NullType {

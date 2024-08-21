@@ -39,7 +39,6 @@ public final class Context {
     public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
 
-    SemType anydataMemo;
     private Context(Env env) {
         this.env = env;
     }
