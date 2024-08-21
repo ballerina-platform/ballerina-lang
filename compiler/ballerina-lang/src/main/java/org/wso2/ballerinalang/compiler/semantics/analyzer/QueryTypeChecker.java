@@ -744,24 +744,26 @@ public class QueryTypeChecker extends TypeChecker {
 
         BLangVariable variableNode = (BLangVariable) bLangInputClause.variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
+        BType inputClauseVarType = bLangInputClause.varType;
         if (bLangInputClause.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, inputClauseVarType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
         // Then we need to check whether the RHS type is assignable to LHS type.
-        if (types.isAssignable(bLangInputClause.varType, typeNodeType)) {
-            // If assignable, we set types to the variables.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
-            return;
-        }
-        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
-        if (typeNodeType != symTable.semanticError) {
+        if (inputClauseVarType.tag != TypeTags.SEMANTIC_ERROR) {
+            if (types.isAssignable(inputClauseVarType, typeNodeType)) {
+                // If assignable, we set types to the variables.
+                semanticAnalyzer.handleDeclaredVarInForeach(variableNode, inputClauseVarType, blockEnv);
+                return;
+            }
+            // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
             dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                    bLangInputClause.varType, typeNodeType);
+                    inputClauseVarType, typeNodeType);
         }
+
         semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 

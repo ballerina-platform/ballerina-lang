@@ -138,7 +138,8 @@ public class BTableType extends BType implements TableType {
             return SemTypes.tableContainingKeySpecifier(cx, tableConstraint, fieldNames);
         }
 
-        if (keyTypeConstraint != null && keyTypeConstraint.tag != TypeTags.NEVER &&
+        BType keyConstraintType = Types.getReferredType(keyTypeConstraint);
+        if (keyTypeConstraint != null && keyConstraintType.tag != TypeTags.NEVER &&
                 keyTypeConstraint.tag != TypeTags.SEMANTIC_ERROR) {
             SemType keyConstraint = keyTypeConstraint.semType();
             return SemTypes.tableContainingKeyConstraint(cx, tableConstraint, keyConstraint);
