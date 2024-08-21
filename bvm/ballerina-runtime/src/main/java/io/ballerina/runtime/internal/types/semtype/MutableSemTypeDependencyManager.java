@@ -32,7 +32,9 @@ import java.util.WeakHashMap;
 public final class MutableSemTypeDependencyManager {
 
     private static final MutableSemTypeDependencyManager INSTANCE = new MutableSemTypeDependencyManager();
+    private static final int GC_THRESHOLD = 100;
     private final Map<MutableSemType, List<Reference<MutableSemType>>> dependencies = new WeakHashMap<>();
+    private final Map<MutableSemType, Object> accessLocks = new WeakHashMap<>();
 
     public static MutableSemTypeDependencyManager getInstance() {
         return INSTANCE;
@@ -41,26 +43,45 @@ public final class MutableSemTypeDependencyManager {
     private MutableSemTypeDependencyManager() {
     }
 
-    public synchronized void notifyDependenciesToReset(MutableSemType semType) {
-        List<Reference<MutableSemType>> mutableSemTypes = dependencies.get(semType);
-        if (mutableSemTypes != null) {
-            dependencies.remove(semType);
-            for (var dependent : mutableSemTypes) {
-                MutableSemType dependentSemType = dependent.get();
-                if (dependentSemType != null) {
-                    dependentSemType.resetSemType();
+    public void notifyDependenciesToReset(MutableSemType semType) {
+        Object lock = getLock(semType);
+        synchronized (lock) {
+            List<Reference<MutableSemType>> mutableSemTypes = dependencies.get(semType);
+            if (mutableSemTypes != null) {
+                dependencies.remove(semType);
+                for (var dependent : mutableSemTypes) {
+                    MutableSemType dependentSemType = dependent.get();
+                    if (dependentSemType != null) {
+                        dependentSemType.resetSemType();
+                    }
                 }
             }
         }
     }
 
-    public synchronized SemType getSemType(Type target, MutableSemType self) {
+    public SemType getSemType(Type target, MutableSemType self) {
         assert target != null;
         if (target instanceof MutableSemType mutableTarget) {
-            List<Reference<MutableSemType>> dependencies =
-                    this.dependencies.computeIfAbsent(mutableTarget, (ignored) -> new ArrayList<>());
-            dependencies.add(new WeakReference<>(self));
+            addDependency(self, mutableTarget);
         }
         return target;
+    }
+
+    private void addDependency(MutableSemType self, MutableSemType mutableTarget) {
+        Object lock = getLock(mutableTarget);
+        synchronized (lock) {
+            List<Reference<MutableSemType>> dependencies =
+                    this.dependencies.computeIfAbsent(mutableTarget, (ignored) -> new ArrayList<>());
+            // garbage collect these dependencies since the actual target may never mutate, triggering the cleanup
+            // of the list
+            if (dependencies.size() > GC_THRESHOLD) {
+                dependencies.removeIf((ref) -> ref.get() == null);
+            }
+            dependencies.add(new WeakReference<>(self));
+        }
+    }
+
+    private synchronized Object getLock(MutableSemType semType) {
+        return accessLocks.computeIfAbsent(semType, (ignored) -> new Object());
     }
 }
