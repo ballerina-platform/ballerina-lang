@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.function.Supplier;
@@ -55,7 +56,7 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
     }
 
     private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, SemType semType) {
-        super(bTypeSupplier, typeName, semType);
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, semType);
     }
 
     protected static final class BBooleanTypeImpl extends BType implements BooleanType {

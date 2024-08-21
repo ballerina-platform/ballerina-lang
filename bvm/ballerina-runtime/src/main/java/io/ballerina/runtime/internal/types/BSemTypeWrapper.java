@@ -36,8 +36,6 @@ import java.util.function.Supplier;
  */
 public non-sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType implements Type {
 
-    // FIXME: turn this to a lazy supplier to avoid intialization if not needed
-    private E bType;
     private final Supplier<E> bTypeSupplier;
     protected final String typeName; // Debugger uses this field to show the type name
 
@@ -170,10 +168,7 @@ public non-sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemTyp
         return getbType().getCachedImpliedType();
     }
 
-    protected synchronized E getbType() {
-        if (bType == null) {
-            bType = bTypeSupplier.get();
-        }
-        return bType;
+    protected E getbType() {
+        return bTypeSupplier.get();
     }
 }

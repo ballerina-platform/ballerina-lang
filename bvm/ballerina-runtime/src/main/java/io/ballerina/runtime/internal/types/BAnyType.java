@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -46,7 +47,8 @@ public class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements 
      * @param typeName string name of the type
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
-        super(() -> new BAnyTypeImpl(typeName, pkg, readonly), typeName, pickSemType(readonly));
+        super(new ConcurrentLazySupplier<>(() -> new BAnyTypeImpl(typeName, pkg, readonly)),
+                typeName, pickSemType(readonly));
     }
 
     @Override
