@@ -27,7 +27,7 @@ import static io.ballerina.types.typeops.IntOps.intSubtypeMin;
 /**
  * Port of:
  * <p>
- * <code>
+ * {@code
  * // Constraints on a subtype of `int`.
  * public type IntSubtypeConstraints readonly & record {|
  *     // all values in the subtype are >= min
@@ -37,7 +37,7 @@ import static io.ballerina.types.typeops.IntOps.intSubtypeMin;
  *     // does the subtype contain all values between min and max?
  *     boolean all;
  * |};
- * </code>
+ * }
  *
  * @since 2201.8.0
  */
