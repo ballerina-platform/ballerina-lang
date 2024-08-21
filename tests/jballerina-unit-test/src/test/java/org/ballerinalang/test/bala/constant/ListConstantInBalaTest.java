@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for reading list constants.
  *
- *  @since 2201.9.0
+ *  @since 2201.8.8
  */
 public class ListConstantInBalaTest {
 
