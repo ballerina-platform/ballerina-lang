@@ -214,19 +214,19 @@ public class XMLToRecordConverterTests {
     private final Path sample34Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_34.bal");
 
-    private final Path sample35XML = RES_DIR.resolve(XML_DIR)
-            .resolve("sample_35.xml");
-    private final Path sample35Bal = RES_DIR.resolve(BAL_DIR)
-            .resolve("sample_35.bal");
-    private final Path sample36Bal = RES_DIR.resolve(BAL_DIR)
-            .resolve("sample_36.bal");
+    private final Path sample38XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_38.xml");
+    private final Path sample39Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_39.bal");
+    private final Path sample40Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_40.bal");
 
-    private final Path sample36XML = RES_DIR.resolve(XML_DIR)
-            .resolve("sample_36.xml");
-    private final Path sample37Bal = RES_DIR.resolve(BAL_DIR)
-            .resolve("sample_37.bal");
-    private final Path sample38Bal = RES_DIR.resolve(BAL_DIR)
-            .resolve("sample_38.bal");
+    private final Path sample39XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_39.xml");
+    private final Path sample41Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_41.bal");
+    private final Path sample42Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_42.bal");
 
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
@@ -567,37 +567,37 @@ public class XMLToRecordConverterTests {
 
     @Test(description = "textXMLWithoutAttributes")
     public void textXMLWithoutAttributes() throws IOException {
-        String xmlFileContent = Files.readString(sample35XML);
+        String xmlFileContent = Files.readString(sample38XML);
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 null, true, true, false).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample35Bal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample39Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "textXMLWithoutAttributeAnnotation")
     public void textXMLWithoutAttributeAnnotation() throws IOException {
-        String xmlFileContent = Files.readString(sample35XML);
+        String xmlFileContent = Files.readString(sample38XML);
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 "__text", false, false, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample36Bal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample40Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "textXMLWithoutMultipleAttributeAnnotation")
     public void textXMLWithoutMultipleAttributeAnnotation() throws IOException {
-        String xmlFileContent = Files.readString(sample36XML);
+        String xmlFileContent = Files.readString(sample39XML);
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 "__text", false, false, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample37Bal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample41Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "textXMLWithNamespacesAndWithoutAttributeAnnotation")
     public void textXMLWithNamespacesAndWithoutAttributeAnnotation() throws IOException {
-        String xmlFileContent = Files.readString(sample36XML);
+        String xmlFileContent = Files.readString(sample39XML);
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false,
                 "__text", true, false, true).getCodeBlock().replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample38Bal).replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample42Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
