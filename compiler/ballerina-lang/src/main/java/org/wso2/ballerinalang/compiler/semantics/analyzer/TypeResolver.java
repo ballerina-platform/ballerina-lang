@@ -2159,7 +2159,7 @@ public class TypeResolver {
      *
      * @since 2201.7.0
      */
-    static class ResolverData {
+    private static class ResolverData {
         SymbolEnv env;
         Map<String, BLangNode> modTable;
         int depth;
@@ -2171,7 +2171,7 @@ public class TypeResolver {
      *
      * @since 2201.7.0
      */
-    static class LocationData {
+    private static class LocationData {
         private String name;
         private int row;
         private int column;

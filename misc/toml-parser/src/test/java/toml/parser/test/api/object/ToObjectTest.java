@@ -148,7 +148,7 @@ public class ToObjectTest {
         Assert.assertEquals(thirdTableStr1, "tableArr kv1 third");
     }
     
-    static class NewObject {
+    private static class NewObject {
         private String simplekv;
         private String simplekv1;
         private int simpleint;
@@ -191,7 +191,7 @@ public class ToObjectTest {
         }
     }
     
-    static class Table {
+    private static class Table {
         private String tableKv;
         private String tableKv1;
         private Child child;
