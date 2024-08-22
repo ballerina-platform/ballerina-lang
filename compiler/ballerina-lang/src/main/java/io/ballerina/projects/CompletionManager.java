@@ -124,9 +124,8 @@ public class CompletionManager {
                 })
                 .forEach(descriptor -> {
                     try {
-                        result.addCompletionItems(
-                                descriptor.completionProvider().getCompletions(context, serviceDeclarationNode)
-                        );
+                        result.addCompletionItems(descriptor.completionProvider()
+                                .getCompletions(context, serviceDeclarationNode));
                     } catch (Throwable t) {
                         String name;
                         if (descriptor.compilerPluginInfo.kind() == CompilerPluginKind.PACKAGE_PROVIDED) {
@@ -200,7 +199,7 @@ public class CompletionManager {
     }
 
     /**
-     * Descriptor for a completion provider
+     * Descriptor for a completion provider.
      */
     static class CompletionProviderDescriptor {
 
