@@ -2421,8 +2421,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRNonTerminator.NewStructure createNewStructureInst(List<BIRNode.BIRMappingConstructorEntry> fields,
                                                                  BIROperand toVarRef, BType type, Location pos) {
-        if (getTypedescVariable(type) != null) {
-            return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(getTypedescVariable(type)), fields);
+        BIRVariableDcl typedescVar = getTypedescVariable(type);
+        if (typedescVar != null) {
+            return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(typedescVar), fields);
         } else {
             createNewTypedescInst(type, type, pos);
             return new BIRNonTerminator.NewStructure(pos, toVarRef, this.env.targetOperand, fields);
@@ -2471,9 +2472,10 @@ public class BIRGen extends BLangNodeVisitor {
                                                            BTypeSymbol typeSymbol) {
         List<BIROperand> closures = Collections.emptyList();
         if (typeSymbol != null && typeSymbol.annotations != null) {
-            BIROperand symbolVarOperand = this.env.symbolVarMap.containsKey(typeSymbol.annotations) ?
-                    new BIROperand(this.env.symbolVarMap.get(typeSymbol.annotations)) :
-                    new BIROperand(this.globalVarMap.get(typeSymbol.annotations));
+            BVarSymbol typeAnnotations = typeSymbol.annotations;
+            BIRVariableDcl annotations = this.env.symbolVarMap.get(typeAnnotations);
+            BIROperand symbolVarOperand = annotations != null ?
+                    new BIROperand(annotations) : new BIROperand(this.globalVarMap.get(typeAnnotations));
             return new BIRNonTerminator.NewTypeDesc(position, toVarRef, resolveType, closures, symbolVarOperand);
         } else {
             return new BIRNonTerminator.NewTypeDesc(position, toVarRef, resolveType, closures);
@@ -2483,9 +2485,10 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRNonTerminator.NewArray createNewArrayInst(List<BIRNode.BIRListConstructorEntry> initialValues,
                                                          BType listConstructorExprType, BIROperand sizeOp,
                                                          BIROperand toVarRef, BType referredType, Location pos) {
-        if (getTypedescVariable(listConstructorExprType) != null) {
+        BIRVariableDcl typedescVar = getTypedescVariable(listConstructorExprType);
+        if (typedescVar != null) {
             return new BIRNonTerminator.NewArray(pos, listConstructorExprType, toVarRef,
-                    new BIROperand(getTypedescVariable(listConstructorExprType)), sizeOp, initialValues);
+                    new BIROperand(typedescVar), sizeOp, initialValues);
 
         } else {
             createNewTypedescInst(referredType, referredType, pos);
