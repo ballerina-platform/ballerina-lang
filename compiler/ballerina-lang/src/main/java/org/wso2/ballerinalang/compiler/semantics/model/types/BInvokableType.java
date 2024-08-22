@@ -21,6 +21,7 @@ import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.FunctionQualifiers;
 import io.ballerina.types.definition.ListDefinition;
@@ -216,7 +217,7 @@ public class BInvokableType extends BType implements InvokableType {
             // Is this correct even when type is semantic error?
             rest = PredefinedType.NEVER;
         }
-        SemType returnType = retType != null ? from(retType) : PredefinedType.NIL;
+        SemType returnType = resolveReturnType();
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramTypes = paramListDefinition.defineListTypeWrapped(env, params, params.size(), rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
@@ -228,6 +229,55 @@ public class BInvokableType extends BType implements InvokableType {
             return fd.defineGeneric(env, paramTypes, returnType, qualifiers);
         }
         return fd.define(env, paramTypes, returnType, qualifiers);
+    }
+
+    private SemType resolveReturnType() {
+        if (restType == null) {
+            return PredefinedType.NIL;
+        }
+        SemType innerType = from(retType);
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrapped(env,
+                isDependentlyTyped(retType) ? SemTypes.booleanConst(true) : PredefinedType.BOOLEAN, innerType);
+    }
+
+    private static boolean isDependentlyTyped(BType returnType) {
+        // it doesn't seem we actually have a flag to check this, may be the correct way to do this is to have a
+        //  method in BType for this, but given this is a temporary thing, this should be enough.
+        if (returnType instanceof BParameterizedType) {
+            return true;
+        }
+        if (returnType instanceof BUnionType unionType) {
+            return unionType.getMemberTypes().stream().anyMatch(BInvokableType::isDependentlyTyped);
+        }
+        if (returnType instanceof BMapType mapType) {
+            return isDependentlyTyped(mapType.constraint);
+        }
+        if (returnType instanceof BRecordType recordType) {
+            return recordType.fields.values().stream().anyMatch(field -> isDependentlyTyped(field.type)) ||
+                    isDependentlyTyped(recordType.restFieldType);
+        }
+        if (returnType instanceof BArrayType arrayType) {
+            return isDependentlyTyped(arrayType.eType);
+        }
+        if (returnType instanceof BTupleType tupleType) {
+            return tupleType.getTupleTypes().stream().anyMatch(BInvokableType::isDependentlyTyped);
+        }
+        if (returnType instanceof BInvokableType invokableType) {
+            return invokableType.paramTypes.stream().anyMatch(BInvokableType::isDependentlyTyped) ||
+                    isDependentlyTyped(invokableType.retType) ||
+                    isDependentlyTyped(invokableType.restType);
+        }
+        if (returnType instanceof BFutureType futureType) {
+            return isDependentlyTyped(futureType.constraint);
+        }
+        if (returnType instanceof BTableType tableType) {
+            return isDependentlyTyped(tableType.constraint);
+        }
+        if (returnType instanceof BStreamType streamType) {
+            return isDependentlyTyped(streamType.constraint);
+        }
+        return false;
     }
 
     private static SemType from(BType type) {

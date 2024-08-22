@@ -365,8 +365,6 @@ public class SemTypeResolver {
                                                       Map<String, BLangNode> mayBeDependentlyTypeNodes,
                                                       BLangTypeDefinition defn, int depth,
                                                       TypeNode returnTypeNode) {
-        // This is wrong we need to get the constraint type and extract the inner type
-        // 1. combine the two maps and try to resolve it
         Map<String, BLangNode> combined = new HashMap<>(mod);
         combined.putAll(mayBeDependentlyTypeNodes);
         return resolveTypeDesc(cx, combined, defn, depth + 1, returnTypeNode);
