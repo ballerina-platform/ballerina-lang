@@ -137,7 +137,7 @@ public class ConfigReader {
                         dependency.descriptor().packageName().value().equals(packageName) &&
                         (moduleName == null
                                 ? dependency.descriptor().name().moduleNamePart() == null
-                                : dependency.descriptor().name().moduleNamePart().equals(moduleName))
+                                : moduleName.equals(dependency.descriptor().name().moduleNamePart()))
         );
     }
 
